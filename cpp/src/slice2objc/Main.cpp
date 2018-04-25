@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,11 +13,13 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/ConsoleUtil.h>
 #include <Slice/Util.h>
 #include "Gen.h"
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtilInternal;
 
 namespace
 {
@@ -53,34 +55,37 @@ interruptedCallback(int signal)
 }
 
 void
-usage(const char* n)
+usage(const string& n)
 {
-    cerr << "Usage: " << n << " [options] slice-files...\n";
-    cerr <<
+    consoleErr << "Usage: " << n << " [options] slice-files...\n";
+    consoleErr <<
         "Options:\n"
-        "-h, --help              Show this message.\n"
-        "-v, --version           Display the Ice version.\n"
-        "--validate              Validate command line options.\n"
-        "-DNAME                  Define NAME as 1.\n"
-        "-DNAME=DEF              Define NAME as DEF.\n"
-        "-UNAME                  Remove any definition for NAME.\n"
-        "-IDIR                   Put DIR in the include file search path.\n"
-        "-E                      Print preprocessor output on stdout.\n"
-        "--include-dir DIR       Use DIR as the header include directory in source files.\n"
-        "--output-dir DIR        Create files in the directory DIR.\n"
-        "--dll-export SYMBOL     Use SYMBOL for DLL exports.\n"
-        "--depend                Generate Makefile dependencies.\n"
-        "--depend-xml            Generate dependencies in XML format.\n"
-        "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
-        "-d, --debug             Print debug messages.\n"
-        "--ice                   Allow reserved Ice prefix in Slice identifiers.\n"
-        "--underscore            Allow underscores in Slice identifiers.\n"
+        "-h, --help               Show this message.\n"
+        "-v, --version            Display the Ice version.\n"
+        "-DNAME                   Define NAME as 1.\n"
+        "-DNAME=DEF               Define NAME as DEF.\n"
+        "-UNAME                   Remove any definition for NAME.\n"
+        "-IDIR                    Put DIR in the include file search path.\n"
+        "-E                       Print preprocessor output on stdout.\n"
+        "--output-dir DIR         Create files in the directory DIR.\n"
+        "-d, --debug              Print debug messages.\n"
+        "--depend                 Generate Makefile dependencies.\n"
+        "--depend-xml             Generate dependencies in XML format.\n"
+        "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
+        "--validate               Validate command line options.\n"
+        "--include-dir DIR        Use DIR as the header include directory in source files.\n"
+        "--dll-export SYMBOL      Use SYMBOL for DLL exports\n"
+        "                         deprecated: use instead [[\"objc:dll-export:SYMBOL\"]] metadata.\n"
+        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
+        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
+        "--underscore             Allow underscores in Slice identifiers\n"
+        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
     // Note: --case-sensitive is intentionally not shown here!
 }
 
 int
-main(int argc, char* argv[])
+compile(const vector<string>& argv)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -101,24 +106,16 @@ main(int argc, char* argv[])
     opts.addOpt("", "underscore");
     opts.addOpt("", "case-sensitive");
 
-    bool validate = false;
-    for(int i = 0; i < argc; ++i)
-    {
-        if(string(argv[i]) == "--validate")
-        {
-            validate = true;
-            break;
-        }
-    }
+    bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
     vector<string> args;
     try
     {
-        args = opts.parse(argc, (const char**)argv);
+        args = opts.parse(argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
+        consoleErr << argv[0] << ": " << e.reason << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -134,7 +131,7 @@ main(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleErr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -178,7 +175,7 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-        getErrorStream() << argv[0] << ": no input file" << endl;
+        consoleErr << argv[0] << ": no input file" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -188,7 +185,7 @@ main(int argc, char* argv[])
 
     if(depend && dependxml)
     {
-        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
+        consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -203,10 +200,10 @@ main(int argc, char* argv[])
 
     int status = EXIT_SUCCESS;
 
-    DependOutputUtil out(dependFile);
+    ostringstream os;
     if(dependxml)
     {
-        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+        os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
     IceUtil::CtrlCHandler ctrlCHandler;
@@ -221,7 +218,6 @@ main(int argc, char* argv[])
 
             if(cppHandle == 0)
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
@@ -231,20 +227,17 @@ main(int argc, char* argv[])
 
             if(parseStatus == EXIT_FAILURE)
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::ObjC : Preprocessor::SliceXML,
+            if(!icecpp->printMakefileDependencies(os, depend ? Preprocessor::ObjC : Preprocessor::SliceXML,
                                                   includePaths, "-D__SLICE2OBJC__"))
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             if(!icecpp->close())
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
         }
@@ -261,7 +254,7 @@ main(int argc, char* argv[])
             if(preprocess)
             {
                 char buf[4096];
-                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != ICE_NULLPTR)
                 {
                     if(fputs(buf, stdout) == EOF)
                     {
@@ -306,7 +299,7 @@ main(int argc, char* argv[])
                         // cleanup any created files.
                         FileTracker::instance()->cleanup();
                         u->destroy();
-                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
+                        consoleErr << argv[0] << ": error: " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
                 }
@@ -320,7 +313,6 @@ main(int argc, char* argv[])
 
             if(interrupted)
             {
-                out.cleanup();
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
@@ -329,8 +321,46 @@ main(int argc, char* argv[])
 
     if(dependxml)
     {
-        out.os() << "</dependencies>\n";
+        os << "</dependencies>\n";
+    }
+
+    if(depend || dependxml)
+    {
+        writeDependencies(os.str(), dependFile);
     }
 
     return status;
+}
+
+#ifdef _WIN32
+int wmain(int argc, wchar_t* argv[])
+#else
+int main(int argc, char* argv[])
+#endif
+{
+    vector<string> args = Slice::argvToArgs(argc, argv);
+    try
+    {
+        return compile(args);
+    }
+    catch(const std::exception& ex)
+    {
+        consoleErr << args[0] << ": error:" << ex.what() << endl;
+        return EXIT_FAILURE;
+    }
+    catch(const std::string& msg)
+    {
+        consoleErr << args[0] << ": error:" << msg << endl;
+        return EXIT_FAILURE;
+    }
+    catch(const char* msg)
+    {
+        consoleErr << args[0] << ": error:" << msg << endl;
+        return EXIT_FAILURE;
+    }
+    catch(...)
+    {
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
+        return EXIT_FAILURE;
+    }
 }

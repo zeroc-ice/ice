@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,6 +35,11 @@ InitialI::pingPongAsync(::std::shared_ptr<::Ice::Value> obj,
                         ::std::function<void(::std::exception_ptr)>, const Ice::Current&)
 {
     response(obj);
+    if(dynamic_pointer_cast<MultiOptional>(obj))
+    {
+        // Break cyclic reference count
+        dynamic_pointer_cast<MultiOptional>(obj)->k = shared_ptr<MultiOptional>();
+    }
 }
 
 void
@@ -52,7 +57,6 @@ InitialI::opDerivedExceptionAsync(Ice::optional<int> a, Ice::optional<::std::str
 {
     ex(make_exception_ptr(DerivedException(false, a, b, o, b, o)));
 }
-
 
 void
 InitialI::opRequiredExceptionAsync(Ice::optional<int> a, Ice::optional<::std::string> b, Ice::optional<::std::shared_ptr<::Test::OneOptional>> o,
@@ -315,7 +319,6 @@ InitialI::opIntIntDictAsync(Ice::optional<::Test::IntIntDict> p1,
     response(p1, p1);
 }
 
-
 void
 InitialI::opStringIntDictAsync(Ice::optional<::Test::StringIntDict> p1,
                                ::std::function<void(const Ice::optional<::Test::StringIntDict>&, const Ice::optional<::Test::StringIntDict>&)> response,
@@ -552,7 +555,6 @@ InitialI::supportsNullOptionalAsync(::std::function<void(bool)> response,
     response(true);
 }
 
-
 #else // C++98 mapping
 
 void
@@ -630,7 +632,6 @@ InitialI::opByte_async(const ::Test::AMD_Initial_opBytePtr& cb,
 {
     cb->ice_response(p1, p1);
 }
-
 
 void
 InitialI::opBool_async(const ::Test::AMD_Initial_opBoolPtr& cb,

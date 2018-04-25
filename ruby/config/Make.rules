@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -19,9 +19,9 @@ RUBY ?= ruby
 ruby-call = $(shell $(RUBY) -e 'require "rbconfig"; puts RbConfig::expand("$1")')
 
 # Ruby compiler flags
-ruby_cppflags	:= -I$(call ruby-call,$$(rubyhdrdir))
+ruby_cppflags   := -I$(call ruby-call,$$(rubyhdrdir))
 ruby_config_dir := $(call ruby-call,$$(includedir)/$$(arch)/ruby-$$(ruby_version))
-ruby_arch	:= $(call ruby-call,$$(arch))
+ruby_arch       := $(call ruby-call,$$(arch))
 ifeq ($(wildcard $(ruby_config_dir)/ruby/config.h),)
     ruby_config_dir := $(call ruby-call,$$(rubyhdrdir)/$$(arch))
 endif
@@ -29,9 +29,19 @@ ifneq ($(wildcard $(ruby_config_dir)/ruby/config.h),)
     ruby_cppflags += -I$(ruby_config_dir)
 endif
 
+# macOS & macOS with LLVM-Clang > 7.3 and the system version of Ruby require '-Wno-shift-negative-value'. This issue
+# has been patched in more recent 2.x Ruby versions.
+ifeq ($(shell uname),Darwin)
+    ifeq ($(shell which $(RUBY)),/usr/bin/ruby)
+        ifeq ($(shell expr $$($(CXX) -v 2>&1 | head -1 | sed -E 's/.*clang-([0-9][0-9][0-9]).*/\1/') \>= 703),1)
+            ruby_cppflags += -Wno-shift-negative-value $(RUBY_FLAGS)
+        endif
+    endif
+endif
+
 # Ruby linker flags
-ruby_ldflags	:= $(call ruby-call,$$(LIBRUBYARG))
-ruby_libdir 	:= $(call ruby-call,$(if $(findstring MINGW,$(shell uname)),$$(bindir),$$(libdir)))
+ruby_ldflags    := $(call ruby-call,$$(LIBRUBYARG))
+ruby_libdir     := $(call ruby-call,$(if $(findstring MINGW,$(shell uname)),$$(bindir),$$(libdir)))
 ifneq ($(ruby_libdir),)
     ruby_ldflags := -L$(call ruby-call,$$(libdir)) $(ruby_ldflags)
 endif
@@ -39,17 +49,17 @@ endif
 #
 # Ruby installation directory
 #
-install_rubydir                	= $(if $(usr_dir_install),$(ruby_libdir),$(prefix)/ruby)
-install_rubylibdir     		= $(if $(usr_dir_install),$(ruby_libdir)/$(ruby_arch),$(prefix)/ruby)
+install_rubydir                 = $(if $(usr_dir_install),$(ruby_libdir),$(prefix)/ruby)
+install_rubylibdir              = $(if $(usr_dir_install),$(ruby_libdir)/$(ruby_arch),$(prefix)/ruby)
 
 #
 # Rules to build a ruby module. We just compute the name of the ruby module
 # and delegate to make-shared-module.
 #
-mkrbmodulename			?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
-make-shared-ruby-module 	= $(call make-shared-module,$(call mkrbmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
-get-shared-ruby-module-targets 	= $(call get-shared-module-targets,$(call mkrbmodulename,$1),$2,$3,$4)
-install-shared-ruby-module	= $(call install-shared-module,$(call mkrbmodulename,$1),$2,$3,$4,$5)
+mkrbmodulename                  ?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
+make-shared-ruby-module         = $(call make-shared-module,$(call mkrbmodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+get-shared-ruby-module-targets  = $(call get-shared-module-targets,$(call mkrbmodulename,$1),$2,$3,$4)
+install-shared-ruby-module      = $(call install-shared-module,$(call mkrbmodulename,$1),$2,$3,$4,$5)
 
 $(DESTDIR)$(install_rubydir):
 	$(Q)$(MKDIR) -p $@
@@ -76,9 +86,9 @@ endif
 
 $2/$3/%.rb: $1/$3/%.ice $2/$3/.depend/%.ice.d $(slice2rb_path)
 	$(E) "Compiling $$<"
-	$(Q)$(slice2rb_path) -I$1 --ice --output-dir $2/$3 $4 --depend $$< | \
+	$(Q)$(slice2rb_path) -I$1 --output-dir $2/$3 $4 --depend $$< | \
 		sed 's/\(.*: \\\)/$(subst /,\/,$2)\/$3\/\1/' > $2/$3/.depend/$$(*F).ice.d
-	$(Q)$(slice2rb_path) -I$1 --ice --output-dir $2/$3 $4 $$<
+	$(Q)$(slice2rb_path) -I$1 --output-dir $2/$3 $4 $$<
 
 distclean clean::
 	$(E) "Cleaning package $3"

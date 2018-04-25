@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#define ICE_STORM_SERVICE_API_EXPORTS
+#define ICESTORM_SERVICE_API_EXPORTS
 
 #include <Ice/PluginManagerI.h> // For loadPlugin
 
@@ -94,7 +94,7 @@ private:
 extern "C"
 {
 
-ICE_STORM_SERVICE_API ::IceBox::Service*
+ICESTORM_SERVICE_API ::IceBox::Service*
 createIceStorm(CommunicatorPtr communicator)
 {
     return new ServiceI;
@@ -172,10 +172,7 @@ ServiceI::start(
             LoggerOutputBase s;
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
-
-            IceBox::FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
         topicAdapter->activate();
         publishAdapter->activate();
@@ -201,9 +198,7 @@ ServiceI::start(
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
-            IceBox::FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
     }
     else
@@ -396,9 +391,7 @@ ServiceI::start(
             s << "exception while starting IceStorm service " << name << ":\n";
             s << ex;
 
-            IceBox::FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw IceBox::FailureException(__FILE__, __LINE__, s.str());
         }
     }
 
@@ -440,9 +433,7 @@ ServiceI::start(const CommunicatorPtr& communicator,
         s << "exception while starting IceStorm service " << name << ":\n";
         s << ex;
 
-        IceBox::FailureException e(__FILE__, __LINE__);
-        e.reason = s.str();
-        throw e;
+        throw IceBox::FailureException(__FILE__, __LINE__, s.str());
     }
 }
 
@@ -535,6 +526,8 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         "Trace.Topic",
         "Trace.TopicManager",
         "Send.Timeout",
+        "Send.QueueSizeMax",
+        "Send.QueueSizeMaxPolicy",
         "Discard.Interval",
         "LMDB.Path",
         "LMDB.MapSize"
@@ -571,4 +564,3 @@ ServiceI::validateProperties(const string& name, const PropertiesPtr& properties
         }
     }
 }
-

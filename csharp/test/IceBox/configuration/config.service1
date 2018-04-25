@@ -1,4 +1,4 @@
-Service1OA.Endpoints=tcp -p 12010 -h 127.0.0.1
+Service1OA.Endpoints=default -p 12010 -h 127.0.0.1
 
 #Ice.ProgramName
 Service=1

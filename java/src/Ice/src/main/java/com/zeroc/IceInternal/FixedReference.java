@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,12 +18,20 @@ public class FixedReference extends Reference
                    String facet,
                    int mode,
                    boolean secure,
+                   com.zeroc.Ice.ProtocolVersion protocol,
                    com.zeroc.Ice.EncodingVersion encoding,
-                   com.zeroc.Ice.ConnectionI connection)
+                   com.zeroc.Ice.ConnectionI connection,
+                   int invocationTimeout,
+                   java.util.Map<String, String> context,
+                   java.util.Optional<Boolean> compress)
     {
-        super(instance, communicator, identity, facet, mode, secure, com.zeroc.Ice.Util.Protocol_1_0, encoding, -1,
-              null);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         _fixedConnection = connection;
+        if(compress.isPresent())
+        {
+            _overrideCompress = true;
+            _compress = compress.get();
+        }
     }
 
     @Override
@@ -94,6 +102,27 @@ public class FixedReference extends Reference
     getConnectionId()
     {
         return "";
+    }
+
+    @Override
+    public java.util.OptionalInt
+    getTimeout()
+    {
+        return  java.util.OptionalInt.empty();
+    }
+
+    @Override
+    public com.zeroc.IceInternal.ThreadPool
+    getThreadPool()
+    {
+        return _fixedConnection.getThreadPool();
+    }
+
+    @Override
+    public com.zeroc.Ice.ConnectionI
+    getConnection()
+    {
+        return _fixedConnection;
     }
 
     @Override
@@ -174,6 +203,19 @@ public class FixedReference extends Reference
     }
 
     @Override
+    public Reference
+    changeConnection(com.zeroc.Ice.ConnectionI connection)
+    {
+        if(_fixedConnection == connection)
+        {
+            return this;
+        }
+        FixedReference r = (FixedReference)getInstance().referenceFactory().copy(this);
+        r._fixedConnection = connection;
+        return r;
+    }
+
+    @Override
     public boolean
     isIndirect()
     {
@@ -190,14 +232,6 @@ public class FixedReference extends Reference
     @Override
     public void
     streamWrite(com.zeroc.Ice.OutputStream s)
-        throws com.zeroc.Ice.MarshalException
-    {
-        throw new com.zeroc.Ice.FixedProxyException();
-    }
-
-    @Override
-    public String
-    toString()
         throws com.zeroc.Ice.MarshalException
     {
         throw new com.zeroc.Ice.FixedProxyException();
@@ -222,7 +256,7 @@ public class FixedReference extends Reference
         {
             if(_fixedConnection.endpoint().datagram())
             {
-                throw new com.zeroc.Ice.NoEndpointException("");
+                throw new com.zeroc.Ice.NoEndpointException(toString());
             }
             break;
         }
@@ -232,7 +266,7 @@ public class FixedReference extends Reference
         {
             if(!_fixedConnection.endpoint().datagram())
             {
-                throw new com.zeroc.Ice.NoEndpointException("");
+                throw new com.zeroc.Ice.NoEndpointException(toString());
             }
             break;
         }
@@ -254,12 +288,12 @@ public class FixedReference extends Reference
         }
         if(secure && !_fixedConnection.endpoint().secure())
         {
-            throw new com.zeroc.Ice.NoEndpointException("");
+            throw new com.zeroc.Ice.NoEndpointException(toString());
         }
 
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        boolean compress;
+        boolean compress = false;
         if(defaultsAndOverrides.overrideCompress)
         {
             compress = defaultsAndOverrides.overrideCompressValue;
@@ -268,17 +302,13 @@ public class FixedReference extends Reference
         {
             compress = _compress;
         }
-        else
-        {
-            compress = _fixedConnection.endpoint().compress();
-        }
 
         RequestHandler handler = new ConnectionRequestHandler(this, _fixedConnection, compress);
         if(getInstance().queueRequests())
         {
             handler = new QueueRequestHandler(getInstance(), handler);
         }
-        return proxy.__setRequestHandler(handler);
+        return proxy._setRequestHandler(handler);
     }
 
     @Override

@@ -1,27 +1,25 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_SCHANNELTRANSCEIVER_I_H
-#define ICE_SSL_SCHANNELTRANSCEIVER_I_H
+#ifndef ICESSL_SCHANNELTRANSCEIVER_I_H
+#define ICESSL_SCHANNELTRANSCEIVER_I_H
 
 #include <IceSSL/Config.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/Plugin.h>
-#include <IceSSL/SSLEngineF.h>
+#include <IceSSL/SChannelEngineF.h>
 
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 #include <Ice/Buffer.h>
 #include <Ice/StreamSocket.h>
 #include <Ice/WSTransceiver.h>
-
-#ifdef ICE_USE_SCHANNEL
 
 #ifdef SECURITY_WIN32
 #  undef SECURITY_WIN32
@@ -40,8 +38,8 @@
 namespace IceSSL
 {
 
-class ConnectorI;
-class AcceptorI;
+namespace SChannel
+{
 
 class TransceiverI : public IceInternal::Transceiver
 {
@@ -80,8 +78,7 @@ private:
     bool writeRaw(IceInternal::Buffer&);
     bool readRaw(IceInternal::Buffer&);
 
-    friend class ConnectorI;
-    friend class AcceptorI;
+    friend class IceSSL::SChannel::SSLEngine;
 
     enum State
     {
@@ -93,7 +90,7 @@ private:
     };
 
     const InstancePtr _instance;
-    const SChannelEnginePtr _engine;
+    const IceSSL::SChannel::SSLEnginePtr _engine;
     const std::string _host;
     const std::string _adapterName;
     const bool _incoming;
@@ -121,12 +118,14 @@ private:
     CredHandle _credentials;
     bool _credentialsInitialized;
     SecPkgContext_StreamSizes _sizes;
+    std::string _cipher;
+    std::vector<IceSSL::CertificatePtr> _certs;
     bool _verified;
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 
-}
+} // SChannel namespace end
 
-#endif
+} // IceSSL namespace end
 
 #endif

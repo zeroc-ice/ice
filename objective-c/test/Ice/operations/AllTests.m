@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,14 +32,14 @@ operationsAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("testing twoway operations with AMI... ");
-    void twowaysNewAMI(id<ICECommunicator>, id<TestOperationsMyClassPrx>);
-    twowaysNewAMI(communicator, cl);
-    twowaysNewAMI(communicator, derived);
+    void twowaysAMI(id<ICECommunicator>, id<TestOperationsMyClassPrx>);
+    twowaysAMI(communicator, cl);
+    twowaysAMI(communicator, derived);
     tprintf("ok\n");
 
     tprintf("testing oneway operations with AMI... ");
-    void onewaysNewAMI(id<ICECommunicator>, id<TestOperationsMyClassPrx>);
-    onewaysNewAMI(communicator, cl);
+    void onewaysAMI(id<ICECommunicator>, id<TestOperationsMyClassPrx>);
+    onewaysAMI(communicator, cl);
     tprintf("ok\n");
 
     tprintf("testing batch oneway operations... ");

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,7 +15,6 @@ package com.zeroc.Ice;
  * @see Util#initialize
  * @see Properties
  * @see Logger
- * @see ThreadNotification
  **/
 public final class InitializationData implements Cloneable
 {
@@ -44,7 +43,7 @@ public final class InitializationData implements Cloneable
         }
         catch(CloneNotSupportedException ex)
         {
-	    assert false;
+            assert false;
         }
         return c;
     }
@@ -65,9 +64,15 @@ public final class InitializationData implements Cloneable
     public com.zeroc.Ice.Instrumentation.CommunicatorObserver observer;
 
     /**
-     * The thread hook for the communicator.
+     * threadStart is called whenever the communicator starts a new thread.
      **/
-    public ThreadNotification threadHook;
+    public Runnable threadStart;
+
+    /**
+     * threadStop is called whenever a thread created by the communicator is
+     * about to be destroyed.
+     **/
+    public Runnable threadStop;
 
     /**
      * The custom class loader for the communicator.
@@ -75,14 +80,31 @@ public final class InitializationData implements Cloneable
     public ClassLoader classLoader;
 
     /**
-     * The call dispatcher for the communicator.
-     **/
-    public Dispatcher dispatcher;
+      * You can control which thread receives operation invocations and AMI
+      * callbacks by supplying a dispatcher.
+      * <p>
+      * For example, you can use this dispatching facility to ensure that
+      * all invocations and callbacks are dispatched in a GUI event loop
+      * thread so that it is safe to invoke directly on GUI objects.
+      * <p>
+      * The dispatcher is responsible for running (dispatching) the
+      * invocation or AMI callback on its favorite thread. It must execute the
+      * the provided <code>Runnable</code> parameter. The con parameter represents
+      * the connection associated with this dispatch.
+      **/
+    public java.util.function.BiConsumer<Runnable, Connection> dispatcher;
 
     /**
-     * The compact type ID resolver.
+     * Applications that make use of compact type IDs to conserve space
+     * when marshaling class instances, and also use the streaming API to
+     * extract such classes, can intercept the translation between compact
+     * type IDs and their corresponding string type IDs by installing a
+     * compact ID resolver in <code>InitializationData</code>
+     * The parameter id represents the compact ID; the returned value is the
+     * type ID such as <code>"::Module::Class"</code>, or an empty string if
+     * the compact ID is unknown.
      **/
-    public CompactIdResolver compactIdResolver;
+    public java.util.function.IntFunction<String> compactIdResolver;
 
     /**
      * The batch request interceptor.

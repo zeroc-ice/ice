@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,10 @@
 package test.Ice.ami;
 
 import test.Ice.ami.Test._TestIntfDisp;
+import test.Ice.ami.Test.AMD_TestIntf_startDispatch;
+import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntfException;
+import test.Ice.ami.Test.PingReplyPrxHelper;
 
 public class TestI extends _TestIntfDisp
 {
@@ -58,6 +61,12 @@ public class TestI extends _TestIntfDisp
     opBatchCount(Ice.Current current)
     {
         return _batchCount;
+    }
+
+    @Override
+    public boolean supportsAMD(Ice.Current current)
+    {
+        return true;
     }
 
     @Override
@@ -109,6 +118,12 @@ public class TestI extends _TestIntfDisp
     }
 
     @Override
+    public void pingBiDir(Ice.Identity id, Ice.Current current)
+    {
+        PingReplyPrxHelper.uncheckedCast(current.con.createProxy(id)).reply();
+    }
+
+    @Override
     public synchronized boolean
     waitForBatch(int count, Ice.Current current)
     {
@@ -129,17 +144,71 @@ public class TestI extends _TestIntfDisp
 
     @Override
     public void
-    close(boolean force, Ice.Current current)
+    close(CloseMode mode, Ice.Current current)
     {
-        current.con.close(force);
+        current.con.close(Ice.ConnectionClose.valueOf(mode.value()));
     }
 
     @Override
     public void
+    sleep(int ms, Ice.Current current)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+        }
+    }
+
+    @Override
+    public synchronized void
+    startDispatch_async(AMD_TestIntf_startDispatch cb, Ice.Current current)
+    {
+        if(_shutdown)
+        {
+            // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+            // before start dispatch.
+            cb.ice_response();
+            return;
+        }
+        else if(_pending != null)
+        {
+            _pending.ice_response();
+        }
+        _pending = cb;
+    }
+
+    @Override
+    public synchronized void
+    finishDispatch(Ice.Current current)
+    {
+        if(_shutdown)
+        {
+            return;
+        }
+        else if(_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+        {
+            _pending.ice_response();
+            _pending = null;
+        }
+    }
+
+    @Override
+    public synchronized void
     shutdown(Ice.Current current)
     {
+        _shutdown = true;
+        if(_pending != null)
+        {
+            _pending.ice_response();
+            _pending = null;
+        }
         current.adapter.getCommunicator().shutdown();
     }
 
     private int _batchCount;
+    private boolean _shutdown = false;
+    private AMD_TestIntf_startDispatch _pending = null;
 }

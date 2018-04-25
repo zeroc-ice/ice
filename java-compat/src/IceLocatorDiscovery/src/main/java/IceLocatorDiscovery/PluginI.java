@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,8 +12,9 @@ package IceLocatorDiscovery;
 import java.util.List;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Map;
 
-class PluginI implements Ice.Plugin
+class PluginI implements Plugin
 {
     private static class Request
     {
@@ -35,30 +36,38 @@ class PluginI implements Ice.Plugin
         void
         invoke(Ice.LocatorPrx l)
         {
-            _locatorPrx = l;
-            try
+            if(_locatorPrx == null || !_locatorPrx.equals(l))
             {
-                l.begin_ice_invoke(_operation, _mode, _inParams, _context,
-                    new Ice.Callback_Object_ice_invoke()
-                    {
-                        @Override
-                        public void
-                        response(boolean ok, byte[] outParams)
+                _locatorPrx = l;
+                try
+                {
+                    l.begin_ice_invoke(_operation, _mode, _inParams, _context,
+                        new Ice.Callback_Object_ice_invoke()
                         {
-                            _amdCB.ice_response(ok, outParams);
-                        }
+                            @Override
+                            public void
+                            response(boolean ok, byte[] outParams)
+                            {
+                                _amdCB.ice_response(ok, outParams);
+                            }
 
-                        @Override
-                        public void
-                        exception(Ice.LocalException ex)
-                        {
-                            Request.this.exception(ex);
-                        }
-                    });
+                            @Override
+                            public void
+                            exception(Ice.LocalException ex)
+                            {
+                                Request.this.exception(ex);
+                            }
+                        });
+                }
+                catch(Ice.LocalException ex)
+                {
+                    exception(ex);
+                }
             }
-            catch(Ice.LocalException ex)
+            else
             {
-                exception(ex);
+                assert(_exception != null); // Don't retry if the proxy didn't change
+                _amdCB.ice_exception(_exception);
             }
         }
 
@@ -91,6 +100,7 @@ class PluginI implements Ice.Plugin
             }
             catch(Ice.LocalException exc)
             {
+                _exception = exc;
                 _locator.invoke(_locatorPrx, Request.this); // Retry with new locator proxy
             }
         }
@@ -102,7 +112,8 @@ class PluginI implements Ice.Plugin
         private final byte[] _inParams;
         private final Ice.AMD_Object_ice_invoke _amdCB;
 
-        private Ice.LocatorPrx _locatorPrx;
+        private Ice.LocatorPrx _locatorPrx = null;
+        private Ice.LocalException _exception = null;
     };
 
     static private class VoidLocatorI extends Ice._LocatorDisp
@@ -131,24 +142,65 @@ class PluginI implements Ice.Plugin
 
     private static class LocatorI extends Ice.BlobjectAsync
     {
-        LocatorI(LookupPrx lookup, Ice.Properties properties, String instanceName, Ice.LocatorPrx voidLocator)
+        LocatorI(String name, LookupPrx lookup, Ice.Properties properties, String instanceName,
+                 Ice.LocatorPrx voidLocator)
         {
             _lookup = lookup;
-            _timeout = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Timeout", 300);
-            _retryCount = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryCount", 3);
-            _retryDelay = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryDelay", 2000);
+            _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
+            _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
+            _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+            _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
             _instanceName = instanceName;
             _warned = false;
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
             _voidLocator = voidLocator;
             _pendingRetryCount = 0;
+            _failureCount = 0;
+            _warnOnce = true;
+
+            //
+            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
+            // datagram on each endpoint.
+            //
+            Ice.Endpoint[] single = new Ice.Endpoint[1];
+            for(Ice.Endpoint endpt : lookup.ice_getEndpoints())
+            {
+                single[0] = endpt;
+                _lookups.put((LookupPrx)lookup.ice_endpoints(single), null);
+            }
+            assert(!_lookups.isEmpty());
         }
 
         public void
         setLookupReply(LookupReplyPrx lookupReply)
         {
-            _lookupReply = lookupReply;
+            //
+            // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+            //
+            Ice.Endpoint[] single = new Ice.Endpoint[1];
+            for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
+            {
+                Ice.UDPEndpointInfo info = (Ice.UDPEndpointInfo)entry.getKey().ice_getEndpoints()[0].getInfo();
+                if(!info.mcastInterface.isEmpty())
+                {
+                    for(Ice.Endpoint q : lookupReply.ice_getEndpoints())
+                    {
+                        Ice.EndpointInfo r = q.getInfo();
+                        if(r instanceof Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.equals(info.mcastInterface))
+                        {
+                            single[0] = q;
+                            entry.setValue((LookupReplyPrx)lookupReply.ice_endpoints(single));
+                        }
+                    }
+                }
+
+                if(entry.getValue() == null)
+                {
+                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                    entry.setValue(lookupReply);
+                }
+            }
         }
 
         @Override
@@ -158,12 +210,69 @@ class PluginI implements Ice.Plugin
             invoke(null, new Request(this, current.operation, current.mode, inParams, current.ctx, amdCB));
         }
 
+        public List<Ice.LocatorPrx>
+        getLocators(String instanceName, int waitTime)
+        {
+            //
+            // Clear locators from previous search.
+            //
+            synchronized(this)
+            {
+                _locators.clear();
+            }
+
+            //
+            // Find a locator
+            //
+            invoke(null, null);
+
+            //
+            // Wait for responses
+            //
+            try
+            {
+                if(instanceName.isEmpty())
+                {
+                    Thread.sleep(waitTime);
+                }
+                else
+                {
+                    synchronized(this)
+                    {
+                        while(!_locators.containsKey(instanceName) && _pendingRetryCount > 0)
+                        {
+                            wait(waitTime);
+                        }
+                    }
+                }
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+                throw new Ice.OperationInterruptedException();
+            }
+
+            //
+            // Return found locators
+            //
+            synchronized(this)
+            {
+                return new ArrayList<>(_locators.values());
+            }
+        }
+
         public synchronized void
         foundLocator(Ice.LocatorPrx locator)
         {
             if(locator == null ||
                (!_instanceName.isEmpty() && !locator.ice_getIdentity().category.equals(_instanceName)))
             {
+                if(_traceLevel > 2)
+                {
+                    StringBuffer s = new StringBuffer("ignoring locator reply: instance name doesn't match\n");
+                    s.append("expected = ").append(_instanceName);
+                    s.append("received = ").append(locator.ice_getIdentity().category);
+                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                }
                 return;
             }
 
@@ -171,7 +280,8 @@ class PluginI implements Ice.Plugin
             // If we already have a locator assigned, ensure the given locator
             // has the same identity, otherwise ignore it.
             //
-            if(_locator != null && !locator.ice_getIdentity().category.equals(_locator.ice_getIdentity().category))
+            if(!_pendingRequests.isEmpty() &&
+               _locator != null && !locator.ice_getIdentity().category.equals(_locator.ice_getIdentity().category))
             {
                 if(!_warned)
                 {
@@ -196,14 +306,26 @@ class PluginI implements Ice.Plugin
                 _pendingRetryCount = 0;
             }
 
-            if(_locator != null)
+            if(_traceLevel > 0)
+            {
+                StringBuffer s = new StringBuffer("locator lookup succeeded:\nlocator = ");
+                s.append(locator);
+                if(!_instanceName.isEmpty())
+                {
+                    s.append("\ninstance name = ").append(_instanceName);
+                }
+                _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+            }
+
+            Ice.LocatorPrx l =
+                _pendingRequests.isEmpty() ? _locators.get(locator.ice_getIdentity().category) : _locator;
+            if(l != null)
             {
                 //
                 // We found another locator replica, append its endpoints to the
                 // current locator proxy endpoints.
                 //
-                List<Ice.Endpoint> newEndpoints = new ArrayList<Ice.Endpoint>(
-                    Arrays.asList(_locator.ice_getEndpoints()));
+                List<Ice.Endpoint> newEndpoints = new ArrayList<Ice.Endpoint>(Arrays.asList(l.ice_getEndpoints()));
                 for(Ice.Endpoint p : locator.ice_getEndpoints())
                 {
                     //
@@ -224,37 +346,45 @@ class PluginI implements Ice.Plugin
                     }
 
                 }
-                _locator = (Ice.LocatorPrx)_locator.ice_endpoints(
-                    newEndpoints.toArray(new Ice.Endpoint[newEndpoints.size()]));
+                l = (Ice.LocatorPrx)l.ice_endpoints(newEndpoints.toArray(new Ice.Endpoint[newEndpoints.size()]));
             }
             else
             {
-                _locator = locator;
+                l = locator;
+            }
+
+            if(_pendingRequests.isEmpty())
+            {
+                _locators.put(locator.ice_getIdentity().category, l);
+                notify();
+            }
+            else
+            {
+                _locator = l;
                 if(_instanceName.isEmpty())
                 {
                     _instanceName = _locator.ice_getIdentity().category; // Stick to the first locator
                 }
-            }
 
-            //
-            // Send pending requests if any.
-            //
-            for(Request req : _pendingRequests)
-            {
-                req.invoke(_locator);
+                //
+                // Send pending requests if any.
+                //
+                for(Request req : _pendingRequests)
+                {
+                    req.invoke(_locator);
+                }
+                _pendingRequests.clear();
             }
-            _pendingRequests.clear();
         }
-
 
         public synchronized void
         invoke(Ice.LocatorPrx locator, Request request)
         {
-            if(_locator != null && _locator != locator)
+            if(request != null && _locator != null && _locator != locator)
             {
                 request.invoke(_locator);
             }
-            else if(IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
+            else if(request != null && IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
             {
                 request.invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
             }
@@ -262,18 +392,61 @@ class PluginI implements Ice.Plugin
             {
                 _locator = null;
 
-                _pendingRequests.add(request);
+                if(request != null)
+                {
+                    _pendingRequests.add(request);
+                }
 
                 if(_pendingRetryCount == 0) // No request in progress
                 {
                     _pendingRetryCount = _retryCount;
+                    _failureCount = 0;
                     try
                     {
-                        _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                        if(_traceLevel > 1)
+                        {
+                            StringBuilder s = new StringBuilder("looking up locator:\nlookup = ");
+                            s.append(_lookup);
+                            if(!_instanceName.isEmpty())
+                            {
+                                s.append("\ninstance name = ").append(_instanceName);
+                            }
+                            _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                        }
+                        for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
+                        {
+                            entry.getKey().begin_findLocator(_instanceName, entry.getValue(), new Ice.Callback() {
+                                @Override
+                                public void
+                                completed(Ice.AsyncResult r)
+                                {
+                                    try
+                                    {
+                                        r.throwLocalException();
+                                    }
+                                    catch(Ice.LocalException ex)
+                                    {
+                                        exception(ex);
+                                    }
+                                }
+                            }); // Send multicast request
+                        }
                         _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                     }
                     catch(Ice.LocalException ex)
                     {
+                        if(_traceLevel > 0)
+                        {
+                            StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
+                            s.append(_lookup);
+                            if(!_instanceName.isEmpty())
+                            {
+                                s.append("\ninstance name = ").append(_instanceName);
+                            }
+                            s.append("\n").append(ex);
+                            _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                        }
+
                         for(Request req : _pendingRequests)
                         {
                             req.invoke(_voidLocator);
@@ -281,6 +454,57 @@ class PluginI implements Ice.Plugin
                         _pendingRequests.clear();
                         _pendingRetryCount = 0;
                     }
+                }
+            }
+        }
+
+        synchronized void
+        exception(Ice.LocalException ex)
+        {
+            if(++_failureCount == _lookups.size() && _pendingRetryCount > 0)
+            {
+                //
+                // All the lookup calls failed, cancel the timer and propagate the error to the requests.
+                //
+                _future.cancel(false);
+                _future = null;
+
+                _pendingRetryCount = 0;
+
+                if(_warnOnce)
+                {
+                    StringBuilder builder = new StringBuilder();
+                    builder.append("failed to lookup locator with lookup proxy `");
+                    builder.append(_lookup);
+                    builder.append("':\n");
+                    builder.append(ex);
+                    _lookup.ice_getCommunicator().getLogger().warning(builder.toString());
+                    _warnOnce = false;
+                }
+
+                if(_traceLevel > 0)
+                {
+                    StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
+                    s.append(_lookup);
+                    if(!_instanceName.isEmpty())
+                    {
+                        s.append("\ninstance name = ").append(_instanceName);
+                    }
+                    s.append("\n").append(ex);
+                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                }
+
+                if(_pendingRequests.isEmpty())
+                {
+                    notify();
+                }
+                else
+                {
+                    for(Request req : _pendingRequests)
+                    {
+                        req.invoke(_voidLocator);
+                    }
+                    _pendingRequests.clear();
                 }
             }
         }
@@ -296,7 +520,37 @@ class PluginI implements Ice.Plugin
                     {
                         try
                         {
-                            _lookup.begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                            if(_traceLevel > 1)
+                            {
+                                StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
+                                s.append(_lookup);
+                                s.append("\nretry count = ").append(_retryCount);
+                                if(!_instanceName.isEmpty())
+                                {
+                                    s.append("\ninstance name = ").append(_instanceName);
+                                }
+                                _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
+                            }
+
+                            _failureCount = 0;
+                            for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
+                            {
+                                entry.getKey().begin_findLocator(_instanceName, entry.getValue(), new Ice.Callback() {
+                                    @Override
+                                    public void
+                                    completed(Ice.AsyncResult r)
+                                    {
+                                        try
+                                        {
+                                            r.throwLocalException();
+                                        }
+                                        catch(Ice.LocalException ex)
+                                        {
+                                            exception(ex);
+                                        }
+                                    }
+                                }); // Send multicast request
+                            }
                             _future = _timer.schedule(_retryTask, _timeout, java.util.concurrent.TimeUnit.MILLISECONDS);
                             return;
                         }
@@ -306,11 +560,29 @@ class PluginI implements Ice.Plugin
                         _pendingRetryCount = 0;
                     }
 
-                    for(Request req : _pendingRequests)
+                    if(_traceLevel > 0)
                     {
-                        req.invoke(_voidLocator);
+                        StringBuilder s = new StringBuilder("locator lookup timed out:\nlookup = ");
+                        s.append(_lookup);
+                        if(!_instanceName.isEmpty())
+                        {
+                            s.append("\ninstance name = ").append(_instanceName);
+                        }
+                        _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.toString());
                     }
-                    _pendingRequests.clear();
+
+                    if(_pendingRequests.isEmpty())
+                    {
+                        notify();
+                    }
+                    else
+                    {
+                        for(Request req : _pendingRequests)
+                        {
+                            req.invoke(_voidLocator);
+                        }
+                        _pendingRequests.clear();
+                    }
                     _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
                 }
 
@@ -318,19 +590,23 @@ class PluginI implements Ice.Plugin
         };
 
         private final LookupPrx _lookup;
+        private final java.util.Map<LookupPrx, LookupReplyPrx> _lookups = new java.util.HashMap<>();
         private final int _timeout;
         private java.util.concurrent.Future<?> _future;
         private final java.util.concurrent.ScheduledExecutorService _timer;
+        private final int _traceLevel;
         private final int _retryCount;
         private final int _retryDelay;
 
         private String _instanceName;
         private boolean _warned;
-        private LookupReplyPrx _lookupReply;
         private Ice.LocatorPrx _locator;
         private Ice.LocatorPrx _voidLocator;
+        private Map<String, Ice.LocatorPrx> _locators = new java.util.HashMap<>();
 
         private int _pendingRetryCount;
+        private int _failureCount;
+        private boolean _warnOnce;
         private List<Request> _pendingRequests = new ArrayList<Request>();
         private long _nextRetry;
     };
@@ -353,8 +629,9 @@ class PluginI implements Ice.Plugin
     };
 
     public
-    PluginI(Ice.Communicator communicator)
+    PluginI(String name, Ice.Communicator communicator)
     {
+        _name = name;
         _communicator = communicator;
     }
 
@@ -369,74 +646,64 @@ class PluginI implements Ice.Plugin
         String address;
         if(ipv4 && !preferIPv6)
         {
-            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
+            address = properties.getPropertyWithDefault(_name + ".Address", "239.255.0.1");
         }
         else
         {
-            address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
+            address = properties.getPropertyWithDefault(_name + ".Address", "ff15::1");
         }
-        int port = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
-        String intf = properties.getProperty("IceLocatorDiscovery.Interface");
+        int port = properties.getPropertyAsIntWithDefault(_name + ".Port", 4061);
+        String intf = properties.getProperty(_name + ".Interface");
 
-        if(properties.getProperty("IceLocatorDiscovery.Reply.Endpoints").isEmpty())
+        String lookupEndpoints = properties.getProperty(_name + ".Lookup");
+        if(lookupEndpoints.isEmpty())
         {
-            StringBuilder s = new StringBuilder();
-            s.append("udp");
-            if(!intf.isEmpty())
+            int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
+            java.util.List<String> interfaces = IceInternal.Network.getInterfacesForMulticast(intf, protocol);
+            for(String p : interfaces)
             {
-                s.append(" -h \"").append(intf).append("\"");
+                if(p != interfaces.get(0))
+                {
+                    lookupEndpoints += ":";
+                }
+                lookupEndpoints += "udp -h \"" + address + "\" -p " + port + " --interface \"" + p + "\"";
             }
-            properties.setProperty("IceLocatorDiscovery.Reply.Endpoints", s.toString());
-        }
-        if(properties.getProperty("IceLocatorDiscovery.Locator.Endpoints").isEmpty())
-        {
-            properties.setProperty("IceLocatorDiscovery.Locator.AdapterId", java.util.UUID.randomUUID().toString());
         }
 
-        _replyAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Reply");
-        _locatorAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Locator");
+        if(properties.getProperty(_name + ".Reply.Endpoints").isEmpty())
+        {
+            properties.setProperty(_name + ".Reply.Endpoints", "udp -h " + (intf.isEmpty() ? "*" : "\"" + intf + "\""));
+        }
+
+        if(properties.getProperty(_name + ".Locator.Endpoints").isEmpty())
+        {
+            properties.setProperty(_name + ".Locator.AdapterId", java.util.UUID.randomUUID().toString());
+        }
+
+        _replyAdapter = _communicator.createObjectAdapter(_name + ".Reply");
+        _locatorAdapter = _communicator.createObjectAdapter(_name + ".Locator");
 
         // We don't want those adapters to be registered with the locator so clear their locator.
         _replyAdapter.setLocator(null);
         _locatorAdapter.setLocator(null);
 
-        String lookupEndpoints = properties.getProperty("IceLocatorDiscovery.Lookup");
-        if(lookupEndpoints.isEmpty())
-        {
-            StringBuilder s = new StringBuilder();
-            s.append("udp -h \"").append(address).append("\" -p ").append(port);
-            if(!intf.isEmpty())
-            {
-                s.append(" --interface \"").append(intf).append("\"");
-            }
-            lookupEndpoints = s.toString();
-        }
-
         Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-        lookupPrx = lookupPrx.ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
-        try
-        {
-            lookupPrx.ice_getConnection(); // Ensure we can establish a connection to the multicast proxy
-        }
-        catch(Ice.LocalException ex)
-        {
-            StringBuilder s = new StringBuilder();
-            s.append("IceLocatorDiscovery is unable to establish a multicast connection:\n");
-            s.append("proxy = ").append(lookupPrx.toString()).append("\n").append(ex);
-            throw new Ice.PluginInitializationException(s.toString());
-        }
+        // No collocation optimization or router for the multicast proxy!
+        lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
 
         Ice.LocatorPrx voidLoc = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
 
-        String instanceName = properties.getProperty("IceLocatorDiscovery.InstanceName");
+        String instanceName = properties.getProperty(_name + ".InstanceName");
         Ice.Identity id = new Ice.Identity();
         id.name = "Locator";
         id.category = !instanceName.isEmpty() ? instanceName : java.util.UUID.randomUUID().toString();
-        LocatorI locator = new LocatorI(LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLoc);
-        _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(locator)));
+        _locator = new LocatorI(_name, LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLoc);
+        _defaultLocator = _communicator.getDefaultLocator();
+        _locatorPrx = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(_locator));
+        _communicator.setDefaultLocator(_locatorPrx);
 
-        Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(locator)).ice_datagram();
-        locator.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
+        Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(_locator)).ice_datagram();
+        _locator.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
 
         _replyAdapter.activate();
         _locatorAdapter.activate();
@@ -446,11 +713,33 @@ class PluginI implements Ice.Plugin
     public void
     destroy()
     {
-        _replyAdapter.destroy();
-        _locatorAdapter.destroy();
+        if(_replyAdapter != null)
+        {
+            _replyAdapter.destroy();
+        }
+        if(_locatorAdapter != null)
+        {
+            _locatorAdapter.destroy();
+        }
+        if(_communicator.getDefaultLocator().equals(_locatorPrx))
+        {
+            // Restore original default locator proxy, if the user didn't change it in the meantime
+            _communicator.setDefaultLocator(_defaultLocator);
+        }
     }
 
+    @Override
+    public List<Ice.LocatorPrx>
+    getLocators(String instanceName, int waitTime)
+    {
+        return _locator.getLocators(instanceName, waitTime);
+    }
+
+    private String _name;
     private Ice.Communicator _communicator;
     private Ice.ObjectAdapter _locatorAdapter;
     private Ice.ObjectAdapter _replyAdapter;
+    private LocatorI _locator;
+    private Ice.LocatorPrx _locatorPrx;
+    private Ice.LocatorPrx _defaultLocator;
 }

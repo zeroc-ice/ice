@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,8 +8,8 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-const __M = Ice.__M;
-__M.require(module, ["../Ice/StringUtil", "../Ice/UUID"]);
+const _ModuleRegistry = Ice._ModuleRegistry;
+_ModuleRegistry.require(module, ["../Ice/StringUtil", "../Ice/UUID"]);
 const StringUtil = Ice.StringUtil;
 
 function setInternal(map, key, value, hash, index)
@@ -61,7 +61,7 @@ class HashMap
         //
         // The first argument can be a HashMap or the keyComparator, the second
         // argument if present is always the value comparator.
-        // 
+        //
         let h, keyComparator, valueComparator;
 
         if(typeof arg1 == "function")
@@ -113,7 +113,7 @@ class HashMap
 
         return setInternal(this, r.key, value, r.hash, index);
     }
-    
+
     get(key)
     {
         const r = this.computeHash(key); // Returns an object with key,hash members.
@@ -183,7 +183,7 @@ class HashMap
 
         return undefined;
     }
-    
+
     clear()
     {
         for(let i = 0; i < this._table.length; ++i)
@@ -238,7 +238,7 @@ class HashMap
             {
                 return this._valueComparator.call(this._valueComparator, v1, v2);
             });
-        
+
         for(let e = this._head; e !== null; e = e._next)
         {
             const oe = other.findEntry(e._key, e._hash);
@@ -263,7 +263,7 @@ class HashMap
         //
         // Create a new table entry.
         //
-        let e = Object.create(null, {
+        const e = Object.create(null, {
             "key": {
                 enumerable: true,
                 get: function() { return this._key; }
@@ -333,7 +333,7 @@ class HashMap
         //
         for(let e = this._head; e !== null; e = e._next)
         {
-            let index = this.hashIndex(e._hash, capacity);
+            const index = this.hashIndex(e._hash, capacity);
             e._nextInBucket = newTable[index];
             newTable[index] = e;
         }
@@ -344,7 +344,7 @@ class HashMap
 
     findEntry(key, hash)
     {
-        let index = this.hashIndex(hash, this._table.length);
+        const index = this.hashIndex(hash, this._table.length);
         //
         // Search for an entry with the same key.
         //
@@ -375,7 +375,7 @@ class HashMap
         {
             if(HashMap._null === null)
             {
-                let uuid = Ice.generateUUID();
+                const uuid = Ice.generateUUID();
                 HashMap._null = {key:uuid, hash:StringUtil.hashCode(uuid)};
             }
             return HashMap._null;
@@ -402,7 +402,7 @@ class HashMap
             {
                 if(HashMap._nan === null)
                 {
-                    let uuid = Ice.generateUUID();
+                    const uuid = Ice.generateUUID();
                     HashMap._nan = {key:uuid, hash:StringUtil.hashCode(uuid)};
                 }
                 return HashMap._nan;
@@ -421,7 +421,7 @@ class HashMap
     {
         return this._keyComparator.call(this._keyComparator, k1, k2);
     }
-    
+
     get size()
     {
         return this._size;
@@ -457,7 +457,7 @@ Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelp
             return new HashMap(h || keysEqual);
         };
     }
-    
+
     let helper = null;
     Object.defineProperty(module, helperName,
     {
@@ -465,10 +465,10 @@ Slice.defineDictionary = function(module, name, helperName, keyHelper, valueHelp
         {
             if(helper === null)
             {
-                helper = Ice.StreamHelpers.generateDictHelper(__M.type(keyHelper),
-                                                              __M.type(valueHelper),
-                                                              fixed, 
-                                                              __M.type(valueType),
+                helper = Ice.StreamHelpers.generateDictHelper(_ModuleRegistry.type(keyHelper),
+                                                              _ModuleRegistry.type(valueHelper),
+                                                              fixed,
+                                                              _ModuleRegistry.type(valueType),
                                                               module[name]);
             }
             return helper;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,7 +25,7 @@ const long PtrA = 0;
 const long HelperA = 0;
 const long HolderA = 0;
 const long aIce = 0;
-};
+}
 
 module errors
 {
@@ -45,7 +45,7 @@ const long IceFoo = 0;
 const long icecream = 0;
 const long ICEpick = 0;
 const long iCEaxe = 0;
-};
+}
 
-module Ice {};
-module IceFoo {};
+module Ice {}
+module IceFoo {}

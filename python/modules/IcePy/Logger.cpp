@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -92,15 +92,14 @@ string
 IcePy::LoggerWrapper::getPrefix()
 {
     AdoptThread adoptThread;
-    
+
     PyObjectHandle tmp = PyObject_CallMethod(_logger.get(), STRCAST("getPrefix"), 0);
     if(!tmp.get())
     {
         throwPythonException();
     }
-    return getString(tmp.get());    
+    return getString(tmp.get());
 }
-
 
 Ice::LoggerPtr
 IcePy::LoggerWrapper::cloneWithPrefix(const string& prefix)
@@ -306,7 +305,6 @@ loggerGetPrefix(LoggerObject* self)
 
     return createString(prefix);
 }
-
 
 #ifdef WIN32
 extern "C"

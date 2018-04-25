@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -62,6 +62,7 @@ public class StreamSocket
         _desc = Network.fdToString(_fd);
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void finalize()
         throws Throwable
@@ -223,9 +224,11 @@ public class StreamSocket
                 if(_maxSendPacketSize > 0 && buf.remaining() > _maxSendPacketSize)
                 {
                     int previous = buf.limit();
-                    buf.limit(buf.position() + _maxSendPacketSize);
+                    // Cast to java.nio.Buffer to avoid incompatible covariant
+                    // return type used in Java 9 java.nio.ByteBuffer
+                    ((java.nio.Buffer)buf).limit(buf.position() + _maxSendPacketSize);
                     ret = _fd.write(buf);
-                    buf.limit(previous);
+                    ((java.nio.Buffer)buf).limit(previous);
                 }
                 else
                 {

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,99 +10,29 @@
 package com.zeroc.IceInternal;
 
 //
-// Base class for handling asynchronous invocations. This class is
-// responsible for the handling of the output stream and the child
-// invocation observer.
+// This non-generic base interface allows us to pass instances without causing "rawtypes" lint warnings.
 //
-public abstract class OutgoingAsyncBase<T> extends InvocationFutureI<T>
+public interface OutgoingAsyncBase
 {
-    public boolean sent()
-    {
-        return sent(true);
-    }
+    boolean sent();
 
-    public boolean completed(com.zeroc.Ice.InputStream is)
-    {
-        assert(false); // Must be implemented by classes that handle responses
-        return false;
-    }
+    boolean completed(com.zeroc.Ice.InputStream is);
 
-    public boolean completed(com.zeroc.Ice.Exception ex)
-    {
-        return finished(ex);
-    }
+    boolean completed(com.zeroc.Ice.Exception ex);
 
-    public final void attachRemoteObserver(com.zeroc.Ice.ConnectionInfo info, com.zeroc.Ice.Endpoint endpt,
-                                           int requestId)
-    {
-        if(_observer != null)
-        {
-            final int size = _os.size() - Protocol.headerSize - 4;
-            _childObserver = getObserver().getRemoteObserver(info, endpt, requestId, size);
-            if(_childObserver != null)
-            {
-                _childObserver.attach();
-            }
-        }
-    }
+    void attachRemoteObserver(com.zeroc.Ice.ConnectionInfo info, com.zeroc.Ice.Endpoint endpt, int requestId);
 
-    public final void attachCollocatedObserver(com.zeroc.Ice.ObjectAdapter adapter, int requestId)
-    {
-        if(_observer != null)
-        {
-            final int size = _os.size() - Protocol.headerSize - 4;
-            _childObserver = getObserver().getCollocatedObserver(adapter, requestId, size);
-            if(_childObserver != null)
-            {
-                _childObserver.attach();
-            }
-        }
-    }
+    void attachCollocatedObserver(com.zeroc.Ice.ObjectAdapter adapter, int requestId);
 
-    public final com.zeroc.Ice.OutputStream getOs()
-    {
-        return _os;
-    }
+    com.zeroc.Ice.OutputStream getOs();
 
-    protected OutgoingAsyncBase(com.zeroc.Ice.Communicator com, Instance instance, String op)
-    {
-        super(com, instance, op);
-        _os = new com.zeroc.Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
-    }
+    void invokeSent();
 
-    protected OutgoingAsyncBase(com.zeroc.Ice.Communicator com, Instance instance, String op,
-                                com.zeroc.Ice.OutputStream os)
-    {
-        super(com, instance, op);
-        _os = os;
-    }
+    void invokeSentAsync();
 
-    @Override
-    protected boolean sent(boolean done)
-    {
-        if(done)
-        {
-            if(_childObserver != null)
-            {
-                _childObserver.detach();
-                _childObserver = null;
-            }
-        }
-        return super.sent(done);
-    }
+    void invokeCompleted();
 
-    @Override
-    protected boolean finished(com.zeroc.Ice.Exception ex)
-    {
-        if(_childObserver != null)
-        {
-            _childObserver.failed(ex.ice_id());
-            _childObserver.detach();
-            _childObserver = null;
-        }
-        return super.finished(ex);
-    }
+    void invokeCompletedAsync();
 
-    protected com.zeroc.Ice.OutputStream _os;
-    protected com.zeroc.Ice.Instrumentation.ChildInvocationObserver _childObserver;
+    void cancelable(CancellationHandler handler);
 }

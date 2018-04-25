@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -108,7 +108,7 @@ public class Observer<T extends Metrics> extends com.zeroc.IceUtilInternal.StopW
 
         try
         {
-            ObserverImpl obsv = ocl.newInstance();
+            ObserverImpl obsv = ocl.getDeclaredConstructor().newInstance();
             obsv.init(helper, metricsObjects, null);
             return obsv;
         }

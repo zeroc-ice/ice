@@ -8,7 +8,7 @@
       <parameter name="verifier"/>
       <parameter name="manager"/>
 
-      <server id="${id}" exe="${ice.bindir}/glacier2router">
+      <server id="${id}" exe="${glacier2router.exe}">
         <property name="Glacier2.Client.Endpoints" value="${endpoints}"/>
         <property name="Glacier2.Server.Endpoints" value="tcp"/>
         <property name="Glacier2.SessionManager" value="${manager}"/>
@@ -27,8 +27,8 @@
 
       <server id="ObjectAllocation" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <allocatable identity="allocatable" type="::Test"/>
-  	  <allocatable identity="allocatablebis" type="::TestBis"/>
+          <allocatable identity="allocatable" type="::Test"/>
+          <allocatable identity="allocatablebis" type="::TestBis"/>
 
           <object identity="nonallocatable" type="::Test"/>
           <object identity="nonallocatable2" type="::NotAllocatable"/>
@@ -43,46 +43,46 @@
 
       <server id="ServerAllocation" exe="${server.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default" id="ServerAlloc">
-  	  <allocatable identity="allocatable3" type="::TestServer1"/>
-  	  <allocatable identity="allocatable4" type="::TestServer2"/>
-  	  <object identity="allocatable4"/>
+          <allocatable identity="allocatable3" type="::TestServer1"/>
+          <allocatable identity="allocatable4" type="::TestServer2"/>
+          <object identity="allocatable4"/>
 
-  	  <allocatable identity="allocatable31" type="::TestMultipleByServer"/>
-  	  <allocatable identity="allocatable41" type="::TestMultipleByServer"/>
+          <allocatable identity="allocatable31" type="::TestMultipleByServer"/>
+          <allocatable identity="allocatable41" type="::TestMultipleByServer"/>
         </adapter>
       </server>
 
       <server id="ServerAllocation-1" exe="${server.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
-  	  <allocatable identity="allocatable5" type="::TestMultipleServer"/>
+          <allocatable identity="allocatable5" type="::TestMultipleServer"/>
         </adapter>
       </server>
 
       <server id="ServerAllocation-2" exe="${server.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
-  	  <allocatable identity="allocatable6" type="::TestMultipleServer"/>
+          <allocatable identity="allocatable6" type="::TestMultipleServer"/>
         </adapter>
       </server>
 
       <server id="ServerStress-1" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <adapter name="Server" endpoints="default">
-  	  <allocatable identity="stress-1" type="::StressTest"/>
-  	  <allocatable identity="stress-2" type="::StressTestBis"/>
+          <allocatable identity="stress-1" type="::StressTest"/>
+          <allocatable identity="stress-2" type="::StressTestBis"/>
         </adapter>
       </server>
 
       <server id="ServerStress-2" exe="${server.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
-  	  <allocatable identity="stress-3" type="::StressTest"/>
-  	  <allocatable identity="stress-4" type="::StressTestBis"/>
+          <allocatable identity="stress-3" type="::StressTest"/>
+          <allocatable identity="stress-4" type="::StressTestBis"/>
           <allocatable identity="concurrent-1" type="::TestConcurrent"/>
         </adapter>
       </server>
 
       <server id="ServerStress-3" exe="${server.dir}/server" activation="on-demand" pwd="." allocatable="true">
         <adapter name="Server" endpoints="default">
-  	  <allocatable identity="stress-5" type="::StressTest"/>
-  	  <allocatable identity="stress-6" type="::StressTestBis"/>
+          <allocatable identity="stress-5" type="::StressTest"/>
+          <allocatable identity="stress-6" type="::StressTestBis"/>
           <allocatable identity="concurrent-2" type="::TestConcurrent"/>
         </adapter>
       </server>

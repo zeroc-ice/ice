@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,6 +11,33 @@ package com.zeroc.IceInternal;
 
 public class Ex
 {
+    public static <T extends com.zeroc.Ice.Value> void throwUOE(Class<T> expectedType, com.zeroc.Ice.Value v)
+    {
+        //
+        // If the object is an unknown sliced object, we didn't find an
+        // value factory, in this case raise a NoValueFactoryException
+        // instead.
+        //
+        if(v instanceof com.zeroc.Ice.UnknownSlicedValue)
+        {
+            com.zeroc.Ice.UnknownSlicedValue usv = (com.zeroc.Ice.UnknownSlicedValue)v;
+            throw new com.zeroc.Ice.NoValueFactoryException("", usv.ice_id());
+        }
+
+        String type = v.ice_id();
+        String expected;
+        try
+        {
+            expected = (String)expectedType.getMethod("ice_staticId").invoke(null);
+        }
+        catch(Exception ex)
+        {
+            expected = "";
+            assert(false);
+        }
+        throw new com.zeroc.Ice.UnexpectedObjectException(
+            "expected element of type `" + expected + "' but received '" + type, type, expected);
+    }
     public static void throwUOE(String expectedType, com.zeroc.Ice.Value v)
     {
         //
@@ -21,7 +48,7 @@ public class Ex
         if(v instanceof com.zeroc.Ice.UnknownSlicedValue)
         {
             com.zeroc.Ice.UnknownSlicedValue usv = (com.zeroc.Ice.UnknownSlicedValue)v;
-            throw new com.zeroc.Ice.NoValueFactoryException("", usv.getUnknownTypeId());
+            throw new com.zeroc.Ice.NoValueFactoryException("", usv.ice_id());
         }
 
         String type = v.ice_id();
@@ -36,7 +63,7 @@ public class Ex
     }
 
     //
-    // A small utility to get the strack trace of the exception (which also includes toString()).
+    // A small utility to get the stack trace of the exception (which also includes toString()).
     //
     public static String toString(java.lang.Throwable ex)
     {

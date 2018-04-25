@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,12 +20,11 @@
     }
     registry_ = registry;
     initData_ = initData;
+    nextPort_ = 1;
 
-    [initData_.properties setProperty:@"TestAdapter.Endpoints" value:@"default"];
     [initData_.properties setProperty:@"TestAdapter.AdapterId" value:@"TestAdapter"];
     [initData_.properties setProperty:@"TestAdapter.ReplicaGroupId" value:@"ReplicatedAdapter"];
 
-    [initData_.properties setProperty:@"TestAdapter2.Endpoints" value:@"default"];
     [initData_.properties setProperty:@"TestAdapter2.AdapterId" value:@"TestAdapter2"];
 
     [initData_.properties setProperty:@"Ice.PrintAdapterReady" value:@"0"];
@@ -40,6 +39,10 @@
 }
 #endif
 
+-(NSString*) getTestEndpoint:(int)port
+{
+    return [NSString stringWithFormat:@"default -p %d", 12010 + port];
+}
 -(void) startServer:(ICECurrent*)current
 {
     for(id<ICECommunicator> c in communicators_)
@@ -58,24 +61,54 @@
     // its endpoints with the locator and create references containing
     // the adapter id instead of the endpoints.
     //
+    int nRetry = 10;
+    while(nRetry > 0)
+    {
+        id<ICEObjectAdapter> adapter = nil;
+        id<ICEObjectAdapter> adapter2 = nil;
+        @try
+        {
+            id<ICECommunicator> serverCommunicator = [ICEUtil createCommunicator:initData_];
+            [communicators_ addObject:serverCommunicator];
 
-    id<ICECommunicator> serverCommunicator = [ICEUtil createCommunicator:initData_];
-    [communicators_ addObject:serverCommunicator];
+            [[serverCommunicator getProperties] setProperty:@"TestAdapter.Endpoints" value:[self getTestEndpoint:nextPort_++]];
+            [[serverCommunicator getProperties] setProperty:@"TestAdapter2.Endpoints" value:[self getTestEndpoint:nextPort_++]];
 
-    id<ICEObjectAdapter> adapter = [serverCommunicator createObjectAdapter:@"TestAdapter"];
-    id<ICEObjectAdapter> adapter2 = [serverCommunicator createObjectAdapter:@"TestAdapter2"];
+            adapter = [serverCommunicator createObjectAdapter:@"TestAdapter"];
+            adapter2 = [serverCommunicator createObjectAdapter:@"TestAdapter2"];
 
-    id<ICEObjectPrx> locator = [serverCommunicator stringToProxy:@"locator:default -p 12010"];
-    [adapter setLocator:[ICELocatorPrx uncheckedCast:locator]];
-    [adapter2 setLocator:[ICELocatorPrx uncheckedCast:locator]];
+            id<ICEObjectPrx> locator = [serverCommunicator stringToProxy:@"locator:default -p 12010"];
+            [adapter setLocator:[ICELocatorPrx uncheckedCast:locator]];
+            [adapter2 setLocator:[ICELocatorPrx uncheckedCast:locator]];
 
-    ICEObject* object = ICE_AUTORELEASE([[TestLocationI alloc] init:adapter adapter2:adapter2 registry:registry_]);
-    [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test"]]];
-    [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test2"]]];
-    [adapter add:object identity:[ICEUtil stringToIdentity:@"test3"]];
+            ICEObject* object = ICE_AUTORELEASE([[TestLocationI alloc] init:adapter adapter2:adapter2 registry:registry_]);
+            [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test"]]];
+            [registry_ addObject:[adapter add:object identity:[ICEUtil stringToIdentity:@"test2"]]];
+            [adapter add:object identity:[ICEUtil stringToIdentity:@"test3"]];
 
-    [adapter activate];
-    [adapter2 activate];
+            [adapter activate];
+            [adapter2 activate];
+            break;
+        }
+        @catch(ICESocketException* ex)
+        {
+            if(nRetry == 0)
+            {
+                @throw ex;
+            }
+
+            // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
+            // browser clients if the driver uses ports in the same range as this test, ICE-8148)
+            if(adapter != nil)
+            {
+                [adapter destroy];
+            }
+            if(adapter2 != nil)
+            {
+                [adapter2 destroy];
+            }
+        }
+    }
 }
 
 -(void) shutdown:(ICECurrent*)current

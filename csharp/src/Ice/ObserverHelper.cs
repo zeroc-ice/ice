@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,8 +36,8 @@ namespace IceInternal
 
         static public InvocationObserver get(Ice.ObjectPrx proxy, string op, Dictionary<string, string> context)
         {
-            CommunicatorObserver obsv = 
-                ((Ice.ObjectPrxHelperBase)proxy).reference__().getInstance().initializationData().observer;
+            CommunicatorObserver obsv =
+                ((Ice.ObjectPrxHelperBase)proxy).iceReference().getInstance().initializationData().observer;
             if(obsv != null)
             {
                 InvocationObserver observer;

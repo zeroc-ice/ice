@@ -1,7 +1,7 @@
-<?
+<?php
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,8 +17,8 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-require_once 'Test.php';
+require_once('Ice.php');
+require_once('Test.php');
 
 function test($b)
 {

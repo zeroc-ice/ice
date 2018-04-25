@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/ArrayUtil",
         "../Ice/AsyncResult",
@@ -44,7 +44,7 @@ class ObjectPrx
         this._reference = null;
         this._requestHandler = null;
     }
-    
+
     hashCode(r)
     {
         return this._reference.hashCode();
@@ -78,7 +78,7 @@ class ObjectPrx
         else
         {
             const proxy = new ObjectPrx();
-            proxy.__setup(this._reference.changeIdentity(newIdentity));
+            proxy._setup(this._reference.changeIdentity(newIdentity));
             return proxy;
         }
     }
@@ -90,7 +90,7 @@ class ObjectPrx
 
     ice_context(newContext)
     {
-        return this.__newInstance(this._reference.changeContext(newContext));
+        return this._newInstance(this._reference.changeContext(newContext));
     }
 
     ice_getFacet()
@@ -112,7 +112,7 @@ class ObjectPrx
         else
         {
             const proxy = new ObjectPrx();
-            proxy.__setup(this._reference.changeFacet(newFacet));
+            proxy._setup(this._reference.changeFacet(newFacet));
             return proxy;
         }
     }
@@ -135,7 +135,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeAdapterId(newAdapterId));
+            return this._newInstance(this._reference.changeAdapterId(newAdapterId));
         }
     }
 
@@ -157,7 +157,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeEndpoints(newEndpoints));
+            return this._newInstance(this._reference.changeEndpoints(newEndpoints));
         }
     }
 
@@ -178,7 +178,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeLocatorCacheTimeout(newTimeout));
+            return this._newInstance(this._reference.changeLocatorCacheTimeout(newTimeout));
         }
     }
 
@@ -199,7 +199,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeInvocationTimeout(newTimeout));
+            return this._newInstance(this._reference.changeInvocationTimeout(newTimeout));
         }
     }
 
@@ -216,7 +216,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeCacheConnection(newCache));
+            return this._newInstance(this._reference.changeCacheConnection(newCache));
         }
     }
 
@@ -233,7 +233,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeEndpointSelection(newType));
+            return this._newInstance(this._reference.changeEndpointSelection(newType));
         }
     }
 
@@ -250,7 +250,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeSecure(b));
+            return this._newInstance(this._reference.changeSecure(b));
         }
     }
 
@@ -267,7 +267,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeEncoding(e));
+            return this._newInstance(this._reference.changeEncoding(e));
         }
     }
 
@@ -284,7 +284,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changePreferSecure(b));
+            return this._newInstance(this._reference.changePreferSecure(b));
         }
     }
 
@@ -303,7 +303,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(ref);
+            return this._newInstance(ref);
         }
     }
 
@@ -322,7 +322,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(ref);
+            return this._newInstance(ref);
         }
     }
 
@@ -339,7 +339,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeMode(RefMode.ModeTwoway));
+            return this._newInstance(this._reference.changeMode(RefMode.ModeTwoway));
         }
     }
 
@@ -356,7 +356,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeMode(RefMode.ModeOneway));
+            return this._newInstance(this._reference.changeMode(RefMode.ModeOneway));
         }
     }
 
@@ -373,7 +373,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeMode(RefMode.ModeBatchOneway));
+            return this._newInstance(this._reference.changeMode(RefMode.ModeBatchOneway));
         }
     }
 
@@ -390,7 +390,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeMode(RefMode.ModeDatagram));
+            return this._newInstance(this._reference.changeMode(RefMode.ModeDatagram));
         }
     }
 
@@ -407,20 +407,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(this._reference.changeMode(RefMode.ModeBatchDatagram));
-        }
-    }
-
-    ice_compress(co)
-    {
-        const ref = this._reference.changeCompress(co);
-        if(ref.equals(this._reference))
-        {
-            return this;
-        }
-        else
-        {
-            return this.__newInstance(ref);
+            return this._newInstance(this._reference.changeMode(RefMode.ModeBatchDatagram));
         }
     }
 
@@ -437,7 +424,33 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(ref);
+            return this._newInstance(ref);
+        }
+    }
+
+    ice_getTimeout()
+    {
+        return this._reference.getTimeout();
+    }
+
+    ice_fixed(connection)
+    {
+        if(connection === null)
+        {
+            throw new Error("invalid null connection passed to ice_fixed");
+        }
+        if(!(connection instanceof Ice.ConnectionI))
+        {
+            throw new Error("invalid connection passed to ice_fixed");
+        }
+        const ref = this._reference.changeConnection(connection);
+        if(ref.equals(this._reference))
+        {
+            return this;
+        }
+        else
+        {
+            return this._newInstance(ref);
         }
     }
 
@@ -455,7 +468,7 @@ class ObjectPrx
         }
         else
         {
-            return this.__newInstance(ref);
+            return this._newInstance(ref);
         }
     }
 
@@ -464,11 +477,11 @@ class ObjectPrx
         const r = new ProxyGetConnection(this, "ice_getConnection");
         try
         {
-            r.__invoke();
+            r.invoke();
         }
         catch(ex)
         {
-            r.__abort(ex);
+            r.abort(ex);
         }
         return r;
     }
@@ -483,11 +496,11 @@ class ObjectPrx
         const r = new ProxyFlushBatch(this, "ice_flushBatchRequests");
         try
         {
-            r.__invoke();
+            r.invoke();
         }
         catch(ex)
         {
-            r.__abort(ex);
+            r.abort(ex);
         }
         return r;
     }
@@ -507,18 +520,18 @@ class ObjectPrx
         return false;
     }
 
-    __write(os)
+    _write(os)
     {
-        this._reference.getIdentity().__write(os);
+        this._reference.getIdentity()._write(os);
         this._reference.streamWrite(os);
     }
 
-    __reference()
+    _getReference()
     {
         return this._reference;
     }
 
-    __copyFrom(from)
+    _copyFrom(from)
     {
         Debug.assert(this._reference === null);
         Debug.assert(this._requestHandler === null);
@@ -527,9 +540,9 @@ class ObjectPrx
         this._requestHandler = from._requestHandler;
     }
 
-    __handleException(ex, handler, mode, sent, sleep, cnt)
+    _handleException(ex, handler, mode, sent, sleep, cnt)
     {
-        this.__updateRequestHandler(handler, null); // Clear the request handler
+        this._updateRequestHandler(handler, null); // Clear the request handler
 
         //
         // We only retry local exception, system exceptions aren't retried.
@@ -579,15 +592,15 @@ class ObjectPrx
         }
     }
 
-    __checkAsyncTwowayOnly(name)
+    _checkAsyncTwowayOnly(name)
     {
         if(!this.ice_isTwoway())
         {
-            throw new Error("`" + name + "' can only be called with a twoway proxy");
+            throw new Ice.TwowayOnlyException(name);
         }
     }
 
-    __getRequestHandler()
+    _getRequestHandler()
     {
         if(this._reference.getCacheConnection())
         {
@@ -599,7 +612,7 @@ class ObjectPrx
         return this._reference.getRequestHandler(this);
     }
 
-    __getBatchRequestQueue()
+    _getBatchRequestQueue()
     {
         if(!this._batchRequestQueue)
         {
@@ -608,7 +621,7 @@ class ObjectPrx
         return this._batchRequestQueue;
     }
 
-    __setRequestHandler(handler)
+    _setRequestHandler(handler)
     {
         if(this._reference.getCacheConnection())
         {
@@ -621,7 +634,7 @@ class ObjectPrx
         return handler;
     }
 
-    __updateRequestHandler(previous, handler)
+    _updateRequestHandler(previous, handler)
     {
         if(this._reference.getCacheConnection() && previous !== null)
         {
@@ -635,17 +648,17 @@ class ObjectPrx
     //
     // Only for use by IceInternal.ProxyFactory
     //
-    __setup(ref)
+    _setup(ref)
     {
         Debug.assert(this._reference === null);
 
         this._reference = ref;
     }
 
-    __newInstance(ref)
+    _newInstance(ref)
     {
         const proxy = new this.constructor();
-        proxy.__setup(ref);
+        proxy._setup(ref);
         return proxy;
     }
 
@@ -657,55 +670,55 @@ class ObjectPrx
             {
                 return true;
             }
-            return this.constructor.__instanceof(T);
+            return this.constructor._instanceof(T);
         }
         return false;
     }
-    
+
     //
     // Generic invocation for operations that have input parameters.
     //
-    static __invoke(p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args)
+    static _invoke(p, name, mode, fmt, ctx, marshalFn, unmarshalFn, userEx, args)
     {
         if(unmarshalFn !== null || userEx.length > 0)
         {
-            p.__checkAsyncTwowayOnly(name);
+            p._checkAsyncTwowayOnly(name);
         }
 
-        const __r = new OutgoingAsync(p, name,
-            __res =>
+        const r = new OutgoingAsync(p, name,
+            res =>
             {
-                this.__completed(__res, unmarshalFn, userEx);
+                this._completed(res, unmarshalFn, userEx);
             });
 
         try
         {
-            __r.__prepare(name, mode, ctx);
+            r.prepare(name, mode, ctx);
             if(marshalFn === null)
             {
-                __r.__writeEmptyParams();
+                r.writeEmptyParams();
             }
             else
             {
-                const __os = __r.__startWriteParams(fmt);
-                marshalFn.call(null, __os, args);
-                __r.__endWriteParams();
+                const ostr = r.startWriteParams(fmt);
+                marshalFn.call(null, ostr, args);
+                r.endWriteParams();
             }
-            __r.__invoke();
+            r.invoke();
         }
         catch(ex)
         {
-            __r.__abort(ex);
+            r.abort(ex);
         }
-        return __r;
+        return r;
     }
 
     //
     // Handles the completion of an invocation.
     //
-    static __completed(__r, unmarshalFn, userEx)
+    static _completed(r, unmarshalFn, userEx)
     {
-        if(!this.__check(__r, userEx))
+        if(!this._check(r, userEx))
         {
             return;
         }
@@ -714,135 +727,54 @@ class ObjectPrx
         {
             if(unmarshalFn === null)
             {
-                __r.__readEmptyParams();
-                __r.resolve();
+                r.readEmptyParams();
+                r.resolve();
             }
             else
             {
-                __r.resolve(unmarshalFn(__r));
+                r.resolve(unmarshalFn(r));
             }
         }
         catch(ex)
         {
-            this.__dispatchLocalException(__r, ex);
+            this.dispatchLocalException(r, ex);
             return;
         }
     }
 
     //
-    // Unmarshal callback for operations that return a bool as the only result.
-    //
-    static __returns_bool(__is, __results)
-    {
-        __results.push(__is.readBool());
-    }
-
-    //
-    // Unmarshal callback for operations that return a byte as the only result.
-    //
-    static __returns_byte(__is, __results)
-    {
-        __results.push(__is.readByte());
-    }
-
-    //
-    // Unmarshal callback for operations that return a short as the only result.
-    //
-    static __returns_short(__is, __results)
-    {
-        __results.push(__is.readShort());
-    }
-
-    //
-    // Unmarshal callback for operations that return an int as the only result.
-    //
-    static __returns_int(__is, __results)
-    {
-        __results.push(__is.readInt());
-    }
-
-    //
-    // Unmarshal callback for operations that return a long as the only result.
-    //
-    static __returns_long(__is, __results)
-    {
-        __results.push(__is.readLong());
-    }
-
-    //
-    // Unmarshal callback for operations that return a float as the only result.
-    //
-    static __returns_float(__is, __results)
-    {
-        __results.push(__is.readFloat());
-    }
-
-    //
-    // Unmarshal callback for operations that return a double as the only result.
-    //
-    static __returns_double(__is, __results)
-    {
-        __results.push(__is.readDouble());
-    }
-
-    //
-    // Unmarshal callback for operations that return a string as the only result.
-    //
-    static __returns_string(__is, __results)
-    {
-        __results.push(__is.readString());
-    }
-
-    //
-    // Unmarshal callback for operations that return a proxy as the only result.
-    //
-    static __returns_ObjectPrx(__is, __results)
-    {
-        __results.push(__is.readProxy());
-    }
-
-    //
-    // Unmarshal callback for operations that return an object as the only result.
-    //
-    static __returns_Object(__is, __results)
-    {
-        __is.readValue(obj => __results.push(obj), Ice.Object);
-        __is.readPendingValues();
-    }
-
-    //
     // Handles user exceptions.
     //
-    static __check(__r, __uex)
+    static _check(r, uex)
     {
         //
-        // If __uex is non-null, it must be an array of exception types.
+        // If uex is non-null, it must be an array of exception types.
         //
         try
         {
-            __r.__throwUserException();
+            r.throwUserException();
         }
         catch(ex)
         {
             if(ex instanceof Ice.UserException)
             {
-                if(__uex !== null)
+                if(uex !== null)
                 {
-                    for(let i = 0; i < __uex.length; ++i)
+                    for(let i = 0; i < uex.length; ++i)
                     {
-                        if(ex instanceof __uex[i])
+                        if(ex instanceof uex[i])
                         {
-                            __r.reject(ex);
+                            r.reject(ex);
                             return false;
                         }
                     }
                 }
-                __r.reject(new Ice.UnknownUserException(ex.ice_name()));
+                r.reject(new Ice.UnknownUserException(ex.ice_id()));
                 return false;
             }
             else
             {
-                __r.reject(ex);
+                r.reject(ex);
                 return false;
             }
         }
@@ -850,19 +782,19 @@ class ObjectPrx
         return true;
     }
 
-    static __dispatchLocalException(__r, __ex)
+    static dispatchLocalException(r, ex)
     {
-        __r.reject(__ex);
+        r.reject(ex);
     }
 
     static checkedCast(prx, facet, ctx)
     {
-        let __r = null;
+        let r = null;
 
         if(prx === undefined || prx === null)
         {
-            __r = new AsyncResultBase(null, "checkedCast", null, null, null);
-            __r.resolve(null);
+            r = new AsyncResultBase(null, "checkedCast", null, null, null);
+            r.resolve(null);
         }
         else
         {
@@ -870,35 +802,36 @@ class ObjectPrx
             {
                 prx = prx.ice_facet(facet);
             }
-            __r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
+
+            r = new AsyncResultBase(prx.ice_getCommunicator(), "checkedCast", null, prx, null);
             prx.ice_isA(this.ice_staticId(), ctx).then(
-                __ret =>
+                ret =>
                 {
-                    if(__ret)
+                    if(ret)
                     {
-                        const __h = new this();
-                        __h.__copyFrom(prx);
-                        __r.resolve(__h);
+                        const h = new this();
+                        h._copyFrom(prx);
+                        r.resolve(h);
                     }
                     else
                     {
-                        __r.resolve(null);
+                        r.resolve(null);
                     }
                 }).catch(
-                    __ex =>
+                    ex =>
                     {
-                        if(__ex instanceof Ice.FacetNotExistException)
+                        if(ex instanceof Ice.FacetNotExistException)
                         {
-                            __r.resolve(null);
+                            r.resolve(null);
                         }
                         else
                         {
-                            __r.reject(__ex);
+                            r.reject(ex);
                         }
                     });
         }
 
-        return __r;
+        return r;
     }
 
     static uncheckedCast(prx, facet)
@@ -911,7 +844,7 @@ class ObjectPrx
             {
                 prx = prx.ice_facet(facet);
             }
-            r.__copyFrom(prx);
+            r._copyFrom(prx);
         }
         return r;
     }
@@ -941,31 +874,32 @@ class ObjectPrx
         return is.readOptionalProxy(tag, this);
     }
 
-    static __instanceof(T)
+    static _instanceof(T)
     {
         if(T === this)
         {
             return true;
         }
 
-        for(let i in this.__implements)
+        for(const i in this._implements)
         {
-            if(this.__implements[i].__instanceof(T))
+            if(this._implements[i]._instanceof(T))
             {
                 return true;
             }
         }
 
-        if(this.__parent)
-        {
-            return this.__parent.__instanceof(T);
-        }
         return false;
     }
-    
+
     static ice_staticId()
     {
-        return "::Ice::Object";
+        return this._id;
+    }
+
+    static get _implements()
+    {
+        return [];
     }
 }
 

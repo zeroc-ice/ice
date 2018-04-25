@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -78,6 +78,12 @@ public abstract class Reference implements Cloneable
         return _invocationTimeout;
     }
 
+    public Ice.BooleanOptional
+    getCompress()
+    {
+        return _overrideCompress ? Ice.Optional.O(_compress) : new Ice.BooleanOptional();
+    }
+
     public final Ice.Communicator
     getCommunicator()
     {
@@ -94,6 +100,7 @@ public abstract class Reference implements Cloneable
     public abstract Ice.EndpointSelectionType getEndpointSelection();
     public abstract int getLocatorCacheTimeout();
     public abstract String getConnectionId();
+    public abstract Ice.IntOptional getTimeout();
 
     //
     // The change* methods (here and in derived classes) create
@@ -216,6 +223,7 @@ public abstract class Reference implements Cloneable
 
     public abstract Reference changeTimeout(int newTimeout);
     public abstract Reference changeConnectionId(String connectionId);
+    public abstract Reference changeConnection(Ice.ConnectionI connection);
 
     @Override
     public synchronized int
@@ -245,6 +253,21 @@ public abstract class Reference implements Cloneable
         _hashInitialized = true;
 
         return _hashValue;
+    }
+
+    public java.lang.Boolean
+    getCompressOverride()
+    {
+        DefaultsAndOverrides defaultsAndOverrides = getInstance().defaultsAndOverrides();
+        if(defaultsAndOverrides.overrideCompress)
+        {
+            return Boolean.valueOf(defaultsAndOverrides.overrideCompressValue);
+        }
+        else if(_overrideCompress)
+        {
+            return Boolean.valueOf(_compress);
+        }
+        return null; // Null indicates that compress is not overriden.
     }
 
     //
@@ -283,8 +306,8 @@ public abstract class Reference implements Cloneable
 
         if(!s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
-            _protocol.__write(s);
-            _encoding.__write(s);
+            _protocol.ice_writeMembers(s);
+            _encoding.ice_writeMembers(s);
         }
 
         // Derived class writes the remainder of the reference.
@@ -306,13 +329,18 @@ public abstract class Reference implements Cloneable
         //
         StringBuilder s = new StringBuilder(128);
 
+        Ice.ToStringMode toStringMode = _instance.toStringMode();
+        final String separators = " :@";
+
+        String id = Ice.Util.identityToString(_identity, toStringMode);
+
         //
         // If the encoded identity string contains characters which
         // the reference parser uses as separators, then we enclose
         // the identity string in quotes.
         //
-        String id = Ice.Util.identityToString(_identity);
-        if(IceUtilInternal.StringUtil.findFirstOf(id, " :@") != -1)
+
+        if(IceUtilInternal.StringUtil.findFirstOf(id, separators) != -1)
         {
             s.append('"');
             s.append(id);
@@ -331,8 +359,8 @@ public abstract class Reference implements Cloneable
             // the facet string in quotes.
             //
             s.append(" -f ");
-            String fs = IceUtilInternal.StringUtil.escapeString(_facet, "");
-            if(IceUtilInternal.StringUtil.findFirstOf(fs, " :@") != -1)
+            String fs = IceUtilInternal.StringUtil.escapeString(_facet, "", toStringMode);
+            if(IceUtilInternal.StringUtil.findFirstOf(fs, separators) != -1)
             {
                 s.append('"');
                 s.append(fs);
@@ -481,16 +509,16 @@ public abstract class Reference implements Cloneable
     @Override
     public Reference clone()
     {
-	Reference c = null;
-	try
-	{
-	    c = (Reference)super.clone();
-	}
-	catch(CloneNotSupportedException ex)
-	{
-	    assert false;
-	}
-	return c;
+        Reference c = null;
+        try
+        {
+            c = (Reference)super.clone();
+        }
+        catch(CloneNotSupportedException ex)
+        {
+            assert false;
+        }
+        return c;
     }
 
     protected int _hashValue;

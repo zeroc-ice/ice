@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -92,6 +92,11 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
 
         current.adapter.getCommunicator().shutdown();
         return null;
+    }
+
+    public override Task<bool> supportsCompressAsync(Ice.Current current)
+    {
+        return Task.FromResult<bool>(true);
     }
 
     public override Task opVoidAsync(Ice.Current current)
@@ -858,7 +863,6 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     {
         return Task.FromResult<MyStruct1>(value);
     }
-
 
     public override Task<string[]>
     opStringLiteralsAsync(Ice.Current current)

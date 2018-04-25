@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,6 @@
 
 #ifndef INSTANCE_H
 #define INSTANCE_H
-
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/ObjectAdapterF.h>
@@ -61,9 +60,14 @@ class Instance : public IceUtil::Shared
 {
 public:
 
+    enum SendQueueSizeMaxPolicy
+    {
+        RemoveSubscriber,
+        DropEvents
+    };
+
     Instance(const std::string&, const std::string&, const Ice::CommunicatorPtr&, const Ice::ObjectAdapterPtr&,
              const Ice::ObjectAdapterPtr&, const Ice::ObjectAdapterPtr& = 0, const IceStormElection::NodePrx& = 0);
-    ~Instance();
 
     void setNode(const IceStormElection::NodeIPtr&);
 
@@ -88,6 +92,8 @@ public:
     IceUtil::Time discardInterval() const;
     IceUtil::Time flushInterval() const;
     int sendTimeout() const;
+    int sendQueueSizeMax() const;
+    SendQueueSizeMaxPolicy sendQueueSizeMaxPolicy() const;
 
     void shutdown();
     virtual void destroy();
@@ -105,6 +111,8 @@ private:
     const IceUtil::Time _discardInterval;
     const IceUtil::Time _flushInterval;
     const int _sendTimeout;
+    const int _sendQueueSizeMax;
+    const SendQueueSizeMaxPolicy _sendQueueSizeMaxPolicy;
     const Ice::ObjectPrx _topicReplicaProxy;
     const Ice::ObjectPrx _publisherReplicaProxy;
     const TopicReaperPtr _topicReaper;
@@ -113,7 +121,6 @@ private:
     IceUtil::TimerPtr _batchFlusher;
     IceUtil::TimerPtr _timer;
     IceStorm::Instrumentation::TopicManagerObserverPtr _observer;
-
 
 };
 typedef IceUtil::Handle<Instance> InstancePtr;

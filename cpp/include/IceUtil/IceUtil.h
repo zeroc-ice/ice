@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,13 +13,14 @@
 #include <IceUtil/PushDisableWarnings.h>
 
 //
-// This file must include *all* other headers of IceUtil, except
+// This file must include *all* headers of IceUtil, except
 // for DisableWarnings.h and headers with only IceUtilInternal symbols
 //
 
 #include <IceUtil/Config.h>
 #include <IceUtil/Cond.h>
-#if !defined(__APPLE__) && !defined(ICE_OS_WINRT)
+#include <IceUtil/ConsoleUtil.h>
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
 #   include <IceUtil/CtrlCHandler.h>
 #endif
 #include <IceUtil/Exception.h>
@@ -39,7 +40,6 @@
 #include <IceUtil/Time.h>
 #include <IceUtil/Timer.h>
 #include <IceUtil/UUID.h>
-#include <IceUtil/UniquePtr.h>
 
 #include <IceUtil/PopDisableWarnings.h>
 #endif

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -269,7 +269,7 @@ public:
         Lock sync(*this);
         this->objects.erase(id);
         updated(updateSerial(0, "object removed `" +
-                             identityToString(id) + "'"));
+                             current.adapter->getCommunicator()->identityToString(id) + "'"));
     }
 
     int serial;
@@ -493,7 +493,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
 
     AdminSessionPrx session = registry->createAdminSession("admin3", "test3");
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -619,7 +619,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::ObjectNotExistException&)
         {
         }
-
 
         session1->destroy();
         session2->destroy();
@@ -1678,7 +1677,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 //      nodeApp.name = "NodeApp";
 //      ServerDescriptorPtr server = new ServerDescriptor();
 //      server->id = "node-1";
-//      server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
+//      server->exe = properties->getProperty("IceGridNodeExe");
 //      server->options.push_back("--nowarn");
 //      server->pwd = ".";
 //      addProperty(server, "IceGrid.Node.Name", "node-1");
@@ -1803,7 +1802,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         nodeApp.name = "NodeApp";
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "node-1";
-        server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
+        server->exe = properties->getProperty("IceGridNodeExe");
         server->options.push_back("--nowarn");
         server->pwd = ".";
         server->applicationDistrib = false;
@@ -1876,7 +1875,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         admin->addApplication(testApp);
         session->finishUpdate();
         appObs1->waitForUpdate(__FILE__, __LINE__);
-
 
         session->startUpdate();
         admin->startServer("Server");
@@ -1964,7 +1962,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         cout << "ok" << endl;
     }
-
 
     {
         cout << "testing observer with direct proxy... " << flush;

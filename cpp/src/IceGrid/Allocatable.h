@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -85,6 +85,7 @@ public:
     bool isAllocatable() const { return _allocatable; }
     SessionIPtr getSession() const;
 
+    virtual bool isEnabled() const = 0;
     virtual void allocated(const SessionIPtr&) = 0;
     virtual void released(const SessionIPtr&) = 0;
     virtual bool canTryAllocate() { return false; }

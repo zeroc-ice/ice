@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,6 +13,122 @@
 
 using namespace std;
 using namespace Test;
+
+namespace
+{
+
+#ifdef ICE_CPP11_MAPPING
+
+void breakCycles(shared_ptr<Ice::Value>);
+
+template<typename T>
+void breakCycles(const vector<shared_ptr<T>>& s)
+{
+    for(auto e : s)
+    {
+        breakCycles(e);
+    }
+}
+
+template<typename K, typename V>
+void breakCycles(const map<K, shared_ptr<V>>& d)
+{
+    for(auto e : d)
+    {
+        breakCycles(e.second);
+    }
+}
+
+void breakCycles(shared_ptr<Ice::Value> o)
+{
+    if(dynamic_pointer_cast<D1>(o))
+    {
+        auto d1 = dynamic_pointer_cast<D1>(o);
+        auto tmp = d1->pd1;
+        d1->pd1 = nullptr;
+        if(tmp != d1)
+        {
+            breakCycles(tmp);
+        }
+    }
+    if(dynamic_pointer_cast<D3>(o))
+    {
+        auto d3 = dynamic_pointer_cast<D3>(o);
+        d3->pd3 = nullptr;
+    }
+    if(dynamic_pointer_cast<B>(o))
+    {
+        auto b = dynamic_pointer_cast<B>(o);
+        if(b->pb != nullptr)
+        {
+            b->pb->pb = nullptr;
+        }
+        b->pb = nullptr;
+    }
+    if(dynamic_pointer_cast<PDerived>(o))
+    {
+        auto p = dynamic_pointer_cast<PDerived>(o);
+        p->pb = nullptr;
+    }
+    if(dynamic_pointer_cast<CompactPDerived>(o))
+    {
+        auto p = dynamic_pointer_cast<CompactPDerived>(o);
+        p->pb = nullptr;
+    }
+    if(dynamic_pointer_cast<PCDerived>(o))
+    {
+        auto p = dynamic_pointer_cast<PCDerived>(o);
+        auto seq(p->pbs);
+        p->pbs.clear();
+        breakCycles(seq);
+    }
+    if(dynamic_pointer_cast<CompactPCDerived>(o))
+    {
+        auto p = dynamic_pointer_cast<CompactPCDerived>(o);
+        auto seq(p->pbs);
+        p->pbs.clear();
+        breakCycles(seq);
+    }
+    if(dynamic_pointer_cast<PCDerived3>(o))
+    {
+        auto p = dynamic_pointer_cast<PCDerived3>(o);
+        p->pcd3 = nullptr;
+    }
+    if(dynamic_pointer_cast<PNode>(o))
+    {
+        auto curr = dynamic_pointer_cast<PNode>(o);
+        while(curr && o != curr->next)
+        {
+            auto next = curr->next;
+            curr->next = nullptr;
+            curr = next;
+        }
+    }
+    if(dynamic_pointer_cast<SS1>(o))
+    {
+        auto s = dynamic_pointer_cast<SS1>(o);
+        breakCycles(s->s);
+    }
+    if(dynamic_pointer_cast<SS2>(o))
+    {
+        auto s = dynamic_pointer_cast<SS2>(o);
+        breakCycles(s->s);
+    }
+    if(dynamic_pointer_cast<Forward>(o))
+    {
+        auto f = dynamic_pointer_cast<Forward>(o);
+        f->h = nullptr;
+    }
+}
+#else
+
+template<typename T>
+void breakCycles(T)
+{
+    // no op, we rely on C++98 collection.
+}
+
+#endif
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -63,7 +179,7 @@ public:
     response_SBaseAsObject(const ::Ice::ObjectPtr& o)
     {
         test(o);
-        test(o->ice_id() == "::Test::SBase");
+        test(o->ice_id(Ice::emptyCurrent) == "::Test::SBase");
         SBasePtr sb = ICE_DYNAMIC_CAST(SBase, o);
         test(sb);
         test(sb->sb == "SBase.sb");
@@ -74,6 +190,7 @@ public:
     response_SBaseAsSBase(const SBasePtr& sb)
     {
         test(sb->sb == "SBase.sb");
+        breakCycles(sb);
         called();
     }
 
@@ -83,6 +200,7 @@ public:
         SBSKnownDerivedPtr sbskd = ICE_DYNAMIC_CAST(SBSKnownDerived, sb);
         test(sbskd);
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
+        breakCycles(sbskd);
         called();
     }
 
@@ -90,6 +208,7 @@ public:
     response_SBSKnownDerivedAsSBSKnownDerived(const SBSKnownDerivedPtr& sbskd)
     {
         test(sbskd->sbskd == "SBSKnownDerived.sbskd");
+        breakCycles(sbskd);
         called();
     }
 
@@ -97,6 +216,7 @@ public:
     response_SBSUnknownDerivedAsSBase(const SBasePtr& sb)
     {
         test(sb->sb == "SBSUnknownDerived.sb");
+        breakCycles(sb);
         called();
     }
 
@@ -130,8 +250,9 @@ public:
     response_SUnknownAsObject11(const Ice::ObjectPtr& o)
     {
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o));
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->getUnknownTypeId() == "::Test::SUnknown");
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_id() == "::Test::SUnknown");
         called();
+        ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_getSlicedData()->clear();
     }
 
     void
@@ -147,6 +268,7 @@ public:
         test(b->ice_id() == "::Test::B");
         test(b->sb == "B1.sb");
         test(b->pb == b);
+        breakCycles(b);
         called();
     }
 
@@ -162,6 +284,7 @@ public:
         test(b2->ice_id() == "::Test::B");
         test(b2->sb == "B2.sb");
         test(b2->pb == b1);
+        breakCycles(b1);
         called();
     }
 
@@ -185,6 +308,7 @@ public:
         test(b2->pb == b1);
         test(b2->sb == "D2.sb");
         test(b2->ice_id() == "::Test::B");
+        breakCycles(b1);
         called();
     }
 
@@ -202,6 +326,7 @@ public:
         test(b2->ice_id() == "::Test::B");
         test(b2->sb == "D2.sb");
         test(b2->pb == d1);
+        breakCycles(d1);
         called();
     }
 
@@ -223,6 +348,7 @@ public:
         test(d1);
         test(d1->sd1 == "D1.sd1");
         test(d1->pd1 == b2);
+        breakCycles(b2);
         called();
     }
 
@@ -242,6 +368,8 @@ public:
         test(b2->ice_id() == "::Test::B");      // No factory, must be sliced
         test(b2->sb == "D2.sb");
         test(b2->pb == b1);
+        breakCycles(b1);
+        breakCycles(b2);
         called();
     }
 
@@ -249,6 +377,7 @@ public:
     response_returnTest1(const BPtr& r, const BPtr& p1, const BPtr&)
     {
         test(r == p1);
+        breakCycles(r);
         called();
     }
 
@@ -256,6 +385,7 @@ public:
     response_returnTest2(const BPtr& r, const BPtr& p1, const BPtr&)
     {
         test(r == p1);
+        breakCycles(r);
         called();
     }
 
@@ -284,6 +414,10 @@ public:
         test(ret->pb == 0);
         test(ret->ice_id() == "::Test::D1");
         called();
+
+        breakCycles(ret);
+        breakCycles(p1);
+        breakCycles(p2);
     }
 
     void
@@ -299,6 +433,9 @@ public:
         test(ret->pb == 0);
         test(ret->ice_id() == "::Test::B");
         called();
+
+        breakCycles(ret);
+        breakCycles(b);
     }
 
     void
@@ -326,6 +463,7 @@ public:
         test(e.pb->sb == "sb");
         test(e.pb->pb == e.pb);
         called();
+        breakCycles(e.pb);
     }
 
     void
@@ -364,7 +502,6 @@ public:
         called();
     }
 
-
     void
     exception_throwUnknownDerivedAsBase(const ::Ice::Exception& ex)
     {
@@ -375,6 +512,7 @@ public:
         test(e.pb->sb == "sb d2");
         test(e.pb->pb == e.pb);
         called();
+        breakCycles(e.pb);
     }
 
     void
@@ -386,6 +524,8 @@ public:
         test(pd->ps == "preserved");
         test(pd->pb == pd);
         called();
+
+        breakCycles(r);
     }
 
     void
@@ -395,6 +535,8 @@ public:
         test(!p2);
         test(r->pi == 3);
         called();
+
+        breakCycles(r);
     }
 
     void
@@ -407,6 +549,8 @@ public:
         test(!p2);
         test(r->pi == 3);
         called();
+
+        breakCycles(r);
     }
 
     void
@@ -420,6 +564,8 @@ public:
         test(p2->pi == 3);
         test(p2->pbs[0] == p2);
         called();
+
+        breakCycles(r);
     }
 
     void
@@ -439,6 +585,8 @@ public:
         test(p3->pcd2 == p3->pi);
         test(p3->pcd3 == p3->pbs[10]);
         called();
+
+        breakCycles(r);
     }
 
     void
@@ -451,6 +599,8 @@ public:
         test(!p2);
         test(r->pi == 3);
         called();
+
+        breakCycles(r);
     }
 
     void
@@ -464,6 +614,8 @@ public:
         test(p2->pi == 3);
         test(p2->pbs[0] == p2);
         called();
+
+        breakCycles(r);
     }
 
     void
@@ -579,8 +731,10 @@ testUOO(const TestIntfPrxPtr& test)
         o = test->SUnknownAsObject();
         test(test->ice_getEncodingVersion() != Ice::Encoding_1_0);
         test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o));
-        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->getUnknownTypeId() == "::Test::SUnknown");
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_id() == "::Test::SUnknown");
+        test(ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_getSlicedData());
         test->checkSUnknown(o);
+        ICE_DYNAMIC_CAST(Ice::UnknownSlicedValue, o)->ice_getSlicedData()->clear();
     }
     catch(const Ice::NoValueFactoryException&)
     {
@@ -595,6 +749,8 @@ testUOO(const TestIntfPrxPtr& test)
     {
         test(false);
     }
+}
+
 }
 
 TestIntfPrxPtr
@@ -938,13 +1094,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 {
                     shared_ptr<Ice::Value> v = f.get();
                     test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v));
-                    test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->getUnknownTypeId() == "::Test::SUnknown");
+                    test(dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_id() == "::Test::SUnknown");
+                    dynamic_pointer_cast<Ice::UnknownSlicedValue>(v)->ice_getSlicedData()->clear();
                 }
                 catch(...)
                 {
                     test(false);
                 }
-
             }
 #else
             CallbackPtr cb = new Callback;
@@ -979,6 +1135,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b->ice_id() == "::Test::B");
             test(b->sb == "B1.sb");
             test(b->pb == b);
+
+            breakCycles(b);
         }
         catch(...)
         {
@@ -998,6 +1156,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b->ice_id() == "::Test::B");
             test(b->sb == "B1.sb");
             test(b->pb == b);
+
+            breakCycles(b);
         }
         catch(...)
         {
@@ -1027,6 +1187,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->ice_id() == "::Test::B");
             test(b2->sb == "B2.sb");
             test(b2->pb == b1);
+
+            breakCycles(b1);
+            breakCycles(b2);
         }
         catch(...)
         {
@@ -1051,6 +1214,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->ice_id() == "::Test::B");
             test(b2->sb == "B2.sb");
             test(b2->pb == b1);
+
+            breakCycles(b1);
+            breakCycles(b2);
         }
         catch(...)
         {
@@ -1089,6 +1255,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->pb == b1);
             test(b2->sb == "D2.sb");
             test(b2->ice_id() == "::Test::B");
+
+            breakCycles(b1);
         }
         catch(...)
         {
@@ -1121,6 +1289,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->pb == b1);
             test(b2->sb == "D2.sb");
             test(b2->ice_id() == "::Test::B");
+
+            breakCycles(b1);
         }
         catch(...)
         {
@@ -1151,6 +1321,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->ice_id() == "::Test::B");
             test(b2->sb == "D2.sb");
             test(b2->pb == d1);
+
+            breakCycles(d1);
         }
         catch(...)
         {
@@ -1177,6 +1349,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->ice_id() == "::Test::B");
             test(b2->sb == "D2.sb");
             test(b2->pb == d1);
+
+            breakCycles(d1);
         }
         catch(...)
         {
@@ -1211,6 +1385,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
+
+            breakCycles(b2);
         }
         catch(...)
         {
@@ -1225,7 +1401,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         auto f = test->D2AsBAsync();
         try
         {
-            auto b2 = test->D2AsB();
+            auto b2 = f.get();
             test(b2);
             test(b2->ice_id() == "::Test::B");
             test(b2->sb == "D2.sb");
@@ -1241,6 +1417,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(d1);
             test(d1->sd1 == "D1.sd1");
             test(d1->pd1 == b2);
+
+            breakCycles(b2);
         }
         catch(...)
         {
@@ -1275,6 +1453,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->ice_id() == "::Test::B");  // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
+
+            breakCycles(b1);
+            breakCycles(b2);
         }
         catch(...)
         {
@@ -1306,6 +1487,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->ice_id() == "::Test::B");  // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
+
+            breakCycles(b1);
+            breakCycles(b2);
         }
         catch(...)
         {
@@ -1341,6 +1525,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b2->ice_id() == "::Test::B");  // No factory, must be sliced
             test(b2->sb == "D2.sb");
             test(b2->pb == b1);
+
+            breakCycles(b1);
+            breakCycles(b2);
         }
         catch(...)
         {
@@ -1357,6 +1544,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             BPtr p2;
             BPtr r = test->returnTest1(p1, p2);
             test(r == p1);
+
+            breakCycles(r);
+            breakCycles(p1);
+            breakCycles(p2);
         }
         catch(...)
         {
@@ -1373,6 +1564,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             auto result = f.get();
             test(result.returnValue == result.p1);
+
+            breakCycles(result.returnValue);
+            breakCycles(result.p1);
         }
         catch(...)
         {
@@ -1395,6 +1589,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             BPtr p2;
             BPtr r = test->returnTest2(p1, p2);
             test(r == p1);
+
+            breakCycles(r);
+            breakCycles(p1);
+            breakCycles(p2);
         }
         catch(...)
         {
@@ -1411,6 +1609,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             auto result = f.get();
             test(result.returnValue == result.p2);
+
+            breakCycles(result.returnValue);
+            breakCycles(result.p2);
         }
         catch(...)
         {
@@ -1465,6 +1666,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b1 != d3);
             test(b2 != d1);
             test(b2 != d3);
+
+            breakCycles(b1);
+            breakCycles(d1);
+            breakCycles(d3);
         }
         catch(...)
         {
@@ -1522,6 +1727,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b1 != d3);
             test(b2 != d1);
             test(b2 != d3);
+
+            breakCycles(b1);
+            breakCycles(d1);
+            breakCycles(d3);
         }
         catch(...)
         {
@@ -1571,6 +1780,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b1 != d3);
             test(b2 != d1);
             test(b2 != d3);
+
+            breakCycles(b1);
+            breakCycles(d1);
+            breakCycles(d3);
         }
         catch(...)
         {
@@ -1628,6 +1841,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(b1 != d3);
             test(b2 != d1);
             test(b2 != d3);
+
+            breakCycles(b1);
+            breakCycles(d1);
+            breakCycles(d3);
         }
         catch(...)
         {
@@ -1658,6 +1875,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ret->sb == "D1.sb (p2 2)");
             test(ret->pb == 0);
             test(ret->ice_id() == "::Test::D1");
+
+            breakCycles(ret);
+            breakCycles(p1);
+            breakCycles(p2);
         }
         catch(...)
         {
@@ -1691,6 +1912,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ret->sb == "D1.sb (p2 2)");
             test(ret->pb == 0);
             test(ret->ice_id() == "::Test::D1");
+
+            breakCycles(ret);
+            breakCycles(p1);
+            breakCycles(p2);
         }
         catch(...)
         {
@@ -1721,6 +1946,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ret->sb == "B.sb (2)");
             test(ret->pb == 0);
             test(ret->ice_id() == "::Test::B");
+
+            breakCycles(ret);
+            breakCycles(b);
         }
         catch(...)
         {
@@ -1748,6 +1976,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ret->sb == "B.sb (2)");
             test(ret->pb == nullptr);
             test(ret->ice_id() == "::Test::B");
+
+            breakCycles(ret);
+            breakCycles(b);
         }
         catch(...)
         {
@@ -1789,6 +2020,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
             test(r->pb == r);
+
+            breakCycles(r);
+            breakCycles(b1);
+            breakCycles(d3);
         }
         catch(...)
         {
@@ -1831,6 +2066,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
             test(r->pb == r);
+
+            breakCycles(b1);
+            breakCycles(d3);
+            breakCycles(r);
         }
         catch(...)
         {
@@ -1870,6 +2109,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
             test(r->pb == r);
+
+            breakCycles(d3);
+            breakCycles(d11);
+            breakCycles(d12);
+            breakCycles(r);
         }
         catch(...)
         {
@@ -1918,6 +2162,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(r->ice_id() == "::Test::B");
             test(r->sb == "D3.sb");
             test(r->pb == r);
+
+            breakCycles(d3);
+            breakCycles(d11);
+            breakCycles(d12);
+            breakCycles(r);
         }
         catch(...)
         {
@@ -1983,6 +2232,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 ss2->ice_collectable(true);
 #endif
                 ss = test->sequenceTest(ss1, ss2);
+
+                breakCycles(ss1);
+                breakCycles(ss2);
             }
 
             test(ss.c1);
@@ -2011,6 +2263,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ss2b->ice_id() == "::Test::B");
             test(ss2d1->ice_id() == "::Test::D1");
             test(ss2d3->ice_id() == "::Test::B");
+
+            breakCycles(ss.c1);
+            breakCycles(ss.c2);
         }
         catch(const ::Ice::Exception&)
         {
@@ -2085,6 +2340,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 cb->check();
                 ss = cb->rss3;
 #endif
+
+                breakCycles(ss1);
+                breakCycles(ss2);
             }
 
             test(ss.c1);
@@ -2113,6 +2371,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ss2b->ice_id() == "::Test::B");
             test(ss2d1->ice_id() == "::Test::D1");
             test(ss2d3->ice_id() == "::Test::B");
+
+            breakCycles(ss.c1);
+            breakCycles(ss.c2);
         }
         catch(const ::Ice::Exception&)
         {
@@ -2173,6 +2434,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(d1->sd1 == s.str());
                 test(d1->pd1 == d1);
             }
+
+            breakCycles(bin);
+            breakCycles(bout);
+            breakCycles(r);
         }
         catch(const ::Ice::Exception&)
         {
@@ -2244,6 +2509,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(d1->sd1 == s.str());
                 test(d1->pd1 == d1);
             }
+
+            breakCycles(bin);
+            breakCycles(bout);
+            breakCycles(r);
         }
         catch(const ::Ice::Exception&)
         {
@@ -2266,6 +2535,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(e.pb);
             test(e.pb->sb == "sb");
             test(e.pb->pb == e.pb);
+            breakCycles(e.pb);
         }
         catch(...)
         {
@@ -2289,6 +2559,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ex.pb);
             test(ex.pb->sb == "sb");
             test(ex.pb->pb == ex.pb);
+            breakCycles(ex.pb);
         }
         catch(...)
         {
@@ -2323,6 +2594,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(e.pd1->pb == e.pd1);
             test(e.pd1->sd1 == "sd2");
             test(e.pd1->pd1 == e.pd1);
+            breakCycles(e.pb);
+            breakCycles(e.pd1);
         }
         catch(...)
         {
@@ -2352,6 +2625,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(ex.pd1->pb == ex.pd1);
             test(ex.pd1->sd1 == "sd2");
             test(ex.pd1->pd1 == ex.pd1);
+            breakCycles(ex.pb);
+            breakCycles(ex.pd1);
         }
         catch(...)
         {
@@ -2386,6 +2661,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(e.pd1->pb == e.pd1);
             test(e.pd1->sd1 == "sd2");
             test(e.pd1->pd1 == e.pd1);
+            breakCycles(e.pb);
+            breakCycles(e.pd1);
         }
         catch(...)
         {
@@ -2415,6 +2692,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(e.pd1->pb == e.pd1);
             test(e.pd1->sd1 == "sd2");
             test(e.pd1->pd1 == e.pd1);
+            breakCycles(e.pb);
+            breakCycles(e.pd1);
         }
         catch(...)
         {
@@ -2444,6 +2723,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(e.pb);
             test(e.pb->sb == "sb d2");
             test(e.pb->pb == e.pb);
+            breakCycles(e.pb);
         }
         catch(...)
         {
@@ -2467,6 +2747,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(e.pb);
             test(e.pb->sb == "sb d2");
             test(e.pb->pb == e.pb);
+            breakCycles(e.pb);
         }
         catch(...)
         {
@@ -2501,6 +2782,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(p2->pi == 3);
         test(p2->ps == "preserved");
         test(p2->pb == p2);
+
+        breakCycles(r);
+        breakCycles(pd);
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -2518,6 +2802,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         PCUnknownPtr p2 = ICE_DYNAMIC_CAST(PCUnknown, r);
         test(!p2);
         test(r->pi == 3);
+
+        breakCycles(r);
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -2549,6 +2835,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p2->pi == 3);
             test(p2->pbs[0] == p2);
         }
+
+        breakCycles(r);
+        breakCycles(pcd);
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -2580,6 +2869,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p2->pi == 3);
             test(p2->pbs[0] == p2);
         }
+
+        breakCycles(r);
+        breakCycles(pcd);
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -2631,6 +2923,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p3->pcd2 == p3->pi);
             test(p3->pcd3 == p3->pbs[10]);
         }
+
+        breakCycles(r);
+        breakCycles(pcd);
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -2647,8 +2942,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test->checkPBSUnknown(p);
         if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
         {
+            Ice::SlicedDataPtr slicedData = p->ice_getSlicedData();
+            test(slicedData);
+            test(slicedData->slices.size() == 1);
+            test(slicedData->slices[0]->typeId == "::Test::PSUnknown");
             test->ice_encodingVersion(Ice::Encoding_1_0)->checkPBSUnknown(p);
         }
+        else
+        {
+            test(!p->ice_getSlicedData());
+        }
+
+        breakCycles(p);
     }
     catch(const Ice::OperationNotExistException&)
     {
@@ -2674,11 +2979,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #ifdef ICE_CPP11_MAPPING
         try
         {
-            pd = dynamic_pointer_cast<PDerived>(test->exchangePBaseAsync(pd).get());
-            test(pd);
-            test(pd->pi == 3);
-            test(pd->ps == "preserved");
-            test(pd->pb == pd);
+            auto r = dynamic_pointer_cast<PDerived>(test->exchangePBaseAsync(pd).get());
+            test(r);
+            test(r->pi == 3);
+            test(r->ps == "preserved");
+            test(r->pb == r);
+
+            breakCycles(r);
+            breakCycles(pd);
         }
         catch(...)
         {
@@ -2706,6 +3014,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             auto p2 = dynamic_pointer_cast<PCUnknown>(r);
             test(!p2);
             test(r->pi == 3);
+
+            breakCycles(r);
         }
         catch(...)
         {
@@ -2734,6 +3044,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             auto p2 = dynamic_pointer_cast<PCDerived>(r);
             test(!p2);
             test(r->pi == 3);
+            breakCycles(r);
+            breakCycles(p2);
         }
         else
         {
@@ -2742,7 +3054,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p2);
             test(p2->pi == 3);
             test(p2->pbs[0] == p2);
+            breakCycles(r);
+            breakCycles(p2);
         }
+        breakCycles(pcd);
 #else
         pcd->ice_collectable(true);
 
@@ -2777,6 +3092,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             auto p2 = dynamic_pointer_cast<CompactPCDerived>(r);
             test(!p2);
             test(r->pi == 3);
+            breakCycles(r);
+            breakCycles(p2);
         }
         else
         {
@@ -2785,7 +3102,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(p2);
             test(p2->pi == 3);
             test(p2->pbs[0] == p2);
+            breakCycles(r);
+            breakCycles(p2);
         }
+        breakCycles(pcd);
 #else
         pcd->ice_collectable(true);
 
@@ -2835,6 +3155,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             auto p2 = dynamic_pointer_cast<PCDerived>(r);
             test(!p2);
             test(r->pi == 3);
+            breakCycles(r);
+            breakCycles(pcd);
         }
         else
         {
@@ -2852,6 +3174,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
             test(p3->pcd2 == p3->pi);
             test(p3->pcd3 == p3->pbs[10]);
+            breakCycles(r);
+            breakCycles(pcd);
         }
 #else
         CallbackPtr cb = new Callback;
@@ -2910,11 +3234,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test->checkPBSUnknownWithGraph(p);
             if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
             {
+                test(!p->ice_getSlicedData());
                 test(PNodeI::counter == 0);
             }
             else
             {
+                test(p->ice_getSlicedData());
                 test(PNodeI::counter == 3);
+                p->ice_getSlicedData()->clear();
                 p = 0;                          // Release reference.
                 test(PNodeI::counter == 0);
             }
@@ -2937,6 +3264,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(PreservedI::counter == 0);
             PreservedPtr p = test->PBSUnknown2AsPreservedWithGraph();
             test->checkPBSUnknown2WithGraph(p);
+            if(test->ice_getEncodingVersion() != Ice::Encoding_1_0)
+            {
+                test(p->ice_getSlicedData());
+                p->ice_getSlicedData()->clear();
+            }
             test(PreservedI::counter == 1);
             p = 0;                          // Release reference.
             test(PreservedI::counter == 0);

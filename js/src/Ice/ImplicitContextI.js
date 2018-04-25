@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/LocalException", "../Ice/Current"]);
+Ice._ModuleRegistry.require(module, ["../Ice/LocalException", "../Ice/Current"]);
 
 const Context = Ice.Context;
 const InitializationException = Ice.InitializationException;
@@ -22,12 +22,12 @@ class ImplicitContextI
     {
         this._context = new Context();
     }
-    
+
     getContext()
     {
         return new Context(this._context);
     }
-    
+
     setContext(context)
     {
         if(context !== null && context.size > 0)
@@ -121,7 +121,7 @@ class ImplicitContextI
             else
             {
                 ctx = new Context(this._context);
-                for(let [key, value] of prxContext)
+                for(const [key, value] of prxContext)
                 {
                     ctx.set(key, value);
                 }
@@ -129,7 +129,7 @@ class ImplicitContextI
             Ice.ContextHelper.write(os, ctx);
         }
     }
-    
+
     static create(kind)
     {
         if(kind.length === 0 || kind === "None")

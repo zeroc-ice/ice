@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,11 +9,7 @@
 
 namespace IceSSL
 {
-    using System;
-    using System.Diagnostics;
     using System.Collections.Generic;
-    using System.Net;
-    using System.Globalization;
 
     sealed class EndpointI : IceInternal.EndpointI
     {
@@ -28,7 +24,7 @@ namespace IceSSL
             _delegate.streamWriteImpl(os);
         }
 
-        private sealed class InfoI : IceSSL.EndpointInfo
+        private sealed class InfoI : EndpointInfo
         {
             public InfoI(EndpointI e)
             {
@@ -189,15 +185,36 @@ namespace IceSSL
 
         public EndpointI endpoint(IceInternal.EndpointI del)
         {
-            return new EndpointI(_instance, del);
+            if(del == _delegate)
+            {
+                return this;
+            }
+            else
+            {
+                return new EndpointI(_instance, del);
+            }
         }
 
-        public override List<IceInternal.EndpointI> expand()
+        public override List<IceInternal.EndpointI> expandIfWildcard()
         {
             List<IceInternal.EndpointI> l = new List<IceInternal.EndpointI>();
-            foreach(IceInternal.EndpointI e in _delegate.expand())
+            foreach(IceInternal.EndpointI e in _delegate.expandIfWildcard())
             {
                 l.Add(e == _delegate ? this : new EndpointI(_instance, e));
+            }
+            return l;
+        }
+
+        public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
+        {
+            List<IceInternal.EndpointI> l = new List<IceInternal.EndpointI>();
+            foreach(IceInternal.EndpointI e in _delegate.expandHost(out publish))
+            {
+                l.Add(e == _delegate ? this : new EndpointI(_instance, e));
+            }
+            if(publish != null)
+            {
+                publish = publish == _delegate ? this : new EndpointI(_instance, publish);
             }
             return l;
         }
@@ -250,48 +267,31 @@ namespace IceSSL
         private IceInternal.EndpointI _delegate;
     }
 
-    internal sealed class EndpointFactoryI : IceInternal.EndpointFactory
+    internal sealed class EndpointFactoryI : IceInternal.EndpointFactoryWithUnderlying
     {
-        internal EndpointFactoryI(Instance instance, IceInternal.EndpointFactory del)
+        public EndpointFactoryI(Instance instance, short type) : base(instance, type)
         {
             _instance = instance;
-            _delegate = del;
         }
 
-        public short type()
+        override public IceInternal.EndpointFactory
+        cloneWithUnderlying(IceInternal.ProtocolInstance inst, short underlying)
         {
-            return _delegate.type();
+            return new EndpointFactoryI(new Instance(_instance.engine(), inst.type(), inst.protocol()), underlying);
         }
 
-        public string protocol()
+        override protected IceInternal.EndpointI
+        createWithUnderlying(IceInternal.EndpointI underlying, List<string> args, bool oaEndpoint)
         {
-            return _delegate.protocol();
+            return new EndpointI(_instance, underlying);
         }
 
-        public IceInternal.EndpointI create(List<string> args, bool oaEndpoint)
+        override protected IceInternal.EndpointI
+        readWithUnderlying(IceInternal.EndpointI underlying, Ice.InputStream s)
         {
-            return new EndpointI(_instance, _delegate.create(args, oaEndpoint));
-        }
-
-        public IceInternal.EndpointI read(Ice.InputStream s)
-        {
-            return new EndpointI(_instance, _delegate.read(s));
-        }
-
-        public void destroy()
-        {
-            _delegate.destroy();
-            _instance = null;
-        }
-
-        public IceInternal.EndpointFactory clone(IceInternal.ProtocolInstance inst,
-                                                 IceInternal.EndpointFactory del)
-        {
-            Instance instance = new Instance(_instance.engine(), inst.type(), inst.protocol());
-            return new EndpointFactoryI(instance, del != null ? del : _delegate.clone(instance, null));
+            return new EndpointI(_instance, underlying);
         }
 
         private Instance _instance;
-        private IceInternal.EndpointFactory _delegate;
     }
 }

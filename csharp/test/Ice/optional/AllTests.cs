@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,16 +10,17 @@
 using System;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
-    public static Test.InitialPrx allTests(Ice.Communicator communicator)
+    public static Test.InitialPrx allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         FactoryI factory = new FactoryI();
         communicator.getValueFactoryManager().add(factory.create, "");
 
         Write("testing stringToProxy... ");
         Flush();
-        string @ref = "initial:default -p 12010";
+        string @ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -52,8 +53,7 @@ public class AllTests : TestCommon.TestApp
         mo1.g = 1.0;
         mo1.h = "test";
         mo1.i = Test.MyEnum.MyEnumMember;
-        mo1.j = new Ice.Optional<Test.MultiOptionalPrx>(
-            Test.MultiOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+        mo1.j = new Ice.Optional<Ice.ObjectPrx>(communicator.stringToProxy("test"));
         mo1.k = mo1;
         mo1.bs = new byte[] { 5 };
         mo1.ss = new string[] { "test", "test2" };
@@ -73,8 +73,7 @@ public class AllTests : TestCommon.TestApp
         mo1.fss = new Test.FixedStruct[] { fs };
         mo1.vss = new Test.VarStruct[] { vs };
         mo1.oos = new Test.OneOptional[] { oo1 };
-        mo1.oops = new Test.OneOptionalPrx[]
-            { Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")) };
+        mo1.oops = new Ice.ObjectPrx[] { communicator.stringToProxy("test") };
 
         mo1.ied = new Dictionary<int, Test.MyEnum>();
         mo1.ied.Value.Add(4, Test.MyEnum.MyEnumMember);
@@ -84,8 +83,8 @@ public class AllTests : TestCommon.TestApp
         mo1.ivsd.Value.Add(5, vs);
         mo1.iood = new Dictionary<int, Test.OneOptional>();
         mo1.iood.Value.Add(5, new Test.OneOptional(15));
-        mo1.ioopd = new Dictionary<int, Test.OneOptionalPrx>();
-        mo1.ioopd.Value.Add(5, Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+        mo1.ioopd = new Dictionary<int, Ice.ObjectPrx>();
+        mo1.ioopd.Value.Add(5, communicator.stringToProxy("test"));
 
         mo1.bos = new bool[] { false, true, false };
         mo1.ser = new Test.SerializableClass(56);
@@ -99,7 +98,7 @@ public class AllTests : TestCommon.TestApp
         test(mo1.g.Value == 1.0);
         test(mo1.h.Value.Equals("test"));
         test(mo1.i.Value == Test.MyEnum.MyEnumMember);
-        test(mo1.j.Value.Equals(Test.MultiOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.j.Value.Equals(communicator.stringToProxy("test")));
         test(mo1.k.Value == mo1);
         test(ArraysEqual(mo1.bs.Value, new byte[] { (byte)5 }));
         test(ArraysEqual(mo1.ss.Value, new String[] { "test", "test2" }));
@@ -113,13 +112,13 @@ public class AllTests : TestCommon.TestApp
         test(mo1.fss.Value[0].Equals(new Test.FixedStruct(78)));
         test(mo1.vss.Value[0].Equals(new Test.VarStruct("hello")));
         test(mo1.oos.Value[0] == oo1);
-        test(mo1.oops.Value[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.oops.Value[0].Equals(communicator.stringToProxy("test")));
 
         test(mo1.ied.Value[4] == Test.MyEnum.MyEnumMember);
         test(mo1.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
         test(mo1.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
         test(mo1.iood.Value[5].a.Value == 15);
-        test(mo1.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo1.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
 
         test(ArraysEqual(mo1.bos.Value, new bool[] { false, true, false }));
         test(mo1.ser.Value.Equals(new Test.SerializableClass(56)));
@@ -200,13 +199,13 @@ public class AllTests : TestCommon.TestApp
         test(mo5.fss.Value[0].Equals(new Test.FixedStruct(78)));
         test(mo5.vss.Value[0].Equals(new Test.VarStruct("hello")));
         test(mo5.oos.Value[0].a.Value == 15);
-        test(mo5.oops.Value[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo5.oops.Value[0].Equals(communicator.stringToProxy("test")));
 
         test(mo5.ied.Value[4] == Test.MyEnum.MyEnumMember);
         test(mo5.ifsd.Value[4].Equals(new Test.FixedStruct(78)));
         test(mo5.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
         test(mo5.iood.Value[5].a.Value == 15);
-        test(mo5.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo5.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
 
         test(ArraysEqual(mo5.bos.Value, new bool[] { false, true, false }));
         if(supportsCsharpSerializable)
@@ -314,13 +313,13 @@ public class AllTests : TestCommon.TestApp
         test(!mo9.fss.HasValue);
         test(mo9.vss.Value[0].Equals(new Test.VarStruct("hello")));
         test(!mo9.oos.HasValue);
-        test(mo9.oops.Value[0].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo9.oops.Value[0].Equals(communicator.stringToProxy("test")));
 
         test(mo9.ied.Value[4] == Test.MyEnum.MyEnumMember);
         test(!mo9.ifsd.HasValue);
         test(mo9.ivsd.Value[5].Equals(new Test.VarStruct("hello")));
         test(!mo9.iood.HasValue);
-        test(mo9.ioopd.Value[5].Equals(Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"))));
+        test(mo9.ioopd.Value[5].Equals(communicator.stringToProxy("test")));
 
         test(!mo9.bos.HasValue);
         if(supportsCsharpSerializable)
@@ -1021,7 +1020,7 @@ public class AllTests : TestCommon.TestApp
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(1);
-            p1.Value.write__(os);
+            p1.Value.ice_writeMembers(os);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opSmallStruct", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -1030,11 +1029,11 @@ public class AllTests : TestCommon.TestApp
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
             Test.SmallStruct f = new Test.SmallStruct();
-            f.read__(@in);
+            f.ice_readMembers(@in);
             test(f.m == (byte)56);
             test(@in.readOptional(3, Ice.OptionalFormat.VSize));
             @in.skipSize();
-            f.read__(@in);
+            f.ice_readMembers(@in);
             test(f.m == (byte)56);
             @in.endEncapsulation();
 
@@ -1070,7 +1069,7 @@ public class AllTests : TestCommon.TestApp
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.VSize);
             os.writeSize(4);
-            p1.Value.write__(os);
+            p1.Value.ice_writeMembers(os);
             os.endEncapsulation();
             inEncaps = os.finished();
             initial.ice_invoke("opFixedStruct", Ice.OperationMode.Normal, inEncaps, out outEncaps);
@@ -1079,11 +1078,11 @@ public class AllTests : TestCommon.TestApp
             test(@in.readOptional(1, Ice.OptionalFormat.VSize));
             @in.skipSize();
             Test.FixedStruct f = new Test.FixedStruct();
-            f.read__(@in);
+            f.ice_readMembers(@in);
             test(f.m == 56);
             test(@in.readOptional(3, Ice.OptionalFormat.VSize));
             @in.skipSize();
-            f.read__(@in);
+            f.ice_readMembers(@in);
             test(f.m == 56);
             @in.endEncapsulation();
 
@@ -1124,7 +1123,7 @@ public class AllTests : TestCommon.TestApp
             os.startEncapsulation();
             os.writeOptional(2, Ice.OptionalFormat.FSize);
             int pos = os.startSize();
-            p1.Value.write__(os);
+            p1.Value.ice_writeMembers(os);
             os.endSize(pos);
             os.endEncapsulation();
             inEncaps = os.finished();
@@ -1134,11 +1133,11 @@ public class AllTests : TestCommon.TestApp
             test(@in.readOptional(1, Ice.OptionalFormat.FSize));
             @in.skip(4);
             Test.VarStruct v = new Test.VarStruct();
-            v.read__(@in);
+            v.ice_readMembers(@in);
             test(v.m.Equals("test"));
             test(@in.readOptional(3, Ice.OptionalFormat.FSize));
             @in.skip(4);
-            v.read__(@in);
+            v.ice_readMembers(@in);
             test(v.m.Equals("test"));
             @in.endEncapsulation();
 
@@ -1202,9 +1201,9 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            Ice.Optional<Test.OneOptionalPrx> p1 = new Ice.Optional<Test.OneOptionalPrx>();
-            Ice.Optional<Test.OneOptionalPrx> p3;
-            Ice.Optional<Test.OneOptionalPrx> p2 = initial.opOneOptionalProxy(p1, out p3);
+            Ice.Optional<Ice.ObjectPrx> p1 = new Ice.Optional<Ice.ObjectPrx>();
+            Ice.Optional<Ice.ObjectPrx> p3;
+            Ice.Optional<Ice.ObjectPrx> p2 = initial.opOneOptionalProxy(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
             p2 = initial.opOneOptionalProxy(p1, out p3);
             test(!p2.HasValue && !p3.HasValue);
@@ -1220,8 +1219,7 @@ public class AllTests : TestCommon.TestApp
             // Not allowed by C# language spec because OptionalOnePrx is an interface.
             //
             //p1 = Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test"));
-            p1 = new Ice.Optional<Test.OneOptionalPrx>(
-                Test.OneOptionalPrxHelper.uncheckedCast(communicator.stringToProxy("test")));
+            p1 = new Ice.Optional<Ice.ObjectPrx>(communicator.stringToProxy("test"));
             p2 = initial.opOneOptionalProxy(p1, out p3);
             test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
 
@@ -1234,7 +1232,7 @@ public class AllTests : TestCommon.TestApp
             //p2 = initial.end_opOneOptionalProxy(out p3, r);
             //test(p2.Value.Equals(p1.Value) && p3.Value.Equals(p1.Value));
 
-            p2 = initial.opOneOptionalProxy(new Ice.Optional<Test.OneOptionalPrx>(), out p3);
+            p2 = initial.opOneOptionalProxy(new Ice.Optional<Ice.ObjectPrx>(), out p3);
             test(!p2.HasValue && !p3.HasValue); // Ensure out parameter is cleared.
 
             os = new Ice.OutputStream(communicator);
@@ -2410,7 +2408,6 @@ public class AllTests : TestCommon.TestApp
             arr[i] = value;
         }
     }
-
 
     private class TestValueReader : Ice.ValueReader
     {

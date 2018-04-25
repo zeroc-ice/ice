@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@ public final class ACMConfig implements java.lang.Cloneable
     ACMConfig(boolean server)
     {
         timeout = 60 * 1000;
-        heartbeat = Ice.ACMHeartbeat.HeartbeatOnInvocation;
+        heartbeat = Ice.ACMHeartbeat.HeartbeatOnDispatch;
         close = server ? Ice.ACMClose.CloseOnInvocation : Ice.ACMClose.CloseOnInvocationAndIdle;
     }
 
@@ -34,6 +34,11 @@ public final class ACMConfig implements java.lang.Cloneable
         }
 
         timeout = p.getPropertyAsIntWithDefault(timeoutProperty, dflt.timeout / 1000) * 1000; // To milliseconds
+        if(timeout < 0)
+        {
+            l.warning("invalid value for property `" + timeoutProperty + "', default value will be used instead");
+            timeout = dflt.timeout;
+        }
 
         int hb = p.getPropertyAsIntWithDefault(prefix + ".Heartbeat", dflt.heartbeat.ordinal());
         Ice.ACMHeartbeat[] heartbeatValues = Ice.ACMHeartbeat.values();

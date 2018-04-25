@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "python:pkgdir:IceGrid"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -55,7 +55,7 @@ local interface ReplicaGroupFilter
      *
      **/
     Ice::StringSeq filter(string replicaGroupId, Ice::StringSeq adapterIds, Ice::Connection con, Ice::Context ctx);
-};
+}
 
 /**
  *
@@ -88,8 +88,7 @@ local interface TypeFilter
      *
      **/
     Ice::ObjectProxySeq filter(string type, Ice::ObjectProxySeq proxies, Ice::Connection con, Ice::Context ctx);
-};
-
+}
 
 /**
  *
@@ -262,6 +261,8 @@ local interface RegistryPluginFacade
      *
      * @return The property value.
      *
+     * @throws AdapterNotExistException Raised if the adapter doesn't exist.
+     *
      **/
     ["nonmutating", "cpp:const"] idempotent string getPropertyForAdapter(string adapterId, string name)
         throws AdapterNotExistException;
@@ -278,7 +279,7 @@ local interface RegistryPluginFacade
      * @param filter The filter implementation.
      *
      **/
-    void addReplicaGroupFilter(string id, ReplicaGroupFilter filter);
+    ["cpp:noexcept"] void addReplicaGroupFilter(string id, ReplicaGroupFilter filter);
 
     /**
      *
@@ -291,7 +292,7 @@ local interface RegistryPluginFacade
      * @return True of the filter was removed, false otherwise.
      *
      **/
-    bool removeReplicaGroupFilter(string id, ReplicaGroupFilter filter);
+    ["cpp:noexcept"] bool removeReplicaGroupFilter(string id, ReplicaGroupFilter filter);
 
     /**
      *
@@ -302,7 +303,7 @@ local interface RegistryPluginFacade
      * @param filter The filter implementation.
      *
      **/
-    void addTypeFilter(string type, TypeFilter filter);
+    ["cpp:noexcept"] void addTypeFilter(string type, TypeFilter filter);
 
     /**
      *
@@ -315,7 +316,7 @@ local interface RegistryPluginFacade
      * @return True of the filter was removed, false otherwise.
      *
      **/
-    bool removeTypeFilter(string type, TypeFilter filter);
-};
+    ["cpp:noexcept"] bool removeTypeFilter(string type, TypeFilter filter);
+}
 
-};
+}

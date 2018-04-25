@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -82,7 +82,7 @@ class OnewaysAMI
                 p.ice_isAAsync("::Test::MyClass").join();
                 test(false);
             }
-            catch(java.lang.IllegalArgumentException ex)
+            catch(com.zeroc.Ice.TwowayOnlyException ex)
             {
             }
         }
@@ -93,7 +93,7 @@ class OnewaysAMI
                 p.ice_idAsync();
                 test(false);
             }
-            catch(java.lang.IllegalArgumentException ex)
+            catch(com.zeroc.Ice.TwowayOnlyException ex)
             {
             }
         }
@@ -104,7 +104,7 @@ class OnewaysAMI
                 p.ice_idsAsync();
                 test(false);
             }
-            catch(java.lang.IllegalArgumentException ex)
+            catch(com.zeroc.Ice.TwowayOnlyException ex)
             {
             }
         }
@@ -151,7 +151,7 @@ class OnewaysAMI
                 p.opByteAsync((byte)0xff, (byte)0x0f);
                 test(false);
             }
-            catch(java.lang.IllegalArgumentException ex)
+            catch(com.zeroc.Ice.TwowayOnlyException ex)
             {
             }
         }

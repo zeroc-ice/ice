@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,6 @@
 #include <Ice/LoggerUtil.h>
 #include <Ice/Buffer.h>
 #include <Ice/Network.h>
-#include <IceSSL/ConnectionInfo.h>
 
 #include <CoreFoundation/CoreFoundation.h>
 
@@ -91,11 +90,11 @@ IceObjC::StreamTransceiver::initStreams(SelectorReadyCallback* callback)
     CFStreamClientContext ctx = { 0, callback, 0, 0, 0 };
     events = kCFStreamEventOpenCompleted | kCFStreamEventCanAcceptBytes | kCFStreamEventErrorOccurred |
         kCFStreamEventEndEncountered;
-    CFWriteStreamSetClient(_writeStream, events, selectorWriteCallback, &ctx);
+    CFWriteStreamSetClient(_writeStream.get(), events, selectorWriteCallback, &ctx);
 
     events = kCFStreamEventOpenCompleted | kCFStreamEventHasBytesAvailable | kCFStreamEventErrorOccurred |
         kCFStreamEventEndEncountered;
-    CFReadStreamSetClient(_readStream, events, selectorReadCallback, &ctx);
+    CFReadStreamSetClient(_readStream.get(), events, selectorReadCallback, &ctx);
 }
 
 SocketOperation
@@ -105,36 +104,36 @@ IceObjC::StreamTransceiver::registerWithRunLoop(SocketOperation op)
     SocketOperation readyOp = SocketOperationNone;
     if(op & SocketOperationConnect)
     {
-        if(CFWriteStreamGetStatus(_writeStream) != kCFStreamStatusNotOpen ||
-           CFReadStreamGetStatus(_readStream) != kCFStreamStatusNotOpen)
+        if(CFWriteStreamGetStatus(_writeStream.get()) != kCFStreamStatusNotOpen ||
+           CFReadStreamGetStatus(_readStream.get()) != kCFStreamStatusNotOpen)
         {
             return SocketOperationConnect;
         }
 
         _opening = true;
 
-        CFWriteStreamScheduleWithRunLoop(_writeStream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-        CFReadStreamScheduleWithRunLoop(_readStream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        CFWriteStreamScheduleWithRunLoop(_writeStream.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+        CFReadStreamScheduleWithRunLoop(_readStream.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
         _writeStreamRegistered = true; // Note: this must be set after the schedule call
         _readStreamRegistered = true; // Note: this must be set after the schedule call
 
-        CFReadStreamOpen(_readStream);
-        CFWriteStreamOpen(_writeStream);
+        CFReadStreamOpen(_readStream.get());
+        CFWriteStreamOpen(_writeStream.get());
     }
     else
     {
         if(op & SocketOperationWrite)
         {
-            if(CFWriteStreamCanAcceptBytes(_writeStream))
+            if(CFWriteStreamCanAcceptBytes(_writeStream.get()))
             {
                 readyOp = static_cast<SocketOperation>(readyOp | SocketOperationWrite);
             }
             else if(!_writeStreamRegistered)
             {
-                CFWriteStreamScheduleWithRunLoop(_writeStream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+                CFWriteStreamScheduleWithRunLoop(_writeStream.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
                 _writeStreamRegistered = true; // Note: this must be set after the schedule call
-                if(CFWriteStreamCanAcceptBytes(_writeStream))
+                if(CFWriteStreamCanAcceptBytes(_writeStream.get()))
                 {
                     readyOp = static_cast<SocketOperation>(readyOp | SocketOperationWrite);
                 }
@@ -143,15 +142,15 @@ IceObjC::StreamTransceiver::registerWithRunLoop(SocketOperation op)
 
         if(op & SocketOperationRead)
         {
-            if(CFReadStreamHasBytesAvailable(_readStream))
+            if(CFReadStreamHasBytesAvailable(_readStream.get()))
             {
                 readyOp = static_cast<SocketOperation>(readyOp | SocketOperationRead);
             }
             else if(!_readStreamRegistered)
             {
-                CFReadStreamScheduleWithRunLoop(_readStream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+                CFReadStreamScheduleWithRunLoop(_readStream.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
                 _readStreamRegistered = true; // Note: this must be set after the schedule call
-                if(CFReadStreamHasBytesAvailable(_readStream))
+                if(CFReadStreamHasBytesAvailable(_readStream.get()))
                 {
                     readyOp = static_cast<SocketOperation>(readyOp | SocketOperationRead);
                 }
@@ -170,7 +169,7 @@ IceObjC::StreamTransceiver::unregisterFromRunLoop(SocketOperation op, bool error
     if(_opening)
     {
         // Wait for the stream to be ready for write
-        if(op == SocketOperationWrite)
+        if(op & SocketOperationWrite)
         {
             _writeStreamRegistered = false;
         }
@@ -183,15 +182,15 @@ IceObjC::StreamTransceiver::unregisterFromRunLoop(SocketOperation op, bool error
         // client to write the HTTP upgrade request.
         //
         //if(op & SocketOperationRead && (_fd != INVALID_SOCKET || !(op & SocketOperationConnect)))
-        if(op == (SocketOperationRead | SocketOperationConnect))
+        if(op & (SocketOperationRead | SocketOperationConnect))
         {
             _readStreamRegistered = false;
         }
 
         if(error || (!_readStreamRegistered && !_writeStreamRegistered))
         {
-            CFWriteStreamUnscheduleFromRunLoop(_writeStream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
-            CFReadStreamUnscheduleFromRunLoop(_readStream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+            CFWriteStreamUnscheduleFromRunLoop(_writeStream.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+            CFReadStreamUnscheduleFromRunLoop(_readStream.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
             _opening = false;
             return SocketOperationConnect;
         }
@@ -204,13 +203,13 @@ IceObjC::StreamTransceiver::unregisterFromRunLoop(SocketOperation op, bool error
     {
         if(op & SocketOperationWrite && _writeStreamRegistered)
         {
-            CFWriteStreamUnscheduleFromRunLoop(_writeStream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+            CFWriteStreamUnscheduleFromRunLoop(_writeStream.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
             _writeStreamRegistered = false;
         }
 
         if(op & SocketOperationRead && _readStreamRegistered)
         {
-            CFReadStreamUnscheduleFromRunLoop(_readStream, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
+            CFReadStreamUnscheduleFromRunLoop(_readStream.get(), CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
             _readStreamRegistered = false;
         }
     }
@@ -220,11 +219,11 @@ IceObjC::StreamTransceiver::unregisterFromRunLoop(SocketOperation op, bool error
 void
 IceObjC::StreamTransceiver::closeStreams()
 {
-    CFReadStreamSetClient(_readStream, kCFStreamEventNone, 0, 0);
-    CFWriteStreamSetClient(_writeStream, kCFStreamEventNone, 0, 0);
+    CFReadStreamSetClient(_readStream.get(), kCFStreamEventNone, 0, 0);
+    CFWriteStreamSetClient(_writeStream.get(), kCFStreamEventNone, 0, 0);
 
-    CFReadStreamClose(_readStream);
-    CFWriteStreamClose(_writeStream);
+    CFReadStreamClose(_readStream.get());
+    CFWriteStreamClose(_writeStream.get());
 }
 
 SocketOperation
@@ -241,31 +240,22 @@ IceObjC::StreamTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
     {
         if(_error)
         {
-            CFErrorRef err = NULL;
-            if(CFWriteStreamGetStatus(_writeStream) == kCFStreamStatusError)
-            {
-                err = CFWriteStreamCopyError(_writeStream);
-            }
-            else if(CFReadStreamGetStatus(_readStream) == kCFStreamStatusError)
-            {
-                err = CFReadStreamCopyError(_readStream);
-            }
-            checkError(err, __FILE__, __LINE__);
+            checkErrorStatus(_writeStream.get(), _readStream.get(), __FILE__, __LINE__);
         }
 
         _state = StateConnected;
 
         if(_fd == INVALID_SOCKET)
         {
-            if(!CFReadStreamSetProperty(_readStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanFalse) ||
-               !CFWriteStreamSetProperty(_writeStream, kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanFalse))
+            if(!CFReadStreamSetProperty(_readStream.get(), kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanFalse) ||
+               !CFWriteStreamSetProperty(_writeStream.get(), kCFStreamPropertyShouldCloseNativeSocket, kCFBooleanFalse))
             {
                 throw Ice::SocketException(__FILE__, __LINE__, 0);
             }
 
-            CFDataRef d = (CFDataRef)CFReadStreamCopyProperty(_readStream, kCFStreamPropertySocketNativeHandle);
-            CFDataGetBytes(d, CFRangeMake(0, sizeof(SOCKET)), reinterpret_cast<UInt8*>(&_fd));
-            CFRelease(d);
+            UniqueRef<CFDataRef> d(static_cast<CFDataRef>(
+                CFReadStreamCopyProperty(_readStream.get(), kCFStreamPropertySocketNativeHandle)));
+            CFDataGetBytes(d.get(), CFRangeMake(0, sizeof(SOCKET)), reinterpret_cast<UInt8*>(&_fd));
         }
 
         ostringstream s;
@@ -328,33 +318,23 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
     IceUtil::Mutex::Lock sync(_mutex);
     if(_error)
     {
-        assert(CFWriteStreamGetStatus(_writeStream) == kCFStreamStatusError);
-        checkError(CFWriteStreamCopyError(_writeStream), __FILE__, __LINE__);
+        checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
     }
 
-    // Its impossible for the packetSize to be more than an Int.
-    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
+    size_t packetSize = buf.b.end() - buf.i;
     while(buf.i != buf.b.end())
     {
-        if(!CFWriteStreamCanAcceptBytes(_writeStream))
+        if(!CFWriteStreamCanAcceptBytes(_writeStream.get()))
         {
             return SocketOperationWrite;
         }
 
         assert(_fd != INVALID_SOCKET);
-        CFIndex ret = CFWriteStreamWrite(_writeStream, reinterpret_cast<const UInt8*>(&*buf.i), packetSize);
+        CFIndex ret = CFWriteStreamWrite(_writeStream.get(), reinterpret_cast<const UInt8*>(&*buf.i), packetSize);
 
         if(ret == SOCKET_ERROR)
         {
-            if(CFWriteStreamGetStatus(_writeStream) == kCFStreamStatusAtEnd)
-            {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            assert(CFWriteStreamGetStatus(_writeStream) == kCFStreamStatusError);
-            checkError(CFWriteStreamCopyError(_writeStream), __FILE__, __LINE__);
+            checkErrorStatus(_writeStream.get(), 0, __FILE__, __LINE__);
             if(noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
@@ -366,7 +346,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
     return SocketOperationNone;
@@ -378,40 +358,28 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
     IceUtil::Mutex::Lock sync(_mutex);
     if(_error)
     {
-        assert(CFReadStreamGetStatus(_readStream) == kCFStreamStatusError);
-        checkError(CFReadStreamCopyError(_readStream), __FILE__, __LINE__);
+        checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);
     }
 
-    // Its impossible for the packetSize to be more than an Int.
-    size_t packetSize = static_cast<size_t>(buf.b.end() - buf.i);
+    size_t packetSize = buf.b.end() - buf.i;
     while(buf.i != buf.b.end())
     {
-        if(!CFReadStreamHasBytesAvailable(_readStream))
+        if(!CFReadStreamHasBytesAvailable(_readStream.get()))
         {
             return SocketOperationRead;
         }
 
         assert(_fd != INVALID_SOCKET);
-        CFIndex ret = CFReadStreamRead(_readStream, reinterpret_cast<UInt8*>(&*buf.i), packetSize);
+        CFIndex ret = CFReadStreamRead(_readStream.get(), reinterpret_cast<UInt8*>(&*buf.i), packetSize);
 
         if(ret == 0)
         {
-            ConnectionLostException ex(__FILE__, __LINE__);
-            ex.error = 0;
-            throw ex;
+            throw ConnectionLostException(__FILE__, __LINE__, 0);
         }
 
         if(ret == SOCKET_ERROR)
         {
-            if(CFReadStreamGetStatus(_readStream) == kCFStreamStatusAtEnd)
-            {
-                ConnectionLostException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
-            }
-
-            assert(CFReadStreamGetStatus(_readStream) == kCFStreamStatusError);
-            checkError(CFReadStreamCopyError(_readStream), __FILE__, __LINE__);
+            checkErrorStatus(0, _readStream.get(), __FILE__, __LINE__);
             if(noBuffers() && packetSize > 1024)
             {
                 packetSize /= 2;
@@ -423,7 +391,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
 
         if(packetSize > buf.b.end() - buf.i)
         {
-            packetSize = static_cast<int>(buf.b.end() - buf.i);
+            packetSize = buf.b.end() - buf.i;
         }
     }
 
@@ -518,76 +486,69 @@ IceObjC::StreamTransceiver::StreamTransceiver(const InstancePtr& instance,
 IceObjC::StreamTransceiver::~StreamTransceiver()
 {
     assert(_fd == INVALID_SOCKET);
-    CFRelease(_readStream);
-    CFRelease(_writeStream);
 }
 
 void
-IceObjC::StreamTransceiver::checkError(CFErrorRef err, const char* file, int line)
+IceObjC::StreamTransceiver::checkErrorStatus(CFWriteStreamRef writeStream, CFReadStreamRef readStream,
+                                             const char* file, int line)
 {
-    assert(err);
-    CFStringRef domain = CFErrorGetDomain(err);
+    if((writeStream && (CFWriteStreamGetStatus(writeStream) == kCFStreamStatusAtEnd)) ||
+       (readStream && (CFReadStreamGetStatus(readStream) == kCFStreamStatusAtEnd)))
+    {
+        throw ConnectionLostException(file, line);
+    }
+
+    UniqueRef<CFErrorRef> err;
+    if(writeStream && CFWriteStreamGetStatus(writeStream) == kCFStreamStatusError)
+    {
+        err.reset(CFWriteStreamCopyError(writeStream));
+    }
+    else if(readStream && CFReadStreamGetStatus(readStream) == kCFStreamStatusError)
+    {
+        err.reset(CFReadStreamCopyError(readStream));
+    }
+
+    assert(err.get());
+    CFStringRef domain = CFErrorGetDomain(err.get());
     if(CFStringCompare(domain, kCFErrorDomainPOSIX, 0) == kCFCompareEqualTo)
     {
-        errno = CFErrorGetCode(err);
-        CFRelease(err);
+        errno = CFErrorGetCode(err.get());
         if(interrupted() || noBuffers())
         {
             return;
         }
-
-        if(connectionLost())
+        else if(connectionLost())
         {
-            ConnectionLostException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionLostException(file, line, getSocketErrno());
         }
         else if(connectionRefused())
         {
-            ConnectionRefusedException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionRefusedException(file, line, getSocketErrno());
         }
         else if(connectFailed())
         {
-            ConnectFailedException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectFailedException(file, line, getSocketErrno());
         }
         else
         {
-            SocketException ex(file, line);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(file, line, getSocketErrno());
         }
     }
 
-    int error = CFErrorGetCode(err);
+    int error = CFErrorGetCode(err.get());
     if(error == kCFHostErrorHostNotFound || error == kCFHostErrorUnknown)
     {
         int rs = 0;
         if(error == kCFHostErrorUnknown)
         {
-            CFDictionaryRef dict = CFErrorCopyUserInfo(err);
-            CFNumberRef d = (CFNumberRef)CFDictionaryGetValue(dict, kCFGetAddrInfoFailureKey);
+            UniqueRef<CFDictionaryRef> dict(CFErrorCopyUserInfo(err.get()));
+            CFNumberRef d = static_cast<CFNumberRef>(CFDictionaryGetValue(dict.get(), kCFGetAddrInfoFailureKey));
             if(d != 0)
             {
                 CFNumberGetValue(d, kCFNumberSInt32Type, &rs);
             }
-            CFRelease(dict);
         }
-
-        CFRelease(err);
-
-        DNSException ex(file, line);
-        ex.error = rs;
-        ex.host = _host;
-        throw ex;
+        throw DNSException(file, line, rs, _host);
     }
-
-    CFNetworkException ex(file, line);
-    ex.domain = fromCFString(domain);
-    ex.error = CFErrorGetCode(err);
-    CFRelease(err);
-    throw ex;
+    throw CFNetworkException(file, line, CFErrorGetCode(err.get()), fromCFString(domain));
 }

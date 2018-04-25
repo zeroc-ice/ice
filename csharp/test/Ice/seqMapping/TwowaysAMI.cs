@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,7 +38,7 @@ public class TwowaysAMI
                 {
                     System.Threading.Monitor.Wait(this);
                 }
-        
+
                 _called = false;
             }
         }
@@ -677,52 +677,52 @@ public class TwowaysAMI
             callback.called();
         }
 
-        public void opACVPrxSI(Ice.AsyncResult result)
+        public void opIPrxSI(Ice.AsyncResult result)
         {
-            CVPrx[] i = (CVPrx[])result.AsyncState;
-            CVPrx[] o;
-            CVPrx[] r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opACVPrxS(out o, result);
+            Test.IPrx[] i = (Test.IPrx[])result.AsyncState;
+            Test.IPrx[] o;
+            Test.IPrx[] r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opAIPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public void opLCVPrxSI(Ice.AsyncResult result)
+        public void opLIPrxSI(Ice.AsyncResult result)
         {
-            List<CVPrx> i = (List<CVPrx>)result.AsyncState;
-            List<CVPrx> o;
-            List<CVPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLCVPrxS(out o, result);
+            List<Test.IPrx> i = (List<Test.IPrx>)result.AsyncState;
+            List<Test.IPrx> o;
+            List<Test.IPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opLIPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public void opKCVPrxSI(Ice.AsyncResult result)
+        public void opKIPrxSI(Ice.AsyncResult result)
         {
-            LinkedList<CVPrx> i = (LinkedList<CVPrx>)result.AsyncState;
-            LinkedList<CVPrx> o;
-            LinkedList<CVPrx> r =
-                MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opKCVPrxS(out o, result);
+            LinkedList<Test.IPrx> i = (LinkedList<Test.IPrx>)result.AsyncState;
+            LinkedList<Test.IPrx> o;
+            LinkedList<Test.IPrx> r =
+                MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opKIPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public void opQCVPrxSI(Ice.AsyncResult result)
+        public void opQIPrxSI(Ice.AsyncResult result)
         {
-            Queue<CVPrx> i = (Queue<CVPrx>)result.AsyncState;
-            Queue<CVPrx> o;
-            Queue<CVPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opQCVPrxS(out o, result);
+            Queue<Test.IPrx> i = (Queue<Test.IPrx>)result.AsyncState;
+            Queue<Test.IPrx> o;
+            Queue<Test.IPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opQIPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
         }
 
-        public void opSCVPrxSI(Ice.AsyncResult result)
+        public void opSIPrxSI(Ice.AsyncResult result)
         {
-            Stack<CVPrx> i = (Stack<CVPrx>)result.AsyncState;
-            Stack<CVPrx> o;
-            Stack<CVPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSCVPrxS(out o, result);
+            Stack<Test.IPrx> i = (Stack<Test.IPrx>)result.AsyncState;
+            Stack<Test.IPrx> o;
+            Stack<Test.IPrx> r = MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSIPrxS(out o, result);
             test(Ice.CollectionComparer.Equals(i, o));
             test(Ice.CollectionComparer.Equals(i, r));
             callback.called();
@@ -894,7 +894,7 @@ public class TwowaysAMI
             try
             {
                 Serialize.Small o;
-                Serialize.Small r = 
+                Serialize.Small r =
                     MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSerialSmallCSharp(out o, result);
                 test(o == null);
                 test(r == null);
@@ -911,7 +911,7 @@ public class TwowaysAMI
             try
             {
                 Serialize.Small o;
-                Serialize.Small r = 
+                Serialize.Small r =
                     MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSerialSmallCSharp(out o, result);
                 test(o.i == 99);
                 test(r.i == 99);
@@ -928,7 +928,7 @@ public class TwowaysAMI
             try
             {
                 Serialize.Large o;
-                Serialize.Large r = 
+                Serialize.Large r =
                     MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSerialLargeCSharp(out o, result);
                 test(o.d1 == 1.0);
                 test(o.d2 == 2.0);
@@ -963,7 +963,7 @@ public class TwowaysAMI
             try
             {
                 Serialize.Struct o;
-                Serialize.Struct r = 
+                Serialize.Struct r =
                     MyClassPrxHelper.uncheckedCast(result.getProxy()).end_opSerialStructCSharp(out o, result);
                 test(o.o == null);
                 test(o.o2 != null);
@@ -1646,62 +1646,62 @@ public class TwowaysAMI
         }
 
         {
-            CVPrx[] i = new CVPrx[_length];
+            Test.IPrx[] i = new Test.IPrx[_length];
             for(int c = 0; c < _length; ++c)
             {
-                i[c] = CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
+                i[c] = Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString()));
             }
 
             Callback cb = new Callback();
-            p.begin_opACVPrxS(i, null, cb.opACVPrxSI, i);
+            p.begin_opAIPrxS(i, null, cb.opIPrxSI, i);
             cb.check();
         }
 
         {
-            List<CVPrx> i = new List<CVPrx>();
+            List<Test.IPrx> i = new List<Test.IPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Add(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Add(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
 
             Callback cb = new Callback();
-            p.begin_opLCVPrxS(i, null, cb.opLCVPrxSI, i);
+            p.begin_opLIPrxS(i, null, cb.opLIPrxSI, i);
             cb.check();
         }
 
         {
-            LinkedList<CVPrx> i = new LinkedList<CVPrx>();
+            LinkedList<Test.IPrx> i = new LinkedList<Test.IPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.AddLast(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.AddLast(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
 
             Callback cb = new Callback();
-            p.begin_opKCVPrxS(i, null, cb.opKCVPrxSI, i);
+            p.begin_opKIPrxS(i, null, cb.opKIPrxSI, i);
             cb.check();
         }
 
         {
-            Queue<CVPrx> i = new Queue<CVPrx>();
+            Queue<Test.IPrx> i = new Queue<Test.IPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Enqueue(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Enqueue(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
 
             Callback cb = new Callback();
-            p.begin_opQCVPrxS(i, null, cb.opQCVPrxSI, i);
+            p.begin_opQIPrxS(i, null, cb.opQIPrxSI, i);
             cb.check();
         }
 
         {
-            Stack<CVPrx> i = new Stack<CVPrx>();
+            Stack<Test.IPrx> i = new Stack<Test.IPrx>();
             for(int c = 0; c < _length; ++c)
             {
-                i.Push(CVPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
+                i.Push(Test.IPrxHelper.uncheckedCast(communicator.stringToProxy(c.ToString())));
             }
 
             Callback cb = new Callback();
-            p.begin_opSCVPrxS(i, null, cb.opSCVPrxSI, i);
+            p.begin_opSIPrxS(i, null, cb.opSIPrxSI, i);
             cb.check();
         }
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,18 @@
 #include <Ice/Locator.h>
 #include <Ice/Router.h>
 
+#ifdef _MSC_VER
+#   pragma comment(lib, ICE_LIBNAME("testtransport"))
+#endif
+
 using namespace std;
+
+extern "C"
+{
+
+Ice::Plugin* createTestTransport(const Ice::CommunicatorPtr&, const std::string&, const Ice::StringSeq&);
+
+};
 
 class LocatorI : public Ice::Locator
 {
@@ -83,8 +94,9 @@ class RouterI : public Ice::Router
 public:
 
     virtual Ice::ObjectPrxPtr
-    getClientProxy(const Ice::Current& current) const
+    getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Ice::Current& current) const
     {
+        hasRoutingTable = true;
         _controller->checkCallPause(current);
         return ICE_NULLPTR;
     }
@@ -111,7 +123,6 @@ private:
 
     BackgroundControllerIPtr _controller;
 };
-
 
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
@@ -147,10 +158,15 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
 int
 main(int argc, char* argv[])
 {
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
+    Ice::registerPluginFactory("Test", createTestTransport, false);
+#endif
+
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
 
         //
         // This test kills connections, so we don't want warnings.
@@ -170,7 +186,7 @@ main(int argc, char* argv[])
         string defaultProtocol = initData.properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         initData.properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)

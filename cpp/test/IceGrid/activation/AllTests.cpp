@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -79,12 +79,11 @@ public:
 private:
 
     Ice::ObjectPrx _proxy;
-    IceUtil::UniquePtr<Ice::LocalException> _exception;
+    IceInternal::UniquePtr<Ice::LocalException> _exception;
     bool _finished;
     int _nRepetitions;
 };
 typedef IceUtil::Handle<PingThread> PingThreadPtr;
-
 
 void
 allTests(const Ice::CommunicatorPtr& communicator)
@@ -92,9 +91,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
+
+    IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(
+        communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Query"));
+
     IceGrid::AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
     IceGrid::AdminPrx admin = session->getAdmin();
     test(admin);
@@ -253,6 +256,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing server disable... " << flush;
     try
     {
+        size_t count = query->findAllObjectsByType("Test").size();
+
         test(admin->getServerState("server") == IceGrid::Inactive);
         admin->enableServer("server", false);
         try
@@ -263,6 +268,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::NoEndpointException&)
         {
         }
+
+        while(query->findAllObjectsByType("Test").size() != count - 1)
+        {
+            // The notification of the server being disabled is asynchronous and might
+            // not be visible to the Query interface immediately.
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
+
         try
         {
             admin->startServer("server");
@@ -292,6 +305,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-manual") == IceGrid::Inactive);
+        while(query->findAllObjectsByType("Test").size() != count - 2)
+        {
+            // The notification of the server being disabled is asynchronous and might
+            // not be visible to the Query interface immediately.
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
 
         test(admin->getServerState("server-always") == IceGrid::Active);
         admin->enableServer("server-always", false);
@@ -314,7 +333,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
         }
         test(admin->getServerState("server-always") == IceGrid::Inactive);
-
+        while(query->findAllObjectsByType("Test").size() != count - 3)
+        {
+            // The notification of the server being disabled is asynchronous and might
+            // not be visible to the Query interface immediately.
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
 
         test(admin->getServerState("server") == IceGrid::Inactive);
         admin->enableServer("server", true);
@@ -335,6 +359,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(admin->getServerPid("server") == pid);
         admin->stopServer("server");
         test(admin->getServerState("server") == IceGrid::Inactive);
+
+        while(query->findAllObjectsByType("Test").size() != count - 2)
+        {
+            // The notification of the server being disabled is asynchronous and might
+            // not be visible to the Query interface immediately.
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(100));
+        }
     }
     catch(const Ice::LocalException& ex)
     {
@@ -342,7 +373,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(false);
     }
     cout << "ok" << endl;
-
 
     cout << "testing server enable... " << flush;
     try
@@ -414,8 +444,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+        }
+        for(p = threads.begin(); p != threads.end(); ++p)
+        {
+            (*p)->getThreadControl().join();
         }
         threads.resize(0);
 
@@ -430,8 +464,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+        }
+        for(p = threads.begin(); p != threads.end(); ++p)
+        {
+            (*p)->getThreadControl().join();
         }
         threads.resize(0);
 
@@ -446,11 +484,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
         }
+        for(p = threads.begin(); p != threads.end(); ++p)
+        {
+            (*p)->getThreadControl().join();
+        }
         threads.resize(0);
-
 
         try
         {
@@ -499,8 +540,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         for(p = threads.begin(); p != threads.end(); ++p)
         {
-            IceUtil::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
+            IceInternal::UniquePtr<Ice::LocalException> ex((*p)->waitUntilFinished());
             test(dynamic_cast<Ice::NoEndpointException*>(ex.get()));
+        }
+        for(p = threads.begin(); p != threads.end(); ++p)
+        {
+            (*p)->getThreadControl().join();
         }
         admin->stopServer("server-activation-timeout");
     }
@@ -569,7 +614,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(false);
     }
     cout << "ok" << endl;
-
 
     cout << "testing temporary disable on failure... " << flush;
     try
@@ -667,11 +711,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
             cerr << ex.reason << endl;
             test(false);
         }
-        for(int i = 0; i < nServers; ++i)
+        try
         {
-            ostringstream id;
-            id << "server-" << i;
-            admin->startServer(id.str());
+            for(int i = 0; i < nServers; ++i)
+            {
+                ostringstream id;
+                id << "server-" << i;
+                admin->startServer(id.str());
+            }
+        }
+        catch(const IceGrid::ServerStartException& ex)
+        {
+            cerr << ex.reason << endl;
+            test(false);
         }
         for(int i = 0; i < nServers; ++i)
         {

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -121,7 +121,7 @@ private:
 
     bool ioCompleted(ThreadPoolCurrent&);
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     bool startMessage(ThreadPoolCurrent&);
     void finishMessage(ThreadPoolCurrent&);
 #else
@@ -160,7 +160,7 @@ private:
 
     std::set<EventHandlerThreadPtr> _threads; // All threads, running or not.
     int _inUse; // Number of threads that are currently in use.
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
     int _inUseIO; // Number of threads that are currently performing IO.
     std::vector<std::pair<EventHandler*, SocketOperation> > _handlers;
     std::vector<std::pair<EventHandler*, SocketOperation> >::const_iterator _nextHandler;
@@ -183,7 +183,7 @@ public:
         return _threadPool->ioCompleted(const_cast<ThreadPoolCurrent&>(*this));
     }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     bool startMessage()
     {
         return _threadPool->startMessage(const_cast<ThreadPoolCurrent&>(*this));
@@ -211,7 +211,7 @@ private:
     ThreadPool::EventHandlerThreadPtr _thread;
     EventHandlerPtr _handler;
     bool _ioCompleted;
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
     bool _leader;
 #else
     DWORD _count;
@@ -229,7 +229,7 @@ public:
     void destroy();
     void queue(const ThreadPoolWorkItemPtr&);
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     bool startAsync(SocketOperation);
     bool finishAsync(SocketOperation);
 #endif
@@ -256,7 +256,7 @@ private:
 // the IOCP implementation and ensures that finishMessage isn't called multiple
 // times.
 //
-#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_WINRT)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
 template<class T> class ThreadPoolMessage
 {
 public:
@@ -390,6 +390,5 @@ private:
 #endif
 
 };
-
 
 #endif

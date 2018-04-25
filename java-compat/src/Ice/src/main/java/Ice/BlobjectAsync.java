@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,6 +27,9 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
      * @param current The Current object, which provides important information
      * about the request, such as the identity of the target object and the
      * name of the operation.
+     *
+     * @throws UserException A user exception can be raised directly and the
+     * run time will marshal it.
      **/
     public abstract void
     ice_invoke_async(AMD_Object_ice_invoke cb, byte[] inEncaps, Current current)
@@ -34,11 +37,11 @@ public abstract class BlobjectAsync extends Ice.ObjectImpl
 
     @Override
     public boolean
-    __dispatch(IceInternal.Incoming in, Current current)
+    _iceDispatch(IceInternal.Incoming in, Current current)
         throws UserException
     {
         byte[] inEncaps = in.readParamEncaps();
         ice_invoke_async(new _AMD_Object_ice_invoke(in), inEncaps, current);
-        return true;
+        return false;
     }
 }

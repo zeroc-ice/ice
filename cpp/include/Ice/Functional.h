@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,6 +9,8 @@
 
 #ifndef ICE_FUNCTIONAL_H
 #define ICE_FUNCTIONAL_H
+
+#   if !defined(ICE_CPP11_MAPPING) || defined(ICE_BUILDING_SRC)
 
 #include <IceUtil/Functional.h>
 #include <Ice/Handle.h>
@@ -21,6 +23,7 @@
 namespace Ice
 {
 
+/// \cond INTERNAL
 template<class R, class T>
 inline ::IceUtilInternal::MemFun<R, T, ICE_INTERNAL_HANDLE<T> >
 memFun(R (T::*p)(void))
@@ -132,7 +135,9 @@ secondConstVoidMemFun1(void (T::*p)(A) const)
 {
     return ::IceUtilInternal::SecondConstVoidMemFun1<K, T, ICE_INTERNAL_HANDLE<T>, A>(p);
 }
+/// \endcond
 
 }
 
+#   endif
 #endif

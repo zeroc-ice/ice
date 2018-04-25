@@ -108,11 +108,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\Test.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="x64\Cpp11-Debug\Test.h">
       <Filter>Header Files\x64\Cpp11-Debug</Filter>
     </ClInclude>
@@ -140,5 +135,13 @@
     <ClInclude Include="..\..\TestI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\Test.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

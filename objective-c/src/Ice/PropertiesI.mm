@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -282,14 +282,14 @@ typedef IceUtil::Handle<UpdateCallbackI> UpdateCallbackIPtr;
 @implementation ICEPropertiesAdminUpdateCallback
 @end
 
-#define NATIVEPROPERTIESADMIN dynamic_cast<Ice::NativePropertiesAdmin*>(object__)
+#define NATIVEPROPERTIESADMIN dynamic_cast<Ice::NativePropertiesAdmin*>(object_)
 
 @implementation ICENativePropertiesAdmin
 -(void) addUpdateCallback:(id<ICEPropertiesAdminUpdateCallback>)cb
 {
     IceUtil::Mutex::Lock sync(mutex_);
     callbacks_.push_back(new UpdateCallbackI(cb));
-    assert(Ice::NativePropertiesAdminPtr::dynamicCast(object__));
+    assert(Ice::NativePropertiesAdminPtr::dynamicCast(object_));
     NATIVEPROPERTIESADMIN->addUpdateCallback(callbacks_.back());
 }
 

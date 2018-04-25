@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,14 +14,14 @@
 module M
 {
 
-enum smwpEnum { smwpE1, smwpE2 };
+enum smwpEnum { smwpE1, smwpE2 }
 
 const smwpEnum smwpConstant = smwpE2;
 
 struct smwpStruct
 {
     smwpEnum e;
-};
+}
 
 sequence<smwpStruct> smwpStructSeq;
 
@@ -30,12 +30,12 @@ dictionary<string, smwpStruct> smwpStringStructDict;
 interface smwpBaseInterface
 {
     void smwpBaseInterfaceOp();
-};
+}
 
 interface smwpInterface extends smwpBaseInterface
 {
     void smwpInterfaceOp();
-};
+}
 
 class smwpBaseClass
 {
@@ -43,11 +43,11 @@ class smwpBaseClass
     smwpStruct s;
     smwpStructSeq seq;
     smwpStringStructDict dict;
-};
+}
 
 class smwpClass extends smwpBaseClass implements smwpInterface
 {
-};
+}
 
 exception smwpBaseException
 {
@@ -56,10 +56,10 @@ exception smwpBaseException
     smwpStructSeq seq;
     smwpStringStructDict dict;
     smwpClass c;
-};
+}
 
 exception smwpException extends smwpBaseException
 {
-};
+}
 
-};
+}

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,7 +25,8 @@ using namespace IceUtil;
 namespace
 {
 
-CtrlCHandlerCallback _callback = 0;
+CtrlCHandlerCallback _callback = ICE_NULLPTR;
+
 const CtrlCHandler* _handler = 0;
 
 IceUtil::Mutex* globalMutex = 0;
@@ -69,11 +70,13 @@ CtrlCHandlerException::ice_clone() const
 }
 #endif
 
-void
+CtrlCHandlerCallback
 CtrlCHandler::setCallback(CtrlCHandlerCallback callback)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    CtrlCHandlerCallback oldCallback = _callback;
     _callback = callback;
+    return oldCallback;
 }
 
 CtrlCHandlerCallback
@@ -96,13 +99,12 @@ static BOOL WINAPI handlerRoutine(DWORD dwCtrlType)
         }
         callback = _callback;
     }
-    if(callback != 0)
+    if(callback)
     {
         callback(dwCtrlType);
     }
     return TRUE;
 }
-
 
 CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 {
@@ -173,7 +175,7 @@ sigwaitThread(void*)
             callback = _callback;
         }
 
-        if(callback != 0)
+        if(callback)
         {
             callback(signal);
         }
@@ -235,8 +237,7 @@ CtrlCHandler::CtrlCHandler(CtrlCHandlerCallback callback)
 CtrlCHandler::~CtrlCHandler()
 {
     //
-    // Clear the handler, the sigwaitThread will exit if _handler is
-    // nil.
+    // Clear the handler, the sigwaitThread will exit if _handler is null
     //
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);

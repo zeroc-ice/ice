@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <IceUtil/StringUtil.h>
+#include <Ice/StringUtil.h>
 #include <Ice/TraceUtil.h>
 #include <Ice/Instance.h>
 #include <Ice/Object.h>
@@ -29,16 +29,22 @@ using namespace IceInternal;
 static void
 printIdentityFacetOperation(ostream& s, InputStream& stream)
 {
+    ToStringMode toStringMode = ICE_ENUM(ToStringMode, Unicode);
+    if(stream.instance())
+    {
+        toStringMode = stream.instance()->toStringMode();
+    }
+
     Identity identity;
     stream.read(identity);
-    s << "\nidentity = " << Ice::identityToString(identity);
+    s << "\nidentity = " << Ice::identityToString(identity, toStringMode);
 
     vector<string> facet;
     stream.read(facet);
     s << "\nfacet = ";
     if(!facet.empty())
     {
-        s << IceUtilInternal::escapeString(facet[0], "");
+        s << escapeString(facet[0], "", toStringMode);
     }
 
     string operation;

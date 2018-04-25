@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,7 +11,56 @@ using System;
 using System.Diagnostics;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+namespace Test
+{
+    public partial class IBase
+    {
+        partial void ice_initialize()
+        {
+            id = "My id";
+        }
+    }
+
+    public partial class IDerived
+    {
+        partial void ice_initialize()
+        {
+            name = "My name";
+        }
+    }
+
+    public partial class I2
+    {
+        public bool called
+        {
+            get;
+            set;
+        }
+
+        partial void ice_initialize()
+        {
+            called = true;
+        }
+    }
+
+    public partial struct S1
+    {
+        partial void ice_initialize()
+        {
+            id = 1;
+        }
+    }
+
+    public partial class SC1
+    {
+        partial void ice_initialize()
+        {
+            id = "My id";
+        }
+    }
+}
+
+public class AllTests : TestCommon.AllTests
 {
     public static Ice.Value MyValueFactory(string type)
     {
@@ -77,8 +126,9 @@ public class AllTests : TestCommon.TestApp
         private bool _destroyed;
     }
 
-    public static InitialPrx allTests(Ice.Communicator communicator)
+    public static InitialPrx allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
@@ -93,10 +143,9 @@ public class AllTests : TestCommon.TestApp
         communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 #pragma warning restore 612, 618
 
-
         Write("testing stringToProxy... ");
         Flush();
-        String @ref = "initial:default -p 12010";
+        String @ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -249,6 +298,17 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
+        Write("setting G... ");
+        Flush();
+        try
+        {
+            initial.setG(new G(new S("hello"), "g"));
+        }
+        catch(Ice.OperationNotExistException)
+        {
+        }
+        WriteLine("ok");
+
         Write("setting I... ");
         Flush();
         initial.setI(i);
@@ -275,6 +335,38 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
+        Write("testing recursive type... ");
+        Flush();
+        Recursive top = new Recursive();
+        Recursive p = top;
+        int depth = 0;
+        try
+        {
+            for(; depth <= 1000; ++depth)
+            {
+                p.v = new Recursive();
+                p = p.v;
+                if((depth < 10 && (depth % 10) == 0) ||
+                   (depth < 1000 && (depth % 100) == 0) ||
+                   (depth < 10000 && (depth % 1000) == 0) ||
+                   (depth % 10000) == 0)
+                {
+                    initial.setRecursive(top);
+                }
+            }
+            test(!initial.supportsClassGraphDepthMax());
+        }
+        catch(Ice.UnknownLocalException)
+        {
+            // Expected marshal exception from the server (max class graph depth reached)
+        }
+        catch(Ice.UnknownException)
+        {
+            // Expected stack overflow from the server (Java only)
+        }
+        initial.setRecursive(new Recursive());
+        WriteLine("ok");
+
         Write("testing compact ID...");
         Flush();
         try
@@ -296,7 +388,7 @@ public class AllTests : TestCommon.TestApp
 
         Write("testing UnexpectedObjectException...");
         Flush();
-        @ref = "uoet:default -p 12010";
+        @ref = "uoet:" + app.getTestEndpoint(0);
         @base = communicator.stringToProxy(@ref);
         test(@base != null);
         UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(@base);
@@ -330,6 +422,29 @@ public class AllTests : TestCommon.TestApp
         WriteLine("ok");
 #pragma warning restore 612, 618
 
+        Write("testing partial ice_initialize...");
+        Flush();
+        var ib1 = new IBase();
+        test(ib1.id.Equals("My id"));
+        var id1 = new IDerived();
+        test(id1.id.Equals("My id"));
+        test(id1.name.Equals("My name"));
+
+        var id2 = new IDerived2();
+        test(id2.id.Equals("My id"));
+        var i2 = new I2();
+        test(i2.called);
+
+        var s1 = new S1();
+        // The struct default constructor do not call ice_initialize
+        test(s1.id == 0);
+        s1 = new S1(2);
+        // The id should have the value set by ice_initialize and not 2
+        test(s1.id == 1);
+
+        var sc1 = new SC1();
+        test(sc1.id.Equals("My id"));
+        WriteLine("ok");
         return initial;
     }
 }

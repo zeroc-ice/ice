@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -56,11 +56,13 @@ class FI(Test.F):
     def checkValues(self, current=None):
         return self._e1 != None and self._e1 == self.e2
 
-class II(Test.I):
-    pass
+class II(Ice.InterfaceByValue):
+    def __init__(self):
+        Ice.InterfaceByValue.__init__(self, "::Test::I")
 
-class JI(Test.J):
-    pass
+class JI(Ice.InterfaceByValue):
+    def __init__(self):
+        Ice.InterfaceByValue.__init__(self, "::Test::J")
 
 class HI(Test.H):
     pass
@@ -123,11 +125,17 @@ class InitialI(Test.Initial):
     def getF(self, current=None):
         return self._f
 
-    def getMB(self, current):
-        return self._b1;
+    def setRecursive(self, r, current):
+        pass
 
-    def getAMDMB_async(self, cb, current):
-        cb.ice_response(self._b1);
+    def supportsClassGraphDepthMax(self, current):
+        return True
+
+    def getMB(self, current):
+        return Test.Initial.GetMBMarshaledResult(self._b1, current)
+
+    def getAMDMB(self, current):
+        return Ice.Future.completed(Test.Initial.GetAMDMBMarshaledResult(self._b1, current))
 
     def getAll(self, current=None):
         self._b1.preMarshalInvoked = False
@@ -150,6 +158,9 @@ class InitialI(Test.Initial):
 
     def throwEDerived(self, current=None):
         raise Test.EDerived(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4"))
+
+    def setG(self, g, current=None):
+        pass
 
     def setI(self, i, current=None):
         pass

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,19 +26,13 @@
 #endif
 
 //
-// Clang++ >= 5.1  deprecate 'register' storage class specifier
-// used by lex generated Scanners.
+// Clang++ >= 5.1 and VC++ using C++17 standard deprecate 'register' storage
+// class specifier used by lex generated Scanners.
 //
 #if defined(__clang__)
 #   pragma clang diagnostic ignored "-Wdeprecated-register"
-#endif
-
-
-//
-// Avoid old style cast warnings in generated scanners
-//
-#ifdef __GNUC__
-#  pragma GCC diagnostic ignored "-Wold-style-cast"
+#elif defined(_MSC_VER) && (_MSC_VER >= 1900)
+#   pragma warning(disable:5033)
 #endif
 
 #endif

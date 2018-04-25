@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,7 +34,6 @@ public final class RouterInfo
     destroy()
     {
         _clientEndpoints = new EndpointI[0];
-        _serverEndpoints = new EndpointI[0];
         _adapter = null;
         _identities.clear();
     }
@@ -83,7 +82,8 @@ public final class RouterInfo
             }
         }
 
-        return setClientEndpoints(_router.getClientProxy());
+        com.zeroc.Ice.Router.GetClientProxyResult r = _router.getClientProxy();
+        return setClientEndpoints(r.returnValue, r.hasRoutingTable.orElse(true));
     }
 
     public void
@@ -101,7 +101,7 @@ public final class RouterInfo
             return;
         }
 
-        _router.getClientProxyAsync().whenComplete((com.zeroc.Ice.ObjectPrx clientProxy, Throwable ex) ->
+        _router.getClientProxyAsync().whenComplete((com.zeroc.Ice.Router.GetClientProxyResult r, Throwable ex) ->
             {
                 if(ex != null)
                 {
@@ -116,7 +116,7 @@ public final class RouterInfo
                 }
                 else
                 {
-                    callback.setEndpoints(setClientEndpoints(clientProxy));
+                    callback.setEndpoints(setClientEndpoints(r.returnValue, r.hasRoutingTable.orElse(true)));
                 }
             });
     }
@@ -124,15 +124,13 @@ public final class RouterInfo
     public EndpointI[]
     getServerEndpoints()
     {
-        synchronized(this)
+        com.zeroc.Ice.ObjectPrx serverProxy = _router.getServerProxy();
+        if(serverProxy == null)
         {
-            if(_serverEndpoints != null) // Lazy initialization.
-            {
-                return _serverEndpoints;
-            }
+            throw new com.zeroc.Ice.NoEndpointException();
         }
-
-        return setServerEndpoints(_router.getServerProxy());
+        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+        return ((com.zeroc.Ice._ObjectPrxI)serverProxy)._getReference().getEndpoints();
     }
 
     public boolean
@@ -141,6 +139,10 @@ public final class RouterInfo
         assert(proxy != null);
         synchronized(this)
         {
+            if(!_hasRoutingTable)
+            {
+                return true; // The router implementation doesn't maintain a routing table.
+            }
             if(_identities.contains(proxy.ice_getIdentity()))
             {
                 //
@@ -192,16 +194,17 @@ public final class RouterInfo
     }
 
     private synchronized EndpointI[]
-    setClientEndpoints(com.zeroc.Ice.ObjectPrx clientProxy)
+    setClientEndpoints(com.zeroc.Ice.ObjectPrx clientProxy, boolean hasRoutingTable)
     {
         if(_clientEndpoints == null)
         {
+            _hasRoutingTable = hasRoutingTable;
             if(clientProxy == null)
             {
                 //
                 // If getClientProxy() return nil, use router endpoints.
                 //
-                _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI)_router).__reference().getEndpoints();
+                _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI)_router)._getReference().getEndpoints();
             }
             else
             {
@@ -217,23 +220,10 @@ public final class RouterInfo
                     clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
                 }
 
-                _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI)clientProxy).__reference().getEndpoints();
+                _clientEndpoints = ((com.zeroc.Ice._ObjectPrxI)clientProxy)._getReference().getEndpoints();
             }
         }
         return _clientEndpoints;
-    }
-
-    private synchronized EndpointI[]
-    setServerEndpoints(com.zeroc.Ice.ObjectPrx serverProxy)
-    {
-        if(serverProxy == null)
-        {
-            throw new com.zeroc.Ice.NoEndpointException();
-        }
-
-        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-        _serverEndpoints = ((com.zeroc.Ice._ObjectPrxI)serverProxy).__reference().getEndpoints();
-        return _serverEndpoints;
     }
 
     private synchronized void
@@ -277,9 +267,8 @@ public final class RouterInfo
 
     private final com.zeroc.Ice.RouterPrx _router;
     private EndpointI[] _clientEndpoints;
-    private EndpointI[] _serverEndpoints;
     private com.zeroc.Ice.ObjectAdapter _adapter;
-    private java.util.Set<com.zeroc.Ice.Identity> _identities = new java.util.HashSet<com.zeroc.Ice.Identity>();
-    private java.util.List<com.zeroc.Ice.Identity> _evictedIdentities =
-        new java.util.ArrayList<com.zeroc.Ice.Identity>();
+    private java.util.Set<com.zeroc.Ice.Identity> _identities = new java.util.HashSet<>();
+    private java.util.List<com.zeroc.Ice.Identity> _evictedIdentities = new java.util.ArrayList<>();
+    private boolean _hasRoutingTable;
 }

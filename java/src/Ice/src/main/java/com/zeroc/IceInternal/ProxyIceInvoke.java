@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,7 +17,7 @@ import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownUserException;
 
-public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.Ice_invokeResult>
+public class ProxyIceInvoke extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Object.Ice_invokeResult>
 {
     public ProxyIceInvoke(com.zeroc.Ice.ObjectPrx prx, String operation, com.zeroc.Ice.OperationMode mode,
                           boolean synchronous)
@@ -25,7 +25,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.
         super((com.zeroc.Ice._ObjectPrxI)prx, operation);
         _mode = mode == null ? com.zeroc.Ice.OperationMode.Normal : mode;
         _synchronous = synchronous;
-        _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
+        _encoding = Protocol.getCompatibleEncoding(_proxy._getReference().getEncoding());
         _is = null;
     }
 
@@ -42,8 +42,8 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.
                 // NOTE: we don't call sent/completed callbacks for batch AMI requests
                 //
                 _sentSynchronously = true;
-                _proxy.__getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
-                finished(true);
+                _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
+                finished(true, false);
             }
             else
             {
@@ -61,7 +61,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.
         }
     }
 
-    public com.zeroc.Ice.Object.Ice_invokeResult __wait()
+    public com.zeroc.Ice.Object.Ice_invokeResult waitForResponse()
     {
         if(isBatch())
         {
@@ -70,49 +70,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.
             //
             return new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]);
         }
-
-        if(Thread.currentThread().interrupted())
-        {
-            throw new OperationInterruptedException();
-        }
-
-        try
-        {
-            return get();
-        }
-        catch(InterruptedException ex)
-        {
-            throw new OperationInterruptedException();
-        }
-        catch(java.util.concurrent.ExecutionException ee)
-        {
-            try
-            {
-                throw ee.getCause();
-            }
-            catch(RuntimeException ex) // Includes LocalException
-            {
-                throw ex;
-            }
-            catch(Throwable ex)
-            {
-                throw new UnknownException(ex);
-            }
-        }
-    }
-
-    @Override
-    protected void __sent()
-    {
-        super.__sent();
-
-        if(!_proxy.ice_isTwoway())
-        {
-            //
-            // For a non-twoway proxy, the invocation is completed after it is sent.
-            //
-            complete(new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]));
-        }
+        return super.waitForResponse();
     }
 
     @Override
@@ -133,7 +91,7 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-        if(!_proxy.ice_isTwoway() || _proxy.__reference().getInvocationTimeout() > 0)
+        if(!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0)
         {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
@@ -151,20 +109,21 @@ public class ProxyIceInvoke extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Object.
             // must notify the connection about that we give up ownership
             // of the batch stream.
             //
-            _proxy.__getBatchRequestQueue().abortBatchRequest(_os);
+            _proxy._getBatchRequestQueue().abortBatchRequest(_os);
         }
 
         super.abort(ex);
     }
 
     @Override
-    protected void __completed()
+    protected void markCompleted()
     {
-        super.__completed();
-
-        if(_exception != null)
+        if(!_proxy.ice_isTwoway())
         {
-            completeExceptionally(_exception);
+            //
+            // For a non-twoway proxy, the invocation is completed after it is sent.
+            //
+            complete(new com.zeroc.Ice.Object.Ice_invokeResult(true, new byte[0]));
         }
         else
         {

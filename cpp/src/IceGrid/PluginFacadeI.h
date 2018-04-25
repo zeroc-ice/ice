@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -43,11 +43,11 @@ public:
 
     virtual std::string getPropertyForAdapter(const std::string&, const std::string&) const;
 
-    virtual void addReplicaGroupFilter(const std::string&, const ReplicaGroupFilterPtr&);
-    virtual bool removeReplicaGroupFilter(const std::string&, const ReplicaGroupFilterPtr&);
+    virtual void addReplicaGroupFilter(const std::string&, const ReplicaGroupFilterPtr&) ICE_NOEXCEPT;
+    virtual bool removeReplicaGroupFilter(const std::string&, const ReplicaGroupFilterPtr&) ICE_NOEXCEPT;
 
-    virtual void addTypeFilter(const std::string&, const TypeFilterPtr&);
-    virtual bool removeTypeFilter(const std::string&, const TypeFilterPtr&);
+    virtual void addTypeFilter(const std::string&, const TypeFilterPtr&) ICE_NOEXCEPT;
+    virtual bool removeTypeFilter(const std::string&, const TypeFilterPtr&) ICE_NOEXCEPT;
 
     std::vector<ReplicaGroupFilterPtr> getReplicaGroupFilters(const std::string&) const;
     bool hasReplicaGroupFilters() const;

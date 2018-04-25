@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,11 +30,12 @@ protected:
     enum ParamDir { InParam, OutParam };
 
     std::string getResultType(const OperationPtr&, const std::string&, bool, bool);
-    void writeResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&);
-    void writeMarshaledResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&);
+    void writeResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const CommentPtr&);
+    void writeMarshaledResultType(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
+                                  const CommentPtr&);
 
-    void allocatePatcher(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&);
-    std::string getPatcher(const TypePtr&, const std::string&, const std::string&, bool);
+    void allocatePatcher(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&, bool);
+    std::string getPatcher(const TypePtr&, const std::string&, const std::string&);
 
     std::string getFutureType(const OperationPtr&, const std::string&);
     std::string getFutureImplType(const OperationPtr&, const std::string&);
@@ -43,7 +44,7 @@ protected:
     // Compose the parameter lists for an operation.
     //
     std::vector<std::string> getParams(const OperationPtr&, const std::string&);
-    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool);
+    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool = false);
 
     //
     // Compose the argument lists for an operation.
@@ -57,9 +58,10 @@ protected:
                                     const std::string&);
 
     //
-    // Generate a throws clause containing only non-local exceptions.
+    // Generate a throws clause containing only checked exceptions.
+    // op is provided only when we want to check for the java:UserException metadata
     //
-    void writeThrowsClause(const std::string&, const ExceptionList&);
+    void writeThrowsClause(const std::string&, const ExceptionList&, const OperationPtr& op = 0);
 
     //
     // Generate code to compute a hash code for a type.
@@ -70,8 +72,8 @@ protected:
     //
     // Marshal/unmarshal a data member.
     //
-    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
-    void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
+    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
+    void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
 
     //
     // Generate dispatch methods for a class or interface.
@@ -95,18 +97,18 @@ protected:
     void writeDataMemberInitializers(::IceUtilInternal::Output&, const DataMemberList&, const std::string&);
 
     //
-    // Write doc comments.
+    // Handle doc comments.
     //
     static StringList splitComment(const ContainedPtr&);
-    void writeDocComment(::IceUtilInternal::Output&, const ContainedPtr&, const std::string&, const std::string& = "");
-    void writeDocComment(::IceUtilInternal::Output&, const std::string&, const std::string&);
-    void writeDocCommentOp(::IceUtilInternal::Output&, const OperationPtr&);
-
-    void writeDocCommentAsync(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, const std::string& = "");
-    void writeDocCommentAMI(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, const std::string& = "",
-                            const std::string& = "", const std::string& = "", const std::string& = "",
-                            const std::string& = "");
-    void writeDocCommentParam(::IceUtilInternal::Output&, const OperationPtr&, ParamDir, bool = true);
+    void writeDocCommentLines(::IceUtilInternal::Output&, const StringList&);
+    void writeDocCommentLines(::IceUtilInternal::Output&, const std::string&);
+    void writeDocComment(::IceUtilInternal::Output&, const UnitPtr&, const CommentPtr&);
+    void writeDocComment(::IceUtilInternal::Output&, const std::string&);
+    void writeProxyDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const CommentPtr&,
+                              bool, bool);
+    void writeServantDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
+                                const CommentPtr&, bool);
+    void writeSeeAlso(::IceUtilInternal::Output&, const UnitPtr&, const std::string&);
 };
 
 class Gen : private ::IceUtil::noncopyable

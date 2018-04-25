@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,7 +31,7 @@ hashAdd(Ice::Int& hashCode, const std::string& value)
     for(std::string::const_iterator p = value.begin(); p != value.end(); ++p)
     {
         hashCode = ((hashCode << 5) + hashCode) ^ *p;
-    }    
+    }
 }
 
 template<typename T> void
@@ -56,4 +56,3 @@ hashAdd(Ice::Int& hashCode, const std::map<K, V>& map)
 }
 
 #endif
-

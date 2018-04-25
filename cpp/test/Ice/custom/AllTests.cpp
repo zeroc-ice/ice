@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,18 +18,6 @@
 #endif
 
 using namespace std;
-
-#ifdef ICE_CPP11_MAPPING
-//
-// Slice class C is mapped to ObjectPrx
-//
-namespace Test
-{
-typedef shared_ptr<Ice::ObjectPrx> CPrxPtr;
-typedef Ice::ObjectPrx CPrx;
-}
-#endif
-
 
 namespace
 {
@@ -359,17 +347,17 @@ public:
         called();
     }
 
-    void opCPrxSeq(const deque<Test::CPrxPtr>& ret, const deque<Test::CPrxPtr>& out, const InParamPtr& cookie)
+    void opDPrxSeq(const deque<Test::DPrxPtr>& ret, const deque<Test::DPrxPtr>& out, const InParamPtr& cookie)
     {
-        const deque<Test::CPrxPtr>& in = getIn<deque<Test::CPrxPtr> >(cookie);
+        const deque<Test::DPrxPtr>& in = getIn<deque<Test::DPrxPtr> >(cookie);
         test(out == in);
         test(ret == in);
         called();
     }
 
-    void opCPrxList(const list<Test::CPrxPtr>& ret, const list<Test::CPrxPtr>& out, const InParamPtr& cookie)
+    void opDPrxList(const list<Test::DPrxPtr>& ret, const list<Test::DPrxPtr>& out, const InParamPtr& cookie)
     {
-        const list<Test::CPrxPtr>& in = getIn<list<Test::CPrxPtr> >(cookie);
+        const list<Test::DPrxPtr>& in = getIn<list<Test::DPrxPtr> >(cookie);
         test(out == in);
         test(ret == in);
         called();
@@ -577,7 +565,6 @@ typedef IceUtil::Handle<Callback> CallbackPtr;
 
 #endif
 
-
 Test::TestIntfPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
@@ -607,7 +594,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing alternate strings... " << flush;
     {
-        Util::string_view in = "Hello World!";
+        Util::string_view in = "HELLO WORLD!";
         string out;
         string ret = t->opString(in, out);
 
@@ -694,20 +681,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Test::VariableList in;
         Test::Variable inArray[5];
-        inArray[0].s = "These";
+        inArray[0].s = "THESE";
         in.push_back(inArray[0]);
-        inArray[1].s = "are";
+        inArray[1].s = "ARE";
         in.push_back(inArray[1]);
-        inArray[2].s = "five";
+        inArray[2].s = "FIVE";
         in.push_back(inArray[2]);
-        inArray[3].s = "short";
+        inArray[3].s = "SHORT";
         in.push_back(inArray[3]);
-        inArray[4].s = "strings.";
+        inArray[4].s = "STRINGS.";
         in.push_back(inArray[4]);
         pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
 
         Test::VariableList out;
         Test::VariableList ret = t->opVariableArray(inPair, out);
+
         test(out == in);
         test(ret == in);
     }
@@ -751,15 +739,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Test::VariableList in;
         Test::Variable v;
-        v.s = "These";
+        v.s = "THESE";
         in.push_back(v);
-        v.s = "are";
+        v.s = "ARE";
         in.push_back(v);
-        v.s = "five";
+        v.s = "FIVE";
         in.push_back(v);
-        v.s = "short";
+        v.s = "SHORT";
         in.push_back(v);
-        v.s = "strings.";
+        v.s = "STRINGS.";
         in.push_back(v);
         Test::VariableList out;
 #ifdef ICE_CPP11_MAPPING
@@ -794,19 +782,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Test::VariableList in;
         deque<Test::Variable> inSeq;
         Test::Variable v;
-        v.s = "These";
+        v.s = "THESE";
         in.push_back(v);
         inSeq.push_back(v);
-        v.s = "are";
+        v.s = "ARE";
         in.push_back(v);
         inSeq.push_back(v);
-        v.s = "five";
+        v.s = "FIVE";
         in.push_back(v);
         inSeq.push_back(v);
-        v.s = "short";
+        v.s = "SHORT";
         in.push_back(v);
         inSeq.push_back(v);
-        v.s = "strings.";
+        v.s = "STRINGS.";
         in.push_back(v);
         inSeq.push_back(v);
         Test::VariableList out;
@@ -893,11 +881,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<string> in(5);
-        in[0] = "These";
-        in[1] = "are";
-        in[2] = "five";
-        in[3] = "short";
-        in[4] = "strings.";
+        in[0] = "THESE";
+        in[1] = "ARE";
+        in[2] = "FIVE";
+        in[3] = "SHORT";
+        in[4] = "STRINGS.";
 
         deque<string> out;
         deque<string> ret = t->opStringSeq(in, out);
@@ -907,11 +895,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         list<string> in;
-        in.push_back("These");
-        in.push_back("are");
-        in.push_back("five");
-        in.push_back("short");
-        in.push_back("strings.");
+        in.push_back("THESE");
+        in.push_back("ARE");
+        in.push_back("FIVE");
+        in.push_back("SHORT");
+        in.push_back("STRINGS.");
 
         list<string> out;
         list<string> ret = t->opStringList(in, out);
@@ -949,11 +937,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::Variable> in(5);
-        in[0].s = "These";
-        in[1].s = "are";
-        in[2].s = "five";
-        in[3].s = "short";
-        in[4].s = "strings.";
+        in[0].s = "THESE";
+        in[1].s = "ARE";
+        in[2].s = "FIVE";
+        in[3].s = "SHORT";
+        in[4].s = "STRINGS.";
 
         deque<Test::Variable> out;
         deque<Test::Variable> ret = t->opVariableSeq(in, out);
@@ -964,15 +952,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         list<Test::Variable> in;
         Test::Variable v;
-        v.s = "These";
+        v.s = "THESE";
         in.push_back(v);
-        v.s = "are";
+        v.s = "ARE";
         in.push_back(v);
-        v.s = "five";
+        v.s = "FIVE";
         in.push_back(v);
-        v.s = "short";
+        v.s = "SHORT";
         in.push_back(v);
-        v.s = "strings.";
+        v.s = "STRINGS.";
         in.push_back(v);
 
         list<Test::Variable> out;
@@ -983,11 +971,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::StringStringDict> in(5);
-        in[0]["A"] = "a";
-        in[1]["B"] = "b";
-        in[2]["C"] = "c";
-        in[3]["D"] = "d";
-        in[4]["E"] = "e";
+        in[0]["A"] = "A";
+        in[1]["B"] = "B";
+        in[2]["C"] = "C";
+        in[3]["D"] = "D";
+        in[4]["E"] = "E";
 
         deque<Test::StringStringDict> out;
         deque<Test::StringStringDict> ret = t->opStringStringDictSeq(in, out);
@@ -998,15 +986,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         list<Test::StringStringDict> in;
         Test::StringStringDict ssd;
-        ssd["A"] = "a";
+        ssd["A"] = "A";
         in.push_back(ssd);
-        ssd["B"] = "b";
+        ssd["B"] = "B";
         in.push_back(ssd);
-        ssd["C"] = "c";
+        ssd["C"] = "C";
         in.push_back(ssd);
-        ssd["D"] = "d";
+        ssd["D"] = "D";
         in.push_back(ssd);
-        ssd["E"] = "e";
+        ssd["E"] = "E";
         in.push_back(ssd);
 
         list<Test::StringStringDict> out;
@@ -1044,15 +1032,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        deque<Test::CPrxPtr> in(5);
-        in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        deque<Test::DPrxPtr> in(5);
+        in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+        in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+        in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+        in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+        in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
-        deque<Test::CPrxPtr> out;
-        deque<Test::CPrxPtr> ret = t->opCPrxSeq(in, out);
+        deque<Test::DPrxPtr> out;
+        deque<Test::DPrxPtr> ret = t->opDPrxSeq(in, out);
 
 #ifdef ICE_CPP11_MAPPING
         auto op = out.begin();
@@ -1070,15 +1058,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        list<Test::CPrxPtr> in;
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        list<Test::DPrxPtr> in;
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
-        list<Test::CPrxPtr> out;
-        list<Test::CPrxPtr> ret = t->opCPrxList(in, out);
+        list<Test::DPrxPtr> out;
+        list<Test::DPrxPtr> ret = t->opDPrxList(in, out);
 #ifdef ICE_CPP11_MAPPING
         auto op = out.begin();
         auto rp = ret.begin();
@@ -1140,15 +1128,16 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Test::IntStringDict idict;
 
-        idict[1] = "one";
-        idict[2] = "two";
-        idict[3] = "three";
-        idict[-1] = "minus one";
+        idict[1] = "ONE";
+        idict[2] = "TWO";
+        idict[3] = "THREE";
+        idict[-1] = "MINUS ONE";
 
         Test::IntStringDict out;
-        out[5] = "five";
+        out[5] = "FIVE";
 
         Test::IntStringDict ret = t->opIntStringDict(idict, out);
+
         test(out == idict);
         test(ret == idict);
     }
@@ -1156,13 +1145,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Test::CustomMap<std::string, Ice::Int> idict;
 
-        idict["one"] = 1;
-        idict["two"] = 2;
-        idict["three"] = 3;
-        idict["minus one"] = -1;
+        idict["ONE"] = 1;
+        idict["TWO"] = 2;
+        idict["THREE"] = 3;
+        idict["MINUS ONE"] = -1;
 
         Test::CustomMap<std::string, Ice::Int> out;
-        out["five"] = 5;
+        out["FIVE"] = 5;
 
         Test::CustomMap<Ice::Long, Ice::Long> ret = t->opVarDict(idict, out);
 
@@ -1178,13 +1167,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         std::map<int, Util::string_view> idict;
 
-        idict[1] = "one";
-        idict[2] = "two";
-        idict[3] = "three";
-        idict[-1] = "minus one";
+        idict[1] = "ONE";
+        idict[2] = "TWO";
+        idict[3] = "THREE";
+        idict[-1] = "MINUS ONE";
 
         Test::IntStringDict out;
-        out[5] = "five";
+        out[5] = "FIVE";
 
         Test::IntStringDict ret = t->opCustomIntStringDict(idict, out);
         test(out.size() == idict.size());
@@ -1245,10 +1234,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-
     cout << "testing alternate strings with AMI... " << flush;
     {
-        Util::string_view in = "Hello World!";
+        Util::string_view in = "HELLO WORLD!";
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -1355,15 +1343,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             Test::VariableList in;
             Test::Variable inArray[5];
-            inArray[0].s = "These";
+            inArray[0].s = "THESE";
             in.push_back(inArray[0]);
-            inArray[1].s = "are";
+            inArray[1].s = "ARE";
             in.push_back(inArray[1]);
-            inArray[2].s = "five";
+            inArray[2].s = "FIVE";
             in.push_back(inArray[2]);
-            inArray[3].s = "short";
+            inArray[3].s = "SHORT";
             in.push_back(inArray[3]);
-            inArray[4].s = "strings.";
+            inArray[4].s = "STRINGS.";
             in.push_back(inArray[4]);
             pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
 
@@ -1426,15 +1414,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             Test::VariableList in;
             Test::Variable v;
-            v.s = "These";
+            v.s = "THESE";
             in.push_back(v);
-            v.s = "are";
+            v.s = "ARE";
             in.push_back(v);
-            v.s = "five";
+            v.s = "FIVE";
             in.push_back(v);
-            v.s = "short";
+            v.s = "SHORT";
             in.push_back(v);
-            v.s = "strings.";
+            v.s = "STRINGS.";
             in.push_back(v);
 
 #ifdef ICE_CPP11_MAPPING
@@ -1476,19 +1464,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
             Test::VariableList in;
             deque<Test::Variable> inSeq;
             Test::Variable v;
-            v.s = "These";
+            v.s = "THESE";
             in.push_back(v);
             inSeq.push_back(v);
-            v.s = "are";
+            v.s = "ARE";
             in.push_back(v);
             inSeq.push_back(v);
-            v.s = "five";
+            v.s = "FIVE";
             in.push_back(v);
             inSeq.push_back(v);
-            v.s = "short";
+            v.s = "SHORT";
             in.push_back(v);
             inSeq.push_back(v);
-            v.s = "strings.";
+            v.s = "STRINGS.";
             in.push_back(v);
             inSeq.push_back(v);
 
@@ -1614,11 +1602,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             deque<string> in(5);
-            in[0] = "These";
-            in[1] = "are";
-            in[2] = "five";
-            in[3] = "short";
-            in[4] = "strings.";
+            in[0] = "THESE";
+            in[1] = "ARE";
+            in[2] = "FIVE";
+            in[3] = "SHORT";
+            in[4] = "STRINGS.";
 
 #ifdef ICE_CPP11_MAPPING
             auto r = t->opStringSeqAsync(in).get();
@@ -1635,11 +1623,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             list<string> in;
-            in.push_back("These");
-            in.push_back("are");
-            in.push_back("five");
-            in.push_back("short");
-            in.push_back("strings.");
+            in.push_back("THESE");
+            in.push_back("ARE");
+            in.push_back("FIVE");
+            in.push_back("SHORT");
+            in.push_back("STRINGS.");
 
 #ifdef ICE_CPP11_MAPPING
             auto r = t->opStringListAsync(in).get();
@@ -1698,11 +1686,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             deque<Test::Variable> in(5);
-            in[0].s = "These";
-            in[1].s = "are";
-            in[2].s = "five";
-            in[3].s = "short";
-            in[4].s = "strings.";
+            in[0].s = "THESE";
+            in[1].s = "ARE";
+            in[2].s = "FIVE";
+            in[3].s = "SHORT";
+            in[4].s = "STRINGS.";
 
 #ifdef ICE_CPP11_MAPPING
             auto r = t->opVariableSeqAsync(in).get();
@@ -1720,15 +1708,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             list<Test::Variable> in;
             Test::Variable v;
-            v.s = "These";
+            v.s = "THESE";
             in.push_back(v);
-            v.s = "are";
+            v.s = "ARE";
             in.push_back(v);
-            v.s = "five";
+            v.s = "FIVE";
             in.push_back(v);
-            v.s = "short";
+            v.s = "SHORT";
             in.push_back(v);
-            v.s = "strings.";
+            v.s = "STRINGS.";
             in.push_back(v);
 
 #ifdef ICE_CPP11_MAPPING
@@ -1746,11 +1734,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         {
             deque<Test::StringStringDict> in(5);
-            in[0]["A"] = "a";
-            in[1]["B"] = "b";
-            in[2]["C"] = "c";
-            in[3]["D"] = "d";
-            in[4]["E"] = "e";
+            in[0]["A"] = "A";
+            in[1]["B"] = "B";
+            in[2]["C"] = "C";
+            in[3]["D"] = "D";
+            in[4]["E"] = "E";
 
 #ifdef ICE_CPP11_MAPPING
             auto r = t->opStringStringDictSeqAsync(in).get();
@@ -1768,15 +1756,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             list<Test::StringStringDict> in;
             Test::StringStringDict ssd;
-            ssd["A"] = "a";
+            ssd["A"] = "A";
             in.push_back(ssd);
-            ssd["B"] = "b";
+            ssd["B"] = "B";
             in.push_back(ssd);
-            ssd["C"] = "c";
+            ssd["C"] = "C";
             in.push_back(ssd);
-            ssd["D"] = "d";
+            ssd["D"] = "D";
             in.push_back(ssd);
-            ssd["E"] = "e";
+            ssd["E"] = "E";
             in.push_back(ssd);
 
 #ifdef ICE_CPP11_MAPPING
@@ -1835,15 +1823,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 
         {
-            deque<Test::CPrxPtr> in(5);
-            in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-            in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-            in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-            in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-            in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+            deque<Test::DPrxPtr> in(5);
+            in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+            in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+            in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+            in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+            in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opCPrxSeqAsync(in).get();
+            auto r = t->opDPrxSeqAsync(in).get();
 
             test(r.outSeq.size() == in.size());
             test(r.returnValue.size() == in.size());
@@ -1857,24 +1845,24 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(Ice::targetEqualTo(*rp++, i));
             }
 #else
-            deque<Test::CPrx> out;
-            Ice::AsyncResultPtr r = t->begin_opCPrxSeq(in);
-            deque<Test::CPrx> ret = t->end_opCPrxSeq(out, r);
+            deque<Test::DPrx> out;
+            Ice::AsyncResultPtr r = t->begin_opDPrxSeq(in);
+            deque<Test::DPrx> ret = t->end_opDPrxSeq(out, r);
             test(out == in);
             test(ret == in);
 #endif
         }
 
         {
-            list<Test::CPrxPtr> in;
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-            in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+            list<Test::DPrxPtr> in;
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+            in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
 #ifdef ICE_CPP11_MAPPING
-            auto r = t->opCPrxListAsync(in).get();
+            auto r = t->opDPrxListAsync(in).get();
 
             test(r.outSeq.size() == in.size());
             test(r.returnValue.size() == in.size());
@@ -1888,9 +1876,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
                 test(Ice::targetEqualTo(*rp++, i));
             }
 #else
-            list<Test::CPrx> out;
-            Ice::AsyncResultPtr r = t->begin_opCPrxList(in);
-            list<Test::CPrx> ret = t->end_opCPrxList(out, r);
+            list<Test::DPrx> out;
+            Ice::AsyncResultPtr r = t->begin_opDPrxList(in);
+            list<Test::DPrx> ret = t->end_opDPrxList(out, r);
             test(out == in);
             test(ret == in);
 #endif
@@ -1957,7 +1945,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
         }
 
-
         {
             Test::ByteSeq in;
             in.push_back('1');
@@ -2018,7 +2005,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing alternate strings with AMI callbacks... " << flush;
     {
-        Util::string_view in = "Hello World!";
+        Util::string_view in = "HELLO WORLD!";
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -2090,7 +2077,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cb->check();
 #endif
     }
-
 
     {
         Test::BoolSeq in(5);
@@ -2173,15 +2159,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Test::VariableList in;
         Test::Variable inArray[5];
-        inArray[0].s = "These";
+        inArray[0].s = "THESE";
         in.push_back(inArray[0]);
-        inArray[1].s = "are";
+        inArray[1].s = "ARE";
         in.push_back(inArray[1]);
-        inArray[2].s = "five";
+        inArray[2].s = "FIVE";
         in.push_back(inArray[2]);
-        inArray[3].s = "short";
+        inArray[3].s = "SHORT";
         in.push_back(inArray[3]);
-        inArray[4].s = "strings.";
+        inArray[4].s = "STRINGS.";
         in.push_back(inArray[4]);
         pair<const Test::Variable*, const Test::Variable*> inPair(inArray, inArray + 5);
 
@@ -2248,7 +2234,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
     }
 
-
     {
         Test::ByteList in;
         in.push_back('1');
@@ -2287,15 +2272,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         Test::VariableList in;
         Test::Variable v;
-        v.s = "These";
+        v.s = "THESE";
         in.push_back(v);
-        v.s = "are";
+        v.s = "ARE";
         in.push_back(v);
-        v.s = "five";
+        v.s = "FIVE";
         in.push_back(v);
-        v.s = "short";
+        v.s = "SHORT";
         in.push_back(v);
-        v.s = "strings.";
+        v.s = "STRINGS.";
         in.push_back(v);
 
 #ifdef ICE_CPP11_MAPPING
@@ -2364,19 +2349,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Test::VariableList in;
         deque<Test::Variable> inSeq;
         Test::Variable v;
-        v.s = "These";
+        v.s = "THESE";
         in.push_back(v);
         inSeq.push_back(v);
-        v.s = "are";
+        v.s = "ARE";
         in.push_back(v);
         inSeq.push_back(v);
-        v.s = "five";
+        v.s = "FIVE";
         in.push_back(v);
         inSeq.push_back(v);
-        v.s = "short";
+        v.s = "SHORT";
         in.push_back(v);
         inSeq.push_back(v);
-        v.s = "strings.";
+        v.s = "STRINGS.";
         in.push_back(v);
         inSeq.push_back(v);
 #ifdef ICE_CPP11_MAPPING
@@ -2580,11 +2565,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<string> in(5);
-        in[0] = "These";
-        in[1] = "are";
-        in[2] = "five";
-        in[3] = "short";
-        in[4] = "strings.";
+        in[0] = "THESE";
+        in[1] = "ARE";
+        in[2] = "FIVE";
+        in[3] = "SHORT";
+        in[4] = "STRINGS.";
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -2614,11 +2599,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         list<string> in;
-        in.push_back("These");
-        in.push_back("are");
-        in.push_back("five");
-        in.push_back("short");
-        in.push_back("strings.");
+        in.push_back("THESE");
+        in.push_back("ARE");
+        in.push_back("FIVE");
+        in.push_back("SHORT");
+        in.push_back("STRINGS.");
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -2716,11 +2701,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::Variable> in(5);
-        in[0].s = "These";
-        in[1].s = "are";
-        in[2].s = "five";
-        in[3].s = "short";
-        in[4].s = "strings.";
+        in[0].s = "THESE";
+        in[1].s = "ARE";
+        in[2].s = "FIVE";
+        in[3].s = "SHORT";
+        in[4].s = "STRINGS.";
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -2751,15 +2736,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         list<Test::Variable> in;
         Test::Variable v;
-        v.s = "These";
+        v.s = "THESE";
         in.push_back(v);
-        v.s = "are";
+        v.s = "ARE";
         in.push_back(v);
-        v.s = "five";
+        v.s = "FIVE";
         in.push_back(v);
-        v.s = "short";
+        v.s = "SHORT";
         in.push_back(v);
-        v.s = "strings.";
+        v.s = "STRINGS.";
         in.push_back(v);
 
 #ifdef ICE_CPP11_MAPPING
@@ -2790,11 +2775,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     {
         deque<Test::StringStringDict> in(5);
-        in[0]["A"] = "a";
-        in[1]["B"] = "b";
-        in[2]["C"] = "c";
-        in[3]["D"] = "d";
-        in[4]["E"] = "e";
+        in[0]["A"] = "A";
+        in[1]["B"] = "B";
+        in[2]["C"] = "C";
+        in[3]["D"] = "D";
+        in[4]["E"] = "E";
 
 #ifdef ICE_CPP11_MAPPING
 
@@ -2825,15 +2810,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         list<Test::StringStringDict> in;
         Test::StringStringDict ssd;
-        ssd["A"] = "a";
+        ssd["A"] = "A";
         in.push_back(ssd);
-        ssd["B"] = "b";
+        ssd["B"] = "B";
         in.push_back(ssd);
-        ssd["C"] = "c";
+        ssd["C"] = "C";
         in.push_back(ssd);
-        ssd["D"] = "d";
+        ssd["D"] = "D";
         in.push_back(ssd);
-        ssd["E"] = "e";
+        ssd["E"] = "E";
         in.push_back(ssd);
 
 #ifdef ICE_CPP11_MAPPING
@@ -2861,7 +2846,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cb->check();
 #endif
     }
-
 
     {
         deque<Test::E> in(5);
@@ -2932,19 +2916,19 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     {
-        deque<Test::CPrxPtr> in(5);
-        in[0] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
-        in[1] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
-        in[2] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
-        in[3] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
-        in[4] = ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
+        deque<Test::DPrxPtr> in(5);
+        in[0] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000"));
+        in[1] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001"));
+        in[2] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002"));
+        in[3] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003"));
+        in[4] = ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004"));
 
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opCPrxSeqAsync(in,
-                          [&](deque<shared_ptr<Test::CPrx>> ret, deque<shared_ptr<Test::CPrx>> out)
+        t->opDPrxSeqAsync(in,
+                          [&](deque<shared_ptr<Test::DPrx>> ret, deque<shared_ptr<Test::DPrx>> out)
                           {
                               test(ret.size() == in.size());
                               auto op = out.begin();
@@ -2964,27 +2948,27 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(done.get_future().get());
 #else
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opCPrxSeqPtr callback =
-            Test::newCallback_TestIntf_opCPrxSeq(cb, &Callback::opCPrxSeq, &Callback::noEx);
-        t->begin_opCPrxSeq(in, callback, newInParam(in));
+        Test::Callback_TestIntf_opDPrxSeqPtr callback =
+            Test::newCallback_TestIntf_opDPrxSeq(cb, &Callback::opDPrxSeq, &Callback::noEx);
+        t->begin_opDPrxSeq(in, callback, newInParam(in));
         cb->check();
 #endif
     }
 
     {
-        list<Test::CPrxPtr> in;
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
-        in.push_back(ICE_UNCHECKED_CAST(Test::CPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
+        list<Test::DPrxPtr> in;
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C1:" + endp + " -t 10000")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C2:" + endp + " -t 10001")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C3:" + endp + " -t 10002")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C4:" + endp + " -t 10003")));
+        in.push_back(ICE_UNCHECKED_CAST(Test::DPrx, communicator->stringToProxy("C5:" + endp + " -t 10004")));
 
 #ifdef ICE_CPP11_MAPPING
 
         promise<bool> done;
 
-        t->opCPrxListAsync(in,
-                           [&](list<shared_ptr<Test::CPrx>> ret, list<shared_ptr<Test::CPrx>> out)
+        t->opDPrxListAsync(in,
+                           [&](list<shared_ptr<Test::DPrx>> ret, list<shared_ptr<Test::DPrx>> out)
                            {
                                test(ret.size() == in.size());
                               auto op = out.begin();
@@ -3004,9 +2988,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(done.get_future().get());
 #else
         CallbackPtr cb = new Callback();
-        Test::Callback_TestIntf_opCPrxListPtr callback =
-            Test::newCallback_TestIntf_opCPrxList(cb, &Callback::opCPrxList, &Callback::noEx);
-        t->begin_opCPrxList(in, callback, newInParam(in));
+        Test::Callback_TestIntf_opDPrxListPtr callback =
+            Test::newCallback_TestIntf_opDPrxList(cb, &Callback::opDPrxList, &Callback::noEx);
+        t->begin_opDPrxList(in, callback, newInParam(in));
         cb->check();
 #endif
     }
@@ -3112,7 +3096,6 @@ allTests(const Ice::CommunicatorPtr& communicator)
 #endif
     }
 
-
     {
         Test::ByteSeq in;
         in.push_back('1');
@@ -3153,10 +3136,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             Test::IntStringDict idict;
 
-            idict[1] = "one";
-            idict[2] = "two";
-            idict[3] = "three";
-            idict[-1] = "minus one";
+            idict[1] = "ONE";
+            idict[2] = "TWO";
+            idict[3] = "THREE";
+            idict[-1] = "MINUS ONE";
 
 #ifdef ICE_CPP11_MAPPING
             auto r = t->opIntStringDictAsync(idict).get();
@@ -3164,7 +3147,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             test(r.returnValue == idict);
 #else
             Test::IntStringDict out;
-            out[5] = "five";
+            out[5] = "FIVE";
 
             Ice::AsyncResultPtr r = t->begin_opIntStringDict(idict);
             Test::IntStringDict ret = t->end_opIntStringDict(out, r);
@@ -3176,10 +3159,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             Test::CustomMap<std::string, Ice::Int> idict;
 
-            idict["one"] = 1;
-            idict["two"] = 2;
-            idict["three"] = 3;
-            idict["minus one"] = -1;
+            idict["ONE"] = 1;
+            idict["TWO"] = 2;
+            idict["THREE"] = 3;
+            idict["MINUS ONE"] = -1;
 
 #ifdef ICE_CPP11_MAPPING
             auto r = t->opVarDictAsync(idict).get();
@@ -3191,7 +3174,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
 #else
             Test::CustomMap<std::string, Ice::Int> out;
-            out["five"] = 5;
+            out["FIVE"] = 5;
 
             Ice::AsyncResultPtr r = t->begin_opVarDict(idict);
             Test::CustomMap<Ice::Long, Ice::Long> ret = t->end_opVarDict(out, r);
@@ -3208,10 +3191,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             std::map<int, Util::string_view> idict;
 
-            idict[1] = "one";
-            idict[2] = "two";
-            idict[3] = "three";
-            idict[-1] = "minus one";
+            idict[1] = "ONE";
+            idict[2] = "TWO";
+            idict[3] = "THREE";
+            idict[-1] = "MINUS ONE";
 
 #ifdef ICE_CPP11_MAPPING
             auto r = t->opCustomIntStringDictAsync(idict).get();
@@ -3225,7 +3208,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
 #else
             Test::IntStringDict out;
-            out[5] = "five";
+            out[5] = "FIVE";
 
             Ice::AsyncResultPtr r = t->begin_opCustomIntStringDict(idict);
             Test::IntStringDict ret = t->end_opCustomIntStringDict(out, r);
@@ -3249,10 +3232,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             Test::IntStringDict idict;
 
-            idict[1] = "one";
-            idict[2] = "two";
-            idict[3] = "three";
-            idict[-1] = "minus one";
+            idict[1] = "ONE";
+            idict[2] = "TWO";
+            idict[3] = "THREE";
+            idict[-1] = "MINUS ONE";
 
 #ifdef ICE_CPP11_MAPPING
             promise<bool> done;
@@ -3283,10 +3266,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             Test::CustomMap<std::string, Ice::Int> idict;
 
-            idict["one"] = 1;
-            idict["two"] = 2;
-            idict["three"] = 3;
-            idict["minus one"] = -1;
+            idict["ONE"] = 1;
+            idict["TWO"] = 2;
+            idict["THREE"] = 3;
+            idict["MINUS ONE"] = -1;
 
 #ifdef ICE_CPP11_MAPPING
             promise<bool> done;
@@ -3322,10 +3305,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             std::map<int, Util::string_view> idict;
 
-            idict[1] = "one";
-            idict[2] = "two";
-            idict[3] = "three";
-            idict[-1] = "minus one";
+            idict[1] = "ONE";
+            idict[2] = "TWO";
+            idict[3] = "THREE";
+            idict[-1] = "MINUS ONE";
 
 #ifdef ICE_CPP11_MAPPING
             promise<bool> done;
@@ -3359,10 +3342,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-
-
 #ifndef ICE_CPP11_MAPPING
-
 
     cout << "testing class mapped structs ... " << flush;
     Test::ClassStructPtr cs = new Test::ClassStruct();
@@ -3407,13 +3387,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "testing wstring... " << flush;
 
     Test1::WstringSeq wseq1;
-    wseq1.push_back(L"Wide String");
+    wseq1.push_back(L"WIDE STRING");
 
     Test2::WstringSeq wseq2;
     wseq2 = wseq1;
 
     Test1::WstringWStringDict wdict1;
-    wdict1[L"Key"] = L"Value";
+    wdict1[L"KEY"] = L"VALUE";
 
     Test2::WstringWStringDict wdict2;
     wdict2 = wdict1;
@@ -3430,7 +3410,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     Test2::WstringClassPrxPtr wsc2 = ICE_CHECKED_CAST(Test2::WstringClassPrx, base);
     test(t);
 
-    wstring wstr = L"A Wide String";
+    wstring wstr = L"A WIDE STRING";
     wstring out;
     wstring ret = wsc1->opString(wstr, out);
     test(out == wstr);

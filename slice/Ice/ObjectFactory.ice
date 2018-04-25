@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
@@ -27,7 +27,7 @@ module Ice
  *
  **/
 
-["deprecate:ObjectFactory has been deprecated, use ValueFactory instead."]
+["deprecate:ObjectFactory has been deprecated, use ValueFactory instead.", "php:internal"]
 local interface ObjectFactory
 {
     /**
@@ -36,7 +36,7 @@ local interface ObjectFactory
      * absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute
      * Slice type id for interfaces of type <tt>Bar</tt> in the module
-     * <tt>Foo</tt> is <tt>::Foo::Bar</tt>.
+     * <tt>Foo</tt> is <tt>"::Foo::Bar"</tt>.
      *
      * <p class="Note">The leading "<tt>::</tt>" is required.
      *
@@ -57,6 +57,6 @@ local interface ObjectFactory
      *
      **/
     void destroy();
-};
+}
 
-};
+}

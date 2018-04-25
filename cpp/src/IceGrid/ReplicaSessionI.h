@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,15 +34,15 @@ public:
 
     virtual void keepAlive(const Ice::Current&);
     virtual int getTimeout(const Ice::Current&) const;
-    virtual void setDatabaseObserver(const DatabaseObserverPrx&, const IceUtil::Optional<StringLongDict>&, 
+    virtual void setDatabaseObserver(const DatabaseObserverPrx&, const IceUtil::Optional<StringLongDict>&,
                                      const Ice::Current&);
     virtual void setEndpoints(const StringObjectProxyDict&, const Ice::Current&);
     virtual void registerWellKnownObjects(const ObjectInfoSeq&, const Ice::Current&);
-    virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&, 
+    virtual void setAdapterDirectProxy(const std::string&, const std::string&, const Ice::ObjectPrx&,
                                        const Ice::Current&);
     virtual void receivedUpdate(TopicName, int, const std::string&, const Ice::Current&);
-    virtual void destroy(const Ice::Current& = Ice::noExplicitCurrent);
-    
+    virtual void destroy(const Ice::Current&);
+
     virtual IceUtil::Time timestamp() const;
     virtual void shutdown();
 
@@ -56,7 +56,7 @@ public:
 private:
 
     void destroyImpl(bool);
-    
+
     const DatabasePtr _database;
     const WellKnownObjectsManagerPtr _wellKnownObjects;
     const TraceLevelsPtr _traceLevels;

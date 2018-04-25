@@ -8,38 +8,130 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
-- [Changes in Ice 3.6.3](#changes-in-ice-363)
-  - [C++ Changes](#c-changes)
-  - [Python Changes](#python-changes)
-- [Changes in Ice 3.6.2](#changes-in-ice-362)
+- [Changes in Ice 3.6.4](#changes-in-ice-364)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes)
-  - [C# Changes](#c-changes-1)
+  - [Java Changes](#java-changes)
+  - [JavaScript Changes](#javascript-changes)
+  - [C# Changes](#csharp-changes)
+- [Changes in Ice 3.6.3](#changes-in-ice-363)
+  - [General Changes](#general-changes)
+  - [C++ Changes](#c-changes)
+  - [Objective-C Changes](#objective-c-changes)
+  - [PHP Changes](#php-changes)
+  - [Python Changes](#python-changes)
+- [Changes in Ice 3.6.2](#changes-in-ice-362)
+  - [General Changes](#general-changes-1)
+  - [C++ Changes](#c-changes-1)
+  - [C# Changes](#c-changes-2)
   - [Java Changes](#java-changes)
   - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-2)
-  - [JavaScript Changes](#javascript-changes)
-  - [PHP Changes](#php-changes)
-- [Changes in Ice 3.6.0](#changes-in-ice-360)
-  - [General Changes](#general-changes-2)
   - [C++ Changes](#c-changes-3)
-  - [C# Changes](#c-changes-4)
+  - [JavaScript Changes](#javascript-changes)
+  - [PHP Changes](#php-changes-1)
+- [Changes in Ice 3.6.0](#changes-in-ice-360)
+  - [General Changes](#general-changes-3)
+  - [C++ Changes](#c-changes-4)
+  - [C# Changes](#c-changes-5)
   - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes-1)
-  - [Objective-C Changes](#objective-c-changes)
-  - [PHP Changes](#php-changes-1)
+  - [Objective-C Changes](#objective-c-changes-1)
+  - [PHP Changes](#php-changes-2)
   - [Python Changes](#python-changes-2)
   - [Ruby Changes](#ruby-changes-1)
 
+# Changes in Ice 3.6.4
+
+These are the changes since Ice 3.6.3.
+
+## General Changes
+
+- Fixed IceGrid node bug where a replica might not get up-to-date object
+  adapter information about a server if an update is pending for this
+  server. Thanks to Michael Gmelin for the bug report and fix.
+
+- Added support for a new `Ice.ClassGraphDepthMax` property to prevent stack
+  overflows in case a sender sends a very large graph.
+
+  The unmarshaling or destruction of a graph of Slice class instances is a
+  recursive operation. This property limits the amount of stack size required to
+  perform these operations. This property is supported with all the language
+  mappings except Java and JavaScript where it's not needed (the run time
+  environment allows graceful handling of stack overflows).
+
+  The default maximum class graph depth is infinite. If your application
+  receives class graphs in an insecure environment, you should set the
+  `Ice.ClassGraphDepthMax` to a value that ensures the thread pool stack size is
+  large enough to allow reading graphs without causing a stack overflow.
+
+- Fixed IceGrid bug where updating properties of an IceBox service at runtime
+  would fail if the service used the IceBox shared communicator. Thanks to
+  Andreas Sommer for the bug report and fix.
+
+- Fixed a bug in the Slice compilers: they generated incorrect dependencies for
+  Slice files in directories with the string ".ice" in their path.
+
+- Significantly reduced the size of the Windows binary distribution by
+  moving all C++ debug information (PDB files) to https://symbols.zeroc.com.
+  Also removed the WinRT libraries from the Windows binary distribution.
+
+## C++ Changes
+
+- Fixed a spurious and harmless error message related to the kqueue selector.
+  This message would only show up under certain circumstances when using Ice
+  on macOS Sierra (10.2).
+
+- Fixed a bug which would cause an IceUtil::NullHandleException to be raised when
+  using a proxy configured with ice_invocationTimeout(-2) with collocated calls.
+
+- Fixed a bug which caused PTHREAD_PRIO_INHERIT to be ignored when building Ice
+  with -DICE_PRIO_INHERIT.
+
+## Java Changes
+
+- Fixed generated code bug which would cause a build failure if an interface
+  inherited from an interface from another module and if this interface had
+  operations returning multiple values.
+
+## JavaScript Changes
+
+- Fixed a bug in the Ice.Long toNumber implementation: negative integers
+  smaller than -(2^52 - 1) were not correctly handled.
+
+## CSharp Changes
+
+- Fixed a bug that affects the Stack sequence mapping. When using the Stack
+mapping with a sequence<Object*>, items were unmarshaled in reverse
+order.
+
+- Fixed a bug where incorrect code could be generated for invalid metadata
+directives.
 
 # Changes in Ice 3.6.3
 
 These are the changes since Ice 3.6.2.
 
 ## General Changes
+
+- Fixed IceGrid bug where deployment of an application would fail if a well-
+  known object was registered with an adapter whose adapter ID contained spaces.
+
+- Added support for limiting the number of events queued for a given subscriber.
+  This is useful to prevent IceStorm from consuming too much memory when a
+  subscriber is too slow to consume published events. The queue maximum size is
+  configured with the IceStorm.Send.QueueSizeMax property. You can use the
+  property IceStorm.Send.QueueSizeMaxPolicy=RemoveSubscriber|DropEvents to
+  configure the behavior of IceStorm when the limit is reached. By default,
+  IceStorm will queue events indefinitely.
+
+- Speed-up the update of IceStorm replicas after the election of a new IceStorm
+  coordinator.
+
+- Fixed a bug in the IceLocatorDiscovery plug-in that could occasionally
+  trigger an infinite loop.
 
 - Fixed a bug in the unmarshalling code where passing optional input
   parameters to an operation with no required input parameters would
@@ -51,6 +143,11 @@ These are the changes since Ice 3.6.2.
 - Fixed a bug in icegridadmin and IceGridGUI which was preventing to get
   properties for IceBox services using the IceBox shared communicator.
 
+- Fixed a bug in IceGrid Admin (IceGridGUI) that resulted in an incorrect
+  state when you removed and then re-added the same IceGrid application.
+
+- The Slice compilers now support non-ASCII paths on all platforms.
+
 - General clean up in slice2html, including a fix for broken link paths.
 
 ## C++ Changes
@@ -60,6 +157,15 @@ These are the changes since Ice 3.6.2.
   this size, the log file is renamed and a new log file is started.
   The Ice.LogFile.SizeMax property is set to 0 by default, which means the
   log file size is unlimited and a single log file is created.
+
+## Objective-C Changes
+
+- Added identityToString and stringToIdentity non-member functions, which
+  were missing from previous releases.
+
+## PHP Changes
+
+- Added support for PHP 7.0.
 
 ## Python Changes
 
@@ -112,7 +218,7 @@ These are the changes since Ice 3.6.1.
 - Fixed potential deadlock that could occur when using collocation optimization
   and serialized server thread pools.
 
-- Fixed IceSSL bug that would only show up with WSS servers running on OS X
+- Fixed IceSSL bug that would only show up with WSS servers running on macOS
   and Linux. The WSS server could stop reading requests if the client sent
   multiple requests within the same SSL record.
 
@@ -130,7 +236,7 @@ These are the changes since Ice 3.6.1.
 - Fixed an IceGridGUI bug where metrics attributes for Glacier2 and IceStorm
   were not displayed.
 
-- Fixed an IceGridGUI bug where the GUI started minimized in OS X.
+- Fixed an IceGridGUI bug where the GUI started minimized in macOS.
 
 ## Python Changes
 
@@ -193,7 +299,7 @@ These are the changes since Ice 3.6.0.
   time. Your application will need to link with the plug-in's dynamic library
   if it uses the register function.
 
-- C++ source builds in Windows now use third-party packages from Nuget
+- C++ source builds in Windows now use third-party packages from NuGet
   (https://www.nuget.org).
 
 - Windows C++ builds now install the required third-party dependencies to the
@@ -213,7 +319,7 @@ These are the changes since Ice 3.6.0.
 
 ## PHP Changes
 
-- Update PHP builds for Linux and OS X to use php-config from PATH. It is no
+- Update PHP builds for Linux and macOS to use php-config from PATH. It is no
   longer necessary to set PHP_HOME.
 
 # Changes in Ice 3.6.0
@@ -278,7 +384,7 @@ These are the changes since Ice 3.5.1.
   member should always be `true` since servers always reject invalid client
   certificates.
 
-- The Ice distribution now supports the Objective-C mapping on OS X.
+- The Ice distribution now supports the Objective-C mapping on macOS.
 
 - The Glacier2 `SessionHelper` class now creates the callback object adapter
   automatically unless the application calls
@@ -582,11 +688,11 @@ These are the changes since Ice 3.5.1.
 
 - Significant changes to the IceSSL plug-in:
 
-    - Now uses the native SecureTransport API on OS X
+    - Now uses the native SecureTransport API on macOS
     - Now uses the native SChannel API on Windows
     - OpenSSL is only used in IceSSL on Linux
 
-- Added support for the `IceSSL.FindCert` property on Windows and OS X.
+- Added support for the `IceSSL.FindCert` property on Windows and macOS.
 
 - Added the new metadata tag `cpp:view-type:Type`, where `Type` is a type that
   can safely provide a "view" into the Ice unmarshaling buffer and thereby avoid

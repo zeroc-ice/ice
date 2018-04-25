@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -320,7 +320,7 @@ public class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Comm
         public String
         getIdentity()
         {
-            return com.zeroc.Ice.Util.identityToString(_current.id);
+            return _current.adapter.getCommunicator().identityToString(_current.id);
         }
 
         final private com.zeroc.Ice.Current _current;
@@ -429,7 +429,7 @@ public class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Comm
                     catch(Exception ex)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.append(com.zeroc.Ice.Util.identityToString(_proxy.ice_getIdentity()));
+                        os.append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
                         os.append(" [").append(_operation).append(']');
                     }
                     _id = os.toString();
@@ -459,7 +459,7 @@ public class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Comm
         {
             if(_proxy != null)
             {
-                return com.zeroc.Ice.Util.identityToString(_proxy.ice_getIdentity());
+                return _proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity());
             }
             else
             {
@@ -797,22 +797,8 @@ public class CommunicatorObserverI implements com.zeroc.Ice.Instrumentation.Comm
         }
         else
         {
-            _connections.setUpdater(new Runnable() {
-                    @Override
-                    public void
-                    run()
-                    {
-                        updater.updateConnectionObservers();
-                    }
-                });
-            _threads.setUpdater(new Runnable() {
-                    @Override
-                    public void
-                    run()
-                    {
-                        updater.updateThreadObservers();
-                    }
-                });
+            _connections.setUpdater(() -> { updater.updateConnectionObservers(); });
+            _threads.setUpdater(() -> { updater.updateThreadObservers(); });
         }
 
         if(_delegate != null)

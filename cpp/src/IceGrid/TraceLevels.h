@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,6 +23,9 @@ public:
 
     TraceLevels(const Ice::CommunicatorPtr&, const std::string&);
     virtual ~TraceLevels();
+
+    const int admin;
+    const char* adminCat;
 
     const int application;
     const char* applicationCat;
@@ -53,6 +56,9 @@ public:
 
     const int session;
     const char* sessionCat;
+
+    const int discovery;
+    const char* discoveryCat;
 
     const Ice::LoggerPtr logger;
 };

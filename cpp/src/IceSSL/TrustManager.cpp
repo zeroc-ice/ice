@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,6 +9,7 @@
 
 #include <IceSSL/TrustManager.h>
 #include <IceSSL/RFC2253.h>
+#include <IceSSL/ConnectionInfo.h>
 
 #include <Ice/Properties.h>
 #include <Ice/Communicator.h>
@@ -53,16 +54,15 @@ TrustManager::TrustManager(const Ice::CommunicatorPtr& communicator) :
             }
         }
     }
-    catch(const ParseException& e)
+    catch(const ParseException& ex)
     {
-        Ice::PluginInitializationException ex(__FILE__, __LINE__);
-        ex.reason = "IceSSL: invalid property " + key  + ":\n" + e.reason;
-        throw ex;
+        throw Ice::PluginInitializationException(__FILE__, __LINE__, "IceSSL: invalid property " + key  + ":\n" +
+                                                 ex.reason);
     }
 }
 
 bool
-TrustManager::verify(const NativeConnectionInfoPtr& info, const std::string& desc)
+TrustManager::verify(const ConnectionInfoPtr& info, const std::string& desc)
 {
     list<list<DistinguishedName> > reject, accept;
 
@@ -131,9 +131,9 @@ TrustManager::verify(const NativeConnectionInfoPtr& info, const std::string& des
     //
     // If there is no certificate then we match false.
     //
-    if(info->nativeCerts.size() != 0)
+    if(info->certs.size() != 0)
     {
-        DistinguishedName subject = info->nativeCerts[0]->getSubjectDN();
+        DistinguishedName subject = info->certs[0]->getSubjectDN();
         if(_traceLevel > 0)
         {
             Ice::Trace trace(_communicator->getLogger(), "Security");

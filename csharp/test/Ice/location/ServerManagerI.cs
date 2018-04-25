@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,17 +12,17 @@ using Test;
 
 public class ServerManagerI : ServerManagerDisp_
 {
-    internal ServerManagerI(ServerLocatorRegistry registry,
-        Ice.InitializationData initData)
+    internal ServerManagerI(ServerLocatorRegistry registry, Ice.InitializationData initData, TestCommon.Application app)
     {
         _registry = registry;
         _communicators = new ArrayList();
         _initData = initData;
+        _app = app;
         _initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
         _initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
         _initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     }
-    
+
     public override void startServer(Ice.Current current)
     {
         foreach(Ice.Communicator c in _communicators)
@@ -47,23 +47,53 @@ public class ServerManagerI : ServerManagerDisp_
         // Use fixed port to ensure that OA re-activation doesn't re-use previous port from
         // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
         //
-        serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + _nextPort++);
-        serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", "default -p " + _nextPort++);
+        int nRetry = 10;
+        while(--nRetry > 0)
+        {
+            Ice.ObjectAdapter adapter = null;
+            Ice.ObjectAdapter adapter2 = null;
+            try
+            {
+                serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints",
+                                                               _app.getTestEndpoint(_nextPort++));
+                serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints",
+                                                               _app.getTestEndpoint(_nextPort++));
 
-        Ice.ObjectAdapter adapter = serverCommunicator.createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
-        
-        Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:default -p 12010");
-        adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
-        adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
-        
-        Ice.Object @object = new TestI(adapter, adapter2, _registry);
-        _registry.addObject(adapter.add(@object, Ice.Util.stringToIdentity("test")));
-        _registry.addObject(adapter.add(@object, Ice.Util.stringToIdentity("test2")));
-        adapter.add(@object, Ice.Util.stringToIdentity("test3"));
+                adapter = serverCommunicator.createObjectAdapter("TestAdapter");
+                adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
-        adapter.activate();
-        adapter2.activate();
+                Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:" + _app.getTestEndpoint(0));
+                adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
+                adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
+
+                Ice.Object @object = new TestI(adapter, adapter2, _registry);
+                _registry.addObject(adapter.add(@object, Ice.Util.stringToIdentity("test")));
+                _registry.addObject(adapter.add(@object, Ice.Util.stringToIdentity("test2")));
+                adapter.add(@object, Ice.Util.stringToIdentity("test3"));
+
+                adapter.activate();
+                adapter2.activate();
+                break;
+            }
+            catch(Ice.SocketException ex)
+            {
+                if(nRetry == 0)
+                {
+                    throw ex;
+                }
+
+                // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
+                // browser clients if the driver uses ports in the same range as this test, ICE-8148)
+                if(adapter != null)
+                {
+                    adapter.destroy();
+                }
+                if(adapter2 != null)
+                {
+                    adapter2.destroy();
+                }
+            }
+        }
     }
 
     public override void shutdown(Ice.Current current)
@@ -79,5 +109,6 @@ public class ServerManagerI : ServerManagerDisp_
     private ServerLocatorRegistry _registry;
     private ArrayList _communicators;
     private Ice.InitializationData _initData;
-    private int _nextPort = 12011;
+    private TestCommon.Application _app;
+    private int _nextPort = 1;
 }

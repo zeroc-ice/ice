@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ public sealed class RetryI : Test.RetryDisp_
         {
             if(current.con != null)
             {
-                current.con.close(true);
+                current.con.close(Ice.ConnectionClose.Forcefully);
             }
             else
             {
@@ -39,17 +39,17 @@ public sealed class RetryI : Test.RetryDisp_
         _counter = 0;
         return counter;
     }
-    
+
     public override void opNotIdempotent(Ice.Current current)
     {
         throw new Ice.ConnectionLostException();
     }
-    
+
     public override void opSystemException(Ice.Current c)
     {
         throw new SystemFailure();
     }
-    
+
     public override void shutdown(Ice.Current current)
     {
         current.adapter.getCommunicator().shutdown();

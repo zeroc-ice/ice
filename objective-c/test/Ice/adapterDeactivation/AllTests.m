@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,7 +27,7 @@ adapterDeactivationAllTests(id<ICECommunicator> communicator)
 
     {
         tprintf("creating/destroying/recreating object adapter... ");
-        id<ICEObjectAdapter> adapter = 
+        id<ICEObjectAdapter> adapter =
             [communicator createObjectAdapterWithEndpoints:@"TransientTestAdapter" endpoints:@"default -p 9999"];
         @try
         {
@@ -50,6 +50,24 @@ adapterDeactivationAllTests(id<ICECommunicator> communicator)
     tprintf("creating/activating/deactivating object adapter in one operation... ");
     [obj transient];
     tprintf("ok\n");
+
+    if([obj ice_getConnection] != nil)
+    {
+        tprintf("testing object adapter with bi-dir connection... ");
+        id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@""];
+        [[obj ice_getConnection] setAdapter:adapter];
+        [[obj ice_getConnection] setAdapter:nil];
+        [adapter deactivate];
+        @try
+        {
+            [[obj ice_getConnection] setAdapter:adapter];
+            test(false);
+        }
+        @catch(ICEObjectAdapterDeactivatedException* ex)
+        {
+        }
+        tprintf("ok\n");
+    }
 
     tprintf("deactivating object adapter in the server... ");
     [obj deactivate];

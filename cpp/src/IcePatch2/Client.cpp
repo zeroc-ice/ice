@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,6 +10,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/Application.h>
+#include <Ice/ConsoleUtil.h>
 #include <IcePatch2Lib/Util.h>
 #include <IcePatch2/ClientUtil.h>
 
@@ -22,6 +23,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IcePatch2;
 using namespace IcePatch2Internal;
 
@@ -50,11 +52,11 @@ public:
     virtual bool
     noFileSummary(const string& reason)
     {
-        cout << "Cannot load file summary:\n" << reason << endl;
+        consoleOut << "Cannot load file summary:\n" << reason << endl;
         string answer;
         do
         {
-            cout << "Do a thorough patch? (yes/no)" << endl;
+            consoleOut << "Do a thorough patch? (yes/no)" << endl;
             cin >> answer;
             answer = IceUtilInternal::toLower(answer);
             if(answer == "no")
@@ -71,7 +73,7 @@ public:
     {
         if(!_pressAnyKeyMessage)
         {
-            cout << "[Press any key to abort]" << endl;
+            consoleOut << "[Press any key to abort]" << endl;
             _pressAnyKeyMessage = true;
         }
 
@@ -81,7 +83,7 @@ public:
     virtual bool
     checksumProgress(const string& path)
     {
-        cout << "Calculating checksum for " << getBasename(path) << endl;
+        consoleOut << "Calculating checksum for " << getBasename(path) << endl;
         return !keyPressed();
     }
 
@@ -96,12 +98,12 @@ public:
     {
         if(!_pressAnyKeyMessage)
         {
-            cout << "[Press any key to abort]" << endl;
+            consoleOut << "[Press any key to abort]" << endl;
             _pressAnyKeyMessage = true;
         }
 
         _lastProgress = "0%";
-        cout << "Getting list of files to patch: " << _lastProgress << flush;
+        consoleOut << "Getting list of files to patch: " << _lastProgress << flush;
         return !keyPressed();
     }
 
@@ -110,19 +112,19 @@ public:
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
-            cout << '\b';
+            consoleOut << '\b';
         }
         ostringstream s;
         s << percent << '%';
         _lastProgress = s.str();
-        cout << _lastProgress << flush;
+        consoleOut << _lastProgress << flush;
         return !keyPressed();
     }
 
     virtual bool
     fileListEnd()
     {
-        cout << endl;
+        consoleOut << endl;
         return !keyPressed();
     }
 
@@ -131,14 +133,14 @@ public:
     {
         if(!_pressAnyKeyMessage)
         {
-            cout << "[Press any key to abort]" << endl;
+            consoleOut << "[Press any key to abort]" << endl;
             _pressAnyKeyMessage = true;
         }
 
         ostringstream s;
         s << "0/" << size << " (" << totalProgress << '/' << totalSize << ')';
         _lastProgress = s.str();
-        cout << getBasename(path) << ' ' << _lastProgress << flush;
+        consoleOut << getBasename(path) << ' ' << _lastProgress << flush;
         return !keyPressed();
     }
 
@@ -147,19 +149,19 @@ public:
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
-            cout << '\b';
+            consoleOut << '\b';
         }
         ostringstream s;
         s << progress << '/' << size << " (" << totalProgress << '/' << totalSize << ')';
         _lastProgress = s.str();
-        cout << _lastProgress << flush;
+        consoleOut << _lastProgress << flush;
         return !keyPressed();
     }
 
     virtual bool
     patchEnd()
     {
-        cout << endl;
+        consoleOut << endl;
         return !keyPressed();
     }
 
@@ -237,7 +239,7 @@ private:
         string answer;
         do
         {
-            cout << "\nConfirm abort? (Y/N)" << endl;
+            consoleOut << "\nConfirm abort? (Y/N)" << endl;
             cin >> answer;
             answer = IceUtilInternal::toLower(answer);
             if(answer == "n")
@@ -253,7 +255,7 @@ private:
     bool _pressAnyKeyMessage;
 };
 
-class Client : public Application
+class Client : public Ice::Application
 {
 public:
 
@@ -281,7 +283,7 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << e.reason << endl;
+        consoleErr << e.reason << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -293,7 +295,7 @@ Client::run(int argc, char* argv[])
     }
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
     if(opts.isSet("thorough"))
@@ -303,7 +305,7 @@ Client::run(int argc, char* argv[])
 
     if(args.size() > 1)
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        consoleErr << argv[0] << ": too many arguments" << endl;
         usage(argv[0]);
         return EXIT_FAILURE;
     }
@@ -331,15 +333,15 @@ Client::run(int argc, char* argv[])
             patcher->finish();
         }
     }
-    catch(const string& ex)
+    catch(const exception& ex)
     {
-        cerr << argv[0] << ": " << ex << endl;
+        consoleErr << argv[0] << ": " << ex.what() << endl;
         return EXIT_FAILURE;
     }
 
     if(aborted)
     {
-        cout << "\n[Aborted]" << endl;
+        consoleOut << "\n[Aborted]" << endl;
         return EXIT_FAILURE;
     }
     else
@@ -357,8 +359,8 @@ Client::usage(const string& appName)
         "-v, --version        Display the Ice version.\n"
         "-t, --thorough       Recalculate all checksums.";
 
-    cerr << "Usage: " << appName << " [options] [DIR]" << endl;
-    cerr << options << endl;
+    consoleErr << "Usage: " << appName << " [options] [DIR]" << endl;
+    consoleErr << options << endl;
 }
 
 #ifdef _WIN32

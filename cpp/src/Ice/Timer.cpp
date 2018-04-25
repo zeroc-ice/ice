@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,9 +9,11 @@
 
 #include <IceUtil/Timer.h>
 #include <IceUtil/Exception.h>
+#include <Ice/ConsoleUtil.h>
 
 using namespace std;
 using namespace IceUtil;
+using namespace IceInternal;
 
 TimerTask::~TimerTask()
 {
@@ -80,7 +82,7 @@ Timer::schedule(const TimerTaskPtr& task, const IceUtil::Time& delay)
     bool inserted = _tasks.insert(make_pair(task, time)).second;
     if(!inserted)
     {
-        throw IllegalArgumentException(__FILE__, __LINE__, "task is already schedulded");
+        throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
     }
     _tokens.insert(Token(time, IceUtil::Time(), task));
 
@@ -101,7 +103,7 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
 
     IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
     const Token token(now + delay, delay, task);
-    if(delay > IceUtil::Time() && token.scheduledTime < now) 
+    if(delay > IceUtil::Time() && token.scheduledTime < now)
     {
         throw IllegalArgumentException(__FILE__, __LINE__, "invalid delay");
     }
@@ -109,10 +111,10 @@ Timer::scheduleRepeated(const TimerTaskPtr& task, const IceUtil::Time& delay)
     bool inserted = _tasks.insert(make_pair(task, token.scheduledTime)).second;
     if(!inserted)
     {
-        throw IllegalArgumentException(__FILE__, __LINE__, "task is already schedulded");
+        throw IllegalArgumentException(__FILE__, __LINE__, "task is already scheduled");
     }
-    _tokens.insert(token); 
-   
+    _tokens.insert(token);
+
     if(_wakeUpTime == IceUtil::Time() || token.scheduledTime < _wakeUpTime)
     {
         _monitor.notify();
@@ -173,12 +175,12 @@ Timer::run()
                     _monitor.wait();
                 }
             }
-            
+
             if(_destroyed)
             {
                 break;
             }
-            
+
             while(!_tokens.empty() && !_destroyed)
             {
                 const IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
@@ -193,22 +195,22 @@ Timer::run()
                     }
                     break;
                 }
-                
+
                 _wakeUpTime = first.scheduledTime;
-                try 
+                try
                 {
                     _monitor.timedWait(first.scheduledTime - now);
-                } 
+                }
                 catch(const IceUtil::InvalidTimeoutException&)
                 {
                     IceUtil::Time timeout = (first.scheduledTime - now) / 2;
                     while(timeout > IceUtil::Time())
                     {
-                        try 
+                        try
                         {
                             _monitor.timedWait(timeout);
                             break;
-                        } 
+                        }
                         catch(const IceUtil::InvalidTimeoutException&)
                         {
                             timeout = timeout / 2;
@@ -221,7 +223,7 @@ Timer::run()
             {
                 break;
             }
-        }     
+        }
 
         if(token.task)
         {
@@ -231,19 +233,19 @@ Timer::run()
             }
             catch(const IceUtil::Exception& e)
             {
-                cerr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
+                consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what();
 #ifdef __GNUC__
-                cerr << "\n" << e.ice_stackTrace();
+                consoleErr << "\n" << e.ice_stackTrace();
 #endif
-                cerr << endl;
-            } 
+                consoleErr << endl;
+            }
             catch(const std::exception& e)
             {
-                cerr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
-            } 
+                consoleErr << "IceUtil::Timer::run(): uncaught exception:\n" << e.what() << endl;
+            }
             catch(...)
             {
-                cerr << "IceUtil::Timer::run(): uncaught exception" << endl;
+                consoleErr << "IceUtil::Timer::run(): uncaught exception" << endl;
             }
         }
     }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,13 +8,19 @@
 // **********************************************************************
 
 using System;
+using System.Globalization;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Test;
-
 
 class LoggerI : Ice.Logger
 {
+    public LoggerI(string name)
+    {
+        _name = name;
+    }
+
     public void start()
     {
         lock(this)
@@ -40,7 +46,17 @@ class LoggerI : Ice.Logger
     {
         lock(this)
         {
-            _messages.Add("[" + category + "] " + message);
+            System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append("[");
+            s.Append(category);
+            s.Append("] ");
+            s.Append(message);
+            _messages.Add(s.ToString());
             if(_started)
             {
                 dump();
@@ -52,7 +68,14 @@ class LoggerI : Ice.Logger
     {
         lock(this)
         {
-            _messages.Add("warning: " + message);
+            System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(" warning : ");
+            s.Append(message);
+            _messages.Add(s.ToString());
             if(_started)
             {
                 dump();
@@ -64,7 +87,14 @@ class LoggerI : Ice.Logger
     {
         lock(this)
         {
-            _messages.Add("error: " + message);
+            System.Text.StringBuilder s = new System.Text.StringBuilder(_name);
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_date, CultureInfo.CurrentCulture));
+            s.Append(' ');
+            s.Append(System.DateTime.Now.ToString(_time, CultureInfo.CurrentCulture));
+            s.Append(" error : ");
+            s.Append(message);
+            _messages.Add(s.ToString());
             if(_started)
             {
                 dump();
@@ -86,14 +116,18 @@ class LoggerI : Ice.Logger
     {
         foreach(string line in _messages)
         {
-            System.Console.WriteLine(line);
+            System.Console.Error.WriteLine(line);
         }
         _messages.Clear();
     }
 
+    private string _name;
     private bool _started;
+    private readonly static string _date = "d";
+    private readonly static string _time = "HH:mm:ss:fff";
+
     private List<string> _messages = new List<string>();
-};
+}
 
 abstract class TestCase
 {
@@ -101,7 +135,7 @@ abstract class TestCase
     {
         _name = name;
         _com = com;
-        _logger = new LoggerI();
+        _logger = new LoggerI(_name);
 
         _clientACMTimeout = -1;
         _clientACMClose = -1;
@@ -122,7 +156,7 @@ abstract class TestCase
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = _com.ice_getCommunicator().getProperties().ice_clone_();
         initData.logger = _logger;
-        initData.properties.setProperty("Ice.ACM.Timeout", "1");
+        initData.properties.setProperty("Ice.ACM.Timeout", "2");
         if(_clientACMTimeout >= 0)
         {
             initData.properties.setProperty("Ice.ACM.Client.Timeout", _clientACMTimeout.ToString());
@@ -207,10 +241,10 @@ abstract class TestCase
             long now = IceInternal.Time.currentMonotonicTimeMillis();
             while(!_closed)
             {
-                Monitor.Wait(this, 1000);
-                if(IceInternal.Time.currentMonotonicTimeMillis() - now > 1000)
+                Monitor.Wait(this, 2000);
+                if(IceInternal.Time.currentMonotonicTimeMillis() - now > 2000)
                 {
-                    System.Diagnostics.Debug.Assert(false); // Waited for more than 1s for close, something's wrong.
+                    System.Diagnostics.Debug.Assert(false); // Waited for more than 2s for close, something's wrong.
                     throw new System.Exception();
                 }
             }
@@ -251,26 +285,27 @@ abstract class TestCase
 
     protected int _heartbeat;
     protected bool _closed;
-};
+}
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     class InvocationHeartbeatTest : TestCase
     {
         public InvocationHeartbeatTest(RemoteCommunicatorPrx com) : base("invocation heartbeat", com)
         {
+            setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            proxy.sleep(2);
+            proxy.sleep(4);
 
             lock(this)
             {
-                test(_heartbeat >= 2);
+                test(_heartbeat >= 4);
             }
         }
-    };
+    }
 
     class InvocationHeartbeatOnHoldTest : TestCase
     {
@@ -298,13 +333,13 @@ public class AllTests : TestCommon.TestApp
                 waitForClosed();
             }
         }
-    };
+    }
 
     class InvocationNoHeartbeatTest : TestCase
     {
         public InvocationNoHeartbeatTest(RemoteCommunicatorPrx com) : base("invocation with no heartbeat", com)
         {
-            setServerACM(1, 2, 0); // Disable heartbeat on invocations
+            setServerACM(2, 2, 0); // Disable heartbeat on invocations
         }
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -328,7 +363,7 @@ public class AllTests : TestCommon.TestApp
                 }
             }
         }
-    };
+    }
 
     class InvocationHeartbeatCloseOnIdleTest : TestCase
     {
@@ -343,7 +378,7 @@ public class AllTests : TestCommon.TestApp
         {
             // No close on invocation, the call should succeed this
             // time.
-            proxy.sleep(2);
+            proxy.sleep(3);
 
             lock(this)
             {
@@ -351,7 +386,7 @@ public class AllTests : TestCommon.TestApp
                 test(!_closed);
             }
         }
-    };
+    }
 
     class CloseOnIdleTest : TestCase
     {
@@ -362,7 +397,7 @@ public class AllTests : TestCommon.TestApp
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            Thread.Sleep(1500); // Idle for 1.5 second
+            Thread.Sleep(3000); // Idle for 3 seconds
 
             waitForClosed();
             lock(this)
@@ -370,7 +405,7 @@ public class AllTests : TestCommon.TestApp
                 test(_heartbeat == 0);
             }
         }
-    };
+    }
 
     class CloseOnInvocationTest : TestCase
     {
@@ -381,7 +416,7 @@ public class AllTests : TestCommon.TestApp
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            Thread.Sleep(1500); // Idle for 1.5 second
+            Thread.Sleep(3000); // Idle for 3 seconds
 
             lock(this)
             {
@@ -389,7 +424,7 @@ public class AllTests : TestCommon.TestApp
                 test(!_closed);
             }
         }
-    };
+    }
 
     class CloseOnIdleAndInvocationTest : TestCase
     {
@@ -406,7 +441,7 @@ public class AllTests : TestCommon.TestApp
             // the close is graceful or forceful.
             //
             adapter.hold();
-            Thread.Sleep(1500); // Idle for 1.5 second
+            Thread.Sleep(3000); // Idle for 3 seconds
 
             lock(this)
             {
@@ -415,11 +450,11 @@ public class AllTests : TestCommon.TestApp
             }
 
             adapter.activate();
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
 
             waitForClosed();
         }
-    };
+    }
 
     class ForcefulCloseOnIdleAndInvocationTest : TestCase
     {
@@ -432,7 +467,7 @@ public class AllTests : TestCommon.TestApp
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
             adapter.hold();
-            Thread.Sleep(1500); // Idle for 1.5 second
+            Thread.Sleep(3000); // Idle for 3 seconds
 
             waitForClosed();
             lock(this)
@@ -440,7 +475,7 @@ public class AllTests : TestCommon.TestApp
                 test(_heartbeat == 0);
             }
         }
-    };
+    }
 
     class HeartbeatOnIdleTest : TestCase
     {
@@ -451,14 +486,14 @@ public class AllTests : TestCommon.TestApp
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            Thread.Sleep(2000);
+            Thread.Sleep(3000);
 
             lock(this)
             {
                 test(_heartbeat >= 3);
             }
         }
-    };
+    }
 
     class HeartbeatAlwaysTest : TestCase
     {
@@ -469,10 +504,10 @@ public class AllTests : TestCommon.TestApp
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            for(int i = 0; i < 12; i++)
+            for(int i = 0; i < 10; i++)
             {
                 proxy.ice_ping();
-                Thread.Sleep(200);
+                Thread.Sleep(300);
             }
 
             lock(this)
@@ -480,7 +515,31 @@ public class AllTests : TestCommon.TestApp
                 test(_heartbeat >= 3);
             }
         }
-    };
+    }
+
+    class HeartbeatManualTest : TestCase
+    {
+        public HeartbeatManualTest(RemoteCommunicatorPrx com) : base("manual heartbeats", com)
+        {
+            //
+            // Disable heartbeats.
+            //
+            setClientACM(10, -1, 0);
+            setServerACM(10, -1, 0);
+        }
+
+        public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
+        {
+            proxy.startHeartbeatCount();
+            Ice.Connection con = proxy.ice_getConnection();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            proxy.waitForHeartbeatCount(5);
+        }
+    }
 
     class SetACMTest : TestCase
     {
@@ -491,33 +550,67 @@ public class AllTests : TestCommon.TestApp
 
         public override void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
+            Ice.Connection con = proxy.ice_getCachedConnection();
+
+            try
+            {
+                con.setACM(-19, Ice.Util.None, Ice.Util.None);
+                test(false);
+            }
+            catch(ArgumentException)
+            {
+            }
+
             Ice.ACM acm;
-            acm = proxy.ice_getCachedConnection().getACM();
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(Ice.Util.None, Ice.Util.None, Ice.Util.None);
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(Ice.Util.None, Ice.Util.None, Ice.Util.None);
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(1,
+            con.setACM(1,
                                                    Ice.ACMClose.CloseOnInvocationAndIdle,
                                                    Ice.ACMHeartbeat.HeartbeatAlways);
-            acm = proxy.ice_getCachedConnection().getACM();
+            acm = con.getACM();
             test(acm.timeout == 1);
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways);
 
-            proxy.waitForHeartbeat(2);
-        }
-    };
+            proxy.startHeartbeatCount();
+            proxy.waitForHeartbeatCount(2);
 
-    public static void allTests(Ice.Communicator communicator)
+            var t1 = new TaskCompletionSource<object>();
+            con.setCloseCallback(_ => { t1.SetResult(null); });
+
+            con.close(Ice.ConnectionClose.Gracefully);
+            test(t1.Task.Result == null);
+
+            try
+            {
+                con.throwException();
+                test(false);
+            }
+            catch(Ice.ConnectionManuallyClosedException)
+            {
+            }
+
+            var t2 = new TaskCompletionSource<object>();
+            con.setCloseCallback(_ => { t2.SetResult(null); });
+            test(t2.Task.Result == null);
+
+            con.setHeartbeatCallback(_ => { test(false); });
+        }
+    }
+
+    public static void allTests(TestCommon.Application app)
     {
-        string @ref = "communicator:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string @ref = "communicator:" + app.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         List<TestCase> tests = new List<TestCase>();
@@ -534,6 +627,7 @@ public class AllTests : TestCommon.TestApp
 
         tests.Add(new HeartbeatOnIdleTest(com));
         tests.Add(new HeartbeatAlwaysTest(com));
+        tests.Add(new HeartbeatManualTest(com));
         tests.Add(new SetACMTest(com));
 
         foreach(TestCase test in tests)

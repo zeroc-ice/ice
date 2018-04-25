@@ -29,7 +29,28 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\TestI.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Cpp11-Debug\TestI.cpp">
+      <Filter>Source Files\Win32\Cpp11-Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\TestI.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Cpp11-Release\TestI.cpp">
+      <Filter>Source Files\Win32\Cpp11-Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\TestI.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\TestI.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Cpp11-Debug\TestI.cpp">
+      <Filter>Source Files\x64\Cpp11-Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Cpp11-Release\TestI.cpp">
+      <Filter>Source Files\x64\Cpp11-Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -57,8 +78,26 @@
     <ClInclude Include="Win32\Cpp11-Release\Test.h">
       <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
-    <ClInclude Include="Win32\Debug\TestI.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="Win32\Cpp11-Debug\TestI.h">
+      <Filter>Header Files\Win32\Cpp11-Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Cpp11-Release\TestI.h">
+      <Filter>Header Files\Win32\Cpp11-Release</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\TestI.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\TestI.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Cpp11-Release\TestI.h">
+      <Filter>Header Files\x64\Cpp11-Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Cpp11-Debug\TestI.h">
+      <Filter>Header Files\x64\Cpp11-Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\TestI.h">
+      <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -134,8 +173,14 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\Test.ice">
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="dummy.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\Test.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
+    </SliceCompile>
   </ItemGroup>
 </Project>

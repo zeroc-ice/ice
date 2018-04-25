@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,7 +35,7 @@ const toString = function(key, object, objectTable, ident)
 
     objectTable.push(object);
     let s = "\n" + ident + key + ":";
-    for(let k in object)
+    for(const k in object)
     {
         if(key.indexOf("_") === 0)
         {
@@ -50,6 +50,17 @@ const toString = function(key, object, objectTable, ident)
     }
     return s;
 };
+
+class ServantError extends Error
+{
+    constructor(cause)
+    {
+        super();
+        this.cause = cause;
+    }
+}
+
+Ice.ServantError = ServantError;
 
 //
 // Ice.Exception
@@ -67,7 +78,17 @@ class Exception extends Error
 
     ice_name()
     {
-        return "Ice::Exception";
+        return this.constructor._id.substr(2);
+    }
+
+    ice_id()
+    {
+        return this.constructor._id;
+    }
+
+    static get _id()
+    {
+        return "::Ice::Exception";
     }
 
     toString()
@@ -83,8 +104,8 @@ class Exception extends Error
         }
 
         this._inToStringAlready = true;
-        let s = this.ice_name();
-        for(let key in this)
+        let s = this.ice_id();
+        for(const key in this)
         {
             if(key != "_inToStringAlready")
             {
@@ -92,14 +113,14 @@ class Exception extends Error
             }
         }
 
-        if(Ice.__printStackTraces === true && this.stack)
+        if(Ice._printStackTraces === true && this.stack)
         {
             s += "\n" + this.stack;
         }
         this._inToStringAlready = false;
         return s;
     }
-    
+
     static captureStackTrace(object)
     {
         const stack = new Error().stack;
@@ -112,7 +133,7 @@ class Exception extends Error
             Object.defineProperty(object, "stack", {
                 get: function()
                     {
-                        return stack; 
+                        return stack;
                     }
             });
         }
@@ -132,15 +153,13 @@ class LocalException extends Exception
         Exception.captureStackTrace(this);
     }
 
-    ice_name()
+    static get _id()
     {
-        return "Ice::LocalException";
+        return "::Ice::LocalException";
     }
 }
 
 Ice.LocalException = LocalException;
-
-const Slice = Ice.Slice;
 
 //
 // Ice.UserException
@@ -153,31 +172,36 @@ class UserException extends Exception
         Exception.captureStackTrace(this);
     }
 
-    ice_name()
+    static get _id()
     {
-        return "Ice::UserException";
+        return "::Ice::UserException";
     }
 
-    __write(os)
+    ice_getSlicedData()
+    {
+        return null;
+    }
+
+    _write(os)
     {
         os.startException(null);
-        __writeImpl(this, os, this.__mostDerivedType());
+        writeImpl(this, os, this._mostDerivedType());
         os.endException();
     }
 
-    __read(is)
+    _read(is)
     {
         is.startException();
-        __readImpl(this, is, this.__mostDerivedType());
+        readImpl(this, is, this._mostDerivedType());
         is.endException(false);
     }
 
-    __usesClasses()
+    _usesClasses()
     {
         return false;
     }
 
-    __mostDerivedType()
+    _mostDerivedType()
     {
         return Ice.UserException;
     }
@@ -188,12 +212,12 @@ Ice.UserException = UserException;
 // Private methods
 //
 
-const __writeImpl = function(obj, os, type)
+const writeImpl = function(obj, os, type)
 {
     //
-    // The __writeImpl method is a recursive method that goes down the
+    // The writeImpl method is a recursive method that goes down the
     // class hierarchy to marshal each slice of the class using the
-    // generated __writeMemberImpl method.
+    // generated _writeMemberImpl method.
     //
 
     if(type === undefined || type === UserException)
@@ -201,21 +225,21 @@ const __writeImpl = function(obj, os, type)
         return; // Don't marshal anything for Ice.UserException
     }
 
-    os.startSlice(type.__id, -1, type.__parent === UserException);
-    if(type.prototype.__writeMemberImpl)
+    os.startSlice(type._id, -1, type._parent === UserException);
+    if(type.prototype.hasOwnProperty('_writeMemberImpl'))
     {
-        type.prototype.__writeMemberImpl.call(obj, os);
+        type.prototype._writeMemberImpl.call(obj, os);
     }
     os.endSlice();
-    __writeImpl(obj, os, type.__parent);
+    writeImpl(obj, os, type._parent);
 };
 
-const __readImpl = function(obj, is, type)
+const readImpl = function(obj, is, type)
 {
     //
-    // The __readImpl method is a recursive method that goes down the
+    // The readImpl method is a recursive method that goes down the
     // class hierarchy to marshal each slice of the class using the
-    // generated __readMemberImpl method.
+    // generated _readMemberImpl method.
     //
 
     if(type === undefined || type === UserException)
@@ -224,40 +248,46 @@ const __readImpl = function(obj, is, type)
     }
 
     is.startSlice();
-    if(type.prototype.__readMemberImpl)
+    if(type.prototype.hasOwnProperty('_readMemberImpl'))
     {
-        type.prototype.__readMemberImpl.call(obj, is);
+        type.prototype._readMemberImpl.call(obj, is);
     }
     is.endSlice();
-    __readImpl(obj, is, type.__parent);
+    readImpl(obj, is, type._parent);
 };
 
-const __writePreserved = function(os)
+const writePreserved = function(os)
 {
     //
     // For Slice exceptions which are marked "preserved", the implementation of this method
-    // replaces the Ice.Object.prototype.__write method.
+    // replaces the Ice.UserException.prototype._write method.
     //
-    os.startException(this.__slicedData);
-    __writeImpl(this, os, this.__mostDerivedType());
+    os.startException(this._slicedData);
+    writeImpl(this, os, this._mostDerivedType());
     os.endException();
 };
 
-const __readPreserved = function(is)
+const readPreserved = function(is)
 {
     //
     // For Slice exceptions which are marked "preserved", the implementation of this method
-    // replaces the Ice.Object.prototype.__read method.
+    // replaces the Ice.UserException.prototype._read method.
     //
     is.startException();
-    __readImpl(this, is, this.__mostDerivedType());
-    this.__slicedData = is.endException(true);
+    readImpl(this, is, this._mostDerivedType());
+    this._slicedData = is.endException(true);
 };
 
-Slice.PreservedUserException = function(ex)
+const ice_getSlicedData = function()
 {
-    ex.prototype.__write = __writePreserved;
-    ex.prototype.__read = __readPreserved;
+    return this._slicedData;
+}
+
+Ice.Slice.PreservedUserException = function(ex)
+{
+    ex.prototype.ice_getSlicedData = ice_getSlicedData;
+    ex.prototype._write = writePreserved;
+    ex.prototype._read = readPreserved;
 };
 
 module.exports.Ice = Ice;

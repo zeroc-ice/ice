@@ -1,16 +1,21 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
+#include <IceUtil/DisableWarnings.h>
 #include <Slice/Util.h>
+#include <Slice/FileTracker.h>
 #include <IceUtil/FileUtil.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/StringConverter.h>
+#include <IceUtil/ConsoleUtil.h>
 #include <climits>
+#include <cstring>
 
 #ifndef _MSC_VER
 #  include <unistd.h> // For readlink()
@@ -18,6 +23,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtilInternal;
 
 namespace
 {
@@ -173,11 +179,11 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
     {
         paths.push_back(canonicalPath);
     }
-    
+
     for(vector<string>::const_iterator i = paths.begin(); i != paths.end(); ++i)
     {
         for(vector<string>::const_iterator j = includePaths.begin(); j != includePaths.end(); ++j)
-        {            
+        {
             if(i->compare(0, j->length(), *j) == 0)
             {
                 string s = i->substr(j->length() + 1); // + 1 for the '/'
@@ -187,7 +193,7 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
                 }
             }
         }
-        
+
         //
         // If the path has been already shortened no need to test
         // with canonical path.
@@ -209,38 +215,19 @@ Slice::changeInclude(const string& p, const vector<string>& includePaths)
     return result;
 }
 
-namespace
-{
-
-ostream* errorStream = &cerr;
-
-}
-
-void
-Slice::setErrorStream(ostream& stream)
-{
-    errorStream = &stream;
-}
-
-ostream&
-Slice::getErrorStream()
-{
-    return *errorStream;
-}
-
 void
 Slice::emitError(const string& file, int line, const string& message)
 {
     if(!file.empty())
     {
-        *errorStream << file;
+        consoleErr << file;
         if(line != -1)
         {
-            *errorStream << ':' << line;
+            consoleErr << ':' << line;
         }
-        *errorStream << ": ";
+        consoleErr << ": ";
     }
-    *errorStream << message << endl;
+    consoleErr << message << endl;
 }
 
 void
@@ -248,14 +235,14 @@ Slice::emitWarning(const string& file, int line, const string& message)
 {
     if(!file.empty())
     {
-        *errorStream << file;
+        consoleErr << file;
         if(line != -1)
         {
-            *errorStream << ':' << line;
+            consoleErr << ':' << line;
         }
-        *errorStream << ": ";
+        consoleErr << ": ";
     }
-    *errorStream << "warning: " << message << endl;
+    consoleErr << "warning: " << message << endl;
 }
 
 void
@@ -263,14 +250,14 @@ Slice::emitError(const string& file, const std::string& line, const string& mess
 {
     if(!file.empty())
     {
-        *errorStream << file;
+        consoleErr << file;
         if(!line.empty())
         {
-            *errorStream << ':' << line;
+            consoleErr << ':' << line;
         }
-        *errorStream << ": ";
+        consoleErr << ": ";
     }
-    *errorStream << message << endl;
+    consoleErr << message << endl;
 }
 
 void
@@ -278,20 +265,20 @@ Slice::emitWarning(const string& file, const std::string& line, const string& me
 {
     if(!file.empty())
     {
-        *errorStream << file;
+        consoleErr << file;
         if(!line.empty())
         {
-            *errorStream << ':' << line;
+            consoleErr << ':' << line;
         }
-        *errorStream << ": ";
+        consoleErr << ": ";
     }
-    *errorStream << "warning: " << message << endl;
+    consoleErr << "warning: " << message << endl;
 }
 
 void
 Slice::emitRaw(const char* message)
 {
-    *errorStream << message << flush;
+    consoleErr << message << flush;
 }
 
 vector<string>
@@ -397,37 +384,47 @@ Slice::printGeneratedHeader(IceUtilInternal::Output& out, const string& path, co
     out << comment << "\n";
 }
 
-Slice::DependOutputUtil::DependOutputUtil(string& file) : _file(file)
-{
-    if(!_file.empty())
-    {
-        _os.open(file.c_str(), ios::out);
-    }
-}
-
-Slice::DependOutputUtil::~DependOutputUtil()
-{
-    if(!_file.empty() && _os.is_open())
-    {
-        _os.close();
-    }
-}
-
 void
-Slice::DependOutputUtil::cleanup()
+Slice::writeDependencies(const string& dependencies, const string& dependFile)
 {
-    if(!_file.empty())
+    if(dependFile.empty())
     {
-        if(_os.is_open())
+        consoleOut << dependencies << flush;
+    }
+    else
+    {
+        ofstream of(IceUtilInternal::streamFilename(dependFile).c_str()); // dependFile is a UTF-8 string
+        if(!of)
         {
-            _os.close();
+            ostringstream os;
+            os << "cannot open file `" << dependFile << "': " << strerror(errno);
+            throw Slice::FileException(__FILE__, __LINE__, os.str());
         }
-        IceUtilInternal::unlink(_file);
+        of << dependencies;
+        of.close();
     }
 }
 
-ostream&
-Slice::DependOutputUtil::os()
+#ifdef _WIN32
+vector<string>
+Slice::argvToArgs(int argc, wchar_t* argv[])
 {
-    return _file.empty() ? cout : _os;
+    vector<string> args;
+    for(int i = 0; i < argc; i++)
+    {
+        args.push_back(IceUtil::wstringToString(argv[i]));
+    }
+    return args;
 }
+#else
+vector<string>
+Slice::argvToArgs(int argc, char* argv[])
+{
+    vector<string> args;
+    for(int i = 0; i < argc; i++)
+    {
+        args.push_back(argv[i]);
+    }
+    return args;
+}
+#endif

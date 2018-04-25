@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,6 +21,7 @@ final class ThreadPoolWorkQueue extends EventHandler
         _registered = SocketOperation.Read;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void finalize() throws Throwable
     {

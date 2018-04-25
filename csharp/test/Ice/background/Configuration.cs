@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -81,7 +81,7 @@ internal class Configuration
             _readException = ex;
         }
     }
-    
+
     public bool readReady()
     {
         lock(this)
@@ -121,7 +121,7 @@ internal class Configuration
             _writeException = ex;
         }
     }
-    
+
     public bool writeReady()
     {
         lock(this)

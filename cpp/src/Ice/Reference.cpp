@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,8 +28,8 @@
 #include <Ice/ConnectionRequestHandler.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Comparable.h>
+#include <Ice/StringUtil.h>
 
-#include <IceUtil/StringUtil.h>
 #include <IceUtil/Random.h>
 #include <IceUtil/MutexPtrLock.h>
 
@@ -174,6 +174,25 @@ IceInternal::Reference::changeCompress(bool newCompress) const
     return r;
 }
 
+bool
+IceInternal::Reference::getCompressOverride(bool& compress) const
+{
+    DefaultsAndOverridesPtr defaultsAndOverrides = getInstance()->defaultsAndOverrides();
+    if(defaultsAndOverrides->overrideCompress)
+    {
+        compress = defaultsAndOverrides->overrideCompressValue;
+    }
+    else if(_overrideCompress)
+    {
+        compress = _compress;
+    }
+    else
+    {
+        return false;
+    }
+    return true;
+}
+
 Int
 Reference::hash() const
 {
@@ -231,13 +250,18 @@ IceInternal::Reference::toString() const
     //
     ostringstream s;
 
+    ToStringMode toStringMode = _instance->toStringMode();
+    const string separators = " :@";
+
+    string id = Ice::identityToString(_identity, toStringMode);
+
     //
     // If the encoded identity string contains characters which
     // the reference parser uses as separators, then we enclose
     // the identity string in quotes.
     //
-    string id = Ice::identityToString(_identity);
-    if(id.find_first_of(" :@") != string::npos)
+
+    if(id.find_first_of(separators) != string::npos)
     {
         s << '"' << id << '"';
     }
@@ -250,14 +274,13 @@ IceInternal::Reference::toString() const
     {
         s << " -f ";
 
+        string fs = escapeString(_facet, "", toStringMode);
         //
         // If the encoded facet string contains characters which
         // the reference parser uses as separators, then we enclose
         // the facet string in quotes.
         //
-        string fs = nativeToUTF8(_facet, _instance->getStringConverter());
-        fs = IceUtilInternal::escapeString(fs, "");
-        if(fs.find_first_of(" :@") != string::npos)
+        if(fs.find_first_of(separators) != string::npos)
         {
             s << '"' << fs << '"';
         }
@@ -580,11 +603,20 @@ IceInternal::FixedReference::FixedReference(const InstancePtr& instance,
                                             const string& facet,
                                             Mode mode,
                                             bool secure,
+                                            const ProtocolVersion& protocol,
                                             const EncodingVersion& encoding,
-                                            const ConnectionIPtr& fixedConnection) :
-    Reference(instance, communicator, id, facet, mode, secure, Ice::Protocol_1_0, encoding, -1, Ice::Context()),
+                                            const ConnectionIPtr& fixedConnection,
+                                            int invocationTimeout,
+                                            const Ice::Context& context,
+                                            const IceUtil::Optional<bool>& compress) :
+    Reference(instance, communicator, id, facet, mode, secure, protocol, encoding, invocationTimeout, context),
     _fixedConnection(fixedConnection)
 {
+    if(compress)
+    {
+        _overrideCompress = true;
+        _compress = *compress;
+    }
 }
 
 vector<EndpointIPtr>
@@ -620,7 +652,7 @@ IceInternal::FixedReference::getPreferSecure() const
 Ice::EndpointSelectionType
 IceInternal::FixedReference::getEndpointSelection() const
 {
-    return Random;
+    return ICE_ENUM(EndpointSelectionType, Random);
 }
 
 int
@@ -633,6 +665,12 @@ string
 IceInternal::FixedReference::getConnectionId() const
 {
     return string();
+}
+
+IceUtil::Optional<int>
+IceInternal::FixedReference::getTimeout() const
+{
+    return IceUtil::Optional<int>();
 }
 
 ReferencePtr
@@ -712,6 +750,18 @@ IceInternal::FixedReference::changeConnectionId(const string&) const
     return 0; // Keep the compiler happy.
 }
 
+ReferencePtr
+IceInternal::FixedReference::changeConnection(const Ice::ConnectionIPtr& newConnection) const
+{
+    if(newConnection == _fixedConnection)
+    {
+        return FixedReferencePtr(const_cast<FixedReference*>(this));
+    }
+    FixedReferencePtr r = FixedReferencePtr::dynamicCast(getInstance()->referenceFactory()->copy(this));
+    r->_fixedConnection = newConnection;
+    return r;
+}
+
 bool
 IceInternal::FixedReference::isIndirect() const
 {
@@ -728,15 +778,6 @@ void
 IceInternal::FixedReference::streamWrite(OutputStream*) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-}
-
-string
-IceInternal::FixedReference::toString() const
-{
-    throw FixedProxyException(__FILE__, __LINE__);
-
-    assert(false);   // Cannot be reached.
-    return string(); // To keep the compiler from complaining.
 }
 
 PropertyDict
@@ -759,7 +800,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     {
         if(_fixedConnection->endpoint()->datagram())
         {
-            throw NoEndpointException(__FILE__, __LINE__, "");
+            throw NoEndpointException(__FILE__, __LINE__, toString());
         }
         break;
     }
@@ -769,7 +810,7 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     {
         if(!_fixedConnection->endpoint()->datagram())
         {
-            throw NoEndpointException(__FILE__, __LINE__, "");
+            throw NoEndpointException(__FILE__, __LINE__, toString());
         }
         break;
     }
@@ -791,12 +832,12 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     }
     if(secure && !_fixedConnection->endpoint()->secure())
     {
-        throw NoEndpointException(__FILE__, __LINE__, "");
+        throw NoEndpointException(__FILE__, __LINE__, toString());
     }
 
     _fixedConnection->throwException(); // Throw in case our connection is already destroyed.
 
-    bool compress;
+    bool compress = false;
     if(defaultsAndOverrides->overrideCompress)
     {
         compress = defaultsAndOverrides->overrideCompressValue;
@@ -805,13 +846,9 @@ IceInternal::FixedReference::getRequestHandler(const Ice::ObjectPrxPtr& proxy) c
     {
         compress = _compress;
     }
-    else
-    {
-        compress = _fixedConnection->endpoint()->compress();
-    }
 
     ReferencePtr ref = const_cast<FixedReference*>(this);
-    return proxy->__setRequestHandler(ICE_MAKE_SHARED(ConnectionRequestHandler, ref, _fixedConnection, compress));
+    return proxy->_setRequestHandler(ICE_MAKE_SHARED(ConnectionRequestHandler, ref, _fixedConnection, compress));
 }
 
 BatchRequestQueuePtr
@@ -967,6 +1004,12 @@ string
 IceInternal::RoutableReference::getConnectionId() const
 {
     return _connectionId;
+}
+
+IceUtil::Optional<int>
+IceInternal::RoutableReference::getTimeout() const
+{
+    return _overrideTimeout ? IceUtil::Optional<int>(_timeout) : IceUtil::None;
 }
 
 ReferencePtr
@@ -1157,6 +1200,23 @@ IceInternal::RoutableReference::changeConnectionId(const string& id) const
     return r;
 }
 
+ReferencePtr
+IceInternal::RoutableReference::changeConnection(const Ice::ConnectionIPtr& connection) const
+{
+    return new FixedReference(getInstance(),
+                              getCommunicator(),
+                              getIdentity(),
+                              getFacet(),
+                              getMode(),
+                              getSecure(),
+                              getProtocol(),
+                              getEncoding(),
+                              connection,
+                              getInvocationTimeout(),
+                              getContext()->getValue(),
+                              getCompress());
+}
+
 bool
 IceInternal::RoutableReference::isIndirect() const
 {
@@ -1224,8 +1284,7 @@ IceInternal::RoutableReference::toString() const
         // reference parser uses as separators, then we enclose the
         // adapter id string in quotes.
         //
-        string a = nativeToUTF8(_adapterId, getInstance()->getStringConverter());
-        a = IceUtilInternal::escapeString(a, "");
+        string a = escapeString(_adapterId, "", getInstance()->toStringMode());
         if(a.find_first_of(" :@") != string::npos)
         {
             result.append("\"");
@@ -1253,7 +1312,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     properties[prefix + ".CollocationOptimized"] = _collocationOptimized ? "1" : "0";
     properties[prefix + ".ConnectionCached"] = _cacheConnection ? "1" : "0";
     properties[prefix + ".PreferSecure"] = _preferSecure ? "1" : "0";
-    properties[prefix + ".EndpointSelection"] = _endpointSelection == Random ? "Random" : "Ordered";
+    properties[prefix + ".EndpointSelection"] = _endpointSelection == ICE_ENUM(EndpointSelectionType, Random) ? "Random" : "Ordered";
     {
         ostringstream s;
         s << _locatorCacheTimeout;
@@ -1266,7 +1325,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
     }
     if(_routerInfo)
     {
-        PropertyDict routerProperties = _routerInfo->getRouter()->__reference()->toProperty(prefix + ".Router");
+        PropertyDict routerProperties = _routerInfo->getRouter()->_getReference()->toProperty(prefix + ".Router");
         for(PropertyDict::const_iterator p = routerProperties.begin(); p != routerProperties.end(); ++p)
         {
             properties[p->first] = p->second;
@@ -1275,7 +1334,7 @@ IceInternal::RoutableReference::toProperty(const string& prefix) const
 
     if(_locatorInfo)
     {
-        PropertyDict locatorProperties = _locatorInfo->getLocator()->__reference()->toProperty(prefix + ".Locator");
+        PropertyDict locatorProperties = _locatorInfo->getLocator()->_getReference()->toProperty(prefix + ".Locator");
         for(PropertyDict::const_iterator p = locatorProperties.begin(); p != locatorProperties.end(); ++p)
         {
             properties[p->first] = p->second;
@@ -1602,10 +1661,10 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
                     {
                         TraceLevelsPtr traceLvls = _reference->getInstance()->traceLevels();
                         if(traceLvls->retry >= 2)
-                            {
+                        {
                             Trace out(_reference->getInstance()->initializationData().logger, traceLvls->retryCat);
                             out << "connection to cached endpoints failed\n"
-                                << "removing endpoints from cache and trying one more time\n" << ex;
+                                << "removing endpoints from cache and trying again\n" << ex;
                         }
                         _reference->getConnectionNoRouterInfo(_callback); // Retry.
                         return;
@@ -1625,7 +1684,6 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
             const GetConnectionCallbackPtr _callback;
             const bool _cached;
         };
-
 
         virtual void
         setEndpoints(const vector<EndpointIPtr>& endpoints, bool cached)
@@ -1667,7 +1725,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     if(_locatorInfo)
     {
         RoutableReference* self = const_cast<RoutableReference*>(this);
-        _locatorInfo->getEndpointsWithCallback(self, _locatorCacheTimeout, new Callback(self, callback));
+        _locatorInfo->getEndpoints(self, _locatorCacheTimeout, new Callback(self, callback));
     }
     else
     {
@@ -1793,7 +1851,7 @@ IceInternal::RoutableReference::createConnection(const vector<EndpointIPtr>& all
             const vector<EndpointIPtr> _endpoints;
             const GetConnectionCallbackPtr _callback;
             size_t _i;
-            IceUtil::UniquePtr<Ice::LocalException> _exception;
+            IceInternal::UniquePtr<Ice::LocalException> _exception;
         };
 
         //
@@ -1907,13 +1965,13 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     //
     switch(getEndpointSelection())
     {
-        case Random:
+        case ICE_ENUM(EndpointSelectionType, Random):
         {
             RandomNumberGenerator rng;
             random_shuffle(endpoints.begin(), endpoints.end(), rng);
             break;
         }
-        case Ordered:
+        case ICE_ENUM(EndpointSelectionType, Ordered):
         {
             // Nothing to do.
             break;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,7 +11,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private class Callback
     {
@@ -47,8 +47,9 @@ public class AllTests : TestCommon.TestApp
     }
 
     static public Test.RetryPrx
-    allTests(Ice.Communicator communicator, Ice.Communicator communicator2, string rf)
+    allTests(TestCommon.Application app, Ice.Communicator communicator2, string rf)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
         Ice.ObjectPrx base1 = communicator.stringToProxy(rf);

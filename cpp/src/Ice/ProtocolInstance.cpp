@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,6 +13,7 @@
 #include <Ice/IPEndpointI.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/TraceLevels.h>
+#include <Ice/EndpointFactoryManager.h>
 
 using namespace std;
 using namespace Ice;
@@ -53,6 +54,12 @@ const LoggerPtr&
 IceInternal::ProtocolInstance::logger() const
 {
     return _instance->initializationData().logger;
+}
+
+EndpointFactoryPtr
+IceInternal::ProtocolInstance::getEndpointFactory(Ice::Short type) const
+{
+    return _instance->endpointFactoryManager()->get(type);
 }
 
 BufSizeWarnInfo
@@ -127,4 +134,3 @@ IceInternal::ProtocolInstance::resolve(const string& host, int port, EndpointSel
 {
     _instance->endpointHostResolver()->resolve(host, port, type, endpt, cb);
 }
-

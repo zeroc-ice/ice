@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,7 +27,7 @@ public final class MetricsI extends _MetricsDisp
     public void
     fail(Ice.Current current)
     {
-        current.con.close(true);
+        current.con.close(Ice.ConnectionClose.Forcefully);
     }
 
     @Override

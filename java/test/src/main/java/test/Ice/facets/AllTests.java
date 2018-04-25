@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,8 +28,10 @@ public class AllTests
         }
     }
 
-    public static GPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
+    public static GPrx allTests(test.Util.Application app)
     {
+        com.zeroc.Ice.Communicator communicator=app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
@@ -52,7 +54,8 @@ public class AllTests
         out.println("ok");
 
         out.print("testing facet registration exceptions... ");
-        communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
+        final String host = communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
+        communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h \"" + host + "\"");
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
         com.zeroc.Ice.Object obj = new EmptyI();
         adapter.add(obj, com.zeroc.Ice.Util.stringToIdentity("d"));
@@ -109,7 +112,7 @@ public class AllTests
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "d:default -p 12010";
+        String ref = "d:" + app.getTestEndpoint(0);
         ObjectPrx db = communicator.stringToProxy(ref);
         test(db != null);
         out.println("ok");

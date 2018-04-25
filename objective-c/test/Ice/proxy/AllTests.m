@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,6 @@
 #import <objc/Ice.h>
 #import <TestCommon.h>
 #import <ProxyTest.h>
-
 
 TestProxyMyClassPrx*
 proxyAllTests(id<ICECommunicator> communicator)
@@ -411,10 +410,33 @@ proxyAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("testing proxy methods... ");
-    test([[communicator identityToString:[[base ice_identity:[communicator stringToIdentity:@"other"]] ice_getIdentity]]
+    test([[communicator identityToString:[[base ice_identity:[ICEUtil stringToIdentity:@"other"]] ice_getIdentity]]
              isEqualToString:@"other"]);
-    test([[ICEUtil identityToString:[[base ice_identity:[ICEUtil stringToIdentity:@"other"]] ice_getIdentity]]
-             isEqualToString:@"other"]);
+
+    //
+    // Verify that ToStringMode is passed correctly
+    //
+    ICEIdentity *ident = [ICEIdentity identity:@"test" category:@"\x7F\xE2\x82\xAC"];
+
+    NSString *idStr = [ICEUtil identityToString:ident toStringMode:ICEUnicode];
+    test([idStr isEqualToString:@"\\u007f\xE2\x82\xAC/test"]);
+    ICEIdentity *id2 = [ICEUtil stringToIdentity:idStr];
+    test([ident isEqual:id2]);
+    test([[ICEUtil identityToString:ident] isEqualToString:idStr]);
+
+    idStr = [ICEUtil identityToString:ident toStringMode:ICEASCII];
+    test([idStr isEqualToString:@"\\u007f\\u20ac/test"]);
+    id2 = [ICEUtil stringToIdentity:idStr];
+    test([ident isEqual:id2]);
+
+    idStr = [ICEUtil identityToString:ident toStringMode:ICECompat];
+    test([idStr isEqualToString:@"\\177\\342\\202\\254/test"]);
+    id2 = [ICEUtil stringToIdentity:idStr];
+    test([ident isEqual:id2]);
+
+    id2 = [ICEUtil stringToIdentity:[communicator identityToString:ident]];
+    test([ident isEqual:id2]);
+
     test([[[base ice_facet:@"facet"] ice_getFacet] isEqualToString:@"facet"]);
     test([[[base ice_adapterId:@"id"] ice_getAdapterId] isEqualToString:@"id"]);
     test([[base ice_twoway] ice_isTwoway]);
@@ -561,10 +583,18 @@ proxyAllTests(id<ICECommunicator> communicator)
 //     test([compObj ice_compress:NO] < [compObj ice_compress:YES]);
 //     test(!([compObj ice_compress:YES] < [compObj ice_compress:NO]));
 
+    test([compObj ice_getCompress] == nil);
+    test([[[compObj ice_compress:YES] ice_getCompress] boolValue] == YES);
+    test([[[compObj ice_compress:NO] ice_getCompress] boolValue] == NO);
+
     test([[compObj ice_timeout:20] isEqual:[compObj ice_timeout:20]]);
     test(![[compObj ice_timeout:10] isEqual:[compObj ice_timeout:20]]);
 //     test([compObj ice_timeout:10] < [compObj ice_timeout:20]);
 //     test(!([compObj ice_timeout:20] < [compObj ice_timeout:10]));
+
+    test([compObj ice_getTimeout] == nil);
+    test([[[compObj ice_timeout:10] ice_getTimeout] intValue] == 10);
+    test([[[compObj ice_timeout:20] ice_getTimeout] intValue] == 20);
 
     id<ICELocatorPrx> loc1 = [ICELocatorPrx uncheckedCast:[communicator stringToProxy:@"loc1:default -p 10000"]];
     id<ICELocatorPrx> loc2 = [ICELocatorPrx uncheckedCast:[communicator stringToProxy:@"loc2:default -p 10000"]];
@@ -635,9 +665,15 @@ proxyAllTests(id<ICECommunicator> communicator)
 
 //    test(compObj ice_encodingVersion:Ice::Encoding_1_0] < compObj->ice_encodingVersion(Ice::Encoding_1_1));
 //    test(!(compObj->ice_encodingVersion(Ice::Encoding_1_1) < compObj->ice_encodingVersion(Ice::Encoding_1_0)));
-    //
-    // TODO: Ideally we should also test comparison of fixed proxies.
-    //
+
+    id<ICEConnection> baseConnection = [base ice_getConnection];
+    if(baseConnection != nil)
+    {
+        id<ICEConnection> baseConnection2 = [[base ice_connectionId:@"base2"] ice_getConnection];
+        compObj1 = [compObj1 ice_fixed:baseConnection];
+        compObj2 = [compObj2 ice_fixed:baseConnection2];
+        test(![compObj1 isEqual:compObj2]);
+    }
 
     tprintf("ok\n");
 
@@ -676,6 +712,57 @@ proxyAllTests(id<ICECommunicator> communicator)
     ICEContext* c2 = [cl getContext];
     test([c isEqual:c2]);
 
+    tprintf("ok\n");
+
+    tprintf("testing ice_fixed... ");
+    {
+        id<ICEConnection> connection = [cl ice_getConnection];
+        if(connection != nil)
+        {
+            [[cl ice_fixed:connection] getContext];
+            test([[[cl ice_secure:YES] ice_fixed:connection] ice_isSecure]);
+            test([[[[cl ice_facet:@"facet"] ice_fixed:connection] ice_getFacet] isEqualToString:@"facet"]);
+            test([[[cl ice_oneway] ice_fixed:connection] ice_isOneway]);
+            ICEMutableContext* ctx = [ICEMutableContext dictionary];
+            [ctx setObject:@"hello" forKey:@"one"];
+            [ctx setObject:@"world" forKey:@"two"];
+            test([[[cl ice_fixed:connection] ice_getContext] count] == 0);
+            test([[[[cl ice_context:ctx] ice_fixed:connection] ice_getContext] count] == 2);
+            test([[cl ice_fixed:connection] ice_getInvocationTimeout] == -1);
+            test([[[cl ice_invocationTimeout:10] ice_fixed:connection] ice_getInvocationTimeout] == 10);
+            test([[cl ice_fixed:connection] ice_getConnection] == connection);
+            test([[[cl ice_fixed:connection] ice_fixed:connection] ice_getConnection] == connection);
+            test([[cl ice_fixed:connection] ice_getTimeout] == nil);
+            id<ICEConnection> fixedConnection = [[cl ice_connectionId:@"ice_fixed"] ice_getConnection];
+            test([[[cl ice_fixed:connection] ice_fixed:fixedConnection] ice_getConnection] == fixedConnection);
+            @try
+            {
+                [[[cl ice_secure:![[[connection getEndpoint] getInfo] secure]] ice_fixed:connection] ice_ping];
+            }
+            @catch(ICENoEndpointException*)
+            {
+            }
+            @try
+            {
+                [[[cl ice_datagram] ice_fixed:connection] ice_ping];
+            }
+            @catch(ICENoEndpointException*)
+            {
+            }
+        }
+        else
+        {
+            @try
+            {
+                [cl ice_fixed:connection];
+                test(false);
+            }
+            @catch(NSException*)
+            {
+                // Expected with null connection.
+            }
+        }
+    }
     tprintf("ok\n");
 
     tprintf("testing encoding versioning... ");
@@ -891,11 +978,7 @@ proxyAllTests(id<ICECommunicator> communicator)
     {
         // Working?
         //BOOL ssl = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"ssl"];
-        BOOL tcp = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"tcp"];
-        if(tcp)
-        {
-            [[p1 ice_encodingVersion:ICEEncoding_1_0] ice_ping];
-        }
+        //BOOL tcp = [[[communicator getProperties] getProperty:@"Ice.Default.Protocol"] isEqualToString:@"tcp"];
 
         // Two legal TCP endpoints expressed as opaque endpoints
         p1 = [communicator stringToProxy:@"test -e 1.0:opaque -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA=="];
@@ -956,6 +1039,20 @@ proxyAllTests(id<ICECommunicator> communicator)
 #endif
     }
 
+    tprintf("ok\n");
+
+    tprintf("testing communicator shutdown/destroy... ");
+    {
+        id<ICECommunicator> c = [ICEUtil createCommunicator];
+        [c shutdown];
+        test([c isShutdown]);
+        [c waitForShutdown];
+        [c destroy];
+        [c shutdown];
+        test([c isShutdown]);
+        [c waitForShutdown];
+        [c destroy];
+    }
     tprintf("ok\n");
 
     return cl;

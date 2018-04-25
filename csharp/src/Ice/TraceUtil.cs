@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -91,7 +91,7 @@ namespace IceInternal
 
         internal static void traceSlicing(string kind, string typeId, string slicingCat, Ice.Logger logger)
         {
-            lock(typeof(IceInternal.TraceUtil))
+            lock(typeof(TraceUtil))
             {
                 if(slicingIds.Add(typeId))
                 {
@@ -126,7 +126,7 @@ namespace IceInternal
                 {
                     if(j < data.Length)
                     {
-                        int n = (int)data[j];
+                        int n = data[j];
                         if(n < 0)
                         {
                             n += 256;
@@ -157,7 +157,7 @@ namespace IceInternal
                 for(int j = i; j < data.Length && j - i < inc; j++)
                 {
                     // TODO: this needs fixing
-                    if(data[j] >= (byte)32 && data[j] < (byte)127)
+                    if(data[j] >= 32 && data[j] < 127)
                     {
                         System.Console.Out.Write((char) data[j]);
                     }
@@ -175,15 +175,21 @@ namespace IceInternal
         {
             try
             {
+                Ice.ToStringMode toStringMode = Ice.ToStringMode.Unicode;
+                if(str.instance() != null)
+                {
+                    toStringMode = str.instance().toStringMode();
+                }
+
                 Ice.Identity identity = new Ice.Identity();
-                identity.read__(str);
-                s.Write("\nidentity = " + Ice.Util.identityToString(identity));
+                identity.ice_readMembers(str);
+                s.Write("\nidentity = " + Ice.Util.identityToString(identity, toStringMode));
 
                 string[] facet = str.readStringSeq();
                 s.Write("\nfacet = ");
                 if(facet.Length > 0)
                 {
-                    s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], ""));
+                    s.Write(IceUtilInternal.StringUtil.escapeString(facet[0], "", toStringMode));
                 }
 
                 string operation = str.readString();
@@ -415,19 +421,19 @@ namespace IceInternal
                 s.Write("\ncompression status = " + (int)compress + ' ');
                 switch(compress)
                 {
-                case (byte)0:
+                case 0:
                 {
                     s.Write("(not compressed; do not compress response, if any)");
                     break;
                 }
 
-                case (byte)1:
+                case 1:
                 {
                     s.Write("(not compressed; compress response, if any)");
                     break;
                 }
 
-                case (byte)2:
+                case 2:
                 {
                     s.Write("(compressed; compress response, if any)");
                     break;

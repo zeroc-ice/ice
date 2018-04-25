@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ package test.Ice.metrics;
 class ThreadObserverI extends ObserverI implements Ice.Instrumentation.ThreadObserver
 {
     @Override
-    public synchronized void 
+    public synchronized void
     reset()
     {
         super.reset();
@@ -20,7 +20,7 @@ class ThreadObserverI extends ObserverI implements Ice.Instrumentation.ThreadObs
     }
 
     @Override
-    public synchronized void 
+    public synchronized void
     stateChanged(Ice.Instrumentation.ThreadState o, Ice.Instrumentation.ThreadState n)
     {
         ++states;
@@ -28,4 +28,3 @@ class ThreadObserverI extends ObserverI implements Ice.Instrumentation.ThreadObs
 
     int states;
 };
-

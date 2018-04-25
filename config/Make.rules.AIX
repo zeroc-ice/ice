@@ -1,35 +1,36 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-supported-platforms     = ppc ppc64
+supported-platforms = ppc ppc64
 
-ppc_cppflags            = -q32 -D_LARGE_FILES
-ppc_ldflags             = $(ppc_cppflags)
-ppc_targetdir           = $(if $(filter %/build,$5),/ppc)
+ppc_cppflags        = -q32 -D_LARGE_FILES
+ppc_ldflags         = $(ppc_cppflags)
+ppc_targetdir       = $(if $(filter %/build,$5),/ppc)
 
-ppc64_cppflags          = -q64
-ppc64_ldflags           = $(ppc64_cppflags)
-ppc64_targetdir         = $(if $(filter %/build,$5),/ppc64,$(if $(filter-out $($1_target),program),64))
-ppc64_targetname        = $(if $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program)),_64)
+ppc64_cppflags      = -q64
+ppc64_ldflags       = $(ppc64_cppflags)
+ppc64_targetdir     = $(if $(filter %/build,$5),/ppc64,$(if $(filter-out $($1_target),program),64))
+ppc64_targetname    = $(if $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program)),_64)
 
-shared_cppflags		= -brtl
-static_targetdir	= $(if $(and $(filter-out %/build,$5),$(filter $($1_target),program)),,static)
+shared_cppflags     = -brtl
+static_targetdir        = $(if $(and $(filter-out %/build,$5),$(filter $($1_target),program)),,static)
 
-CXX             = xlC_r
-CXXFLAGS        += -qrtti=all -qstaticinline -qhalt=i
+platform_cxx        = xlC_r
+platform_ld         = xlC_r
 
-xlc_compiler   := yes
+xlc_compiler        = yes
 
+cppflags            = -qrtti=all -qstaticinline -qhalt=i $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 ifeq ($(OPTIMIZE),yes)
-    CXXFLAGS    += -O2 -DNDEBUG
+    cppflags        += -O2 -DNDEBUG
 else
-    CXXFLAGS    += -g
+    cppflags        += -g
 endif
 
 ifeq ($(embedded_runpath),yes)
@@ -37,11 +38,11 @@ ifeq ($(embedded_runpath),yes)
     # Our default for embedded runpath prefix on AIX is $(prefix)
     #
     ifeq ($(embedded_runpath_prefix),)
-	embedded_runpath_prefix = $(prefix)
+        embedded_runpath_prefix = $(prefix)
     endif
 endif
 
-depend-cppflags	= -qmakedep=gcc -MF $1
+depend-cppflags = -qmakedep=gcc -MF $1
 rpath-ldflag    = -Wl,-blibpath:$1:/usr/lib
 
 # $(call mklib,$1=target,$2=objects,$3=libname,$4=version,$5=soversion,$6=ldflags,$7=platform)
@@ -51,7 +52,7 @@ mklib           = $(or $($7_ar),$(AR)) -X32_64 cr $1 $2
 tmpsofile       = $(dir $1)lib$2.so$(if $3,.$3)
 mkshlib         ?= $(or $($7_cxx),$(CXX)) -qmkshrobj -o $(call tmpsofile,$1,$3,$5) $2 $6 && \
                   $(or $($7_ar),$(AR)) -X32_64 cr $1 $(call tmpsofile,$1,$3,$5) && \
-	          rm $(call tmpsofile,$1,$3,$5)
+                  rm $(call tmpsofile,$1,$3,$5)
 
 #
 # $(call mkxxx,$1=libname,$2=version,$3=soversion)
@@ -60,7 +61,6 @@ mkshlibfilename = lib$(1).a
 
 mkpymodulename  = $(1).so
 
-IceUtil_system_libs     = -lcrypto
-Ice_system_libs         = $(IceUtil_system_libs)
+Ice_system_libs         = -lcrypto
 IceSSL_system_libs      = -lssl -lcrypto
 Glacier2CryptPermissionsVerifier_system_libs = -lcrypt

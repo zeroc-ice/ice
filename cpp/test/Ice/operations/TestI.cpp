@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,6 @@
 #include <TestCommon.h>
 #include <functional>
 #include <iterator>
-
 
 using namespace Ice;
 using namespace Test;
@@ -28,7 +27,7 @@ MyDerivedClassI::ice_isA(ICE_IN(string) id, const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
 #ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_isA(move(id), current);
+    return Test::MyDerivedClass::ice_isA(move(id), current);
 #else
     return Test::MyDerivedClass::ice_isA(id, current);
 #endif
@@ -38,22 +37,14 @@ void
 MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    Test::MyDerivedClassDisp::ice_ping(current);
-#else
     Test::MyDerivedClass::ice_ping(current);
-#endif
 }
 
 std::vector<std::string>
 MyDerivedClassI::ice_ids(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_ids(current);
-#else
     return Test::MyDerivedClass::ice_ids(current);
-#endif
 }
 
 #ifdef ICE_CPP11_MAPPING
@@ -64,17 +55,23 @@ const std::string&
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_id(current);
-#else
     return Test::MyDerivedClass::ice_id(current);
-#endif
 }
 
 void
 MyDerivedClassI::shutdown(const Ice::Current& current)
 {
     current.adapter->getCommunicator()->shutdown();
+}
+
+bool
+MyDerivedClassI::supportsCompress(const Ice::Current& current)
+{
+#if defined(ICE_OS_UWP)
+    return false;
+#else
+    return true;
+#endif
 }
 
 void
@@ -851,7 +848,6 @@ MyDerivedClassI::opMStruct1(const Ice::Current& current)
     s.e = ICE_ENUM(MyEnum, enum1); // enum must be initialized
     return OpMStruct1MarshaledResult(s, current);
 }
-
 
 MyDerivedClassI::OpMStruct2MarshaledResult
 MyDerivedClassI::opMStruct2(ICE_IN(Test::Structure) p1, const Ice::Current& current)

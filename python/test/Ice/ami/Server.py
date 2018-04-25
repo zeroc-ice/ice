@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -29,6 +29,7 @@ def run(args, communicator):
     testController = TestI.TestIntfControllerI(adapter)
 
     adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
+    adapter.add(TestI.TestIntfII(), Ice.stringToIdentity("test2"))
     adapter.activate()
 
     adapter2.add(testController, Ice.stringToIdentity("testController"))
@@ -44,25 +45,18 @@ try:
     #
     # This test kills connections, so we don't want warnings.
     #
-    initData.properties.setProperty("Ice.Warn.Connections", "0");
+    initData.properties.setProperty("Ice.Warn.Connections", "0")
 
     #
     # Limit the recv buffer size, this test relies on the socket
     # send() blocking after sending a given amount of data.
     #
-    initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+    initData.properties.setProperty("Ice.TCP.RcvSize", "50000")
 
-    communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv, initData) as communicator:
+        status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

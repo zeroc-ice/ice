@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,13 +24,13 @@ struct smwpTest4Struct
     M::smwpStringStructDict dict;
     M::smwpClass c;
     M::smwpInterface i;
-};
+}
 
 sequence<M::smwpStruct> smwpTest4StructSeq;
 
 dictionary<M::smwpStruct, M::smwpBaseClass> smwpTest4StructClassSeq;
 
-interface smwpTest4Interface extends M::smwpInterface {};
+interface smwpTest4Interface extends M::smwpInterface {}
 
 exception smwpTest4Exception extends M::smwpException
 {
@@ -40,7 +40,7 @@ exception smwpTest4Exception extends M::smwpException
     M::smwpStringStructDict dict1;
     M::smwpClass c1;
     M::smwpInterface i1;
-};
+}
 
 class smwpTest4Class extends M::smwpBaseClass implements M::smwpBaseInterface
 {
@@ -74,6 +74,6 @@ class smwpTest4Class extends M::smwpBaseClass implements M::smwpBaseInterface
                  out M::smwpInterface o5,
                  out M::smwpClass o6)
         throws M::smwpException;
-};
+}
 
-};
+}

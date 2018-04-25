@@ -1,14 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 project.ext.displayName = "IceStorm Compat"
 project.ext.description = "Publish-subscribe event distribution service"
@@ -16,8 +16,8 @@ project.ext.description = "Publish-subscribe event distribution service"
 slice {
     java {
         set1 {
-            args = "--ice --tie --checksum IceStorm.SliceChecksums"
-            files = fileTree(dir: "$sliceDir/IceStorm", includes:['*.ice'], excludes:["*F.ice"])
+            args = "--tie --checksum IceStorm.SliceChecksums"
+            files = fileTree(dir: "$project.ext.topSrcDir/slice/IceStorm", includes:['*.ice'], excludes:["*F.ice"])
         }
     }
 }
@@ -26,4 +26,4 @@ dependencies {
     compile project(':ice-compat')
 }
 
-apply from: "$rootProject.projectDir/../java/gradle/library.gradle"
+apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

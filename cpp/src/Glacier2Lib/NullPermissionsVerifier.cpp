@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,11 +50,11 @@ public:
 class Init
 {
 public:
- 
+
     Init(const CommunicatorPtr&, const string&, const vector<string>&);
-     
+
 private:
-    
+
     string checkPermissionVerifier(const string&);
     void createObjects();
 
@@ -73,7 +73,7 @@ Init::Init(const CommunicatorPtr& communicator, const string& category, const ve
 
     _nullSSLPVId.name = "NullSSLPermissionsVerifier";
     _nullSSLPVId.category = category;
-    
+
     Ice::PropertiesPtr properties = _communicator->getProperties();
     for(vector<string>::const_iterator p = props.begin(); p != props.end(); ++p)
     {
@@ -110,29 +110,29 @@ Init::checkPermissionVerifier(const string& val)
     {
         // check if it's actually a stringified identity
         // (with typically missing " " because the category contains a space)
-        
-        if(val == identityToString(_nullPVId))
+
+        if(val == _communicator->identityToString(_nullPVId))
         {
             createObjects();
             return _adapter->createProxy(_nullPVId)->ice_toString(); // Return valid proxy to rewrite the property
         }
-        else if(val == identityToString(_nullSSLPVId))
+        else if(val == _communicator->identityToString(_nullSSLPVId))
         {
             createObjects();
             return _adapter->createProxy(_nullSSLPVId)->ice_toString(); // Return valid proxy to rewrite the property
         }
-        
+
         // Otherwise let the service report this incorrectly formatted proxy
     }
     return string();
 }
-   
+
 void
 Init::createObjects()
 {
     if(!_adapter)
     {
-        _adapter = _communicator->createObjectAdapter(""); // colloc-only adapter           
+        _adapter = _communicator->createObjectAdapter(""); // colloc-only adapter
         _adapter->add(ICE_MAKE_SHARED(NullPermissionsVerifier), _nullPVId);
         _adapter->add(ICE_MAKE_SHARED(NullSSLPermissionsVerifier), _nullSSLPVId);
         _adapter->activate();

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,9 +8,8 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
-        "../Ice/ArrayUtil",
         "../Ice/Debug",
         "../Ice/HashMap",
         "../Ice/Promise",
@@ -18,7 +17,6 @@ Ice.__M.require(module,
         "../Ice/Exception"
     ]);
 
-const ArrayUtil = Ice.ArrayUtil;
 const Debug = Ice.Debug;
 const HashMap = Ice.HashMap;
 
@@ -31,16 +29,15 @@ class RouterInfo
         Debug.assert(this._router !== null);
 
         this._clientEndpoints = null;
-        this._serverEndpoints = null;
         this._adapter = null;
         this._identities = new HashMap(HashMap.compareEquals); // Set<Identity> = Map<Identity, 1>
         this._evictedIdentities = [];
+        this._hasRoutingTable = false;
     }
 
     destroy()
     {
         this._clientEndpoints = [];
-        this._serverEndpoints = [];
         this._adapter = null;
         this._identities.clear();
     }
@@ -76,37 +73,40 @@ class RouterInfo
     getClientEndpoints()
     {
         const promise = new Ice.Promise();
-
         if(this._clientEndpoints !== null)
         {
             promise.resolve(this._clientEndpoints);
         }
         else
         {
-            this._router.getClientProxy().then(proxy => this.setClientEndpoints(proxy, promise)).catch(promise.reject);
+            this._router.getClientProxy().then((result) =>
+                           this.setClientEndpoints(result[0],
+                                                   result[1] !== undefined ? result[1] : true,
+                                                   promise)).catch(promise.reject);
         }
-
         return promise;
     }
-    
 
     getServerEndpoints()
     {
-        if(this._serverEndpoints !== null) // Lazy initialization.
-        {
-            return Ice.Promise.resolve(this._serverEndpoints);
-        }
-        else
-        {
-            return this._router.getServerProxy().then(proxy => this.setServerEndpoints(proxy));
-        }
+        return this._router.getServerProxy().then(serverProxy => {
+            if(serverProxy === null)
+            {
+                throw new Ice.NoEndpointException();
+            }
+            serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+            return serverProxy._getReference().getEndpoints();
+        });
     }
 
     addProxy(proxy)
     {
         Debug.assert(proxy !== null);
-
-        if(this._identities.has(proxy.ice_getIdentity()))
+        if(!this._hasRoutingTable)
+        {
+            return Ice.Promise.resolve(); // The router implementation doesn't maintain a routing table.
+        }
+        else if(this._identities.has(proxy.ice_getIdentity()))
         {
             //
             // Only add the proxy to the router if it's not already in our local map.
@@ -138,16 +138,17 @@ class RouterInfo
         this._identities.delete(ref.getIdentity());
     }
 
-    setClientEndpoints(clientProxy, promise)
+    setClientEndpoints(clientProxy, hasRoutingTable, promise)
     {
         if(this._clientEndpoints === null)
         {
+            this._hasRoutingTable = hasRoutingTable;
             if(clientProxy === null)
             {
                 //
                 // If getClientProxy() return nil, use router endpoints.
                 //
-                this._clientEndpoints = this._router.__reference().getEndpoints();
+                this._clientEndpoints = this._router._getReference().getEndpoints();
                 promise.resolve(this._clientEndpoints);
             }
             else
@@ -162,7 +163,7 @@ class RouterInfo
                 this._router.ice_getConnection().then(
                     con =>
                     {
-                        this._clientEndpoints = clientProxy.ice_timeout(con.timeout()).__reference().getEndpoints();
+                        this._clientEndpoints = clientProxy.ice_timeout(con.timeout())._getReference().getEndpoints();
                         promise.resolve(this._clientEndpoints);
                     }).catch(promise.reject);
             }
@@ -171,18 +172,6 @@ class RouterInfo
         {
             promise.resolve(this._clientEndpoints);
         }
-    }
-
-    setServerEndpoints(serverProxy)
-    {
-        if(serverProxy === null)
-        {
-            throw new Ice.NoEndpointException();
-        }
-
-        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-        this._serverEndpoints = serverProxy.__reference().getEndpoints();
-        return this._serverEndpoints;
     }
 
     addAndEvictProxies(proxy, evictedProxies)

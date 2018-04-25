@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -53,18 +53,16 @@ public class Client extends test.Util.Application
             int maxIterations = 10000;
 
             com.zeroc.Ice.InitializationData initData = createInitializationData();
-            com.zeroc.Ice.Util.CreatePropertiesResult cpr = com.zeroc.Ice.Util.createProperties(args);
-            initData.properties = cpr.properties;
+            initData.properties = com.zeroc.Ice.Util.createProperties(args);
             initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
-            com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(args, initData);
-            com.zeroc.Ice.Communicator communicator = ir.communicator;
+            com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, initData);
 
             out.print("testing proxy & endpoint hash algorithm collisions... ");
             out.flush();
             {
                 java.util.Random rand = new java.util.Random();
-                for(i = 0; proxyCollisions < maxCollisions && 
-                        endpointCollisions < maxCollisions && 
+                for(i = 0; proxyCollisions < maxCollisions &&
+                        endpointCollisions < maxCollisions &&
                         i < maxIterations; ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
@@ -93,7 +91,7 @@ public class Client extends test.Util.Application
                     {
                         seenProxy.put(obj.hashCode(), obj);
                     }
-                    
+
                     java.util.Iterator<Endpoint> j = endpoints.iterator();
                     while(j.hasNext())
                     {
@@ -125,8 +123,8 @@ public class Client extends test.Util.Application
 
                 proxyCollisions = 0;
                 seenProxy = new java.util.HashMap<>();
-                for(i = 0; proxyCollisions < maxCollisions && 
-                        endpointCollisions < maxCollisions  && 
+                for(i = 0; proxyCollisions < maxCollisions &&
+                        endpointCollisions < maxCollisions  &&
                         i < maxIterations; ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
@@ -158,8 +156,8 @@ public class Client extends test.Util.Application
 
                 proxyCollisions = 0;
                 seenProxy = new java.util.HashMap<>();
-                for(i = 0; proxyCollisions < maxCollisions && 
-                        endpointCollisions < maxCollisions  && 
+                for(i = 0; proxyCollisions < maxCollisions &&
+                        endpointCollisions < maxCollisions  &&
                         i < maxIterations; ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
@@ -404,7 +402,7 @@ public class Client extends test.Util.Application
                     test(c.hashCode() == c.hashCode());
                 }
                 test(structCollisions < maxCollisions);
-            
+
                 structCollisions = 0;
                 java.util.Map<Integer, Draw> seenDraw = new java.util.HashMap<>();
                 structCollisions = 0;
@@ -412,7 +410,7 @@ public class Client extends test.Util.Application
                 {
                     Draw draw = new Draw(
                         new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)),
-                        new Pen(rand.nextInt(10), 
+                        new Pen(rand.nextInt(10),
                                      new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255),
                                                rand.nextInt(255))),
                                      false);
@@ -437,18 +435,10 @@ public class Client extends test.Util.Application
                 test(structCollisions < maxCollisions);
             }
             out.println("ok");
-            
+
             if(communicator != null)
             {
-                try
-                {
-                    communicator.destroy();
-                }
-                catch(com.zeroc.Ice.LocalException ex)
-                {
-                    System.out.println(ex.toString());
-                    status = 1;
-                }
+                communicator.destroy();
             }
         }
         catch(Exception ex)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,6 +13,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Communicator.h>
 #include <BatchRequestInterceptor.h>
+#include <Dispatcher.h>
 #include <ImplicitContext.h>
 #include <Logger.h>
 #include <ObjectAdapter.h>
@@ -59,6 +60,7 @@ struct CommunicatorObject
     IceUtil::Monitor<IceUtil::Mutex>* shutdownMonitor;
     WaitForShutdownThreadPtr* shutdownThread;
     bool shutdown;
+    DispatcherPtr* dispatcher;
 };
 
 }
@@ -80,6 +82,7 @@ communicatorNew(PyTypeObject* type, PyObject* /*args*/, PyObject* /*kwds*/)
     self->shutdownMonitor = new IceUtil::Monitor<IceUtil::Mutex>;
     self->shutdownThread = 0;
     self->shutdown = false;
+    self->dispatcher = 0;
     return self;
 }
 
@@ -89,45 +92,104 @@ extern "C"
 static int
 communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
 {
-    PyObject* argList = 0;
-    PyObject* initData = 0;
-    if(!PyArg_ParseTuple(args, STRCAST("|OO"), &argList, &initData))
+    //
+    // The argument options are:
+    //
+    // Ice.initialize()
+    // Ice.initialize(args)
+    // Ice.initialize(initData)
+    // Ice.initialize(configFile)
+    // Ice.initialize(args, initData)
+    // Ice.initialize(args, configFile)
+    //
+
+    PyObject* arg1 = 0;
+    PyObject* arg2 = 0;
+    if(!PyArg_ParseTuple(args, STRCAST("|OO"), &arg1, &arg2))
     {
         return -1;
     }
 
-    if(argList == Py_None)
+    PyObject* argList = 0;
+    PyObject* initData = 0;
+    PyObject* configFile = 0;
+
+    if(arg1 == Py_None)
     {
-        argList = 0;
+        arg1 = 0;
     }
 
-    if(initData == Py_None)
+    if(arg2 == Py_None)
     {
-        initData = 0;
+        arg2 = 0;
     }
 
     PyObject* initDataType = lookupType("Ice.InitializationData");
 
-    if(argList && !initData)
+    if(arg1)
     {
-        if(PyObject_IsInstance(argList, initDataType))
+        if(PyList_Check(arg1))
         {
-            initData = argList;
-            argList = 0;
+            argList = arg1;
         }
-        else if(!PyList_Check(argList))
+        else if(PyObject_IsInstance(arg1, initDataType))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("initialize expects an argument list or Ice.InitializationData"));
+            initData = arg1;
+        }
+        else if(checkString(arg1))
+        {
+            configFile = arg1;
+        }
+        else
+        {
+            PyErr_Format(PyExc_ValueError,
+                STRCAST("initialize expects an argument list, Ice.InitializationData or a configuration filename"));
             return -1;
         }
     }
-    else if(argList && initData)
+
+    if(arg2)
     {
-        if(!PyList_Check(argList) || !PyObject_IsInstance(initData, initDataType))
+        if(PyList_Check(arg2))
         {
-            PyErr_Format(PyExc_ValueError, STRCAST("initialize expects an argument list and Ice.InitializationData"));
+            if(argList)
+            {
+                PyErr_Format(PyExc_ValueError, STRCAST("unexpected list argument to initialize"));
+                return -1;
+            }
+            argList = arg2;
+        }
+        else if(PyObject_IsInstance(arg2, initDataType))
+        {
+            if(initData)
+            {
+                PyErr_Format(PyExc_ValueError, STRCAST("unexpected Ice.InitializationData argument to initialize"));
+                return -1;
+            }
+            initData = arg2;
+        }
+        else if(checkString(arg2))
+        {
+            if(configFile)
+            {
+                PyErr_Format(PyExc_ValueError, STRCAST("unexpected string argument to initialize"));
+                return -1;
+            }
+            configFile = arg2;
+        }
+        else
+        {
+            PyErr_Format(PyExc_ValueError,
+                STRCAST("initialize expects an argument list, Ice.InitializationData or a configuration filename"));
             return -1;
         }
+    }
+
+    if(initData && configFile)
+    {
+        PyErr_Format(PyExc_ValueError,
+            STRCAST("initialize accepts either Ice.InitializationData or a configuration filename"));
+        return -1;
     }
 
     Ice::StringSeq seq;
@@ -136,62 +198,71 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         return -1;
     }
 
-    //
-    // Use the with-args or the without-args version of initialize()?
-    //
-    bool hasArgs = argList != 0;
-
     Ice::InitializationData data;
-
-    if(initData)
-    {
-        PyObjectHandle properties = PyObject_GetAttrString(initData, STRCAST("properties"));
-        PyObjectHandle logger = PyObject_GetAttrString(initData, STRCAST("logger"));
-        PyObjectHandle threadHook = PyObject_GetAttrString(initData, STRCAST("threadHook"));
-        PyObjectHandle batchRequestInterceptor = PyObject_GetAttrString(initData, STRCAST("batchRequestInterceptor"));
-
-        PyErr_Clear(); // PyObject_GetAttrString sets an error on failure.
-
-        if(properties.get() && properties.get() != Py_None)
-        {
-            //
-            // Get the properties implementation.
-            //
-            PyObjectHandle impl = PyObject_GetAttrString(properties.get(), STRCAST("_impl"));
-            assert(impl.get());
-            data.properties = getProperties(impl.get());
-        }
-
-        if(logger.get() && logger.get() != Py_None)
-        {
-            data.logger = new LoggerWrapper(logger.get());
-        }
-
-        if(threadHook.get() && threadHook.get() != Py_None)
-        {
-            data.threadHook = new ThreadHook(threadHook.get());
-        }
-
-        if(batchRequestInterceptor.get() && batchRequestInterceptor.get() != Py_None)
-        {
-            data.batchRequestInterceptor = new BatchRequestInterceptor(batchRequestInterceptor.get());
-        }
-    }
-
-    //
-    // We always supply our own implementation of ValueFactoryManager.
-    //
-    data.valueFactoryManager = new ValueFactoryManager;
+    DispatcherPtr dispatcherWrapper;
 
     try
     {
+        if(initData)
+        {
+            PyObjectHandle properties = getAttr(initData, "properties", false);
+            PyObjectHandle logger = getAttr(initData, "logger", false);
+            PyObjectHandle threadHook = getAttr(initData, "threadHook", false);
+            PyObjectHandle threadStart = getAttr(initData, "threadStart", false);
+            PyObjectHandle threadStop = getAttr(initData, "threadStop", false);
+            PyObjectHandle batchRequestInterceptor = getAttr(initData, "batchRequestInterceptor", false);
+            PyObjectHandle dispatcher = getAttr(initData, "dispatcher", false);
+
+            if(properties.get())
+            {
+                //
+                // Get the properties implementation.
+                //
+                PyObjectHandle impl = getAttr(properties.get(), "_impl", false);
+                assert(impl.get());
+                data.properties = getProperties(impl.get());
+            }
+
+            if(logger.get())
+            {
+                data.logger = new LoggerWrapper(logger.get());
+            }
+
+            if(threadHook.get() || threadStart.get() || threadStop.get())
+            {
+                data.threadHook = new ThreadHook(threadHook.get(), threadStart.get(), threadStop.get());
+            }
+
+            if(dispatcher.get())
+            {
+                dispatcherWrapper = new Dispatcher(dispatcher.get());
+                data.dispatcher = dispatcherWrapper;
+            }
+
+            if(batchRequestInterceptor.get())
+            {
+                data.batchRequestInterceptor = new BatchRequestInterceptor(batchRequestInterceptor.get());
+            }
+        }
+
+        //
+        // We always supply our own implementation of ValueFactoryManager.
+        //
+        data.valueFactoryManager = new ValueFactoryManager;
+
+        if(!data.properties)
+        {
+            data.properties = Ice::createProperties();
+        }
+
+        if(configFile)
+        {
+            data.properties->load(getString(configFile));
+        }
+
         if(argList)
         {
             data.properties = Ice::createProperties(seq, data.properties);
-        }
-        else if(!data.properties)
-        {
-            data.properties = Ice::createProperties();
         }
     }
     catch(const Ice::Exception& ex)
@@ -219,7 +290,7 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
     try
     {
         AllowThreads allowThreads;
-        if(hasArgs)
+        if(argList)
         {
             communicator = Ice::initialize(argc, argv, data);
         }
@@ -268,6 +339,12 @@ communicatorInit(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
         _communicatorMap.erase(p);
     }
     _communicatorMap.insert(CommunicatorMap::value_type(communicator, reinterpret_cast<PyObject*>(self)));
+
+    if(dispatcherWrapper)
+    {
+        self->dispatcher = new DispatcherPtr(dispatcherWrapper);
+        dispatcherWrapper->setCommunicator(communicator);
+    }
 
     return 0;
 }
@@ -322,6 +399,11 @@ communicatorDestroy(CommunicatorObject* self)
     }
 
     vfm->destroy();
+
+    if(self->dispatcher)
+    {
+        (*self->dispatcher)->setCommunicator(0); // Break cyclic reference.
+    }
 
     //
     // Break cyclic reference between this object and its Python wrapper.
@@ -701,13 +783,24 @@ communicatorIdentityToString(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorFlushBatchRequests(CommunicatorObject* self)
+communicatorFlushBatchRequests(CommunicatorObject* self, PyObject* args)
 {
+    PyObject* compressBatchType = lookupType("Ice.CompressBatch");
+    PyObject* compressBatch;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), compressBatchType, &compressBatch))
+    {
+        return 0;
+    }
+
+    PyObjectHandle v = getAttr(compressBatch, "_value", false);
+    assert(v.get());
+    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
+
     assert(self->communicator);
     try
     {
         AllowThreads allowThreads; // Release Python's global interpreter lock to avoid a potential deadlock.
-        (*self->communicator)->flushBatchRequests();
+        (*self->communicator)->flushBatchRequests(cb);
     }
     catch(const Ice::Exception& ex)
     {
@@ -723,22 +816,86 @@ communicatorFlushBatchRequests(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
+communicatorFlushBatchRequestsAsync(CommunicatorObject* self, PyObject* args, PyObject* /*kwds*/)
+{
+    PyObject* compressBatchType = lookupType("Ice.CompressBatch");
+    PyObject* compressBatch;
+    if(!PyArg_ParseTuple(args, STRCAST("O!"), compressBatchType, &compressBatch))
+    {
+        return 0;
+    }
+
+    PyObjectHandle v = getAttr(compressBatch, "_value", false);
+    assert(v.get());
+    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
+
+    assert(self->communicator);
+    const string op = "flushBatchRequests";
+
+    FlushAsyncCallbackPtr d = new FlushAsyncCallback(op);
+    Ice::Callback_Communicator_flushBatchRequestsPtr callback =
+        Ice::newCallback_Communicator_flushBatchRequests(d, &FlushAsyncCallback::exception, &FlushAsyncCallback::sent);
+
+    Ice::AsyncResultPtr result;
+
+    try
+    {
+        result = (*self->communicator)->begin_flushBatchRequests(cb, callback);
+    }
+    catch(const Ice::Exception& ex)
+    {
+        setPythonException(ex);
+        return 0;
+    }
+
+    PyObjectHandle asyncResultObj = createAsyncResult(result, 0, 0, self->wrapper);
+    if(!asyncResultObj.get())
+    {
+        return 0;
+    }
+
+    PyObjectHandle future = createFuture(op, asyncResultObj.get());
+    if(!future.get())
+    {
+        return 0;
+    }
+    d->setFuture(future.get());
+    return future.release();
+}
+
+#ifdef WIN32
+extern "C"
+#endif
+static PyObject*
 communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, PyObject* kwds)
 {
     assert(self->communicator);
 
     static char* argNames[] =
     {
+        const_cast<char*>("compress"),
         const_cast<char*>("_ex"),
         const_cast<char*>("_sent"),
         0
     };
+    PyObject* compressBatch;
     PyObject* ex = Py_None;
     PyObject* sent = Py_None;
-    if(!PyArg_ParseTupleAndKeywords(args, kwds, STRCAST("|OO"), argNames, &ex, &sent))
+    if(!PyArg_ParseTupleAndKeywords(args, kwds, STRCAST("O|OO"), argNames, &compressBatch, &ex, &sent))
     {
         return 0;
     }
+
+    PyObject* compressBatchType = lookupType("Ice.CompressBatch");
+    if(!PyObject_IsInstance(compressBatch, reinterpret_cast<PyObject*>(compressBatchType)))
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("expected an Ice.CompressBatch enumerator"));
+        return 0;
+    }
+
+    PyObjectHandle v = getAttr(compressBatch, "_value", false);
+    assert(v.get());
+    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(PyLong_AsLong(v.get()));
 
     if(ex == Py_None)
     {
@@ -756,25 +913,23 @@ communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, Py
         return 0;
     }
 
-    Ice::Callback_Communicator_flushBatchRequestsPtr cb;
+    Ice::Callback_Communicator_flushBatchRequestsPtr callback;
     if(ex || sent)
     {
         FlushCallbackPtr d = new FlushCallback(ex, sent, "flushBatchRequests");
-        cb = Ice::newCallback_Communicator_flushBatchRequests(d, &FlushCallback::exception, &FlushCallback::sent);
+        callback = Ice::newCallback_Communicator_flushBatchRequests(d, &FlushCallback::exception, &FlushCallback::sent);
     }
 
     Ice::AsyncResultPtr result;
     try
     {
-        AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
-
-        if(cb)
+        if(callback)
         {
-            result = (*self->communicator)->begin_flushBatchRequests(cb);
+            result = (*self->communicator)->begin_flushBatchRequests(cb, callback);
         }
         else
         {
-            result = (*self->communicator)->begin_flushBatchRequests();
+            result = (*self->communicator)->begin_flushBatchRequests(cb);
         }
     }
     catch(const Ice::Exception& ex)
@@ -989,7 +1144,6 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
     return Py_None;
 }
 
-
 #ifdef WIN32
 extern "C"
 #endif
@@ -1016,7 +1170,6 @@ communicatorFindAllAdminFacets(CommunicatorObject* self)
 
     PyTypeObject* objectType = reinterpret_cast<PyTypeObject*>(lookupType("Ice.Object"));
     PyObjectHandle plainObject = objectType->tp_alloc(objectType, 0);
-
 
     for(Ice::FacetMap::const_iterator p = facetMap.begin(); p != facetMap.end(); ++p)
     {
@@ -1045,8 +1198,6 @@ communicatorFindAllAdminFacets(CommunicatorObject* self)
 
     return result.release();
 }
-
-
 
 #ifdef WIN32
 extern "C"
@@ -1275,7 +1426,6 @@ communicatorGetImplicitContext(CommunicatorObject* self)
 
     return createImplicitContext(implicitContext);
 }
-
 
 #ifdef WIN32
 extern "C"
@@ -1606,11 +1756,13 @@ static PyMethodDef CommunicatorMethods[] =
         PyDoc_STR(STRCAST("getDefaultLocator() -> proxy")) },
     { STRCAST("setDefaultLocator"), reinterpret_cast<PyCFunction>(communicatorSetDefaultLocator), METH_VARARGS,
         PyDoc_STR(STRCAST("setDefaultLocator(proxy) -> None")) },
-    { STRCAST("flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorFlushBatchRequests), METH_NOARGS,
-        PyDoc_STR(STRCAST("flushBatchRequests() -> None")) },
+    { STRCAST("flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorFlushBatchRequests), METH_VARARGS,
+        PyDoc_STR(STRCAST("flushBatchRequests(compress) -> None")) },
+    { STRCAST("flushBatchRequestsAsync"), reinterpret_cast<PyCFunction>(communicatorFlushBatchRequestsAsync),
+        METH_VARARGS, PyDoc_STR(STRCAST("flushBatchRequestsAsync(compress) -> Ice.Future")) },
     { STRCAST("begin_flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorBeginFlushBatchRequests),
         METH_VARARGS | METH_KEYWORDS,
-        PyDoc_STR(STRCAST("begin_flushBatchRequests([_ex][, _sent]) -> Ice.AsyncResult")) },
+        PyDoc_STR(STRCAST("begin_flushBatchRequests(compress[, _ex][, _sent]) -> Ice.AsyncResult")) },
     { STRCAST("end_flushBatchRequests"), reinterpret_cast<PyCFunction>(communicatorEndFlushBatchRequests),
         METH_VARARGS, PyDoc_STR(STRCAST("end_flushBatchRequests(Ice.AsyncResult) -> None")) },
     { STRCAST("createAdmin"), reinterpret_cast<PyCFunction>(communicatorCreateAdmin), METH_VARARGS,
@@ -1734,25 +1886,51 @@ IcePy::getCommunicatorWrapper(const Ice::CommunicatorPtr& communicator)
     CommunicatorMap::iterator p = _communicatorMap.find(communicator);
     assert(p != _communicatorMap.end());
     CommunicatorObject* obj = reinterpret_cast<CommunicatorObject*>(p->second);
-    Py_INCREF(obj->wrapper);
-    return obj->wrapper;
+    if(obj->wrapper)
+    {
+        Py_INCREF(obj->wrapper);
+        return obj->wrapper;
+    }
+    else
+    {
+        //
+        // Communicator must have been destroyed already.
+        //
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
 }
 
 extern "C"
 PyObject*
-IcePy_identityToString(PyObject* /*self*/, PyObject* obj)
+IcePy_identityToString(PyObject* /*self*/, PyObject* args)
 {
+    PyObject* identityType = lookupType("Ice.Identity");
+    PyObject* obj;
+    PyObject* mode = 0;
+    if(!PyArg_ParseTuple(args, STRCAST("O!O"), identityType, &obj, &mode))
+    {
+        return 0;
+    }
+
     Ice::Identity id;
     if(!getIdentity(obj, id))
     {
         return 0;
     }
-    
+
+    Ice::ToStringMode toStringMode = Ice::Unicode;
+    if(mode != Py_None && PyObject_HasAttrString(mode, STRCAST("value")))
+    {
+        PyObjectHandle modeValue = getAttr(mode, "value", true);
+        toStringMode = static_cast<Ice::ToStringMode>(PyLong_AsLong(modeValue.get()));
+    }
+
     string str;
 
     try
     {
-        str = Ice::identityToString(id);
+        str = identityToString(id, toStringMode);
     }
     catch(const Ice::Exception& ex)
     {

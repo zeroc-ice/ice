@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,6 +16,7 @@
 #include <Slice/PythonUtil.h>
 #include <Slice/Util.h>
 #include <IceUtil/Options.h>
+#include <IceUtil/ConsoleUtil.h>
 
 //
 // Python headers needed for PyEval_EvalCode.
@@ -27,6 +28,7 @@ using namespace std;
 using namespace IcePy;
 using namespace Slice;
 using namespace Slice::Python;
+using namespace IceUtilInternal;
 
 extern "C"
 PyObject*
@@ -161,8 +163,10 @@ IcePy_loadSlice(PyObject* /*self*/, PyObject* args)
         ostringstream codeStream;
         IceUtilInternal::Output out(codeStream);
         out.setUseTab(false);
+
         //
-        // Python magic comment to set the file encoding, it must be first or second line
+        // Emit a Python magic comment to set the file encoding.
+        // It must be the first or second line.
         //
         out << "# -*- coding: utf-8 -*-\n";
         generate(u, all, checksum, includePaths, out);
@@ -224,39 +228,31 @@ IcePy_compile(PyObject* /*self*/, PyObject* args)
         }
     }
 
-    char** argv = new char*[argSeq.size()];
-    for(size_t i = 0; i < argSeq.size(); ++i)
-    {
-        argv[i] = const_cast<char*>(argSeq[i].c_str());
-    }
-
     int rc;
     try
     {
-        rc = Slice::Python::compile(static_cast<int>(argSeq.size()), argv);
+        rc = Slice::Python::compile(argSeq);
     }
     catch(const std::exception& ex)
     {
-        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+        consoleErr << argSeq[0] << ": error:" << ex.what() << endl;
         rc = EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        consoleErr << argSeq[0] << ": error:" << msg << endl;
         rc = EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        consoleErr << argSeq[0] << ": error:" << msg << endl;
         rc = EXIT_FAILURE;
     }
     catch(...)
     {
-        getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << argSeq[0] << ": error:" << "unknown exception" << endl;
         rc = EXIT_FAILURE;
     }
-
-    delete[] argv;
 
     // PyInt_FromLong doesn't exist in python 3.
     return PyLong_FromLong(rc);

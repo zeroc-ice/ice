@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,7 +34,7 @@ public:
     virtual void throwCasC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);
 
     virtual void throwModA(Ice::Int, Ice::Int, const Ice::Current&);
-    
+
     virtual void throwUndeclaredA(Ice::Int, const Ice::Current&);
     virtual void throwUndeclaredB(Ice::Int, Ice::Int, const Ice::Current&);
     virtual void throwUndeclaredC(Ice::Int, Ice::Int, Ice::Int, const Ice::Current&);

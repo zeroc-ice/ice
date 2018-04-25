@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -49,7 +49,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
     DIR* d;
     if((d = opendir(path.c_str())) == 0)
     {
-        throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
+        throw runtime_error("cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
     }
 
     struct dirent* entry;
@@ -66,7 +66,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
 
     if(closedir(d))
     {
-        throw "cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString();
+        throw runtime_error("cannot read directory `" + path + "':\n" + IceUtilInternal::lastErrorToString());
     }
 
     for(size_t i = 0; i < namelist.size(); ++i)
@@ -78,7 +78,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
         {
             if(chown(path.c_str(), uid, gid) != 0)
             {
-                throw "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString();
+                throw runtime_error("can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString());
             }
         }
         else if(name != "..")
@@ -88,7 +88,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
             IceUtilInternal::structstat buf;
             if(IceUtilInternal::stat(name, &buf) == -1)
             {
-                throw "cannot stat `" + name + "':\n" + IceUtilInternal::lastErrorToString();
+                throw runtime_error("cannot stat `" + name + "':\n" + IceUtilInternal::lastErrorToString());
             }
 
             if(S_ISDIR(buf.st_mode))
@@ -99,7 +99,7 @@ chownRecursive(const string& path, uid_t uid, gid_t gid)
             {
                 if(chown(name.c_str(), uid, gid) != 0)
                 {
-                    throw "can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString();
+                    throw runtime_error("can't change permissions on `" + name + "':\n" + IceUtilInternal::lastErrorToString());
                 }
             }
         }
@@ -328,7 +328,14 @@ private:
         {
             assert(_p->first.find("config_") == 0);
             const string service = _p->first.substr(7);
-            facet = "IceBox.Service." + service + ".Properties";
+            if(getPropertyAsInt(_properties.at("config"), "IceBox.UseSharedCommunicator." + service) > 0)
+            {
+                facet = "IceBox.SharedCommunicator.Properties";
+            }
+            else
+            {
+                facet = "IceBox.Service." + service + ".Properties";
+            }
             if(_traceLevels->server > 1)
             {
                 const string id = _server->getId();
@@ -749,7 +756,8 @@ StopCommand::StopCommand(const ServerIPtr& server, const IceUtil::TimerPtr& time
 bool
 StopCommand::isStopped(ServerI::InternalServerState state)
 {
-    return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading;
+    return state == ServerI::Inactive || state == ServerI::Patching || state == ServerI::Loading ||
+        state >= ServerI::Destroying;
 }
 
 bool
@@ -1224,8 +1232,12 @@ ServerI::load(const AMD_Node_loadServerPtr& amdCB, const InternalServerDescripto
             updateRevision(desc->uuid, desc->revision);
         }
 
-        if(!_desc)
+        if(!_desc || (_load && descriptorUpdated(_load->getInternalServerDescriptor(), _desc)))
         {
+            //
+            // If the server initial loading didn't complete yet or there's a new updated descriptor
+            // waiting to be loaded, we wait for the loading to complete before replying.
+            //
             _load->addCallback(amdCB);
             return 0;
         }
@@ -1341,19 +1353,9 @@ ServerI::checkUpdate(const InternalServerDescriptorPtr& desc, bool noRestart, co
     {
         checkAndUpdateUser(desc, false); // false = don't update the user, just check.
     }
-    catch(const Ice::Exception& ex)
+    catch(const exception& ex)
     {
-        ostringstream os;
-        os << ex;
-        throw DeploymentException(os.str());
-    }
-    catch(const string& msg)
-    {
-        throw DeploymentException(msg);
-    }
-    catch(const char* msg)
-    {
-        throw DeploymentException(msg);
+        throw DeploymentException(ex.what());
     }
 
     return StopCommand::isStopped(_state);
@@ -1465,10 +1467,10 @@ ServerI::finishPatch()
         {
             chownRecursive(_serverDir + "/distrib", _uid, _gid);
         }
-        catch(const string& msg)
+        catch(const exception& ex)
         {
             Ice::Warning out(_node->getTraceLevels()->logger);
-            out << msg;
+            out << ex.what();
         }
     }
 #endif
@@ -1543,9 +1545,7 @@ ServerI::checkDestroyed() const
 {
     if(_state == Destroyed)
     {
-        Ice::ObjectNotExistException ex(__FILE__, __LINE__);
-        ex.id = _this->ice_getIdentity();
-        throw ex;
+        throw Ice::ObjectNotExistException(__FILE__, __LINE__, _this->ice_getIdentity(), "", "");
     }
 }
 
@@ -1635,7 +1635,7 @@ ServerI::activate()
 
             if(_activation == Disabled)
             {
-                throw string("The server is disabled.");
+                throw runtime_error("The server is disabled.");
             }
 
             //
@@ -1737,19 +1737,17 @@ ServerI::activate()
         }
         return;
     }
-    catch(const std::string& ex)
-    {
-        failure = ex;
-    }
     catch(const Ice::Exception& ex)
     {
         Ice::Warning out(_node->getTraceLevels()->logger);
         out << "activation failed for server `" << _id << "':\n";
         out << ex;
 
-        ostringstream os;
-        os << ex;
-        failure = os.str();
+        failure = ex.what();
+    }
+    catch(const std::exception& ex)
+    {
+        failure = ex.what();
     }
 
     {
@@ -1878,12 +1876,12 @@ ServerI::destroy()
         {
             IcePatch2Internal::removeRecursive(_serverDir);
         }
-        catch(const string& msg)
+        catch(const exception& ex)
         {
             if(!_destroy->loadFailure())
             {
                 Ice::Warning out(_node->getTraceLevels()->logger);
-                out << "removing server directory `" << _serverDir << "' failed:\n" << msg;
+                out << "removing server directory `" << _serverDir << "' failed:\n" << ex.what();
             }
         }
     }
@@ -1968,7 +1966,7 @@ ServerI::terminated(const string& msg, int status)
     {
         try
         {
-            p->second->setDirectProxy(0);
+            p->second->setDirectProxy(0, Ice::emptyCurrent);
         }
         catch(const Ice::ObjectNotExistException&)
         {
@@ -2038,7 +2036,7 @@ ServerI::update()
                 {
                     IcePatch2Internal::removeRecursive(_serverDir);
                 }
-                catch(const string&)
+                catch(const exception&)
                 {
                 }
             }
@@ -2047,19 +2045,9 @@ ServerI::update()
             {
                 updateImpl(_load->getInternalServerDescriptor());
             }
-            catch(const Ice::Exception& ex)
+            catch(const exception& ex)
             {
-                ostringstream os;
-                os << ex;
-                throw DeploymentException(os.str());
-            }
-            catch(const string& msg)
-            {
-                throw DeploymentException(msg);
-            }
-            catch(const char* msg)
-            {
-                throw DeploymentException(msg);
+                throw DeploymentException(ex.what());
             }
 
             if(oldDescriptor)
@@ -2104,15 +2092,10 @@ ServerI::update()
                     Ice::Warning out(_node->getTraceLevels()->logger);
                     out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << e;
                 }
-                catch(const string& msg)
+                catch(const exception& e)
                 {
                     Ice::Warning out(_node->getTraceLevels()->logger);
-                    out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << msg;
-                }
-                catch(const char* msg)
-                {
-                    Ice::Warning out(_node->getTraceLevels()->logger);
-                    out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << msg;
+                    out << "update failed:\n" << ex.reason << "\nand couldn't rollback old descriptor:\n" << e.what();
                 }
             }
             else if(!_destroy)
@@ -2315,7 +2298,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             ofstream configfile(IceUtilInternal::streamFilename(configFilePath).c_str()); // configFilePath is a UTF-8 string
             if(!configfile.good())
             {
-                throw "couldn't create configuration file: " + configFilePath;
+                throw runtime_error("couldn't create configuration file: " + configFilePath);
             }
             configfile << "# Configuration file (" << IceUtil::Time::now().toDateTime() << ")" << endl << endl;
             for(PropertyDescriptorSeq::const_iterator r = p->second.begin(); r != p->second.end(); ++r)
@@ -2347,10 +2330,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                 {
                     IcePatch2Internal::remove(_serverDir + "/config/" + *q);
                 }
-                catch(const string& msg)
+                catch(const exception& ex)
                 {
                     Ice::Warning out(_node->getTraceLevels()->logger);
-                    out << "couldn't remove file `" + _serverDir + "/config/" + *q + "':\n" + msg;
+                    out << "couldn't remove file `" << _serverDir << "/config/" << *q << "':\n" << ex.what();
                 }
             }
         }
@@ -2389,10 +2372,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             {
                 IcePatch2Internal::removeRecursive(_serverDir + "/" + *p);
             }
-            catch(const string& msg)
+            catch(const exception& ex)
             {
                 Ice::Warning out(_node->getTraceLevels()->logger);
-                out << "couldn't remove directory `" + _serverDir + "/" + *p + "':\n" + msg;
+                out << "couldn't remove directory `" << _serverDir << "/" << *p << "':\n" << ex.what();
             }
         }
     }
@@ -2417,7 +2400,7 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
                 ofstream configfile(IceUtilInternal::streamFilename(file).c_str()); // file is a UTF-8 string
                 if(!configfile.good())
                 {
-                    throw "couldn't create configuration file `" + file + "'";
+                    throw runtime_error("couldn't create configuration file `" + file + "'");
                 }
 
                 for(PropertyDescriptorSeq::const_iterator p = (*q)->properties.begin();
@@ -2450,10 +2433,10 @@ ServerI::updateImpl(const InternalServerDescriptorPtr& descriptor)
             {
                 IcePatch2Internal::removeRecursive(_serverDir + "/dbs/" + *p);
             }
-            catch(const string& msg)
+            catch(const exception& ex)
             {
                 Ice::Warning out(_node->getTraceLevels()->logger);
-                out << "couldn't remove directory `" + _serverDir + "/dbs/" + *p + "':\n" + msg;
+                out << "couldn't remove directory `" << _serverDir << "/dbs/" << *p << "':\n" << ex.what();
             }
         }
     }
@@ -2503,16 +2486,14 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
 
     if(uuid != descUUID)
     {
-        DeploymentException ex;
-        ex.reason = "server from replica `" + replicaName + "' is from another application (`" + uuid + "')";
-        throw ex;
+        throw DeploymentException("server from replica `" + replicaName + "' is from another application (`" + uuid +
+                                  "')");
     }
     else if(revision != descRevision)
     {
         ostringstream os;
-        os << "server from replica `" + replicaName + "' has a different version:\n";
-        os << "current revision: " << descRevision << "\n";
-        os << "replica revision: " << revision;
+        os << "server from replica `" << replicaName << "' has a different version:\n"
+           << "current revision: " << descRevision << "\nreplica revision: " << revision;
         throw DeploymentException(os.str());
     }
 }
@@ -2582,13 +2563,13 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
             }
             catch(const UserAccountNotFoundException&)
             {
-                throw "couldn't find user account for user `" + user + "'";
+                throw runtime_error("couldn't find user account for user `" + user + "'");
             }
             catch(const Ice::LocalException& ex)
             {
                 ostringstream os;
                 os << "unexpected exception while trying to find user account for user `" << user << "':\n" << ex;
-                throw os.str();
+                throw runtime_error(os.str());
             }
         }
 
@@ -2611,23 +2592,32 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
         }
         if(!success)
         {
-            Ice::SyscallException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSystemErrno();
-            throw ex;
+            throw Ice::SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
         }
         if(user != string(&buf[0]))
         {
-            throw "couldn't load server under user account `" + user + "': feature not supported on Windows";
+            throw runtime_error("couldn't load server under user account `" + user + "': feature not supported on Windows");
         }
     }
 #else
         //
         // Get the uid/gid associated with the given user.
         //
-        struct passwd* pw = getpwnam(user.c_str());
-        if(!pw)
+        struct passwd pwbuf;
+        vector<char> buffer(4096); // 4KB initial buffer size
+        struct passwd *pw;
+        int err = getpwnam_r(user.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
+        while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
         {
-            throw "unknown user account `" + user + "'";
+            buffer.resize(buffer.size() * 2);
+        }
+        if(err != 0)
+        {
+            throw Ice::SyscallException(__FILE__, __LINE__, err);
+        }
+        else if(pw == 0)
+        {
+            throw runtime_error("unknown user account `" + user + "'");
         }
 
         //
@@ -2638,14 +2628,13 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
         //
         if(uid != 0 && pw->pw_uid != uid)
         {
-            throw "node has insufficient privileges to load server under user account `" + user + "'";
+            throw runtime_error("node has insufficient privileges to load server under user account `" + user + "'");
         }
-
 
         if(pw->pw_uid == 0 &&
            _node->getCommunicator()->getProperties()->getPropertyAsInt("IceGrid.Node.AllowRunningServersAsRoot") <= 0)
         {
-            throw "running server as `root' is not allowed";
+            throw runtime_error("running server as `root' is not allowed");
         }
 
         if(update)

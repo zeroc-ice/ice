@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,7 +33,7 @@ public class Client extends test.Util.Application
         {
             out.print("testing stringToProxy for router... ");
             out.flush();
-            routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347");
+            routerBase = communicator().stringToProxy("Glacier2/router:" + getTestEndpoint(50));
             out.println("ok");
         }
 
@@ -51,7 +51,7 @@ public class Client extends test.Util.Application
             out.print("testing router finder... ");
             out.flush();
             com.zeroc.Ice.RouterFinderPrx finder = com.zeroc.Ice.RouterFinderPrx.uncheckedCast(
-                communicator().stringToProxy("Ice/RouterFinder:default -p 12347"));
+                communicator().stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
             test(finder.getRouter().ice_getIdentity().equals(router.ice_getIdentity()));
             out.println("ok");
         }
@@ -76,7 +76,7 @@ public class Client extends test.Util.Application
         {
             out.print("testing stringToProxy for server object... ");
             out.flush();
-            base = communicator().stringToProxy("c1/callback:tcp -p 12010");
+            base = communicator().stringToProxy("c1/callback:" + getTestEndpoint(0));
             out.println("ok");
         }
 
@@ -105,6 +105,7 @@ public class Client extends test.Util.Application
                 }
                 else
                 {
+                    System.err.println(ex);
                     test(false);
                 }
             }
@@ -182,6 +183,20 @@ public class Client extends test.Util.Application
             out.print("pinging server after session creation... ");
             out.flush();
             base.ice_ping();
+            out.println("ok");
+        }
+
+        {
+            out.print("pinging object with client endpoint... ");
+            out.flush();
+            com.zeroc.Ice.ObjectPrx baseC = communicator().stringToProxy("collocated:" + getTestEndpoint(50));
+            try
+            {
+                baseC.ice_ping();
+            }
+            catch(com.zeroc.Ice.ObjectNotExistException ex)
+            {
+            }
             out.println("ok");
         }
 
@@ -335,6 +350,7 @@ public class Client extends test.Util.Application
             out.println("ok");
         }
 
+        if(args.length >= 1 && args[0].equals("--shutdown"))
         {
             out.print("testing server shutdown... ");
             out.flush();
@@ -418,7 +434,7 @@ public class Client extends test.Util.Application
 
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
                 out.println("ok");
             }
 
@@ -456,13 +472,13 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
-        return r;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
+        return initData;
     }
 
     public static void main(String[] args)

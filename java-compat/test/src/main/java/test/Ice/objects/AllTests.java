@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,6 +19,7 @@ import test.Ice.objects.Test.D;
 import test.Ice.objects.Test.DHolder;
 import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
+import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.H;
 import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.A1;
@@ -31,6 +32,7 @@ import test.Ice.objects.Test.BaseSeqHolder;
 import test.Ice.objects.Test.InitialPrx;
 import test.Ice.objects.Test.InitialPrxHelper;
 import test.Ice.objects.Test.J;
+import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrxHelper;
 
@@ -45,12 +47,15 @@ public class AllTests
         }
     }
 
+    @SuppressWarnings("deprecation")
     public static InitialPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:default -p 12010";
+        String ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -223,6 +228,17 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("setting G... ");
+        out.flush();
+        try
+        {
+            initial.setG(new G(new S("hello"), "g"));
+        }
+        catch(Ice.OperationNotExistException ex)
+        {
+        }
+        out.println("ok");
+
         out.print("setting I... ");
         out.flush();
         initial.setI(i);
@@ -249,6 +265,42 @@ public class AllTests
         }
         out.println("ok");
 
+        out.print("testing recursive type... ");
+        out.flush();
+        Recursive top = new Recursive();
+        Recursive p = top;
+        int depth = 0;
+        try
+        {
+            for(; depth <= 20000; ++depth)
+            {
+                p.v = new Recursive();
+                p = p.v;
+                if((depth < 10 && (depth % 10) == 0) ||
+                   (depth < 1000 && (depth % 100) == 0) ||
+                   (depth < 10000 && (depth % 1000) == 0) ||
+                   (depth % 10000) == 0)
+                {
+                    initial.setRecursive(top);
+                }
+            }
+            test(!initial.supportsClassGraphDepthMax());
+        }
+        catch(Ice.UnknownLocalException ex)
+        {
+            // Expected marshal exception from the server (max class graph depth reached)
+        }
+        catch(Ice.UnknownException ex)
+        {
+            // Expected stack overflow from the server (Java only)
+        }
+        catch(java.lang.StackOverflowError ex)
+        {
+            // Stack overflow while writing instances
+        }
+        initial.setRecursive(new Recursive());
+        out.println("ok");
+
         out.print("testing compact ID...");
         out.flush();
         try
@@ -262,7 +314,7 @@ public class AllTests
 
         out.print("testing UnexpectedObjectException...");
         out.flush();
-        ref = "uoet:default -p 12010";
+        ref = "uoet:" + app.getTestEndpoint(0);
         base = communicator.stringToProxy(ref);
         test(base != null);
         UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(base);

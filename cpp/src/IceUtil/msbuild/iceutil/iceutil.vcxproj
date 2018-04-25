@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -21,9 +21,11 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4D1A5110-3176-44BA-8BBB-57BF56519B9F}</ProjectGuid>
     <RootNamespace>IceUtil</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -65,30 +67,41 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\ConsoleUtil.cpp" />
+    <ClCompile Include="..\..\ConvertUTF.cpp">
+      <ExcludedFromBuild Condition="'$(PlatformToolset)'!='v100'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\CtrlCHandler.cpp" />
     <ClCompile Include="..\..\OutputUtil.cpp" />
     <ClCompile Include="..\..\RecMutex.cpp" />
     <ClCompile Include="..\..\StringConverter.cpp" />
     <ClCompile Include="..\..\ThreadException.cpp" />
     <ClCompile Include="..\..\Time.cpp" />
+    <ClCompile Include="..\..\Unicode.cpp">
+      <ExcludedFromBuild Condition="'$(PlatformToolset)'!='v100'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="..\..\UtilException.cpp" />
     <ClCompile Include="..\..\FileUtil.cpp" />
     <ClCompile Include="..\..\InputUtil.cpp" />
@@ -102,6 +115,7 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Atomic.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Cond.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Config.h" />
+    <ClInclude Include="..\..\..\..\include\IceUtil\ConsoleUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\CountDownLatch.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\CtrlCHandler.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\DisableWarnings.h" />
@@ -110,7 +124,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Functional.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Handle.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\IceUtil.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\IconvStringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\InputUtil.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Iterator.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Lock.h" />
@@ -128,7 +141,6 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\RecMutex.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ScannerConfig.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\ScopedArray.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\SHA1.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Shared.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringConverter.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\StringUtil.h" />
@@ -137,10 +149,7 @@
     <ClInclude Include="..\..\..\..\include\IceUtil\Time.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\Timer.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UndefSysMacros.h" />
-    <ClInclude Include="..\..\..\..\include\IceUtil\UniquePtr.h" />
     <ClInclude Include="..\..\..\..\include\IceUtil\UUID.h" />
-    <ClInclude Include="..\..\ArgVector.h" />
-    <ClInclude Include="..\..\StopWatch.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

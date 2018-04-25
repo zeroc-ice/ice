@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,7 +11,7 @@
 #define ICE_REQUEST_HANDLER_H
 
 #include <IceUtil/Shared.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #include <Ice/RequestHandlerF.h>
 #include <Ice/ReferenceF.h>
@@ -24,7 +24,7 @@ namespace Ice
 
 class LocalException;
 
-};
+}
 
 namespace IceInternal
 {
@@ -44,9 +44,8 @@ public:
 
 private:
 
-    IceUtil::UniquePtr<Ice::LocalException> _ex;
+    IceInternal::UniquePtr<Ice::LocalException> _ex;
 };
-
 
 class CancellationHandler
 #ifndef ICE_CPP11_MAPPING

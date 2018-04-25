@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -90,7 +90,7 @@ ICE_API FILE* fopen(const std::string&, const std::string&);
 ICE_API FILE* freopen(const std::string&, const std::string&, FILE*);
 ICE_API int open(const std::string&, int);
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 ICE_API int getcwd(std::string&);
 #endif
 

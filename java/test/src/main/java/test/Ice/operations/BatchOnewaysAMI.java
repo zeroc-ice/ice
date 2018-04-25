@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -61,6 +61,8 @@ class BatchOnewaysAMI
 
     static void batchOneways(MyClassPrx p, PrintWriter out)
     {
+        final com.zeroc.Ice.Communicator communicator = p.ice_getCommunicator();
+        final com.zeroc.Ice.Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10 * 1024];
 
         MyClassPrx batch = p.ice_batchOneway();
@@ -93,14 +95,15 @@ class BatchOnewaysAMI
             }
         }
 
-        if(batch.ice_getConnection() != null)
+        final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        if(batch.ice_getConnection() != null && !bluetooth)
         {
             MyClassPrx batch2 = p.ice_batchOneway();
 
             batch.ice_pingAsync();
             batch2.ice_pingAsync();
             batch.ice_flushBatchRequestsAsync().join();
-            batch.ice_getConnection().close(false);
+            batch.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             batch.ice_pingAsync();
             batch2.ice_pingAsync();
 
@@ -108,7 +111,7 @@ class BatchOnewaysAMI
             batch2.ice_getConnection();
 
             batch.ice_pingAsync();
-            batch.ice_getConnection().close(false);
+            batch.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
             test(!batch.ice_pingAsync().isCompletedExceptionally());
             test(!batch2.ice_pingAsync().isCompletedExceptionally());
         }
@@ -119,8 +122,7 @@ class BatchOnewaysAMI
         batch3.ice_pingAsync();
         batch3.ice_flushBatchRequestsAsync().join();
 
-        // Make sure that a bogus batch request doesn't cause troubles to other
-        // ones.
+        // Make sure that a bogus batch request doesn't cause troubles to other ones.
         batch3.ice_pingAsync();
         batch.ice_pingAsync();
         batch.ice_flushBatchRequestsAsync().join();

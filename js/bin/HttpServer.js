@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,24 +26,40 @@ function Init()
         json: "application/json",
     };
 
-    var TestData =
-        {
-            languages: [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
-        };
+    var TestData = {
+        cssDeps: [
+            "https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.3/css/foundation.min.css"
+        ],
+        jsDeps: [
+            "https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.3/js/foundation.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js",
+            "https://cdnjs.cloudflare.com/ajax/libs/URI.js/1.18.12/URI.min.js",
+            "/assets/jquery.spin.js"
+        ]
+    };
+
+    var languages = [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
     if(process.platform == "win32")
     {
-        TestData.languages.push({value: "csharp", name: "C#"});
+        languages.push({value: "csharp", name: "C#"});
     }
 
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
-                    "/lib/Glacier2.js", "/lib/Glacier2.min.js",
-                    "/lib/IceStorm.js", "/lib/IceStorm.min.js",
-                    "/lib/IceGrid.js", "/lib/IceGrid.min.js",];
+                     "/lib/Glacier2.js", "/lib/Glacier2.min.js",
+                     "/lib/IceStorm.js", "/lib/IceStorm.min.js",
+                     "/lib/IceGrid.js", "/lib/IceGrid.min.js",
+                     "/lib/es5/Ice.js", "/lib/es5/Ice.min.js",
+                     "/lib/es5/Glacier2.js", "/lib/es5/Glacier2.min.js",
+                     "/lib/es5/IceStorm.js", "/lib/es5/IceStorm.min.js",
+                     "/lib/es5/IceGrid.js", "/lib/es5/IceGrid.min.js"];
 
-    TestData.TestCases = fs.readFileSync(path.join(__dirname, "..", "test", "Common", "TestCases.json"), "utf8");
-    var TestCases = JSON.parse(TestData.TestCases);
-    TestData.tests = Object.keys(TestCases);
+    TestData.TestSuites = fs.readFileSync(path.join(__dirname, "..", "test", "Common", "TestSuites.json"), "utf8");
+    var TestSuites = JSON.parse(TestData.TestSuites);
+    TestData.tests = Object.keys(TestSuites);
     var template = hogan.compile(fs.readFileSync(path.join(__dirname, "..", "test", "Common", "index.html"), "utf8"));
+    var controller = hogan.compile(fs.readFileSync(path.join(__dirname, "..", "test", "Common", "controller.html"), "utf8"));
     var libraryMaps = libraries.map(
         function(f)
         {
@@ -58,14 +74,15 @@ function Init()
     HttpServer.prototype.processRequest = function(req, res)
     {
         var match = req.url.pathname.match("^\/test/(.*)/index\.html");
+        var matchController = req.url.pathname.match("^\/test/(.*)/controller\.html");
         if(match)
         {
-            var es5 = match[1].indexOf("/es5/") !== -1;
-            var m = es5 ? match[1].replace("/es5/", "/") : match[1];
+            var es5 = match[1].indexOf("es5/") !== -1;
+            var m = es5 ? match[1].replace("es5/", "") : match[1];
 
             // That is a test case
-            var testCase = TestCases[m];
-            if(testCase === undefined)
+            var testSuite = TestSuites[m];
+            if(testSuite === undefined)
             {
                 res.writeHead(404);
                 res.end("404 Page Not Found");
@@ -76,7 +93,7 @@ function Init()
                 TestData.current = m;
                 if(req.url.query.next == "true")
                 {
-                    var testCase = TestData.tests[0];
+                    var testSuite = TestData.tests[0];
                     var language = req.url.query.language !== undefined ? req.url.query.language : "cpp";
                     var protocol = req.url.protocol;
                     var i = TestData.tests.indexOf(TestData.current);
@@ -84,7 +101,7 @@ function Init()
 
                     if(i < TestData.tests.length - 1)
                     {
-                        testCase = TestData.tests[i + 1];
+                        testSuite = TestData.tests[i + 1];
                     }
                     else if(!worker)
                     {
@@ -96,16 +113,16 @@ function Init()
                     }
                     else
                     {
-                        var languages = TestData.languages.map(function(o) { return o.value; });
-                        var j = languages.indexOf(language);
-                        language = languages[j == languages.length - 1 ? 0 : j + 1];
+                        var lgs = languages.map(function(o) { return o.value; });
+                        var j = lgs.indexOf(language);
+                        language = lgs[j == lgs.length - 1 ? 0 : j + 1];
                         worker = false;
                         protocol = "http";
                     }
 
                     if(es5)
                     {
-                        testCase = testCase.replace("Ice/", "Ice/es5/");
+                        testSuite = "es5/" + testSuite;
                     }
 
                     var location = url.format(
@@ -113,7 +130,7 @@ function Init()
                             protocol: protocol,
                             hostname: req.headers.host.split(":")[0],
                             port: (protocol == "http" ? 8080 : 9090),
-                            pathname: ("/test/" + testCase + "/index.html"),
+                            pathname: ("/test/" + testSuite + "/index.html"),
                             query:{loop: "true", language: language, worker: worker}
                         });
 
@@ -126,18 +143,22 @@ function Init()
                     if(req.url.query.worker != "true")
                     {
                         TestData.scripts = [];
-                        
+
                         if(es5)
                         {
                             TestData.scripts =
                             [
                                 "/node_modules/babel-polyfill/dist/polyfill.js",
-                                "/node_modules/regenerator-runtime/runtime.js",
                                 "/lib/es5/Ice.js",
-                                "/test/Common/TestRunner.js",
-                                "/test/Common/TestSuite.js",
-                                "/test/Common/es5/Controller.js"
-                            ].concat(testCase.files);
+                                "/test/es5/Common/TestRunner.js",
+                                "/test/es5/Common/TestSuite.js",
+                                "/test/es5/Common/Controller.js"
+                            ].concat(testSuite.files);
+
+                            TestData.scripts = TestData.scripts.map(function(f)
+                                {
+                                    return f.replace("/lib/Glacier2.js", "/lib/es5/Glacier2.js");
+                                });
                         }
                         else
                         {
@@ -147,15 +168,17 @@ function Init()
                                     "/test/Common/TestRunner.js",
                                     "/test/Common/TestSuite.js",
                                     "/test/Common/Controller.js"
-                                ].concat(testCase.files);
+                                ].concat(testSuite.files);
                         }
                     }
                     else
                     {
-                        TestData.scripts =
-                            [
-                                "/test/Common/TestSuite.js"
-                            ];
+                        TestData.scripts = es5 ? ["/test/es5/Common/TestSuite.js"] : ["/test/Common/TestSuite.js"];
+                    }
+                    TestData.languages = languages.slice();
+                    if(testSuite.files.indexOf("Server.js") >= 0)
+                    {
+                        TestData.languages.push({value: "js", name: "JavaScript"});
                     }
                     res.writeHead(200, {"Content-Type": "text/html"});
                     res.end(template.render(TestData));
@@ -163,16 +186,104 @@ function Init()
                 }
             }
         }
+        else if(matchController)
+        {
+            var es5 = matchController[1].indexOf("es5/") !== -1;
+            var m = es5 ? matchController[1].replace("es5/", "") : matchController[1];
+            var testpath = path.resolve(path.join(this._basePath, "test", matchController[1]))
+            var worker = req.url.query.worker == "True";
+            var scripts = es5 ? [
+                "/node_modules/babel-polyfill/dist/polyfill.js",
+                "/lib/es5/Ice.js",
+                "/test/es5/Common/Controller.js",
+                "/test/es5/Common/ControllerI.js",
+            ] : [
+                "/lib/Ice.js",
+                "/test/Common/Controller.js",
+                "/test/Common/ControllerI.js",
+            ];
+
+            var testSuite = TestSuites[m];
+            if(testSuite)
+            {
+                TestData.scripts = scripts.concat(TestSuites[m].files.map(function(f) {
+                    if(f.indexOf("/") === -1)
+                    {
+                        return "/test/" + matchController[1] + "/" + f;
+                    }
+                    else if(f.indexOf("/lib") === 0 && es5)
+                    {
+                        return f.replace("/lib", "/lib/es5");
+                    }
+                    else
+                    {
+                        return f;
+                    }
+                }))
+            }
+            else
+            {
+                TestData.scripts = scripts.concat(fs.readdirSync(testpath).filter(function(f) { return path.extname(f) === ".js"; }))
+            }
+
+            if(worker)
+            {
+                // Do not include babel polyfill when using workers, it is bundle with the controllerwoker
+                TestData.workerScripts = TestData.scripts.filter(script => script.indexOf("/babel-polyfill/") === -1);
+            }
+
+            res.writeHead(200, {"Content-Type": "text/html"});
+            res.end(controller.render(TestData))
+            console.log("HTTP/200 (Ok) " + req.method + " " + req.url.pathname);
+        }
+        else if(req.url.pathname === '/start')
+        {
+            res.writeHead(302,
+            {
+                "Location": "/test/Ice/acm/controller.html&port=15002"
+            });
+            res.end();
+        }
+        else if(req.url.pathname === '/es5/start')
+        {
+            res.writeHead(302,
+            {
+                "Location": "/test/es5/Ice/acm/controller.html&port=15002"
+            });
+            res.end();
+        }
         else
         {
             var iceLib = libraries.indexOf(req.url.pathname) !== -1;
             var iceLibMap = libraryMaps.indexOf(req.url.pathname) !== -1;
 
-            var basePath = (process.env.USE_BIN_DIST == "yes" && (iceLib || iceLibMap)) ?
-                path.resolve(path.join(require.resolve("ice"), "..", "..")) : this._basePath;
+            var basePath;
+            function checkIceBinDist(dist) {
+                return dist == "js" || dist == "all"
+            }
+            var useBinDist = (process.env.ICE_BIN_DIST || "").split(" ").find(checkIceBinDist) !== undefined;
+            if(useBinDist && (iceLib || iceLibMap))
+            {
+                basePath = path.resolve(path.join(require.resolve("ice"), "..", ".."));
+            }
+            else
+            {
+                basePath = this._basePath;
+            }
 
-            var filePath = path.resolve(path.join(basePath, req.url.pathname));
-
+            var filePath = req.url.pathname;
+            var sourceMap;
+            if(filePath.indexOf("es5/") !== -1 && path.extname(filePath) != ".js")
+            {
+                // We only host JS files in the es5 subdirectory, other files
+                // (such as config/escapes.cfg are in test)
+                filePath = filePath.replace("es5/", "")
+            }
+            filePath = path.resolve(path.join(basePath, filePath))
+            if(iceLib)
+            {
+                sourceMap = req.url.pathname.replace(".js", ".js.map");
+            }
             //
             // If OPTIMIZE is set resolve Ice libraries to the corresponding minified
             // versions.
@@ -205,12 +316,12 @@ function Init()
                                 fs.stat(filePath,
                                         function(err, stats)
                                         {
-                                            doRequest(err, stats, filePath);
+                                            doRequest(err, stats, filePath, sourceMap);
                                         });
                             }
                             else
                             {
-                                doRequest(err, stats, filePath + ".gz");
+                                doRequest(err, stats, filePath + ".gz", sourceMap);
                             }
                         });
             }
@@ -219,11 +330,11 @@ function Init()
                 fs.stat(filePath,
                             function(err, stats)
                             {
-                                doRequest(err, stats, filePath);
+                                doRequest(err, stats, filePath, sourceMap);
                             });
             }
 
-            var doRequest = function(err, stats, filePath)
+            var doRequest = function(err, stats, filePath, sourceMap)
             {
                 if(err)
                 {
@@ -276,6 +387,11 @@ function Init()
                             "Content-Length": stats.size,
                             "Etag": hash.digest("hex")
                         };
+
+                        if(sourceMap)
+                        {
+                            headers["X-SourceMap"] = sourceMap;
+                        }
 
                         if(path.extname(filePath).slice(1) == "gz")
                         {

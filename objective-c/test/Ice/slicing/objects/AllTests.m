@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,6 +12,125 @@
 #import <SlicingObjectsTestClient.h>
 
 #import <Foundation/Foundation.h>
+
+static void breakCycles(id o)
+{
+    if([o isKindOfClass:[TestSlicingObjectsClientD1 class]])
+    {
+        TestSlicingObjectsClientD1* d1 = (TestSlicingObjectsClientD1*)o;
+        d1.pd1 = nil;
+        if(d1.pd1 != d1)
+        {
+            breakCycles(d1.pd1);
+        }
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientD3 class]])
+    {
+        TestSlicingObjectsClientD3* d3 = (TestSlicingObjectsClientD3*)o;
+        d3.pd3 = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientB class]])
+    {
+        TestSlicingObjectsClientB* b = (TestSlicingObjectsClientB*)o;
+        if(b.pb != nil)
+        {
+            b.pb.pb = nil;
+        }
+        b.pb = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientPDerived class]])
+    {
+        TestSlicingObjectsClientPDerived* p = (TestSlicingObjectsClientPDerived*)o;
+        p.pb = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientCompactPDerived class]])
+    {
+        TestSlicingObjectsClientPDerived* p = (TestSlicingObjectsClientPDerived*)o;
+        p.pb = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientPCDerived class]])
+    {
+        TestSlicingObjectsClientPCDerived* p = (TestSlicingObjectsClientPCDerived*)o;
+        NSArray* a = ICE_RETAIN(p.pbs);
+        p.pbs = nil;
+        for(id e in a)
+        {
+            breakCycles(e);
+        }
+        ICE_RELEASE(a);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientCompactPCDerived class]])
+    {
+        TestSlicingObjectsClientCompactPCDerived* p = (TestSlicingObjectsClientCompactPCDerived*)o;
+        NSArray* a = ICE_RETAIN(p.pbs);
+        p.pbs = nil;
+        for(id e in a)
+        {
+            breakCycles(e);
+        }
+        ICE_RELEASE(a);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientPCDerived3 class]])
+    {
+        TestSlicingObjectsClientPCDerived3* p = (TestSlicingObjectsClientPCDerived3*)o;
+        p.pcd3 = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientPNode class]])
+    {
+        TestSlicingObjectsClientPNode* curr = o;
+        while(curr && o != curr.next)
+        {
+            TestSlicingObjectsClientPNode* next = curr.next;
+            curr.next = nil;
+            curr = next;
+        }
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientBaseException class]])
+    {
+        TestSlicingObjectsClientBaseException* e = (TestSlicingObjectsClientBaseException*)o;
+        breakCycles(e.pb);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientDerivedException class]])
+    {
+        TestSlicingObjectsClientDerivedException* e = (TestSlicingObjectsClientDerivedException*)o;
+        breakCycles(e.pd1);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientSS1 class]])
+    {
+        TestSlicingObjectsClientSS1* s = (TestSlicingObjectsClientSS1*)o;
+        breakCycles(s.s);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientSS2 class]])
+    {
+        TestSlicingObjectsClientSS2* s = (TestSlicingObjectsClientSS2*)o;
+        breakCycles(s.s);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientSS class]])
+    {
+        TestSlicingObjectsClientSS* s = (TestSlicingObjectsClientSS*)o;
+        breakCycles(s.c1);
+        breakCycles(s.c2);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsClientForward class]])
+    {
+        TestSlicingObjectsClientForward* f = (TestSlicingObjectsClientForward*)o;
+        f.h = nil;
+    }
+    if([o isKindOfClass:[NSArray class]])
+    {
+        for(id e in o)
+        {
+            breakCycles(e);
+        }
+    }
+    if([o isKindOfClass:[NSDictionary class]])
+    {
+        for(id e in [o allValues])
+        {
+            breakCycles(e);
+        }
+    }
+}
 
 @interface TestSlicingObjectsClientCallback : NSObject
 {
@@ -32,7 +151,8 @@
 @synthesize bout;
 -(id) init
 {
-    if(![super init])
+    self = [super init];
+    if(!self)
     {
         return nil;
     }
@@ -49,6 +169,8 @@
 -(void) dealloc
 {
     [cond release];
+    [r release];
+    [bout release];
     [super dealloc];
 }
 #endif
@@ -156,6 +278,7 @@
 -(void) SUnknownAsObjectResponse11:(ICEObject*)o
 {
     [self called];
+    [[o ice_getSlicedData] clear];
 }
 
 -(void) SUnknownAsObjectException11:(ICEException*)exc
@@ -169,6 +292,7 @@
     test([[b ice_id:nil] isEqualToString:@"::Test::B"]);
     test([b.sb isEqualToString:@"B1.sb"]);
     test(b.pb == b);
+    breakCycles(b);
     [self called];
 }
 
@@ -188,6 +312,8 @@
     test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
     test([b2.sb isEqualToString:@"B2.sb"]);
     test(b2.pb == b1);
+
+    breakCycles(b1);
     [self called];
 }
 
@@ -215,6 +341,9 @@
     test(b2.pb == b1);
     test([b2.sb isEqualToString:@"D2.sb"]);
     test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
+
+    breakCycles(d1);
+
     [self called];
 }
 
@@ -236,6 +365,9 @@
     test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);
     test([b2.sb isEqualToString:@"D2.sb"]);
     test(b2.pb == d1);
+
+    breakCycles(d1);
+
     [self called];
 }
 
@@ -261,6 +393,9 @@
     TestSlicingObjectsClientD1* d1 = (TestSlicingObjectsClientD1*)b1;
     test([d1.sd1 isEqualToString:@"D1.sd1"]);
     test(d1.pd1 == b2);
+
+    breakCycles(b2);
+
     [self called];
 }
 
@@ -284,6 +419,9 @@
     test([[b2 ice_id:nil] isEqualToString:@"::Test::B"]);      // No factory, must be sliced
     test([b2.sb isEqualToString:@"D2.sb"]);
     test(b2.pb == b1);
+
+    breakCycles(d1);
+
     [self called];
 }
 
@@ -296,6 +434,9 @@
 {
     test(r_ == p1);
     [self called];
+    breakCycles(r_);
+    breakCycles(p1);
+    breakCycles(p2);
 }
 
 -(void) returnTest1Exception:(ICEException*)exc
@@ -307,6 +448,9 @@
 {
     test(r_ == p1);
     [self called];
+    breakCycles(r_);
+    breakCycles(p1);
+    breakCycles(p2);
 }
 
 -(void) returnTest2Exception:(ICEException*)exc
@@ -342,6 +486,10 @@
     test(ret.pb == 0);
     test([[ret ice_id:nil] isEqualToString:@"::Test::D1"]);
     [self called];
+
+    breakCycles(ret);
+    breakCycles(p1);
+    breakCycles(p2);
 }
 
 -(void) paramTest3Exception:(ICEException*)exc
@@ -361,6 +509,9 @@
     test(ret.pb == 0);
     test([[ret ice_id:nil] isEqualToString:@"::Test::B"]);
     [self called];
+
+    breakCycles(ret);
+    breakCycles(b);
 }
 
 -(void) paramTest4Exception:(ICEException*)exc
@@ -405,6 +556,7 @@
     test([e.pb.sb isEqualToString:@"sb"]);
     test(e.pb.pb == e.pb);
     [self called];
+    breakCycles(e.pb);
 }
 
 -(void) throwDerivedAsBaseResponse
@@ -427,6 +579,8 @@
     test([e.pd1.sd1 isEqualToString:@"sd2"]);
     test(e.pd1.pd1 == e.pd1);
     [self called];
+    breakCycles(e.pb);
+    breakCycles(e.pd1);
 }
 
 -(void) throwDerivedAsDerivedResponse
@@ -449,6 +603,8 @@
     test([e.pd1.sd1 isEqualToString:@"sd2"]);
     test(e.pd1.pd1 == e.pd1);
     [self called];
+    breakCycles(e.pb);
+    breakCycles(e.pd1);
 }
 
 -(void) throwUnknownDerivedAsBaseResponse
@@ -465,12 +621,14 @@
     test([e.pb.sb isEqualToString:@"sb d2"]);
     test(e.pb.pb == e.pb);
     [self called];
+    breakCycles(e.pb);
 }
 
 -(void) useForwardResponse:(TestSlicingObjectsClientForward*)f
 {
     test(f);
     [self called];
+    breakCycles(f);
 }
 
 -(void) useForwardException:(ICEException*)exc
@@ -487,6 +645,7 @@
     test([pd.ps isEqualToString:@"preserved"]);
     test([pd.pb isEqual:pd]);
     [self called];
+    breakCycles(res);
 }
 
 -(void) responsePreserved2:(TestSlicingObjectsClientPBase*)res
@@ -494,6 +653,7 @@
     test(![res isKindOfClass:[TestSlicingObjectsClientPCUnknown class]]);
     test(res.pi == 3);
     [self called];
+    breakCycles(res);
 }
 
 -(void) responsePreserved3:(TestSlicingObjectsClientPBase*)res
@@ -504,6 +664,7 @@
     test(![res isKindOfClass:[TestSlicingObjectsClientPCDerived class]]);
     test(res.pi == 3);
     [self called];
+    breakCycles(res);
 }
 
 -(void) responsePreserved4:(TestSlicingObjectsClientPBase*)res
@@ -516,6 +677,7 @@
     test(p2.pi == 3);
     test([[p2.pbs objectAtIndex:0] isEqual:p2]);
     [self called];
+    breakCycles(res);
 }
 
 -(void) responsePreserved5:(TestSlicingObjectsClientPBase*)res
@@ -534,6 +696,7 @@
     test(p3.pcd2 == p3.pi);
     test([p3.pcd3 isEqual:[p3.pbs objectAtIndex:10]]);
     [self called];
+    breakCycles(res);
 }
 
 -(void) responseCompactPreserved1:(TestSlicingObjectsClientPBase*)res
@@ -544,6 +707,7 @@
     test(![res isKindOfClass:[TestSlicingObjectsClientCompactPCDerived class]]);
     test(res.pi == 3);
     [self called];
+    breakCycles(res);
 }
 
 -(void) responseCompactPreserved2:(TestSlicingObjectsClientPBase*)res
@@ -556,6 +720,7 @@
     test(p2.pi == 3);
     test([[p2.pbs objectAtIndex:0] isEqual:p2]);
     [self called];
+    breakCycles(res);
 }
 
 -(void) response
@@ -594,7 +759,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
 
         test([o isKindOfClass:[TestSlicingObjectsClientSBase class]]);
@@ -621,7 +786,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -645,7 +810,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
         test([sb isKindOfClass:[TestSlicingObjectsClientSBSKnownDerived class]]);
         test([((TestSlicingObjectsClientSBSKnownDerived*)sb).sbskd isEqualToString:@"SBSKnownDerived.sbskd"]);
@@ -670,7 +835,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -693,7 +858,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
         if([[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
         {
@@ -774,8 +939,10 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             o = [test SUnknownAsObject];
             test(![[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0]);
             test([o isKindOfClass:[ICEUnknownSlicedValue class]]);
-            test([[((ICEUnknownSlicedValue*)o) getUnknownTypeId] isEqualToString:@"::Test::SUnknown"]);
+            test([[((ICEUnknownSlicedValue*)o) ice_id] isEqualToString:@"::Test::SUnknown"]);
+            test([((ICEUnknownSlicedValue*)o) ice_getSlicedData] != nil);
             [test checkSUnknown:o];
+            [[o ice_getSlicedData] clear];
         }
         @catch(ICENoValueFactoryException*)
         {
@@ -784,7 +951,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         @catch(NSException* ex)
         {
             NSLog(@"exception: %@", ex);
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -822,10 +989,11 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[b ice_id] isEqualToString:@"::Test::B"]);
             test([b.sb isEqualToString:@"B1.sb"]);
             test([b.pb.sb isEqualToString:@"B1.sb"]);
+            breakCycles(b);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -852,10 +1020,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[b2 ice_id] isEqualToString:@"::Test::B"]);
             test([b2.sb isEqualToString:@"B2.sb"]);
             test(b2.pb == b1);
+
+            breakCycles(b1);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -891,10 +1061,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(b2.pb == b1);
             test([b2.sb isEqualToString:@"D2.sb"]);
             test([[b2 ice_id] isEqualToString:@"::Test::B"]);
+
+            breakCycles(d1);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -924,10 +1096,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[b2 ice_id] isEqualToString:@"::Test::B"]);
             test([b2.sb isEqualToString:@"D2.sb"]);
             test(b2.pb == d1);
+
+            breakCycles(d1);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -961,10 +1135,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             TestSlicingObjectsClientD1* d1 = (TestSlicingObjectsClientD1*)b1;
             test([d1.sd1 isEqualToString:@"D1.sd1"]);
             test(d1.pd1 == b2);
+
+            breakCycles(b2);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -998,10 +1174,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[b2 ice_id] isEqualToString:@"::Test::B"]);  // No factory, must be sliced
             test([b2.sb isEqualToString:@"D2.sb"]);
             test(b2.pb == b1);
+
+            breakCycles(d1);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1035,10 +1213,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[b2 ice_id] isEqualToString:@"::Test::B"]);  // No factory, must be sliced
             test([b2.sb isEqualToString:@"D2.sb"]);
             test(b2.pb == b1);
+
+            breakCycles(d1);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1051,10 +1231,14 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             TestSlicingObjectsClientB* p2;
             TestSlicingObjectsClientB* r = [test returnTest1:&p1 p2:&p2];
             test(r == p1);
+
+            breakCycles(p1);
+            breakCycles(p2);
+            breakCycles(r);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1075,10 +1259,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             TestSlicingObjectsClientB* p2;
             TestSlicingObjectsClientB* r = [test returnTest2:&p1 p1:&p2];
             test(r == p1);
+
+            breakCycles(p1);
+            breakCycles(p2);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1127,10 +1314,14 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(b1 != d3);
             test(b2 != d1);
             test(b2 != d3);
+
+            breakCycles(b1);
+            breakCycles(d1);
+            breakCycles(d3);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1174,6 +1365,10 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(b1 != d3);
             test(b2 != d1);
             test(b2 != d3);
+
+            breakCycles(b1);
+            breakCycles(d1);
+            breakCycles(d3);
         }
         @catch(NSException*)
         {
@@ -1218,10 +1413,14 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(b1 != d3);
             test(b2 != d1);
             test(b2 != d3);
+
+            breakCycles(b1);
+            breakCycles(d1);
+            breakCycles(d3);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1265,6 +1464,10 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(b1 != d3);
             test(b2 != d1);
             test(b2 != d3);
+
+            breakCycles(b1);
+            breakCycles(d1);
+            breakCycles(d3);
         }
         @catch(NSException*)
         {
@@ -1295,10 +1498,13 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([ret.sb isEqualToString:@"D1.sb (p2 2)"]);
             test(!ret.pb);
             test([[ret ice_id] isEqualToString:@"::Test::D1"]);
+
+            breakCycles(p1);
+            breakCycles(p2);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1330,7 +1536,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1367,10 +1573,15 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[r ice_id] isEqualToString:@"::Test::B"]);
             test([r.sb isEqualToString:@"D3.sb"]);
             test(r.pb == r);
+
+            breakCycles(b1);
+            breakCycles(b2);
+            breakCycles(d3);
+            breakCycles(r);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1402,6 +1613,11 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[r ice_id:nil] isEqualToString:@"::Test::B"]);
             test([r.sb isEqualToString:@"D3.sb"]);
             test(r.pb == r);
+
+            breakCycles(b1);
+            breakCycles(b2);
+            breakCycles(d3);
+            breakCycles(r);
         }
         @catch(NSException*)
         {
@@ -1436,10 +1652,15 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[r ice_id] isEqualToString:@"::Test::B"]);
             test([r.sb isEqualToString:@"D3.sb"]);
             test(r.pb == r);
+
+            breakCycles(d11);
+            breakCycles(d12);
+            breakCycles(d3);
+            breakCycles(r);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1473,6 +1694,11 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[r ice_id:nil] isEqualToString:@"::Test::B"]);
             test([r.sb isEqualToString:@"D3.sb"]);
             test(r.pb == r);
+
+            breakCycles(d11);
+            breakCycles(d12);
+            breakCycles(d3);
+            breakCycles(r);
         }
         @catch(NSException*)
         {
@@ -1534,6 +1760,9 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                 [(TestSlicingObjectsClientMutableBSeq*)ss2.s addObject:ss2d3];
 
                 ss = [test sequenceTest:ss1 p2:ss2];
+
+                breakCycles(ss1);
+                breakCycles(ss2);
             }
 
             test(ss.c1);
@@ -1562,10 +1791,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[ss2b ice_id] isEqualToString:@"::Test::B"]);
             test([[ss2d1 ice_id] isEqualToString:@"::Test::D1"]);
             test([[ss2d3 ice_id] isEqualToString:@"::Test::B"]);
+
+            breakCycles(ss);
         }
         @catch(ICEException*)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1626,6 +1857,9 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                 [test begin_sequenceTest:ss1 p2:ss2 response:^(TestSlicingObjectsClientSS* o) { [cb sequenceTestResponse:o]; } exception:^(ICEException* e) { [cb sequenceTestException:e]; }];
                 [cb check];
                 ss = cb.r;
+
+                breakCycles(ss1);
+                breakCycles(ss2);
             }
 
             test(ss.c1);
@@ -1654,6 +1888,8 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test([[ss2b ice_id:nil] isEqualToString:@"::Test::B"]);
             test([[ss2d1 ice_id:nil] isEqualToString:@"::Test::D1"]);
             test([[ss2d3 ice_id:nil] isEqualToString:@"::Test::B"]);
+
+            breakCycles(ss);
         }
         @catch(ICEException*)
         {
@@ -1708,10 +1944,14 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                 test([d1.sd1 isEqualToString:s]);
                 test(d1.pd1 == d1);
             }
+
+            breakCycles(bin);
+            breakCycles(bout);
+            breakCycles(r);
         }
         @catch(ICEException*)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1765,6 +2005,10 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                 test([d1.sd1 isEqualToString:s]);
                 test(d1.pd1 == d1);
             }
+
+            breakCycles(bin);
+            breakCycles(bout);
+            breakCycles(r);
         }
         @catch(ICEException*)
         {
@@ -1778,7 +2022,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         @try
         {
             [test throwBaseAsBase];
-            test(0);
+            test(NO);
         }
         @catch(TestSlicingObjectsClientBaseException* e)
         {
@@ -1787,10 +2031,11 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(e.pb);
             test([e.pb.sb isEqualToString:@"sb"]);
             test(e.pb.pb == e.pb);
+            breakCycles(e.pb);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1808,7 +2053,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         @try
         {
             [test throwDerivedAsBase];
-            test(0);
+            test(NO);
         }
         @catch(TestSlicingObjectsClientDerivedException* e)
         {
@@ -1823,10 +2068,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(e.pd1.pb == e.pd1);
             test([e.pd1.sd1 isEqualToString:@"sd2"]);
             test(e.pd1.pd1 == e.pd1);
+            breakCycles(e.pb);
+            breakCycles(e.pd1);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1844,7 +2091,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         @try
         {
             [test throwDerivedAsDerived];
-            test(0);
+            test(NO);
         }
         @catch(TestSlicingObjectsClientDerivedException* e)
         {
@@ -1859,10 +2106,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(e.pd1.pb == e.pd1);
             test([e.pd1.sd1 isEqualToString:@"sd2"]);
             test(e.pd1.pd1 == e.pd1);
+            breakCycles(e.pb);
+            breakCycles(e.pd1);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1880,7 +2129,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         @try
         {
             [test throwUnknownDerivedAsBase];
-            test(0);
+            test(NO);
         }
         @catch(TestSlicingObjectsClientBaseException* e)
         {
@@ -1889,10 +2138,11 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(e.pb);
             test([e.pb.sb isEqualToString:@"sb d2"]);
             test(e.pb.pb == e.pb);
+            breakCycles(e.pb);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1912,10 +2162,11 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             TestSlicingObjectsClientForward* f;
             [test useForward:&f];
             test(f);
+            breakCycles(f);
         }
         @catch(...)
         {
-            test(0);
+            test(NO);
         }
     }
     tprintf("ok\n");
@@ -1945,6 +2196,9 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         test(p2.pi == 3);
         test([p2.ps isEqual:@"preserved"]);
         test(p2.pb == p2);
+
+        breakCycles(pd);
+        breakCycles(r);
     }
     @catch(ICEOperationNotExistException*)
     {
@@ -1992,6 +2246,9 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(p2.pi == 3);
             test([[[p2 pbs] objectAtIndex:0] isEqual:p2]);
         }
+
+        breakCycles(pcd);
+        breakCycles(r);
     }
     @catch(ICEOperationNotExistException*)
     {
@@ -2022,6 +2279,9 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(p2.pi == 3);
             test([p2.pbs objectAtIndex:0] == p2);
         }
+
+        breakCycles(pcd);
+        breakCycles(r);
     }
     @catch(ICEOperationNotExistException*)
     {
@@ -2074,6 +2334,9 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             test(p3.pcd2 == p3.pi);
             test(p3.pcd3 == [p3.pbs objectAtIndex:10]);
         }
+
+        breakCycles(pcd);
+        breakCycles(r);
     }
     @catch(ICEOperationNotExistException*)
     {
@@ -2090,7 +2353,12 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
         [test checkPBSUnknown:p];
         if(![[test ice_getEncodingVersion] isEqual:ICEEncoding_1_0])
         {
+            test([p ice_getSlicedData] != nil);
             [[test ice_encodingVersion:ICEEncoding_1_0] checkPBSUnknown:p];
+        }
+        else
+        {
+            test([p ice_getSlicedData] == nil);
         }
     }
     @catch(ICEOperationNotExistException*)
@@ -2114,6 +2382,8 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                          response:^(TestSlicingObjectsClientPBase* o) { [cb responsePreserved1:o]; }
                         exception:^(ICEException* ex) { [cb exception:ex]; }];
         [cb check];
+
+        breakCycles(pd);
     }
 
     {
@@ -2154,6 +2424,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }
         [cb check];
+        breakCycles(pcd);
     }
 
     {
@@ -2179,6 +2450,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }
         [cb check];
+        breakCycles(pcd);
     }
 
     {
@@ -2219,6 +2491,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
                             exception:^(ICEException* ex) { [cb exception:ex]; }];
         }
         [cb check];
+        breakCycles(pcd);
     }
 
     tprintf("ok\n");

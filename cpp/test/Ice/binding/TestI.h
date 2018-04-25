@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@ public:
     virtual std::shared_ptr<Test::RemoteObjectAdapterPrx> createObjectAdapter(std::string, std::string, const Ice::Current&);
     virtual void deactivateObjectAdapter(std::shared_ptr<Test::RemoteObjectAdapterPrx>, const Ice::Current&);
 #else
-    virtual Test::RemoteObjectAdapterPrx createObjectAdapter(const std::string&, const std::string&, 
+    virtual Test::RemoteObjectAdapterPrx createObjectAdapter(const std::string&, const std::string&,
                                                              const Ice::Current&);
     virtual void deactivateObjectAdapter(const Test::RemoteObjectAdapterPrx&, const Ice::Current&);
 #endif
@@ -38,7 +38,7 @@ class RemoteObjectAdapterI : public Test::RemoteObjectAdapter
 public:
 
     RemoteObjectAdapterI(const Ice::ObjectAdapterPtr&);
-    
+
     virtual Test::TestIntfPrxPtr getTestIntf(const Ice::Current&);
     virtual void deactivate(const Ice::Current&);
 

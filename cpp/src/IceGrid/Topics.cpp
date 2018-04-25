@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -139,7 +139,7 @@ ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer, const string& name)
                 ++p;
             }
         }
-    
+
         if(notifyMonitor)
         {
             notifyAll();
@@ -163,7 +163,7 @@ ObserverTopic::receivedUpdate(const string& name, int serial, const string& fail
     if(p != _waitForUpdates.end())
     {
         p->second.erase(name);
-        
+
         if(!failure.empty())
         {
             map<int, map<string, string> >::iterator q = _updateFailures.find(serial);
@@ -237,7 +237,7 @@ ObserverTopic::waitForSyncedSubscribersNoSync(int serial, const string& name)
             if(q != _updateFailures.end())
             {
                 map<string, string> failures = q->second;
-                _updateFailures.erase(q);               
+                _updateFailures.erase(q);
                 ostringstream os;
                 for(map<string, string>::const_iterator r = failures.begin(); r != failures.end(); ++r)
                 {
@@ -288,7 +288,7 @@ ObserverTopic::getContext(int serial, Ice::Long dbSerial) const
     return context;
 }
 
-RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& topicManager) : 
+RegistryObserverTopic::RegistryObserverTopic(const IceStorm::TopicManagerPrx& topicManager) :
     ObserverTopic(topicManager, "RegistryObserver")
 {
     _publishers = getPublishers<RegistryObserverPrx>();
@@ -314,11 +314,11 @@ RegistryObserverTopic::registryUp(const RegistryInfo& info)
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `registryUp' update:\n" << ex;    
+        out << "unexpected exception while publishing `registryUp' update:\n" << ex;
     }
 }
 
-void 
+void
 RegistryObserverTopic::registryDown(const string& name)
 {
     Lock sync(*this);
@@ -344,7 +344,7 @@ RegistryObserverTopic::registryDown(const string& name)
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `registryDown' update:\n" << ex;    
+        out << "unexpected exception while publishing `registryDown' update:\n" << ex;
     }
 }
 
@@ -361,8 +361,8 @@ RegistryObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
     observer->registryInit(registries, getContext(_serial));
 }
 
-NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManager, 
-                                     const Ice::ObjectAdapterPtr& adapter) : 
+NodeObserverTopic::NodeObserverTopic(const IceStorm::TopicManagerPrx& topicManager,
+                                     const Ice::ObjectAdapterPtr& adapter) :
     ObserverTopic(topicManager, "NodeObserver")
 {
     _publishers = getPublishers<NodeObserverPrx>();
@@ -391,6 +391,10 @@ NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current&)
     }
     updateSerial();
     _nodes.insert(make_pair(info.info.name, info));
+    for(ServerDynamicInfoSeq::const_iterator p = info.servers.begin(); p != info.servers.end(); ++p)
+    {
+        _serverStatus[p->id] = p->enabled;
+    }
     try
     {
         for(vector<NodeObserverPrx>::const_iterator p = _publishers.begin(); p != _publishers.end(); ++p)
@@ -401,17 +405,17 @@ NodeObserverTopic::nodeUp(const NodeDynamicInfo& info, const Ice::Current&)
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing 'nodeUp' update:\n" << ex;    
+        out << "unexpected exception while publishing 'nodeUp' update:\n" << ex;
     }
 }
 
-void 
+void
 NodeObserverTopic::nodeDown(const string& /*name*/, const Ice::Current&)
 {
     assert(false);
 }
 
-void 
+void
 NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& server, const Ice::Current&)
 {
     Lock sync(*this);
@@ -427,7 +431,7 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
         //
         return;
     }
-    
+
     updateSerial();
 
     ServerDynamicInfoSeq& servers = _nodes[node].servers;
@@ -453,6 +457,15 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
         servers.push_back(server);
     }
 
+    if(server.state != Destroyed)
+    {
+        _serverStatus[server.id] = server.enabled;
+    }
+    else
+    {
+        _serverStatus.erase(server.id);
+    }
+
     try
     {
         for(vector<NodeObserverPrx>::const_iterator p = _publishers.begin(); p != _publishers.end(); ++p)
@@ -463,11 +476,11 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `updateServer' update:\n" << ex;    
+        out << "unexpected exception while publishing `updateServer' update:\n" << ex;
     }
 }
 
-void 
+void
 NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& adapter, const Ice::Current&)
 {
     Lock sync(*this);
@@ -508,7 +521,7 @@ NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& a
     {
         adapters.push_back(adapter);
     }
-    
+
     try
     {
         for(vector<NodeObserverPrx>::const_iterator p = _publishers.begin(); p != _publishers.end(); ++p)
@@ -519,11 +532,11 @@ NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& a
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `updateAdapter' update:\n" << ex;    
+        out << "unexpected exception while publishing `updateAdapter' update:\n" << ex;
     }
 }
 
-void 
+void
 NodeObserverTopic::nodeDown(const string& name)
 {
     Lock sync(*this);
@@ -534,21 +547,29 @@ NodeObserverTopic::nodeDown(const string& name)
 
     updateSerial();
 
-    if(_nodes.find(name) != _nodes.end())
+    if(_nodes.find(name) == _nodes.end())
     {
-        _nodes.erase(name);
-        try
+        return;
+    }
+
+    ServerDynamicInfoSeq& servers = _nodes[name].servers;
+    for(ServerDynamicInfoSeq::const_iterator p = servers.begin(); p != servers.end(); ++p)
+    {
+        _serverStatus.erase(p->id);
+    }
+
+    _nodes.erase(name);
+    try
+    {
+        for(vector<NodeObserverPrx>::const_iterator p = _publishers.begin(); p != _publishers.end(); ++p)
         {
-            for(vector<NodeObserverPrx>::const_iterator p = _publishers.begin(); p != _publishers.end(); ++p)
-            {
-                (*p)->nodeDown(name);
-            }
+            (*p)->nodeDown(name);
         }
-        catch(const Ice::LocalException& ex)
-        {
-            Ice::Warning out(_logger);
-            out << "unexpected exception while publishing `nodeDown' update:\n" << ex;    
-        }
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        Ice::Warning out(_logger);
+        out << "unexpected exception while publishing `nodeDown' update:\n" << ex;
     }
 }
 
@@ -563,6 +584,25 @@ NodeObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
         nodes.push_back(p->second);
     }
     observer->nodeInit(nodes, getContext(_serial));
+}
+
+bool
+NodeObserverTopic::isServerEnabled(const string& server) const
+{
+    Lock sync(*this);
+    if(_topics.empty())
+    {
+        return false;
+    }
+    map<string, bool>::const_iterator p = _serverStatus.find(server);
+    if(p != _serverStatus.end())
+    {
+        return p->second;
+    }
+    else
+    {
+        return true; // Assume the server is enabled if we don't know its status.
+    }
 }
 
 ApplicationObserverTopic::ApplicationObserverTopic(const IceStorm::TopicManagerPrx& topicManager,
@@ -597,13 +637,13 @@ ApplicationObserverTopic::applicationInit(Ice::Long dbSerial, const ApplicationI
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `applicationInit' update:\n" << ex;    
+        out << "unexpected exception while publishing `applicationInit' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-int 
+int
 ApplicationObserverTopic::applicationAdded(Ice::Long dbSerial, const ApplicationInfo& info)
 {
     Lock sync(*this);
@@ -624,13 +664,13 @@ ApplicationObserverTopic::applicationAdded(Ice::Long dbSerial, const Application
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `applicationAdded' update:\n" << ex;    
+        out << "unexpected exception while publishing `applicationAdded' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-int 
+int
 ApplicationObserverTopic::applicationRemoved(Ice::Long dbSerial, const string& name)
 {
     Lock sync(*this);
@@ -650,13 +690,13 @@ ApplicationObserverTopic::applicationRemoved(Ice::Long dbSerial, const string& n
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `applicationRemoved' update:\n" << ex;    
+        out << "unexpected exception while publishing `applicationRemoved' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-int 
+int
 ApplicationObserverTopic::applicationUpdated(Ice::Long dbSerial, const ApplicationUpdateInfo& info)
 {
     Lock sync(*this);
@@ -682,6 +722,12 @@ ApplicationObserverTopic::applicationUpdated(Ice::Long dbSerial, const Applicati
     {
         Ice::Error out(_logger);
         out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << ex.reason;
+        assert(false);
+    }
+    catch(const std::exception& ex)
+    {
+        Ice::Error out(_logger);
+        out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << ex.what();
         assert(false);
     }
     catch(const std::string& msg)
@@ -712,13 +758,13 @@ ApplicationObserverTopic::applicationUpdated(Ice::Long dbSerial, const Applicati
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `applicationUpdated' update:\n" << ex;    
+        out << "unexpected exception while publishing `applicationUpdated' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-void 
+void
 ApplicationObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
 {
     ApplicationObserverPrx observer = ApplicationObserverPrx::uncheckedCast(obsv);
@@ -738,7 +784,7 @@ AdapterObserverTopic::AdapterObserverTopic(const IceStorm::TopicManagerPrx& topi
     _publishers = getPublishers<AdapterObserverPrx>();
 }
 
-int 
+int
 AdapterObserverTopic::adapterInit(Ice::Long dbSerial, const AdapterInfoSeq& adpts)
 {
     Lock sync(*this);
@@ -762,13 +808,13 @@ AdapterObserverTopic::adapterInit(Ice::Long dbSerial, const AdapterInfoSeq& adpt
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `adapterInit' update:\n" << ex;    
+        out << "unexpected exception while publishing `adapterInit' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-int 
+int
 AdapterObserverTopic::adapterAdded(Ice::Long dbSerial, const AdapterInfo& info)
 {
     Lock sync(*this);
@@ -788,13 +834,13 @@ AdapterObserverTopic::adapterAdded(Ice::Long dbSerial, const AdapterInfo& info)
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `adapterAdded' update:\n" << ex;    
+        out << "unexpected exception while publishing `adapterAdded' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-int 
+int
 AdapterObserverTopic::adapterUpdated(Ice::Long dbSerial, const AdapterInfo& info)
 {
     Lock sync(*this);
@@ -814,7 +860,7 @@ AdapterObserverTopic::adapterUpdated(Ice::Long dbSerial, const AdapterInfo& info
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `adapterUpdated' update:\n" << ex;    
+        out << "unexpected exception while publishing `adapterUpdated' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -840,13 +886,13 @@ AdapterObserverTopic::adapterRemoved(Ice::Long dbSerial, const string& id)
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `adapterRemoved' update:\n" << ex;    
+        out << "unexpected exception while publishing `adapterRemoved' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-void 
+void
 AdapterObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
 {
     AdapterObserverPrx observer = AdapterObserverPrx::uncheckedCast(obsv);
@@ -854,7 +900,7 @@ AdapterObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
     for(map<string, AdapterInfo>::const_iterator p = _adapters.begin(); p != _adapters.end(); ++p)
     {
         adapters.push_back(p->second);
-    }   
+    }
     observer->adapterInit(adapters, getContext(_serial, _dbSerial));
 }
 
@@ -866,7 +912,7 @@ ObjectObserverTopic::ObjectObserverTopic(const IceStorm::TopicManagerPrx& topicM
     _publishers = getPublishers<ObjectObserverPrx>();
 }
 
-int 
+int
 ObjectObserverTopic::objectInit(Ice::Long dbSerial, const ObjectInfoSeq& objects)
 {
     Lock sync(*this);
@@ -890,13 +936,13 @@ ObjectObserverTopic::objectInit(Ice::Long dbSerial, const ObjectInfoSeq& objects
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `objectInit' update:\n" << ex;    
+        out << "unexpected exception while publishing `objectInit' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-int 
+int
 ObjectObserverTopic::objectAdded(Ice::Long dbSerial, const ObjectInfo& info)
 {
     Lock sync(*this);
@@ -916,13 +962,13 @@ ObjectObserverTopic::objectAdded(Ice::Long dbSerial, const ObjectInfo& info)
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `objectAdded' update:\n" << ex;    
+        out << "unexpected exception while publishing `objectAdded' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
 }
 
-int 
+int
 ObjectObserverTopic::objectUpdated(Ice::Long dbSerial, const ObjectInfo& info)
 {
     Lock sync(*this);
@@ -942,7 +988,7 @@ ObjectObserverTopic::objectUpdated(Ice::Long dbSerial, const ObjectInfo& info)
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;    
+        out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -968,7 +1014,7 @@ ObjectObserverTopic::objectRemoved(Ice::Long dbSerial, const Ice::Identity& id)
     catch(const Ice::LocalException& ex)
     {
         Ice::Warning out(_logger);
-        out << "unexpected exception while publishing `objectRemoved' update:\n" << ex;    
+        out << "unexpected exception while publishing `objectRemoved' update:\n" << ex;
     }
     addExpectedUpdate(_serial);
     return _serial;
@@ -1000,7 +1046,7 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
             catch(const Ice::LocalException& ex)
             {
                 Ice::Warning out(_logger);
-                out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;    
+                out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;
             }
         }
         else
@@ -1016,7 +1062,7 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
             catch(const Ice::LocalException& ex)
             {
                 Ice::Warning out(_logger);
-                out << "unexpected exception while publishing `objectAdded' update:\n" << ex;    
+                out << "unexpected exception while publishing `objectAdded' update:\n" << ex;
             }
         }
     }
@@ -1024,7 +1070,7 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
     //
     // We don't wait for the update to be received by the replicas
     // here. This operation is called by ReplicaSessionI.
-    // 
+    //
     addExpectedUpdate(_serial);
     //waitForSyncedSubscribersNoSync(_serial);
     return _serial;
@@ -1053,21 +1099,21 @@ ObjectObserverTopic::wellKnownObjectsRemoved(const ObjectInfoSeq& infos)
         catch(const Ice::LocalException& ex)
         {
             Ice::Warning out(_logger);
-            out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;    
+            out << "unexpected exception while publishing `objectUpdated' update:\n" << ex;
         }
     }
 
     //
     // We don't need to wait for the update to be received by the
-    // replicas here. This operation is only called internaly by 
+    // replicas here. This operation is only called internaly by
     // IceGrid.
-    // 
+    //
     addExpectedUpdate(_serial);
     //waitForSyncedSubscribersNoSync(_serial);
     return _serial;
 }
 
-void 
+void
 ObjectObserverTopic::initObserver(const Ice::ObjectPrx& obsv)
 {
     ObjectObserverPrx observer = ObjectObserverPrx::uncheckedCast(obsv);

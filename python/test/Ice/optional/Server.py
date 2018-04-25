@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -148,28 +148,28 @@ class InitialI(Test.Initial):
         pass
 
     def opMStruct1(self, current):
-        return Test.SmallStruct()
+        return Test.Initial.OpMStruct1MarshaledResult(Test.SmallStruct(), current)
 
     def opMStruct2(self, p1, current):
-        return (p1, p1)
+        return Test.Initial.OpMStruct2MarshaledResult((p1, p1), current)
 
     def opMSeq1(self, current):
-        return []
+        return Test.Initial.OpMSeq1MarshaledResult([], current)
 
     def opMSeq2(self, p1, current):
-        return (p1, p1)
+        return Test.Initial.OpMSeq2MarshaledResult((p1, p1), current)
 
     def opMDict1(self, current):
-        return {}
+        return Test.Initial.OpMDict1MarshaledResult({}, current)
 
     def opMDict2(self, p1, current):
-        return (p1, p1)
+        return Test.Initial.OpMDict2MarshaledResult((p1, p1), current)
 
     def opMG1(self, current):
-        return Test.G()
+        return Test.Initial.OpMG1MarshaledResult(Test.G(), current)
 
     def opMG2(self, p1, current):
-        return (p1, p1)
+        return Test.Initial.OpMG2MarshaledResult((p1, p1), current)
 
     def supportsRequiredParams(self, current=None):
         return False
@@ -187,7 +187,7 @@ class InitialI(Test.Initial):
         return True
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
     initial = InitialI()
     adapter.add(initial, Ice.stringToIdentity("initial"))
@@ -197,17 +197,10 @@ def run(args, communicator):
     return True
 
 try:
-    communicator = Ice.initialize(sys.argv)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv) as communicator:
+         status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,8 +14,9 @@
 #include <Ice/SlicedData.h>
 #include <Ice/OutputStream.h>
 #include <Ice/InputStream.h>
+#include <Ice/Initialize.h>
 #include <IceUtil/StringUtil.h>
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 #    include <Ice/StringConverter.h>
 #endif
 #include <iomanip>
@@ -34,7 +35,7 @@ socketErrorToString(int error)
     {
         return "unknown error";
     }
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     if(error == E_ACCESSDENIED)
     {
         ostringstream os;
@@ -76,7 +77,7 @@ throwUOE(const string& expectedType, const ValuePtr& v)
     UnknownSlicedValue* usv = dynamic_cast<UnknownSlicedValue*>(v.get());
     if(usv)
     {
-        throw NoValueFactoryException(__FILE__, __LINE__, "", usv->getUnknownTypeId());
+        throw NoValueFactoryException(__FILE__, __LINE__, "", usv->ice_id());
     }
 
     string type = v->ice_id();
@@ -105,7 +106,7 @@ throwMarshalException(const char* file, int line, const string& reason)
 namespace
 {
 
-const string __Ice__UserException_ids[] =
+const string userException_ids[] =
 {
     "::Ice::UserException"
 };
@@ -115,7 +116,7 @@ const string __Ice__UserException_ids[] =
 const std::string&
 Ice::UserException::ice_staticId()
 {
-    return __Ice__UserException_ids[0];
+    return userException_ids[0];
 }
 
 #ifdef ICE_CPP11_MAPPING
@@ -126,24 +127,30 @@ Ice::UserException::ice_clone() const
 }
 #endif
 
+Ice::SlicedDataPtr
+Ice::UserException::ice_getSlicedData() const
+{
+    return ICE_NULLPTR;
+}
+
 void
-Ice::UserException::__write(::Ice::OutputStream* os) const
+Ice::UserException::_write(::Ice::OutputStream* os) const
 {
     os->startException(0);
-    __writeImpl(os);
+    _writeImpl(os);
     os->endException();
 }
 
 void
-Ice::UserException::__read(::Ice::InputStream* is)
+Ice::UserException::_read(::Ice::InputStream* is)
 {
     is->startException();
-    __readImpl(is);
+    _readImpl(is);
     is->endException(false);
 }
 
 bool
-Ice::UserException::__usesClasses() const
+Ice::UserException::_usesClasses() const
 {
     return false;
 }
@@ -172,7 +179,7 @@ Ice::LocalException::ice_clone() const
 namespace
 {
 
-const string __Ice__LocalException_ids[] =
+const string localException_ids[] =
 {
     "::Ice::LocalException"
 };
@@ -182,7 +189,7 @@ const string __Ice__LocalException_ids[] =
 const std::string&
 Ice::LocalException::ice_staticId()
 {
-    return __Ice__LocalException_ids[0];
+    return localException_ids[0];
 }
 
 Ice::SystemException::SystemException(const char* file, int line) :
@@ -208,7 +215,7 @@ Ice::SystemException::ice_clone() const
 namespace
 {
 
-const string __Ice__SystemException_ids[] =
+const string systemException_ids[] =
 {
     "::Ice::SystemException"
 };
@@ -218,7 +225,7 @@ const string __Ice__SystemException_ids[] =
 const std::string&
 Ice::SystemException::ice_staticId()
 {
-    return __Ice__SystemException_ids[0];
+    return systemException_ids[0];
 }
 
 void
@@ -339,16 +346,7 @@ void
 Ice::IllegalIdentityException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nillegal identity: `";
-    if(id.category.empty())
-    {
-        out << IceUtilInternal::escapeString(id.name, "/");
-    }
-    else
-    {
-        out << IceUtilInternal::escapeString(id.category, "/") << '/' << IceUtilInternal::escapeString(id.name, "/");
-    }
-    out << "'";
+    out << ":\nillegal identity: `" << identityToString(id, ICE_ENUM(ToStringMode, Unicode)) << "'";
 }
 
 void
@@ -358,20 +356,10 @@ Ice::IllegalServantException::ice_print(ostream& out) const
     out << ":\nillegal servant: `" << reason << "'";
 }
 
-
 static void
 printFailedRequestData(ostream& out, const RequestFailedException& ex)
 {
-    out << ":\nidentity: `";
-    if(ex.id.category.empty())
-    {
-        out << IceUtilInternal::escapeString(ex.id.name, "/");
-    }
-    else
-    {
-        out << IceUtilInternal::escapeString(ex.id.category, "/") << '/' << IceUtilInternal::escapeString(ex.id.name, "/");
-    }
-    out << "'";
+    out << ":\nidentity: `" << identityToString(ex.id, ICE_ENUM(ToStringMode, Unicode)) << "'";
     out << "\nfacet: " << ex.facet;
     out << "\noperation: " << ex.operation;
 }
@@ -478,7 +466,7 @@ Ice::DNSException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
     out << ":\nDNS error: ";
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     out << socketErrorToString(error);
 #else
     out << errorToStringDNS(error);
@@ -492,7 +480,6 @@ Ice::OperationInterruptedException::ice_print(ostream& out) const
     Exception::ice_print(out);
     out << ":\noperation interrupted";
 }
-
 
 void
 Ice::TimeoutException::ice_print(ostream& out) const
@@ -649,14 +636,10 @@ Ice::CloseConnectionException::ice_print(ostream& out) const
 }
 
 void
-Ice::ForcedCloseConnectionException::ice_print(ostream& out) const
+Ice::ConnectionManuallyClosedException::ice_print(ostream& out) const
 {
     Exception::ice_print(out);
-    out << ":\nprotocol error: connection forcefully closed";
-    if(!reason.empty())
-    {
-        out << ":\n" << reason;
-    }
+    out << ":\nprotocol error: connection manually closed (" << (graceful ? "gracefully" : "forcefully") << ")";
 }
 
 void

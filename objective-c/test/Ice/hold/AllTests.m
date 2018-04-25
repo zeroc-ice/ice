@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -146,7 +146,7 @@ allTests(id<ICECommunicator> communicator)
     {
         Condition* cond = ICE_AUTORELEASE([[Condition alloc] initWithValue:YES]);
         int value = 0;
-        AMICheckSetValue* cb;
+        AMICheckSetValue* cb = nil;
         while([cond value])
         {
             cb = ICE_AUTORELEASE([[AMICheckSetValue alloc] init:cond expected:value]);
@@ -176,7 +176,7 @@ allTests(id<ICECommunicator> communicator)
     {
         Condition* cond = ICE_AUTORELEASE([[Condition alloc] initWithValue:YES]);
         int value = 0;
-        AMICheckSetValue* cb;
+        AMICheckSetValue* cb = nil;
 #if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
         while(value < 300 && [cond value])
 #else

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -48,7 +48,7 @@ public class Client extends test.Util.Application
             int maxCollisions = 10;
             int maxIterations = 10000;
 
-            Ice.InitializationData initData = createInitializationData() ;
+            Ice.InitializationData initData = createInitializationData();
             initData.properties = Ice.Util.createProperties(args);
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
             Ice.Communicator  communicator = Ice.Util.initialize(args, initData);
@@ -57,8 +57,8 @@ public class Client extends test.Util.Application
             out.flush();
             {
                 java.util.Random rand = new java.util.Random();
-                for(i = 0; proxyCollisions < maxCollisions && 
-                        endpointCollisions < maxCollisions  && 
+                for(i = 0; proxyCollisions < maxCollisions &&
+                        endpointCollisions < maxCollisions  &&
                         i < maxIterations; ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
@@ -86,7 +86,7 @@ public class Client extends test.Util.Application
                     {
                         seenProxy.put(obj.hashCode(), obj);
                     }
-                    
+
                     java.util.Iterator<Ice.Endpoint> j = endpoints.iterator();
                     while(j.hasNext())
                     {
@@ -118,8 +118,8 @@ public class Client extends test.Util.Application
 
                 proxyCollisions = 0;
                 seenProxy = new java.util.HashMap<Integer, Ice.ObjectPrx>();
-                for(i = 0; proxyCollisions < maxCollisions && 
-                        endpointCollisions < maxCollisions  && 
+                for(i = 0; proxyCollisions < maxCollisions &&
+                        endpointCollisions < maxCollisions  &&
                         i < maxIterations; ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
@@ -151,8 +151,8 @@ public class Client extends test.Util.Application
 
                 proxyCollisions = 0;
                 seenProxy = new java.util.HashMap<Integer, Ice.ObjectPrx>();
-                for(i = 0; proxyCollisions < maxCollisions && 
-                        endpointCollisions < maxCollisions  && 
+                for(i = 0; proxyCollisions < maxCollisions &&
+                        endpointCollisions < maxCollisions  &&
                         i < maxIterations; ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
@@ -388,7 +388,7 @@ public class Client extends test.Util.Application
                     test(c.hashCode() == c.hashCode());
                 }
                 test(structCollisions < maxCollisions);
-            
+
                 structCollisions = 0;
                 java.util.Map<Integer, Draw> seenDraw = new java.util.HashMap<Integer, Draw>();
                 structCollisions = 0;
@@ -396,7 +396,7 @@ public class Client extends test.Util.Application
                 {
                     Draw draw =  new Draw(
                         new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)),
-                        new Pen(rand.nextInt(10), 
+                        new Pen(rand.nextInt(10),
                                      new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))),
                                      false);
 
@@ -420,18 +420,10 @@ public class Client extends test.Util.Application
                 test(structCollisions < maxCollisions);
             }
             out.println("ok");
-            
+
             if(communicator != null)
             {
-                try
-                {
-                    communicator.destroy();
-                }
-                catch(Ice.LocalException ex)
-                {
-                    System.out.println(ex.toString());
-                    status = 1;
-                }
+                communicator.destroy();
             }
         }
         catch(Exception ex)
@@ -442,4 +434,3 @@ public class Client extends test.Util.Application
         return status;
     }
 }
-

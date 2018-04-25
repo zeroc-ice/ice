@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -8,48 +8,25 @@
 # **********************************************************************
 
 #
-# Xcode configuration to build Xcode IceSDK.
+# Xcode configuration to build Xcode sdks for Ice.
 #
-xcodesdk_objdir		= static
-xcodesdk_cppflags	= $(static_cppflags)
-xcodesdk_ldflags	= $(static_ldflags)
-
-ifneq ($(USE_BIN_DIST),yes)
-$(foreach d,Ice IceSSL Glacier2 IceStorm IceGrid IceDiscovery IceLocatorDiscovery IceIAP \
-	    IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC,$(eval $d[xcodesdk]_targetdir := $(top_srcdir)))
-endif
+xcodesdk_objdir         = static
+xcodesdk_cppflags       = $(static_cppflags)
+xcodesdk_ldflags        = $(static_ldflags)
 
 #
 # $(call make-xcodesdk,$1=translator)
 #
 define make-xcodesdk
 
-$(install_libdir)/IceSDK/%.sdk/SDKSettings.plist $(top_srcdir)/IceSDK/%.sdk/SDKSettings.plist: \
+$(install_sdkdir)/%.sdk/SDKSettings.plist $(top_srcdir)/sdk/%.sdk/SDKSettings.plist: \
 	$(top_srcdir)/config/%-SDKSettings.plist
 	$(Q)$(MKDIR) -p $$(@D)
 	$(Q)$(INSTALL) $$< $$@
 
-$(install_libdir)/IceSDK/bin/$(notdir $1) $(top_srcdir)/IceSDK/bin/$(notdir $1): $1
-	$(Q)$(MKDIR) -p $$(dir $$@)
-	$(Q)$(INSTALL) $1 $$@
+srcs all:: $$(foreach p,$$(platforms),$(top_srcdir)/sdk/$$p.sdk/SDKSettings.plist)
 
-$$(eval $$(call install-data-files,\
-	$$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(top_srcdir)/IceSDK/slice,all))
-
-$$(eval $$(call install-data-files,\
-	$$(wildcard $(top_srcdir)/slice/*/*.ice),$(top_srcdir)/slice,$(install_libdir)/IceSDK/slice,install))
-
-srcs all:: $$(foreach p,$$(platforms),$(top_srcdir)/IceSDK/$$p.sdk/SDKSettings.plist) \
-	$(top_srcdir)/IceSDK/bin/$(notdir $1)
-
-install:: $$(foreach p,$$(platforms),$(install_libdir)/IceSDK/$$p.sdk/SDKSettings.plist) \
-	$(install_libdir)/IceSDK/bin/$(notdir $1)
-
-clean::
-	$(Q)$(RM) $(top_srcdir)/IceSDK/bin/$(notdir $1)
-
-distclean::
-	$(Q)$(RM) -r $(top_srcdir)/IceSDK
+install:: $$(foreach p,$$(platforms),$(install_sdkdir)/$$p.sdk/SDKSettings.plist)
 
 endef
 
@@ -58,18 +35,69 @@ endef
 #
 define make-xcodesdk-component-with-config
 
-ifneq ($$(filter-out $$($2_sdk_includedirs),$3-$2),)
-$2_sdk_includedirs += $3-$2
+ifneq ($(filter-out $(sdk_includedirs),$3-$2),)
+sdk_includedirs += $3-$2
 
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
-	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
+        $(top_srcdir)/sdk/$3.sdk/usr/include,$5))
 $$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated_headers)),include/generated,\
-	$(top_srcdir)/IceSDK/$3.sdk/usr/include,$5))
+        $(top_srcdir)/sdk/$3.sdk/usr/include,$5))
 
 $$(eval $$(call install-data-files,$$(wildcard $$($2_includedir)/*.h),include,\
-	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
+        $(install_sdkdir)/$3.sdk/usr/include,$5_install))
 $$(eval $$(call install-data-files,$$(filter include/generated/%,$$($2_generated_headers)),include/generated,\
-	$(install_libdir)/IceSDK/$3.sdk/usr/include,$5_install))
+        $(install_sdkdir)/$3.sdk/usr/include,$5_install))
 endif
 
+endef
+
+#
+# $(call make-xcode-project-with-config,$1=project,$2=platform,$3=config)
+#
+define make-xcode-project-with-config
+
+$1[$2-$3]: $$($1_dependencies)
+	$(E) "Running xcodebuild for $1 scheme=\"$$(call $1_scheme,$2,$3)\""
+	$(Q)xcodebuild -sdk $2 \
+	           -project "$1/$$(call $1_project,$2,$3)" \
+	           -configuration "$$(call $1_configuration,$2,$3)" \
+		   -scheme "$$(call $1_scheme,$2,$3)" \
+		   $(if $(ICE_BIN_DIST),ADDITIONAL_SDKS=$(sdkdir)/$2.sdk) \
+		   $(if $(V),,-quiet) SYMROOT=./build \
+		   clean build
+
+$1[$2-$3]_clean:
+	$(E) "Cleaning $1"
+	$(Q)xcodebuild -sdk $2 \
+	           -project "$1/$$(call $1_project,$2,$3)" \
+	           -configuration "$$(call $1_configuration,$2,$3)" \
+		   -scheme "$$(call $1_scheme,$2,$3)" \
+		   $(if $(V),,-quiet) SYMROOT=./build \
+		   clean
+
+$1:: $1[$2-$3]
+$1_clean:: $1[$2-$3]_clean
+
+endef
+
+#
+# $(call make-xcode-project,$1=project)
+#
+define make-xcode-project
+#
+# Define per-<platform-config> rules for this component.
+#
+$$(foreach p,$$(filter $(platforms),$$($1_platforms)),\
+    $$(foreach c,$$(filter $$(or $$($$p_configs),%),$$(filter $(configs),$$($1_configs))),\
+        $$(if $$(filter $(SKIP),$1[$$p-$$c]),,\
+            $$(eval $$(call make-xcode-project-with-config,$1,$$p,$$c,$1[$$p-$$c])))))
+
+$1::
+$1_clean::
+$1_distclean::
+	$(Q)$(RM) -r $1/build
+
+all:: $1
+clean:: $1_clean
+distclean:: $1_distclean
 endef

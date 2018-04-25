@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -56,14 +56,18 @@ namespace IceInternal
             // Create new reference
             //
             return new FixedReference(
-                instance_,
+                _instance,
                 _communicator,
                 ident,
                 "", // Facet
                 connection.endpoint().datagram() ? Reference.Mode.ModeDatagram : Reference.Mode.ModeTwoway,
                 connection.endpoint().secure(),
-                instance_.defaultsAndOverrides().defaultEncoding,
-                connection);
+                Ice.Util.Protocol_1_0,
+                _instance.defaultsAndOverrides().defaultEncoding,
+                connection,
+                -1,
+                null,
+                new Ice.Optional<bool>());
         }
 
         public Reference copy(Reference r)
@@ -169,7 +173,7 @@ namespace IceInternal
             string facet = "";
             Reference.Mode mode = Reference.Mode.ModeTwoway;
             bool secure = false;
-            Ice.EncodingVersion encoding = instance_.defaultsAndOverrides().defaultEncoding;
+            Ice.EncodingVersion encoding = _instance.defaultsAndOverrides().defaultEncoding;
             Ice.ProtocolVersion protocol = Ice.Util.Protocol_1_0;
             string adapter = "";
 
@@ -260,9 +264,9 @@ namespace IceInternal
 
                         try
                         {
-                            facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length);
+                            facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.Length, "");
                         }
-                        catch(System.ArgumentException argEx)
+                        catch(ArgumentException argEx)
                         {
                             Ice.ProxyParseException e = new Ice.ProxyParseException();
                             e.str = "invalid facet in `" + s + "': " + argEx.Message;
@@ -421,14 +425,14 @@ namespace IceInternal
                             int quote = beg;
                             while(true)
                             {
-                                quote = s.IndexOf((System.Char) '\"', quote);
+                                quote = s.IndexOf('\"', quote);
                                 if(quote == -1 || end < quote)
                                 {
                                     break;
                                 }
                                 else
                                 {
-                                    quote = s.IndexOf((System.Char) '\"', ++quote);
+                                    quote = s.IndexOf('\"', ++quote);
                                     if(quote == -1)
                                     {
                                         break;
@@ -450,7 +454,7 @@ namespace IceInternal
                     }
 
                     string es = s.Substring(beg, end - beg);
-                    EndpointI endp = instance_.endpointFactoryManager().create(es, false);
+                    EndpointI endp = _instance.endpointFactoryManager().create(es, false);
                     if(endp != null)
                     {
                         endpoints.Add(endp);
@@ -468,7 +472,7 @@ namespace IceInternal
                     throw e2;
                 }
                 else if(unknownEndpoints.Count != 0 &&
-                        instance_.initializationData().properties.getPropertyAsIntWithDefault(
+                        _instance.initializationData().properties.getPropertyAsIntWithDefault(
                                                                                 "Ice.Warn.Endpoints", 1) > 0)
                 {
                     StringBuilder msg = new StringBuilder("Proxy contains unknown endpoints:");
@@ -476,10 +480,10 @@ namespace IceInternal
                     for(int idx = 0; idx < sz; ++idx)
                     {
                         msg.Append(" `");
-                        msg.Append((string)unknownEndpoints[idx]);
+                        msg.Append(unknownEndpoints[idx]);
                         msg.Append("'");
                     }
-                    instance_.initializationData().logger.warning(msg.ToString());
+                    _instance.initializationData().logger.warning(msg.ToString());
                 }
 
                 EndpointI[] ep = endpoints.ToArray();
@@ -528,9 +532,9 @@ namespace IceInternal
 
                 try
                 {
-                    adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length);
+                    adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.Length, "");
                 }
-                catch(System.ArgumentException argEx)
+                catch(ArgumentException argEx)
                 {
                     Ice.ProxyParseException e = new Ice.ProxyParseException();
                     e.str = "invalid adapter id in `" + s + "': " + argEx.Message;
@@ -580,7 +584,7 @@ namespace IceInternal
                 facet = "";
             }
 
-            int mode = (int)s.readByte();
+            int mode = s.readByte();
             if(mode < 0 || mode > (int)Reference.Mode.ModeLast)
             {
                 throw new Ice.ProxyUnmarshalException();
@@ -593,9 +597,9 @@ namespace IceInternal
             if(!s.getEncoding().Equals(Ice.Util.Encoding_1_0))
             {
                 protocol = new Ice.ProtocolVersion();
-                protocol.read__(s);
+                protocol.ice_readMembers(s);
                 encoding = new Ice.EncodingVersion();
-                encoding.read__(s);
+                encoding.ice_readMembers(s);
             }
             else
             {
@@ -612,7 +616,7 @@ namespace IceInternal
                 endpoints = new EndpointI[sz];
                 for(int i = 0; i < sz; i++)
                 {
-                    endpoints[i] = instance_.endpointFactoryManager().read(s);
+                    endpoints[i] = _instance.endpointFactoryManager().read(s);
                 }
             }
             else
@@ -630,7 +634,7 @@ namespace IceInternal
                 return this;
             }
 
-            ReferenceFactory factory = new ReferenceFactory(instance_, _communicator);
+            ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
             factory._defaultLocator = _defaultLocator;
             factory._defaultRouter = defaultRouter;
             return factory;
@@ -648,7 +652,7 @@ namespace IceInternal
                 return this;
             }
 
-            ReferenceFactory factory = new ReferenceFactory(instance_, _communicator);
+            ReferenceFactory factory = new ReferenceFactory(_instance, _communicator);
             factory._defaultLocator = defaultLocator;
             factory._defaultRouter = _defaultRouter;
             return factory;
@@ -664,7 +668,7 @@ namespace IceInternal
         //
         internal ReferenceFactory(Instance instance, Ice.Communicator communicator)
         {
-            instance_ = instance;
+            _instance = instance;
             _communicator = communicator;
         }
 
@@ -682,14 +686,14 @@ namespace IceInternal
         };
 
         private void
-        checkForUnknownProperties(String prefix)
+        checkForUnknownProperties(string prefix)
         {
             //
             // Do not warn about unknown properties if Ice prefix, ie Ice, Glacier2, etc
             //
-            for(int i = 0; IceInternal.PropertyNames.clPropNames[i] != null; ++i)
+            for(int i = 0; PropertyNames.clPropNames[i] != null; ++i)
             {
-                if(prefix.StartsWith(IceInternal.PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
+                if(prefix.StartsWith(PropertyNames.clPropNames[i] + ".", StringComparison.Ordinal))
                 {
                     return;
                 }
@@ -697,8 +701,8 @@ namespace IceInternal
 
             List<string> unknownProps = new List<string>();
             Dictionary<string, string> props
-                = instance_.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-            foreach(String prop in props.Keys)
+                = _instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+            foreach(string prop in props.Keys)
             {
                 bool valid = false;
                 for(int i = 0; i < _suffixes.Length; ++i)
@@ -727,7 +731,7 @@ namespace IceInternal
                     message.Append("\n    ");
                     message.Append(s);
                 }
-                instance_.initializationData().logger.warning(message.ToString());
+                _instance.initializationData().logger.warning(message.ToString());
             }
         }
 
@@ -741,7 +745,7 @@ namespace IceInternal
                                  string adapterId,
                                  string propertyPrefix)
         {
-            DefaultsAndOverrides defaultsAndOverrides = instance_.defaultsAndOverrides();
+            DefaultsAndOverrides defaultsAndOverrides = _instance.defaultsAndOverrides();
 
             //
             // Default local proxy options.
@@ -749,17 +753,17 @@ namespace IceInternal
             LocatorInfo locatorInfo = null;
             if(_defaultLocator != null)
             {
-                if(!((Ice.ObjectPrxHelperBase)_defaultLocator).reference__().getEncoding().Equals(encoding))
+                if(!((Ice.ObjectPrxHelperBase)_defaultLocator).iceReference().getEncoding().Equals(encoding))
                 {
-                    locatorInfo = instance_.locatorManager().get(
+                    locatorInfo = _instance.locatorManager().get(
                         (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
                 }
                 else
                 {
-                    locatorInfo = instance_.locatorManager().get(_defaultLocator);
+                    locatorInfo = _instance.locatorManager().get(_defaultLocator);
                 }
             }
-            RouterInfo routerInfo = instance_.routerManager().get(_defaultRouter);
+            RouterInfo routerInfo = _instance.routerManager().get(_defaultRouter);
             bool collocOptimized = defaultsAndOverrides.defaultCollocationOptimization;
             bool cacheConnection = true;
             bool preferSecure = defaultsAndOverrides.defaultPreferSecure;
@@ -773,7 +777,7 @@ namespace IceInternal
             //
             if(propertyPrefix != null && propertyPrefix.Length > 0)
             {
-                Ice.Properties properties = instance_.initializationData().properties;
+                Ice.Properties properties = _instance.initializationData().properties;
 
                 //
                 // Warn about unknown properties.
@@ -789,14 +793,14 @@ namespace IceInternal
                 Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
                 if(locator != null)
                 {
-                    if(!((Ice.ObjectPrxHelperBase)locator).reference__().getEncoding().Equals(encoding))
+                    if(!((Ice.ObjectPrxHelperBase)locator).iceReference().getEncoding().Equals(encoding))
                     {
-                        locatorInfo = instance_.locatorManager().get(
+                        locatorInfo = _instance.locatorManager().get(
                             (Ice.LocatorPrx)locator.ice_encodingVersion(encoding));
                     }
                     else
                     {
-                        locatorInfo = instance_.locatorManager().get(locator);
+                        locatorInfo = _instance.locatorManager().get(locator);
                     }
                 }
 
@@ -808,11 +812,11 @@ namespace IceInternal
                     {
                         string s = "`" + property + "=" + properties.getProperty(property) +
                             "': cannot set a router on a router; setting ignored";
-                        instance_.initializationData().logger.warning(s);
+                        _instance.initializationData().logger.warning(s);
                     }
                     else
                     {
-                        routerInfo = instance_.routerManager().get(router);
+                        routerInfo = _instance.routerManager().get(router);
                     }
                 }
 
@@ -858,7 +862,7 @@ namespace IceInternal
                         msg.Append(" `");
                         msg.Append(properties.getProperty(property));
                         msg.Append("': defaulting to -1");
-                        instance_.initializationData().logger.warning(msg.ToString());
+                        _instance.initializationData().logger.warning(msg.ToString());
                     }
                 }
 
@@ -876,7 +880,7 @@ namespace IceInternal
                         msg.Append(" `");
                         msg.Append(properties.getProperty(property));
                         msg.Append("': defaulting to -1");
-                        instance_.initializationData().logger.warning(msg.ToString());
+                        _instance.initializationData().logger.warning(msg.ToString());
                     }
                 }
 
@@ -895,7 +899,7 @@ namespace IceInternal
             //
             // Create new reference
             //
-            return new RoutableReference(instance_,
+            return new RoutableReference(_instance,
                                          _communicator,
                                          ident,
                                          facet,
@@ -916,7 +920,7 @@ namespace IceInternal
                                          context);
         }
 
-        private Instance instance_;
+        private Instance _instance;
         private Ice.Communicator _communicator;
         private Ice.RouterPrx _defaultRouter;
         private Ice.LocatorPrx _defaultLocator;

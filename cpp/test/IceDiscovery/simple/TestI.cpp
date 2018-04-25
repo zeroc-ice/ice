@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,8 +21,8 @@ TestIntfI::getAdapterId(const Ice::Current& current)
 }
 
 void
-ControllerI::activateObjectAdapter(ICE_IN(string) name, 
-                                   ICE_IN(string) adapterId, 
+ControllerI::activateObjectAdapter(ICE_IN(string) name,
+                                   ICE_IN(string) adapterId,
                                    ICE_IN(string) replicaGroupId,
                                    const Ice::Current& current)
 {

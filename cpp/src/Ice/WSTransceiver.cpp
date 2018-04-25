@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@
 #include <Ice/LocalException.h>
 #include <Ice/Base64.h>
 #include <IceUtil/Random.h>
-#include <IceUtil/SHA1.h>
+#include <Ice/SHA1.h>
 #include <IceUtil/StringUtil.h>
 
 // Python 2.7 under Windows.
@@ -133,7 +133,7 @@ Long ice_nlltoh(const Byte* src)
     return v;
 }
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 Short htons(Short v)
 {
     Short result;
@@ -184,7 +184,7 @@ IceInternal::WSTransceiver::getNativeInfo()
     return _delegate->getNativeInfo();
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 AsyncInfo*
 IceInternal::WSTransceiver::getAsyncInfo(SocketOperation status)
 {
@@ -646,7 +646,7 @@ IceInternal::WSTransceiver::read(Buffer& buf)
     return s;
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 bool
 IceInternal::WSTransceiver::startWrite(Buffer& buf)
 {
@@ -667,7 +667,10 @@ IceInternal::WSTransceiver::startWrite(Buffer& buf)
     {
         if(_writeBuffer.i < _writeBuffer.b.end())
         {
-            _delegate->startWrite(_writeBuffer);
+            if(_delegate->startWrite(_writeBuffer))
+            {
+                return buf.b.size() == _writePayloadLength; // Return true only if we've written the whole buffer.
+            }
             return false;
         }
         else
@@ -1028,7 +1031,7 @@ IceInternal::WSTransceiver::handleRequest(Buffer& responseBuffer)
     out << "Sec-WebSocket-Accept: ";
     string input = key + _wsUUID;
     vector<unsigned char> hash;
-    IceUtilInternal::sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
+    sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
     out << IceInternal::Base64::encode(hash) << "\r\n" << "\r\n"; // EOM
 
     string str = out.str();
@@ -1126,7 +1129,7 @@ IceInternal::WSTransceiver::handleResponse()
     }
     string input = _key + _wsUUID;
     vector<unsigned char> hash;
-    IceUtilInternal::sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
+    sha1(reinterpret_cast<const unsigned char*>(&input[0]), input.size(), hash);
     if(val != IceInternal::Base64::encode(hash))
     {
         throw WebSocketException("invalid value `" + val + "' for Sec-WebSocket-Accept");
@@ -1315,9 +1318,7 @@ IceInternal::WSTransceiver::preRead(Buffer& buf)
                 }
                 else
                 {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = 0;
-                    throw ex;
+                    throw ConnectionLostException(__FILE__, __LINE__, 0);
                 }
             }
             case OP_PING:
@@ -1535,7 +1536,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
         // For an outgoing connection, each message must be masked with a random
         // 32-bit value, so we copy the entire message into the internal buffer
         // for writing. For incoming connections, we just copy the start of the
-        // message in the internal buffer after the hedaer. If the message is
+        // message in the internal buffer after the header. If the message is
         // larger, the reminder is sent directly from the message buffer to avoid
         // copying.
         //
@@ -1620,9 +1621,7 @@ IceInternal::WSTransceiver::postWrite(Buffer& buf)
                 }
                 else
                 {
-                    ConnectionLostException ex(__FILE__, __LINE__);
-                    ex.error = 0;
-                    throw ex;
+                    throw ConnectionLostException(__FILE__, __LINE__, 0);
                 }
             }
             else if(_state == StateClosed)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,8 +18,8 @@ public class AMDServer extends test.Util.Application
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new AMDMetricsI(), Ice.Util.stringToIdentity("metrics"));
         adapter.activate();
-        
-        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
+
+        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
         Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
         controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
         controllerAdapter.activate();
@@ -30,10 +30,9 @@ public class AMDServer extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "server");
         initData.properties.setProperty("Ice.Warn.Connections", "0");

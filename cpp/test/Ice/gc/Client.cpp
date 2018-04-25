@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -139,12 +139,11 @@ public:
         test(obj->__hasFlag(IceInternal::GCObject::CycleMember) && obj->__hasFlag(IceInternal::GCObject::Collectable));
 
         obj->__setFlag(IceInternal::GCObject::Visiting);
-        obj->__gcVisitMembers(*this);
+        obj->_iceGcVisitMembers(*this);
         obj->__clearFlag(IceInternal::GCObject::Visiting);
         return false;
     }
 };
-
 
 class MyApplication : public Ice::Application
 {
@@ -155,7 +154,7 @@ public:
 };
 
 MyApplication::MyApplication()
-    : Ice::Application(Ice::NoSignalHandling)
+    : Ice::Application(Ice::ICE_ENUM(SignalPolicy, NoSignalHandling))
 {
 }
 
@@ -536,7 +535,8 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
 #endif
     MyApplication app;
     return app.main(argc, argv);

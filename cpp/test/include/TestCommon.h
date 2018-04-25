@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,8 +18,9 @@
 
 #include <Ice/CommunicatorF.h>
 #include <Ice/ProxyF.h>
+#include <Ice/Initialize.h>
 
-#if defined(ICE_OS_WINRT) || (TARGET_OS_IPHONE)
+#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
 #   include <Ice/Initialize.h>
 #   include <Ice/Logger.h>
 #   include <Ice/LocalException.h>
@@ -49,25 +50,14 @@ inline println(const std::string& msg)
     std::cout << msg << std::endl;
 }
 
-TEST_API std::string getTestEndpoint(const Ice::CommunicatorPtr&, int, const std::string = std::string());
+TEST_API std::string getTestEndpoint(const Ice::CommunicatorPtr&, int, const std::string& = std::string());
+TEST_API std::string getTestEndpoint(const Ice::PropertiesPtr&, int, const std::string& = std::string());
+TEST_API std::string getTestProtocol(const Ice::PropertiesPtr&);
+TEST_API std::string getTestHost(const Ice::PropertiesPtr&);
+TEST_API int getTestPort(const Ice::PropertiesPtr&, int);
+TEST_API Ice::InitializationData getTestInitData(int&, char*[]);
 
-class TEST_API RemoteConfig
-{
-public:
-
-    RemoteConfig(const std::string&, int, char**, const Ice::CommunicatorPtr&);
-    ~RemoteConfig() ICE_NOEXCEPT_FALSE;
-
-    bool isRemote() const;
-    void finished(int);
-
-private:
-
-    Ice::ObjectPrxPtr _server;
-    int _status;
-};
-
-#if !defined(ICE_OS_WINRT) && (TARGET_OS_IPHONE == 0)
+#if !defined(ICE_OS_UWP) && (TARGET_OS_IPHONE == 0)
 
 void
 inline testFailed(const char* expr, const char* file, unsigned int line)
@@ -135,50 +125,8 @@ int mainEntryPoint(int, char**);
 
 }
 
-class TestFailedException : public ::Ice::LocalException
+class TestFailedException
 {
-public:
-
-    TestFailedException(const char* file, int line) :
-        LocalException(file, line)
-    {
-    }
-
-    TestFailedException(const char* file, int line, const ::std::string& r) :
-        LocalException(file, line),
-        reason(r)
-    {
-    }
-
-#ifndef ICE_CPP11_COMPILER
-    virtual ~TestFailedException() throw()
-    {
-    }
-#endif
-
-    virtual ::std::string ice_id() const
-    {
-        return "::TestFailedException";
-    }
-
-#ifdef ICE_CPP11_MAPPING
-    virtual IceUtil::Exception* ice_cloneImpl() const
-    {
-        return new TestFailedException(*this);
-    }
-#else
-    virtual TestFailedException* ice_clone() const
-    {
-        return new TestFailedException(*this);
-    }
-#endif
-
-    virtual void ice_throw() const
-    {
-        throw *this;
-    }
-
-    ::std::string reason;
 };
 
 void
@@ -186,7 +134,7 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
 {
     std::cout << "failed!" << std::endl;
     std::cout << file << ':' << line << ": assertion `" << expr << "' failed" << std::endl;
-    throw TestFailedException(__FILE__, __LINE__, "Test Failed");
+    throw TestFailedException();
 }
 
 #define DEFINE_TEST(name) \
@@ -196,19 +144,26 @@ inline testFailed(const char* expr, const char* file, unsigned int line)
       ICE_DECLSPEC_EXPORT void dllTestShutdown(); \
       void dllTestShutdown() \
       { \
-          try \
+          if(communicatorInstance) \
           { \
-             communicatorInstance->destroy(); \
-          } \
-          catch(const Ice::LocalException&) \
-          { \
+              communicatorInstance->destroy(); \
           } \
       } \
       ICE_DECLSPEC_EXPORT int dllMain(int, char**, Test::MainHelper*); \
       int dllMain(int argc, char** argv, Test::MainHelper* helper) \
       { \
           Test::MainHelperInit init(helper, name, helper->redirect());  \
-          return Test::mainEntryPoint(argc, argv); \
+          int status; \
+          try \
+          { \
+              status = Test::mainEntryPoint(argc, argv); \
+          } \
+          catch(const TestFailedException&) \
+          { \
+              status = 1; \
+          } \
+          communicatorInstance = ICE_NULLPTR; \
+          return status; \
       } \
    }
 

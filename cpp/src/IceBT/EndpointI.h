@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -47,7 +47,8 @@ public:
     virtual IceInternal::TransceiverPtr transceiver() const;
     virtual void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
-    virtual std::vector<IceInternal::EndpointIPtr> expand() const;
+    virtual std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const;
+    virtual std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
 #ifdef ICE_CPP11_MAPPING
@@ -62,7 +63,7 @@ public:
 
     virtual std::string options() const;
 
-    Ice::EndpointInfoPtr getInfo() const;
+    Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
 
     void initWithOptions(std::vector<std::string>&, bool);
 
@@ -73,34 +74,6 @@ private:
     void hashInit();
     bool checkOption(const std::string&, const std::string&, const std::string&);
 
-    void findCompleted(const std::vector<int>&, Ice::EndpointSelectionType);
-    void findException(const Ice::LocalException&);
-
-    class FindCallbackI : public FindServiceCallback
-    {
-    public:
-
-        FindCallbackI(const EndpointIPtr& e, Ice::EndpointSelectionType selType) :
-            _endpoint(e),
-            _selType(selType)
-        {
-        }
-
-        virtual void completed(const std::vector<int>& channels)
-        {
-            _endpoint->findCompleted(channels, _selType);
-        }
-
-        virtual void exception(const Ice::LocalException& ex)
-        {
-            _endpoint->findException(ex);
-        }
-
-        EndpointIPtr _endpoint;
-        Ice::EndpointSelectionType _selType;
-    };
-    friend class FindCallbackI;
-
     const InstancePtr _instance;
     const std::string _addr;
     const std::string _uuid;
@@ -110,9 +83,6 @@ private:
     const std::string _connectionId;
     const bool _compress;
     const Ice::Int _hashValue;
-    IceUtil::Monitor<IceUtil::Mutex> _lock;
-    bool _findPending;
-    std::vector<IceInternal::EndpointI_connectorsPtr> _callbacks;
 };
 
 class EndpointInfoI : public EndpointInfo
@@ -122,9 +92,9 @@ public:
     EndpointInfoI(const EndpointIPtr&);
     virtual ~EndpointInfoI();
 
-    virtual Ice::Short type() const;
-    virtual bool datagram() const;
-    virtual bool secure() const;
+    virtual Ice::Short type() const ICE_NOEXCEPT;
+    virtual bool datagram() const ICE_NOEXCEPT;
+    virtual bool secure() const ICE_NOEXCEPT;
 
 private:
 
@@ -143,8 +113,7 @@ public:
     virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&,
-                                                  const IceInternal::EndpointFactoryPtr&) const;
+    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
 
 private:
 

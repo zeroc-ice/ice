@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,8 +23,9 @@ public class AllTests
         }
     }
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         string @ref = "DemoIceBox/admin:default -p 9996 -t 10000";
         Ice.ObjectPrx admin = communicator.stringToProxy(@ref);
 
@@ -98,7 +99,7 @@ public class AllTests
         Console.Out.Write("testing metrics admin facet... ");
         Console.Out.Flush();
         {
-            IceMX.MetricsAdminPrx ma = 
+            IceMX.MetricsAdminPrx ma =
                 IceMX.MetricsAdminPrxHelper.checkedCast(admin, "IceBox.Service.TestService.Metrics");
 
             Ice.PropertiesAdminPrx pa =
@@ -118,9 +119,9 @@ public class AllTests
 
             views = ma.getMetricsViewNames(out disabledViews);
             test(views.Length == 3);
-        
+
             // Make sure that the IceBox communicator metrics admin is a separate instance.
-            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin, 
+            test(IceMX.MetricsAdminPrxHelper.checkedCast(admin,
                                                          "Metrics").getMetricsViewNames(out disabledViews).Length == 0);
         }
         Console.Out.WriteLine("ok");

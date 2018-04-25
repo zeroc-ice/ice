@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,13 +33,13 @@ final class ConnectorI implements IceInternal.Connector
         {
             buf.append(_addr);
         }
-        if(_uuid != null)
+        if(!_uuid.isEmpty())
         {
             if(!_addr.isEmpty())
             {
                 buf.append(';');
             }
-            buf.append(_uuid.toString());
+            buf.append(_uuid);
         }
         return buf.toString();
     }
@@ -53,7 +53,7 @@ final class ConnectorI implements IceInternal.Connector
     //
     // Only for use by EndpointI.
     //
-    ConnectorI(Instance instance, String addr, UUID uuid, int timeout, String connectionId)
+    ConnectorI(Instance instance, String addr, String uuid, int timeout, String connectionId)
     {
         _instance = instance;
         _addr = addr;
@@ -62,10 +62,10 @@ final class ConnectorI implements IceInternal.Connector
         _connectionId = connectionId;
 
         _hashCode = 5381;
-        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _addr);
-        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _uuid);
-        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _timeout);
-        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode , _connectionId);
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode, _addr);
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode, _uuid);
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode, _timeout);
+        _hashCode = IceInternal.HashUtil.hashAdd(_hashCode, _connectionId);
     }
 
     @Override
@@ -102,7 +102,7 @@ final class ConnectorI implements IceInternal.Connector
 
     private Instance _instance;
     private String _addr;
-    private UUID _uuid;
+    private String _uuid;
     private int _timeout;
     private String _connectionId;
     private int _hashCode;

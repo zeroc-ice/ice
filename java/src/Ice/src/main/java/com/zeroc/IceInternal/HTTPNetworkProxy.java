@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -41,16 +41,16 @@ public final class HTTPNetworkProxy implements NetworkProxy
         // HTTP connect request
         //
         buf.resize(b.length, false);
-        buf.b.position(0);
+        buf.position(0);
         buf.b.put(b);
-        buf.b.position(0);
-        buf.b.limit(buf.size());
+        buf.position(0);
+        buf.limit(buf.size());
     }
 
     @Override
     public int endWrite(Buffer buf)
     {
-        // Once the request is sent, read the response 
+        // Once the request is sent, read the response
         return buf.b.hasRemaining() ? SocketOperation.Write : SocketOperation.Read;
     }
 
@@ -61,7 +61,7 @@ public final class HTTPNetworkProxy implements NetworkProxy
         // Read the HTTP response
         //
         buf.resize(7, true); // Enough space for reading at least HTTP1.1
-        buf.b.position(0);
+        buf.position(0);
     }
 
     @Override
@@ -100,11 +100,11 @@ public final class HTTPNetworkProxy implements NetworkProxy
     public NetworkProxy resolveHost(int protocol)
     {
         assert(_host != null);
-        return new HTTPNetworkProxy(Network.getAddresses(_host, 
-                                                         _port, 
-                                                         protocol, 
+        return new HTTPNetworkProxy(Network.getAddresses(_host,
+                                                         _port,
+                                                         protocol,
                                                          com.zeroc.Ice.EndpointSelectionType.Random,
-                                                         false, 
+                                                         false,
                                                          true).get(0),
                                     protocol);
     }

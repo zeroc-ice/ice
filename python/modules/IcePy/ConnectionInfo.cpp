@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -233,7 +233,12 @@ sslConnectionInfoGetCerts(ConnectionInfoObject* self)
     IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
     PyObject* certs = PyList_New(0);
-    stringSeqToList(info->certs, certs);
+    Ice::StringSeq encoded;
+    for(vector<IceSSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
+    {
+        encoded.push_back((*i)->encode());
+    }
+    stringSeqToList(encoded, certs);
     return certs;
 }
 

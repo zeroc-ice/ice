@@ -2,7 +2,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,7 +50,7 @@ slice_error(const char* s)
 
 %}
 
-%pure_parser
+%pure-parser
 
 //
 // All keyword tokens. Make sure to modify the "keyword" rule in this
@@ -91,8 +91,8 @@ slice_error(const char* s)
 //
 // Other tokens.
 //
-%token ICE_SCOPE_DELIMITER
 %token ICE_IDENTIFIER
+%token ICE_SCOPED_IDENTIFIER
 %token ICE_STRING_LITERAL
 %token ICE_INTEGER_LITERAL
 %token ICE_FLOATING_POINT_LITERAL
@@ -108,11 +108,21 @@ slice_error(const char* s)
 
 %%
 
-
 // ----------------------------------------------------------------------
 start
 // ----------------------------------------------------------------------
 : definitions
+{
+}
+;
+
+// ----------------------------------------------------------------------
+opt_semicolon
+// ----------------------------------------------------------------------
+: ';'
+{
+}
+|
 {
 }
 ;
@@ -160,16 +170,7 @@ definitions
         contained->setMetaData(metaData->v);
     }
 }
-';' definitions
-| error ';'
-{
-    yyerrok;
-}
 definitions
-| meta_data definition
-{
-    unit->error("`;' missing after definition");
-}
 |
 {
 }
@@ -182,53 +183,98 @@ definition
 {
     assert($1 == 0 || ModulePtr::dynamicCast($1));
 }
+opt_semicolon
 | class_decl
 {
     assert($1 == 0 || ClassDeclPtr::dynamicCast($1));
+}
+';'
+| class_decl
+{
+    unit->error("`;' missing after class forward declaration");
 }
 | class_def
 {
     assert($1 == 0 || ClassDefPtr::dynamicCast($1));
 }
+opt_semicolon
 | interface_decl
 {
     assert($1 == 0 || ClassDeclPtr::dynamicCast($1));
+}
+';'
+| interface_decl
+{
+    unit->error("`;' missing after interface forward declaration");
 }
 | interface_def
 {
     assert($1 == 0 || ClassDefPtr::dynamicCast($1));
 }
+opt_semicolon
 | exception_decl
 {
     assert($1 == 0);
+}
+';'
+| exception_decl
+{
+    unit->error("`;' missing after exception forward declaration");
 }
 | exception_def
 {
     assert($1 == 0 || ExceptionPtr::dynamicCast($1));
 }
+opt_semicolon
 | struct_decl
 {
     assert($1 == 0);
+}
+';'
+| struct_decl
+{
+    unit->error("`;' missing after struct forward declaration");
 }
 | struct_def
 {
     assert($1 == 0 || StructPtr::dynamicCast($1));
 }
+opt_semicolon
 | sequence_def
 {
     assert($1 == 0 || SequencePtr::dynamicCast($1));
+}
+';'
+| sequence_def
+{
+    unit->error("`;' missing after sequence definition");
 }
 | dictionary_def
 {
     assert($1 == 0 || DictionaryPtr::dynamicCast($1));
 }
+';'
+| dictionary_def
+{
+    unit->error("`;' missing after dictionary definition");
+}
 | enum_def
 {
     assert($1 == 0 || EnumPtr::dynamicCast($1));
 }
+opt_semicolon
 | const_def
 {
     assert($1 == 0 || ConstPtr::dynamicCast($1));
+}
+';'
+| const_def
+{
+    unit->error("`;' missing after const definition");
+}
+| error ';'
+{
+    yyerrok;
 }
 ;
 
@@ -401,7 +447,44 @@ optional
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
-    ContainedList cl = cont->lookupContained(scoped->v);
+    ContainedList cl = cont->lookupContained(scoped->v, false);
+    if(cl.empty())
+    {
+        EnumeratorList enumerators = cont->enumerators(scoped->v);
+        if(enumerators.size() == 1)
+        {
+            // Found
+            cl.push_back(enumerators.front());
+            scoped->v = enumerators.front()->scoped();
+            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+                          + "' without its enumeration's scope is deprecated");
+        }
+        else if(enumerators.size() > 1)
+        {
+            ostringstream os;
+            os << "enumerator `" << scoped->v << "' could designate";
+            bool first = true;
+            for(EnumeratorList::iterator p = enumerators.begin(); p != enumerators.end(); ++p)
+            {
+                if(first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    os << " or";
+                }
+
+                os << " `" << (*p)->scoped() << "'";
+            }
+            unit->error(os.str());
+        }
+        else
+        {
+            unit->error(string("`") + scoped->v + "' is not defined");
+        }
+    }
+
     if(cl.empty())
     {
         YYERROR; // Can't continue, jump to next yyerrok
@@ -624,7 +707,7 @@ class_id
     {
         unit->error("invalid compact id for class: value is out of range");
     }
-    else 
+    else
     {
         string typeId = unit->getTypeId(static_cast<int>(id));
         if(!typeId.empty() && !unit->ignRedefs())
@@ -644,7 +727,44 @@ class_id
 
     ContainerPtr cont = unit->currentContainer();
     assert(cont);
-    ContainedList cl = cont->lookupContained(scoped->v);
+    ContainedList cl = cont->lookupContained(scoped->v, false);
+    if(cl.empty())
+    {
+        EnumeratorList enumerators = cont->enumerators(scoped->v);
+        if(enumerators.size() == 1)
+        {
+            // Found
+            cl.push_back(enumerators.front());
+            scoped->v = enumerators.front()->scoped();
+            unit->warning(Deprecated, string("referencing enumerator `") + scoped->v
+                          + "' without its enumeration's scope is deprecated");
+        }
+        else if(enumerators.size() > 1)
+        {
+            ostringstream os;
+            os << "enumerator `" << scoped->v << "' could designate";
+            bool first = true;
+            for(EnumeratorList::iterator p = enumerators.begin(); p != enumerators.end(); ++p)
+            {
+                if(first)
+                {
+                    first = false;
+                }
+                else
+                {
+                    os << " or";
+                }
+
+                os << " `" << (*p)->scoped() << "'";
+            }
+            unit->error(os.str());
+        }
+        else
+        {
+            unit->error(string("`") + scoped->v + "' is not defined");
+        }
+    }
+
     if(cl.empty())
     {
         YYERROR; // Can't continue, jump to next yyerrok
@@ -688,7 +808,7 @@ class_id
     {
         unit->error("invalid compact id for class: id must be a positive integer");
     }
-    else 
+    else
     {
         string typeId = unit->getTypeId(id);
         if(!typeId.empty() && !unit->ignRedefs())
@@ -1495,7 +1615,15 @@ enum_def
     StringTokPtr ident = StringTokPtr::dynamicCast($2);
     ContainerPtr cont = unit->currentContainer();
     EnumPtr en = cont->createEnum(ident->v, local->v);
-    cont->checkIntroduced(ident->v, en);
+    if(en)
+    {
+        cont->checkIntroduced(ident->v, en);
+    }
+    else
+    {
+        en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy);
+    }
+    unit->pushContainer(en);
     $$ = en;
 }
 '{' enumerator_list '}'
@@ -1503,25 +1631,29 @@ enum_def
     EnumPtr en = EnumPtr::dynamicCast($3);
     if(en)
     {
-    EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
-    if(enumerators->v.empty())
-    {
-        unit->error("enum `" + en->name() + "' must have at least one enumerator");
-    }
-    en->setEnumerators(enumerators->v); // Dummy
+        EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($5);
+        if(enumerators->v.empty())
+        {
+            unit->error("enum `" + en->name() + "' must have at least one enumerator");
+        }
+        unit->popContainer();
     }
     $$ = $3;
 }
 |
-local_qualifier ICE_ENUM '{' enumerator_list '}'
+local_qualifier ICE_ENUM
 {
     unit->error("missing enumeration name");
     BoolTokPtr local = BoolTokPtr::dynamicCast($1);
     ContainerPtr cont = unit->currentContainer();
-    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy); // Dummy
-    EnumeratorListTokPtr enumerators = EnumeratorListTokPtr::dynamicCast($4);
-    en->setEnumerators(enumerators->v); // Dummy
+    EnumPtr en = cont->createEnum(IceUtil::generateUUID(), local->v, Dummy);
+    unit->pushContainer(en);
     $$ = en;
+}
+'{' enumerator_list '}'
+{
+    unit->popContainer();
+    $$ = $2;
 }
 ;
 
@@ -1550,7 +1682,7 @@ enumerator
     EnumeratorPtr en = cont->createEnumerator(ident->v);
     if(en)
     {
-    ens->v.push_front(en);
+        ens->v.push_front(en);
     }
     $$ = ens;
 }
@@ -1569,10 +1701,7 @@ enumerator
         else
         {
             EnumeratorPtr en = cont->createEnumerator(ident->v, static_cast<int>(intVal->v));
-            if(en)
-            {
-                ens->v.push_front(en);
-            }
+            ens->v.push_front(en);
         }
     }
     $$ = ens;
@@ -1756,19 +1885,8 @@ scoped_name
 : ICE_IDENTIFIER
 {
 }
-| ICE_SCOPE_DELIMITER ICE_IDENTIFIER
+| ICE_SCOPED_IDENTIFIER
 {
-    StringTokPtr ident = StringTokPtr::dynamicCast($2);
-    ident->v = "::" + ident->v;
-    $$ = ident;
-}
-| scoped_name ICE_SCOPE_DELIMITER ICE_IDENTIFIER
-{
-    StringTokPtr scoped = StringTokPtr::dynamicCast($1);
-    StringTokPtr ident = StringTokPtr::dynamicCast($3);
-    scoped->v += "::";
-    scoped->v += ident->v;
-    $$ = scoped;
 }
 ;
 
@@ -1963,9 +2081,10 @@ const_initializer
 {
     StringTokPtr scoped = StringTokPtr::dynamicCast($1);
     ConstDefTokPtr def = new ConstDefTok;
-    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v);
+    ContainedList cl = unit->currentContainer()->lookupContained(scoped->v, false);
     if(cl.empty())
     {
+        // Could be an enumerator
         def->v.type = TypePtr(0);
         def->v.value = SyntaxTreeBasePtr(0);
         def->v.valueAsString = scoped->v;

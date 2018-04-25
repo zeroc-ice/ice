@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -19,19 +19,15 @@ class CallbackBase:
         self._cond = threading.Condition()
 
     def check(self):
-        self._cond.acquire()
-        try:
+        with self._cond:
             while not self._called:
                 self._cond.wait()
             self._called = False
-        finally:
-            self._cond.release()
 
     def called(self):
-        self._cond.acquire()
-        self._called = True
-        self._cond.notify()
-        self._cond.release()
+        with self._cond:
+            self._called = True
+            self._cond.notify()
 
 class Callback(CallbackBase):
     def sent(self, sentSynchronously):

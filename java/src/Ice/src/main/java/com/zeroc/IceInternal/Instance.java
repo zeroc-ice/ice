@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
 
 import com.zeroc.Ice.Instrumentation.ThreadState;
 
-public final class Instance implements com.zeroc.Ice.ClassResolver
+public final class Instance implements java.util.function.Function<String, Class<?>>
 {
     static private class ThreadObserverHelper
     {
@@ -390,6 +390,13 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
         return _batchAutoFlushSize;
     }
 
+    public com.zeroc.Ice.ToStringMode
+    toStringMode()
+    {
+        // No mutex lock, immutable
+        return _toStringMode;
+    }
+
     public int
     cacheMessageBuffers()
     {
@@ -690,12 +697,13 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
     }
 
     public void
-    setThreadHook(com.zeroc.Ice.ThreadNotification threadHook)
+    setThreadHooks(Runnable threadStart, Runnable threadStop)
     {
         //
         // No locking, as it can only be called during plug-in loading
         //
-        _initData.threadHook = threadHook;
+        _initData.threadStart = threadStart;
+        _initData.threadStop = threadStop;
     }
 
     public Class<?>
@@ -710,24 +718,11 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
         return _initData.classLoader;
     }
 
-    static private String[] _iceTypeIdPrefixes =
-    {
-        "::Glacier2::",
-        "::Ice::",
-        "::IceBox::",
-        "::IceDiscovery::",
-        "::IceGrid::",
-        "::IceLocatorDiscovery::",
-        "::IceMX::",
-        "::IcePatch2::",
-        "::IceStorm::"
-    };
-
     //
-    // From com.zeroc.Ice.ClassResolver.
+    // For the "class resolver".
     //
-    public Class<?> resolveClass(String typeId)
-        throws LinkageError
+    @Override
+    public Class<?> apply(String typeId)
     {
         Class<?> c = null;
 
@@ -792,21 +787,6 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
             if(pkg.length() > 0)
             {
                 c = getConcreteClass(pkg + "." + className);
-            }
-        }
-
-        //
-        // See if the type ID is one of the Ice modules.
-        //
-        if(c == null)
-        {
-            String pkg = null;
-            for(int i = 0; i < _iceTypeIdPrefixes.length && c == null; ++i)
-            {
-                if(typeId.startsWith(_iceTypeIdPrefixes[i]))
-                {
-                    c = getConcreteClass("com.zeroc." + className);
-                }
             }
         }
 
@@ -1065,6 +1045,24 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
                 }
             }
 
+            String toStringModeStr = _initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+            if(toStringModeStr.equals("Unicode"))
+            {
+                _toStringMode = com.zeroc.Ice.ToStringMode.Unicode;
+            }
+            else if(toStringModeStr.equals("ASCII"))
+            {
+                _toStringMode = com.zeroc.Ice.ToStringMode.ASCII;
+            }
+            else if(toStringModeStr.equals("Compat"))
+            {
+                _toStringMode = com.zeroc.Ice.ToStringMode.Compat;
+            }
+            else
+            {
+                throw new com.zeroc.Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+            }
+
             _implicitContext =
                 com.zeroc.Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
 
@@ -1103,13 +1101,17 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
 
             _endpointFactoryManager = new EndpointFactoryManager(this);
 
-            ProtocolInstance tcpProtocolInstance =
-                new ProtocolInstance(this, com.zeroc.Ice.TCPEndpointType.value, "tcp", false);
-            _endpointFactoryManager.add(new TcpEndpointFactory(tcpProtocolInstance));
+            ProtocolInstance tcpProtocol = new ProtocolInstance(this, com.zeroc.Ice.TCPEndpointType.value, "tcp", false);
+            _endpointFactoryManager.add(new TcpEndpointFactory(tcpProtocol));
 
-            ProtocolInstance udpProtocolInstance =
-                new ProtocolInstance(this, com.zeroc.Ice.UDPEndpointType.value, "udp", false);
-            _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocolInstance));
+            ProtocolInstance udpProtocol = new ProtocolInstance(this, com.zeroc.Ice.UDPEndpointType.value, "udp", false);
+            _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocol));
+
+            ProtocolInstance wsProtocol = new ProtocolInstance(this, com.zeroc.Ice.WSEndpointType.value, "ws", false);
+            _endpointFactoryManager.add(new WSEndpointFactory(wsProtocol, com.zeroc.Ice.TCPEndpointType.value));
+
+            ProtocolInstance wssProtocol = new ProtocolInstance(this, com.zeroc.Ice.WSSEndpointType.value, "wss", true);
+            _endpointFactoryManager.add(new WSEndpointFactory(wssProtocol, com.zeroc.Ice.SSLEndpointType.value));
 
             _pluginManager = new com.zeroc.Ice.PluginManagerI(communicator, this);
 
@@ -1146,11 +1148,12 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
         }
         catch(com.zeroc.Ice.LocalException ex)
         {
-            destroy();
+            destroy(false);
             throw ex;
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()
@@ -1193,22 +1196,10 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
         args = pluginManagerImpl.loadPlugins(args);
 
         //
-        // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
+        // Initialize the endpoint factories once all the plugins are loaded. This gives
+        // the opportunity for the endpoint factories to find underyling factories.
         //
-        final EndpointFactory tcpFactory = _endpointFactoryManager.get(com.zeroc.Ice.TCPEndpointType.value);
-        if(tcpFactory != null)
-        {
-            final ProtocolInstance instance =
-                new ProtocolInstance(this, com.zeroc.Ice.WSEndpointType.value, "ws", false);
-            _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance, null)));
-        }
-        final EndpointFactory sslFactory = _endpointFactoryManager.get(com.zeroc.Ice.SSLEndpointType.value);
-        if(sslFactory != null)
-        {
-            final ProtocolInstance instance =
-                new ProtocolInstance(this, com.zeroc.Ice.WSSEndpointType.value, "wss", true);
-            _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance, null)));
-        }
+        _endpointFactoryManager.initialize();
 
         //
         // Create Admin facets, if enabled.
@@ -1376,9 +1367,9 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
     //
     @SuppressWarnings("deprecation")
     public void
-    destroy()
+    destroy(boolean interruptible)
     {
-        if(Thread.interrupted())
+        if(interruptible && Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
@@ -1398,7 +1389,10 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
                 }
                 catch(InterruptedException ex)
                 {
-                    throw new com.zeroc.Ice.OperationInterruptedException();
+                    if(interruptible)
+                    {
+                        throw new com.zeroc.Ice.OperationInterruptedException();
+                    }
                 }
             }
 
@@ -1507,7 +1501,10 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
             }
             catch(InterruptedException ex)
             {
-                throw new com.zeroc.Ice.OperationInterruptedException();
+                if(interruptible)
+                {
+                    throw new com.zeroc.Ice.OperationInterruptedException();
+                }
             }
 
             //
@@ -1561,6 +1558,12 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
                 _pluginManager.destroy();
             }
 
+            if(_initData.logger instanceof com.zeroc.Ice.LoggerI)
+            {
+                com.zeroc.Ice.LoggerI logger = (com.zeroc.Ice.LoggerI)_initData.logger;
+                logger.destroy();
+            }
+
             synchronized(this)
             {
                 _objectAdapterFactory = null;
@@ -1599,6 +1602,7 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
             {
                 if(_state == StateDestroyInProgress)
                 {
+                    assert(interruptible);
                     _state = StateActive;
                     notifyAll();
                 }
@@ -1875,6 +1879,7 @@ public final class Instance implements com.zeroc.Ice.ClassResolver
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
     private final int _batchAutoFlushSize; // Immutable, not reset by destroy().
+    private final com.zeroc.Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
     private final int _cacheMessageBuffers; // Immutable, not reset by destroy().
     private final ACMConfig _clientACM; // Immutable, not reset by destroy().
     private final ACMConfig _serverACM; // Immutable, not reset by destroy().

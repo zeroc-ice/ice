@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -64,6 +64,9 @@ def batchOneways(p):
     batch = Test.MyClassPrx.uncheckedCast(p.ice_batchOneway())
 
     batch.ice_flushBatchRequests() # Empty flush
+    if batch.ice_getConnection():
+        batch.ice_getConnection().flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
+    batch.ice_getCommunicator().flushBatchRequests(Ice.CompressBatch.BasedOnProxy)
 
     p.opByteSOnewayCallCount() # Reset the call count
 
@@ -82,7 +85,7 @@ def batchOneways(p):
         batch1.ice_ping()
         batch2.ice_ping()
         batch1.ice_flushBatchRequests()
-        batch1.ice_getConnection().close(False)
+        batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
         batch1.ice_ping()
         batch2.ice_ping()
 
@@ -90,7 +93,7 @@ def batchOneways(p):
         batch2.ice_getConnection()
 
         batch1.ice_ping()
-        batch1.ice_getConnection().close(False)
+        batch1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait)
 
         batch1.ice_ping()
         batch2.ice_ping()
@@ -111,7 +114,7 @@ def batchOneways(p):
         initData = Ice.InitializationData()
         initData.properties = p.ice_getCommunicator().getProperties().clone()
         interceptor = BatchRequestInterceptorI()
-        initData.batchRequestInterceptor = interceptor
+        initData.batchRequestInterceptor = interceptor.enqueue
 
         ic = Ice.initialize(data=initData)
 

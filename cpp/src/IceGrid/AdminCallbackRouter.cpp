@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,7 @@ using namespace Ice;
 using namespace std;
 
 void
-IceGrid::AdminCallbackRouter::invokeResponse(bool ok, 
+IceGrid::AdminCallbackRouter::invokeResponse(bool ok,
                                              const std::pair<const Byte*, const Byte*>& outParams,
                                              const AMD_Object_ice_invokePtr& amdCB)
 {
@@ -54,9 +54,8 @@ IceGrid::AdminCallbackRouter::removeMapping(const string& category)
     assert(one == 1);
 }
 
-
 void
-IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb, 
+IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& cb,
                                                const pair<const Byte*, const Byte*>& inParams,
                                                const Current& current)
 {
@@ -72,17 +71,14 @@ IceGrid::AdminCallbackRouter::ice_invoke_async(const AMD_Object_ice_invokePtr& c
         con = p->second;
     }
 
-  
     ObjectPrx target = con->createProxy(current.id)->ice_facet(current.facet);
-    
-        
+
     //
     // Call with AMI
     //
-    target->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx, 
-                             newCallback_Object_ice_invoke(this, 
-                                                           &AdminCallbackRouter::invokeResponse, 
+    target->begin_ice_invoke(current.operation, current.mode, inParams, current.ctx,
+                             newCallback_Object_ice_invoke(this,
+                                                           &AdminCallbackRouter::invokeResponse,
                                                            &AdminCallbackRouter::invokeException),
                              cb);
 }
-

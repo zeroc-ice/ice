@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -41,14 +41,7 @@ class AdapterObserverI implements AdapterObserver
             }
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    _coordinator.adapterInit(adapters);
-                }
-            });
+        SwingUtilities.invokeLater(() -> {  _coordinator.adapterInit(adapters); });
     }
 
     @Override
@@ -59,14 +52,7 @@ class AdapterObserverI implements AdapterObserver
             _coordinator.traceObserver("adapterAdded for adapter " + info.id);
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    _coordinator.adapterAdded(info);
-                }
-            });
+        SwingUtilities.invokeLater(() -> { _coordinator.adapterAdded(info); });
     }
 
     @Override
@@ -77,14 +63,7 @@ class AdapterObserverI implements AdapterObserver
             _coordinator.traceObserver("adapterUpdated for adapter " + info.id);
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    _coordinator.adapterUpdated(info);
-                }
-            });
+        SwingUtilities.invokeLater(() -> { _coordinator.adapterUpdated(info); });
     }
 
     @Override
@@ -95,14 +74,7 @@ class AdapterObserverI implements AdapterObserver
             _coordinator.traceObserver("adapterRemoved for adapter " + id);
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    _coordinator.adapterRemoved(id);
-                }
-            });
+        SwingUtilities.invokeLater(() -> { _coordinator.adapterRemoved(id); });
     }
 
     private final Coordinator _coordinator;

@@ -1,3 +1,7 @@
 {
-  "extends" : "../../.jshintrc_browser"
+  "extends" : "../../.jshintrc_browser",
+  "globals" :
+  {
+    "runController" : false
+  }
 }

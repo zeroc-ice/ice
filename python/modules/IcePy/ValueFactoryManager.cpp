@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,25 +32,10 @@ struct ValueFactoryManagerObject
 namespace
 {
 
-ClassInfoPtr
-getClassInfo(const string& id)
+ValueInfoPtr
+getValueInfo(const string& id)
 {
-    ClassInfoPtr info;
-
-    if(id == Ice::Object::ice_staticId())
-    {
-        //
-        // When the ID is that of Ice::Object, it indicates that the stream has not
-        // found a factory and is providing us an opportunity to preserve the object.
-        //
-        info = lookupClassInfo("::Ice::UnknownSlicedObject");
-    }
-    else
-    {
-        info = lookupClassInfo(id);
-    }
-
-    return info;
+    return id == Ice::Object::ice_staticId() ? lookupValueInfo("::Ice::UnknownSlicedValue") : lookupValueInfo(id);
 }
 
 }
@@ -103,7 +88,7 @@ IcePy::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& id)
 }
 
 Ice::ValueFactoryPtr
-IcePy::ValueFactoryManager::find(const string& id) const
+IcePy::ValueFactoryManager::find(const string& id) const ICE_NOEXCEPT
 {
     Lock lock(*this);
 
@@ -184,7 +169,13 @@ IcePy::ValueFactoryManager::destroy()
 
     {
         Lock lock(*this);
-
+        if(_self == 0)
+        {
+            //
+            // Nothing to do if already destroyed (this can occur if communicator destroy is called multiple times)
+            //
+            return;
+        }
         //
         // Break the cyclic reference.
         //
@@ -229,7 +220,7 @@ IcePy::FactoryWrapper::create(const string& id)
     //
     // Get the type information.
     //
-    ClassInfoPtr info = getClassInfo(id);
+    ValueInfoPtr info = getValueInfo(id);
 
     if(!info)
     {
@@ -298,7 +289,7 @@ IcePy::DefaultValueFactory::create(const string& id)
     //
     // Get the type information.
     //
-    ClassInfoPtr info = getClassInfo(id);
+    ValueInfoPtr info = getValueInfo(id);
 
     if(!info)
     {
@@ -306,17 +297,9 @@ IcePy::DefaultValueFactory::create(const string& id)
     }
 
     //
-    // If the requested type is an abstract class, then we give up.
-    //
-    if(info->isAbstract)
-    {
-        return 0;
-    }
-
-    //
     // Instantiate the object.
     //
-    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(info->pythonType.get());
+    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(info->pythonType);
     PyObjectHandle args = PyTuple_New(0);
     PyObjectHandle obj = type->tp_new(type, args.get(), 0);
     if(!obj.get())

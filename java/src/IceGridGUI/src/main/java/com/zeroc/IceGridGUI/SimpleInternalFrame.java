@@ -70,7 +70,6 @@ public class SimpleInternalFrame extends JPanel {
     private JPanel        headerPanel;
     private boolean       selected;
 
-
     // Instance Creation ****************************************************
 
     /**
@@ -84,7 +83,6 @@ public class SimpleInternalFrame extends JPanel {
         this(null, title, null, null);
     }
 
-
     /**
      * Constructs a SimpleInternalFrame with the specified
      * icon, and title.
@@ -95,7 +93,6 @@ public class SimpleInternalFrame extends JPanel {
     public SimpleInternalFrame(Icon icon, String title) {
         this(icon, title, null, null);
     }
-
 
     /**
      * Constructs a SimpleInternalFrame with the specified
@@ -108,7 +105,6 @@ public class SimpleInternalFrame extends JPanel {
     public SimpleInternalFrame(String title, JToolBar bar, JComponent content) {
         this(null, title, bar, content);
     }
-
 
     /**
      * Constructs a SimpleInternalFrame with the specified
@@ -138,7 +134,6 @@ public class SimpleInternalFrame extends JPanel {
         updateHeader();
     }
 
-
     // Public API ***********************************************************
 
     /**
@@ -149,7 +144,6 @@ public class SimpleInternalFrame extends JPanel {
     public Icon getFrameIcon() {
         return titleLabel.getIcon();
     }
-
 
     /**
      * Sets a new frame icon.
@@ -162,7 +156,6 @@ public class SimpleInternalFrame extends JPanel {
         firePropertyChange("frameIcon", oldIcon, newIcon);
     }
 
-
     /**
      * Returns the frame's title text.
      *      * @return String   the current title text     */
@@ -174,8 +167,6 @@ public class SimpleInternalFrame extends JPanel {
         return titleLabel;
     }
 
-
-
     /**
      * Sets a new title text.
      *      * @param newText  the title text tp be set     */
@@ -184,7 +175,6 @@ public class SimpleInternalFrame extends JPanel {
         titleLabel.setText(newText);
         firePropertyChange("title", oldText, newText);
     }
-
 
     /**
      * Returns the current toolbar, null if none has been set before.
@@ -196,7 +186,6 @@ public class SimpleInternalFrame extends JPanel {
             ? (JToolBar) headerPanel.getComponent(1)
             : null;
     }
-
 
     /**
      * Sets a new tool bar in the header.
@@ -219,14 +208,12 @@ public class SimpleInternalFrame extends JPanel {
         firePropertyChange("toolBar", oldToolBar, newToolBar);
     }
 
-
     /**
      * Returns the content - null, if none has been set.
      *      * @return the current content     */
     public Component getContent() {
         return hasContent() ? getComponent(1) : null;
     }
-
 
     /**
      * Sets a new panel content; replaces any existing content, if existing.
@@ -240,7 +227,6 @@ public class SimpleInternalFrame extends JPanel {
         firePropertyChange("content", oldContent, newContent);
     }
 
-
     /**
      * Answers if the panel is currently selected (or in other words active)
      * or not. In the selected state, the header background will be
@@ -252,7 +238,6 @@ public class SimpleInternalFrame extends JPanel {
     public boolean isSelected() {
         return selected;
     }
-
 
     /**
      * This panel draws its title bar differently if it is selected,
@@ -269,7 +254,6 @@ public class SimpleInternalFrame extends JPanel {
         updateHeader();
         firePropertyChange("selected", oldValue, newValue);
     }
-
 
     // Building *************************************************************
 
@@ -314,7 +298,6 @@ public class SimpleInternalFrame extends JPanel {
         headerPanel.repaint();
     }
 
-
     /**
      * Updates the UI. In addition to the superclass behavior, we need
      * to update the header component.
@@ -326,7 +309,6 @@ public class SimpleInternalFrame extends JPanel {
             updateHeader();
         }
     }
-
 
     // Helper Code **********************************************************
 
@@ -380,7 +362,6 @@ public class SimpleInternalFrame extends JPanel {
             ? c
             : UIManager.getColor("InternalFrame.activeTitleBackground");
     }
-
 
     // Helper Classes *******************************************************
 

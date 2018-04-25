@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,78 +9,23 @@
 
 namespace IceInternal
 {
-
     using System;
+    using System.Runtime.InteropServices;
     using System.Collections;
     using System.Collections.Generic;
     using System.Reflection;
 
     public sealed class AssemblyUtil
     {
-        public enum Runtime { DotNET, Mono };
-        public enum Platform { Windows, NonWindows };
-
-        static AssemblyUtil()
-        {
-            PlatformID id = Environment.OSVersion.Platform;
-            if(   id == PlatformID.Win32NT
-               || id == PlatformID.Win32S
-               || id == PlatformID.Win32Windows
-               || id == PlatformID.WinCE)
-            {
-                platform_ = Platform.Windows;
-            }
-            else
-            {
-                platform_ = Platform.NonWindows;
-            }
-
-            if(System.Type.GetType("Mono.Runtime") != null)
-            {
-                runtime_ = Runtime.Mono;
-            }
-            else
-            {
-                runtime_ = Runtime.DotNET;
-            }
-
-            System.Version v = System.Environment.Version;
-            runtimeMajor_ = v.Major;
-            runtimeMinor_ = v.Minor;
-            runtimeBuild_ = v.Build;
-            runtimeRevision_ = v.Revision;
-
-            v = System.Environment.OSVersion.Version;
-
-            osx_ = false;
-            if (platform_ == Platform.NonWindows)
-            {
-                try
-                {
-                    Assembly a = Assembly.Load(
-                        "Mono.Posix, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756");
-                    Type syscall = a.GetType("Mono.Unix.Native.Syscall");
-                    if(syscall != null)
-                    {
-                        MethodInfo method = syscall.GetMethod("uname", BindingFlags.Static | BindingFlags.Public);
-                        if(method != null)
-                        {
-                            object[] p = new object[1];
-                            method.Invoke(null, p);
-                            if(p[0] != null)
-                            {
-                                Type utsname = a.GetType("Mono.Unix.Native.Utsname");
-                                osx_ = ((string)utsname.GetField("sysname").GetValue(p[0])).Equals("Darwin");
-                            }
-                        }
-                    }
-                }
-                catch(System.Exception)
-                {
-                }
-            }
-        }
-
+#if NETSTANDARD2_0
+        public static readonly bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+        public static readonly bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
+        public static readonly bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+#else
+        public static readonly bool isWindows = true;
+        public static readonly bool isMacOS = false;
+        public static readonly bool isLinux = false;
+#endif
         public static Type findType(Instance instance, string csharpId)
         {
             lock(_mutex)
@@ -113,13 +58,20 @@ namespace IceInternal
                 loadAssemblies(); // Lazy initialization
                 foreach(Assembly a in _loadedAssemblies.Values)
                 {
-                    Type[] types = a.GetTypes();
-                    foreach(Type t in types)
+                    try
                     {
-                        if(t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
+                        Type[] types = a.GetTypes();
+                        foreach(Type t in types)
                         {
-                            l.AddLast(t);
+                            if(t.AssemblyQualifiedName.IndexOf(prefix, StringComparison.Ordinal) == 0)
+                            {
+                                l.AddLast(t);
+                            }
                         }
+                    }
+                    catch(ReflectionTypeLoadException)
+                    {
+                        // Failed to load types from the assembly, ignore and continue
                     }
                 }
             }
@@ -141,6 +93,14 @@ namespace IceInternal
             catch(MemberAccessException)
             {
                 return null;
+            }
+        }
+
+        public static void preloadAssemblies()
+        {
+            lock(_mutex)
+            {
+                loadAssemblies(); // Lazy initialization
             }
         }
 
@@ -196,7 +156,7 @@ namespace IceInternal
                         _loadedAssemblies[ra.FullName] = ra;
                         loadReferencedAssemblies(ra);
                     }
-                    catch(System.Exception)
+                    catch(Exception)
                     {
                         // Ignore assemblies that cannot be loaded.
                     }
@@ -207,19 +167,5 @@ namespace IceInternal
         private static Hashtable _loadedAssemblies = new Hashtable(); // <string, Assembly> pairs.
         private static Dictionary<string, Type> _typeTable = new Dictionary<string, Type>(); // <type name, Type> pairs.
         private static object _mutex = new object();
-
-        public readonly static Runtime runtime_; // Either DotNET or Mono
-        //
-        // Versioning is: Major.Minor.Build.Revision. (Yes, really. It is not Major.Minor.Revision.Build, as
-        // one might expect.) If a part of a version number (such as revision) is not defined, it is -1.
-        //
-        public readonly static int runtimeMajor_;
-        public readonly static int runtimeMinor_;
-        public readonly static int runtimeBuild_;
-        public readonly static int runtimeRevision_;
-
-        public readonly static Platform platform_;
-        public readonly static bool osx_;
     }
-
 }

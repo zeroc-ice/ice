@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,32 +23,34 @@ public abstract class Callback_Connection_flushBatchRequests extends IceInternal
 
     /**
      * Called when a queued invocation is sent successfully.
+     *
+     * @param sentSynchronously True if the batch request could be flushed synchronously, false otherwise.
      **/
     public void sent(boolean sentSynchronously)
     {
     }
 
     @Override
-    public final void __completed(AsyncResult __result)
+    public final void _iceCompleted(AsyncResult result)
     {
         try
         {
-            __result.getConnection().end_flushBatchRequests(__result);
+            result.getConnection().end_flushBatchRequests(result);
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            exception(__ex);
+            exception(ex);
         }
     }
 
     @Override
-    public final void __sent(AsyncResult __result)
+    public final void _iceSent(AsyncResult result)
     {
-        sent(__result.sentSynchronously());
+        sent(result.sentSynchronously());
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
         return true;
     }

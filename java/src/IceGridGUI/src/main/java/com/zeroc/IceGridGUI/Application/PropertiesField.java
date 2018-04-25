@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -111,11 +111,11 @@ public class PropertiesField extends JTable
 
                 for(ObjectDescriptor q : p.objects)
                 {
-                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id));
+                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
                 }
                 for(ObjectDescriptor q : p.allocatables)
                 {
-                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id));
+                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
                 }
             }
         }
@@ -225,31 +225,30 @@ public class PropertiesField extends JTable
             getCellEditor().stopCellEditing();
         }
         @SuppressWarnings("unchecked")
-        java.util.Vector<java.util.Vector<String>> vector =
-            _model.getDataVector();
+        java.util.Vector<java.util.Vector> vector = _model.getDataVector();
 
         java.util.LinkedList<PropertyDescriptor> result = new java.util.LinkedList<>(_hiddenProperties);
 
-        for(java.util.Vector<String> row : vector)
+        for(java.util.Vector row : vector)
         {
-             //
-             // Eliminate rows with null or empty keys
-             //
-             String key = row.elementAt(0);
-             if(key != null)
-             {
-                 key = key.trim();
-                 if(!key.equals(""))
-                 {
-                     String val = row.elementAt(1);
-                     if(val == null)
-                     {
-                         val = "";
-                     }
+            //
+            // Eliminate rows with null or empty keys
+            //
+            String key = row.elementAt(0).toString();
+            if(key != null)
+            {
+                key = key.trim();
+                if(!key.equals(""))
+                {
+                    String val = row.elementAt(1).toString();
+                    if(val == null)
+                    {
+                        val = "";
+                    }
 
-                     result.add(new PropertyDescriptor(key, val));
-                 }
-             }
+                    result.add(new PropertyDescriptor(key, val));
+                }
+            }
         }
         return result;
     }

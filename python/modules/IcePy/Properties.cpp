@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -83,7 +83,8 @@ propertiesInit(PropertiesObject* self, PyObject* args, PyObject* /*kwds*/)
         assert(propType);
         if(PyObject_IsInstance(defaultsObj, propType))
         {
-            PyObjectHandle impl = PyObject_GetAttrString(defaultsObj, STRCAST("_impl"));
+            PyObjectHandle impl = getAttr(defaultsObj, "_impl", false);
+            assert(impl.get());
             defaults = getProperties(impl.get());
         }
         else if(defaultsObj != Py_None)
@@ -404,8 +405,6 @@ propertiesGetPropertyAsListWithDefault(PropertiesObject* self, PyObject* args)
 
     return list;
 }
-
-
 
 #ifdef WIN32
 extern "C"

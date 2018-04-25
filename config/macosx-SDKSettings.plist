@@ -3,11 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CanonicalName</key>
-	<string>Ice SDK 3.7.0</string>
+	<string>ice3.7-macosx</string>
 	<key>DefaultProperties</key>
 	<dict>
-		<key>MACOSX_DEPLOYMENT_TARGET</key>
-		<string>10.9</string>
 		<key>PLATFORM_NAME</key>
 		<string>macosx</string>
 		<key>GCC_PREPROCESSOR_DEFINITIONS</key>
@@ -16,18 +14,10 @@
 		</array>
 	</dict>
 	<key>DisplayName</key>
-	<string>Ice SDK 3.7.0</string>
-	<key>FamilyIdentifier</key>
-	<string>macosx</string>
-	<key>FamilyName</key>
-	<string>Mac OS X</string>
-	<key>MinimalDisplayName</key>
-	<string>10.10</string>
-	<key>MinimumSupportedToolsVersion</key>
-	<string>6.1</string>
-	<key>Version</key>
-	<string>3.7.0</string>
+	<string>Ice 3.7 for macOS</string>
 	<key>IsBaseSDK</key>
 	<string>NO</string>
+	<key>Version</key>
+	<string>3.7.1</string>
 </dict>
 </plist>

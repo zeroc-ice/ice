@@ -55,26 +55,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\Election.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\IceStormInternal.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\Instrumentation.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\LinkRecord.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\LLURecord.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\SubscriberRecord.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\Instance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -304,5 +284,25 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\Election.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\IceStormInternal.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\Instrumentation.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\LinkRecord.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\LLURecord.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\SubscriberRecord.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

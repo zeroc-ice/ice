@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,8 +33,6 @@ class ValueWrapper : public Ice::Object
 {
 public:
 
-    // We must explicitely CFRetain/CFRelease so that the garbage
-    // collector does not trash the _obj.
     ValueWrapper(ICEObject* obj) : _obj(obj)
     {
         CFRetain(_obj);
@@ -46,11 +44,11 @@ public:
     }
 
     virtual void
-    __write(Ice::OutputStream* stream) const
+    _iceWrite(Ice::OutputStream* stream) const
     {
         @try
         {
-            [_obj write__:static_cast<ICEOutputStream*>(stream->getClosure())];
+            [_obj iceWrite:static_cast<ICEOutputStream*>(stream->getClosure())];
         }
         @catch(id ex)
         {
@@ -59,11 +57,11 @@ public:
     }
 
     virtual void
-    __read(Ice::InputStream* stream)
+    _iceRead(Ice::InputStream* stream)
     {
         @try
         {
-            [_obj read__:static_cast<ICEInputStream*>(stream->getClosure())];
+            [_obj iceRead:static_cast<ICEInputStream*>(stream->getClosure())];
         }
         @catch(id ex)
         {
@@ -93,7 +91,7 @@ private:
 };
 typedef IceUtil::Handle<ValueWrapper> ValueWrapperPtr;
 
-class ReadValueBase
+class ReadValueBase : public IceUtil::Shared
 {
 public:
 
@@ -117,9 +115,7 @@ private:
 void
 patchFunc(void* obj, const Ice::ValuePtr& value)
 {
-    ReadValueBase* reader = static_cast<ReadValueBase*>(obj);
-    reader->invoke(value);
-    delete reader;
+    static_cast<ReadValueBase*>(obj)->invoke(value);
 }
 
 void
@@ -268,9 +264,9 @@ public:
     }
 
     virtual bool
-    __usesClasses() const
+    _usesClasses() const
     {
-        return [_ex usesClasses__];
+        return [_ex iceUsesClasses];
     }
 
     virtual std::string
@@ -292,15 +288,15 @@ public:
     }
 
     virtual void
-    __write(Ice::OutputStream* s) const
+    _write(Ice::OutputStream* s) const
     {
-        [_ex write__:static_cast<ICEOutputStream*>(s->getClosure())];
+        [_ex iceWrite:static_cast<ICEOutputStream*>(s->getClosure())];
     }
 
     virtual void
-    __read(Ice::InputStream* s)
+    _read(Ice::InputStream* s)
     {
-        [_ex read__:static_cast<ICEInputStream*>(s->getClosure())];
+        [_ex iceRead:static_cast<ICEInputStream*>(s->getClosure())];
     }
 
     ICEUserException*
@@ -311,8 +307,8 @@ public:
 
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream*) const {}
-    virtual void __readImpl(Ice::InputStream*) {}
+    virtual void _writeImpl(Ice::OutputStream*) const {}
+    virtual void _readImpl(Ice::InputStream*) {}
 
 private:
 
@@ -391,6 +387,7 @@ private:
     is_->setClosure(self);
     data_ = nil;
     prefixTable_ = [[[ICECommunicator localObjectWithCxxObject:com] getPrefixTable] retain];
+    objectReaders_ = 0;
     return self;
 }
 
@@ -415,6 +412,7 @@ private:
     is_->setClosure(self);
     data_ = [data retain];
     prefixTable_ = [[com getPrefixTable] retain];
+    objectReaders_ = 0;
     return self;
 }
 
@@ -422,6 +420,10 @@ private:
 {
     [data_ release];
     [prefixTable_ release];
+    if(objectReaders_)
+    {
+        delete objectReaders_;
+    }
     [super dealloc];
 }
 
@@ -917,7 +919,7 @@ private:
     {
         Ice::ObjectPrx p;
         is_->read(p);
-        return p ? [[type alloc] initWithObjectPrx__:p] : nil;
+        return p ? [[type alloc] iceInitWithObjectPrx:p] : nil;
     }
     catch(const std::exception& ex)
     {
@@ -935,7 +937,13 @@ private:
     NSException* nsex = nil;
     try
     {
-        is_->read(IceObjC::patchFunc, new IceObjC::ReadValue(object, type, true));
+        if(!objectReaders_)
+        {
+            objectReaders_ = new std::vector<IceUtil::Handle<IceUtil::Shared> >();
+        }
+        IceObjC::ReadValue* rv = new IceObjC::ReadValue(object, type, true);
+        objectReaders_->push_back(rv);
+        is_->read(IceObjC::patchFunc, rv);
     }
     catch(const std::exception& ex)
     {
@@ -955,7 +963,13 @@ private:
     NSException* nsex = nil;
     try
     {
-        is_->read(IceObjC::patchFunc, new IceObjC::ReadValue(object, type, false));
+        if(!objectReaders_)
+        {
+            objectReaders_ = new std::vector<IceUtil::Handle<IceUtil::Shared> >();
+        }
+        IceObjC::ReadValue* rv = new IceObjC::ReadValue(object, type, false);
+        objectReaders_->push_back(rv);
+        is_->read(IceObjC::patchFunc, rv);
     }
     catch(const std::exception& ex)
     {
@@ -976,25 +990,34 @@ private:
 {
     ICEInt sz = [self readAndCheckSeqSize:1];
     NSMutableArray* arr = [[NSMutableArray alloc] initWithCapacity:sz];
-    NSException* nsex = nil;
-    try
+    if(sz > 0)
     {
-        int i;
-        id null = [NSNull null];
-        for(i = 0; i < sz; i++)
+        NSException* nsex = nil;
+        try
         {
-            [arr addObject:null];
-            is_->read(IceObjC::patchFunc, new IceObjC::ReadValueAtIndex(arr, i, type));
+            if(!objectReaders_)
+            {
+                objectReaders_ = new std::vector<IceUtil::Handle<IceUtil::Shared> >();
+            }
+            int i;
+            id null = [NSNull null];
+            for(i = 0; i < sz; i++)
+            {
+                [arr addObject:null];
+                IceObjC::ReadValueAtIndex* rv = new IceObjC::ReadValueAtIndex(arr, i, type);
+                objectReaders_->push_back(rv);
+                is_->read(IceObjC::patchFunc, rv);
+            }
         }
-    }
-    catch(const std::exception& ex)
-    {
-        nsex = toObjCException(ex);
-    }
-    if(nsex != nil)
-    {
-        [arr release];
-        @throw nsex;
+        catch(const std::exception& ex)
+        {
+            nsex = toObjCException(ex);
+        }
+        if(nsex != nil)
+        {
+            [arr release];
+            @throw nsex;
+        }
     }
     return arr;
 }
@@ -1008,35 +1031,44 @@ private:
 {
     ICEInt sz = [self readAndCheckSeqSize:[keyHelper minWireSize] + 1];
     NSMutableDictionary* dictionary = [[NSMutableDictionary alloc] initWithCapacity:sz];
-    id key = nil;
-    for(int i = 0; i < sz; ++i)
+    if(sz > 0)
     {
-        @try
+        if(!objectReaders_)
         {
-            key = [keyHelper readRetained:self];
+            objectReaders_ = new std::vector<IceUtil::Handle<IceUtil::Shared> >();
         }
-        @catch(id ex)
+        for(int i = 0; i < sz; ++i)
         {
-            [dictionary release];
-            @throw ex;
-        }
+            id key = nil;
+            @try
+            {
+                key = [keyHelper readRetained:self];
+            }
+            @catch(id ex)
+            {
+                [dictionary release];
+                @throw ex;
+            }
 
-        NSException* nsex = nil;
-        try
-        {
-            is_->read(IceObjC::patchFunc, new IceObjC::ReadValueForKey(dictionary, key, type));
-        }
-        catch(const std::exception& ex)
-        {
-            nsex = toObjCException(ex);
-        }
-        if(nsex != nil)
-        {
+            NSException* nsex = nil;
+            try
+            {
+                IceObjC::ReadValueForKey* rv = new IceObjC::ReadValueForKey(dictionary, key, type);
+                objectReaders_->push_back(rv);
+                is_->read(IceObjC::patchFunc, rv);
+            }
+            catch(const std::exception& ex)
+            {
+                nsex = toObjCException(ex);
+            }
+            if(nsex != nil)
+            {
+                [key release];
+                [dictionary release];
+                @throw nsex;
+            }
             [key release];
-            [dictionary release];
-            @throw nsex;
         }
-        [key release];
     }
     return dictionary;
 }
@@ -1135,7 +1167,6 @@ private:
 
 -(void) throwException
 {
-    ICEUserException* ex = nil;
     NSException* nsex = nil;
     try
     {
@@ -1143,12 +1174,14 @@ private:
     }
     catch(const IceObjC::ExceptionWrapper& e)
     {
-        ex = e.getException();
-        @throw [ex autorelease]; // NOTE: exceptions are always auto-released, no need for the caller to do it.
+        nsex = [e.getException() autorelease]; // NOTE: exceptions are always auto-released, no need for the caller to do it.
     }
     catch(const std::exception& ex)
     {
         nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
         @throw nsex;
     }
 }
@@ -1386,7 +1419,6 @@ private:
         @throw nsex;
     }
 }
-
 
 -(void) skip:(ICEInt)sz
 {
@@ -1916,13 +1948,12 @@ private:
     }
 }
 
-
 -(void) writeProxy:(id<ICEObjectPrx>)v
 {
     NSException* nsex = nil;
     try
     {
-        os_->write(Ice::ObjectPrx([(ICEObjectPrx*)v objectPrx__]));
+        os_->write(Ice::ObjectPrx([(ICEObjectPrx*)v iceObjectPrx]));
     }
     catch(const std::exception& ex)
     {
@@ -2764,33 +2795,35 @@ private:
 @implementation ICEStructHelper
 +(id) readRetained:(id<ICEInputStream>)stream
 {
-    return [self readRetained:stream value:nil];
+    id p = nil;
+    [self readRetained:stream value:&p];
+    return p;
 }
-+(id) readRetained:(id<ICEInputStream>)stream value:(id)p
++(void) readRetained:(id<ICEInputStream>)stream value:(id ICE_STRONG_QUALIFIER*)p
 {
-    if(p == nil)
+    if(*p == nil)
     {
-        p = [[self getType] new];
+        *p = [[self getType] new];
+        @try
+        {
+            [*p iceRead:stream];
+        }
+        @catch(NSException *ex)
+        {
+            [*p release];
+            *p = nil;
+            @throw ex;
+        }
     }
     else
     {
-        [p retain];
+        [*p iceRead:stream];
     }
-
-    @try
-    {
-        [p read__:stream];
-    }
-    @catch(NSException *ex)
-    {
-        [p release];
-        @throw ex;
-    }
-    return p;
 }
-+(id) read:(id<ICEInputStream>)stream value:(id)p
++(void) read:(id<ICEInputStream>)stream value:(id*)p
 {
-    return [[self readRetained:stream value:p] autorelease];
+    [self readRetained:stream value:p];
+    [*p autorelease];
 }
 +(void) write:(id)obj stream:(id<ICEOutputStream>)stream
 {
@@ -2799,7 +2832,7 @@ private:
         obj = [[self getType] new];
         @try
         {
-            [obj write__:stream];
+            [obj iceWrite:stream];
         }
         @finally
         {
@@ -2808,7 +2841,7 @@ private:
     }
     else
     {
-        [obj write__:stream];
+        [obj iceWrite:stream];
     }
 }
 +(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag

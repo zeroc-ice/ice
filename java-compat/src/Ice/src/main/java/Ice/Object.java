@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,6 +19,7 @@ public interface Object
      * of the state.
      *
      * @return The cloned object.
+     * @throws java.lang.CloneNotSupportedException If cloning is not supported by the implementation.
      **/
     Object clone() throws java.lang.CloneNotSupportedException;
 
@@ -93,11 +94,11 @@ public interface Object
      * @param operation The name of the operation.
      * @return The least significant bit indicates whether the operation is a read
      * or write operation. If the bit is set, the operation is a write operation.
-     * The expression <code>ice_operationAttributes("op") & 0x1</code> is true if
+     * The expression <code>ice_operationAttributes("op") &amp; 0x1</code> is true if
      * the operation has a <code>["freeze:write"]</code> metadata directive.
      * <p>
-     * The second- and third least significant bit indicate the transactional mode
-     * of the operation. The expression <code>ice_operationAttributes("op") & 0x6 >> 1</code>
+     * The second and third least significant bit indicate the transactional mode
+     * of the operation. The expression <code>ice_operationAttributes("op") &amp; 0x6 &gt;&gt; 1</code>
      * indicates the transactional mode as follows:
      * <dl>
      *   <dt>0</dt>
@@ -127,6 +128,14 @@ public interface Object
     void ice_postUnmarshal();
 
     /**
+     * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+     * un-marshaling of the value, null is returned otherwise.
+     *
+     * @return The sliced data or null.
+     **/
+    SlicedData ice_getSlicedData();
+
+    /**
      * Dispatches an invocation to a servant. This method is used by dispatch interceptors to forward an invocation
      * to a servant (or to another interceptor).
      *
@@ -134,6 +143,7 @@ public interface Object
      * @param cb The callback object for asynchronous dispatch. For synchronous dispatch, the callback object
      * must be <code>null</code>.
      * @return True for asynchronous dispatch, false otherwise.
+     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
      *
      * @see DispatchInterceptor
      * @see DispatchInterceptorAsyncCallback
@@ -146,19 +156,19 @@ public interface Object
      * to a servant (or to another interceptor).
      *
      * @param request The details of the invocation.
-     * @return The dispatch status for the operation.
+     * @return True for asynchronous dispatch, false otherwise.
+     * @throws UserException A user exception that propagates out of this method will be marshaled as the result.
      *
      * @see DispatchInterceptor
-     * @return True for asynchronous dispatch, false otherwise.
      **/
     boolean ice_dispatch(Request request)
         throws Ice.UserException;
 
-    boolean __dispatch(IceInternal.Incoming in, Current current)
+    boolean _iceDispatch(IceInternal.Incoming in, Current current)
         throws Ice.UserException;
 
-    void __write(OutputStream __os);
-    void __read(InputStream __is);
+    void _iceWrite(OutputStream ostr);
+    void _iceRead(InputStream istr);
 
     public static final String ice_staticId = "::Ice::Object";
 }

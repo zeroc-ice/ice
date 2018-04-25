@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc", "objc:dll-export:ICESTORM_API", "js:ice-build", "python:pkgdir:IceStorm"]]
 [["cpp:include:IceStorm/Config.h"]]
 
 #include <Ice/Identity.ice>
@@ -62,7 +62,7 @@ struct LinkInfo
      *
      **/
     int cost;
-};
+}
 
 /**
  *
@@ -94,7 +94,7 @@ exception LinkExists
      *
      */
     string name;
-};
+}
 
 /**
  *
@@ -110,7 +110,7 @@ exception NoSuchLink
      *
      */
     string name;
-};
+}
 
 /**
  *
@@ -120,7 +120,7 @@ exception NoSuchLink
  **/
 exception AlreadySubscribed
 {
-};
+}
 
 /**
  *
@@ -136,7 +136,7 @@ exception InvalidSubscriber
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -152,7 +152,7 @@ exception BadQoS
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -178,7 +178,7 @@ interface Topic
     /**
      *
      * Get a proxy to a publisher object for this topic. To publish
-     * data to a topic, the publisher calls {@link #getPublisher} and then
+     * data to a topic, the publisher calls getPublisher and then
      * casts to the topic type. An unchecked cast must be used on this
      * proxy. If a replicated IceStorm deployment is used this call
      * may return a replicated proxy.
@@ -192,14 +192,13 @@ interface Topic
      *
      * Get a non-replicated proxy to a publisher object for this
      * topic. To publish data to a topic, the publisher calls
-     * {@link #getPublisher} and then casts to the topic type. An unchecked
+     * getPublisher and then casts to the topic type. An unchecked
      * cast must be used on this proxy.
      *
      * @return A proxy to publish data on this topic.
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Object* getNonReplicatedPublisher();
-
 
     /**
      *
@@ -216,7 +215,7 @@ interface Topic
      * @throws AlreadySubscribed Raised if the subscriber object is
      * already subscribed.
      *
-     * @throws NullSubscriber Raised if the subscriber object is null.
+     * @throws InvalidSubscriber Raised if the subscriber object is null.
      *
      * @throws BadQoS Raised if the requested quality of service
      * is unavailable or invalid.
@@ -288,7 +287,7 @@ interface Topic
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -311,7 +310,7 @@ exception TopicExists
      *
      */
     string name;
-};
+}
 
 /**
  *
@@ -327,7 +326,7 @@ exception NoSuchTopic
      *
      */
     string name;
-};
+}
 
 /**
  *
@@ -340,8 +339,7 @@ interface TopicManager
 {
     /**
      *
-     * Create a new topic. The topic name must be unique, otherwise
-     * {@link TopicExists} is raised.
+     * Create a new topic. The topic name must be unique.
      *
      * @param name The name of the topic.
      *
@@ -383,7 +381,7 @@ interface TopicManager
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
-};
+}
 
 /**
  *
@@ -404,6 +402,6 @@ interface Finder
      *
      **/
     TopicManager* getTopicManager();
-};
+}
 
-};
+}

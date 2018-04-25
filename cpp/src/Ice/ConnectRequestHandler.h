@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@
 
 #include <IceUtil/Monitor.h>
 #include <IceUtil/Mutex.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #include <Ice/ConnectRequestHandlerF.h>
 #include <Ice/RequestHandler.h>
@@ -63,7 +63,7 @@ private:
 
     Ice::ConnectionIPtr _connection;
     bool _compress;
-    IceUtil::UniquePtr<Ice::LocalException> _exception;
+    IceInternal::UniquePtr<Ice::LocalException> _exception;
     bool _initialized;
     bool _flushing;
 

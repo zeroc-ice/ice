@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@ public class TestServiceI implements IceBox.Service
     start(String name, Ice.Communicator communicator, String[] args)
     {
         communicator.getProperties().setProperty("Ice.Package.Test", "test.IceBox.configuration");
-        
+
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter(name + "OA");
         adapter.add(new TestI(args), Ice.Util.stringToIdentity("test"));
         adapter.activate();

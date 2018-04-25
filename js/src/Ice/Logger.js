@@ -1,12 +1,12 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-    
+
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
 class Logger
@@ -22,7 +22,7 @@ class Logger
             this._prefix = "";
         }
 
-        this._dateformat = 
+        this._dateformat =
         {
             year: 'numeric',
             month: 'numeric',
@@ -33,7 +33,7 @@ class Logger
             hour12: false
         };
     }
-    
+
     print(message)
     {
         this.write(message, false);
@@ -42,7 +42,6 @@ class Logger
     trace(category, message)
     {
         const s = [];
-        const d = new Date();
         s.push("-- ");
         s.push(this.timestamp());
         s.push(' ');
@@ -56,7 +55,6 @@ class Logger
     warning(message)
     {
         const s = [];
-        const d = new Date();
         s.push("-! ");
         s.push(this.timestamp());
         s.push(' ');
@@ -69,7 +67,6 @@ class Logger
     error(message)
     {
         const s = [];
-        const d = new Date();
         s.push("!! ");
         s.push(this.timestamp());
         s.push(' ');

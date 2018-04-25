@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -31,7 +31,7 @@ def run(args, communicator):
     sys.stdout.flush()
     myClass.shutdown()
     try:
-        myClass.opVoid()
+        myClass.ice_timeout(100).ice_ping(); # Use timeout to speed up testing on Windows
         test(False)
     except Ice.LocalException:
         print("ok")
@@ -49,17 +49,13 @@ try:
     initData.properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0')
     initData.properties.setProperty("Ice.BatchAutoFlushSize", "100")
 
-    communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv, initData) as communicator:
+        status = run(sys.argv, communicator)
+        # Test multiple destroy calls
+        communicator.destroy()
+        communicator.destroy()
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

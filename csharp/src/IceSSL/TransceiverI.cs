@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,6 @@ namespace IceSSL
     using System.Diagnostics;
     using System.Collections.Generic;
     using System.IO;
-    using System.Net;
     using System.Net.Security;
     using System.Net.Sockets;
     using System.Security.Authentication;
@@ -48,8 +47,8 @@ namespace IceSSL
             // connection timeout could easily be triggered when
             // receiging/sending large messages.
             //
-            _maxSendPacketSize = System.Math.Max(512, IceInternal.Network.getSendBufferSize(fd()));
-            _maxRecvPacketSize = System.Math.Max(512, IceInternal.Network.getRecvBufferSize(fd()));
+            _maxSendPacketSize = Math.Max(512, IceInternal.Network.getSendBufferSize(fd()));
+            _maxRecvPacketSize = Math.Max(512, IceInternal.Network.getRecvBufferSize(fd()));
 
             if(_sslStream == null)
             {
@@ -62,7 +61,19 @@ namespace IceSSL
 
             Debug.Assert(_sslStream.IsAuthenticated);
             _authenticated = true;
-            _instance.verifyPeer(_host, (NativeConnectionInfo)getInfo(), ToString());
+
+            _cipher = _sslStream.CipherAlgorithm.ToString();
+            List<string> certs = new List<string>();
+            if(_chain.ChainElements != null && _chain.ChainElements.Count > 0)
+            {
+                _certs = new X509Certificate2[_chain.ChainElements.Count];
+                for(int i = 0; i < _chain.ChainElements.Count; ++i)
+                {
+                    _certs[i] = _chain.ChainElements[i].Certificate;
+                }
+            }
+
+            _instance.verifyPeer(_host, (ConnectionInfo)getInfo(), ToString());
 
             if(_instance.securityTraceLevel() >= 1)
             {
@@ -312,37 +323,13 @@ namespace IceSSL
 
         public Ice.ConnectionInfo getInfo()
         {
-            NativeConnectionInfo info = new NativeConnectionInfo();
+            ConnectionInfo info = new ConnectionInfo();
             info.underlying = _delegate.getInfo();
             info.incoming = _incoming;
             info.adapterName = _adapterName;
-            if(_sslStream != null)
-            {
-                info.cipher = _sslStream.CipherAlgorithm.ToString();
-                if(_chain.ChainElements != null && _chain.ChainElements.Count > 0)
-                {
-                    info.nativeCerts = new X509Certificate2[_chain.ChainElements.Count];
-                    for(int i = 0; i < _chain.ChainElements.Count; ++i)
-                    {
-                        info.nativeCerts[i] = _chain.ChainElements[i].Certificate;
-                    }
-                }
-
-                List<string> certs = new List<string>();
-                if(info.nativeCerts != null)
-                {
-                    foreach(X509Certificate2 cert in info.nativeCerts)
-                    {
-                        StringBuilder s = new StringBuilder();
-                        s.Append("-----BEGIN CERTIFICATE-----\n");
-                        s.Append(Convert.ToBase64String(cert.Export(X509ContentType.Cert)));
-                        s.Append("\n-----END CERTIFICATE-----");
-                        certs.Add(s.ToString());
-                    }
-                }
-                info.certs = certs.ToArray();
-                info.verified = _verified;
-            }
+            info.cipher = _cipher;
+            info.certs = _certs;
+            info.verified = _verified;
             return info;
         }
 
@@ -551,7 +538,7 @@ namespace IceSSL
                 _chain.Build(new X509Certificate2(certificate));
                 if(_chain.ChainStatus != null && _chain.ChainStatus.Length > 0)
                 {
-                    errors = (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                    errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                 }
                 else if(_instance.engine().caCerts() != null)
                 {
@@ -567,7 +554,7 @@ namespace IceSSL
                             message = message + "\nuntrusted root certificate (ignored)";
                             _verified = false;
                         }
-                        errors = (int)SslPolicyErrors.RemoteCertificateChainErrors;
+                        errors |= (int)SslPolicyErrors.RemoteCertificateChainErrors;
                     }
                     else
                     {
@@ -609,12 +596,20 @@ namespace IceSSL
 
             if((errors & (int)SslPolicyErrors.RemoteCertificateNameMismatch) > 0)
             {
-                //
-                // Ignore this error here; we'll check the peer certificate in verifyPeer().
-                //
-                errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                if(_instance.engine().getCheckCertName() && !string.IsNullOrEmpty(_host))
+                {
+                    if(_instance.securityTraceLevel() >= 1)
+                    {
+                        _instance.logger().trace(_instance.securityTraceCategory(),
+                                      "SSL certificate validation failed - Hostname mismatch");
+                    }
+                    return false;
+                }
+                else
+                {
+                    errors ^= (int)SslPolicyErrors.RemoteCertificateNameMismatch;
+                }
             }
-
 
             if((errors & (int)SslPolicyErrors.RemoteCertificateChainErrors) > 0 &&
                 _chain.ChainStatus != null && _chain.ChainStatus.Length > 0)
@@ -742,12 +737,12 @@ namespace IceSSL
 
         private int getSendPacketSize(int length)
         {
-            return _maxSendPacketSize > 0 ? System.Math.Min(length, _maxSendPacketSize) : length;
+            return _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
         }
 
         public int getRecvPacketSize(int length)
         {
-            return _maxRecvPacketSize > 0 ? System.Math.Min(length, _maxRecvPacketSize) : length;
+            return _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
         }
 
         private Instance _instance;
@@ -764,8 +759,10 @@ namespace IceSSL
         private IceInternal.AsyncCallback _readCallback;
         private IceInternal.AsyncCallback _writeCallback;
         private X509Chain _chain;
-        private bool _verified;
         private int _maxSendPacketSize;
         private int _maxRecvPacketSize;
+        private string _cipher;
+        private X509Certificate2[] _certs;
+        private bool _verified;
     }
 }

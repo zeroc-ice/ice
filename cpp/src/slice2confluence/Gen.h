@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@ namespace Slice
 void generate(const UnitPtr&, const ::std::string&, const ::std::string&, const ::std::string&, const std::string&,
               const ::std::string&, const ::std::string&, const ::std::string&, const ::std::string&,
               unsigned, unsigned, const ::std::vector<std::string>& = ::std::vector<std::string>());
-    
+
 typedef ::std::set< ::std::string> Files;
 
 class GeneratorBase : private ::IceUtil::noncopyable
@@ -40,7 +40,7 @@ public:
     static void setSymbols(const ContainedList&);
     static void setSortOrder(const std::vector<std::string>&);
     static bool compareSymbolNames(const std::string&, const std::string&);
-    
+
     static std::string removeNewlines(std::string);
     static std::string trim(std::string);
     static std::string getUpper(const std::string&);
@@ -58,14 +58,14 @@ protected:
 
     void start(const ::std::string&, const ::std::string& = ::std::string());
     void end();
-    
+
     std::string getAnchorMarkup(const std::string&, const std::string& = "");
     std::string getImageMarkup(const std::string&, const std::string& = "");
     std::string getLinkMarkup(const std::string&, const std::string& = "", const std::string& = "", const std::string& = "");
     std::string getNavMarkup(const std::string&, const std::string&);
-    
+
     bool hasEnding(const std::string&, const std::string&);
-    
+
     void printComment(const ContainedPtr&, const ContainerPtr&, const ::std::string&, bool = false);
     bool isTagged(const std::string& tag, std::string& comment);
     bool isUserImplemented(const ContainedPtr& p, const ContainerPtr& container);
@@ -95,9 +95,9 @@ protected:
 
     static size_t _indexCount;
     static size_t _warnSummary;
-    
+
     static std::vector<std::string> _sortOrder;
-    
+
     static const std::string MODULE_SUFFIX;
     static const std::string INDEX_NAME;
 
@@ -144,8 +144,6 @@ class StartPageGenerator : private GeneratorBase
 {
 public:
 
-    
-    
     StartPageGenerator(const Files&);
     ~StartPageGenerator();
     void generate(const ModulePtr&);
@@ -155,7 +153,6 @@ private:
     using GeneratorBase::printHeaderFooter;
     void printHeaderFooter();
 
-   
     typedef ::std::vector<StringPair> ModuleDescriptions;
     ModuleDescriptions _modules;
     Confluence::ConfluenceOutput _out;

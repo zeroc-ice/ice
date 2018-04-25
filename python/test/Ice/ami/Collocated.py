@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -30,8 +30,9 @@ def run(args, communicator):
     testController = TestI.TestIntfControllerI(adapter)
 
     adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
+    adapter.add(TestI.TestIntfII(), Ice.stringToIdentity("test2"))
     #adapter.activate() # Collocated test doesn't need to active the OA
-    
+
     adapter2.add(testController, Ice.stringToIdentity("testController"))
     #adapter2.activate() # Collocated test doesn't need to active the OA
 
@@ -50,17 +51,10 @@ try:
     #
     initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-    communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv, initData) as communicator:
+        status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@
 #include <Ice/InputStream.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/LocalException.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #ifndef ICE_CPP11_MAPPING
 #    include <Ice/AsyncResult.h>
@@ -57,7 +57,7 @@ protected:
 // responsible for the handling of the output stream and the child
 // invocation observer.
 //
-class ICE_API OutgoingAsyncBase : virtual public OutgoingAsyncCompletionCallback,
+class ICE_API OutgoingAsyncBase : public virtual OutgoingAsyncCompletionCallback,
 #ifdef ICE_CPP11_MAPPING
                                   public std::enable_shared_from_this<OutgoingAsyncBase>
 #else
@@ -101,12 +101,14 @@ public:
 
     virtual void throwLocalException() const;
 
-    virtual bool __wait();
-    virtual Ice::InputStream* __startReadParams();
-    virtual void __endReadParams();
-    virtual void __readEmptyParams();
-    virtual void __readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&);
-    virtual void __throwUserException();
+    virtual bool _waitForResponse();
+    virtual Ice::InputStream* _startReadParams();
+    virtual void _endReadParams();
+    virtual void _readEmptyParams();
+    virtual void _readParamEncaps(const ::Ice::Byte*&, ::Ice::Int&);
+    virtual void _throwUserException();
+
+    virtual void _scheduleCallback(const CallbackPtr&);
 #endif
 
     void attachRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& endpt, Ice::Int requestId)
@@ -137,7 +139,7 @@ protected:
 
     bool sentImpl(bool);
     bool exceptionImpl(const Ice::Exception&);
-    bool responseImpl(bool);
+    bool responseImpl(bool, bool);
 
     void cancel(const Ice::LocalException&);
     void checkCanceled();
@@ -169,8 +171,8 @@ protected:
     Ice::LocalObjectPtr _cookie;
 #endif
 
-    IceUtil::UniquePtr<Ice::Exception> _ex;
-    IceUtil::UniquePtr<Ice::LocalException> _cancellationException;
+    IceInternal::UniquePtr<Ice::Exception> _ex;
+    IceInternal::UniquePtr<Ice::LocalException> _cancellationException;
 
     InvocationObserver _observer;
     ObserverHelperT<Ice::Instrumentation::ChildInvocationObserver> _childObserver;
@@ -227,7 +229,7 @@ protected:
     void invokeImpl(bool);
     bool sentImpl(bool);
     bool exceptionImpl(const Ice::Exception&);
-    bool responseImpl(bool);
+    bool responseImpl(bool, bool);
 
     virtual void runTimerTask();
 
@@ -302,92 +304,6 @@ protected:
     bool _synchronous;
 };
 
-//
-// Class for handling the proxy's begin_ice_flushBatchRequest request.
-//
-class ICE_API ProxyFlushBatchAsync : public ProxyOutgoingAsyncBase
-{
-public:
-
-    ProxyFlushBatchAsync(const Ice::ObjectPrxPtr&);
-
-    virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
-    virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
-
-    void invoke(const std::string&);
-
-private:
-
-    int _batchRequestNum;
-};
-typedef IceUtil::Handle<ProxyFlushBatchAsync> ProxyFlushBatchAsyncPtr;
-
-//
-// Class for handling the proxy's begin_ice_getConnection request.
-//
-class ICE_API ProxyGetConnection :  public ProxyOutgoingAsyncBase
-{
-public:
-
-    ProxyGetConnection(const Ice::ObjectPrxPtr&);
-
-    virtual AsyncStatus invokeRemote(const Ice::ConnectionIPtr&, bool, bool);
-    virtual AsyncStatus invokeCollocated(CollocatedRequestHandler*);
-
-    virtual Ice::ConnectionPtr getConnection() const;
-
-    void invoke(const std::string&);
-};
-typedef IceUtil::Handle<ProxyGetConnection> ProxyGetConnectionPtr;
-
-//
-// Class for handling Ice::Connection::begin_flushBatchRequests
-//
-class ICE_API ConnectionFlushBatchAsync : public OutgoingAsyncBase
-{
-public:
-
-    ConnectionFlushBatchAsync(const Ice::ConnectionIPtr&, const InstancePtr&);
-
-    virtual Ice::ConnectionPtr getConnection() const;
-
-    void invoke(const std::string&);
-
-private:
-
-    const Ice::ConnectionIPtr _connection;
-};
-typedef IceUtil::Handle<ConnectionFlushBatchAsync> ConnectionFlushBatchAsyncPtr;
-
-//
-// Class for handling Ice::Communicator::begin_flushBatchRequests
-//
-class ICE_API CommunicatorFlushBatchAsync : public OutgoingAsyncBase
-{
-public:
-
-    virtual ~CommunicatorFlushBatchAsync();
-
-    CommunicatorFlushBatchAsync(const InstancePtr&);
-
-    void flushConnection(const Ice::ConnectionIPtr&);
-    void invoke(const std::string&);
-
-#ifdef ICE_CPP11_MAPPING
-    std::shared_ptr<CommunicatorFlushBatchAsync> shared_from_this()
-    {
-        return std::static_pointer_cast<CommunicatorFlushBatchAsync>(OutgoingAsyncBase::shared_from_this());
-    }
-#endif
-
-private:
-
-    void check(bool);
-
-    int _useCount;
-    InvocationObserver _observer;
-};
-
 }
 
 namespace IceInternal
@@ -395,7 +311,7 @@ namespace IceInternal
 
 #ifdef ICE_CPP11_MAPPING
 
-class ICE_API LambdaInvoke : virtual public OutgoingAsyncCompletionCallback
+class ICE_API LambdaInvoke : public virtual OutgoingAsyncCompletionCallback
 {
 public:
 
@@ -420,7 +336,7 @@ protected:
 };
 
 template<typename Promise>
-class PromiseInvoke : virtual public OutgoingAsyncCompletionCallback
+class PromiseInvoke : public virtual OutgoingAsyncCompletionCallback
 {
 public:
 
@@ -753,7 +669,7 @@ public:
 //
 // See comments in OutgoingAsync.cpp
 //
-extern ICE_API CallbackBasePtr __dummyCallback;
+extern ICE_API CallbackBasePtr dummyCallback;
 
 //
 // Generic callback template that requires the caller to down-cast the
@@ -805,7 +721,7 @@ private:
     Callback _sent;
 };
 
-class CallbackCompletion : virtual public OutgoingAsyncCompletionCallback
+class CallbackCompletion : public virtual OutgoingAsyncCompletionCallback
 {
 public:
 
@@ -889,6 +805,13 @@ namespace Ice
 
 typedef IceUtil::Handle< ::IceInternal::GenericCallbackBase> CallbackPtr;
 
+/**
+ * Creates a callback wrapper instance that delegates to your object.
+ * @param instance The callback object.
+ * @param cb The completion callback.
+ * @param sentcb The sent callback.
+ * @return A callback object that can be passed to an asynchronous invocation.
+ */
 template<class T> CallbackPtr
 newCallback(const IceUtil::Handle<T>& instance,
             void (T::*cb)(const AsyncResultPtr&),
@@ -897,6 +820,13 @@ newCallback(const IceUtil::Handle<T>& instance,
     return new ::IceInternal::AsyncCallback<T>(instance, cb, sentcb);
 }
 
+/**
+ * Creates a callback wrapper instance that delegates to your object.
+ * @param instance The callback object.
+ * @param cb The completion callback.
+ * @param sentcb The sent callback.
+ * @return A callback object that can be passed to an asynchronous invocation.
+ */
 template<class T> CallbackPtr
 newCallback(T* instance,
             void (T::*cb)(const AsyncResultPtr&),

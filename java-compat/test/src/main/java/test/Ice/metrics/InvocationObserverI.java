@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ package test.Ice.metrics;
 class InvocationObserverI extends ObserverI implements Ice.Instrumentation.InvocationObserver
 {
     @Override
-    public synchronized void 
+    public synchronized void
     reset()
     {
         super.reset();
@@ -29,21 +29,21 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
     }
 
     @Override
-    public synchronized void 
+    public synchronized void
     retried()
     {
         ++retriedCount;
     }
 
     @Override
-    public synchronized void 
+    public synchronized void
     userException()
     {
         ++userExceptionCount;
     }
 
     @Override
-    public synchronized Ice.Instrumentation.RemoteObserver 
+    public synchronized Ice.Instrumentation.RemoteObserver
     getRemoteObserver(Ice.ConnectionInfo c, Ice.Endpoint e, int a, int b)
     {
         if(remoteObserver == null)
@@ -54,9 +54,8 @@ class InvocationObserverI extends ObserverI implements Ice.Instrumentation.Invoc
         return remoteObserver;
     }
 
-
     @Override
-    public synchronized Ice.Instrumentation.CollocatedObserver 
+    public synchronized Ice.Instrumentation.CollocatedObserver
     getCollocatedObserver(Ice.ObjectAdapter adapter, int a, int b)
     {
         if(collocatedObserver == null)

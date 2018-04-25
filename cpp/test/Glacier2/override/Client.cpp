@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <TestCommon.h>
 #include <CallbackI.h>
@@ -16,9 +16,6 @@
 using namespace std;
 using namespace Ice;
 using namespace Test;
-
-static Ice::InitializationData initData;
-
 
 class CallbackClient : public Application
 {
@@ -30,16 +27,12 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     //
     // We must disable connection warnings, because we attempt to ping
     // the router before session establishment, as well as after
     // session destruction. Both will cause a ConnectionLostException.
     //
-    initData.properties = Ice::createProperties(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
     initData.properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
 
@@ -50,11 +43,11 @@ main(int argc, char* argv[])
 int
 CallbackClient::run(int, char**)
 {
-    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
+    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator(), 50));
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
     communicator()->setDefaultRouter(router);
 
-    ObjectPrx base = communicator()->stringToProxy("c/callback:tcp -p 12010");
+    ObjectPrx base = communicator()->stringToProxy("c/callback:" + getTestEndpoint(communicator(), 0));
     Glacier2::SessionPrx session = router->createSession("userid", "abc123");
     base->ice_ping();
 
@@ -213,7 +206,8 @@ CallbackClient::run(int, char**)
         }
 
         communicator()->setDefaultRouter(0);
-        ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
+        ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
+                                                              getTestEndpoint(communicator(), 51));
         Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
         process->shutdown();
         try

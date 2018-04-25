@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,7 +30,8 @@ int
 main(int argc, char** argv)
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
 #endif
     int status;
     Ice::CommunicatorPtr communicator;
@@ -40,7 +41,8 @@ main(int argc, char** argv)
         setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
         setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
 
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
@@ -51,15 +53,7 @@ main(int argc, char** argv)
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        communicator->destroy();
     }
 
     return status;

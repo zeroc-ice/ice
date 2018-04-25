@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,17 +36,17 @@ getThreadStateMetric(ThreadState s)
 {
     switch(s)
     {
-    case ThreadStateIdle:
-        return 0;
-    case ThreadStateInUseForIO:
-        return &ThreadMetrics::inUseForIO;
-    case ThreadStateInUseForUser:
-        return &ThreadMetrics::inUseForUser;
-    case ThreadStateInUseForOther:
-        return &ThreadMetrics::inUseForOther;
-    default:
-        assert(false);
-        return 0;
+        case ICE_ENUM(ThreadState, ThreadStateIdle):
+            return 0;
+        case ICE_ENUM(ThreadState, ThreadStateInUseForIO):
+            return &ThreadMetrics::inUseForIO;
+        case ICE_ENUM(ThreadState, ThreadStateInUseForUser):
+            return &ThreadMetrics::inUseForUser;
+        case ICE_ENUM(ThreadState, ThreadStateInUseForOther):
+            return &ThreadMetrics::inUseForOther;
+        default:
+            assert(false);
+            return 0;
     }
 }
 
@@ -58,11 +58,11 @@ struct ThreadStateChanged
 
     void operator()(const ThreadMetricsPtr& v)
     {
-        if(oldState != ThreadStateIdle)
+        if(oldState != ICE_ENUM(ThreadState, ThreadStateIdle))
         {
             --(v.get()->*getThreadStateMetric(oldState));
         }
-        if(newState != ThreadStateIdle)
+        if(newState != ICE_ENUM(ThreadState, ThreadStateIdle))
         {
             ++(v.get()->*getThreadStateMetric(newState));
         }
@@ -145,19 +145,19 @@ public:
     {
         switch(_state)
         {
-        case ConnectionStateValidating:
-            return "validating";
-        case ConnectionStateHolding:
-            return "holding";
-        case ConnectionStateActive:
-            return "active";
-        case ConnectionStateClosing:
-            return "closing";
-        case ConnectionStateClosed:
-            return "closed";
-        default:
-            assert(false);
-            return "";
+            case ICE_ENUM(ConnectionState, ConnectionStateValidating):
+                return "validating";
+            case ICE_ENUM(ConnectionState, ConnectionStateHolding):
+                return "holding";
+            case ICE_ENUM(ConnectionState, ConnectionStateActive):
+                return "active";
+            case ICE_ENUM(ConnectionState, ConnectionStateClosing):
+                return "closing";
+            case ICE_ENUM(ConnectionState, ConnectionStateClosed):
+                return "closed";
+            default:
+                assert(false);
+                return "";
         }
     }
 
@@ -334,7 +334,7 @@ public:
     string
     getIdentity() const
     {
-        return identityToString(_current.id);
+        return _current.adapter->getCommunicator()->identityToString(_current.id);
     }
 
 private:
@@ -443,7 +443,7 @@ public:
                 catch(const Exception&)
                 {
                     // Either a fixed proxy or the communicator is destroyed.
-                    os << identityToString(_proxy->ice_getIdentity());
+                    os << _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
                     os << " [" << _operation << ']';
                 }
             }
@@ -468,13 +468,12 @@ public:
         return _proxy;
     }
 
-
     string
     getIdentity() const
     {
         if(_proxy)
         {
-            return identityToString(_proxy->ice_getIdentity());
+            return _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
         }
         else
         {
@@ -686,7 +685,7 @@ public:
 
     virtual void initMetrics(const ThreadMetricsPtr& v) const
     {
-        if(_state != ThreadStateIdle)
+        if(_state != ICE_ENUM(ThreadState, ThreadStateIdle))
         {
             ++(v.get()->*getThreadStateMetric(_state));
         }

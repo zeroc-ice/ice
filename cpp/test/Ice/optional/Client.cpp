@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,19 +29,21 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#   if defined(__linux)
-    Ice::registerIceBT();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
+#   ifdef ICE_HAS_BT
+    Ice::registerIceBT(false);
 #   endif
 #endif
 
     try
     {
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv);
-        RemoteConfig rc("Ice/optional", argc, argv, ich.communicator());
-        int status = run(argc, argv, ich.communicator());
-        rc.finished(status);
-        return status;
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+#ifndef ICE_CPP11_MAPPING
+        initData.properties->setProperty("Ice.CollectObjects", "1");
+#endif
+        Ice::CommunicatorHolder ich(argc, argv, initData);
+        return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
     {

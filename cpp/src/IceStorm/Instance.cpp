@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,6 +17,7 @@
 #include <Ice/InstrumentationI.h>
 #include <Ice/Communicator.h>
 #include <Ice/Properties.h>
+#include <Ice/TraceUtil.h>
 
 using namespace std;
 using namespace IceStorm;
@@ -110,6 +111,8 @@ Instance::Instance(
                                                    name + ".Flush.Timeout", 1000))), // default one second.
     // default one minute.
     _sendTimeout(communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.Timeout", 60 * 1000)),
+    _sendQueueSizeMax(communicator->getProperties()->getPropertyAsIntWithDefault(name + ".Send.QueueSizeMax", -1)),
+    _sendQueueSizeMaxPolicy(RemoveSubscriber),
     _topicReaper(new TopicReaper())
 {
     try
@@ -134,6 +137,21 @@ Instance::Instance(
         _batchFlusher = new IceUtil::Timer();
         _timer = new IceUtil::Timer();
 
+        string policy = properties->getProperty(name + ".Send.QueueSizeMaxPolicy");
+        if(policy == "RemoveSubscriber")
+        {
+            const_cast<SendQueueSizeMaxPolicy&>(_sendQueueSizeMaxPolicy) = RemoveSubscriber;
+        }
+        else if(policy == "DropEvents")
+        {
+            const_cast<SendQueueSizeMaxPolicy&>(_sendQueueSizeMaxPolicy) = DropEvents;
+        }
+        else if(!policy.empty())
+        {
+            Ice::Warning warn(_traceLevels->logger);
+            warn << "invalid value `" << policy << "' for `" << name << ".Send.QueueSizeMaxPolicy'";
+        }
+
         //
         // If an Ice metrics observer is setup on the communicator, also
         // enable metrics for IceStorm.
@@ -154,11 +172,6 @@ Instance::Instance(
         throw;
     }
     __setNoDelete(false);
-}
-
-Instance::~Instance()
-{
-    //cout << "~Instance" << endl;
 }
 
 void
@@ -287,6 +300,18 @@ Instance::sendTimeout() const
     return _sendTimeout;
 }
 
+int
+Instance::sendQueueSizeMax() const
+{
+    return _sendQueueSizeMax;
+}
+
+Instance::SendQueueSizeMaxPolicy
+Instance::sendQueueSizeMaxPolicy() const
+{
+    return _sendQueueSizeMaxPolicy;
+}
+
 void
 Instance::shutdown()
 {
@@ -320,7 +345,7 @@ Instance::destroy()
     _node = 0;
     //
     // The observer instance must be cleared as it holds the
-    // TopicManagerImpl which hodlds the instance causing a 
+    // TopicManagerImpl which hodlds the instance causing a
     // cyclic reference.
     //
     _observer = 0;

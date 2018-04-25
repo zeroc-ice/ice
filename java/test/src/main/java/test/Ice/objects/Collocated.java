@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 package test.Ice.objects;
 
-import test.Ice.objects.Test._InitialDisp;
+import test.Ice.objects.Test.Initial;
 
 public class Collocated extends test.Util.Application
 {
@@ -89,13 +89,13 @@ public class Collocated extends test.Util.Application
 
         communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        _InitialDisp initial = new InitialI(adapter);
+        Initial initial = new InitialI(adapter);
         adapter.add(initial, com.zeroc.Ice.Util.stringToIdentity("initial"));
         UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
         adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("uoet"));
-        AllTests.allTests(communicator, getWriter());
+        AllTests.allTests(this);
         //
         // We must call shutdown even in the collocated case for cyclic dependency cleanup.
         //
@@ -104,11 +104,12 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
-        return r;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        return initData;
     }
 
     public static void main(String[] args)

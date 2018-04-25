@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ ICE_API ICEEncodingVersion* ICECurrentEncoding;
 +(void) load
 {
     ICEEncoding_1_0 = [[ICEEncodingVersion alloc] init:1 minor:0];
-    ICEEncoding_1_1 = [[ICEEncodingVersion alloc] init:1 minor:1]; 
+    ICEEncoding_1_1 = [[ICEEncodingVersion alloc] init:1 minor:1];
     ICECurrentEncoding = [[ICEEncodingVersion alloc] init:IceInternal::encodingMajor minor:IceInternal::encodingMinor];
 }
 
@@ -57,7 +57,7 @@ ICE_API ICEEncodingVersion* ICECurrentEncoding;
     {
         return ICECurrentEncoding;
     }
-    else 
+    else
     {
         return [[[ICEEncodingVersion alloc] initWithEncodingVersion:arg] autorelease];
     }
@@ -68,7 +68,6 @@ ICE_API ICEEncodingVersion* ICECurrentEncoding;
     return [toNSString(Ice::encodingVersionToString([self encodingVersion])) autorelease];
 }
 @end
-
 
 ICEProtocolVersion* ICEProtocol_1_0;
 ICEProtocolVersion* ICECurrentProtocol;
@@ -114,7 +113,7 @@ ICEEncodingVersion* ICECurrentProtocolEncoding;
     {
         return ICECurrentProtocol;
     }
-    else 
+    else
     {
         return [[[ICEProtocolVersion alloc] initWithProtocolVersion:arg] autorelease];
     }

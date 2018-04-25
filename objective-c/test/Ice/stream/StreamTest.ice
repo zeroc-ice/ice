@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,8 +20,9 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
+interface MyInterface;
 class MyClass;
 
 ["cpp:comparable"] struct SmallStruct
@@ -35,13 +36,13 @@ class MyClass;
     double d;
     string str;
     MyEnum e;
-    MyClass* p;
-};
+    MyInterface* p;
+}
 
 ["cpp:class"] struct ClassStruct
 {
     int i;
-};
+}
 
 class OptionalClass
 {
@@ -49,7 +50,7 @@ class OptionalClass
     byte by;
     optional(1) short sh;
     optional(2) int i;
-};
+}
 
 sequence<MyEnum> MyEnumS;
 sequence<SmallStruct> SmallStructS;
@@ -89,16 +90,16 @@ class MyClass
     MyEnumS seq9;
     MyClassS seq10;
     StringMyClassD d;
-};
+}
 
 interface MyInterface
 {
-};
+}
 
 exception MyException
 {
     MyClass c;
-};
+}
 
 ["objc:prefix:TestStreamSub"]
 module Sub
@@ -108,7 +109,7 @@ module Sub
         nestedEnum1,
         nestedEnum2,
         nestedEnum3
-    };
+    }
 
     ["cpp:comparable"] struct NestedStruct
     {
@@ -121,19 +122,19 @@ module Sub
         double d;
         string str;
         NestedEnum e;
-    };
+    }
 
     ["cpp:class"] struct NestedClassStruct
     {
         int i;
-    };
+    }
 
     exception NestedException
     {
         string str;
-    };
-};
-};
+    }
+}
+}
 
 ["objc:prefix:TestStream2"]
 module Test2
@@ -146,7 +147,7 @@ module Sub2
         nestedEnum4,
         nestedEnum5,
         nestedEnum6
-    };
+    }
 
     ["cpp:comparable"] struct NestedStruct2
     {
@@ -159,17 +160,16 @@ module Sub2
         double d;
         string str;
         NestedEnum2 e;
-    };
+    }
 
     ["cpp:class"] struct NestedClassStruct2
     {
         int i;
-    };
+    }
 
     exception NestedException2
     {
         string str;
-    };
-};
-};
-
+    }
+}
+}

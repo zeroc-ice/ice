@@ -1,68 +1,72 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
- /* global
-    __runEchoServerOptions__ : false,
-    __test__ : false,
-    Test : false,
-    URI : false,
-    current : false,
-    TestCases : false,
-    runTest: false
+/* global
+   _runEchoServerOptions : false,
+   _test : false,
+   Test : false,
+   URI : false,
+   current : false,
+   TestSuites : false,
+   runTest: false
 */
 
 $(document).foundation();
 $(document).ready(
-    function(){
+    function()
+    {
+        const es5 = document.location.pathname.indexOf("/es5/") !== -1;
+        let worker;
+
         $("#console").height(120);
 
-        var out =
+        class Output
         {
-            write: function(msg)
+            static write(msg)
             {
-                var text = $("#console").val();
-                $("#console").val((text === "") ? msg : (text + msg));
-            },
-            writeLine: function(msg)
+                const text = $("#console").val();
+                $("#console").val(text + msg);
+            }
+
+            static writeLine(msg)
             {
-                out.write(msg + "\n");
+                Output.write(msg + "\n");
                 $("#console").scrollTop($("#console").get(0).scrollHeight);
             }
-        };
+        }
 
-        var query = new URI(document.location.href).search(true);
+        let query = new URI(document.location.href).search(true);
 
         $("#language").val(query.language !== undefined ? query.language : "cpp");
         $("#protocol").val(document.location.protocol == "http:" ? "ws" : "wss");
         $("#test").val("/test/" + current + "/index.html");
         $("#worker").prop("checked", query.worker == "true");
         $("#loop").prop("checked", query.loop == "true");
-        
+
         function nextTest()
         {
-            var path = $("#test").val();
-            if(document.location.pathname.indexOf("/es5/") !== -1 &&
-               path.indexOf("/es5/") === -1)
+            let path = $("#test").val();
+            if(document.location.pathname.indexOf("/es5/") !== -1 && path.indexOf("/es5/") === -1)
             {
-                path = path.replace("/test/Ice/", "/test/Ice/es5/");
+                path = path.replace("/test/", "/test/es5/");
             }
 
             document.location.assign(new URI()
-                .host(document.location.host)
-                .pathname(path)
-                .search(
-                    {
-                        language: $("#language").val(),
-                        worker: $("#worker").is(":checked"),
-                        loop: $("#loop").is(":checked"),
-                        next:"true"
-                    }).toString());
+                                     .host(document.location.host)
+                                     .pathname(path)
+                                     .search(
+                                         {
+                                             language: $("#language").val(),
+                                             worker: $("#worker").is(":checked"),
+                                             loop: $("#loop").is(":checked"),
+                                             next:"true"
+                                         }).toString());
         }
 
         function next(success)
@@ -79,7 +83,7 @@ $(document).ready(
                 updateLocation();
             }
         }
-        
+
         function setRunning(running)
         {
             if(running)
@@ -100,122 +104,132 @@ $(document).ready(
                 $("#run").removeClass("disabled");
             }
         }
-        
+
         function updateLocation()
         {
-            var path = $("#test").val();
-            if(document.location.pathname.indexOf("/es5/") !== -1 &&
-               path.indexOf("/es5/") === -1)
+            let path = $("#test").val();
+            if(document.location.pathname.indexOf("/es5/") !== -1 && path.indexOf("/es5/") === -1)
             {
-                path = path.replace("/test/Ice/", "/test/Ice/es5/");
+                path = path.replace("/test/", "/test/es5/");
             }
 
             document.location.assign(new URI()
-                .host(document.location.host)
-                .pathname(path)
-                .search(
-                    {
-                        language: $("#language").val(),
-                        worker: $("#worker").is(":checked"),
-                        loop: $("#loop").is(":checked")
-                    }).toString());
+                                     .host(document.location.host)
+                                     .pathname(path)
+                                     .search(
+                                         {
+                                             language: $("#language").val(),
+                                             worker: $("#worker").is(":checked"),
+                                             loop: $("#loop").is(":checked")
+                                         }).toString());
         }
 
-        $("#run").click(function(){
-            if(!$(this).hasClass("disabled"))
-            {
-                setRunning(true);
-                if($("#worker").is(":checked"))
-                {
-                    var worker = new Worker("/test/Common/Worker.js");
-                    worker.onmessage = function(e)
-                    {
-                        if(e.data.type == "Write")
+        $("#run").click((e) =>
                         {
-                            out.write(e.data.message);
-                        }
-                        else if(e.data.type == "WriteLine")
-                        {
-                            out.writeLine(e.data.message);
-                        }
-                        else if(e.data.type == "TestFinished")
-                        {
-                            setRunning(false);
-                            next(e.data.success);
-                        }
-                    };
-
-                    worker.postMessage(
-                        {
-                            type: "RunTest",
-                            test:
+                            if(!$(e.currentTarget).hasClass("disabled"))
                             {
-                                name: current,
-                                language: $("#language").val(),
-                                defaultHost: document.location.hostname || "127.0.0.1",
-                                protocol: $("#protocol").val(),
-                                configurations: TestCases[current].configurations,
-                                files: TestCases[current].files,
-                                es5: document.location.pathname.indexOf("/es5/") !== -1
-                            }
-                        });
-                }
-                else
-                {
-                    runTest(current, $("#language").val(), document.location.hostname || "127.0.0.1",
-                            $("#protocol").val(), TestCases[current].configurations, out
-                    ).finally(
-                        function()
-                        {
-                            setRunning(false);
-                        }
-                    ).then(
-                        function(success)
-                        {
-                            next(success);
-                        });
-                }
-            }
-            return false;
-        });
+                                setRunning(true);
+                                if($("#worker").is(":checked"))
+                                {
+                                    worker = new Worker(es5 ? "/test/es5/Common/Worker.js" : "/test/Common/Worker.js");
+                                    worker.onmessage = function(e)
+                                    {
+                                        if(e.data.type == "Write")
+                                        {
+                                            Output.write(e.data.message);
+                                        }
+                                        else if(e.data.type == "WriteLine")
+                                        {
+                                            Output.writeLine(e.data.message);
+                                        }
+                                        else if(e.data.type == "TestFinished")
+                                        {
+                                            worker.terminate();
+                                            setRunning(false);
+                                            next(e.data.success);
+                                        }
+                                    };
 
-        $("#test").on("change",
-                      function(e)
+                                    worker.postMessage(
+                                        {
+                                            type: "RunTest",
+                                            test:
+                                            {
+                                                name: current,
+                                                language: $("#language").val(),
+                                                defaultHost: document.location.hostname || "127.0.0.1",
+                                                protocol: $("#protocol").val(),
+                                                testcases: TestSuites[current].testcases,
+                                                files: TestSuites[current].files,
+                                                es5: document.location.pathname.indexOf("/es5/") !== -1
+                                            }
+                                        });
+
+                                    worker.onerror = function(e)
+                                    {
+                                        console.log(e);
+                                    };
+                                }
+                                else
+                                {
+                                    (async function()
+                                     {
+                                         let success;
+                                         try
+                                         {
+                                             success = await runTest(current,
+                                                                     $("#language").val(),
+                                                                     document.location.hostname || "127.0.0.1",
+                                                                     $("#protocol").val(),
+                                                                     TestSuites[current].testcases,
+                                                                     Output);
+                                         }
+                                         finally
+                                         {
+                                             setRunning(false);
+                                         }
+                                         next(success);
+                                     }());
+                                }
+                            }
+                            return false;
+                        });
+
+        $("#test").on("change", e =>
                       {
                           updateLocation();
                           return false;
                       });
 
-        $("#language").on("change",
-                          function(e)
-                          {
-                              updateLocation();
-                              return false;
-                          });
-        
-        $("#worker").on("change",
-                          function(e)
+        $("#language").on("change", e =>
                           {
                               updateLocation();
                               return false;
                           });
 
-        $("#protocol").on("change",
-                          function(e)
+        $("#worker").on("change", e =>
+                        {
+                            updateLocation();
+                            return false;
+                        });
+
+        $("#protocol").on("change", e =>
                           {
-                              if((document.location.protocol == "http:" && $(this).val() == "wss") ||
-                                 (document.location.protocol == "https:" && $(this).val() == "ws"))
+                              let protocol = $(e.currentTarget).val();
+                              console.log(`protocol change: ${protocol}`);
+                              if((document.location.protocol == "http:" && protocol == "wss") ||
+                                 (document.location.protocol == "https:" && protocol == "ws"))
                               {
                                   document.location.assign(
                                       new URI()
-                                        .protocol($(this).val() == "ws" ? "http" : "https")
-                                        .hostname(document.location.hostname)
-                                        .port($(this).val() == "ws" ? 8080 : 9090)
-                                        .search(
-                                            {
-                                                language: $("#language").val(),
-                                                worker: $("#worker").is(":checked")
-                                            }));
+                                          .protocol(protocol == "ws" ? "http" : "https")
+                                          .hostname(document.location.hostname)
+                                          .port(protocol == "ws" ? 8080 : 9090)
+                                          .search(
+                                              {
+                                                  language: $("#language").val(),
+                                                  worker: $("#worker").is(":checked")
+                                              }));
                                   return false;
                               }
                           });

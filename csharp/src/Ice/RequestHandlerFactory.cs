@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ namespace IceInternal
                 Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(proxy);
                 if(adapter != null)
                 {
-                    return proxy.setRequestHandler__(new CollocatedRequestHandler(rf, adapter));
+                    return proxy.iceSetRequestHandler(new CollocatedRequestHandler(rf, adapter));
                 }
             }
 
@@ -54,7 +54,7 @@ namespace IceInternal
             {
                 rf.getConnection(handler);
             }
-            return proxy.setRequestHandler__(handler.connect(proxy));
+            return proxy.iceSetRequestHandler(handler.connect(proxy));
         }
 
         internal void

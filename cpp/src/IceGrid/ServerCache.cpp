@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,6 +18,7 @@
 #include <IceGrid/AllocatableObjectCache.h>
 #include <IceGrid/SessionI.h>
 #include <IceGrid/DescriptorHelper.h>
+#include <IceGrid/Topics.h>
 
 using namespace std;
 using namespace IceGrid;
@@ -71,7 +72,6 @@ namespace IceGrid
         ServerCache& _serverCache;
         const ServerEntryPtr _entry;
     };
-
 
 }
 
@@ -162,9 +162,7 @@ ServerCache::get(const string& id) const
     ServerEntryPtr entry = getImpl(id);
     if(!entry)
     {
-        ServerNotExistException ex;
-        ex.id = id;
-        throw ex;
+        throw ServerNotExistException(id);
     }
     return entry;
 }
@@ -263,6 +261,12 @@ ServerCache::clear(const string& id)
 }
 
 void
+ServerCache::setNodeObserverTopic(const NodeObserverTopicPtr& nodeObserverTopic)
+{
+    _nodeObserverTopic = nodeObserverTopic;
+}
+
+void
 ServerCache::addCommunicator(const CommunicatorDescriptorPtr& oldDesc,
                              const CommunicatorDescriptorPtr& newDesc,
                              const ServerEntryPtr& server,
@@ -291,7 +295,7 @@ ServerCache::addCommunicator(const CommunicatorDescriptorPtr& oldDesc,
 
         for(ObjectDescriptorSeq::const_iterator r = q->objects.begin(); r != q->objects.end(); ++r)
         {
-            _objectCache.add(toObjectInfo(_communicator, *r, q->id), application);
+            _objectCache.add(toObjectInfo(_communicator, *r, q->id), application, server->getId());
         }
         for(ObjectDescriptorSeq::const_iterator r = q->allocatables.begin(); r != q->allocatables.end(); ++r)
         {
@@ -393,7 +397,7 @@ ServerEntry::unsync()
     Lock sync(*this);
     if(_loaded.get())
     {
-        _load = _loaded;
+        _load.reset(_loaded.release());
     }
     _proxy = 0;
     _adapters.clear();
@@ -421,7 +425,7 @@ ServerEntry::update(const ServerInfo& info, bool noRestart)
 {
     Lock sync(*this);
 
-    IceUtil::UniquePtr<ServerInfo> descriptor(new ServerInfo());
+    IceInternal::UniquePtr<ServerInfo> descriptor(new ServerInfo());
     *descriptor = info;
 
     _updated = true;
@@ -430,17 +434,17 @@ ServerEntry::update(const ServerInfo& info, bool noRestart)
     {
         if(_loaded.get() && descriptor->node != _loaded->node)
         {
-            _destroy = _loaded;
+            _destroy.reset(_loaded.release());
         }
         else if(_load.get() && descriptor->node != _load->node)
         {
-            _destroy = _load;
+            _destroy.reset(_load.release());
         }
     }
 
-    _load = descriptor;
+    _load.reset(descriptor.release());
     _noRestart = noRestart;
-    _loaded.reset(0);
+    _loaded.reset();
     _allocatable = info.descriptor->allocatable;
     if(info.descriptor->activation == "session")
     {
@@ -462,18 +466,18 @@ ServerEntry::destroy(bool noRestart)
         if(_loaded.get())
         {
             assert(!_destroy.get());
-            _destroy = _loaded;
+            _destroy.reset(_loaded.release());
         }
         else if(_load.get())
         {
             assert(!_destroy.get());
-            _destroy = _load;
+            _destroy.reset(_load.release());
         }
     }
 
     _noRestart = noRestart;
-    _load.reset(0);
-    _loaded.reset(0);
+    _load.reset();
+    _loaded.reset();
     _allocatable = false;
 }
 
@@ -569,14 +573,7 @@ ServerEntry::getAdminProxy()
     Ice::Identity adminId;
     adminId.name = _id;
     adminId.category = _cache.getInstanceName() + "-NodeServerAdminRouter";
-    try
-    {
-        return getProxy(true)->ice_identity(adminId);
-    }
-    catch(const SynchronizationException&)
-    {
-    }
-    return 0;
+    return getProxy(true)->ice_identity(adminId);
 }
 
 AdapterPrx
@@ -685,7 +682,7 @@ ServerEntry::syncImpl()
 
         if(!_load.get() && !_destroy.get())
         {
-            _load = _loaded; // Re-load the current server.
+            _load.reset(_loaded.release()); // Re-load the current server.
         }
 
         _updated = false;
@@ -853,8 +850,8 @@ ServerEntry::loadCallback(const ServerPrx& proxy, const AdapterPrxDict& adpts, i
             // time should set the correct timeout before invoking on the
             // proxy (e.g.: server start/stop, adapter activate).
             //
-            _loaded = _load;
-            assert(_loaded.get());
+            assert(_load.get());
+            _loaded.reset(_load.release());
             _proxy = proxy;
             _adapters = adpts;
             _activationTimeout = at;
@@ -1098,6 +1095,12 @@ ServerEntry::checkUpdate(const ServerInfo& info, bool noRestart)
     return new CheckUpdateResult(_id, oldInfo.node, noRestart, desc, server->begin_checkUpdate(desc, noRestart));
 }
 
+bool
+ServerEntry::isEnabled() const
+{
+    return _cache.getNodeObserverTopic()->isServerEnabled(_id);
+}
+
 void
 ServerEntry::allocated(const SessionIPtr& session)
 {
@@ -1126,12 +1129,11 @@ ServerEntry::allocated(const SessionIPtr& session)
         _updated = true;
         if(!_load.get())
         {
-            _load = _loaded;
+            _load.reset(_loaded.release());
         }
         _session = session;
         _load->sessionId = session->getId();
     }
-
 
     Glacier2::IdentitySetPrx identitySet = session->getGlacier2IdentitySet();
     Glacier2::StringSetPrx adapterIdSet = session->getGlacier2AdapterIdSet();
@@ -1213,7 +1215,7 @@ ServerEntry::released(const SessionIPtr& session)
         _updated = true;
         if(!_load.get())
         {
-            _load = _loaded;
+            _load.reset(_loaded.release());
         }
         _load->sessionId = "";
         _session = 0;

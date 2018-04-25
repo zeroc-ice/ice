@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,38 +38,40 @@ public abstract class OnewayCallback extends IceInternal.CallbackBase
 
     /**
      * Called when a queued invocation is sent successfully.
+     *
+     * @param sentSynchronously True if the request could be sent synchronously, false otherwise.
      **/
     public void sent(boolean sentSynchronously)
     {
     }
 
     @Override
-    public final void __sent(AsyncResult __result)
+    public final void _iceSent(AsyncResult result)
     {
-        sent(__result.sentSynchronously());
+        sent(result.sentSynchronously());
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
         return true;
     }
 
     @Override
-    public final void __completed(AsyncResult __result)
+    public final void _iceCompleted(AsyncResult result)
     {
         try
         {
-            ((ObjectPrxHelperBase)__result.getProxy()).__end(__result, __result.getOperation());
+            ((ObjectPrxHelperBase)result.getProxy())._end(result, result.getOperation());
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            exception(__ex);
+            exception(ex);
             return;
         }
-        catch(SystemException __ex)
+        catch(SystemException ex)
         {
-            exception(__ex);
+            exception(ex);
             return;
         }
         response();

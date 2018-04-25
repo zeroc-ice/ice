@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -55,8 +55,8 @@ template<typename T> bool
 getVersion(PyObject* p, T& v, const char* type)
 {
     assert(checkIsInstance(p, type));
-    PyObjectHandle major = PyObject_GetAttrString(p, STRCAST("major"));
-    PyObjectHandle minor = PyObject_GetAttrString(p, STRCAST("minor"));
+    PyObjectHandle major = getAttr(p, "major", false);
+    PyObjectHandle minor = getAttr(p, "minor", false);
     if(major.get())
     {
         major = PyNumber_Long(major.get());
@@ -118,13 +118,13 @@ versionToString(PyObject* args, const char* type)
     PyObject* p;
     if(!PyArg_ParseTuple(args, STRCAST("O!"), versionType, &p))
     {
-        return NULL;
+        return ICE_NULLPTR;
     }
 
     T v;
     if(!getVersion<T>(p, v, type))
     {
-        return NULL;
+        return ICE_NULLPTR;
     }
 
     string s;
@@ -135,7 +135,7 @@ versionToString(PyObject* args, const char* type)
     catch(const Ice::Exception& ex)
     {
         IcePy::setPythonException(ex);
-        return NULL;
+        return ICE_NULLPTR;
     }
     return createString(s);
 }
@@ -146,7 +146,7 @@ stringToVersion(PyObject* args, const char* type)
     char* str;
     if(!PyArg_ParseTuple(args, STRCAST("s"), &str))
     {
-        return NULL;
+        return ICE_NULLPTR;
     }
 
     T v;
@@ -157,7 +157,7 @@ stringToVersion(PyObject* args, const char* type)
     catch(const Ice::Exception& ex)
     {
         IcePy::setPythonException(ex);
-        return NULL;
+        return ICE_NULLPTR;
     }
 
     return createVersion<T>(v, type);
@@ -208,6 +208,26 @@ IcePy::getStringArg(PyObject* p, const string& arg, string& val)
     return true;
 }
 
+PyObject*
+IcePy::getAttr(PyObject* obj, const string& attrib, bool allowNone)
+{
+    PyObject* v = PyObject_GetAttrString(obj, attrib.c_str());
+    if(v == Py_None)
+    {
+        if(!allowNone)
+        {
+            Py_DECREF(v);
+            v = 0;
+        }
+    }
+    else if(!v)
+    {
+        PyErr_Clear(); // PyObject_GetAttrString sets an error on failure.
+    }
+
+    return v;
+}
+
 string
 IcePy::getFunction()
 {
@@ -215,9 +235,9 @@ IcePy::getFunction()
     // Get name of current function.
     //
     PyFrameObject *f = PyThreadState_GET()->frame;
-    PyObjectHandle code = PyObject_GetAttrString(reinterpret_cast<PyObject*>(f), STRCAST("f_code"));
+    PyObjectHandle code = getAttr(reinterpret_cast<PyObject*>(f), "f_code", false);
     assert(code.get());
-    PyObjectHandle func = PyObject_GetAttrString(code.get(), STRCAST("co_name"));
+    PyObjectHandle func = getAttr(code.get(), "co_name", false);
     assert(func.get());
     return getString(func.get());
 }
@@ -394,17 +414,17 @@ IcePy::PyException::raiseLocalException()
     catch(Ice::RequestFailedException& e)
     {
         IcePy::PyObjectHandle member;
-        member = PyObject_GetAttrString(ex.get(), STRCAST("id"));
+        member = getAttr(ex.get(), "id", true);
         if(member.get() && IcePy::checkIdentity(member.get()))
         {
             IcePy::getIdentity(member.get(), e.id);
         }
-        member = PyObject_GetAttrString(ex.get(), STRCAST("facet"));
+        member = getAttr(ex.get(), "facet", true);
         if(member.get() && checkString(member.get()))
         {
             e.facet = getString(member.get());
         }
-        member = PyObject_GetAttrString(ex.get(), STRCAST("operation"));
+        member = getAttr(ex.get(), "operation", true);
         if(member.get() && checkString(member.get()))
         {
             e.operation = getString(member.get());
@@ -430,7 +450,7 @@ IcePy::PyException::raiseLocalException()
     catch(Ice::UnknownException& e)
     {
         IcePy::PyObjectHandle member;
-        member = PyObject_GetAttrString(ex.get(), STRCAST("unknown"));
+        member = getAttr(ex.get(), "unknown", true);
         if(member.get() && checkString(member.get()))
         {
             e.unknown = getString(member.get());
@@ -468,11 +488,12 @@ IcePy::PyException::getTraceback()
     PyObjectHandle str = createString("traceback");
     PyObjectHandle mod = PyImport_Import(str.get());
     assert(mod.get()); // Unable to import traceback module - Python installation error?
-    PyObject* d = PyModule_GetDict(mod.get());
-    PyObject* func = PyDict_GetItemString(d, "format_exception");
+    PyObject* func = PyDict_GetItemString(PyModule_GetDict(mod.get()), "format_exception");
     assert(func); // traceback.format_exception must be present.
     PyObjectHandle args = Py_BuildValue("(OOO)", _type.get(), ex.get(), _tb.get());
+    assert(args.get());
     PyObjectHandle list = PyObject_CallObject(func, args.get());
+    assert(list.get());
 
     string result;
     for(Py_ssize_t i = 0; i < PyList_GET_SIZE(list.get()); ++i)
@@ -488,9 +509,9 @@ string
 IcePy::PyException::getTypeName()
 {
     PyObject* cls = reinterpret_cast<PyObject*>(ex.get()->ob_type);
-    PyObjectHandle name = PyObject_GetAttrString(cls, "__name__");
+    PyObjectHandle name = getAttr(cls, "__name__", false);
     assert(name.get());
-    PyObjectHandle mod = PyObject_GetAttrString(cls, "__module__");
+    PyObjectHandle mod = getAttr(cls, "__module__", false);
     assert(mod.get());
     string result = getString(mod.get());
     result += ".";
@@ -856,6 +877,10 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         IcePy::PyObjectHandle m = IcePy::createString(e.reason);
         PyObject_SetAttrString(p, STRCAST("reason"), m.get());
     }
+    catch(const Ice::ConnectionManuallyClosedException& e)
+    {
+        PyObject_SetAttrString(p, STRCAST("graceful"), e.graceful ? IcePy::getTrue() : IcePy::getFalse());
+    }
     catch(const Ice::LocalException&)
     {
         //
@@ -965,7 +990,7 @@ IcePy::handleSystemExit(PyObject* ex)
     PyObjectHandle code;
     if(PyExceptionInstance_Check(ex))
     {
-        code = PyObject_GetAttrString(ex, STRCAST("code"));
+        code = getAttr(ex, "code", true);
     }
     else
     {
@@ -1037,8 +1062,8 @@ bool
 IcePy::getIdentity(PyObject* p, Ice::Identity& ident)
 {
     assert(checkIdentity(p));
-    PyObjectHandle name = PyObject_GetAttrString(p, STRCAST("name"));
-    PyObjectHandle category = PyObject_GetAttrString(p, STRCAST("category"));
+    PyObjectHandle name = getAttr(p, "name", true);
+    PyObjectHandle category = getAttr(p, "category", true);
     if(name.get())
     {
         if(!checkString(name.get()))
@@ -1073,21 +1098,68 @@ IcePy::createEncodingVersion(const Ice::EncodingVersion& v)
 }
 
 bool
-IcePy::getEncodingVersion(PyObject* args, Ice::EncodingVersion& v)
+IcePy::getEncodingVersion(PyObject* p, Ice::EncodingVersion& v)
 {
-    PyObject* versionType = IcePy::lookupType(Ice_EncodingVersion);
-    PyObject* p;
-    if(!PyArg_ParseTuple(args, STRCAST("O!"), versionType, &p))
-    {
-        return false;
-    }
-
     if(!getVersion<Ice::EncodingVersion>(p, v, Ice_EncodingVersion))
     {
         return false;
     }
 
     return true;
+}
+
+PyObject*
+IcePy::callMethod(PyObject* obj, const string& name, PyObject* arg1, PyObject* arg2)
+{
+    PyObjectHandle method = PyObject_GetAttrString(obj, const_cast<char*>(name.c_str()));
+    if(!method.get())
+    {
+        return 0;
+    }
+    return callMethod(method.get(), arg1, arg2);
+}
+
+PyObject*
+IcePy::callMethod(PyObject* method, PyObject* arg1, PyObject* arg2)
+{
+    PyObjectHandle args;
+    if(arg1 && arg2)
+    {
+        args = PyTuple_New(2);
+        if(!args.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(args.get(), 0, incRef(arg1));
+        PyTuple_SET_ITEM(args.get(), 1, incRef(arg2));
+    }
+    else if(arg1)
+    {
+        args = PyTuple_New(1);
+        if(!args.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(args.get(), 0, incRef(arg1));
+    }
+    else if(arg2)
+    {
+        args = PyTuple_New(1);
+        if(!args.get())
+        {
+            return 0;
+        }
+        PyTuple_SET_ITEM(args.get(), 0, incRef(arg2));
+    }
+    else
+    {
+        args = PyTuple_New(0);
+        if(!args.get())
+        {
+            return 0;
+        }
+    }
+    return PyObject_Call(method, args.get(), 0);
 }
 
 extern "C"

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,9 +38,9 @@ import test.Ice.custom.Test.SSeqHolder;
 import test.Ice.custom.Test.ShortSeqHolder;
 import test.Ice.custom.Test.StringSeqHolder;
 import test.Ice.custom.Test.StringSeqSeqHolder;
-import test.Ice.custom.Test.TestIntf;
+import test.Ice.custom.Test._TestIntfDisp;
 
-public final class TestI extends TestIntf
+public final class TestI extends _TestIntfDisp
 {
     public
     TestI(Ice.Communicator communicator)
@@ -238,4 +238,5 @@ public final class TestI extends TestIntf
     }
 
     private Ice.Communicator _communicator;
+    private java.util.ArrayList<C> seq;
 }

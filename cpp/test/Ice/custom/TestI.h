@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,17 +11,6 @@
 #define TEST_I_H
 
 #include <Test.h>
-
-#ifdef ICE_CPP11_MAPPING
-//
-// Slice class C is mapped to ObjectPrx
-//
-namespace Test
-{
-typedef std::shared_ptr<Ice::ObjectPrx> CPrxPtr;
-}
-
-#endif
 
 class TestIntfI : public virtual Test::TestIntf
 {
@@ -53,7 +42,6 @@ public:
     virtual Test::VariableList
     opVariableRange(Test::VariableList, Test::VariableList&, const Ice::Current&);
 
-
     virtual Test::ByteList opByteRangeType(Test::ByteList, Test::ByteList&, const Ice::Current&);
 
     virtual Test::VariableList
@@ -72,7 +60,6 @@ public:
     opVariableRange(const std::pair<Test::VariableList::const_iterator, Test::VariableList::const_iterator>&,
                     Test::VariableList&,
                     const Ice::Current&);
-
 
     virtual Test::ByteList opByteRangeType(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>&,
                                            Test::ByteList&,
@@ -128,7 +115,6 @@ public:
                                  std::string&,
                                  const Ice::Current&);
 
-
     virtual std::deque< ::std::string> opStringSeq(ICE_IN(std::deque< ::std::string>),
                                                    std::deque< ::std::string>&,
                                                    const Ice::Current&);
@@ -169,12 +155,12 @@ public:
                                           std::list< ::Test::E>&,
                                           const Ice::Current&);
 
-    virtual std::deque< ::Test::CPrxPtr> opCPrxSeq(ICE_IN(std::deque< ::Test::CPrxPtr>),
-                                                std::deque< ::Test::CPrxPtr>&,
+    virtual std::deque< ::Test::DPrxPtr> opDPrxSeq(ICE_IN(std::deque< ::Test::DPrxPtr>),
+                                                std::deque< ::Test::DPrxPtr>&,
                                                 const Ice::Current&);
 
-    virtual std::list< ::Test::CPrxPtr> opCPrxList(ICE_IN(std::list< ::Test::CPrxPtr>),
-                                                std::list< ::Test::CPrxPtr>&,
+    virtual std::list< ::Test::DPrxPtr> opDPrxList(ICE_IN(std::list< ::Test::DPrxPtr>),
+                                                std::list< ::Test::DPrxPtr>&,
                                                 const Ice::Current&);
 
     virtual std::deque< ::Test::CPtr> opCSeq(ICE_IN(std::deque< ::Test::CPtr>),
@@ -199,11 +185,9 @@ public:
                                                  const Ice::Current&);
 #endif
 
-
     virtual void opOutArrayByteSeq(ICE_IN(Test::ByteSeq), Test::ByteSeq&, const Ice::Current&);
 
     virtual void opOutRangeByteSeq(ICE_IN(Test::ByteSeq), Test::ByteSeq&, const Ice::Current&);
-
 
     virtual Test::IntStringDict opIntStringDict(ICE_IN(Test::IntStringDict), Test::IntStringDict&,
                                                 const Ice::Current&);
@@ -211,7 +195,6 @@ public:
     virtual Test::CustomMap<Ice::Long, Ice::Long> opVarDict(ICE_IN(Test::CustomMap<std::string, Ice::Int>),
                                                             Test::CustomMap<std::string, Ice::Int>&,
                                                             const Ice::Current&);
-
 
     virtual Test::CustomMap<Ice::Int, std::string> opCustomIntStringDict(
         ICE_IN(std::map<Ice::Int, Util::string_view>), Test::CustomMap<Ice::Int, std::string>&, const Ice::Current&);

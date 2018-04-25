@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,7 +15,7 @@ static int
 run(id<ICECommunicator> communicator)
 {
     [[communicator getProperties] setProperty:@"TestAMIAdapter.Endpoints" value:@"default -p 12010:udp"];
-    [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:@"tcp -p 12011"];
+    [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:@"default -p 12011"];
     [[communicator getProperties] setProperty:@"ControllerAdapter.ThreadPool.Size" value:@"1"];
 
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAMIAdapter"];
@@ -25,6 +25,7 @@ run(id<ICECommunicator> communicator)
         = ICE_AUTORELEASE([[TestAMITestIntfControllerI alloc] initWithAdapter:adapter]);
 
     [adapter add:[TestAMITestIntfI testIntf] identity:[ICEUtil stringToIdentity:@"test"]];
+    [adapter add:[TestAMITestOuterInnerTestIntfI testIntf] identity:[ICEUtil stringToIdentity:@"test2"]];
     [adapter activate];
 
     [adapter2 add:testController identity:[ICEUtil stringToIdentity:@"testController"]];
@@ -45,7 +46,9 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+    ICEregisterIceWS(YES);
+    ICEregisterIceUDP(YES);
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif
@@ -60,14 +63,9 @@ main(int argc, char* argv[])
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultServerProperties(&argc, argv);
 
-            //
-            // Its possible to have batch oneway requests dispatched after
-            // the adapter is deactivated due to thread scheduling so we
-            // supress this warning.
-            //
-            [initData.properties setProperty:@"Ice.Warn.Dispatch" value:@"0"];
+            [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
 #if TARGET_OS_IPHONE
-        initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+        initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                   @"TestAMI", @"::Test",
                                   nil];
 #endif
@@ -82,15 +80,7 @@ main(int argc, char* argv[])
 
         if(communicator)
         {
-            @try
-            {
-                [communicator destroy];
-            }
-            @catch(ICEException* ex)
-            {
-                tprintf("%@\n", ex);
-                status = EXIT_FAILURE;
-            }
+            [communicator destroy];
         }
     }
     return status;

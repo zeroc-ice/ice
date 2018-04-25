@@ -233,14 +233,17 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\Derived.ice">
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\Derived.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\DerivedEx.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\DerivedEx.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\Test.ice">
+    </SliceCompile>
+    <SliceCompile Include="..\..\Test.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
+    </SliceCompile>
   </ItemGroup>
 </Project>

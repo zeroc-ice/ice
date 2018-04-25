@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -52,20 +52,16 @@ public:
     static FileTrackerPtr instance();
 
     void setSource(const std::string&);
-    void setOutput(const std::string&, bool);
     void addFile(const std::string&);
     void addDirectory(const std::string&);
-
+    void error();
     void cleanup();
     void dumpxml();
 
 private:
 
-    std::string escape(const std::string&) const;
-
     std::list<std::pair< std::string, bool> > _files;
     std::string _source;
-    std::map<std::string, std::string> _errors;
     std::map<std::string, std::list<std::string> > _generated;
     std::map<std::string, std::list<std::string> >::iterator _curr;
 };

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,9 +19,9 @@ namespace IceInternal
             locationCat = "Locator";
             slicingCat = "Slicing";
             threadPoolCat = "ThreadPool";
-            
+
             string keyBase = "Ice.Trace.";
-            
+
             network = properties.getPropertyAsInt(keyBase + networkCat);
             protocol = properties.getPropertyAsInt(keyBase + protocolCat);
             retry = properties.getPropertyAsInt(keyBase + retryCat);
@@ -29,7 +29,7 @@ namespace IceInternal
             slicing = properties.getPropertyAsInt(keyBase + slicingCat);
             threadPool = properties.getPropertyAsInt(keyBase + threadPoolCat);
         }
-        
+
         public readonly int network;
         public readonly string networkCat;
         public readonly int protocol;

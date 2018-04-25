@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,7 +28,7 @@ public final class RequestHandlerFactory
             Ice.ObjectAdapter adapter = _instance.objectAdapterFactory().findObjectAdapter(proxy);
             if(adapter != null)
             {
-                return proxy.__setRequestHandler(new CollocatedRequestHandler(ref, adapter));
+                return proxy._setRequestHandler(new CollocatedRequestHandler(ref, adapter));
             }
         }
 
@@ -73,7 +73,7 @@ public final class RequestHandlerFactory
                 ref.getConnection(handler);
             }
         }
-        return proxy.__setRequestHandler(handler.connect(proxy));
+        return proxy._setRequestHandler(handler.connect(proxy));
     }
 
     void

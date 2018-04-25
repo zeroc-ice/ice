@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@
 @end
 
 @implementation TestObjectReader
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     [is startSlice];
@@ -34,7 +34,7 @@
 @end
 
 @implementation BObjectReader
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     // ::Test::B
@@ -55,7 +55,7 @@
 @end
 
 @implementation CObjectReader
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     // ::Test::C
@@ -79,7 +79,7 @@
 @end
 
 @implementation DObjectWriter
--(void) write__:(id<ICEOutputStream>)os
+-(void) iceWrite:(id<ICEOutputStream>)os
 {
     [os startValue:0];
     // ::Test::D
@@ -127,7 +127,7 @@
     [super dealloc];
 }
 #endif
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     [is startValue];
     // ::Test::D
@@ -178,7 +178,7 @@
     return self;
 }
 
--(void) read__:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)is
 {
     if(f_ != nil)
     {
@@ -277,8 +277,11 @@ id<TestOptionalInitialPrx>
 optionalAllTests(id<ICECommunicator> communicator)
 {
     FactoryI* factory = [FactoryI factoryI];
+#if defined(__clang__) && __has_feature(objc_arc)
+    [[communicator getValueFactoryManager] add:^(id s) NS_RETURNS_RETAINED { return [factory create:s]; } sliceId:@""];
+#else
     [[communicator getValueFactoryManager] add:^(id s) { return [factory create:s]; } sliceId:@""];
-
+#endif
     tprintf("testing stringToProxy... ");
     NSString* sref = @"initial:default -p 12010";
     id<ICEObjectPrx> base = [communicator stringToProxy:sref];

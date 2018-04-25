@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,10 +18,10 @@ interface Backend
 {
     void check();
     void shutdown();
-};
+}
 
-enum StateCode { Initial, Running, Finished };
-    
+enum StateCode { Initial, Running, Finished }
+
 struct TestToken
 {
     bool expectedResult;
@@ -30,7 +30,7 @@ struct TestToken
     short config;
     short caseIndex;
     string testReference;
-};
+}
 
 /**
  *
@@ -45,12 +45,11 @@ interface TestController
 {
     void step(Glacier2::Session* currentSession, TestToken currentState, out TestToken newState);
     void shutdown();
-};
+}
 
 interface TestSession extends Glacier2::Session
 {
     void shutdown();
-};
+}
 
-};
-
+}

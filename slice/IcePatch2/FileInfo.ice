@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEPATCH2_API", "cpp:doxygen:include:IcePatch2/IcePatch2.h", "objc:header-dir:objc", "python:pkgdir:IcePatch2"]]
 [["cpp:include:IcePatch2/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -40,7 +40,7 @@ struct FileInfo
 
     /** The executable flag. */
     bool executable;
-};
+}
 
 /**
  *
@@ -48,7 +48,6 @@ struct FileInfo
  *
  **/
 sequence<FileInfo> FileInfoSeq;
-
 
 /**
  *
@@ -68,7 +67,7 @@ struct LargeFileInfo
 
     /** The executable flag. */
     bool executable;
-};
+}
 
 /**
  *
@@ -77,4 +76,4 @@ struct LargeFileInfo
  **/
 sequence<LargeFileInfo> LargeFileInfoSeq;
 
-};
+}

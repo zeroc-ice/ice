@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,22 +23,23 @@ public class Collocated extends test.Util.Application
         adapter2.add(new TestControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("testController"));
         //adapter2.activate(); // Don't activate OA to ensure collocation is used.
 
-        AllTests.allTests(communicator(), getWriter(), _dispatcher);
+        AllTests.allTests(this, _dispatcher);
         return 0;
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         assert(_dispatcher == null);
         _dispatcher = new Dispatcher();
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        r.initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
-        r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-        r.initData.dispatcher = _dispatcher;
-        return r;
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("ControllerAdapter.Endpoints",
+                                          getTestEndpoint(initData.properties, 1, "tcp"));
+        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        initData.dispatcher = _dispatcher;
+        return initData;
     }
 
     Dispatcher getDispatcher()

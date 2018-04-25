@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -53,10 +53,10 @@ public class Server extends test.Util.Application
     static public class RouterI implements com.zeroc.Ice.Router
     {
         @Override
-        public com.zeroc.Ice.ObjectPrx getClientProxy(com.zeroc.Ice.Current current)
+        public com.zeroc.Ice.Router.GetClientProxyResult getClientProxy(com.zeroc.Ice.Current current)
         {
             _controller.checkCallPause(current);
-            return null;
+            return new com.zeroc.Ice.Router.GetClientProxyResult(null, java.util.Optional.of(true));
         }
 
         @Override
@@ -83,10 +83,8 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        Configuration configuration = new Configuration();
         PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
-        plugin.setConfiguration(configuration);
-        communicator().getPluginManager().initializePlugins();
+        Configuration configuration = plugin.getConfiguration();
 
         com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
@@ -105,37 +103,35 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
-        r.initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
 
         // This test relies on filling the TCP send/recv buffer, so
         // we rely on a fixed value for these buffers.
-        r.initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
 
         //
         // Setup the test transport plug-in.
         //
-        r.initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
-        String defaultProtocol = r.initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-        r.initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
+        initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
+        String defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        r.initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
-        r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("ControllerAdapter.Endpoints",
+                                          getTestEndpoint(initData.properties, 1, "tcp"));
+        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-        // Don't initialize the plugin until I've set the configuration.
-        r.initData.properties.setProperty("Ice.InitPlugins", "0");
-
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)

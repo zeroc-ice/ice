@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -27,8 +27,7 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
         return self.communicator.getAdmin()
 
     def getChanges(self, current = None):
-        self.m.acquire()
-        try:
+        with self.m:
             #
             # The client calls PropertiesAdmin::setProperties() and then invokes
             # this operation. Since setProperties() is implemented using AMD, the
@@ -38,12 +37,10 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
             #
             while not self.called:
                 self.m.wait()
-            
+
             self.called = False
-            
+
             return self.changes
-        finally:
-            self.m.release()
 
     def shutdown(self, current = None):
         self.communicator.shutdown()
@@ -59,13 +56,10 @@ class RemoteCommunicatorI(Test.RemoteCommunicator, Ice.PropertiesAdminUpdateCall
         self.communicator.destroy()
 
     def updated(self, changes):
-        self.m.acquire()
-        try:
+        with self.m:
             self.changes = changes
             self.called = True
             self.m.notify()
-        finally:
-            self.m.release()
 
 class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
 
@@ -102,4 +96,3 @@ class RemoteCommunicatorFactoryI(Test.RemoteCommunicatorFactory):
 
     def shutdown(self, current = None):
         current.adapter.getCommunicator().shutdown()
-

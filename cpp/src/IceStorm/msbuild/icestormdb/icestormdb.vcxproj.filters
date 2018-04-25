@@ -60,52 +60,41 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\DBTypes.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\LLURecord.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\SubscriberRecord.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\IceStormDB.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\DBTypes.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\LLURecord.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Debug\SubscriberRecord.cpp">
-      <Filter>Source Files\Win32\Debug</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Debug\DBTypes.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\LLURecord.cpp">
-      <Filter>Source Files\x64\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="x64\Debug\SubscriberRecord.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\DBTypes.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Win32\Release\LLURecord.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Win32\Release\SubscriberRecord.cpp">
-      <Filter>Source Files\Win32\Release</Filter>
-    </ClCompile>
     <ClCompile Include="x64\Release\DBTypes.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
+    <ClCompile Include="Win32\Debug\LLURecord.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\LLURecord.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\LLURecord.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
     <ClCompile Include="x64\Release\LLURecord.cpp">
       <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\SubscriberRecord.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\SubscriberRecord.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\SubscriberRecord.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
     <ClCompile Include="x64\Release\SubscriberRecord.cpp">
       <Filter>Source Files\x64\Release</Filter>
@@ -151,5 +140,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\DBTypes.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\LLURecord.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\SubscriberRecord.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

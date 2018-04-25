@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -15,8 +15,8 @@ define make-global-rule
 $1::
 	+@for subdir in $2; \
 	do \
-	    echo "making all in $$$$subdir"; \
-	    ( cd $$$$subdir && $(MAKE) $1 ) || exit 1; \
+		echo "making all in $$$$subdir"; \
+		( cd $$$$subdir && $(MAKE) $1 ) || exit 1; \
 	done
 endef
 
@@ -28,23 +28,20 @@ $(eval $(call make-global-rule,distclean,$(languages)))
 $(eval $(call make-global-rule,install,$(languages)))
 
 #
-# Install documentation and slice files
+# Install documentation and slice files (don't install IceDiscovery and IceLocatorDiscovery slice files)
 #
 install:: install-doc install-slice
 
-$(eval $(call install-data-files,$(wildcard $(slicedir)/*/*.ice),$(slicedir),$(install_slicedir),\
-	install-slice,"Installing slice files"))
-
 $(eval $(call install-data-files,$(wildcard $(top_srcdir)/*LICENSE),$(top_srcdir),$(install_docdir),\
-	install-doc,"Installing documentation files"))
+         install-doc,"Installing documentation files"))
+
+$(eval $(call install-data-files,$(filter-out %Discovery.ice,$(wildcard $(slicedir)/*/*.ice)),$(slicedir),$(install_slicedir),\
+         install-slice,"Installing slice files"))
 
 #
-# Create a symlink for the slice directory
+# Remove top-level sdk directory on macOS
 #
-ifneq ($(usr_dir_install),)
-install-slice:: $(DESTDIR)$(prefix)/share/slice
-
-$(DESTDIR)$(prefix)/share/slice:
-	$(Q)$(MKDIR) -p $(DESTDIR)$(prefix)/share
-	$(Q)ln -s Ice-$(version)/slice $(DESTDIR)$(prefix)/share/slice
+ifneq ($(filter Darwin,$(os)),)
+distclean::
+	$(Q)$(RM) -r $(top_srcdir)/sdk
 endif

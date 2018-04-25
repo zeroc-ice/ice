@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@
 //
 // COMPILERFIX: This is required to prevent annoying warnings with aCC.
 // The aCC -mt option causes the definition of the _POSIX_C_SOURCE macro
-// (with another lower value.) and this is causing a warning because of 
+// (with another lower value.) and this is causing a warning because of
 // the redefinition.
 //
 #if defined(__HP_aCC) && defined(_POSIX_C_SOURCE)

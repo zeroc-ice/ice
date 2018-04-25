@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,24 +33,23 @@ public abstract class Application : Ice.Application
     }
 
     /// <summary>
-    /// Initializes an instance that calls Communicator.shutdown if
-    /// a signal is received.
+    /// Initializes an instance that handles signals according to the signal policy.
+    /// If not signal policy is provided the default SinalPolicy.HandleSignals
+    /// will be used, which calls Communicator.shutdown if a signal is received.
     /// </summary>
-    public
-    Application()
+    /// <param name="signalPolicy">Determines how to respond to signals.</param>
+    public Application(Ice.SignalPolicy signalPolicy = Ice.SignalPolicy.HandleSignals) : base(signalPolicy)
     {
     }
 
     /// <summary>
-    /// Initializes an instance that handles signals according to the signal
-    /// policy.
+    /// Creates a new Glacier2 session. A call to createSession always
+    /// precedes a call to runWithSession. If Ice.LocalException is thrown
+    /// from this method, the application is terminated.
     /// </summary>
-    /// <param name="signalPolicy">@param signalPolicy Determines how to
-    /// respond to signals.</param>
-    public
-    Application(Ice.SignalPolicy signalPolicy) : base(signalPolicy)
-    {
-    }
+    /// <returns> The Glacier2 session.</returns>
+    public abstract Glacier2.SessionPrx
+    createSession();
 
     /// <summary>
     /// Called once the communicator has been initialized and the Glacier2 session
@@ -85,29 +84,6 @@ public abstract class Application : Ice.Application
     }
 
     /// <summary>
-    /// Called to restart the application's Glacier2 session. This
-    /// method never returns. The exception produce an application restart
-    /// when called from the Application main thread.
-    /// </summary>
-    /// <returns>throws RestartSessionException This exception is
-    /// always thrown.</returns>
-    ///
-    public void
-    restart()
-    {
-        throw new RestartSessionException();
-    }
-
-    /// <summary>
-    /// Creates a new Glacier2 session. A call to createSession always
-    /// precedes a call to runWithSession. If Ice.LocalException is thrown
-    /// from this method, the application is terminated.
-    /// </summary>
-    /// <returns> The Glacier2 session.</returns>
-    public abstract Glacier2.SessionPrx
-    createSession();
-
-    /// <summary>
     /// Called when the session refresh thread detects that the session has been
     /// destroyed. A subclass can override this method to take action after the
     /// loss of connectivity with the Glacier2 router. This method is called
@@ -117,6 +93,20 @@ public abstract class Application : Ice.Application
     public virtual void
     sessionDestroyed()
     {
+    }
+
+    /// <summary>
+    /// Called to restart the application's Glacier2 session. This
+    /// method never returns. The exception produce an application restart
+    /// when called from the Application main thread.
+    /// </summary>
+    /// <returns>throws RestartSessionException This exception is
+    /// always thrown.</returns>
+    ///
+    public static void
+    restart()
+    {
+        throw new RestartSessionException();
     }
 
     /// <summary>
@@ -133,7 +123,7 @@ public abstract class Application : Ice.Application
     /// Returns the Glacier2 session proxy.
     /// </summary>
     /// <returns>The session proxy.</returns>
-    public static Glacier2.SessionPrx
+    public static SessionPrx
     session()
     {
         return _session;
@@ -146,7 +136,7 @@ public abstract class Application : Ice.Application
     /// Throws SessionNotExistException if no session exists.
     /// </summary>
     /// <returns>The category.</returns>
-    public string
+    public static string
     categoryForClient()
     {
         if(_router == null)
@@ -161,7 +151,7 @@ public abstract class Application : Ice.Application
     /// identity name field.
     /// </summary>
     /// <returns>The identity.</returns>
-    public Ice.Identity
+    public static Ice.Identity
     createCallbackIdentity(string name)
     {
         return new Ice.Identity(name, categoryForClient());
@@ -172,7 +162,7 @@ public abstract class Application : Ice.Application
     /// </summary>
     /// <param name="servant">The servant to add.</param>
     /// <returns>The proxy for the servant.</returns>
-    public Ice.ObjectPrx
+    public static Ice.ObjectPrx
     addWithUUID(Ice.Object servant)
     {
         return objectAdapter().add(servant, createCallbackIdentity(Guid.NewGuid().ToString()));
@@ -182,7 +172,7 @@ public abstract class Application : Ice.Application
     /// Returns an object adapter for callback objects, creating it if necessary.
     /// </summary>
     /// <returns>The object adapter.</returns>
-    public Ice.ObjectAdapter
+    public static Ice.ObjectAdapter
     objectAdapter()
     {
         if(_router == null)
@@ -190,7 +180,7 @@ public abstract class Application : Ice.Application
             throw new SessionNotExistException();
         }
 
-        lock(mutex__)
+        lock(iceMutex)
         {
             if(_adapter == null)
             {
@@ -235,21 +225,22 @@ public abstract class Application : Ice.Application
         // Reset internal state variables from Ice.Application. The
         // remainder are reset at the end of this method.
         //
-        callbackInProgress__ = false;
-        destroyed__ = false;
-        interrupted__ = false;
+        iceCallbackInProgress = false;
+        iceDestroyed = false;
+        iceInterrupted = false;
 
         bool restart = false;
+        bool sessionCreated = false;
         status = 0;
 
         try
         {
-            communicator__ = Ice.Util.initialize(ref args, initData);
+            iceCommunicator = Ice.Util.initialize(ref args, initData);
 
-            _router = Glacier2.RouterPrxHelper.uncheckedCast(communicator().getDefaultRouter());
+            _router = RouterPrxHelper.uncheckedCast(communicator().getDefaultRouter());
             if(_router == null)
             {
-                Ice.Util.getProcessLogger().error(appName__ + ": no Glacier2 router configured");
+                Ice.Util.getProcessLogger().error(iceAppName + ": no Glacier2 router configured");
                 status = 1;
             }
             else
@@ -257,7 +248,7 @@ public abstract class Application : Ice.Application
                 //
                 // The default is to destroy when a signal is received.
                 //
-                if(signalPolicy__ == Ice.SignalPolicy.HandleSignals)
+                if(iceSignalPolicy == Ice.SignalPolicy.HandleSignals)
                 {
                     destroyOnInterrupt();
                 }
@@ -268,7 +259,7 @@ public abstract class Application : Ice.Application
                 try
                 {
                     _session = createSession();
-                    _createdSession = true;
+                    sessionCreated = true;
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -276,7 +267,7 @@ public abstract class Application : Ice.Application
                     status = 1;
                 }
 
-                if(_createdSession)
+                if(sessionCreated)
                 {
                     int acmTimeout = 0;
                     try
@@ -294,7 +285,7 @@ public abstract class Application : Ice.Application
                     {
                         Ice.Connection connection = _router.ice_getCachedConnection();
                         Debug.Assert(connection != null);
-                        connection.setACM((int)acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
+                        connection.setACM(acmTimeout, Ice.Util.None, Ice.ACMHeartbeat.HeartbeatAlways);
                         connection.setCloseCallback(_ => sessionDestroyed());
                     }
                     _category = _router.getCategoryForClient();
@@ -342,7 +333,7 @@ public abstract class Application : Ice.Application
             Ice.Util.getProcessLogger().error(ex.ToString());
             status = 1;
         }
-        catch(System.Exception ex)
+        catch(Exception ex)
         {
             Ice.Util.getProcessLogger().error("unknown exception:\n" + ex.ToString());
             status = 1;
@@ -353,34 +344,34 @@ public abstract class Application : Ice.Application
         // (post-run), it would not make sense to release a held
         // signal to run shutdown or destroy.
         //
-        if(signalPolicy__ == Ice.SignalPolicy.HandleSignals)
+        if(iceSignalPolicy == Ice.SignalPolicy.HandleSignals)
         {
             ignoreInterrupt();
         }
 
-        lock(mutex__)
+        lock(iceMutex)
         {
-            while(callbackInProgress__)
+            while(iceCallbackInProgress)
             {
-                System.Threading.Monitor.Wait(mutex__);
+                System.Threading.Monitor.Wait(iceMutex);
             }
 
-            if(destroyed__)
+            if(iceDestroyed)
             {
-                communicator__ = null;
+                iceCommunicator = null;
             }
             else
             {
-                destroyed__ = true;
+                iceDestroyed = true;
                 //
-                // And communicator__ != null, meaning will be
-                // destroyed next, destroyed__ = true also ensures that
+                // And iceCommunicator != null, meaning will be
+                // destroyed next, iceDestroyed = true also ensures that
                 // any remaining callback won't do anything
                 //
             }
         }
 
-        if(_createdSession && _router != null)
+        if(sessionCreated && _router != null)
         {
             try
             {
@@ -392,13 +383,13 @@ public abstract class Application : Ice.Application
                 // Expected if another thread invoked on an object from the session concurrently.
                 //
             }
-            catch(Glacier2.SessionNotExistException)
+            catch(SessionNotExistException)
             {
                 //
                 // This can also occur.
                 //
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 //
                 // Not expected.
@@ -409,43 +400,41 @@ public abstract class Application : Ice.Application
             _router = null;
         }
 
-        if(communicator__ != null)
+        if(iceCommunicator != null)
         {
             try
             {
-                communicator__.destroy();
+                iceCommunicator.destroy();
             }
             catch(Ice.LocalException ex)
             {
                 Ice.Util.getProcessLogger().error(ex.ToString());
                 status = 1;
             }
-            catch(System.Exception ex)
+            catch(Exception ex)
             {
                 Ice.Util.getProcessLogger().error("unknown exception:\n" + ex.ToString());
                 status = 1;
             }
-            communicator__ = null;
+            iceCommunicator = null;
         }
 
         //
         // Reset internal state. We cannot reset the Application state
-        // here, since destroyed__ must remain true until we re-run
+        // here, since iceDestroyed must remain true until we re-run
         // this method.
         //
         _adapter = null;
         _router = null;
         _session = null;
-        _createdSession = false;
         _category = null;
 
         return restart;
     }
 
     private static Ice.ObjectAdapter _adapter;
-    private static Glacier2.RouterPrx _router;
-    private static Glacier2.SessionPrx _session;
-    private static bool _createdSession = false;
+    private static RouterPrx _router;
+    private static SessionPrx _session;
     private static string _category;
 }
 

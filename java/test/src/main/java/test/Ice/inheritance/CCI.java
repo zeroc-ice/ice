@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,11 +10,11 @@
 package test.Ice.inheritance;
 
 import test.Ice.inheritance.Test.MA.CAPrx;
-import test.Ice.inheritance.Test.MA._CCDisp;
+import test.Ice.inheritance.Test.MA.CCDisp;
 import test.Ice.inheritance.Test.MA.CCPrx;
 import test.Ice.inheritance.Test.MB.CBPrx;
 
-public final class CCI implements _CCDisp
+public final class CCI implements CCDisp
 {
     public CCI()
     {

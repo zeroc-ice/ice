@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -58,7 +58,7 @@ public:
 
     void deadRemoteLogger(const RemoteLoggerPrxPtr&, const LoggerPtr&, const LocalException&, const string&);
 
-    const int getTraceLevel() const
+    int getTraceLevel() const
     {
         return _traceLevel;
     }
@@ -124,7 +124,6 @@ private:
 };
 ICE_DEFINE_PTR(LoggerAdminIPtr, LoggerAdminI);
 
-
 class Job : public IceUtil::Shared
 {
 public:
@@ -139,7 +138,6 @@ public:
     const LogMessage logMessage;
 };
 typedef IceUtil::Handle<Job> JobPtr;
-
 
 class LoggerAdminLoggerI : public IceInternal::LoggerAdminLogger
 #ifdef ICE_CPP11_MAPPING
@@ -187,7 +185,6 @@ private:
 };
 ICE_DEFINE_PTR(LoggerAdminLoggerIPtr, LoggerAdminLoggerI);
 
-
 class SendLogThread : public IceUtil::Thread
 {
 public:
@@ -200,7 +197,6 @@ private:
 
     LoggerAdminLoggerIPtr _logger;
 };
-
 
 //
 // Helper functions

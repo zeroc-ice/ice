@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,7 +25,7 @@ public final class IntHolder extends Holder<Integer>
     /**
      * Instantiates the class with the passed value.
      *
-     * The <code>int</code> value for this holder.
+     * @param value The <code>int</code> value for this holder.
      **/
     public
     IntHolder(int value)

@@ -1,0 +1,51 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <!-- Custom task to query the public key token of an assembley -->
+    <UsingTask TaskName="GetPublicKeyToken"
+               TaskFactory="CodeTaskFactory"
+               AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+
+        <ParameterGroup>
+            <AssemblyFile ParameterType="System.String" Required="true"/>
+            <PublicKeyToken ParameterType="System.String" Output="true" />
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System" />
+
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                    var key = System.Reflection.Assembly.LoadFile(AssemblyFile).GetName().GetPublicKeyToken();
+                    foreach(var b in key)
+                    {
+                        PublicKeyToken += b.ToString("x2");
+                    }
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
+    <!-- Replace file contents -->
+    <UsingTask TaskName="WriteFileWithReplacements"
+               TaskFactory="CodeTaskFactory"
+               AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+        <ParameterGroup>
+            <InputFile ParameterType="System.String" Required="true"/>
+            <OutputFile ParameterType="System.String" Required="true"/>
+            <Tokens ParameterType="System.String[]"/>
+            <Replacements ParameterType="System.String[]"/>
+        </ParameterGroup>
+        <Task>
+            <Reference Include="System" />
+
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                    var text = System.IO.File.ReadAllText(InputFile);
+                    for(var i = 0; i < Tokens.Length; ++i)
+                    {
+                        text = text.Replace(Tokens[i], Replacements[i]);
+                    }
+                    System.IO.File.WriteAllText(OutputFile, text, System.Text.Encoding.UTF8);
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+</Project>

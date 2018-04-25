@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -28,7 +28,7 @@ def run(args, communicator)
     STDOUT.flush
     myClass.shutdown()
     begin
-        myClass.opVoid()
+        myClass.ice_timeout(100).ice_ping(); # Use timeout to speed up testing on Windows
         test(false)
     rescue Ice::LocalException
         puts "ok"
@@ -50,6 +50,11 @@ begin
 
     communicator = Ice.initialize(ARGV, initData)
     status = run(ARGV, communicator)
+
+    # Test multiple destroy calls
+    communicator.destroy()
+    communicator.destroy()
+
 rescue => ex
     puts $!
     print ex.backtrace.join("\n")
@@ -57,13 +62,7 @@ rescue => ex
 end
 
 if communicator
-    begin
-        communicator.destroy()
-    rescue => ex
-        puts $!
-        print ex.backtrace.join("\n")
-        status = false
-    end
+    communicator.destroy()
 end
 
 exit(status ? 0 : 1)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,7 +35,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase
         throws RetryException
     {
         _cachedConnection = connection;
-        if(finished(true))
+        if(finished(true, true))
         {
             invokeCompletedAsync();
         }
@@ -45,7 +45,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        if(finished(true))
+        if(finished(true, true))
         {
             invokeCompletedAsync();
         }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -60,17 +60,17 @@ public class Client extends test.Util.Application
             //
             System.out.print("testing using Ice.Config with multiple config files... ");
             String[] args1 = new String[]{"--Ice.Config=config/config.1, config/config.2, config/config.3"};
-            Util.CreatePropertiesResult cpr = Util.createProperties(args1);
-            test(cpr.properties.getProperty("Config1").equals("Config1"));
-            test(cpr.properties.getProperty("Config2").equals("Config2"));
-            test(cpr.properties.getProperty("Config3").equals("Config3"));
+            Properties properties = Util.createProperties(args1);
+            test(properties.getProperty("Config1").equals("Config1"));
+            test(properties.getProperty("Config2").equals("Config2"));
+            test(properties.getProperty("Config3").equals("Config3"));
             System.out.println("ok");
         }
-       
+
         {
             System.out.print("testing configuration file escapes... ");
             String[] args1 = new String[]{"--Ice.Config=config/escapes.cfg"};
-            Util.CreatePropertiesResult cpr = Util.createProperties(args1);
+            Properties properties = Util.createProperties(args1);
 
             String[] props = new String[]{"Foo\tBar", "3",
                                           "Foo\\tBar", "4",
@@ -94,10 +94,10 @@ public class Client extends test.Util.Application
                                           "AServer", "\\\\server\\dir",
                                           "BServer", "\\server\\dir",
                                           ""};
-            
+
             for(int i = 0; !props[i].isEmpty(); i += 2)
             {
-                test(cpr.properties.getProperty(props[i]).equals(props[i + 1])); 
+                test(properties.getProperty(props[i]).equals(props[i + 1]));
             }
             System.out.println("ok");
         }

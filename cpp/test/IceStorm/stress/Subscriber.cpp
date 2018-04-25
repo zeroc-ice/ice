@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,6 +23,8 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
+struct Subscription; // Forward declaration.
+
 class EventI : public Event, public IceUtil::Mutex
 {
 public:
@@ -38,6 +40,10 @@ public:
         return _count;
     }
 
+    virtual void check(const Subscription&)
+    {
+    }
+
 protected:
 
     const CommunicatorPtr _communicator;
@@ -45,6 +51,20 @@ protected:
     int _count;
 };
 typedef IceUtil::Handle<EventI> EventIPtr;
+
+struct Subscription
+{
+    Subscription() : activate(true)
+    {
+    }
+
+    Ice::ObjectAdapterPtr adapter;
+    Ice::ObjectPrx obj;
+    EventIPtr servant;
+    IceStorm::QoS qos;
+    Ice::ObjectPrx publisher;
+    bool activate;
+};
 
 class OrderEventI : public EventI
 {
@@ -143,7 +163,7 @@ public:
         if(!_done && (IceUtilInternal::random(10) == 1 || ++_count == _total))
         {
             _done = true;
-            current.con->close(true);
+            current.con->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
             // Deactivate the OA. This ensures that the subscribers
             // that have subscribed with oneway QoS will be booted.
             current.adapter->deactivate();
@@ -170,6 +190,97 @@ private:
 IceUtil::Mutex* ErraticEventI::_remainingMutex = 0;
 int ErraticEventI::_remaining = 0;
 
+class MaxQueueEventI : public EventI
+{
+public:
+
+    MaxQueueEventI(const CommunicatorPtr& communicator, int expected, int total, bool removeSubscriber) :
+        EventI(communicator, total), _removeSubscriber(removeSubscriber), _expected(expected)
+    {
+    }
+
+    virtual void
+    pub(int counter, const Ice::Current&)
+    {
+        Lock sync(*this);
+
+        if(counter != _count)
+        {
+            cerr << "failed! expected event: " << _count << " received event: " << counter << endl;
+        }
+
+        if(_removeSubscriber)
+        {
+            _count = _total;
+            _communicator->shutdown();
+            return;
+        }
+
+        if(_count == 0)
+        {
+            _count = _total - _expected;
+        }
+        else if(++_count == _total)
+        {
+            _communicator->shutdown();
+        }
+    }
+
+    virtual void
+    check(const Subscription& subscription)
+    {
+        if(_removeSubscriber)
+        {
+            try
+            {
+                //
+                // check might be invoked before IceStorm got a chance to process the close connection
+                // message from this subscriber, retry if the ice_ping still succeeds.
+                //
+                int nRetry = 10;
+                while(--nRetry > 0)
+                {
+                    subscription.publisher->ice_ping();
+                    IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+                }
+                test(false);
+            }
+            catch(const Ice::ObjectNotExistException&)
+            {
+            }
+        }
+    }
+
+private:
+
+    bool _removeSubscriber;
+    int _expected;
+};
+
+class ControllerEventI: public EventI
+{
+public:
+
+    ControllerEventI(const CommunicatorPtr& communicator, int total, const Ice::ObjectAdapterPtr& adapter) :
+        EventI(communicator, total), _adapter(adapter)
+    {
+    }
+
+    virtual void
+    pub(int, const Ice::Current&)
+    {
+        Lock sync(*this);
+        if(++_count == _total)
+        {
+            _adapter->activate();
+        }
+    }
+
+private:
+
+    const Ice::ObjectAdapterPtr _adapter;
+};
+
 namespace
 {
 
@@ -193,14 +304,6 @@ Init init;
 
 }
 
-struct Subscription
-{
-    Ice::ObjectAdapterPtr adapter;
-    Ice::ObjectPrx obj;
-    EventIPtr servant;
-    IceStorm::QoS qos;
-};
-
 int
 run(int argc, char* argv[], const CommunicatorPtr& communicator)
 {
@@ -209,6 +312,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     opts.addOpt("", "qos", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("", "slow");
     opts.addOpt("", "erratic", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "maxQueueDropEvents", IceUtilInternal::Options::NeedArg);
+    opts.addOpt("", "maxQueueRemoveSub", IceUtilInternal::Options::NeedArg);
 
     try
     {
@@ -247,6 +352,8 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     bool slow = opts.isSet("slow");
+    int maxQueueDropEvents = opts.isSet("maxQueueDropEvents") ? atoi(opts.optArg("maxQueueDropEvents").c_str()) : 0;
+    int maxQueueRemoveSub = opts.isSet("maxQueueRemoveSub") ? atoi(opts.optArg("maxQueueRemoveSub").c_str()) : 0;
     bool erratic = false;
     int erraticNum = 0;
     s = opts.optArg("erratic");
@@ -300,6 +407,28 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         item.servant = new SlowEventI(communicator, events);
         item.qos = cmdLineQos;
         subs.push_back(item);
+    }
+    else if(maxQueueDropEvents || maxQueueRemoveSub)
+    {
+        Subscription item1;
+        item1.adapter = communicator->createObjectAdapterWithEndpoints("MaxQueueAdapter", "default");
+        if(maxQueueDropEvents)
+        {
+            item1.servant = new MaxQueueEventI(communicator, maxQueueDropEvents, events, false);
+        }
+        else
+        {
+            item1.servant = new MaxQueueEventI(communicator, maxQueueRemoveSub, events, true);
+        }
+        item1.qos = cmdLineQos;
+        item1.activate = false;
+        subs.push_back(item1);
+
+        Subscription item2;
+        item2.adapter = communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "default");
+        item2.servant = new ControllerEventI(communicator, events, item1.adapter);
+        item2.qos["reliability"] = "oneway";
+        subs.push_back(item2);
     }
     else
     {
@@ -357,14 +486,17 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
             {
                 p->obj = p->obj->ice_oneway();
             }
-            topic->subscribeAndGetPublisher(qos, p->obj);
+            p->publisher = topic->subscribeAndGetPublisher(qos, p->obj);
         }
     }
 
     {
         for(vector<Subscription>::iterator p = subs.begin(); p != subs.end(); ++p)
         {
-            p->adapter->activate();
+            if(p->activate)
+            {
+                p->adapter->activate();
+            }
         }
     }
 
@@ -373,6 +505,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
         for(vector<Subscription>::const_iterator p = subs.begin(); p != subs.end(); ++p)
         {
+            p->servant->check(*p);
             topic->unsubscribe(p->obj);
             if(p->servant->count() != events)
             {
@@ -390,10 +523,10 @@ main(int argc, char* argv[])
 {
     int status;
     CommunicatorPtr communicator;
-
+    InitializationData initData = getTestInitData(argc, argv);
     try
     {
-        communicator = initialize(argc, argv);
+        communicator = initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)
@@ -404,15 +537,7 @@ main(int argc, char* argv[])
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        communicator->destroy();
     }
 
     return status;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -85,7 +85,6 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
         test([TestOperationss0  isEqualToString:[literals objectAtIndex: 0]]);
 
-
         test([TestOperationss0 isEqualToString:@"\\"] &&
              [TestOperationss0 isEqualToString:TestOperationssw0] &&
              [TestOperationss0 isEqualToString:[literals objectAtIndex:0]] &&
@@ -141,7 +140,7 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
              [TestOperationss10 isEqualToString:[literals objectAtIndex:10]] &&
              [TestOperationss10 isEqualToString:[literals objectAtIndex:21]]);
 
-        test([TestOperationsss0 isEqualToString:@"\'\"\?\\\a\b\f\n\r\t\v"] &&
+        test([TestOperationsss0 isEqualToString:@"\'\"\?\\\a\b\f\n\r\t\v\6"] &&
              [TestOperationsss0 isEqualToString:TestOperationsss1] &&
              [TestOperationsss0 isEqualToString:TestOperationsss2] &&
              [TestOperationsss0 isEqualToString:[literals objectAtIndex:22]] &&
@@ -1592,7 +1591,6 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     {
         TestOperationsMutableMyEnumMyEnumSD *sdi1 = [TestOperationsMutableMyEnumMyEnumSD dictionary];
         TestOperationsMutableMyEnumMyEnumSD *sdi2 = [TestOperationsMutableMyEnumMyEnumSD dictionary];
-
 
         TestOperationsMyEnum buf1[] = { TestOperationsenum1, TestOperationsenum1, TestOperationsenum2 };
         TestOperationsMyEnum buf2[] = { TestOperationsenum1, TestOperationsenum2 };

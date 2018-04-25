@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -53,7 +53,7 @@ template<typename R> struct ReferenceWrapper<const IceInternal::ProxyHandle<R>& 
         return v.get();
     }
 };
-    
+
 template<typename R> struct ReferenceWrapper<IceInternal::Handle<R> >
 {
     static R* get(const IceInternal::Handle<R>& v)
@@ -70,7 +70,7 @@ template<typename R> struct ReferenceWrapper<const IceInternal::Handle<R>& >
     }
 };
 #endif
-    
+
 template<typename R> struct ReferenceWrapper<R*>
 {
     static R* get(R* v)
@@ -92,9 +92,10 @@ template<typename R> struct ReferenceWrapper<const R&>
 namespace IceMX
 {
 
+/// \cond INTERNAL
 template<class T, typename Y, typename Func> struct ApplyOnMember
 {
-    ApplyOnMember(Y T::*member, Func func) : func(func), member(member)
+    ApplyOnMember(Y T::*m, Func f) : func(f), member(m)
     {
     }
 
@@ -126,7 +127,7 @@ template<typename T> struct Increment
 
 template<typename T> struct Add
 {
-    Add(T value) : value(value) { }
+    Add(T v) : value(v) { }
 
     template<typename Y>
     void operator()(Y& v)
@@ -156,6 +157,7 @@ template<class T, typename Y> ApplyOnMember<T, Y, Decrement<Y> > dec(Y T::*membe
 {
     return applyOnMember(member, Decrement<Y>());
 }
+/// \endcond
 
 }
 

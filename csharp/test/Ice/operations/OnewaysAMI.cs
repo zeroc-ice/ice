@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -71,8 +71,9 @@ public class OnewaysAMI
         }
     }
 
-    internal static void onewaysAMI(Ice.Communicator communicator, Test.MyClassPrx proxy)
+    internal static void onewaysAMI(TestCommon.Application app, Test.MyClassPrx proxy)
     {
+        Ice.Communicator communicator = app.communicator();
         Test.MyClassPrx p = Test.MyClassPrxHelper.uncheckedCast(proxy.ice_oneway());
 
         {
@@ -112,7 +113,7 @@ public class OnewaysAMI
                 p.ice_isAAsync("::Test::MyClass");
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -123,7 +124,7 @@ public class OnewaysAMI
                 p.begin_ice_isA("::Test::MyClass");
                 test(false);
             }
-            catch(ArgumentException)
+            catch(System.ArgumentException)
             {
             }
         }
@@ -134,7 +135,7 @@ public class OnewaysAMI
                 p.ice_idAsync();
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -145,7 +146,18 @@ public class OnewaysAMI
                 p.begin_ice_id();
                 test(false);
             }
-            catch(ArgumentException)
+            catch(System.ArgumentException)
+            {
+            }
+        }
+
+        {
+            try
+            {
+                p.ice_idsAsync();
+                test(false);
+            }
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -156,7 +168,7 @@ public class OnewaysAMI
                 p.begin_ice_ids();
                 test(false);
             }
-            catch(ArgumentException)
+            catch(System.ArgumentException)
             {
             }
         }
@@ -260,7 +272,7 @@ public class OnewaysAMI
                 p.opByteAsync(0xff, 0x0f);
                 test(false);
             }
-            catch(ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -271,7 +283,7 @@ public class OnewaysAMI
                 p.begin_opByte(0xff, 0x0f);
                 test(false);
             }
-            catch(ArgumentException)
+            catch(System.ArgumentException)
             {
             }
         }

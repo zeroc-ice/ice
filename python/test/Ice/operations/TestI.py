@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -36,6 +36,9 @@ class MyDerivedClassI(Test.MyDerivedClass):
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
+
+    def supportsCompress(self, current=None):
+        return True
 
     def opVoid(self, current=None):
         test(current.mode == Ice.OperationMode.Normal)
@@ -82,7 +85,7 @@ class MyDerivedClassI(Test.MyDerivedClass):
         p3 = p1[0:]
         p3.extend(p2)
         r = p1[0:]
-        r.reverse();
+        r.reverse()
         return (r, p3)
 
     def opShortIntLongS(self, p1, p2, p3, current=None):
@@ -294,22 +297,20 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return [-x for x in s]
 
     def opByteSOneway(self, s, current=None):
-        self.lock.acquire()
-        self.opByteSOnewayCount += 1
-        self.lock.release()
+        with self.lock:
+            self.opByteSOnewayCount += 1
 
     def opByteSOnewayCallCount(self, current=None):
-        self.lock.acquire()
-        count = self.opByteSOnewayCount
-        self.opByteSOnewayCount = 0
-        self.lock.release()
+        with self.lock:
+            count = self.opByteSOnewayCount
+            self.opByteSOnewayCount = 0
         return count
 
     def opContext(self, current=None):
         return current.ctx
 
     def opDoubleMarshaling(self, p1, p2, current=None):
-        d = 1278312346.0 / 13.0;
+        d = 1278312346.0 / 13.0
         test(p1 == d)
         for i in p2:
             test(i == d)
@@ -372,19 +373,19 @@ class MyDerivedClassI(Test.MyDerivedClass):
         return self.opStringLiterals(current)
 
     def opMStruct1(self, current):
-        return Test.Structure();
+        return Test.MyClass.OpMStruct1MarshaledResult(Test.Structure(), current)
 
     def opMStruct2(self, p1, current):
-        return (p1, p1);
+        return Test.MyClass.OpMStruct2MarshaledResult((p1, p1), current)
 
     def opMSeq1(self, current):
-        return ()
+        return Test.MyClass.OpMSeq1MarshaledResult((), current)
 
     def opMSeq2(self, p1, current):
-        return (p1, p1);
+        return Test.MyClass.OpMSeq2MarshaledResult((p1, p1), current)
 
     def opMDict1(self, current):
-        return {};
+        return Test.MyClass.OpMDict1MarshaledResult({}, current)
 
     def opMDict2(self, p1, current):
-        return (p1, p1);
+        return Test.MyClass.OpMDict2MarshaledResult((p1, p1), current)

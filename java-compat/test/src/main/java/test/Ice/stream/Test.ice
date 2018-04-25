@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,9 +20,10 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
 class MyClass;
+interface MyInterface;
 
 ["java:serializable:test.Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
 
@@ -37,15 +38,16 @@ struct SmallStruct
     double d;
     string str;
     MyEnum e;
-    MyClass* p;
+    MyClass c;
+    MyInterface* p;
     SerialSmall ss;
-};
+}
 
 struct Point
 {
     int x;
     int y;
-};
+}
 
 sequence<MyEnum> MyEnumS;
 sequence<MyClass> MyClassS;
@@ -60,13 +62,13 @@ class OptionalClass
     optional(1) short sh;
     optional(2) int i;
     optional(3) SmallStruct sm;
-    
+
     optional(4) MyEnumS enumS4;
     optional(5) MyClassS myClassS5;
-    
+
     optional(6) ByteBoolD byteBoolD6;
     optional(7) ShortIntD shortIntD7;
-    
+
     optional(8) MyEnum enum8;
     optional(9) MyClass class9;
     optional(10) StringMyClassD stringMyClassD10;
@@ -74,7 +76,7 @@ class OptionalClass
     optional(13) Ice::ByteSeq byteSeq13;
     optional(14) Ice::StringSeq stringSeq14;
     optional(15) Point p15;
-};
+}
 
 sequence<Ice::BoolSeq> BoolSS;
 sequence<Ice::ByteSeq> ByteSS;
@@ -95,7 +97,7 @@ class Bar;
 class MyClass
 {
     MyClass c;
-    MyClass* prx;
+    MyInterface* prx;
     Object o;
     SmallStruct s;
     Ice::BoolSeq seq1;
@@ -109,15 +111,15 @@ class MyClass
     MyEnumS seq9;
     MyClassS seq10;
     StringMyClassD d;
-};
+}
 
 interface MyInterface
 {
-};
+}
 
 exception MyException
 {
     MyClass c;
-};
+}
 
-};
+}

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,6 @@
 #include <IceGrid/DescriptorHelper.h>
 #include <IceGrid/AdminSessionI.h>
 #include <IceGrid/NodeSessionI.h>
-
 
 using namespace std;
 using namespace Ice;
@@ -139,7 +138,6 @@ private:
     const AmdCB _cb;
 };
 
-
 template<typename AmdCB> PatcherFeedbackAggregatorPtr
 static newPatcherFeedback(const AmdCB& cb,
                           Ice::Identity id,
@@ -164,7 +162,6 @@ AdminI::AdminI(const DatabasePtr& database, const RegistryIPtr& registry, const 
 AdminI::~AdminI()
 {
 }
-
 
 void
 AdminI::addApplication(const ApplicationDescriptor& descriptor, const Current&)
@@ -451,7 +448,6 @@ private:
 
 }
 
-
 void
 AdminI::startServer_async(const AMD_Admin_startServerPtr& amdCB, const string& id, const Current&)
 {
@@ -663,12 +659,11 @@ AdminI::addObject(const Ice::ObjectPrx& proxy, const ::Ice::Current& current)
     {
         addObjectWithType(proxy, proxy->ice_id(), current);
     }
-    catch(const Ice::LocalException& e)
+    catch(const Ice::LocalException& ex)
     {
         ostringstream os;
-
-        os << "failed to invoke ice_id() on proxy `" + current.adapter->getCommunicator()->proxyToString(proxy);
-        os << "':\n" << e;
+        os << "failed to invoke ice_id() on proxy `" + current.adapter->getCommunicator()->proxyToString(proxy)
+           << "':\n" << ex;
         throw DeploymentException(os.str());
     }
 }
@@ -683,14 +678,12 @@ AdminI::updateObject(const Ice::ObjectPrx& proxy, const ::Ice::Current&)
         throw DeploymentException("proxy is null");
     }
 
-
     const Ice::Identity id = proxy->ice_getIdentity();
     if(id.category == _database->getInstanceName())
     {
-        DeploymentException ex;
-        ex.reason = "updating object `" + identityToString(id) + "' is not allowed:\n";
-        ex.reason += "objects with identity category `" + id.category + "' are managed by IceGrid";
-        throw ex;
+        throw DeploymentException("updating object `" + _database->getCommunicator()->identityToString(id) +
+                                  "' is not allowed:\nobjects with identity category `" + id.category +
+                                  "' are managed by IceGrid");
     }
     _database->updateObject(proxy);
 }
@@ -708,10 +701,9 @@ AdminI::addObjectWithType(const Ice::ObjectPrx& proxy, const string& type, const
     const Ice::Identity id = proxy->ice_getIdentity();
     if(id.category == _database->getInstanceName())
     {
-        DeploymentException ex;
-        ex.reason = "adding object `" + identityToString(id) + "' is not allowed:\n";
-        ex.reason += "objects with identity category `" + id.category + "' are managed by IceGrid";
-        throw ex;
+        throw DeploymentException("adding object `" + _database->getCommunicator()->identityToString(id) +
+                                  "' is not allowed:\nobjects with identity category `" + id.category +
+                                  "' are managed by IceGrid");
     }
 
     ObjectInfo info;
@@ -726,10 +718,9 @@ AdminI::removeObject(const Ice::Identity& id, const Ice::Current&)
     checkIsReadOnly();
     if(id.category == _database->getInstanceName())
     {
-        DeploymentException ex;
-        ex.reason = "removing object `" + identityToString(id) + "' is not allowed:\n";
-        ex.reason += "objects with identity category `" + id.category + "' are managed by IceGrid";
-        throw ex;
+        throw DeploymentException("removing object `" + _database->getCommunicator()->identityToString(id) +
+                                  "' is not allowed:\nobjects with identity category `" + id.category +
+                                  "' are managed by IceGrid");
     }
     _database->removeObject(id);
 }
@@ -878,7 +869,6 @@ AdminI::getNodeHostname(const string& name, const Current&) const
     }
 }
 
-
 StringSeq
 AdminI::getAllNodeNames(const Current&) const
 {
@@ -989,9 +979,6 @@ AdminI::checkIsReadOnly() const
 {
     if(_database->isReadOnly())
     {
-        DeploymentException ex;
-        ex.reason = "this operation is not allowed on a slave or read-only master registry.";
-        throw ex;
+        throw DeploymentException("this operation is not allowed on a slave or read-only master registry.");
     }
 }
-

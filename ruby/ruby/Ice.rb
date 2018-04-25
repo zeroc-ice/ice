@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -43,11 +43,10 @@ module Ice
         end
 
         if RUBY_PLATFORM =~ /linux/i
-            iceVer = Ice::stringVersion
             #
-            # Check the default RPM location.
+            # Check the default Linux location.
             #
-            dir = File::join("/", "usr", "share", "Ice-" + iceVer, "slice")
+            dir = File::join("/", "usr", "share", "ice", "slice")
             if File::exists?(dir)
                 return dir
             end
@@ -63,7 +62,7 @@ module Ice
         def ice_name
             to_s[2..-1]
         end
-        
+
         def ice_id
             to_s
         end
@@ -80,53 +79,94 @@ module Ice
     end
 
     #
-    # Object.
+    # Ice::Object
     #
-    T_Object = Ice.__declareClass('::Ice::Object')
+    T_Value = Ice.__declareClass('::Ice::Object')
     T_ObjectPrx = Ice.__declareProxy('::Ice::Object')
 
-    module Object_mixin
-        def ice_isA(id, current=nil)
-            return ice_ids().include?(id)
+    #
+    # Provide some common functionality for structs
+    #
+    module Inspect_mixin
+        def inspect
+            ::Ice::__stringify(self, self.class::ICE_TYPE)
+        end
+    end
+
+    #
+    # Provide some common functionality for proxy classes
+    #
+    module Proxy_mixin
+        module ClassMethods
+            def inspect
+                ::Ice::__stringify(self, self.class::ICE_TYPE)
+            end
+
+            def ice_staticId()
+                self::ICE_ID
+            end
+
+            def checkedCast(proxy, facetOrContext=nil, context=nil)
+                ice_checkedCast(proxy, self::ICE_ID, facetOrContext, context)
+            end
+
+            def uncheckedCast(proxy, facet=nil)
+                ice_uncheckedCast(proxy, facet)
+            end
         end
 
-        def ice_ping(current=nil)
+        def self.included(base)
+            base.extend(ClassMethods)
+        end
+    end
+
+    #
+    # Base class for Value types
+    #
+    class Value
+        def inspect
+            ::Ice::__stringify(self, self.class::ICE_TYPE)
+        end
+
+        def ice_id()
+            self.class::ICE_ID
+        end
+
+        def Value.ice_staticId()
+            self::ICE_ID
+        end
+
+        def ice_getSlicedData()
+            return _ice_slicedData
         end
 
         attr_accessor :_ice_slicedData  # Only used for instances of preserved classes.
     end
 
-    class Object
-        include Object_mixin
+    T_Value.defineClass(Value, -1, false, false, nil, [])
 
-        def Object.ice_staticId()
-            '::Ice::Object'
+    T_ObjectPrx.defineProxy(ObjectPrx, nil, [])
+
+    class InterfaceByValue < Value
+        def initialize(id)
+            @id = id
+        end
+
+        def ice_id
+            @id
         end
     end
 
-    T_Object.defineClass(nil, -1, true, false, nil, [], [])
-    Object_mixin::ICE_TYPE = T_Object
-
-    T_ObjectPrx.defineProxy(ObjectPrx, T_Object)
-    ObjectPrx::ICE_TYPE = T_ObjectPrx
-
     #
-    # LocalObject.
+    # UnknownSlicedValue.
     #
-    T_LocalObject = Ice.__declareLocalClass('::Ice::LocalObject')
-    T_LocalObject.defineClass(nil, -1, true, false, nil, [], [])
-
-    #
-    # UnknownSlicedObject.
-    #
-    class UnknownSlicedObject
-        include ::Ice::Object_mixin
-
-        attr_accessor :unknownTypeId
+    class UnknownSlicedValue < Value
+        def ice_id
+            return @unknownTypeId
+        end
     end
-    T_UnknownSlicedObject = Ice.__declareClass('::Ice::UnknownSlicedObject')
-    T_UnknownSlicedObject.defineClass(UnknownSlicedObject, -1, false, true, nil, [], [])
-    UnknownSlicedObject::ICE_TYPE = T_UnknownSlicedObject
+    T_UnknownSlicedValue = Ice.__declareClass('::Ice::UnknownSlicedValue')
+    T_UnknownSlicedValue.defineClass(UnknownSlicedValue, -1, true, false, T_Value, [])
 
     #
     # InitializationData.
@@ -151,7 +191,7 @@ module Ice
     # SliceInfo
     #
     class SliceInfo
-        attr_accessor :typeId, :bytes, :objects
+        attr_accessor :typeId, :compactId, :bytes, :instances, :hasOptionalMembers, :isLastSlice
     end
 
     class FormatType
@@ -213,6 +253,7 @@ end
 #
 require 'Ice/BuiltinSequences.rb'
 require 'Ice/Current.rb'
+require 'Ice/Communicator.rb'
 require 'Ice/EndpointTypes.rb'
 require 'Ice/LocalException.rb'
 require 'Ice/Locator.rb'
@@ -257,35 +298,33 @@ module Ice
             @condVar = ConditionVariable.new
             @mutex = Mutex.new
             @queue = Array.new
-            @done = false
             @callback = nil
+
+            @read, @write = IO.pipe
 
             #
             # Setup and install signal handlers
             #
             if Signal.list.has_key?('HUP')
-                Signal.trap('HUP') { signalHandler('HUP') }
+                Signal.trap('HUP') { @write.puts 'HUP' }
             end
-            Signal.trap('INT') { signalHandler('INT') }
-            Signal.trap('TERM') { signalHandler('TERM') }
+            Signal.trap('INT') { @write.puts 'INT' }
+            Signal.trap('TERM') { @write.puts 'TERM' }
 
             @thr = Thread.new { main }
         end
 
-        # Dequeue and dispatch signals.
+        # Read and dispatch signals.
         def main
-            while true
-                sig, callback = @mutex.synchronize {
-                    while @queue.empty? and not @done
-                        @condVar.wait(@mutex)
-                    end
-                    if @done
-                        return
-                    end
-                    @queue.shift
-                }
+            while rs = IO.select([@read])
+                signal = rs.first[0].gets.strip
+                if signal == 'DONE'
+                    @read.close()
+                    break
+                end
+                callback = @callback
                 if callback
-                    callback.call(sig)
+                    callback.call(signal)
                 end
             end
         end
@@ -293,10 +332,8 @@ module Ice
         # Destroy the object. Wait for the thread to terminate and cleanup
         # the internal state.
         def destroy
-            @mutex.synchronize {
-                @done = true
-                @condVar.signal
-            }
+            @write.puts 'DONE'
+            @write.close()
 
             # Wait for the thread to terminate
             @thr.join
@@ -324,16 +361,6 @@ module Ice
             }
         end
 
-        # Private. Only called by the signal handling mechanism.
-        def signalHandler(sig)
-            @mutex.synchronize {
-                #
-                # The signal AND the current callback are queued together.
-                #
-                @queue = @queue.push([sig, @callback])
-                @condVar.signal
-            }
-        end
         @@_self = nil
     end
 
@@ -418,13 +445,7 @@ module Ice
             }
 
             if @@_communicator
-                begin
-                    @@_communicator.destroy()
-                rescue => ex
-                    Ice::getProcessLogger().error($!.inspect + "\n" + ex.backtrace.join("\n"))
-                    status = 1
-                end
-
+                @@_communicator.destroy()
                 @@_communicator = nil
             end
 
@@ -564,11 +585,8 @@ module Ice
                 @@_destroyed = true
             }
 
-            begin
-                @@_communicator.destroy()
-            rescue => ex
-                Ice::getProcessLogger().error($!.inspect + "\n" + @@_appName + " (while destroying in response to signal " + sig + "):\n" + ex.backtrace.join("\n"))
-            end
+            @@_communicator.destroy()
+
             @@_mutex.synchronize {
                 @@_callbackInProcess = false
                 @@_condVar.signal
@@ -658,8 +676,3 @@ module Ice
     Encoding_1_0 = EncodingVersion.new(1, 0)
     Encoding_1_1 = EncodingVersion.new(1, 1)
 end
-
-Ice::Object_mixin::OP_ice_isA = ::Ice::__defineOperation('ice_isA', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [[::Ice::T_string, false, 0]], [], [::Ice::T_bool, false, 0], [])
-Ice::Object_mixin::OP_ice_ping = ::Ice::__defineOperation('ice_ping', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], nil, [])
-Ice::Object_mixin::OP_ice_ids = ::Ice::__defineOperation('ice_ids', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], [::Ice::T_StringSeq, false, 0], [])
-Ice::Object_mixin::OP_ice_id = ::Ice::__defineOperation('ice_id', ::Ice::OperationMode::Idempotent, ::Ice::OperationMode::Nonmutating, false, nil, [], [], [::Ice::T_string, false, 0], [])

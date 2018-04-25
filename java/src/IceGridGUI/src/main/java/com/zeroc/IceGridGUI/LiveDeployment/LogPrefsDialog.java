@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,7 +30,7 @@ class LogPrefsDialog extends JDialog
 {
     LogPrefsDialog(final ShowLogFileDialog dialog)
     {
-        super(dialog, "Preferences - IceGrid Admin", true);
+        super(dialog, "Preferences - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         final JTextField maxLinesField = new JTextField(10);
@@ -120,10 +120,10 @@ class LogPrefsDialog extends JDialog
         setLocationRelativeTo(dialog);
         setVisible(true);
     }
-    
+
     LogPrefsDialog(final ShowIceLogDialog dialog)
     {
-        super(dialog, "Preferences - IceGrid Admin", true);
+        super(dialog, "Preferences - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
         final JTextField maxMessagesField = new JTextField(10);
@@ -179,7 +179,7 @@ class LogPrefsDialog extends JDialog
         builder.nextLine();
         builder.append("Number of log messages retrieved initially", initialMessagesField);
         builder.nextLine();
-        
+
         JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
         buttonBar.setBorder(Borders.DIALOG);
 

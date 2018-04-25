@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,17 +50,8 @@ class AMDInterceptorI extends InterceptorI implements Ice.DispatchInterceptorAsy
                     }
                 };
 
-                try
-                {
-                    _lastStatus = _servant.ice_dispatch(request, cb);
-                    test(_lastStatus);
-                }
-                catch(RetryException ex)
-                {
-                    //
-                    // Expected, retry
-                    //
-                }
+                _lastStatus = _servant.ice_dispatch(request, cb);
+                test(!_lastStatus);
             }
 
             request.getCurrent().ctx.put("retry", "no");

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,9 +11,9 @@ package test.Ice.proxy;
 import test.Ice.proxy.AMD.Test.AMD_MyClass_getContext;
 import test.Ice.proxy.AMD.Test.AMD_MyClass_shutdown;
 import test.Ice.proxy.AMD.Test.AMD_MyDerivedClass_echo;
-import test.Ice.proxy.AMD.Test.MyDerivedClass;
+import test.Ice.proxy.AMD.Test._MyDerivedClassDisp;
 
-public final class AMDMyDerivedClassI extends MyDerivedClass
+public final class AMDMyDerivedClassI extends _MyDerivedClassDisp
 {
     public
     AMDMyDerivedClassI()

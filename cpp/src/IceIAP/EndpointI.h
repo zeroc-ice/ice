@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,7 +38,7 @@ public:
 
     virtual void streamWriteImpl(Ice::OutputStream*) const;
 
-    virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual bool datagram() const;
@@ -54,8 +54,8 @@ public:
     virtual IceInternal::TransceiverPtr transceiver() const;
     virtual void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
-
-    virtual std::vector<IceInternal::EndpointIPtr> expand() const;
+    virtual std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const;
+    virtual std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
 #ifdef ICE_CPP11_MAPPING
@@ -100,8 +100,7 @@ public:
     virtual IceInternal::EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&,
-                                                  const IceInternal::EndpointFactoryPtr&) const;
+    virtual IceInternal::EndpointFactoryPtr clone(const IceInternal::ProtocolInstancePtr&) const;
 
 private:
 

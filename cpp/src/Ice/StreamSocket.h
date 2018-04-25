@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,16 +36,16 @@ public:
     SocketOperation read(Buffer&);
     SocketOperation write(Buffer&);
 
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
     ssize_t read(char*, size_t);
     ssize_t write(const char*, size_t);
 #endif
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     bool startWrite(Buffer&);
     void finishWrite(Buffer&);
     void startRead(Buffer&);
@@ -78,14 +78,14 @@ private:
     State _state;
     std::string _desc;
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     size_t _maxSendPacketSize;
     size_t _maxRecvPacketSize;
     AsyncInfo _read;
     AsyncInfo _write;
 #endif
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     Windows::Storage::Streams::DataReader^ _reader;
     Windows::Storage::Streams::DataWriter^ _writer;
 #endif

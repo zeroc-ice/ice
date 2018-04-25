@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,6 +13,7 @@
 #include <Connection.h>
 #include <Endpoint.h>
 #include <Util.h>
+#include <Types.h>
 #include <Ice/LocalException.h>
 #include <Ice/Locator.h>
 #include <Ice/Proxy.h>
@@ -49,9 +50,9 @@ IceRuby_ObjectPrx_free(Ice::ObjectPrx* p)
 }
 
 //
-// Returns true if a context was provided.
+// If a context was provided set it to ::Ice::noExplicitContext.
 //
-static bool
+static void
 checkArgs(const char* name, int numArgs, int argc, VALUE* argv, Ice::Context& ctx)
 {
     if(argc < numArgs || argc > numArgs + 1)
@@ -65,9 +66,11 @@ checkArgs(const char* name, int numArgs, int argc, VALUE* argv, Ice::Context& ct
         {
             throw RubyException(rb_eArgError, "%s: invalid context hash", name);
         }
-        return true;
     }
-    return false;
+    else
+    {
+        ctx = ::Ice::noExplicitContext;
+    }
 }
 
 extern "C"
@@ -77,7 +80,7 @@ IceRuby_ObjectPrx_hash(VALUE self)
     ICE_RUBY_TRY
     {
         Ice::ObjectPrx p = getProxy(self);
-        return INT2FIX(p->__hash());
+        return INT2FIX(p->_hash());
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -120,20 +123,10 @@ IceRuby_ObjectPrx_ice_isA(int argc, VALUE* argv, VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::Context ctx;
-        bool haveContext = checkArgs("ice_isA", 1, argc, argv, ctx);
-
+        checkArgs("ice_isA", 1, argc, argv, ctx);
         string id = getString(argv[0]);
 
-        bool result;
-        if(haveContext)
-        {
-            result = p->ice_isA(id, ctx);
-        }
-        else
-        {
-            result = p->ice_isA(id);
-        }
-        return result ? Qtrue : Qfalse;
+        return p->ice_isA(id, ctx) ? Qtrue : Qfalse;
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -148,16 +141,8 @@ IceRuby_ObjectPrx_ice_ping(int argc, VALUE* argv, VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::Context ctx;
-        bool haveContext = checkArgs("ice_ping", 0, argc, argv, ctx);
-
-        if(haveContext)
-        {
-            p->ice_ping(ctx);
-        }
-        else
-        {
-            p->ice_ping();
-        }
+        checkArgs("ice_ping", 0, argc, argv, ctx);
+        p->ice_ping(ctx);
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -172,18 +157,9 @@ IceRuby_ObjectPrx_ice_ids(int argc, VALUE* argv, VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::Context ctx;
-        bool haveContext = checkArgs("ice_ids", 0, argc, argv, ctx);
+        checkArgs("ice_ids", 0, argc, argv, ctx);
 
-        vector<string> ids;
-        if(haveContext)
-        {
-            ids = p->ice_ids(ctx);
-        }
-        else
-        {
-            ids = p->ice_ids();
-        }
-
+        vector<string> ids = p->ice_ids(ctx);
         volatile VALUE result = createArray(ids.size());
         long i = 0;
         for(vector<string>::iterator q = ids.begin(); q != ids.end(); ++q, ++i)
@@ -206,18 +182,8 @@ IceRuby_ObjectPrx_ice_id(int argc, VALUE* argv, VALUE self)
         Ice::ObjectPrx p = getProxy(self);
 
         Ice::Context ctx;
-        bool haveContext = checkArgs("ice_id", 0, argc, argv, ctx);
-
-        string id;
-        if(haveContext)
-        {
-            id = p->ice_id(ctx);
-        }
-        else
-        {
-            id = p->ice_id();
-        }
-
+        checkArgs("ice_id", 0, argc, argv, ctx);
+        string id = p->ice_id(ctx);
         return createString(id);
     }
     ICE_RUBY_CATCH
@@ -862,6 +828,27 @@ IceRuby_ObjectPrx_ice_compress(VALUE self, VALUE b)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_getCompress(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        IceUtil::Optional<bool> c = p->ice_getCompress();
+        if(c)
+        {
+            return *c ? Qtrue : Qfalse;
+        }
+        else
+        {
+            return Unset;
+        }
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
 {
     ICE_RUBY_TRY
@@ -883,6 +870,27 @@ IceRuby_ObjectPrx_ice_timeout(VALUE self, VALUE t)
 
 extern "C"
 VALUE
+IceRuby_ObjectPrx_ice_getTimeout(VALUE self)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+        IceUtil::Optional<int> t = p->ice_getTimeout();
+        if(t)
+        {
+            return INT2FIX(*t);
+        }
+        else
+        {
+            return Unset;
+        }
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
 IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
 {
     ICE_RUBY_TRY
@@ -890,6 +898,29 @@ IceRuby_ObjectPrx_ice_connectionId(VALUE self, VALUE id)
         Ice::ObjectPrx p = getProxy(self);
         string idstr = getString(id);
         return createProxy(p->ice_connectionId(idstr), rb_class_of(self));
+    }
+    ICE_RUBY_CATCH
+    return Qnil;
+}
+
+extern "C"
+VALUE
+IceRuby_ObjectPrx_ice_fixed(VALUE self, VALUE con)
+{
+    ICE_RUBY_TRY
+    {
+        Ice::ObjectPrx p = getProxy(self);
+
+        Ice::ConnectionPtr connection;
+        if(!NIL_P(con))
+        {
+            if(!checkConnection(con))
+            {
+                throw RubyException(rb_eTypeError, "argument must be an Ice.Connection");
+            }
+            connection = getConnection(con);
+        }
+        return createProxy(p->ice_fixed(connection), rb_class_of(self));
     }
     ICE_RUBY_CATCH
     return Qnil;
@@ -1134,7 +1165,7 @@ IceRuby_ObjectPrx_uncheckedCast(int argc, VALUE* args, VALUE self)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOrCtx, VALUE ctx)
+IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOrContext, VALUE ctx)
 {
     //
     // ice_checkedCast is called from generated code, therefore we always expect
@@ -1157,19 +1188,19 @@ IceRuby_ObjectPrx_ice_checkedCast(VALUE self, VALUE obj, VALUE id, VALUE facetOr
         string idstr = getString(id);
 
         volatile VALUE facet = Qnil;
-        if(isString(facetOrCtx))
+        if(isString(facetOrContext))
         {
-            facet = facetOrCtx;
+            facet = facetOrContext;
         }
-        else if(isHash(facetOrCtx))
+        else if(isHash(facetOrContext))
         {
             if(!NIL_P(ctx))
             {
                 throw RubyException(rb_eArgError, "facet argument to checkedCast must be a string");
             }
-            ctx = facetOrCtx;
+            ctx = facetOrContext;
         }
-        else if(!NIL_P(facetOrCtx))
+        else if(!NIL_P(facetOrContext))
         {
             throw RubyException(rb_eArgError, "second argument to checkedCast must be a facet or context");
         }
@@ -1300,8 +1331,11 @@ IceRuby::initProxy(VALUE iceModule)
     rb_define_method(_proxyClass, "ice_batchDatagram", CAST_METHOD(IceRuby_ObjectPrx_ice_batchDatagram), 0);
     rb_define_method(_proxyClass, "ice_isBatchDatagram", CAST_METHOD(IceRuby_ObjectPrx_ice_isBatchDatagram), 0);
     rb_define_method(_proxyClass, "ice_compress", CAST_METHOD(IceRuby_ObjectPrx_ice_compress), 1);
+    rb_define_method(_proxyClass, "ice_getCompress", CAST_METHOD(IceRuby_ObjectPrx_ice_getCompress), 0);
     rb_define_method(_proxyClass, "ice_timeout", CAST_METHOD(IceRuby_ObjectPrx_ice_timeout), 1);
+    rb_define_method(_proxyClass, "ice_getTimeout", CAST_METHOD(IceRuby_ObjectPrx_ice_getTimeout), 0);
     rb_define_method(_proxyClass, "ice_connectionId", CAST_METHOD(IceRuby_ObjectPrx_ice_connectionId), 1);
+    rb_define_method(_proxyClass, "ice_fixed", CAST_METHOD(IceRuby_ObjectPrx_ice_fixed), 1);
     rb_define_method(_proxyClass, "ice_getConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getConnection), 0);
     rb_define_method(_proxyClass, "ice_getCachedConnection", CAST_METHOD(IceRuby_ObjectPrx_ice_getCachedConnection), 0);
     rb_define_method(_proxyClass, "ice_flushBatchRequests", CAST_METHOD(IceRuby_ObjectPrx_ice_flushBatchRequests), 0);

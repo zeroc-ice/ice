@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,6 @@
 
 /* global WorkerGlobalScope */
 
-
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
 //
@@ -24,41 +23,41 @@ const Ice = require("../Ice/ModuleRegistry").Ice;
 //
 function createTimerObject()
 {
-    let Timer = class
+    const Timer = class
     {
-        static setTimeout()
+        static setTimeout(cb, ms)
         {
-            setTimeout.apply(null, arguments);
+            return setTimeout.apply(null, arguments);
         }
 
-        static clearTimeout()
+        static clearTimeout(id)
         {
-            clearTimeout.apply(null, arguments);
+            return clearTimeout.apply(null, arguments);
         }
 
         static setInterval()
         {
-            setInterval.apply(null, arguments);
+            return setInterval.apply(null, arguments);
         }
 
         static clearInterval()
         {
-            clearInterval.apply(null, arguments);
+            return clearInterval.apply(null, arguments);
         }
     };
-    
+
     if(typeof(setImmediate) == "function")
     {
         Timer.setImmediate = function()
         {
-            setImmediate.apply(null, arguments);
+            return setImmediate.apply(null, arguments);
         };
     }
     else
     {
         Timer.setImmediate = function()
         {
-            setTimeout.apply(null, arguments);
+            return setTimeout.apply(null, arguments);
         };
     }
 
@@ -69,17 +68,16 @@ const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER  || 9007199254740991;
 
 const _timers = new Map();
 
-const _SetTimeoutType = 0,
-      _SetIntervalType = 1,
-      _SetImmediateType = 2,
-      _ClearTimeoutType = 3,
-      _ClearIntervalType = 4;
+const _SetTimeoutType = 0;
+const _SetIntervalType = 1;
+const _SetImmediateType = 2;
+const _ClearTimeoutType = 3;
+const _ClearIntervalType = 4;
 
-var worker;
+let worker;
 
-var _nextId = 0;
-
-var nextId = function()
+let _nextId = 0;
+const nextId = function()
 {
     if(_nextId == MAX_SAFE_INTEGER)
     {
@@ -92,7 +90,7 @@ class Timer
 {
     static setTimeout(cb, ms)
     {
-        var id = nextId();
+        const id = nextId();
         _timers.set(id, cb);
         worker.postMessage({type: _SetTimeoutType, id: id, ms: ms});
         return id;
@@ -106,7 +104,7 @@ class Timer
 
     static setInterval(cb, ms)
     {
-        var id = nextId();
+        const id = nextId();
         _timers.set(id, cb);
         worker.postMessage({type: _SetIntervalType, id: id, ms: ms});
         return id;
@@ -120,7 +118,7 @@ class Timer
 
     static setImmediate(cb)
     {
-        var id = nextId();
+        const id = nextId();
         _timers.set(id, cb);
         worker.postMessage({type: _SetImmediateType, id: id});
         return id;
@@ -128,24 +126,19 @@ class Timer
 
     static onmessage(e)
     {
-        var cb;
-        if(e.data.type === _SetIntervalType)
-        {
-            cb = _timers.get(e.data.id);
-        }
-        else
-        {
-            cb = _timers.delete(e.data.id);
-        }
-
+        const cb = _timers.get(e.data.id);
         if(cb !== undefined)
         {
             cb.call();
+            if(e.data.type !== _SetIntervalType)
+            {
+                _timers.delete(e.data.id);
+            }
         }
     }
 }
 
-var workerCode = function()
+const workerCode = function()
 {
     return "(" +
     function()
@@ -153,13 +146,13 @@ var workerCode = function()
         //
         // jshint worker: true
         //
-        var _wSetTimeoutType = 0,
-            _wSetIntervalType = 1,
-            _wSetImmediateType = 2,
-            _wClearTimeoutType = 3,
-            _wClearIntervalType = 4;
+        const _wSetTimeoutType = 0;
+        const _wSetIntervalType = 1;
+        const _wSetImmediateType = 2;
+        const _wClearTimeoutType = 3;
+        const _wClearIntervalType = 4;
 
-        var timers = {};
+        const timers = {};
 
         self.onmessage = e =>
         {
@@ -193,7 +186,16 @@ var workerCode = function()
     }.toString() + "());";
 };
 
-if(self == this)
+if(typeof navigator !== "undefined" &&
+   (navigator.userAgent.indexOf("MSIE") !== -1 ||
+    navigator.userAgent.match(/Trident.*rv:11\./)))
+{
+    //
+    // With IE always use the setInterval/setTimeout browser functions directly
+    //
+    Ice.Timer = createTimerObject();
+}
+else if(typeof WorkerGlobalScope !== 'undefined' && this instanceof WorkerGlobalScope)
 {
     //
     // If we are running in a worker don't spawn a separate worker for the timer
@@ -202,22 +204,8 @@ if(self == this)
 }
 else if(worker === undefined)
 {
-    var url;
-    try
-    {
-        url = URL.createObjectURL(new Blob([workerCode()], {type : 'text/javascript'}));
-        worker = new Worker(url);
-        worker.onmessage = Timer.onmessage;
-        Ice.Timer = Timer;
-    }
-    catch(ex)
-    {
-        URL.revokeObjectURL(url);
-
-        //
-        // Fallback on setInterval/setTimeout if the worker creating failed. Some IE10 and IE11 don't
-        // support creating workers from blob URLs for instance.
-        //
-        Ice.Timer = createTimerObject();
-    }
+    const url = URL.createObjectURL(new Blob([workerCode()], {type : 'text/javascript'}));
+    worker = new Worker(url);
+    worker.onmessage = Timer.onmessage;
+    Ice.Timer = Timer;
 }

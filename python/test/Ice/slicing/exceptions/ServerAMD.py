@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,163 +11,210 @@
 import os, sys, traceback
 
 import Ice
-Ice.loadSlice('-I. --all ServerPrivateAMD.ice')
+Ice.loadSlice('-I. --all ServerPrivate.ice')
 import Test
 
 class TestI(Test.TestIntf):
-    def shutdown_async(self, cb, current=None):
+    def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
-        cb.ice_response()
 
-    def baseAsBase_async(self, cb, current=None):
+    def baseAsBase(self, current=None):
         b = Test.Base()
         b.b = "Base.b"
-        cb.ice_exception(b)
+        f = Ice.Future()
+        f.set_exception(b)
+        return f
 
-    def unknownDerivedAsBase_async(self, cb, current=None):
+    def unknownDerivedAsBase(self, current=None):
         d = Test.UnknownDerived()
         d.b = "UnknownDerived.b"
         d.ud = "UnknownDerived.ud"
-        cb.ice_exception(d)
+        f = Ice.Future()
+        f.set_exception(d)
+        return f
 
-    def knownDerivedAsBase_async(self, cb, current=None):
+    def knownDerivedAsBase(self, current=None):
         d = Test.KnownDerived()
         d.b = "KnownDerived.b"
         d.kd = "KnownDerived.kd"
-        cb.ice_exception(d)
+        f = Ice.Future()
+        f.set_exception(d)
+        return f
 
-    def knownDerivedAsKnownDerived_async(self, cb, current=None):
+    def knownDerivedAsKnownDerived(self, current=None):
         d = Test.KnownDerived()
         d.b = "KnownDerived.b"
         d.kd = "KnownDerived.kd"
-        cb.ice_exception(d)
+        f = Ice.Future()
+        f.set_exception(d)
+        return f
 
-    def unknownIntermediateAsBase_async(self, cb, current=None):
+    def unknownIntermediateAsBase(self, current=None):
         ui = Test.UnknownIntermediate()
         ui.b = "UnknownIntermediate.b"
         ui.ui = "UnknownIntermediate.ui"
-        cb.ice_exception(ui)
+        f = Ice.Future()
+        f.set_exception(ui)
+        return f
 
-    def knownIntermediateAsBase_async(self, cb, current=None):
+    def knownIntermediateAsBase(self, current=None):
         ki = Test.KnownIntermediate()
         ki.b = "KnownIntermediate.b"
         ki.ki = "KnownIntermediate.ki"
-        cb.ice_exception(ki)
+        f = Ice.Future()
+        f.set_exception(ki)
+        return f
 
-    def knownMostDerivedAsBase_async(self, cb, current=None):
+    def knownMostDerivedAsBase(self, current=None):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
-        cb.ice_exception(kmd)
+        f = Ice.Future()
+        f.set_exception(kmd)
+        return f
 
-    def knownIntermediateAsKnownIntermediate_async(self, cb, current=None):
+    def knownIntermediateAsKnownIntermediate(self, current=None):
         ki = Test.KnownIntermediate()
         ki.b = "KnownIntermediate.b"
         ki.ki = "KnownIntermediate.ki"
-        cb.ice_exception(ki)
+        f = Ice.Future()
+        f.set_exception(ki)
+        return f
 
-    def knownMostDerivedAsKnownIntermediate_async(self, cb, current=None):
+    def knownMostDerivedAsKnownIntermediate(self, current=None):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
-        cb.ice_exception(kmd)
+        f = Ice.Future()
+        f.set_exception(kmd)
+        return f
 
-    def knownMostDerivedAsKnownMostDerived_async(self, cb, current=None):
+    def knownMostDerivedAsKnownMostDerived(self, current=None):
         kmd = Test.KnownMostDerived()
         kmd.b = "KnownMostDerived.b"
         kmd.ki = "KnownMostDerived.ki"
         kmd.kmd = "KnownMostDerived.kmd"
-        cb.ice_exception(kmd)
+        f = Ice.Future()
+        f.set_exception(kmd)
+        return f
 
-    def unknownMostDerived1AsBase_async(self, cb, current=None):
+    def unknownMostDerived1AsBase(self, current=None):
         umd1 = Test.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
         umd1.umd1 = "UnknownMostDerived1.umd1"
-        cb.ice_exception(umd1)
+        f = Ice.Future()
+        f.set_exception(umd1)
+        return f
 
-    def unknownMostDerived1AsKnownIntermediate_async(self, cb, current=None):
+    def unknownMostDerived1AsKnownIntermediate(self, current=None):
         umd1 = Test.UnknownMostDerived1()
         umd1.b = "UnknownMostDerived1.b"
         umd1.ki = "UnknownMostDerived1.ki"
         umd1.umd1 = "UnknownMostDerived1.umd1"
-        cb.ice_exception(umd1)
+        f = Ice.Future()
+        f.set_exception(umd1)
+        return f
 
-    def unknownMostDerived2AsBase_async(self, cb, current=None):
+    def unknownMostDerived2AsBase(self, current=None):
         umd2 = Test.UnknownMostDerived2()
         umd2.b = "UnknownMostDerived2.b"
         umd2.ui = "UnknownMostDerived2.ui"
         umd2.umd2 = "UnknownMostDerived2.umd2"
-        cb.ice_exception(umd2)
+        f = Ice.Future()
+        f.set_exception(umd2)
+        return f
 
-    def unknownMostDerived2AsBaseCompact_async(self, cb, current=None):
+    def unknownMostDerived2AsBaseCompact(self, current=None):
         umd2 = Test.UnknownMostDerived2()
         umd2.b = "UnknownMostDerived2.b"
         umd2.ui = "UnknownMostDerived2.ui"
         umd2.umd2 = "UnknownMostDerived2.umd2"
-        cb.ice_exception(umd2)
+        f = Ice.Future()
+        f.set_exception(umd2)
+        return f
 
-    def knownPreservedAsBase_async(self, cb, r, current=None):
+    def knownPreservedAsBase(self, r, current=None):
         ex = Test.KnownPreservedDerived()
         ex.b = "base"
         ex.kp = "preserved"
         ex.kpd = "derived"
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def knownPreservedAsKnownPreserved_async(self, cb, r, current=None):
+    def knownPreservedAsKnownPreserved(self, r, current=None):
         ex = Test.KnownPreservedDerived()
         ex.b = "base"
         ex.kp = "preserved"
         ex.kpd = "derived"
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def relayKnownPreservedAsBase_async(self, cb, r, current=None):
+    def relayKnownPreservedAsBase(self, r, current):
+        f = Ice.Future()
         try:
-            r.knownPreservedAsBase()
+            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p.knownPreservedAsBase()
             test(False)
         except Ice.Exception as ex:
-            cb.ice_exception(ex)
+            f.set_exception(ex)
+        return f
 
-    def relayKnownPreservedAsKnownPreserved_async(self, cb, r, current=None):
+    def relayKnownPreservedAsKnownPreserved(self, r, current):
+        f = Ice.Future()
         try:
-            r.knownPreservedAsKnownPreserved()
+            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p.knownPreservedAsKnownPreserved()
             test(False)
         except Ice.Exception as ex:
-            cb.ice_exception(ex)
+            f.set_exception(ex)
+        return f
 
-    def unknownPreservedAsBase_async(self, cb, r, current=None):
+    def unknownPreservedAsBase(self, r, current=None):
         ex = Test.SPreserved2()
         ex.b = "base"
         ex.kp = "preserved"
         ex.kpd = "derived"
         ex.p1 = Test.SPreservedClass("bc", "spc")
         ex.p2 = ex.p1
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def unknownPreservedAsKnownPreserved_async(self, cb, r, current=None):
+    def unknownPreservedAsKnownPreserved(self, r, current=None):
         ex = Test.SPreserved2()
         ex.b = "base"
         ex.kp = "preserved"
         ex.kpd = "derived"
         ex.p1 = Test.SPreservedClass("bc", "spc")
         ex.p2 = ex.p1
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def relayUnknownPreservedAsBase_async(self, cb, r, current=None):
+    def relayUnknownPreservedAsBase(self, r, current):
+        f = Ice.Future()
         try:
-            r.unknownPreservedAsBase()
+            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p.unknownPreservedAsBase()
             test(False)
         except Ice.Exception as ex:
-            cb.ice_exception(ex)
+            f.set_exception(ex)
+        return f
 
-    def relayUnknownPreservedAsKnownPreserved_async(self, cb, r, current=None):
+    def relayUnknownPreservedAsKnownPreserved(self, r, current):
+        f = Ice.Future()
         try:
-            r.unknownPreservedAsKnownPreserved()
+            p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+            p.unknownPreservedAsKnownPreserved()
             test(False)
         except Ice.Exception as ex:
-            cb.ice_exception(ex)
+            f.set_exception(ex)
+        return f
 
 def run(args, communicator):
     properties = communicator.getProperties()
@@ -181,17 +228,10 @@ def run(args, communicator):
     return True
 
 try:
-    communicator = Ice.initialize(sys.argv)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv) as communicator:
+         status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,11 +34,13 @@ public class AllTests
     }
 
     public static InitialPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:default -p 12010";
+        String ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -82,7 +84,7 @@ public class AllTests
         CAPrx cao;
         CBPrx cbo;
         CCPrx cco;
-        
+
         cao = ca.caop(ca);
         test(cao.equals(ca));
         cao = ca.caop(cb);
@@ -101,7 +103,7 @@ public class AllTests
         test(cao.equals(cb));
         cao = cc.caop(cc);
         test(cao.equals(cc));
-        
+
         cao = cb.cbop(cb);
         test(cao.equals(cb));
         cbo = cb.cbop(cb);

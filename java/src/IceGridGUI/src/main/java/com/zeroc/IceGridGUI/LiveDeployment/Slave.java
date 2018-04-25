@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,13 +12,14 @@ package com.zeroc.IceGridGUI.LiveDeployment;
 import java.awt.Component;
 import java.awt.Cursor;
 
+import javax.swing.Icon;
 import javax.swing.JPopupMenu;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
-class Slave extends TreeNode
+class Slave extends Communicator
 {
     //
     // Actions
@@ -28,6 +29,7 @@ class Slave extends TreeNode
     {
         boolean[] actions = new boolean[com.zeroc.IceGridGUI.LiveDeployment.TreeNode.ACTION_COUNT];
         actions[SHUTDOWN_REGISTRY] = true;
+        actions[RETRIEVE_ICE_LOG] = true;
         actions[RETRIEVE_STDOUT] = true;
         actions[RETRIEVE_STDERR] = true;
         return actions;
@@ -104,6 +106,7 @@ class Slave extends TreeNode
         if(_popup == null)
         {
             _popup = new JPopupMenu();
+            _popup.add(la.get(RETRIEVE_ICE_LOG));
             _popup.add(la.get(RETRIEVE_STDOUT));
             _popup.add(la.get(RETRIEVE_STDERR));
             _popup.addSeparator();
@@ -121,8 +124,29 @@ class Slave extends TreeNode
         {
             _editor = new SlaveEditor();
         }
-        _editor.show(_info);
+        _editor.show(this);
         return _editor;
+    }
+
+    //
+    // Communicator overrides
+    //
+    @Override
+    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
+    {
+        return getRoot().getCoordinator().getAdmin().getRegistryAdminAsync(_id);
+    }
+
+    @Override
+    protected String getDisplayName()
+    {
+        return "Registry Slave " + _id;
+    }
+
+    @Override
+    protected String getDefaultFileName()
+    {
+        return "registry-" + _instanceName + "-" + _id;
     }
 
     @Override
@@ -140,23 +164,34 @@ class Slave extends TreeNode
             //
             // TODO: separate icon for master
             //
-
             _cellRenderer = new DefaultTreeCellRenderer();
-            _cellRenderer.setLeafIcon(Utils.getIcon("/icons/16x16/registry.png"));
+
+            Icon icon = Utils.getIcon("/icons/16x16/registry.png");
+            _cellRenderer.setOpenIcon(icon);
+            _cellRenderer.setClosedIcon(icon);
         }
 
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
+    RegistryInfo
+    getInfo()
+    {
+        return _info;
+    }
+
     Slave(TreeNode parent, RegistryInfo info, String instanceName)
     {
-        super(parent, info.name);
+        super(parent, info.name, 1);
+        _childrenArray[0] = _metrics;
         _info = info;
         _title = instanceName + " (" + info.name + ")";
+        _instanceName = instanceName;
     }
 
     private final RegistryInfo _info;
     private final String _title;
+    private final String _instanceName;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private SlaveEditor _editor;

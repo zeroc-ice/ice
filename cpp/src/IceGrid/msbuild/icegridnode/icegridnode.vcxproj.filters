@@ -60,14 +60,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\Internal.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\Activator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -223,9 +215,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="Win32\Debug\IceGrid\IceLocatorDiscovery.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -250,5 +239,16 @@
     <ClInclude Include="x64\Release\IceGrid\Internal.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\Internal.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

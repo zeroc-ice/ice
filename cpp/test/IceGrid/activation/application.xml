@@ -14,9 +14,9 @@
                          activation-timeout="${activation-timeout}"
                          deactivation-timeout="${deactivation-timeout}">
         <adapter name="TestAdapter" endpoints="default">
-	  <object identity="${server}" type="Test"/>
-	  <allocatable identity="${server}" type="Test"/>
-	</adapter>
+          <object identity="${server}" type="Test"/>
+          <allocatable identity="${server}" type="Test"/>
+        </adapter>
         <property name="ActivationDelay" value="${activation-delay}"/>
         <property name="DeactivationDelay" value="${deactivation-delay}"/>
         <property name="FailOnStartup" value="${fail-on-startup}"/>
@@ -53,13 +53,13 @@
 
       <server id="invalid-exe" exe="server2" activation="on-demand">
         <adapter name="TestAdapter" endpoints="default">
-	  <object identity="${server}" type="Test"/>
-	</adapter>
+          <object identity="${server}" type="Test"/>
+        </adapter>
       </server>
       <server id="invalid-pwd" exe="./server" pwd="./bogus">
         <adapter name="TestAdapter" endpoints="default">
-	  <object identity="${server}" type="Test"/>
-	</adapter>
+        <object identity="${server}" type="Test"/>
+      </adapter>
       </server>
       <server id="invalid-exe-no-oa" exe="./server2">
         <property name="Ice.Admin.Endpoints" value=""/>

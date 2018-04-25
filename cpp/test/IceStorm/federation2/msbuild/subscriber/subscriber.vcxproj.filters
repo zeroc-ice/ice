@@ -73,11 +73,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\Event.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\Subscriber.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -131,5 +126,13 @@
     <ClInclude Include="Win32\Cpp11-Release\Event.h">
       <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\Event.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

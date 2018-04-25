@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -123,7 +123,6 @@ private:
     const size_t _size;
     static const char* _name;
 };
-
 
 //
 // Codec reads and writes T to/from MDB_val
@@ -493,7 +492,6 @@ public:
         CursorBase::renew(txn);
     }
 };
-
 
 //
 // Partial specialization of Codec for Ice encoding

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -147,13 +147,13 @@ public class SessionFactoryHelper
     {
         return getProtocol().Equals("ssl");
     }
-    
+
     /// <summary>
     /// Sets the protocol that will be used by the session factory to establish the connection..
     /// </summary>
     /// <param name="protocol">The protocol.</param>
     public void
-    setProtocol(String protocol)
+    setProtocol(string protocol)
     {
         lock(this)
         {
@@ -161,7 +161,7 @@ public class SessionFactoryHelper
             {
                 throw new ArgumentException("You must use a valid protocol");
             }
-            
+
             if(!protocol.Equals("tcp") &&
                !protocol.Equals("ssl") &&
                !protocol.Equals("wss") &&
@@ -177,7 +177,7 @@ public class SessionFactoryHelper
     /// Returns the protocol that will be used by the session factory to establish the connection.
     /// </summary>
     /// <returns>The protocol.</returns>
-    public String
+    public string
     getProtocol()
     {
         lock(this)
@@ -240,11 +240,11 @@ public class SessionFactoryHelper
             return getPortInternal();
         }
     }
-    
+
     private int
     getPortInternal()
     {
-        return _port == 0 ? ((_protocol.Equals("ssl") || 
+        return _port == 0 ? ((_protocol.Equals("ssl") ||
                               _protocol.Equals("wss"))? GLACIER2_SSL_PORT : GLACIER2_TCP_PORT) : _port;
     }
 
@@ -362,7 +362,7 @@ public class SessionFactoryHelper
         // plug-in has already been setup we don't want to override the
         // configuration so it can be loaded from a custom location.
         //
-        if((_protocol.Equals("ssl") || _protocol.Equals("wss")) && 
+        if((_protocol.Equals("ssl") || _protocol.Equals("wss")) &&
            initData.properties.getProperty("Ice.Plugin.IceSSL").Length == 0)
         {
             initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
@@ -383,8 +383,8 @@ public class SessionFactoryHelper
     {
         StringBuilder sb = new StringBuilder();
         sb.Append("\"");
-        sb.Append(Ice.Util.identityToString(ident));
-        sb.Append("\":");        
+        sb.Append(Ice.Util.identityToString(ident, Ice.ToStringMode.Unicode));
+        sb.Append("\":");
         sb.Append(_protocol + " -p ");
         sb.Append(getPortInternal());
         sb.Append(" -h \"");

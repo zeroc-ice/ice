@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -185,7 +185,7 @@ NSCondition* cond;
 {
     if([proxy ice_getCachedConnection])
     {
-        [[proxy ice_getCachedConnection] close:NO];
+        [[proxy ice_getCachedConnection] close:ICEConnectionCloseGracefullyWithWait];
     }
     @try
     {
@@ -196,11 +196,10 @@ NSCondition* cond;
     }
     if([proxy ice_getCachedConnection])
     {
-        [[proxy ice_getCachedConnection] close:NO];
+        [[proxy ice_getCachedConnection] close:ICEConnectionCloseGracefullyWithWait];
     }
 }
 @end
-
 
 @interface InvokeOp : Operation
 -(id) init:(ICEObjectPrx*)proxy_;
@@ -458,8 +457,14 @@ toMap(ICEMXMetricsMap* mmap)
 id<TestMetricsMetricsPrx>
 metricsAllTests(id<ICECommunicator> communicator)
 {
+    NSString* host = [[communicator getProperties] getPropertyWithDefault:@"Ice.Default.Host" value:@"127.0.0.1"];
+    NSString* port = @"12010";
+    NSString* hostAndPort = [NSString stringWithFormat:@"%@:%@", host, port];
+    NSString* protocol = [[communicator getProperties] getPropertyWithDefault:@"Ice.Default.Protocol" value:@"default"];
+    NSString* endpoint = [NSString stringWithFormat:@"%@ -h %@ -p %@", protocol, host, port];
+
     id<TestMetricsMetricsPrx> metrics = [TestMetricsMetricsPrx checkedCast:
-                                                            [communicator stringToProxy:@"metrics:default -p 12010"]];
+                                [communicator stringToProxy:[NSString stringWithFormat:@"metrics:%@", endpoint]]];
 
     tprintf("testing metrics admin facet checkedCast... ");
     id<ICEObjectPrx> admin = [communicator getAdmin];
@@ -500,6 +505,10 @@ metricsAllTests(id<ICECommunicator> communicator)
     test([[[view objectForKey:@"Thread"] objectAtIndex:0] total] == threadCount);
 
     tprintf("ok\n");
+
+    id<ICEEndpointInfo> endpointInfo = [[[metrics ice_getConnection] getEndpoint] getInfo];
+    NSString* type = [NSString stringWithFormat:@"%d", [endpointInfo type]];
+    NSString* isSecure = [endpointInfo secure] ? @"true": @"false";
 
     tprintf("testing connection metrics... ");
 
@@ -596,7 +605,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     map = toMap([[serverMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
     test([[map objectForKey:@"holding"] current] == 1);
 
-    [[metrics ice_getConnection] close:false];
+    [[metrics ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
 
     map = toMap([[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"Connection"]);
     test([[map objectForKey:@"closing"] current] == 1);
@@ -611,7 +620,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     [props setObject:@"none" forKey:@"IceMX.Metrics.View.Map.Connection.GroupBy"];
     updateProps(clientProps, serverProps, update, props, @"Connection");
 
-    [[metrics ice_getConnection] close:false];
+    [[metrics ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
 
     [[metrics ice_timeout:500] ice_ping];
     [controller hold];
@@ -649,28 +658,28 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"parent", @"Communicator", nil);
     //testAttribute(clientMetrics, clientProps, update, "Connection", "id", "");
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpoint", @"tcp -h 127.0.0.1 -p 12010 -t 500",
-                  nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpoint",
+                  [NSString stringWithFormat:@"%@ -t 500", endpoint], nil);
 
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointType", @"1", nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointType", type, nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointIsDatagram", @"false", nil);
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointIsSecure", @"false", nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointIsSecure", isSecure, nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointTimeout", @"500", nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointCompress", @"false", nil);
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointHost", @"127.0.0.1", nil);
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointPort", @"12010", nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointHost", host, nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"endpointPort", port, nil);
 
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"incoming", @"false", nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"adapterName", @"", nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"connectionId", @"Con1", nil);
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"localHost", @"127.0.0.1", nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"localHost", host, nil);
     //testAttribute(clientMetrics, clientProps, update, "Connection", "localPort", "");
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"remoteHost", @"127.0.0.1", nil);
-    testAttribute(clientMetrics, clientProps, update, @"Connection", @"remotePort", @"12010", nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"remoteHost", host, nil);
+    testAttribute(clientMetrics, clientProps, update, @"Connection", @"remotePort", port, nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"mcastHost", @"", nil);
     testAttribute(clientMetrics, clientProps, update, @"Connection", @"mcastPort", @"", nil);
 
-    [[m ice_getConnection] close:false];
+    [[m ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
 
     waitForCurrent(clientMetrics, @"View", @"Connection", 0);
     waitForCurrent(serverMetrics, @"View", @"Connection", 0);
@@ -691,13 +700,13 @@ metricsAllTests(id<ICECommunicator> communicator)
     ICEMXMetrics* m1 = [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp]
                                                             objectForKey:@"ConnectionEstablishment"] objectAtIndex:0];
 
-    test(m1.current == 0 && m1.total == 1 && [m1.id_ isEqualToString:@"127.0.0.1:12010"]);
+    test(m1.current == 0 && m1.total == 1 && [m1.id_ isEqualToString:hostAndPort]);
 
-    [[metrics ice_getConnection] close:NO];
+    [[metrics ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
     [controller hold];
     @try
     {
-        [[[communicator stringToProxy:@"test:tcp -p 12010 -h 127.0.0.1"] ice_timeout:10] ice_ping];
+        [[[communicator stringToProxy:[NSString stringWithFormat:@"test:%@", endpoint]] ice_timeout:10] ice_ping];
         test(NO);
     }
     @catch(ICEConnectTimeoutException*)
@@ -712,49 +721,52 @@ metricsAllTests(id<ICECommunicator> communicator)
               objectForKey:@"ConnectionEstablishment"] count] == 1);
     m1 = [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp]
               objectForKey:@"ConnectionEstablishment"] objectAtIndex:0];
-    test([m1.id_ isEqualToString:@"127.0.0.1:12010"] && m1.total == 3 && m1.failures == 2);
+    test([m1.id_ isEqualToString:hostAndPort] && m1.total == 3 && m1.failures == 2);
 
     checkFailure(clientMetrics, @"ConnectionEstablishment", m1.id_, @"::Ice::ConnectTimeoutException", 2);
 
     Connect* c = [Connect connect:metrics];
 
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"parent", @"Communicator", c);
-    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"id", @"127.0.0.1:12010", c);
+    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"id", hostAndPort, c);
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpoint",
-                  @"tcp -h 127.0.0.1 -p 12010 -t 60000", c);
+                  [NSString stringWithFormat:@"%@ -t 60000", endpoint], c);
 
-    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointType", @"1", c);
+    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointType", type, c);
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointIsDatagram", @"false", c);
-    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointIsSecure", @"false", c);
+    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointIsSecure", isSecure, c);
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointTimeout", @"60000", c);
     testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointCompress", @"false", c);
-    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointHost", @"127.0.0.1", c);
-    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointPort", @"12010", c);
+    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointHost", host, c);
+    testAttribute(clientMetrics, clientProps, update, @"ConnectionEstablishment", @"endpointPort", port, c);
 
     tprintf("ok\n");
 
     //
-    // Ice doesn't do any endpoint lookup with WinRT, the WinRT
-    // runtime takes care of if.
-    //
     // In iOS we use CFStream transports that doesn't do any enpoint
     // lookup.
     //
-#if !defined(ICE_OS_WINRT) && (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
+#if (!defined(__APPLE__) || (defined(__APPLE__) && !TARGET_OS_IPHONE))
     tprintf("testing endpoint lookup metrics... ");
 
     [props setObject:@"id" forKey:@"IceMX.Metrics.View.Map.EndpointLookup.GroupBy"];
     updateProps(clientProps, serverProps, update, props, @"EndpointLookup");
     test([[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"EndpointLookup"] count] == 0);
 
-    ICEObjectPrx* prx = [communicator stringToProxy:@"metrics:default -p 12010 -h localhost -t infinite"];
-    [prx ice_ping];
+    ICEObjectPrx* prx = [communicator stringToProxy:@"metrics:default -p 12010 -h localhost -t 500"];
+    @try
+    {
+        [prx ice_ping];
+        [[prx ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
+    }
+    @catch(ICELocalException*)
+    {
+    }
+
     test([[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"EndpointLookup"] count] == 1);
     m1 = [[[clientMetrics getMetricsView:@"View" timestamp:&timestamp] objectForKey:@"EndpointLookup"] objectAtIndex:0];
 
-    test(m1.current <= 1 && m1.total == 1 && [m1.id_ isEqualToString:@"tcp -h localhost -p 12010 -t infinite"]);
-
-    [[prx ice_getConnection] close:NO];
+//    test(m1.current <= 1 && m1.total == 1 && [m1.id_ isEqualToString:@"tcp -h localhost -p 12010 -t infinite"]);
 
     BOOL dnsException = NO;
     @try
@@ -782,17 +794,17 @@ metricsAllTests(id<ICECommunicator> communicator)
     c = [Connect connect:prx];
     testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"parent", @"Communicator", c);
     testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"id",
-                  @"tcp -h localhost -p 12010 -t infinite", c);
+                  [[[prx ice_getConnection] getEndpoint] toString], c);
     testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpoint",
-                  @"tcp -h localhost -p 12010 -t infinite", c);
+                  [[[prx ice_getConnection] getEndpoint] toString], c);
 
-    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointType", @"1", c);
+    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointType", type, c);
     testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointIsDatagram", @"false", c);
-    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointIsSecure", @"false", c);
-    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointTimeout", @"-1", c);
+    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointIsSecure", isSecure, c);
+    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointTimeout", @"500", c);
     testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointCompress", @"false", c);
     testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointHost", @"localhost", c);
-    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointPort", @"12010", c);
+    testAttribute(clientMetrics, clientProps, update, @"EndpointLookup", @"endpointPort", port, c);
 
     tprintf("ok\n");
 #endif
@@ -875,23 +887,23 @@ metricsAllTests(id<ICECommunicator> communicator)
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"parent", @"TestAdapter", op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"id", @"metrics [op]", op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpoint",
-                  @"tcp -h 127.0.0.1 -p 12010 -t 60000", op);
+                  [NSString stringWithFormat:@"%@ -t 60000", endpoint], op);
     //testAttribute(serverMetrics, serverProps, update, "Dispatch", "connection", "", op);
 
-    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointType", @"1", op);
+    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointType", type, op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointIsDatagram", @"false", op);
-    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointIsSecure", @"false", op);
+    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointIsSecure", isSecure, op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointTimeout", @"60000", op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointCompress", @"false", op);
-    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointHost", @"127.0.0.1", op);
-    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointPort", @"12010", op);
+    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointHost", host, op);
+    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"endpointPort", port, op);
 
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"incoming", @"true", op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"adapterName", @"TestAdapter", op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"connectionId", @"", op);
-    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"localHost", @"127.0.0.1", op);
-    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"localPort", @"12010", op);
-    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"remoteHost", @"127.0.0.1", op);
+    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"localHost", host, op);
+    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"localPort", port, op);
+    testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"remoteHost", host, op);
     //testAttribute(serverMetrics, serverProps, update, "Dispatch", "remotePort", "12010", op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"mcastHost", @"", op);
     testAttribute(serverMetrics, serverProps, update, @"Dispatch", @"mcastPort", @"", op);
@@ -916,7 +928,7 @@ metricsAllTests(id<ICECommunicator> communicator)
 
     Callback* cb = [Callback callback];
 
-    void(^responseCB)() = ^()
+    void(^responseCB)(void) = ^()
         {
             [cb response];
         };
@@ -1107,7 +1119,7 @@ metricsAllTests(id<ICECommunicator> communicator)
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"encoding", @"1.1", op);
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"mode", @"twoway", op);
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"proxy",
-                  @"metrics -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 60000", op);
+                  [NSString stringWithFormat:@"metrics -t -e 1.1:%@ -t 60000", endpoint], op);
 
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"context.entry1", @"test", op);
     testAttribute(clientMetrics, clientProps, update, @"Invocation", @"context.entry2", @"", op);
@@ -1116,7 +1128,6 @@ metricsAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("testing metrics view enable/disable...");
-
 
     [props setObject:@"none" forKey:@"IceMX.Metrics.View.GroupBy"];
     [props setObject:@"0" forKey:@"IceMX.Metrics.View.Disabled"];

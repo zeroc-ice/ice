@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,7 +31,7 @@ class EndpointHostResolver
         }
     }
 
-    synchronized void resolve(final String host, final int port, final Ice.EndpointSelectionType selType, 
+    synchronized void resolve(final String host, final int port, final Ice.EndpointSelectionType selType,
                               final IPEndpointI endpoint, final EndpointI_connectors callback)
     {
         //
@@ -45,8 +45,8 @@ class EndpointHostResolver
         NetworkProxy networkProxy = _instance.networkProxy();
         if(networkProxy == null)
         {
-            java.util.List<java.net.InetSocketAddress> addrs = Network.getAddresses(host, port, _protocol, selType,
-                                                                                    _preferIPv6, false);
+            java.util.List<java.net.InetSocketAddress> addrs =
+                Network.getAddresses(host, port, _protocol, selType, _preferIPv6, false);
             if(addrs != null)
             {
                 callback.connectors(endpoint.connectors(addrs, networkProxy));
@@ -87,6 +87,7 @@ class EndpointHostResolver
                                                     Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
                     }
 
+                    Ice.Instrumentation.Observer obsv = observer;
                     try
                     {
                         int protocol = _protocol;
@@ -100,19 +101,22 @@ class EndpointHostResolver
                             }
                         }
 
-                        callback.connectors(endpoint.connectors(Network.getAddresses(host,
-                                                                                     port,
-                                                                                     protocol,
-                                                                                     selType,
-                                                                                     _preferIPv6,
-                                                                                     true),
-                                                                networkProxy));                        
+                        java.util.List<java.net.InetSocketAddress> addresses =
+                            Network.getAddresses(host, port, protocol, selType, _preferIPv6, true);
+                        if(obsv != null)
+                        {
+                            obsv.detach();
+                            obsv = null;
+                        }
+
+                        callback.connectors(endpoint.connectors(addresses, networkProxy));
                     }
                     catch(Ice.LocalException ex)
                     {
-                        if(observer != null)
+                        if(obsv != null)
                         {
-                            observer.failed(ex.ice_id());
+                            obsv.failed(ex.ice_id());
+                            obsv.detach();
                         }
                         callback.exception(ex);
                     }
@@ -122,10 +126,6 @@ class EndpointHostResolver
                         {
                             threadObserver.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
                                                         Ice.Instrumentation.ThreadState.ThreadStateIdle);
-                        }
-                        if(observer != null)
-                        {
-                            observer.detach();
                         }
                     }
                 }

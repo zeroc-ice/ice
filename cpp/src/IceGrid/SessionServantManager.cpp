@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@
 using namespace std;
 using namespace IceGrid;
 
-SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapter, 
+SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapter,
                                              const string& instanceName,
                                              bool checkConnection,
                                              const string& serverAdminCategory,
@@ -25,7 +25,7 @@ SessionServantManager::SessionServantManager(const Ice::ObjectAdapterPtr& adapte
                                              const Ice::ObjectPtr& nodeAdminRouter,
                                              const string& replicaAdminCategory,
                                              const Ice::ObjectPtr& replicaAdminRouter,
-                                             const AdminCallbackRouterPtr& adminCallbackRouter) : 
+                                             const AdminCallbackRouterPtr& adminCallbackRouter) :
     _adapter(adapter),
     _instanceName(instanceName),
     _checkConnection(checkConnection),
@@ -61,7 +61,7 @@ SessionServantManager::locate(const Ice::Current& current, Ice::LocalObjectPtr&)
     else
     {
         plainServant = true;
-   
+
         map<Ice::Identity, ServantInfo>::const_iterator p = _servants.find(current.id);
         if(p == _servants.end() || (_checkConnection && p->second.connection != current.con))
         {
@@ -72,14 +72,14 @@ SessionServantManager::locate(const Ice::Current& current, Ice::LocalObjectPtr&)
             servant = p->second.servant;
         }
     }
-    
-    if(!plainServant && servant && _checkConnection && 
+
+    if(!plainServant && servant && _checkConnection &&
        _adminConnections.find(current.con) == _adminConnections.end())
     {
         servant = 0;
     }
 
-    return servant;    
+    return servant;
 }
 
 void
@@ -120,7 +120,7 @@ SessionServantManager::addSession(const Ice::ObjectPtr& session, const Ice::Conn
 
 void
 SessionServantManager::setSessionControl(const Ice::ObjectPtr& session,
-                                         const Glacier2::SessionControlPrx& ctl, 
+                                         const Glacier2::SessionControlPrx& ctl,
                                          const Ice::IdentitySeq& ids)
 {
     Lock sync(*this);
@@ -141,7 +141,7 @@ SessionServantManager::setSessionControl(const Ice::ObjectPtr& session,
     //
     // Allow invocations on server admin objects.
     //
-    if(!p->second.category.empty() && _serverAdminRouter) 
+    if(!p->second.category.empty() && _serverAdminRouter)
     {
         Ice::StringSeq seq;
         seq.push_back(_serverAdminCategory);
@@ -236,7 +236,7 @@ SessionServantManager::remove(const Ice::Identity& id)
     assert(p != _servants.end());
 
     //
-    // Find the session associated to the servant and remove the servant identity from the 
+    // Find the session associated to the servant and remove the servant identity from the
     // session identities.
     //
     map<Ice::ObjectPtr, SessionInfo>::iterator q = _sessions.find(p->second.session);

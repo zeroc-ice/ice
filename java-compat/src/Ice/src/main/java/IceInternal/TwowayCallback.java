@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,19 +16,19 @@ public abstract class TwowayCallback extends CallbackBase implements Ice.TwowayC
     }
 
     @Override
-    public void exception(Ice.SystemException __ex)
+    public void exception(Ice.SystemException ex)
     {
-        exception(new Ice.UnknownException(__ex));
+        exception(new Ice.UnknownException(ex));
     }
 
     @Override
-    public final void __sent(Ice.AsyncResult __result)
+    public final void _iceSent(Ice.AsyncResult result)
     {
-        sent(__result.sentSynchronously());
+        sent(result.sentSynchronously());
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
         return true;
     }

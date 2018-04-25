@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,6 +28,7 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
         _requestId = -1;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()
@@ -55,7 +56,7 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
         }
 
         test(current.id.category.equals(_category) || _category.length() == 0);
-        
+
         if(current.id.name.equals("unknown"))
         {
             return null;
@@ -95,12 +96,12 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
 
         test(current.id.category.equals(_category)  || _category.length() == 0);
         test(current.id.name.equals("locate") || current.id.name.equals("finished"));
-        
+
         if(current.id.name.equals("finished"))
         {
             exception(current);
         }
-        
+
         Cookie co = (Cookie)cookie;
         test(co.message().equals("blahblah"));
     }
@@ -143,7 +144,7 @@ public final class AMDServantLocatorI implements Ice.ServantLocator
         //
         // User exceptions are checked exceptions in Java, so it's not
         // possible to throw it from the servant locator.
-        // 
+        //
 //      else if(current.operation.equals("userException"))
 //      {
 //          throw new TestIntfUserException();

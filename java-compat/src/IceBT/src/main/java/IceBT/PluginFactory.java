@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,7 +23,7 @@ public class PluginFactory implements Ice.PluginFactory
      *
      * @return The new plug-in. <code>null</code> can be returned to indicate
      * that a general error occurred. Alternatively, <code>create</code> can throw
-     * {@link PluginInitializationException} to provide more detailed information.
+     * PluginInitializationException to provide more detailed information.
      **/
     @Override
     public Ice.Plugin

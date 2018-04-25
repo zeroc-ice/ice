@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -56,7 +56,6 @@ testFacets(const Ice::CommunicatorPtr& com, bool builtInFacets = true)
     test(facetMap.find("Facet1") != facetMap.end());
     test(facetMap.find("Facet2") != facetMap.end());
     test(facetMap.find("Facet3") != facetMap.end());
-
 
     try
     {
@@ -190,9 +189,30 @@ allTests(const Ice::CommunicatorPtr& communicator)
         init.properties = Ice::createProperties();
         init.properties->setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
         init.properties->setProperty("Ice.Admin.InstanceName", "Test");
-        Ice::CommunicatorPtr com = Ice::initialize(init);
-        testFacets(com);
-        com->destroy();
+        Ice::CommunicatorHolder ich(init);
+        testFacets(ich.communicator());
+
+#ifdef ICE_CPP11_MAPPING
+        // Test move assignment on CommunicatorHolder
+        Ice::CommunicatorHolder ich2;
+        test(!ich2.communicator());
+        ich2 = std::move(ich);
+        test(ich2.communicator());
+        test(!ich.communicator());
+
+        // Equivalent with = and release
+        Ice::CommunicatorHolder ich3;
+        test(!ich3.communicator());
+        ich3 = ich2.release();
+        test(ich3.communicator());
+        test(!ich2.communicator());
+#else
+        Ice::CommunicatorHolder ich2;
+        test(!ich2.communicator());
+        ich2 = ich.release();
+        test(ich2.communicator());
+        test(!ich.communicator());
+#endif
     }
     {
         //
@@ -368,9 +388,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     //
-    // This doesn't work well with WinRT because connection to localhost are
+    // This doesn't work well with UWP because connection to localhost are
     // restricted to the same process.
     //
     cout << "testing logger facet... " << flush;

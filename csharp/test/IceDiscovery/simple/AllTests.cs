@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,19 +11,12 @@ using Test;
 using System;
 using System.Collections.Generic;
 
-public class AllTests
+public class AllTests : TestCommon.AllTests
 {
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
     public static void
-    allTests(Ice.Communicator communicator, int num)
+    allTests(TestCommon.Application app, int num)
     {
+        Ice.Communicator communicator = app.communicator();
         List<ControllerPrx> proxies = new List<ControllerPrx>();
         List<ControllerPrx> indirectProxies = new List<ControllerPrx>();
         for(int i = 0; i < num; ++i)
@@ -33,32 +26,33 @@ public class AllTests
             indirectProxies.Add(ControllerPrxHelper.uncheckedCast(communicator.stringToProxy(id + "@control" + i)));
         }
 
-        Console.Out.Write("testing indirect proxies... ");
-        Console.Out.Flush();
+        Write("testing indirect proxies... ");
+        Flush();
         {
             foreach(ControllerPrx prx in indirectProxies)
             {
                 prx.ice_ping();
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing well-known proxies... ");
-        Console.Out.Flush();
+        Write("testing well-known proxies... ");
+        Flush();
         {
             foreach(ControllerPrx prx in proxies)
             {
                 prx.ice_ping();
             }
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing object adapter registration... ");
-        Console.Out.Flush();
+        Write("testing object adapter registration... ");
+        Flush();
         {
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.NoEndpointException)
             {
@@ -69,6 +63,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.ObjectNotExistException)
             {
@@ -79,15 +74,16 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.NoEndpointException)
             {
             }
         }
-        Console.Out.WriteLine("ok");
-    
-        Console.Out.Write("testing object adapter migration...");
-        Console.Out.Flush();
+        WriteLine("ok");
+
+        Write("testing object adapter migration...");
+        Flush();
         {
             proxies[0].activateObjectAdapter("oa", "oa1", "");
             proxies[0].addObject("oa", "object");
@@ -101,10 +97,10 @@ public class AllTests
             proxies[1].removeObject("oa", "object");
             proxies[1].deactivateObjectAdapter("oa");
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing object migration...");
-        Console.Out.Flush();
+        Write("testing object migration...");
+        Flush();
         {
             proxies[0].activateObjectAdapter("oa", "oa1", "");
             proxies[1].activateObjectAdapter("oa", "oa2", "");
@@ -137,10 +133,10 @@ public class AllTests
             proxies[0].deactivateObjectAdapter("oa");
             proxies[1].deactivateObjectAdapter("oa");
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("testing replica groups...");
-        Console.Out.Flush();
+        Write("testing replica groups...");
+        Flush();
         {
             proxies[0].activateObjectAdapter("oa", "oa1", "rg");
             proxies[1].activateObjectAdapter("oa", "oa2", "rg");
@@ -200,14 +196,63 @@ public class AllTests
                      communicator.stringToProxy("object @ rg")).getAdapterId().Equals("oa1"));
             proxies[0].deactivateObjectAdapter("oa");
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
 
-        Console.Out.Write("shutting down... ");
-        Console.Out.Flush();
+        Write("testing invalid lookup endpoints... ");
+        Flush();
+        {
+            String multicast;
+            if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+            {
+                multicast = "\"ff15::1\"";
+            }
+            else
+            {
+                multicast = "239.255.0.1";
+            }
+
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties().ice_clone_();
+                initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+                Ice.Communicator comm = Ice.Util.initialize(initData);
+                test(comm.getDefaultLocator() != null);
+                try
+                {
+                    comm.stringToProxy("controller0@control0").ice_ping();
+                    test(false);
+                }
+                catch(Ice.LocalException)
+                {
+                }
+                comm.destroy();
+            }
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties().ice_clone_();
+                string intf = initData.properties.getProperty("IceDiscovery.Interface");
+                if(!intf.Equals(""))
+                {
+                    intf = " --interface \"" + intf + "\"";
+                }
+                string port = initData.properties.getProperty("IceDiscovery.Port");
+                initData.properties.setProperty("IceDiscovery.Lookup",
+                                                 "udp -h " + multicast + " --interface unknown:" +
+                                                 "udp -h " + multicast + " -p " + port + intf);
+                Ice.Communicator comm = Ice.Util.initialize(initData);
+                test(comm.getDefaultLocator() != null);
+                comm.stringToProxy("controller0@control0").ice_ping();
+                comm.destroy();
+            }
+        }
+        WriteLine("ok");
+
+        Write("shutting down... ");
+        Flush();
         foreach(ControllerPrx prx in proxies)
         {
             prx.shutdown();
         }
-        Console.Out.WriteLine("ok");
+        WriteLine("ok");
     }
 }

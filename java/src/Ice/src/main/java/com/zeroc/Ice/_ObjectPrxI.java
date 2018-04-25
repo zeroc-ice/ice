@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,6 +11,8 @@ package com.zeroc.Ice;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 import com.zeroc.IceInternal.OutgoingAsync;
 
@@ -29,38 +31,26 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return ice_isA(id, ObjectPrx.noExplicitContext);
     }
 
-    public boolean ice_isA(String id, java.util.Map<String, String> __ctx)
+    public boolean ice_isA(String id, Map<String, String> context)
     {
-        return __ice_isAAsync(id, __ctx, true).__wait();
+        return _iceI_ice_isAAsync(id, context, true).waitForResponse();
     }
 
-    public java.util.concurrent.CompletableFuture<java.lang.Boolean> ice_isAAsync(String id)
+    public CompletableFuture<Boolean> ice_isAAsync(String id)
     {
-        return __ice_isAAsync(id, ObjectPrx.noExplicitContext, false);
+        return _iceI_ice_isAAsync(id, ObjectPrx.noExplicitContext, false);
     }
 
-    public java.util.concurrent.CompletableFuture<java.lang.Boolean> ice_isAAsync(
-        String id,
-        java.util.Map<String, String> __ctx)
+    public CompletableFuture<Boolean> ice_isAAsync(String id, Map<String, String> context)
     {
-        return __ice_isAAsync(id, __ctx, false);
+        return _iceI_ice_isAAsync(id, context, false);
     }
 
-    private OutgoingAsync<java.lang.Boolean> __ice_isAAsync(
-        String id,
-        java.util.Map<String, String> __ctx,
-        boolean __sync)
+    private OutgoingAsync<Boolean> _iceI_ice_isAAsync(String id, Map<String, String> context, boolean sync)
     {
-        OutgoingAsync<java.lang.Boolean> __f =
-            new OutgoingAsync<>(this, "ice_isA", OperationMode.Nonmutating, __sync, null);
-        __f.invoke(true, __ctx, null, __os -> {
-                       __os.writeString(id);
-                   }, __is -> {
-                       boolean __ret;
-                       __ret = __is.readBool();
-                       return __ret;
-                   });
-        return __f;
+        OutgoingAsync<Boolean> f = new OutgoingAsync<>(this, "ice_isA", OperationMode.Nonmutating, sync, null);
+        f.invoke(true, context, null, ostr -> ostr.writeString(id), istr -> istr.readBool());
+        return f;
     }
 
     public void ice_ping()
@@ -68,28 +58,26 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         ice_ping(ObjectPrx.noExplicitContext);
     }
 
-    public void ice_ping(java.util.Map<String, String> __ctx)
+    public void ice_ping(Map<String, String> context)
     {
-        __ice_pingAsync(__ctx, true).__wait();
+        _iceI_ice_pingAsync(context, true).waitForResponse();
     }
 
-    public java.util.concurrent.CompletableFuture<Void> ice_pingAsync()
+    public CompletableFuture<Void> ice_pingAsync()
     {
-        return __ice_pingAsync(ObjectPrx.noExplicitContext, false);
+        return _iceI_ice_pingAsync(ObjectPrx.noExplicitContext, false);
     }
 
-    public java.util.concurrent.CompletableFuture<Void> ice_pingAsync(java.util.Map<String, String> __ctx)
+    public CompletableFuture<Void> ice_pingAsync(Map<String, String> context)
     {
-        return __ice_pingAsync(__ctx, false);
+        return _iceI_ice_pingAsync(context, false);
     }
 
-    private OutgoingAsync<Void> __ice_pingAsync(
-        java.util.Map<String, String> __ctx,
-        boolean __sync)
+    private OutgoingAsync<Void> _iceI_ice_pingAsync(Map<String, String> context, boolean sync)
     {
-        OutgoingAsync<Void> __f = new OutgoingAsync<>(this, "ice_ping", OperationMode.Nonmutating, __sync, null);
-        __f.invoke(false, __ctx, null, null, null);
-        return __f;
+        OutgoingAsync<Void> f = new OutgoingAsync<>(this, "ice_ping", OperationMode.Nonmutating, sync, null);
+        f.invoke(false, context, null, null, null);
+        return f;
     }
 
     public String[] ice_ids()
@@ -97,33 +85,26 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return ice_ids(ObjectPrx.noExplicitContext);
     }
 
-    public String[] ice_ids(java.util.Map<String, String> __ctx)
+    public String[] ice_ids(Map<String, String> context)
     {
-        return __ice_idsAsync(__ctx, true).__wait();
+        return _iceI_ice_idsAsync(context, true).waitForResponse();
     }
 
-    public java.util.concurrent.CompletableFuture<String[]> ice_idsAsync()
+    public CompletableFuture<String[]> ice_idsAsync()
     {
-        return __ice_idsAsync(ObjectPrx.noExplicitContext, false);
+        return _iceI_ice_idsAsync(ObjectPrx.noExplicitContext, false);
     }
 
-    public java.util.concurrent.CompletableFuture<String[]> ice_idsAsync(java.util.Map<String, String> __ctx)
+    public CompletableFuture<String[]> ice_idsAsync(Map<String, String> context)
     {
-        return __ice_idsAsync(__ctx, false);
+        return _iceI_ice_idsAsync(context, false);
     }
 
-    private OutgoingAsync<String[]> __ice_idsAsync(
-        java.util.Map<String, String> __ctx,
-        boolean __sync)
+    private OutgoingAsync<String[]> _iceI_ice_idsAsync(Map<String, String> context, boolean sync)
     {
-        OutgoingAsync<String[]> __f =
-            new OutgoingAsync<>(this, "ice_ids", OperationMode.Nonmutating, __sync, null);
-        __f.invoke(true, __ctx, null, null, __is -> {
-                       String[] __ret;
-                       __ret = StringSeqHelper.read(__is);
-                       return __ret;
-                   });
-        return __f;
+        OutgoingAsync<String[]> f = new OutgoingAsync<>(this, "ice_ids", OperationMode.Nonmutating, sync, null);
+        f.invoke(true, context, null, null, istr -> istr.readStringSeq());
+        return f;
     }
 
     public String ice_id()
@@ -131,74 +112,58 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return ice_id(ObjectPrx.noExplicitContext);
     }
 
-    public String ice_id(java.util.Map<String, String> __ctx)
+    public String ice_id(Map<String, String> context)
     {
-        return __ice_idAsync(__ctx, true).__wait();
+        return _iceI_ice_idAsync(context, true).waitForResponse();
     }
 
-    public java.util.concurrent.CompletableFuture<java.lang.String> ice_idAsync()
+    public CompletableFuture<String> ice_idAsync()
     {
-        return __ice_idAsync(ObjectPrx.noExplicitContext, false);
+        return _iceI_ice_idAsync(ObjectPrx.noExplicitContext, false);
     }
 
-    public java.util.concurrent.CompletableFuture<java.lang.String> ice_idAsync(java.util.Map<String, String> __ctx)
+    public CompletableFuture<String> ice_idAsync(Map<String, String> context)
     {
-        return __ice_idAsync(__ctx, false);
+        return _iceI_ice_idAsync(context, false);
     }
 
-    private OutgoingAsync<java.lang.String> __ice_idAsync(
-        java.util.Map<String, String> __ctx,
-        boolean __sync)
+    private OutgoingAsync<String> _iceI_ice_idAsync(Map<String, String> context, boolean sync)
     {
-        OutgoingAsync<java.lang.String> __f =
-            new OutgoingAsync<>(this, "ice_id", OperationMode.Nonmutating, __sync, null);
-        __f.invoke(true, __ctx, null, null, __is -> {
-                       String __ret;
-                       __ret = __is.readString();
-                       return __ret;
-                   });
-        return __f;
+        OutgoingAsync<String> f = new OutgoingAsync<>(this, "ice_id", OperationMode.Nonmutating, sync, null);
+        f.invoke(true, context, null, null, istr -> istr.readString());
+        return f;
     }
 
-    public com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams)
+    public Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams)
     {
         return ice_invoke(operation, mode, inParams, ObjectPrx.noExplicitContext);
     }
 
-    public com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                                            java.util.Map<String, String> __context)
+    public Object.Ice_invokeResult ice_invoke(String operation, OperationMode mode, byte[] inParams,
+                                              Map<String, String> context)
     {
-        return __ice_invokeAsync(operation, mode, inParams, __context, true).__wait();
+        return _iceI_ice_invokeAsync(operation, mode, inParams, context, true).waitForResponse();
     }
 
-    public java.util.concurrent.CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
-        String operation,
-        OperationMode mode,
-        byte[] inParams)
+    public CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(String operation, OperationMode mode,
+                                                                      byte[] inParams)
     {
         return ice_invokeAsync(operation, mode, inParams, ObjectPrx.noExplicitContext);
     }
 
-    public java.util.concurrent.CompletableFuture<com.zeroc.Ice.Object.Ice_invokeResult> ice_invokeAsync(
-        String operation,
-        OperationMode mode,
-        byte[] inParams,
-        java.util.Map<String, String> __context)
+    public CompletableFuture<Object.Ice_invokeResult> ice_invokeAsync(String operation, OperationMode mode,
+                                                                      byte[] inParams, Map<String, String> context)
     {
-        return __ice_invokeAsync(operation, mode, inParams, __context, false);
+        return _iceI_ice_invokeAsync(operation, mode, inParams, context, false);
     }
 
-    private com.zeroc.IceInternal.ProxyIceInvoke __ice_invokeAsync(
-        String operation,
-        OperationMode mode,
-        byte[] inParams,
-        java.util.Map<String, String> __context,
-        boolean __sync)
+    private com.zeroc.IceInternal.ProxyIceInvoke _iceI_ice_invokeAsync(String operation, OperationMode mode,
+                                                                       byte[] inParams, Map<String, String> context,
+                                                                       boolean sync)
     {
-        com.zeroc.IceInternal.ProxyIceInvoke __f =
-            new com.zeroc.IceInternal.ProxyIceInvoke(this, operation, mode, __sync);
-        __f.invoke(inParams, __context);
-        return __f;
+        com.zeroc.IceInternal.ProxyIceInvoke f = new com.zeroc.IceInternal.ProxyIceInvoke(this, operation, mode, sync);
+        f.invoke(inParams, context);
+        return f;
     }
 
     public Identity ice_getIdentity()
@@ -219,12 +184,12 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         else
         {
             _ObjectPrxI proxy = new _ObjectPrxI();
-            proxy.__setup(_reference.changeIdentity(newIdentity));
+            proxy._setup(_reference.changeIdentity(newIdentity));
             return proxy;
         }
     }
 
-    public java.util.Map<String, String> ice_getContext()
+    public Map<String, String> ice_getContext()
     {
         return new java.util.HashMap<>(_reference.getContext());
     }
@@ -248,7 +213,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         else
         {
             _ObjectPrxI proxy = new _ObjectPrxI();
-            proxy.__setup(_reference.changeFacet(newFacet));
+            proxy._setup(_reference.changeFacet(newFacet));
             return proxy;
         }
     }
@@ -345,17 +310,27 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return _reference.getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram;
     }
 
+    public java.util.Optional<Boolean> ice_getCompress()
+    {
+        return _reference.getCompress();
+    }
+
+    public java.util.OptionalInt ice_getTimeout()
+    {
+        return _reference.getTimeout();
+    }
+
     public Connection ice_getConnection()
     {
-        return __ice_getConnectionAsync().__wait();
+        return _iceI_ice_getConnectionAsync().waitForResponse();
     }
 
-    public java.util.concurrent.CompletableFuture<Connection> ice_getConnectionAsync()
+    public CompletableFuture<Connection> ice_getConnectionAsync()
     {
-        return __ice_getConnectionAsync();
+        return _iceI_ice_getConnectionAsync();
     }
 
-    private com.zeroc.IceInternal.ProxyGetConnection __ice_getConnectionAsync()
+    private com.zeroc.IceInternal.ProxyGetConnection _iceI_ice_getConnectionAsync()
     {
         com.zeroc.IceInternal.ProxyGetConnection r = new com.zeroc.IceInternal.ProxyGetConnection(this);
         r.invoke();
@@ -385,26 +360,26 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
 
     public void ice_flushBatchRequests()
     {
-        __ice_flushBatchRequestsAsync().__wait();
+        _iceI_ice_flushBatchRequestsAsync().waitForResponse();
     }
 
-    public java.util.concurrent.CompletableFuture<Void> ice_flushBatchRequestsAsync()
+    public CompletableFuture<Void> ice_flushBatchRequestsAsync()
     {
-        return __ice_flushBatchRequestsAsync();
+        return _iceI_ice_flushBatchRequestsAsync();
     }
 
-    private com.zeroc.IceInternal.ProxyFlushBatch __ice_flushBatchRequestsAsync()
+    private com.zeroc.IceInternal.ProxyFlushBatch _iceI_ice_flushBatchRequestsAsync()
     {
-        com.zeroc.IceInternal.ProxyFlushBatch __f = new com.zeroc.IceInternal.ProxyFlushBatch(this);
+        com.zeroc.IceInternal.ProxyFlushBatch f = new com.zeroc.IceInternal.ProxyFlushBatch(this);
         try
         {
-            __f.invoke();
+            f.invoke();
         }
         catch(Exception ex)
         {
-            __f.abort(ex);
+            f.abort(ex);
         }
-        return __f;
+        return f;
     }
 
     @Override
@@ -436,14 +411,14 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
     }
 
     @Override
-    public void __write(OutputStream os)
+    public void _write(OutputStream os)
     {
-        _reference.getIdentity().ice_write(os);
+        _reference.getIdentity().ice_writeMembers(os);
         _reference.streamWrite(os);
     }
 
     @Override
-    public void __copyFrom(ObjectPrx p)
+    public void _copyFrom(ObjectPrx p)
     {
         synchronized(p)
         {
@@ -454,19 +429,35 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
     }
 
     @Override
-    public com.zeroc.IceInternal.Reference __reference()
+    public com.zeroc.IceInternal.Reference _getReference()
     {
         return _reference;
     }
 
     @Override
-    public ObjectPrx __newInstance(com.zeroc.IceInternal.Reference ref)
+    public ObjectPrx _newInstance(com.zeroc.IceInternal.Reference ref)
     {
         try
         {
-            _ObjectPrxI proxy = getClass().newInstance();
-            proxy.__setup(ref);
+            _ObjectPrxI proxy = getClass().getDeclaredConstructor().newInstance();
+            proxy._setup(ref);
             return proxy;
+        }
+        catch(NoSuchMethodException ex)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
+        }
+        catch(java.lang.reflect.InvocationTargetException ex)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
         }
         catch(InstantiationException e)
         {
@@ -486,7 +477,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         }
     }
 
-    public StreamPair __getCachedMessageBuffers()
+    public StreamPair _getCachedMessageBuffers()
     {
         synchronized(this)
         {
@@ -498,7 +489,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return null;
     }
 
-    public void __cacheMessageBuffers(InputStream is, OutputStream os)
+    public void _cacheMessageBuffers(InputStream is, OutputStream os)
     {
         synchronized(this)
         {
@@ -510,10 +501,10 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         }
     }
 
-    public int __handleException(Exception ex, com.zeroc.IceInternal.RequestHandler handler, OperationMode mode,
+    public int _handleException(Exception ex, com.zeroc.IceInternal.RequestHandler handler, OperationMode mode,
                                  boolean sent, com.zeroc.IceInternal.Holder<Integer> interval, int cnt)
     {
-        __updateRequestHandler(handler, null); // Clear the request handler
+        _updateRequestHandler(handler, null); // Clear the request handler
 
         //
         // We only retry local exception, system exceptions aren't retried.
@@ -556,7 +547,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         }
     }
 
-    public com.zeroc.IceInternal.RequestHandler __getRequestHandler()
+    public com.zeroc.IceInternal.RequestHandler _getRequestHandler()
     {
         if(_reference.getCacheConnection())
         {
@@ -571,7 +562,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return _reference.getRequestHandler(this);
     }
 
-    synchronized public com.zeroc.IceInternal.BatchRequestQueue __getBatchRequestQueue()
+    synchronized public com.zeroc.IceInternal.BatchRequestQueue _getBatchRequestQueue()
     {
         if(_batchRequestQueue == null)
         {
@@ -580,7 +571,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return _batchRequestQueue;
     }
 
-    public com.zeroc.IceInternal.RequestHandler __setRequestHandler(com.zeroc.IceInternal.RequestHandler handler)
+    public com.zeroc.IceInternal.RequestHandler _setRequestHandler(com.zeroc.IceInternal.RequestHandler handler)
     {
         if(_reference.getCacheConnection())
         {
@@ -596,7 +587,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         return handler;
     }
 
-    public void __updateRequestHandler(com.zeroc.IceInternal.RequestHandler previous,
+    public void _updateRequestHandler(com.zeroc.IceInternal.RequestHandler previous,
                                        com.zeroc.IceInternal.RequestHandler handler)
     {
         if(_reference.getCacheConnection() && previous != null)
@@ -621,7 +612,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
     //
     // Only for use by ProxyFactory
     //
-    public void __setup(com.zeroc.IceInternal.Reference ref)
+    public void _setup(com.zeroc.IceInternal.Reference ref)
     {
         //
         // No need to synchronize, as this operation is only called
@@ -646,7 +637,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         String s = in.readUTF();
         try
         {
-            Communicator communicator = ((com.zeroc.Ice.ObjectInputStream)in).getCommunicator();
+            Communicator communicator = ((ObjectInputStream)in).getCommunicator();
             if(communicator == null)
             {
                 throw new java.io.IOException("Cannot deserialize proxy: no communicator provided");
@@ -657,8 +648,7 @@ public class _ObjectPrxI implements ObjectPrx, java.io.Serializable
         }
         catch(ClassCastException ex)
         {
-            java.io.IOException e =
-                new java.io.IOException("Cannot deserialize proxy: com.zeroc.Ice.ObjectInputStream not found");
+            java.io.IOException e = new java.io.IOException("Cannot deserialize proxy: ObjectInputStream not found");
             e.initCause(ex);
             throw e;
         }

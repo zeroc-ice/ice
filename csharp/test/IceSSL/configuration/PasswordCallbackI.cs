@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,17 +15,17 @@ public class PasswordCallbackI : IceSSL.PasswordCallback
 {
     public PasswordCallbackI()
     {
-        password_ = createSecureString("password");
+        _password = createSecureString("password");
     }
 
     public PasswordCallbackI(string password)
     {
-        password_ = createSecureString(password);
+        _password = createSecureString(password);
     }
 
     public SecureString getPassword(string file)
     {
-        return password_;
+        return _password;
     }
 
     public SecureString getImportPassword(string file)
@@ -44,5 +44,5 @@ public class PasswordCallbackI : IceSSL.PasswordCallback
         return result;
     }
 
-    private SecureString password_;
+    private SecureString _password;
 }

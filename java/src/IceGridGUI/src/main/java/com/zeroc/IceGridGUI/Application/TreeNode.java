@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -140,11 +140,11 @@ public abstract class TreeNode extends TreeNodeBase
 
                 for(ObjectDescriptor q : p.objects)
                 {
-                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id));
+                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
                 }
                 for(ObjectDescriptor q : p.allocatables)
                 {
-                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id));
+                    hiddenPropertyValues.add(com.zeroc.Ice.Util.identityToString(q.id, com.zeroc.Ice.ToStringMode.Unicode));
                 }
             }
         }
@@ -261,7 +261,7 @@ public abstract class TreeNode extends TreeNodeBase
         for(ObjectDescriptor p : objects)
         {
             java.util.List<String[]> attributes = new java.util.LinkedList<>();
-            String strId = com.zeroc.Ice.Util.identityToString(p.id);
+            String strId = com.zeroc.Ice.Util.identityToString(p.id, com.zeroc.Ice.ToStringMode.Unicode);
             attributes.add(createAttribute("identity", strId));
             if(p.type.length() > 0)
             {

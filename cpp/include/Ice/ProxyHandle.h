@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,12 +38,21 @@ class Object;
 namespace Ice
 {
 
+/** Smart pointer for an object proxy. */
 typedef ::IceInternal::ProxyHandle< ::IceProxy::Ice::Object> ObjectPrx;
 
 class ObjectAdapter;
 typedef ::IceInternal::Handle< ::Ice::ObjectAdapter> ObjectAdapterPtr;
 
+/**
+ * A request context. Context is used to transmit metadata about a
+ * request from the server to the client, such as Quality-of-Service
+ * (QoS) parameters. Each remote operation on a proxy optionally
+ * accepts a Context parameter.
+ **/
 typedef ::std::map< ::std::string, ::std::string> Context;
+
+/** Sentinel value indicating that no explicit context argument was passed to a remote invocation. */
 ICE_API extern const Context noExplicitContext;
 
 }
@@ -247,7 +256,7 @@ public:
         return *this;
     }
 
-    ::IceProxy::Ice::Object* __upCast() const
+    ::IceProxy::Ice::Object* _upCast() const
     {
         return upCast(this->_ptr);
     }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -70,7 +70,7 @@ public:
     ~ValueFactoryManager();
 
     virtual void add(const Ice::ValueFactoryPtr&, const std::string&);
-    virtual Ice::ValueFactoryPtr find(const std::string&) const;
+    virtual Ice::ValueFactoryPtr find(const std::string&) const ICE_NOEXCEPT;
 
     virtual void add(PyObject*, PyObject*, const std::string&);
     PyObject* findValueFactory(const std::string&) const;

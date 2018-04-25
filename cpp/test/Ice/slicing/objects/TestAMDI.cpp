@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -62,7 +62,6 @@ TestI::SBSKnownDerivedAsSBSKnownDerivedAsync(function<void(const shared_ptr<Test
     response(sbskd);
 }
 
-
 void
 TestI::SBSUnknownDerivedAsSBaseAsync(function<void(const shared_ptr<Test::SBase>&)> response,
                                       function<void(exception_ptr)>,
@@ -85,7 +84,6 @@ TestI::SBSUnknownDerivedAsSBaseCompactAsync(function<void(const shared_ptr<Test:
     response(sbsud);
 }
 
-
 void
 TestI::SUnknownAsObjectAsync(function<void(const shared_ptr<Ice::Value>&)> response,
                               function<void(exception_ptr)>,
@@ -93,6 +91,7 @@ TestI::SUnknownAsObjectAsync(function<void(const shared_ptr<Ice::Value>&)> respo
 {
     auto su = make_shared<SUnknown>();
     su->su = "SUnknown.su";
+    su->cycle = su;
     response(su);
 }
 
@@ -114,7 +113,6 @@ TestI::checkSUnknownAsync(Ice::ValuePtr obj,
     }
     response();
 }
-
 
 void
 TestI::oneElementCycleAsync(function<void(const shared_ptr<Test::B>&)> response,
@@ -158,7 +156,6 @@ TestI::D1AsBAsync(function<void(const shared_ptr<Test::B>&)> response,
     d1->pd1 = d2;
     response(d1);
 }
-
 
 void
 TestI::D1AsD1Async(function<void(const shared_ptr<Test::D1>&)> response,
@@ -303,7 +300,6 @@ TestI::returnTest1Async(function<void(const shared_ptr<Test::B>&,
     response(d2, d2, d1);
 }
 
-
 void
 TestI::returnTest2Async(function<void(const shared_ptr<Test::B>&,
                                         const shared_ptr<Test::B>&,
@@ -334,7 +330,6 @@ TestI::returnTest3Async(shared_ptr<::Test::B> p1,
     response(p1);
 }
 
-
 void
 TestI::sequenceTestAsync(shared_ptr<::Test::SS1> p1,
                           shared_ptr<::Test::SS2> p2,
@@ -347,7 +342,6 @@ TestI::sequenceTestAsync(shared_ptr<::Test::SS1> p1,
     ss.c2 = move(p2);
     response(ss);
 }
-
 
 void
 TestI::dictionaryTestAsync(Test::BDict bin,
@@ -390,7 +384,6 @@ TestI::exchangePBaseAsync(shared_ptr<::Test::PBase> pb,
 {
     response(pb);
 }
-
 
 void
 TestI::PBSUnknownAsPreservedAsync(function<void(const shared_ptr<::Test::Preserved>&)> response,
@@ -454,7 +447,6 @@ TestI::PBSUnknownAsPreservedWithGraphAsync(function<void(const shared_ptr<::Test
     response(r);
     r->graph->next->next->next = nullptr; // Break the cycle.
 }
-
 
 void
 TestI::checkPBSUnknownWithGraphAsync(shared_ptr<::Test::Preserved> p,
@@ -728,6 +720,10 @@ TestI::SUnknownAsObject_async(const AMD_TestIntf_SUnknownAsObjectPtr& cb, const 
 {
     SUnknownPtr su = new SUnknown;
     su->su = "SUnknown.su";
+    su->cycle = su;
+#ifndef ICE_CPP11_MAPPING
+    su->ice_collectable(true);
+#endif
     cb->ice_response(su);
 }
 

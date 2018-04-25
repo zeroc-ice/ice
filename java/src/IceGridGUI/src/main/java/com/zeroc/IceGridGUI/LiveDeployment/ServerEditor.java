@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -49,8 +49,6 @@ class ServerEditor extends CommunicatorEditor
         _currentState.setEditable(false);
         _enabled.setEnabled(false);
         _currentPid.setEditable(false);
-        _buildId.setEditable(false);
-
         _application.setEditable(false);
         _exe.setEditable(false);
         _iceVersion.setEditable(false);
@@ -68,25 +66,12 @@ class ServerEditor extends CommunicatorEditor
         _icepatch.setEditable(false);
         _directories.setEditable(false);
 
-        Action refresh = new AbstractAction("Refresh")
-            {
-                @Override
-                public void actionPerformed(ActionEvent e)
-                {
-                    _buildId.setText("Retrieving...");
-                    _properties.clear();
-                    _target.showRuntimeProperties();
-                }
-            };
-        refresh.putValue(Action.SHORT_DESCRIPTION, "Reread the properties from the server");
-        _refreshButton = new JButton(refresh);
-
         Action gotoApplication = new AbstractAction("", Utils.getIcon("/icons/16x16/goto.png"))
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    _target.openDefinition();
+                    ((Server)_target).openDefinition();
                 }
             };
         gotoApplication.putValue(Action.SHORT_DESCRIPTION, "View/Edit this application");
@@ -95,8 +80,7 @@ class ServerEditor extends CommunicatorEditor
 
     void show(Server server)
     {
-        Server previousServer = _target;
-
+        Server previousServer = (Server)_target;
         _target = server;
 
         ServerState state = server.getState();
@@ -108,10 +92,7 @@ class ServerEditor extends CommunicatorEditor
             _currentState.setText("Unknown");
             _enabled.setSelected(false);
             _currentPid.setText("");
-            _buildId.setText("Unknown");
-            _properties.clear();
-            _propertiesRetrieved = false;
-            _refreshButton.setEnabled(false);
+            clearRuntimeProperties("Unknown");
         }
         else
         {
@@ -131,29 +112,11 @@ class ServerEditor extends CommunicatorEditor
             int iceIntVersion = server.getIceVersion();
             if(state == ServerState.Active && (iceIntVersion == 0 || iceIntVersion >= 30300))
             {
-                if(!_propertiesRetrieved || previousServer != server)
-                {
-                    _buildId.setText("Retrieving...");
-                    _properties.clear();
-
-                    //
-                    // Retrieve all properties in background
-                    //
-                    _target.showRuntimeProperties();
-                    _propertiesRetrieved = true; // set to true immediately to avoid 'spinning'
-                }
-
-                //
-                // Otherwise, use current value
-                //
-                _refreshButton.setEnabled(true);
+                showRuntimeProperties(previousServer);
             }
             else
             {
-                _buildId.setText("");
-                _properties.clear();
-                _propertiesRetrieved = false;
-                _refreshButton.setEnabled(false);
+                clearRuntimeProperties("");
             }
         }
 
@@ -204,43 +167,6 @@ class ServerEditor extends CommunicatorEditor
         _directories.setToolTipText(toolTip);
     }
 
-    void setBuildId(String buildString, Server server)
-    {
-        //
-        // That's to report error messages
-        //
-
-        if(server == _target)
-        {
-            _buildId.setText(buildString);
-        }
-        //
-        // Otherwise we've already moved to another server
-        //
-    }
-
-    void setRuntimeProperties(java.util.SortedMap<String, String> map, Server server)
-    {
-        if(server == _target)
-        {
-            _properties.setSortedMap(map);
-            _propertiesRetrieved = true;
-
-            String buildString = map.get("BuildId");
-            if(buildString == null)
-            {
-                _buildId.setText("");
-            }
-            else
-            {
-                _buildId.setText(buildString);
-            }
-        }
-        //
-        // Otherwise we've already moved to another server
-        //
-    }
-
     @Override
     protected void appendProperties(DefaultFormBuilder builder)
     {
@@ -256,38 +182,14 @@ class ServerEditor extends CommunicatorEditor
         builder.append("Process Id");
         builder.append(_currentPid, 3);
         builder.nextLine();
-
-        builder.append("Build Id");
-        builder.append(_buildId, _refreshButton);
-        builder.nextLine();
-
-        builder.append("Properties");
-        builder.nextLine();
-        builder.append("");
-        builder.nextLine();
-        builder.append("");
-
-        builder.nextLine();
-        builder.append("");
-
-        builder.nextRow(-6);
-        CellConstraints cc = new CellConstraints();
-        JScrollPane scrollPane = new JScrollPane(_properties);
-        builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
-        builder.nextRow(6);
-        builder.nextLine();
+        appendRuntimeProperties(builder);
 
         builder.appendSeparator("Configuration");
-
         builder.append("Application");
         builder.append(_application);
         builder.append(_gotoApplication);
         builder.nextLine();
-
-        //
-        // Add Communicator fields
-        //
-        super.appendProperties(builder);
+        appendDescriptorProperties(builder);
 
         builder.appendSeparator("Activation");
         builder.append("Path to Executable");
@@ -313,7 +215,8 @@ class ServerEditor extends CommunicatorEditor
         builder.nextLine();
         builder.append("");
         builder.nextRow(-6);
-        scrollPane = new JScrollPane(_envs);
+        CellConstraints cc = new CellConstraints();
+        JScrollPane scrollPane = new JScrollPane(_envs);
         builder.add(scrollPane, cc.xywh(builder.getColumn(), builder.getRow(), 3, 7));
         builder.nextRow(6);
         builder.nextLine();
@@ -370,15 +273,10 @@ class ServerEditor extends CommunicatorEditor
     }
 
     private Coordinator _coordinator;
-    private Server _target;
 
     private JTextField _currentState = new JTextField(20);
     private JCheckBox _enabled = new JCheckBox("Enabled");
     private JTextField _currentPid = new JTextField(20);
-    private JTextField _buildId = new JTextField(20);
-    private JButton _refreshButton;
-    private TableField _properties = new TableField("Name", "Value");
-    private boolean _propertiesRetrieved = false;
 
     private JTextField _application = new JTextField(20);
     private JButton _gotoApplication;

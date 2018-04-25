@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@
 // the C++ & Java timers and it's not clear what is the cost of
 // scheduling and cancelling timers.
 //
-    
+
 namespace IceInternal
 {
     using System.Diagnostics;
@@ -36,8 +36,8 @@ namespace IceInternal
                 }
 
                 _instance = null;
-                System.Threading.Monitor.Pulse(this);
-            
+                Monitor.Pulse(this);
+
                 _tokens.Clear();
                 _tasks.Clear();
             }
@@ -65,10 +65,10 @@ namespace IceInternal
                 {
                     Debug.Assert(false);
                 }
-            
+
                 if(token.scheduledTime < _wakeUpTime)
                 {
-                    System.Threading.Monitor.Pulse(this);
+                    Monitor.Pulse(this);
                 }
             }
         }
@@ -96,11 +96,11 @@ namespace IceInternal
 
                 if(token.scheduledTime < _wakeUpTime)
                 {
-                    System.Threading.Monitor.Pulse(this);
+                    Monitor.Pulse(this);
                 }
             }
-        } 
-        
+        }
+
         public bool cancel(TimerTask task)
         {
             lock(this)
@@ -124,17 +124,12 @@ namespace IceInternal
         //
         // Only for use by Instance.
         //
-        internal Timer(IceInternal.Instance instance, ThreadPriority priority)
+        internal Timer(Instance instance, ThreadPriority priority = ThreadPriority.Normal)
         {
             init(instance, priority, true);
         }
-        
-        internal Timer(IceInternal.Instance instance)
-        {
-            init(instance, ThreadPriority.Normal, false);
-        }
 
-        internal void init(IceInternal.Instance instance, ThreadPriority priority,  bool hasPriority)
+        internal void init(Instance instance, ThreadPriority priority,  bool hasPriority)
         {
             _instance = instance;
 
@@ -159,7 +154,7 @@ namespace IceInternal
             lock(this)
             {
                 Debug.Assert(obsv != null);
-                _observer = obsv.getThreadObserver("Communicator", 
+                _observer = obsv.getThreadObserver("Communicator",
                                                    _thread.Name,
                                                    Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                    _observer);
@@ -201,15 +196,15 @@ namespace IceInternal
 
                     if(_tokens.Count == 0)
                     {
-                        _wakeUpTime = System.Int64.MaxValue;
-                        System.Threading.Monitor.Wait(this);
+                        _wakeUpTime = long.MaxValue;
+                        Monitor.Wait(this);
                     }
-            
+
                     if(_instance == null)
                     {
                         break;
                     }
-                
+
                     while(_tokens.Count > 0 && _instance != null)
                     {
                         long now = Time.currentMonotonicTimeMillis();
@@ -232,11 +227,11 @@ namespace IceInternal
                             }
                             break;
                         }
-                    
+
                         _wakeUpTime = first.scheduledTime;
-                        System.Threading.Monitor.Wait(this, (int)(first.scheduledTime - now));
+                        Monitor.Wait(this, (int)(first.scheduledTime - now));
                     }
-                
+
                     if(_instance == null)
                     {
                         break;
@@ -277,7 +272,7 @@ namespace IceInternal
                                 _instance.initializationData().logger.error(s);
                             }
                         }
-                    } 
+                    }
                 }
             }
         }
@@ -316,13 +311,13 @@ namespace IceInternal
                 {
                     return 1;
                 }
-            
+
                 return 0;
             }
 
             public override bool Equals(object o)
             {
-                if(object.ReferenceEquals(this, o))
+                if(ReferenceEquals(this, o))
                 {
                     return true;
                 }
@@ -333,8 +328,8 @@ namespace IceInternal
             public override int GetHashCode()
             {
                 int h = 5381;
-                IceInternal.HashUtil.hashAdd(ref h, id);
-                IceInternal.HashUtil.hashAdd(ref h, scheduledTime);
+                HashUtil.hashAdd(ref h, id);
+                HashUtil.hashAdd(ref h, scheduledTime);
                 return h;
             }
 
@@ -347,7 +342,7 @@ namespace IceInternal
         private IDictionary<Token, object> _tokens = new SortedDictionary<Token, object>();
         private IDictionary<TimerTask, Token> _tasks = new Dictionary<TimerTask, Token>();
         private Instance _instance;
-        private long _wakeUpTime = System.Int64.MaxValue;
+        private long _wakeUpTime = long.MaxValue;
         private int _tokenId = 0;
         private Thread _thread;
 
@@ -355,7 +350,7 @@ namespace IceInternal
         // We use a volatile to avoid synchronization when reading
         // _observer. Reference assignement is atomic in Java so it
         // also doesn't need to be synchronized.
-        // 
+        //
         private volatile Ice.Instrumentation.ThreadObserver _observer;
 }
 

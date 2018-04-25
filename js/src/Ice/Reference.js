@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/ArrayUtil",
         "../Ice/BatchRequestQueue",
@@ -16,7 +16,6 @@ Ice.__M.require(module,
         "../Ice/HashUtil",
         "../Ice/OpaqueEndpointI",
         "../Ice/Promise",
-        "../Ice/Protocol",
         "../Ice/ReferenceMode",
         "../Ice/StringUtil",
         "../Ice/BuiltinSequences",
@@ -36,7 +35,6 @@ const Debug = Ice.Debug;
 const BatchRequestQueue = Ice.BatchRequestQueue;
 const HashUtil = Ice.HashUtil;
 const OpaqueEndpointI = Ice.OpaqueEndpointI;
-const Protocol = Ice.Protocol;
 const RefMode = Ice.ReferenceMode;
 const StringUtil = Ice.StringUtil;
 const StringSeqHelper = Ice.StringSeqHelper;
@@ -113,8 +111,11 @@ class ReferenceFactory
             "", // Facet
             fixedConnection.endpoint().datagram() ? RefMode.ModeDatagram : RefMode.ModeTwoway,
             fixedConnection.endpoint().secure(),
+            Ice.Protocol_1_0,
             this._instance.defaultsAndOverrides().defaultEncoding,
-            fixedConnection);
+            fixedConnection,
+            -1,
+            null);
     }
 
     copy(r)
@@ -248,10 +249,10 @@ class ReferenceFactory
             // quotation marks.
             //
             let argument = null;
-            let argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
+            const argumentBeg = StringUtil.findFirstNotOf(s, delim, end);
             if(argumentBeg != -1)
             {
-                let ch = s.charAt(argumentBeg);
+                const ch = s.charAt(argumentBeg);
                 if(ch != "@" && ch != ":" && ch != "-")
                 {
                     beg = argumentBeg;
@@ -420,11 +421,11 @@ class ReferenceFactory
             return this.createImpl(ident, facet, mode, secure, protocol, encoding, null, null, propertyPrefix);
         }
 
-        let endpoints = [];
+        const endpoints = [];
 
         if(s.charAt(beg) == ':')
         {
-            let unknownEndpoints = [];
+            const unknownEndpoints = [];
             end = beg;
 
             while(end < s.length && s.charAt(end) == ':')
@@ -474,8 +475,8 @@ class ReferenceFactory
                     }
                 }
 
-                let es = s.substring(beg, end);
-                let endp = this._instance.endpointFactoryManager().create(es, false);
+                const es = s.substring(beg, end);
+                const endp = this._instance.endpointFactoryManager().create(es, false);
                 if(endp !== null)
                 {
                     endpoints.push(endp);
@@ -603,9 +604,9 @@ class ReferenceFactory
         if(!s.getEncoding().equals(Ice.Encoding_1_0))
         {
             protocol = new Ice.ProtocolVersion();
-            protocol.__read(s);
+            protocol._read(s);
             encoding = new Ice.EncodingVersion();
-            encoding.__read(s);
+            encoding._read(s);
         }
         else
         {
@@ -671,7 +672,7 @@ class ReferenceFactory
 
     checkForUnknownProperties(prefix)
     {
-        const unknownProps = [];
+        let unknownProps = [];
         //
         // Do not warn about unknown properties for Ice prefixes (Ice, Glacier2, etc.)
         //
@@ -683,18 +684,12 @@ class ReferenceFactory
             }
         }
 
-        let properties = this._instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
-        for(let key of properties.keys())
-        {
-            if(!suffixes.some(suffix => key === (prefix + "." + suffix)))
-            {
-                unknownProps.push(key);
-            }
-        }
-
+        const properties = this._instance.initializationData().properties.getPropertiesForPrefix(prefix + ".");
+        unknownProps = unknownProps.concat(Array.from(properties.keys()).filter(
+            key => !suffixes.some(suffix => key === prefix + "." + suffix)));
         if(unknownProps.length > 0)
         {
-            let message = [];
+            const message = [];
             message.push("found unknown properties for proxy '");
             message.push(prefix);
             message.push("':");
@@ -713,7 +708,7 @@ class ReferenceFactory
         let locatorInfo = null;
         if(this._defaultLocator !== null)
         {
-            if(!this._defaultLocator.__reference().getEncoding().equals(encoding))
+            if(!this._defaultLocator._getReference().getEncoding().equals(encoding))
             {
                 locatorInfo = this._instance.locatorManager().find(
                     this._defaultLocator.ice_encodingVersion(encoding));
@@ -749,7 +744,7 @@ class ReferenceFactory
             const locator = LocatorPrx.uncheckedCast(this._communicator.propertyToProxy(property));
             if(locator !== null)
             {
-                if(!locator.__reference().getEncoding().equals(encoding))
+                if(!locator._getReference().getEncoding().equals(encoding))
                 {
                     locatorInfo = this._instance.locatorManager().find(locator.ice_encodingVersion(encoding));
                 }
@@ -857,7 +852,7 @@ Ice.ReferenceFactory = ReferenceFactory;
 
 class Reference
 {
-    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout)
+    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context)
     {
         //
         // Validate string arguments.
@@ -871,14 +866,12 @@ class Reference
         this._mode = mode;
         this._secure = secure;
         this._identity = identity;
-        this._context = Reference._emptyContext;
+        this._context = context === undefined ? Reference._emptyContext : context;
         this._facet = facet;
         this._protocol = protocol;
         this._encoding = encoding;
         this._invocationTimeout = invocationTimeout;
         this._hashInitialized = false;
-        this._overrideCompress = false;
-        this._compress = false; // Only used if _overrideCompress == true
     }
 
     getMode()
@@ -994,6 +987,13 @@ class Reference
         return "";
     }
 
+    getTimeout()
+    {
+        // Abstract
+        Debug.assert(false);
+        return "";
+    }
+
     //
     // The change* methods (here and in derived classes) create
     // a new reference based on the existing one, with the
@@ -1083,18 +1083,6 @@ class Reference
         return r;
     }
 
-    changeCompress(newCompress)
-    {
-        if(this._overrideCompress && this._compress === newCompress)
-        {
-            return this;
-        }
-        const r = this._instance.referenceFactory().copy(this);
-        r._compress = newCompress;
-        r._overrideCompress = true;
-        return r;
-    }
-
     changeAdapterId(newAdapterId)
     {
         // Abstract
@@ -1165,6 +1153,13 @@ class Reference
         return null;
     }
 
+    changeConnection(connection)
+    {
+        // Abstract
+        Debug.assert(false);
+        return null;
+    }
+
     hashCode()
     {
         if(this._hashInitialized)
@@ -1178,18 +1173,13 @@ class Reference
         h = HashUtil.addHashable(h, this._identity);
         if(this._context !== null && this._context !== undefined)
         {
-            for(let [key, value] of this._context)
+            for(const [key, value] of this._context)
             {
                 h = HashUtil.addString(h, key);
                 h = HashUtil.addString(h, value);
             }
         }
         h = HashUtil.addString(h, this._facet);
-        h = HashUtil.addBoolean(h, this._overrideCompress);
-        if(this._overrideCompress)
-        {
-            h = HashUtil.addBoolean(h, this._compress);
-        }
         h = HashUtil.addHashable(h, this._protocol);
         h = HashUtil.addHashable(h, this._encoding);
         h = HashUtil.addNumber(h, this._invocationTimeout);
@@ -1246,8 +1236,8 @@ class Reference
 
         if(!s.getEncoding().equals(Ice.Encoding_1_0))
         {
-            this._protocol.__write(s);
-            this._encoding.__write(s);
+            this._protocol._write(s);
+            this._encoding._write(s);
         }
 
         // Derived class writes the remainder of the reference.
@@ -1267,12 +1257,15 @@ class Reference
         //
         const s = [];
 
+        const toStringMode = this._instance.toStringMode();
+
         //
         // If the encoded identity string contains characters which
         // the reference parser uses as separators, then we enclose
         // the identity string in quotes.
         //
-        const id = Ice.identityToString(this._identity);
+
+        const id = Ice.identityToString(this._identity, toStringMode);
         if(id.search(/[ :@]/) != -1)
         {
             s.push('"');
@@ -1292,7 +1285,7 @@ class Reference
             // the facet string in quotes.
             //
             s.push(" -f ");
-            const fs = StringUtil.escapeString(this._facet, "");
+            const fs = StringUtil.escapeString(this._facet, "", toStringMode);
             if(fs.search(/[ :@]/) != -1)
             {
                 s.push('"');
@@ -1421,15 +1414,6 @@ class Reference
             return false;
         }
 
-        if(this._overrideCompress !== r._overrideCompress)
-        {
-            return false;
-        }
-        if(this._overrideCompress && this._compress !== r._compress)
-        {
-            return false;
-        }
-
         if(!this._protocol.equals(r._protocol))
         {
             return false;
@@ -1461,8 +1445,6 @@ class Reference
         // Copy the members that are not passed to the constructor.
         //
         r._context = this._context;
-        r._overrideCompress = this._overrideCompress;
-        r._compress = this._compress;
     }
 }
 
@@ -1473,9 +1455,10 @@ Ice.Reference = Reference;
 
 class FixedReference extends Reference
 {
-    constructor(instance, communicator, identity, facet, mode, secure, encoding, connection)
+    constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, connection,
+                invocationTimeout, context)
     {
-        super(instance, communicator, identity, facet, mode, secure, Ice.Protocol_1_0, encoding);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         this._fixedConnection = connection;
     }
 
@@ -1522,6 +1505,11 @@ class FixedReference extends Reference
     getConnectionId()
     {
         return "";
+    }
+
+    getTimeout()
+    {
+        return undefined;
     }
 
     changeAdapterId(newAdapterId)
@@ -1574,6 +1562,17 @@ class FixedReference extends Reference
         throw new Ice.FixedProxyException();
     }
 
+    changeConnection(newConnection)
+    {
+        if(newConnection == this._fixedConnection)
+        {
+            return this;
+        }
+        const r = this.getInstance().referenceFactory().copy(this);
+        r._fixedConnection = newConnection;
+        return r;
+    }
+
     isIndirect()
     {
         return false;
@@ -1589,11 +1588,6 @@ class FixedReference extends Reference
         throw new Ice.FixedProxyException();
     }
 
-    toString()
-    {
-        throw new Ice.FixedProxyException();
-    }
-
     toProperty(prefix)
     {
         throw new Ice.FixedProxyException();
@@ -1601,8 +1595,17 @@ class FixedReference extends Reference
 
     clone()
     {
-        const r = new FixedReference(this.getInstance(), this.getCommunicator(), this.getIdentity(), this.getFacet(),
-                                     this.getMode(), this.getSecure(), this.getEncoding(), this._fixedConnection);
+        const r = new FixedReference(this.getInstance(),
+                                     this.getCommunicator(),
+                                     this.getIdentity(),
+                                     this.getFacet(),
+                                     this.getMode(),
+                                     this.getSecure(),
+                                     this.getProtocol(),
+                                     this.getEncoding(),
+                                     this._fixedConnection,
+                                     this.getInvocationTimeout(),
+                                     this.getContext());
         this.copyMembers(r);
         return r;
     }
@@ -1617,7 +1620,7 @@ class FixedReference extends Reference
             {
                 if(this._fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(this.toString());
                 }
                 break;
             }
@@ -1627,7 +1630,7 @@ class FixedReference extends Reference
             {
                 if(!this._fixedConnection.endpoint().datagram())
                 {
-                    throw new Ice.NoEndpointException("");
+                    throw new Ice.NoEndpointException(this.toString());
                 }
                 break;
             }
@@ -1641,28 +1644,14 @@ class FixedReference extends Reference
         const secure = defaultsAndOverrides.overrideSecure ? defaultsAndOverrides.overrideSecureValue : this.getSecure();
         if(secure && !this._fixedConnection.endpoint().secure())
         {
-            throw new Ice.NoEndpointException("");
+            throw new Ice.NoEndpointException(this.toString());
         }
 
         this._fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        let compress;
-        if(defaultsAndOverrides.overrideCompress)
-        {
-            compress = defaultsAndOverrides.overrideCompressValue;
-        }
-        else if(this._overrideCompress)
-        {
-            compress = this._compress;
-        }
-        else
-        {
-            compress = this._fixedConnection.endpoint().compress();
-        }
-
-        return proxy.__setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection, compress));
+        return proxy._setRequestHandler(new ConnectionRequestHandler(this, this._fixedConnection));
     }
-    
+
     getBatchRequestQueue()
     {
         return this._fixedConnection.getBatchRequestQueue();
@@ -1682,7 +1671,7 @@ class FixedReference extends Reference
         {
             return false;
         }
-        return this._fixedConnection.equals(rhs._fixedConnection);
+        return this._fixedConnection == rhs._fixedConnection;
     }
 }
 
@@ -1692,9 +1681,9 @@ class RoutableReference extends Reference
 {
     constructor(instance, communicator, identity, facet, mode, secure, protocol, encoding, endpoints,
                 adapterId, locatorInfo, routerInfo, cacheConnection, preferSecure, endpointSelection,
-                locatorCacheTimeout, invocationTimeout)
+                locatorCacheTimeout, invocationTimeout, context)
     {
-        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         this._endpoints = endpoints;
         this._adapterId = adapterId;
         this._locatorInfo = locatorInfo;
@@ -1763,6 +1752,11 @@ class RoutableReference extends Reference
         return this._connectionId;
     }
 
+    getTimeout()
+    {
+        return this._overrideTimeout ? this._timeout : undefined;
+    }
+
     changeEncoding(newEncoding)
     {
         const r = super.changeEncoding(newEncoding);
@@ -1773,16 +1767,6 @@ class RoutableReference extends Reference
                 r._locatorInfo = this.getInstance().locatorManager().find(
                     r._locatorInfo.getLocator().ice_encodingVersion(newEncoding));
             }
-        }
-        return r;
-    }
-
-    changeCompress(newCompress)
-    {
-        const r = super.changeCompress(newCompress);
-        if(r !== this && this._endpoints.length > 0) // Also override the compress flag on the endpoints if it was updated.
-        {
-            r._endpoints = this._endpoints.map(endpoint => endpoint.changeCompress(newCompress));
         }
         return r;
     }
@@ -1801,7 +1785,7 @@ class RoutableReference extends Reference
 
     changeEndpoints(newEndpoints)
     {
-        if(ArrayUtil.equals(newEndpoints, this._endpoints, function(e1, e2) { return e1.equals(e2); }))
+        if(ArrayUtil.equals(newEndpoints, this._endpoints, (e1, e2) => e1.equals(e2)))
         {
             return this;
         }
@@ -1905,6 +1889,21 @@ class RoutableReference extends Reference
         return r;
     }
 
+    changeConnection(newConnection)
+    {
+        return new FixedReference(this.getInstance(),
+                                  this.getCommunicator(),
+                                  this.getIdentity(),
+                                  this.getFacet(),
+                                  this.getMode(),
+                                  this.getSecure(),
+                                  this.getProtocol(),
+                                  this.getEncoding(),
+                                  newConnection,
+                                  this.getInvocationTimeout(),
+                                  this.getContext());
+    }
+
     isIndirect()
     {
         return this._endpoints.length === 0;
@@ -1967,7 +1966,7 @@ class RoutableReference extends Reference
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
-            const a = StringUtil.escapeString(this._adapterId, null);
+            const a = StringUtil.escapeString(this._adapterId, null, this._instance.toStringMode());
             if(a.search(/[ :@]/) != -1)
             {
                 s.push('"');
@@ -1998,13 +1997,13 @@ class RoutableReference extends Reference
 
         if(this._routerInfo !== null)
         {
-            this._routerInfo.getRouter().__reference().toProperty(prefix + ".Router").forEach(
+            this._routerInfo.getRouter()._getReference().toProperty(prefix + ".Router").forEach(
                 (value, key) => properties.set(key, value));
         }
 
         if(this._locatorInfo !== null)
         {
-            this._locatorInfo.getLocator().__reference().toProperty(prefix + ".Locator").forEach(
+            this._locatorInfo.getLocator()._getReference().toProperty(prefix + ".Locator").forEach(
                 (value, key) => properties.set(key, value));
         }
 
@@ -2073,7 +2072,7 @@ class RoutableReference extends Reference
         {
             return false;
         }
-        if(!ArrayUtil.equals(this._endpoints, rhs._endpoints, function(e1, e2) { return e1.equals(e2); }))
+        if(!ArrayUtil.equals(this._endpoints, rhs._endpoints, (e1, e2) => e1.equals(e2)))
         {
             return false;
         }
@@ -2096,7 +2095,7 @@ class RoutableReference extends Reference
 
     getConnection()
     {
-        const p = new Ice.Promise(); // success callback receives (connection, compress)
+        const p = new Ice.Promise(); // success callback receives (connection)
 
         if(this._routerInfo !== null)
         {
@@ -2168,7 +2167,7 @@ class RoutableReference extends Reference
                                         this.getInstance().initializationData().logger.trace(
                                             traceLevels.retryCat,
                                             "connection to cached endpoints failed\n" +
-                                            "removing endpoints from cache and trying one more time\n" +
+                                            "removing endpoints from cache and trying again\n" +
                                             ex.toString());
                                     }
                                     this.getConnectionNoRouterInfo(p); // Retry.
@@ -2227,10 +2226,6 @@ class RoutableReference extends Reference
         for(let i = 0; i < endpts.length; ++i)
         {
             endpts[i] = endpts[i].changeConnectionId(this._connectionId);
-            if(this._overrideCompress)
-            {
-                endpts[i] = endpts[i].changeCompress(this._compress);
-            }
             if(this._overrideTimeout)
             {
                 endpts[i] = endpts[i].changeTimeout(this._timeout);
@@ -2354,7 +2349,7 @@ class RoutableReference extends Reference
             //
             const cb = new CreateConnectionCallback(this, null, promise);
             factory.create(endpoints, false, this.getEndpointSelection()).then(
-                values => cb.setConnection(values)).catch(ex => cb.setException(ex));
+                connection => cb.setConnection(connection)).catch(ex => cb.setException(ex));
         }
         else
         {
@@ -2367,7 +2362,7 @@ class RoutableReference extends Reference
             //
             const cb = new CreateConnectionCallback(this, endpoints, promise);
             factory.create([ endpoints[0] ], true, this.getEndpointSelection()).then(
-                values => cb.setConnection(values)).catch(ex => cb.setException(ex));
+                connection => cb.setConnection(connection)).catch(ex => cb.setException(ex));
         }
         return promise;
     }
@@ -2387,9 +2382,8 @@ class CreateConnectionCallback
         this.exception = null;
     }
 
-    setConnection(values)
+    setConnection(connection)
     {
-        const [connection, compress] = values;
         //
         // If we have a router, set the object adapter for this router
         // (if any) to the new connection, so that callbacks from the
@@ -2399,7 +2393,7 @@ class CreateConnectionCallback
         {
             connection.setAdapter(this.ref.getRouterInfo().getAdapter());
         }
-        this.promise.resolve(values);
+        this.promise.resolve(connection);
     }
 
     setException(ex)
@@ -2416,9 +2410,9 @@ class CreateConnectionCallback
         }
 
         this.ref.getInstance().outgoingConnectionFactory().create(
-            [ this.endpoints[this.i] ], 
-            this.i != this.endpoints.length - 1, 
-            this.ref.getEndpointSelection()).then(values => this.setConnection(values))
+            [ this.endpoints[this.i] ],
+            this.i != this.endpoints.length - 1,
+            this.ref.getEndpointSelection()).then(connection => this.setConnection(connection))
                                             .catch(ex => this.setException(ex));
     }
 }

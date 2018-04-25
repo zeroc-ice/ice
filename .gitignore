@@ -1,4 +1,5 @@
 # Ignore objects and archives.
+*.aps
 *.[oa]
 *.obj
 *.dll
@@ -45,7 +46,10 @@ vcproj
 *.swp
 .keychain
 
-# OS X Keychain
+# Eclipse
+.externalToolBuilders
+
+# macOS Keychain
 *.keychain
 .fl????????
 passwords
@@ -84,8 +88,15 @@ UpgradeLog*.XML
 UpgradeLog*.htm
 
 # IceBuilder dependency files
-IceBuilder.d
+SliceCompile.d
 
 xcuserdata
 xcshareddata
-/IceSDK
+/sdk
+
+# SliceCompile build log
+SliceCompile.command.*.log
+# Nuget packages
+**/msbuild/packages/*
+**/msbuild/zeroc.ice.*
+*.nupkg

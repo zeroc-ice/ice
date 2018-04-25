@@ -116,8 +116,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\..\TestAMD.ice">
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\TestAMD.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
+    </SliceCompile>
   </ItemGroup>
 </Project>

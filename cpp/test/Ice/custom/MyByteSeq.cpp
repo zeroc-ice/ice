@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,7 +50,7 @@ MyByteSeq::size() const
     return _size;
 }
 
-void 
+void
 MyByteSeq::swap(MyByteSeq& seq)
 {
     size_t tmpSize = seq._size;

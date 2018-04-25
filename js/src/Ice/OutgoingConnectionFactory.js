@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,9 +8,8 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
-        "../Ice/ArrayUtil",
         "../Ice/AsyncResultBase",
         "../Ice/ConnectionI",
         "../Ice/Debug",
@@ -22,13 +21,10 @@ Ice.__M.require(module,
         "../Ice/ACM"
     ]);
 
-const ArrayUtil = Ice.ArrayUtil;
 const AsyncResultBase = Ice.AsyncResultBase;
 const ConnectionI = Ice.ConnectionI;
-const ConnectionReaper = Ice.ConnectionReaper;
 const Debug = Ice.Debug;
 const HashMap = Ice.HashMap;
-const EndpointSelectionType = Ice.EndpointSelectionType;
 const FactoryACMMonitor = Ice.FactoryACMMonitor;
 
 //
@@ -73,7 +69,7 @@ class OutgoingConnectionFactory
     }
 
     //
-    // Returns a promise, success callback receives (connection, compress)
+    // Returns a promise, success callback receives the connection
     //
     create(endpts, hasMore, selType)
     {
@@ -89,11 +85,10 @@ class OutgoingConnectionFactory
         //
         try
         {
-            const compress = { value: false };
-            const connection = this.findConnectionByEndpoint(endpoints, compress);
+            const connection = this.findConnectionByEndpoint(endpoints);
             if(connection !== null)
             {
-                return Ice.Promise.resolve([connection, compress.value]);
+                return Ice.Promise.resolve(connection);
             }
         }
         catch(ex)
@@ -178,7 +173,7 @@ class OutgoingConnectionFactory
         if(this._destroyed)
         {
             promise.resolve();
-            return;
+            return promise;
         }
 
         Ice.Promise.all(
@@ -217,14 +212,13 @@ class OutgoingConnectionFactory
             });
     }
 
-    findConnectionByEndpoint(endpoints, compress)
+    findConnectionByEndpoint(endpoints)
     {
         if(this._destroyed)
         {
             throw new Ice.CommunicatorDestroyedException();
         }
 
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
         Debug.assert(endpoints.length > 0);
 
         for(let i = 0; i < endpoints.length; ++i)
@@ -246,14 +240,6 @@ class OutgoingConnectionFactory
             {
                 if(connectionList[j].isActiveOrHolding()) // Don't return destroyed or un-validated connections
                 {
-                    if(defaultsAndOverrides.overrideCompress)
-                    {
-                        compress.value = defaultsAndOverrides.overrideCompressValue;
-                    }
-                    else
-                    {
-                        compress.value = endpoint.compress();
-                    }
                     return connectionList[j];
                 }
             }
@@ -289,7 +275,7 @@ class OutgoingConnectionFactory
         }
     }
 
-    getConnection(endpoints, cb, compress)
+    getConnection(endpoints, cb)
     {
         if(this._destroyed)
         {
@@ -322,7 +308,7 @@ class OutgoingConnectionFactory
             //
             // Search for a matching connection. If we find one, we're done.
             //
-            const connection = this.findConnectionByEndpoint(endpoints, compress);
+            const connection = this.findConnectionByEndpoint(endpoints);
             if(connection !== null)
             {
                 return connection;
@@ -408,10 +394,10 @@ class OutgoingConnectionFactory
             connectionCallbacks.push(cb);
         }
 
-        let callbacks = [];
+        const callbacks = [];
         endpoints.forEach(endpt =>
             {
-                let cbs = this._pending.get(endpt);
+                const cbs = this._pending.get(endpt);
                 if(cbs !== undefined)
                 {
                     this._pending.delete(endpt);
@@ -438,7 +424,7 @@ class OutgoingConnectionFactory
         connectionCallbacks.forEach(cc =>
             {
                 cc.removeFromPending();
-                let idx = callbacks.indexOf(cc);
+                const idx = callbacks.indexOf(cc);
                 if(idx !== -1)
                 {
                     callbacks.splice(idx, 1);
@@ -447,12 +433,8 @@ class OutgoingConnectionFactory
 
         callbacks.forEach(cc => cc.removeFromPending());
 
-        const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-        const compress = defaultsAndOverrides.overrideCompress ? defaultsAndOverrides.overrideCompressValue :
-                                                                 endpoint.compress();
-
         callbacks.forEach(cc => cc.getConnection());
-        connectionCallbacks.forEach(cc => cc.setConnection(connection, compress));
+        connectionCallbacks.forEach(cc => cc.setConnection(connection));
 
         this.checkFinished();
     }
@@ -569,7 +551,7 @@ class OutgoingConnectionFactory
     handleConnectionException(ex, hasMore)
     {
         const traceLevels = this._instance.traceLevels();
-        if(traceLevels.retry >= 2)
+        if(traceLevels.network >= 2)
         {
             const s = [];
             s.push("connection to endpoint failed");
@@ -589,14 +571,14 @@ class OutgoingConnectionFactory
                 }
             }
             s.push(ex.toString());
-            this._instance.initializationData().logger.trace(traceLevels.retryCat, s.join(""));
+            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
         }
     }
 
     handleException(ex, hasMore)
     {
         const traceLevels = this._instance.traceLevels();
-        if(traceLevels.retry >= 2)
+        if(traceLevels.network >= 2)
         {
             const s = [];
             s.push("couldn't resolve endpoint host");
@@ -616,7 +598,7 @@ class OutgoingConnectionFactory
                 }
             }
             s.push(ex.toString());
-            this._instance.initializationData().logger.trace(traceLevels.retryCat, s.join(""));
+            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
         }
     }
 
@@ -710,7 +692,7 @@ class ConnectionListMap extends HashMap
 
     forEach(fn)
     {
-        for(let connections of this.values())
+        for(const connections of this.values())
         {
             connections.forEach(fn);
         }
@@ -748,13 +730,13 @@ class ConnectCallback
         }
     }
 
-    setConnection(connection, compress)
+    setConnection(connection)
     {
         //
         // Callback from the factory: the connection to one of the callback
         // connectors has been established.
         //
-        this._promise.resolve([connection, compress]);
+        this._promise.resolve(connection);
         this._factory.decPendingConnectCount(); // Must be called last.
     }
 
@@ -781,7 +763,7 @@ class ConnectCallback
     {
         endpoints.forEach(endpoint =>
             {
-                let idx = this.findEndpoint(endpoint);
+                const idx = this.findEndpoint(endpoint);
                 if(idx !== -1)
                 {
                     this._endpoints.splice(idx, 1);
@@ -824,8 +806,7 @@ class ConnectCallback
             //
             // Ask the factory to get a connection.
             //
-            const compress = { value: false };
-            const connection = this._factory.getConnection(this._endpoints, this, compress);
+            const connection = this._factory.getConnection(this._endpoints, this);
             if(connection === null)
             {
                 //
@@ -837,7 +818,7 @@ class ConnectCallback
                 return;
             }
 
-            this._promise.resolve([connection, compress.value]);
+            this._promise.resolve(connection);
             this._factory.decPendingConnectCount(); // Must be called last.
         }
         catch(ex)
@@ -849,6 +830,20 @@ class ConnectCallback
 
     nextEndpoint()
     {
+
+        const start = (connection) =>
+            {
+                connection.start().then(
+                    () =>
+                    {
+                        this.connectionStartCompleted(connection);
+                    },
+                    ex =>
+                    {
+                        this.connectionStartFailed(connection, ex);
+                    });
+            };
+
         while(true)
         {
             const traceLevels = this._factory._instance.traceLevels();
@@ -859,7 +854,7 @@ class ConnectCallback
 
                 if(traceLevels.network >= 2)
                 {
-                    let s = [];
+                    const s = [];
                     s.push("trying to establish ");
                     s.push(this._current.protocol());
                     s.push(" connection to ");
@@ -867,22 +862,13 @@ class ConnectCallback
                     this._factory._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
                 }
 
-                const connection = this._factory.createConnection(this._current.connect(), this._current);
-                connection.start().then(
-                    () =>
-                    {
-                        this.connectionStartCompleted(connection);
-                    },
-                    ex =>
-                    {
-                        this.connectionStartFailed(connection, ex);
-                    });
+                start(this._factory.createConnection(this._current.connect(), this._current));
             }
             catch(ex)
             {
                 if(traceLevels.network >= 2)
                 {
-                    let s = [];
+                    const s = [];
                     s.push("failed to establish ");
                     s.push(this._current.protocol());
                     s.push(" connection to ");

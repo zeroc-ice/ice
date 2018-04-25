@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -82,6 +82,27 @@ public class RoutableReference extends Reference
     }
 
     @Override
+    public java.util.OptionalInt
+    getTimeout()
+    {
+        return _overrideTimeout ? java.util.OptionalInt.of(_timeout) : java.util.OptionalInt.empty();
+    }
+
+    @Override
+    public final com.zeroc.IceInternal.ThreadPool
+    getThreadPool()
+    {
+        return getInstance().clientThreadPool();
+    }
+
+    @Override
+    public final com.zeroc.Ice.ConnectionI
+    getConnection()
+    {
+        return null;
+    }
+
+    @Override
     public Reference
     changeEncoding(com.zeroc.Ice.EncodingVersion newEncoding)
     {
@@ -92,7 +113,7 @@ public class RoutableReference extends Reference
             if(locInfo != null && !locInfo.getLocator().ice_getEncodingVersion().equals(newEncoding))
             {
                 r._locatorInfo = getInstance().locatorManager().get(
-                    (com.zeroc.Ice.LocatorPrx)locInfo.getLocator().ice_encodingVersion(newEncoding));
+                    locInfo.getLocator().ice_encodingVersion(newEncoding));
             }
         }
         return r;
@@ -283,6 +304,24 @@ public class RoutableReference extends Reference
     }
 
     @Override
+    public Reference
+    changeConnection(com.zeroc.Ice.ConnectionI connection)
+    {
+        return new FixedReference(getInstance(),
+                                  getCommunicator(),
+                                  getIdentity(),
+                                  getFacet(),
+                                  getMode(),
+                                  getSecure(),
+                                  getProtocol(),
+                                  getEncoding(),
+                                  connection,
+                                  getInvocationTimeout(),
+                                  getContext(),
+                                  getCompress());
+    }
+
+    @Override
     public boolean
     isIndirect()
     {
@@ -353,7 +392,8 @@ public class RoutableReference extends Reference
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
-            String a = com.zeroc.IceUtilInternal.StringUtil.escapeString(_adapterId, null);
+
+            String a = com.zeroc.IceUtilInternal.StringUtil.escapeString(_adapterId, null, getInstance().toStringMode());
             if(com.zeroc.IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
             {
                 s.append('"');
@@ -394,7 +434,7 @@ public class RoutableReference extends Reference
         if(_routerInfo != null)
         {
             com.zeroc.Ice._ObjectPrxI h = (com.zeroc.Ice._ObjectPrxI)_routerInfo.getRouter();
-            java.util.Map<String, String> routerProperties = h.__reference().toProperty(prefix + ".Router");
+            java.util.Map<String, String> routerProperties = h._getReference().toProperty(prefix + ".Router");
             for(java.util.Map.Entry<String, String> p : routerProperties.entrySet())
             {
                 properties.put(p.getKey(), p.getValue());
@@ -404,7 +444,7 @@ public class RoutableReference extends Reference
         if(_locatorInfo != null)
         {
             com.zeroc.Ice._ObjectPrxI h = (com.zeroc.Ice._ObjectPrxI)_locatorInfo.getLocator();
-            java.util.Map<String, String> locatorProperties = h.__reference().toProperty(prefix + ".Locator");
+            java.util.Map<String, String> locatorProperties = h._getReference().toProperty(prefix + ".Locator");
             for(java.util.Map.Entry<String, String> p : locatorProperties.entrySet())
             {
                 properties.put(p.getKey(), p.getValue());
@@ -605,7 +645,7 @@ public class RoutableReference extends Reference
                                     if(traceLvls.retry >= 2)
                                     {
                                         String s = "connection to cached endpoints failed\n" +
-                                            "removing endpoints from cache and trying one more time\n" + ex;
+                                            "removing endpoints from cache and trying again\n" + ex;
                                         getInstance().initializationData().logger.trace(traceLvls.retryCat, s);
                                     }
                                     getConnectionNoRouterInfo(callback); // Retry.

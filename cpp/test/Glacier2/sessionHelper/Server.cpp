@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-
+#include <TestCommon.h>
 #include <Callback.h>
 
 using namespace std;
@@ -31,13 +31,13 @@ class CallbackI : public Callback
 public:
 
     virtual void
-    initiateCallback(const CallbackReceiverPrx& proxy, const Ice::Current& current)
+    initiateCallback(ICE_IN(CallbackReceiverPrxPtr) proxy, const Ice::Current& current)
     {
         proxy->callback(current.ctx);
     }
 
     virtual void
-    initiateCallbackEx(const CallbackReceiverPrx& proxy, const Ice::Current& current)
+    initiateCallbackEx(ICE_IN(CallbackReceiverPrxPtr) proxy, const Ice::Current& current)
     {
         proxy->callbackEx(current.ctx);
     }
@@ -54,12 +54,12 @@ public:
 int
 SessionHelperServer::run(int, char**)
 {
-    communicator()->getProperties()->setProperty("DeactivatedAdapter.Endpoints", "default -p 12011");
+    communicator()->getProperties()->setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(communicator(), 1));
     communicator()->createObjectAdapter("DeactivatedAdapter");
 
-    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", "default -p 12010");
+    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint(communicator(), 0));
     Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
-    adapter->add(new CallbackI(), Ice::stringToIdentity("callback"));
+    adapter->add(ICE_MAKE_SHARED(CallbackI), Ice::stringToIdentity("callback"));
     adapter->activate();
     communicator()->waitForShutdown();
 
@@ -69,11 +69,7 @@ SessionHelperServer::run(int, char**)
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     SessionHelperServer app;
-    return app.main(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
+    return app.main(argc, argv, initData);
 }
-

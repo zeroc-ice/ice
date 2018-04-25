@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -422,9 +422,10 @@ class ReplicaGroupEditor extends Editor
     private java.util.Map<String, String[]> objectDescriptorSeqToMap(java.util.List<ObjectDescriptor> objects)
     {
         java.util.Map<String, String[]> result = new java.util.TreeMap<>();
+        com.zeroc.Ice.Communicator communicator = _target.getCoordinator().getCommunicator();
         for(ObjectDescriptor p : objects)
         {
-            result.put(com.zeroc.Ice.Util.identityToString(p.id), new String[]{p.type, p.proxyOptions});
+            result.put(communicator.identityToString(p.id), new String[]{p.type, p.proxyOptions});
         }
         return result;
     }
@@ -433,12 +434,13 @@ class ReplicaGroupEditor extends Editor
     {
         String badIdentities = "";
         java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
+        com.zeroc.Ice.Communicator communicator = _target.getCoordinator().getCommunicator();
 
         for(java.util.Map.Entry<String, String[]> p : map.entrySet())
         {
             try
             {
-                com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());
+                com.zeroc.Ice.Identity id = communicator.stringToIdentity(p.getKey());
                 String[] val = p.getValue();
                 result.add(new ObjectDescriptor(id, val[0], val[1]));
             }
@@ -473,9 +475,9 @@ class ReplicaGroupEditor extends Editor
     private JTextField _proxyOptions = new JTextField(20);
     private JTextField _filter = new JTextField(20);
 
-    private JComboBox _loadBalancing = new JComboBox(new String[] {ADAPTIVE, 
-                                                                   ORDERED, 
-                                                                   RANDOM, 
+    private JComboBox _loadBalancing = new JComboBox(new String[] {ADAPTIVE,
+                                                                   ORDERED,
+                                                                   RANDOM,
                                                                    ROUND_ROBIN});
 
     private JTextField _nReplicas = new JTextField(20);

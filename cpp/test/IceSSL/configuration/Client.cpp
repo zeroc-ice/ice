@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,6 +11,10 @@
 #include <IceSSL/IceSSL.h>
 #include <TestCommon.h>
 #include <Test.h>
+
+#if defined(ICE_USE_OPENSSL)
+#  include <IceSSL/OpenSSL.h>
+#endif
 
 DEFINE_TEST("client")
 
@@ -35,7 +39,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     {
         cerr << "testing with PKCS12 certificates..." << endl;
         Test::ServerFactoryPrxPtr factory = allTests(communicator, testdir, true);
-#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
+#if TARGET_OS_IPHONE == 0 && !defined(ICE_OS_UWP)
         cerr << "testing with PEM certificates..." << endl;
         factory = allTests(communicator, testdir, false);
 #endif
@@ -47,13 +51,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     catch(const IceSSL::CertificateReadException& ex)
     {
         cout << "couldn't read certificate: " << ex.reason << endl;
+        return EXIT_FAILURE;
     }
     catch(const std::exception& ex)
     {
         cout << "unexpected exception: " << ex.what() << endl;
+        return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
-
 }
 
 int
@@ -64,14 +69,21 @@ main(int argc, char* argv[])
     // don't set Ice.Plugin.IceSSL to ensure the plugin is registered without
     // the property setting.
     //
+#if !defined(ICE_USE_OPENSSL)
     Ice::registerIceSSL();
+#endif
+
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceWS(true);
+#endif
 
     int status;
     Ice::CommunicatorPtr communicator;
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
@@ -82,15 +94,7 @@ main(int argc, char* argv[])
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        communicator->destroy();
     }
 
     return status;

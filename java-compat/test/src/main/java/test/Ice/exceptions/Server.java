@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,22 +31,20 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        //
+        Ice.InitializationData initData = super.getInitData(argsH);
         // For this test, we need a dummy logger, otherwise the
         // assertion test will print an error message.
         //
         initData.logger = new DummyLogger();
 
-        initData.properties = Ice.Util.createProperties(argsH);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011");
+        initData.properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(initData.properties, 1));
         initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0");
-        initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012");
+        initData.properties.setProperty("TestAdapter3.Endpoints", getTestEndpoint(initData.properties, 2));
         initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1");
 
         return initData;

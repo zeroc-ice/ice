@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,20 +29,33 @@
 namespace Ice
 {
 
+/**
+ * Base class for marshaled result structures, which are generated for operations having the
+ * marshaled-result metadata tag.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API MarshaledResult
 {
 public:
 
-    MarshaledResult(const Current&);
+    /**
+     * The constructor requires the Current object that was passed to the servant.
+     */
+    MarshaledResult(const Current& current);
 
+    /**
+     * Obtains the output stream that is used to marshal the results.
+     * @return The output stream.
+     */
     std::shared_ptr<OutputStream> getOutputStream() const
     {
-        return __os;
+        return ostr;
     }
 
 protected:
 
-    std::shared_ptr<OutputStream> __os;
+    /** The output stream used to marshal the results. */
+    std::shared_ptr<OutputStream> ostr;
 };
 
 }
@@ -68,6 +81,16 @@ public:
     void response(bool);
     void exception(const std::exception&, bool);
     void exception(const std::string&, bool);
+#if defined(_MSC_VER) && (_MSC_VER == 1500)
+    //
+    // COMPILERFIX VC90 get confused with overloads above
+    // when passing a const char* as first argument.
+    //
+    void exception(const char* msg, bool amd)
+    {
+        exception(std::string(msg), amd);
+    }
+#endif
 
 protected:
 
@@ -81,6 +104,17 @@ protected:
 
     void handleException(const std::exception&, bool);
     void handleException(const std::string&, bool);
+
+#if defined(_MSC_VER) && (_MSC_VER == 1500)
+    //
+    // COMPILERFIX VC90 get confused with overloads above
+    // when passing a const char* as first argument.
+    //
+    void handleException(const char* msg, bool amd)
+    {
+        handleException(std::string(msg), amd);
+    }
+#endif
 
     Ice::Current _current;
     Ice::ObjectPtr _servant;

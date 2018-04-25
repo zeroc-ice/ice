@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -88,7 +88,7 @@ typedef IceUtil::Handle<RegistryObserverTopic> RegistryObserverTopicPtr;
 class NodeObserverTopic : public ObserverTopic, public NodeObserver
 {
 public:
-    
+
     NodeObserverTopic(const IceStorm::TopicManagerPrx&, const Ice::ObjectAdapterPtr&);
 
     virtual void nodeInit(const NodeDynamicInfoSeq&, const Ice::Current&);
@@ -102,11 +102,14 @@ public:
     void nodeDown(const std::string&);
     virtual void initObserver(const Ice::ObjectPrx&);
 
+    bool isServerEnabled(const std::string&) const;
+
 private:
 
     const NodeObserverPrx _externalPublisher;
     std::vector<NodeObserverPrx> _publishers;
     std::map<std::string, NodeDynamicInfo> _nodes;
+    std::map<std::string, bool> _serverStatus;
 };
 typedef IceUtil::Handle<NodeObserverTopic> NodeObserverTopicPtr;
 

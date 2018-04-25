@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,29 +35,91 @@ namespace Ice
 //
 
 #ifndef ICE_API_EXPORTS
-ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceStringConverter(bool = true);
+/**
+ * When using static libraries, calling this function ensures the string converter plug-in is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding
+ * plug-in property is set to 1.
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceStringConverter(bool loadOnInitialize = true);
+
+/**
+ * When using static libraries, calling this function ensures the UDP transport is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding
+ * plug-in property is set to 1.
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceUDP(bool loadOnInitialize = true);
+
+/**
+ * When using static libraries, calling this function ensures the WebSocket transport is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding
+ * plug-in property is set to 1.
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceWS(bool loadOnInitialize = true);
 #endif
 
-#ifndef ICE_SSL_API_EXPORTS
-ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSL(bool = true);
+#ifndef ICESSL_API_EXPORTS
+/**
+ * When using static libraries, calling this function ensures the SSL transport is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding
+ * plug-in property is set to 1.
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceSSL(bool loadOnInitialize = true);
 #endif
 
 #ifndef ICE_DISCOVERY_API_EXPORTS
-ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceDiscovery(bool = true);
+/**
+ * When using static libraries, calling this function ensures the IceDiscovery plug-in is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding
+ * plug-in property is set to 1.
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceDiscovery(bool loadOnInitialize = true);
 #endif
 
 #ifndef ICE_LOCATOR_DISCOVERY_API_EXPORTS
-ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool = true);
+/**
+ * When using static libraries, calling this function ensures the IceLocatorDiscovery plug-in is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding
+ * plug-in property is set to 1.
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceLocatorDiscovery(bool loadOnInitialize = true);
 #endif
 
-#ifndef ICE_BT_API_EXPORTS
-ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceBT(bool = true);
+#if !defined(_WIN32) && !defined(__APPLE__)
+#   ifndef ICEBT_API_EXPORTS
+/**
+ * When using static libraries, calling this function ensures the IceBT plug-in is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding
+ * plug-in property is set to 1.
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceBT(bool loadOnInitialize = true);
+#   endif
 #endif
 
 #if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-#ifndef ICE_IAP_API_EXPORTS
-ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceIAP(bool = true);
-#endif
+#   ifndef ICEIAP_API_EXPORTS
+/**
+ * When using static libraries, calling this function ensures the iAP plug-in is
+ * linked with the application.
+ * @param loadOnInitialize If true, the plug-in is loaded (created) during communicator initialization.
+ * If false, the plug-in is only loaded during communicator initialization if its corresponding
+ * plug-in property is set to 1.
+ */
+ICE_PLUGIN_REGISTER_DECLSPEC_IMPORT void registerIceIAP(bool loadOnInitialize = true);
+#   endif
 #endif
 
 #if defined(_MSC_VER) && !defined(ICE_BUILDING_SRC)

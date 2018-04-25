@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -93,7 +93,8 @@ public:
         //
         return _router;
     }
-    void getClientProxyResponse(const Ice::ObjectPrxPtr&, const GetClientEndpointsCallbackPtr&);
+    void getClientProxyResponse(const Ice::ObjectPrxPtr&, const IceUtil::Optional<bool>&,
+                                const GetClientEndpointsCallbackPtr&);
     void getClientProxyException(const Ice::Exception&, const GetClientEndpointsCallbackPtr&);
     std::vector<EndpointIPtr> getClientEndpoints();
     void getClientEndpoints(const GetClientEndpointsCallbackPtr&);
@@ -128,7 +129,6 @@ public:
 
     void addProxyResponse(const Ice::ObjectProxySeq&, const AddProxyCookiePtr&);
     void addProxyException(const Ice::Exception&, const AddProxyCookiePtr&);
-    void addProxy(const Ice::ObjectPrxPtr&);
     bool addProxy(const Ice::ObjectPrxPtr&, const AddProxyCallbackPtr&);
 
     void setAdapter(const Ice::ObjectAdapterPtr&);
@@ -139,15 +139,14 @@ public:
     //
     // The following methods need to be public for access by AMI callbacks.
     //
-    std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrxPtr&);
-    std::vector<EndpointIPtr> setServerEndpoints(const Ice::ObjectPrxPtr&);
+    std::vector<EndpointIPtr> setClientEndpoints(const Ice::ObjectPrxPtr&, bool);
     void addAndEvictProxies(const Ice::ObjectPrxPtr&, const Ice::ObjectProxySeq&);
 
 private:
 
     const Ice::RouterPrxPtr _router;
     std::vector<EndpointIPtr> _clientEndpoints;
-    std::vector<EndpointIPtr> _serverEndpoints;
+    bool _hasRoutingTable;
     Ice::ObjectAdapterPtr _adapter;
     std::set<Ice::Identity> _identities;
     std::multiset<Ice::Identity> _evictedIdentities;

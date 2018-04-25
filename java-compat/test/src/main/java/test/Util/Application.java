@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,8 +14,6 @@ import Ice.*;
 public abstract class Application
 {
     public final int WAIT = 2;
-
-    
 
     public interface ServerReadyListener
     {
@@ -92,9 +90,9 @@ public abstract class Application
 
         int status = 0;
 
-        try
+        try(Ice.Communicator communicator = Util.initialize(argHolder, initData))
         {
-            _communicator = Util.initialize(argHolder, initData);
+            _communicator = communicator;
             if(_communicatorListener != null)
             {
                 _communicatorListener.communicatorInitialized(_communicator);
@@ -131,30 +129,11 @@ public abstract class Application
             err.printStackTrace(writer);
             status = 1;
         }
-        writer.flush();
-
-        if(_communicator != null)
+        finally
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(LocalException ex)
-            {
-                writer.println(_testName + ": " + ex);
-                ex.printStackTrace(writer);
-                status = 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                writer.println(_testName + ": unknown exception");
-                ex.printStackTrace(writer);
-                status = 1;
-            }
             _communicator = null;
         }
         writer.flush();
-
         return status;
     }
 
@@ -198,7 +177,10 @@ public abstract class Application
     //
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        return createInitializationData();
+        Ice.InitializationData initData = createInitializationData();
+        initData.properties = Ice.Util.createProperties(argsH);
+        argsH.value = initData.properties.parseCommandLineOptions("Test", argsH.value);
+        return initData;
     }
 
     public java.io.PrintWriter getWriter()
@@ -272,6 +254,83 @@ public abstract class Application
     public ClassLoader classLoader()
     {
         return _classLoader;
+    }
+
+    public String getTestEndpoint(int num)
+    {
+        return getTestEndpoint(num, "");
+    }
+
+    public String getTestEndpoint(Ice.Properties properties, int num)
+    {
+        return getTestEndpoint(properties, num, "");
+    }
+
+    public String getTestEndpoint(int num, String prot)
+    {
+        return getTestEndpoint(_communicator.getProperties(), num, prot);
+    }
+
+    static public String getTestEndpoint(Ice.Properties properties, int num, String prot)
+    {
+        String protocol = prot;
+        if(protocol.isEmpty())
+        {
+            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
+        }
+
+        int basePort = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010);
+
+        if(protocol.indexOf("bt") == 0)
+        {
+            //
+            // For Bluetooth, there's no need to specify a port (channel) number.
+            // The client locates the server using its address and a UUID.
+            //
+            switch(num)
+            {
+            case 0:
+                return "default -u 5e08f4de-5015-4507-abe1-a7807002db3d";
+            case 1:
+                return "default -u dae56460-2485-46fd-a3ca-8b730e1e868b";
+            case 2:
+                return "default -u 99e08bc6-fcda-4758-afd0-a8c00655c999";
+            default:
+                assert(false);
+            }
+        }
+
+        return protocol + " -p " + Integer.toString(basePort + num);
+    }
+
+    public String getTestHost()
+    {
+        return getTestHost(_communicator.getProperties());
+    }
+
+    static public String getTestHost(Ice.Properties properties)
+    {
+        return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+    }
+
+    public String getTestProtocol()
+    {
+        return getTestProtocol(_communicator.getProperties());
+    }
+
+    static public String getTestProtocol(Ice.Properties properties)
+    {
+        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    }
+
+    public int getTestPort(int num)
+    {
+        return getTestPort(_communicator.getProperties(), num);
+    }
+
+    static public int getTestPort(Ice.Properties properties, int num)
+    {
+        return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
     private ClassLoader _classLoader;

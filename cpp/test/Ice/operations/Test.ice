@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,21 +19,21 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
-class MyClass;
+interface MyClass;
 
 struct AnotherStruct
 {
     string s;
-};
+}
 
 struct Structure
 {
     MyClass* p;
     MyEnum e;
     AnotherStruct s;
-};
+}
 
 sequence<byte> ByteS;
 sequence<bool> BoolS;
@@ -64,7 +64,7 @@ struct MyStruct
 {
     int i;
     int j;
-};
+}
 
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;
@@ -92,11 +92,13 @@ dictionary<string, DoubleS> StringDoubleSD;
 dictionary<string, StringS> StringStringSD;
 dictionary<MyEnum, MyEnumS> MyEnumMyEnumSD;
 
-exception SomeException {};
+exception SomeException {}
 
-class MyClass
+interface MyClass
 {
     void shutdown();
+
+    bool supportsCompress();
 
     void opVoid();
 
@@ -145,7 +147,6 @@ class MyClass
 
     LongSS opShortIntLongSS(ShortSS p1, IntSS p2, LongSS p3,
                             out ShortSS p4, out IntSS p5, out LongSS p6);
-
 
     DoubleSS opFloatDoubleSS(FloatSS p1, DoubleSS p2,
                              out FloatSS p3, out DoubleSS p4);
@@ -262,28 +263,28 @@ class MyClass
 
     ["marshaled-result"] StringStringD opMDict1();
     ["marshaled-result"] StringStringD opMDict2(StringStringD p1, out StringStringD p2);
-};
+}
 
 struct MyStruct1
 {
     string tesT; // Same name as the enclosing module
-    MyClass myClass; // Same name as an already defined class
+    MyClass* myClass; // Same name as an already defined class
     string myStruct1; // Same name as the enclosing struct
-};
+}
 
 class MyClass1
 {
     string tesT; // Same name as the enclosing module
-    MyClass myClass; // Same name as an already defined class
+    MyClass* myClass; // Same name as an already defined class
     string myClass1; // Same name as the enclosing class
-};
+}
 
-class MyDerivedClass extends MyClass
+interface MyDerivedClass extends MyClass
 {
     void opDerived();
     MyClass1 opMyClass1(MyClass1 opMyClass1);
     MyStruct1 opMyStruct1(MyStruct1 opMyStruct1);
-};
+}
 
 //
 // String literals
@@ -300,6 +301,8 @@ const string s7 = "\u05F0";                           // HEBREW LIGATURE YIDDISH
 const string s8 = "\U00010000";                       // LINEAR B SYLLABLE B008 A (U+10000)
 const string s9 = "\U0001F34C";                       // BANANA (U+1F34C)
 const string s10 = "\u0DA7";                          // Sinhala Letter Alpapraana Ttayanna
+const string s11 = "\xE2\x82\xac\342\202\254\342\x82\254"; // 3 euro signs (U+20AC) in UTF-8
+const string s12 = "\x5C101";                          // \101 (not an octal escape)
 
 const string sw0 = "\U0000005c";                      // backslash
 const string sw1 = "\U00000041";                      // A
@@ -314,22 +317,22 @@ const string sw9 = "\U0001F34C";                      // BANANA (U+1F34C)
 const string sw10 = "\U00000DA7";                     // Sinhala Letter Alpapraana Ttayanna
 
 /**
-\'	single quote	byte 0x27 in ASCII encoding
-\"	double quote	byte 0x22 in ASCII encoding
-\?	question mark	byte 0x3f in ASCII encoding
-\\	backslash	byte 0x5c in ASCII encoding
-\a	audible bell	byte 0x07 in ASCII encoding
-\b	backspace	byte 0x08 in ASCII encoding
-\f	form feed - new page	byte 0x0c in ASCII encoding
-\n	line feed - new line	byte 0x0a in ASCII encoding
-\r	carriage return	byte 0x0d in ASCII encoding
-\t	horizontal tab	byte 0x09 in ASCII encoding
-\v	vertical tab	byte 0x0b in ASCII encoding
+\'      single quote    byte 0x27 in ASCII encoding
+\"      double quote    byte 0x22 in ASCII encoding
+\?      question mark   byte 0x3f in ASCII encoding
+\\      backslash       byte 0x5c in ASCII encoding
+\a      audible bell    byte 0x07 in ASCII encoding
+\b      backspace       byte 0x08 in ASCII encoding
+\f      form feed - new page    byte 0x0c in ASCII encoding
+\n      line feed - new line    byte 0x0a in ASCII encoding
+\r      carriage return byte 0x0d in ASCII encoding
+\t      horizontal tab  byte 0x09 in ASCII encoding
+\v      vertical tab    byte 0x0b in ASCII encoding
 **/
 
-const string ss0 = "\'\"\?\\\a\b\f\n\r\t\v";
-const string ss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b";
-const string ss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b";
+const string ss0 = "\'\"\?\\\a\b\f\n\r\t\v\6";
+const string ss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b\u0006";
+const string ss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b\U00000006";
 
 const string ss3 = "\\\\U\\u\\"; /* \\U\u\  */
 const string ss4 = "\\\u0041\\"; /* \A\     */
@@ -382,21 +385,21 @@ const ["cpp:type:wstring"]string wsw9 = "\U0001F34C";                      // BA
 const ["cpp:type:wstring"]string wsw10 = "\U00000DA7";                     // Sinhala Letter Alpapraana Ttayanna
 
 /**
-\'	single quote	byte 0x27 in ASCII encoding
-\"	double quote	byte 0x22 in ASCII encoding
-\?	question mark	byte 0x3f in ASCII encoding
-\\	backslash	byte 0x5c in ASCII encoding
-\a	audible bell	byte 0x07 in ASCII encoding
-\b	backspace	byte 0x08 in ASCII encoding
-\f	form feed - new page	byte 0x0c in ASCII encoding
-\n	line feed - new line	byte 0x0a in ASCII encoding
-\r	carriage return	byte 0x0d in ASCII encoding
-\t	horizontal tab	byte 0x09 in ASCII encoding
-\v	vertical tab	byte 0x0b in ASCII encoding
+\'      single quote    byte 0x27 in ASCII encoding
+\"      double quote    byte 0x22 in ASCII encoding
+\?      question mark   byte 0x3f in ASCII encoding
+\\      backslash       byte 0x5c in ASCII encoding
+\a      audible bell    byte 0x07 in ASCII encoding
+\b      backspace       byte 0x08 in ASCII encoding
+\f      form feed - new page    byte 0x0c in ASCII encoding
+\n      line feed - new line    byte 0x0a in ASCII encoding
+\r      carriage return byte 0x0d in ASCII encoding
+\t      horizontal tab  byte 0x09 in ASCII encoding
+\v      vertical tab    byte 0x0b in ASCII encoding
 **/
-const ["cpp:type:wstring"]string wss0 = "\'\"\?\\\a\b\f\n\r\t\v";
-const ["cpp:type:wstring"]string wss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b";
-const ["cpp:type:wstring"]string wss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b";
+const ["cpp:type:wstring"]string wss0 = "\'\"\?\\\a\b\f\n\r\t\v\6";
+const ["cpp:type:wstring"]string wss1 = "\u0027\u0022\u003f\u005c\u0007\u0008\u000c\u000a\u000d\u0009\u000b\u0006";
+const ["cpp:type:wstring"]string wss2 = "\U00000027\U00000022\U0000003f\U0000005c\U00000007\U00000008\U0000000c\U0000000a\U0000000d\U00000009\U0000000b\U00000006";
 
 const ["cpp:type:wstring"]string wss3 = "\\\\U\\u\\"; /* \\U\u\  */
 const ["cpp:type:wstring"]string wss4 = "\\\u0041\\"; /* \A\     */
@@ -420,4 +423,19 @@ const ["cpp:type:wstring"]string wsu0 = "ĨŸÿĀἀ𐆔𐅪𐆘🍀🍁🍂🍃
 const ["cpp:type:wstring"]string wsu1 = "\u0128\u0178\u00FF\u0100\u1F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 const ["cpp:type:wstring"]string wsu2 = "\U00000128\U00000178\U000000FF\U00000100\U00001F00\U00010194\U0001016A\U00010198\U0001F340\U0001F341\U0001F342\U0001F343";
 
-};
+}
+
+module Test2
+{
+
+/**
+ *
+ * Makes sure that proxy operations are correctly generated when extending an interface from
+ * a different module (ICE-7639).
+ *
+ **/
+interface MyDerivedClass extends Test::MyClass
+{
+}
+
+}

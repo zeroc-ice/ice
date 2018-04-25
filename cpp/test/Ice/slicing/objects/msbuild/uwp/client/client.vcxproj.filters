@@ -1,0 +1,162 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\..\AllTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\Client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\Test.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Debug\Test.cpp">
+      <Filter>Source Files\ARM\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Test.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Test.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Release\Test.cpp">
+      <Filter>Source Files\ARM\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Test.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ClientPrivate.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Debug\ClientPrivate.cpp">
+      <Filter>Source Files\ARM\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ClientPrivate.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ClientPrivate.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Release\ClientPrivate.cpp">
+      <Filter>Source Files\ARM\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ClientPrivate.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{018b42bd-0e54-4809-aa0f-ed9a99549c2f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{ebf72243-0068-45d4-b34b-a32381a65cb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice Files">
+      <UniqueIdentifier>{e1f48491-97df-4c68-9a30-9d54db11c2e3}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Win32">
+      <UniqueIdentifier>{6287df3e-a1c5-41ea-87a2-bc4c63681c31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Debug">
+      <UniqueIdentifier>{dc2eb5a8-d4f6-4f43-a152-f7d89c80e116}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32">
+      <UniqueIdentifier>{f92551a4-a61d-4c75-87a5-1f1afa5da9b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Debug">
+      <UniqueIdentifier>{4eb15042-9d06-4c9e-9912-d8e2d85b700e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM">
+      <UniqueIdentifier>{c0828946-a43e-4b30-a460-ecbe98bbe38d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Debug">
+      <UniqueIdentifier>{7ec67956-5fff-4971-8095-8d15539912bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM">
+      <UniqueIdentifier>{a6c72cf7-d607-4a55-a7aa-ea9707f20eaf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Debug">
+      <UniqueIdentifier>{05aa2c6a-7653-4d3d-a0e5-c14ffb324136}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64">
+      <UniqueIdentifier>{84b72ace-981e-40c5-a025-b5eeeea22f88}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Debug">
+      <UniqueIdentifier>{4eb8d5c3-15b8-40c1-ae34-6ed4cfe46e2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64">
+      <UniqueIdentifier>{6fb7b9b0-b8c0-4e02-b908-2925291c4fb9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Debug">
+      <UniqueIdentifier>{8866f4d3-7d58-4db6-956a-e76a0b7bb887}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Release">
+      <UniqueIdentifier>{33096b31-fe2e-4b60-a894-49b9937099fc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Release">
+      <UniqueIdentifier>{a0889403-4366-4e6b-8c52-82285e0ce60b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Release">
+      <UniqueIdentifier>{b189bcaf-04d7-4934-a216-db581bfcb6d0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Release">
+      <UniqueIdentifier>{dc2102b8-4a5b-45bd-abda-62d0f58e44e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Release">
+      <UniqueIdentifier>{f3c60666-3de1-4b52-b4ea-57d3fa562c60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Release">
+      <UniqueIdentifier>{70527ae1-6744-4dfc-a785-b039e4a07589}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Win32\Debug\Test.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ARM\Debug\Test.h">
+      <Filter>Header Files\ARM\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\Test.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\Test.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="ARM\Release\Test.h">
+      <Filter>Header Files\ARM\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\Test.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Debug\ClientPrivate.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ARM\Debug\ClientPrivate.h">
+      <Filter>Header Files\ARM\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\ClientPrivate.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\ClientPrivate.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="ARM\Release\ClientPrivate.h">
+      <Filter>Header Files\ARM\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\ClientPrivate.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\ClientPrivate.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\Test.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+  </ItemGroup>
+</Project>

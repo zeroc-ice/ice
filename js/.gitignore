@@ -1,9 +1,8 @@
-bower_components
 lib
 node_modules
 npm-debug.log
 server-languages.json
-# Licnese files which are coppied in during prepublish
+# License files which are copied in during prepublish
 ICE_LICENSE
 LICENSE
 
@@ -16,5 +15,4 @@ src/es5/IceGrid
 src/es5/IceMX
 src/es5/IceSSL
 src/es5/IceStorm
-test/Glacier2/es5/
-test/Ice/es5/
+test/es5

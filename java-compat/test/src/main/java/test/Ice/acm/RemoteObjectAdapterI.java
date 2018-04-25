@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ public class RemoteObjectAdapterI extends _RemoteObjectAdapterDisp
     {
         return _testIntf;
     }
-    
+
     public void activate(Ice.Current current)
     {
         _adapter.activate();

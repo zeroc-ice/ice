@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -62,9 +62,9 @@
 @implementation ICECommunicator
 -(void)setup:(ICEInitializationData*)initData
 {
-    if(initData.prefixTable__)
+    if(initData.prefixTable_)
     {
-        prefixTable_ = [initData.prefixTable__ retain];
+        prefixTable_ = [initData.prefixTable_ retain];
     }
     else
     {
@@ -179,7 +179,7 @@
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->stringToProxy(fromNSString(str))];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->stringToProxy(fromNSString(str))];
     }
     catch(const std::exception& ex)
     {
@@ -194,7 +194,7 @@
     NSException* nsex = nil;
     try
     {
-        return [toNSMutableString(COMMUNICATOR->proxyToString([(ICEObjectPrx*)obj objectPrx__])) autorelease];
+        return [toNSMutableString(COMMUNICATOR->proxyToString([(ICEObjectPrx*)obj iceObjectPrx])) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -209,7 +209,7 @@
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->propertyToProxy(fromNSString(property))];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->propertyToProxy(fromNSString(property))];
     }
     catch(const std::exception& ex)
     {
@@ -224,7 +224,7 @@
     NSException* nsex = nil;
     try
     {
-        return [toNSDictionary(COMMUNICATOR->proxyToProperty([(ICEObjectPrx*)prx objectPrx__],
+        return [toNSDictionary(COMMUNICATOR->proxyToProperty([(ICEObjectPrx*)prx iceObjectPrx],
                                                              fromNSString(property))) autorelease];
     }
     catch(const std::exception& ex)
@@ -242,7 +242,17 @@
 
 -(NSMutableString*) identityToString:(ICEIdentity*)ident
 {
-    return [ICEUtil identityToString:ident];
+    NSException* nsex = nil;
+    try
+    {
+        return [toNSMutableString(COMMUNICATOR->identityToString([ident identity])) autorelease];
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
+    return nil; // Keep the compiler happy.
 }
 
 -(id<ICEObjectAdapter>) createObjectAdapter:(NSString*)name;
@@ -286,7 +296,7 @@
     NSException* nsex = nil;
     try
     {
-        Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr objectPrx__]));
+        Ice::RouterPrx router = Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr iceObjectPrx]));
         ICEObjectAdapter* adapter = [ICEObjectAdapter localObjectWithCxxObject:
                                                           COMMUNICATOR->createObjectAdapterWithRouter(
                                                               fromNSString(name), router).get()];
@@ -372,7 +382,7 @@
     NSException* nsex = nil;
     try
     {
-        return (id<ICERouterPrx>)[ICERouterPrx objectPrxWithObjectPrx__:COMMUNICATOR->getDefaultRouter()];
+        return (id<ICERouterPrx>)[ICERouterPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->getDefaultRouter()];
     }
     catch(const std::exception& ex)
     {
@@ -387,7 +397,7 @@
     NSException* nsex = nil;
     try
     {
-        COMMUNICATOR->setDefaultRouter(Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr objectPrx__])));
+        COMMUNICATOR->setDefaultRouter(Ice::RouterPrx::uncheckedCast(Ice::ObjectPrx([(ICEObjectPrx*)rtr iceObjectPrx])));
     }
     catch(const std::exception& ex)
     {
@@ -404,7 +414,7 @@
     NSException* nsex = nil;
     try
     {
-        return (id<ICELocatorPrx>)[ICELocatorPrx objectPrxWithObjectPrx__:COMMUNICATOR->getDefaultLocator()];
+        return (id<ICELocatorPrx>)[ICELocatorPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->getDefaultLocator()];
     }
     catch(const std::exception& ex)
     {
@@ -420,7 +430,7 @@
     try
     {
         COMMUNICATOR->setDefaultLocator(Ice::LocatorPrx::uncheckedCast(
-                                            Ice::ObjectPrx([(ICEObjectPrx*)loc objectPrx__])));
+                                            Ice::ObjectPrx([(ICEObjectPrx*)loc iceObjectPrx])));
     }
     catch(const std::exception& ex)
     {
@@ -435,12 +445,12 @@
 {
     @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
 }
--(void) flushBatchRequests
+-(void) flushBatchRequests:(ICECompressBatch)compress
 {
     NSException* nsex = nil;
     try
     {
-        COMMUNICATOR->flushBatchRequests();
+        COMMUNICATOR->flushBatchRequests((Ice::CompressBatch)compress);
     }
     catch(const std::exception& ex)
     {
@@ -451,22 +461,24 @@
         @throw nsex;
     }
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result)
                         {
-                            result = COMMUNICATOR->begin_flushBatchRequests();
+                            result = COMMUNICATOR->begin_flushBatchRequests((Ice::CompressBatch)compress);
                         });
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress exception:(void(^)(ICEException*))exception
 {
-    return [self begin_flushBatchRequests:exception sent:nil];
+    return [self begin_flushBatchRequests:compress exception:exception sent:nil];
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress
+                                     exception:(void(^)(ICEException*))exception
+                                          sent:(void(^)(BOOL))sent
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb)
                         {
-                            result = COMMUNICATOR->begin_flushBatchRequests(cb);
+                            result = COMMUNICATOR->begin_flushBatchRequests((Ice::CompressBatch)compress, cb);
                         },
                         ^(const Ice::AsyncResultPtr& result) {
                             COMMUNICATOR->end_flushBatchRequests(result);
@@ -486,7 +498,7 @@
     try
     {
         Ice::ObjectAdapterPtr adminAdapter = [(ICEObjectAdapter*)adapter adapter];
-        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->createAdmin(adminAdapter, [adminId identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->createAdmin(adminAdapter, [adminId identity])];
     }
     catch(const std::exception& ex)
     {
@@ -499,7 +511,7 @@
     NSException* nsex;
     try
     {
-        return [ICEObjectPrx objectPrxWithObjectPrx__:COMMUNICATOR->getAdmin()];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:COMMUNICATOR->getAdmin()];
     }
     catch(const std::exception& ex)
     {
@@ -512,7 +524,7 @@
     NSException* nsex;
     try
     {
-        COMMUNICATOR->addAdminFacet([servant object__], fromNSString(facet));
+        COMMUNICATOR->addAdminFacet([servant iceObject], fromNSString(facet));
         @synchronized(adminFacets_)
         {
             [adminFacets_ setObject:servant forKey:facet];
@@ -534,7 +546,7 @@
         {
             [adminFacets_ removeObjectForKey:facet];
         }
-        return toObjC(COMMUNICATOR->removeAdminFacet(fromNSString(facet)));
+        return [toObjC(COMMUNICATOR->removeAdminFacet(fromNSString(facet))) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -552,14 +564,14 @@
             ICEObject* obj = [adminFacets_ objectForKey:facet];
             if(obj != nil)
             {
-                return obj;
+                return [[obj retain] autorelease];
             }
             obj = toObjC(COMMUNICATOR->findAdminFacet(fromNSString(facet)));
             if(obj != nil)
             {
                 [adminFacets_ setObject:obj forKey:facet];
             }
-            return obj;
+            return [obj autorelease];
         }
     }
     catch(const std::exception& ex)
@@ -578,7 +590,7 @@
         {
             [adminFacets_ addEntriesFromDictionary:facetMap];
         }
-        return facetMap;
+        return [facetMap autorelease];
     }
     catch(const std::exception& ex)
     {

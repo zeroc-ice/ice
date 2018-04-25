@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,42 +21,42 @@ module Test
 class SBase
 {
     string sb;
-};
+}
 
 class SBSKnownDerived extends SBase
 {
     string sbskd;
-};
+}
 
 class B
 {
     string sb;
     B pb;
-};
+}
 
 class D1 extends B
 {
     string sd1;
     B pd1;
-};
+}
 
 sequence<B> BSeq;
 
 class SS1
 {
     BSeq s;
-};
+}
 
 class SS2
 {
     BSeq s;
-};
+}
 
 struct SS3
 {
     SS1 c1;
     SS2 c2;
-};
+}
 
 dictionary<int, B> BDict;
 
@@ -64,20 +64,20 @@ exception BaseException
 {
     string sbe;
     B pb;
-};
+}
 
 exception DerivedException extends BaseException
 {
     string sde;
     D1 pd1;
-};
+}
 
 class Forward;
 
 class PBase
 {
     int pi;
-};
+}
 
 sequence<PBase> PBaseSeq;
 
@@ -85,28 +85,28 @@ sequence<PBase> PBaseSeq;
 class Preserved extends PBase
 {
     string ps;
-};
+}
 
 class PDerived extends Preserved
 {
     PBase pb;
-};
+}
 
 class CompactPDerived(56) extends Preserved
 {
     PBase pb;
-};
+}
 
 ["preserve-slice"]
 class PNode
 {
     PNode next;
-};
+}
 
 ["preserve-slice"]
 exception PreservedException
 {
-};
+}
 
 ["format:sliced"]
 interface TestIntf
@@ -164,7 +164,7 @@ interface TestIntf
     void useForward(out Forward f); /* Use of forward-declared class to verify that code is generated correctly. */
 
     void shutdown();
-};
+}
 
 //
 // Types private to the server.
@@ -173,61 +173,62 @@ interface TestIntf
 class SBSUnknownDerived extends SBase
 {
     string sbsud;
-};
+}
 
 class SUnknown
 {
     string su;
-};
+    SUnknown cycle;
+}
 
 class D2 extends B
 {
     string sd2;
     B pd2;
-};
+}
 
 class D4 extends B
 {
     B p1;
     B p2;
-};
+}
 
 exception UnknownDerivedException extends BaseException
 {
     string sude;
     D2 pd2;
-};
+}
 
 class MyClass
 {
     int i;
-};
+}
 
 class PSUnknown extends Preserved
 {
     string psu;
     PNode graph;
     MyClass cl;
-};
+}
 
 class PSUnknown2 extends Preserved
 {
     PBase pb;
-};
+}
 
 exception PSUnknownException extends PreservedException
 {
     PSUnknown2 p;
-};
+}
 
 class Hidden
 {
     Forward f;
-};
+}
 
 class Forward
 {
     Hidden h;
-};
+}
 
-};
+}

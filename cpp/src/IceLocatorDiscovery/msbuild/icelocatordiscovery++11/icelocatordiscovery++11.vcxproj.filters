@@ -77,9 +77,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\PluginI.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp11\Win32\Debug\IceLocatorDiscovery\IceLocatorDiscovery.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -92,10 +89,16 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp11\x64\Release\IceLocatorDiscovery\IceLocatorDiscovery.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Plugin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice">
+    <SliceCompile Include="..\..\..\..\..\slice\IceLocatorDiscovery\IceLocatorDiscovery.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
+    </SliceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

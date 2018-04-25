@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,11 +10,15 @@
 #include <Ice/Ice.h>
 #include <TestCommon.h>
 #include <Test.h>
-#include <stdexcept>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
+// Work-around for strange VS2017 15.5 optimizer bug, see ICE-8611
+#   pragma optimize("g", off)
+#endif
 
 void
 testExceptions(const TestIntfPrxPtr& obj)
@@ -214,6 +218,11 @@ testExceptions(const TestIntfPrxPtr& obj)
     }
 }
 
+#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
+// See above
+#   pragma optimize("g", on)
+#endif
+
 TestIntfPrxPtr
 allTests(const CommunicatorPtr& communicator)
 {
@@ -372,4 +381,3 @@ allTests(const CommunicatorPtr& communicator)
     }
     return obj;
 }
-

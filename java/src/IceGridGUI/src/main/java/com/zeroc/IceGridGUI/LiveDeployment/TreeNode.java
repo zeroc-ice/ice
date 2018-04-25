@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -64,7 +64,10 @@ public abstract class TreeNode extends TreeNodeBase
     public static final int ENABLE_METRICS_VIEW = 21;
     public static final int DISABLE_METRICS_VIEW = 22;
 
-    public static final int ACTION_COUNT = 23;
+    public static final int START_ALL_SERVERS = 23;
+    public static final int STOP_ALL_SERVERS = 24;
+
+    public static final int ACTION_COUNT = 25;
 
     public boolean[] getAvailableActions()
     {
@@ -127,12 +130,18 @@ public abstract class TreeNode extends TreeNodeBase
     {
         assert false;
     }
-
     public void enableMetricsView(boolean enabled)
     {
         assert false;
     }
-
+    public void startAllServers()
+    {
+        assert false;
+    }
+    public void stopAllServers()
+    {
+        assert false;
+    }
     public void clearShowIceLogDialog()
     {
         assert false;
@@ -167,7 +176,7 @@ public abstract class TreeNode extends TreeNodeBase
         SwingUtilities.invokeLater(() -> success(prefix, detail));
     }
 
-    protected void amiFailure(String prefix, String title, com.zeroc.Ice.UserException e)
+    protected void amiFailure(String prefix, String title, Throwable e)
     {
         if(e instanceof com.zeroc.IceGrid.ServerNotExistException)
         {
@@ -217,7 +226,7 @@ public abstract class TreeNode extends TreeNodeBase
         }
         else
         {
-            amiFailure(prefix, title, e.toString());
+            amiFailure(prefix, title, title + ":\n" + e.toString());
         }
     }
 

@@ -105,6 +105,10 @@
     <ClCompile Include="..\..\..\..\cpp\src\Slice\Checksum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\cpp\src\Slice\StringLiteralUtil.cpp" />
+    <ClCompile Include="..\Dispatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\BatchRequestInterceptor.h">
@@ -165,6 +169,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\PropertiesAdmin.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Dispatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

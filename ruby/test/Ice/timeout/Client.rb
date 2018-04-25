@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -25,9 +25,7 @@ def test(b)
 end
 
 def run(args, communicator)
-    myClass = allTests(communicator)
-
-    myClass.shutdown()
+    allTests(communicator)
     return true
 end
 
@@ -38,12 +36,6 @@ begin
     #
     initData = Ice::InitializationData.new
     initData.properties = Ice.createProperties(ARGV)
-
-    #
-    # We need to send messages large enough to cause the transport
-    # buffers to fill up.
-    #
-    initData.properties.setProperty("Ice.MessageSizeMax", "10000");
 
     #
     # For this test, we want to disable retries.
@@ -70,13 +62,7 @@ rescue => ex
 end
 
 if communicator
-    begin
-        communicator.destroy()
-    rescue => ex
-        puts $!
-        print ex.backtrace.join("\n")
-        status = false
-    end
+    communicator.destroy()
 end
 
 exit(status ? 0 : 1)

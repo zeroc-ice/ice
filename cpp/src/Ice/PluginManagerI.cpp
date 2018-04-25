@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -73,9 +73,7 @@ Ice::PluginManagerI::initializePlugins()
 {
     if(_initialized)
     {
-        InitializationException ex(__FILE__, __LINE__);
-        ex.reason = "plug-ins already initialized";
-        throw ex;
+        throw InitializationException(__FILE__, __LINE__, "plug-ins already initialized");
     }
 
     //
@@ -133,7 +131,7 @@ Ice::PluginManagerI::initializePlugins()
 }
 
 StringSeq
-Ice::PluginManagerI::getPlugins()
+Ice::PluginManagerI::getPlugins() ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -161,10 +159,7 @@ Ice::PluginManagerI::getPlugin(const string& name)
         return p;
     }
 
-    NotRegisteredException ex(__FILE__, __LINE__);
-    ex.kindOfObject = _kindOfObject;
-    ex.id = name;
-    throw ex;
+    throw NotRegisteredException(__FILE__, __LINE__, _kindOfObject, name);
 }
 
 void
@@ -179,10 +174,7 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
 
     if(findPlugin(name))
     {
-        AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = _kindOfObject;
-        ex.id = name;
-        throw ex;
+        throw AlreadyRegisteredException(__FILE__, __LINE__, _kindOfObject, name);
     }
 
     PluginInfo info;
@@ -192,7 +184,7 @@ Ice::PluginManagerI::addPlugin(const string& name, const PluginPtr& plugin)
 }
 
 void
-Ice::PluginManagerI::destroy()
+Ice::PluginManagerI::destroy() ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -249,7 +241,7 @@ Ice::PluginManagerI::PluginManagerI(const CommunicatorPtr& communicator, const D
 }
 
 void
-Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
+Ice::PluginManagerI::loadPlugins(int& argc, const char* argv[])
 {
     assert(_communicator);
 
@@ -311,9 +303,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
 
         if(findPlugin(name))
         {
-            PluginInitializationException ex(__FILE__, __LINE__);
-            ex.reason = "plug-in `" + name + "' already loaded";
-            throw ex;
+            throw PluginInitializationException(__FILE__, __LINE__, "plug-in `" + name + "' already loaded");
         }
 
         string property = prefix + name;
@@ -334,9 +324,7 @@ Ice::PluginManagerI::loadPlugins(int& argc, char* argv[])
         }
         else
         {
-            PluginInitializationException ex(__FILE__, __LINE__);
-            ex.reason = "plug-in `" + name + "' not defined";
-            throw ex;
+            throw PluginInitializationException(__FILE__, __LINE__, "plug-in `" + name + "' not defined");
         }
     }
 
@@ -417,9 +405,8 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         }
         catch(const IceUtilInternal::BadOptException& ex)
         {
-            PluginInitializationException e(__FILE__, __LINE__);
-            e.reason = "invalid arguments for plug-in `" + name + "':\n" + ex.reason;
-            throw e;
+            throw PluginInitializationException(__FILE__, __LINE__, "invalid arguments for plug-in `" + name + "':\n" +
+                                                ex.reason);
         }
 
         assert(!args.empty());
@@ -468,16 +455,14 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
         DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint);
         if(sym == 0)
         {
-            ostringstream out;
+            ostringstream os;
             string msg = library->getErrorMessage();
-            out << "unable to load entry point `" << entryPoint << "'";
+            os << "unable to load entry point `" << entryPoint << "'";
             if(!msg.empty())
             {
-                out << ": " + msg;
+                os << ": " + msg;
             }
-            PluginInitializationException ex(__FILE__, __LINE__);
-            ex.reason = out.str();
-            throw ex;
+            throw PluginInitializationException(__FILE__, __LINE__, os.str());
         }
 
 #ifdef __IBMCPP__
@@ -495,11 +480,7 @@ Ice::PluginManagerI::loadPlugin(const string& name, const string& pluginSpec, St
     PluginPtr plugin(factory(_communicator, name, args));
     if(!plugin)
     {
-        PluginInitializationException e(__FILE__, __LINE__);
-        ostringstream out;
-        out << "failure in entry point `" << entryPoint << "'";
-        e.reason = out.str();
-        throw e;
+        throw PluginInitializationException(__FILE__, __LINE__, "failure in entry point `" + entryPoint + "'");
     }
 
     PluginInfo info;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadFactory;
 public final class Util
 {
     static String
-    createThreadName(final com.zeroc.Ice.Properties properties, final String name) 
+    createThreadName(final com.zeroc.Ice.Properties properties, final String name)
     {
         String threadName = properties.getProperty("Ice.ProgramName");
         if(threadName.length() > 0)
@@ -27,7 +27,7 @@ public final class Util
     }
 
     static ThreadFactory
-    createThreadFactory(final com.zeroc.Ice.Properties properties, final String name) 
+    createThreadFactory(final com.zeroc.Ice.Properties properties, final String name)
     {
         return new java.util.concurrent.ThreadFactory()
         {
@@ -227,45 +227,6 @@ public final class Util
         {
         }
         return java.lang.Thread.NORM_PRIORITY;
-    }
-
-    //
-    // Translate a Slice type id (such as "::Module::Type") into its equivalent
-    // Java class name (such as "Module.Type").
-    //
-    public static String typeIdToClassName(String typeId)
-    {
-        if(!typeId.startsWith("::"))
-        {
-            return null;
-        }
-
-        StringBuilder buf = new StringBuilder(typeId.length());
-
-        int start = 2;
-        boolean done = false;
-        while(!done)
-        {
-            int end = typeId.indexOf(':', start);
-            String s;
-            if(end != -1)
-            {
-                s = typeId.substring(start, end);
-                start = end + 2;
-            }
-            else
-            {
-                s = typeId.substring(start);
-                done = true;
-            }
-            if(buf.length() > 0)
-            {
-                buf.append('.');
-            }
-            buf.append(fixKwd(s));
-        }
-
-        return buf.toString();
     }
 
     private static String fixKwd(String name)

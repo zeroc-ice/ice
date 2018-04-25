@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -55,7 +55,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     // ensures that our state is not modified if this operation results
     // in a rejection.
     //
-    ObjectProxySeq proxies; 
+    ObjectProxySeq proxies;
     for(ObjectProxySeq::const_iterator prx = unfiltered.begin(); prx != unfiltered.end(); ++prx)
     {
         if(!*prx) // We ignore null proxies.
@@ -65,7 +65,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
 
         if(!_verifier->verify(*prx))
         {
-            current.con->close(true);
+            current.con->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
         ObjectPrx proxy = (*prx)->ice_twoway()->ice_secure(false)->ice_facet(""); // We add proxies in default form.
@@ -77,7 +77,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     {
         ObjectPrx proxy = *prx;
         EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
-        
+
         if(p == _map.end())
         {
             if(_traceLevel == 1 || _traceLevel >= 3)
@@ -85,7 +85,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "adding proxy to routing table:\n" << _communicator->proxyToString(proxy);
             }
-            
+
             EvictorEntryPtr entry = new EvictorEntry;
             p = _map.insert(_map.begin(), pair<const Identity, EvictorEntryPtr>(proxy->ice_getIdentity(), entry));
             EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
@@ -99,23 +99,23 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "proxy already in routing table:\n" << _communicator->proxyToString(proxy);
             }
-            
+
             EvictorEntryPtr entry = p->second;
             _queue.erase(entry->pos);
             EvictorQueue::iterator q = _queue.insert(_queue.end(), p);
             entry->pos = q;
         }
-        
+
         while(static_cast<int>(_map.size()) > _maxSize)
         {
             p = _queue.front();
-            
+
             if(_traceLevel >= 2)
             {
                 Trace out(_communicator->getLogger(), "Glacier2");
                 out << "evicting proxy from routing table:\n" << _communicator->proxyToString(p->second->proxy);
             }
-            
+
             evictedProxies.push_back(p->second->proxy);
 
             _map.erase(p);

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,12 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "js:ice-build", "python:pkgdir:IceGrid"]]
+
+#ifndef ICE_BUILDING_ICEGRIDDB
+[["cpp:dll-export:ICEGRID_API", "objc:dll-export:ICEGRID_API"]]
+#endif
+
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Identity.ice>
@@ -36,7 +41,7 @@ exception ApplicationNotExistException
      *
      **/
     string name;
-};
+}
 
 /**
  *
@@ -51,7 +56,7 @@ exception ServerNotExistException
      *
      */
     string id;
-};
+}
 
 /**
  *
@@ -73,7 +78,7 @@ exception ServerStartException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -95,7 +100,7 @@ exception ServerStopException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -110,7 +115,7 @@ exception AdapterNotExistException
      *
      **/
     string id;
-};
+}
 
 /**
  *
@@ -125,7 +130,7 @@ exception ObjectExistsException
      *
      **/
     Ice::Identity id;
-};
+}
 
 /**
  *
@@ -140,7 +145,7 @@ exception ObjectNotRegisteredException
      *
      **/
     Ice::Identity id;
-};
+}
 
 /**
  *
@@ -155,7 +160,7 @@ exception NodeNotExistException
      *
      **/
     string name;
-};
+}
 
 /**
  *
@@ -170,7 +175,7 @@ exception RegistryNotExistException
      *
      **/
     string name;
-};
+}
 
 /**
  *
@@ -185,7 +190,7 @@ exception DeploymentException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -207,7 +212,7 @@ exception NodeUnreachableException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -229,8 +234,7 @@ exception ServerUnreachableException
      *
      **/
     string reason;
-};
-
+}
 
 /**
  *
@@ -252,7 +256,7 @@ exception RegistryUnreachableException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -268,7 +272,7 @@ exception BadSignalException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -283,7 +287,7 @@ exception PatchException
      *
      **/
     Ice::StringSeq reasons;
-};
+}
 
 /**
  *
@@ -299,7 +303,7 @@ exception AccessDeniedException
      *
      **/
     string lockUserId;
-};
+}
 
 /**
  *
@@ -314,7 +318,7 @@ exception AllocationException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -324,7 +328,7 @@ exception AllocationException
  **/
 exception AllocationTimeoutException extends AllocationException
 {
-};
+}
 
 /**
  *
@@ -340,7 +344,7 @@ exception PermissionDeniedException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
@@ -359,7 +363,7 @@ exception ObserverAlreadyRegisteredException
      *
      **/
     Ice::Identity id;
-};
+}
 
 /**
  *
@@ -381,7 +385,6 @@ exception FileNotAvailableException
      *
      **/
     string reason;
-};
+}
 
-
-};
+}

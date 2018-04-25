@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,6 +21,7 @@ import com.zeroc.Ice.Connection;
 import com.zeroc.Ice.LocalException;
 import com.zeroc.Ice.Util;
 import com.zeroc.Ice.InvocationFuture;
+import com.zeroc.Ice.CompressBatch;
 
 import test.Ice.interrupt.Test.CannotInterruptException;
 import test.Ice.interrupt.Test.TestIntfControllerPrx;
@@ -86,13 +87,13 @@ public class AllTests
     {
         com.zeroc.Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
-        String sref = "test:default -p 12010";
+        String sref = "test:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         final TestIntfPrx p = TestIntfPrx.uncheckedCast(obj);
 
-        sref = "testController:tcp -p 12011";
+        sref = "testController:" + app.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -151,22 +152,18 @@ public class AllTests
             cb.check();
 
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        Thread.sleep(500);
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    mainThread.interrupt();
-                }
-            });
-
+            executor.submit(() ->
+                            {
+                                try
+                                {
+                                    Thread.sleep(500);
+                                }
+                                catch(InterruptedException e)
+                                {
+                                    test(false);
+                                }
+                                mainThread.interrupt();
+                            });
             try
             {
                 test(!mainThread.isInterrupted());
@@ -182,22 +179,18 @@ public class AllTests
                 test(false);
             }
 
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        Thread.sleep(500);
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    mainThread.interrupt();
-                }
-            });
-
+            executor.submit(() ->
+                            {
+                                try
+                                {
+                                    Thread.sleep(500);
+                                }
+                                catch(InterruptedException e)
+                                {
+                                    test(false);
+                                }
+                                mainThread.interrupt();
+                            });
             try
             {
                 test(!mainThread.isInterrupted());
@@ -213,22 +206,18 @@ public class AllTests
                 // Expected
             }
 
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        Thread.sleep(500);
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    mainThread.interrupt();
-                }
-            });
-
+            executor.submit(() ->
+                            {
+                                try
+                                {
+                                    Thread.sleep(500);
+                                }
+                                catch(InterruptedException e)
+                                {
+                                    test(false);
+                                }
+                                mainThread.interrupt();
+                            });
             try
             {
                 test(!mainThread.isInterrupted());
@@ -271,27 +260,26 @@ public class AllTests
             // This section of the test doesn't run when collocated.
             if(p.ice_getConnection() != null)
             {
+
+                testController.holdAdapter();
+
                 //
                 // Test interrupt of waitForSent. Here hold the adapter and send a large payload. The
                 // thread is interrupted in 500ms which should result in a operation interrupted exception.
                 //
-                executor.submit(new Runnable() {
-                    @Override
-                    public void run()
-                    {
-                        try
-                        {
-                            Thread.sleep(500);
-                        }
-                        catch(InterruptedException e)
-                        {
-                            test(false);
-                        }
-                        mainThread.interrupt();
-                    }
-                });
+                executor.submit(() ->
+                                {
+                                    try
+                                    {
+                                        Thread.sleep(500);
+                                    }
+                                    catch(InterruptedException e)
+                                    {
+                                        test(false);
+                                    }
+                                    mainThread.interrupt();
+                                });
 
-                testController.holdAdapter();
                 CompletableFuture<Void> r = null;
                 InvocationFuture<Void> f = null;
 
@@ -336,7 +324,7 @@ public class AllTests
             {
                 final Thread mainThread = Thread.currentThread();
 
-                p.ice_getConnection().close(false);
+                p.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
                 CompletableFuture<com.zeroc.Ice.Connection> r = p.ice_getConnectionAsync();
                 mainThread.interrupt();
@@ -358,7 +346,7 @@ public class AllTests
                     // Expected
                 }
 
-                p.ice_getConnection().close(false);
+                p.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
 
                 final Callback cb = new Callback();
                 mainThread.interrupt();
@@ -435,7 +423,7 @@ public class AllTests
                 p2.op();
                 p2.op();
 
-                r = p2.ice_getConnection().flushBatchRequestsAsync();
+                r = p2.ice_getConnection().flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                 mainThread.interrupt();
                 try
                 {
@@ -462,7 +450,7 @@ public class AllTests
                 final Callback cb = new Callback();
                 com.zeroc.Ice.Connection con = p2.ice_getConnection();
                 mainThread.interrupt();
-                r = con.flushBatchRequestsAsync();
+                r = con.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
                 r.whenComplete((result, ex) -> test(ex == null));
                 Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                     {
@@ -486,7 +474,7 @@ public class AllTests
             p2.op();
             p2.op();
 
-            r = communicator.flushBatchRequestsAsync();
+            r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
             mainThread.interrupt();
             try
             {
@@ -512,7 +500,7 @@ public class AllTests
 
             final Callback cb = new Callback();
             mainThread.interrupt();
-            r = communicator.flushBatchRequestsAsync();
+            r = communicator.flushBatchRequestsAsync(CompressBatch.BasedOnProxy);
             r.whenComplete((result, ex) -> test(ex == null));
             Util.getInvocationFuture(r).whenSent((sentSynchronously, ex) ->
                 {
@@ -557,21 +545,18 @@ public class AllTests
             final Callback cb = new Callback();
             final TestIntfPrx p2 = TestIntfPrx.checkedCast(o);
             final CountDownLatch waitSignal = new CountDownLatch(1);
-            executor.submit(new Runnable() {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        waitSignal.await();
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
-                    thread[0].interrupt();
-                }
-            });
+            executor.submit(() ->
+                            {
+                                try
+                                {
+                                    waitSignal.await();
+                                }
+                                catch(InterruptedException e)
+                                {
+                                    test(false);
+                                }
+                                thread[0].interrupt();
+                            });
             //
             // The whenComplete() action may be executed in the current thread (if the future is
             // already completed). We have to submit the runnable to the executor *before*
@@ -658,7 +643,7 @@ public class AllTests
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
             com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("ClientTestAdapter.Endpoints", "default -p 12030");
+            initData.properties.setProperty("ClientTestAdapter.Endpoints", "tcp -h *");
             com.zeroc.Ice.Communicator ic = app.initialize(initData);
             final com.zeroc.Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
             adapter.activate();
@@ -696,9 +681,7 @@ public class AllTests
                 // Expected.
             }
 
-            Runnable interruptMainThread = new Runnable() {
-                @Override
-                public void run()
+            Runnable interruptMainThread = () ->
                 {
                     try
                     {
@@ -709,8 +692,7 @@ public class AllTests
                         test(false);
                     }
                     mainThread.interrupt();
-                }
-            };
+                };
 
             executor.execute(interruptMainThread);
             try

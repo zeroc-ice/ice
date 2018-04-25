@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,6 +14,12 @@ final class EndpointFactory implements IceInternal.EndpointFactory
     {
         _configuration = configuration;
         _factory = factory;
+    }
+
+    @Override
+    public void
+    initialize()
+    {
     }
 
     @Override
@@ -58,7 +64,7 @@ final class EndpointFactory implements IceInternal.EndpointFactory
 
     @Override
     public IceInternal.EndpointFactory
-    clone(IceInternal.ProtocolInstance instance, IceInternal.EndpointFactory del)
+    clone(IceInternal.ProtocolInstance instance)
     {
         return this;
     }

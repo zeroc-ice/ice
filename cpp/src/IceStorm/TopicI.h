@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,7 +32,6 @@ class TopicImpl : public IceUtil::Shared
 public:
 
     TopicImpl(const PersistentInstancePtr&, const std::string&, const Ice::Identity&, const SubscriberRecordSeq&);
-    ~TopicImpl();
 
     std::string getName() const;
     Ice::ObjectPrx getPublisher() const;

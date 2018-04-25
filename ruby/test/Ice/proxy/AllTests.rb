@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -355,7 +355,32 @@ def allTests(communicator)
     print "testing proxy methods... "
     STDOUT.flush
     test(communicator.identityToString(base.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()) == "other")
-    test(Ice::identityToString(base.ice_identity(Ice::stringToIdentity("other")).ice_getIdentity()) == "other")
+
+    #
+    # Verify that ToStringMode is passed correctly
+    #
+    ident = Ice::Identity.new("test", "\x7f\u20ac")
+
+    idStr = Ice::identityToString(ident, Ice::ToStringMode::Unicode)
+    test(idStr == "\\u007f\u20ac/test")
+    ident2 = Ice::stringToIdentity(idStr)
+    test(Ice::identityToString(ident) == idStr)
+
+    idStr = Ice::identityToString(ident, Ice::ToStringMode::ASCII)
+    test(idStr == "\\u007f\\u20ac/test")
+    ident2 = Ice::stringToIdentity(idStr)
+    test(ident.name == ident2.name)
+
+    test(ident.category == ident2.category)
+
+    idStr = Ice::identityToString(ident, Ice::ToStringMode::Compat)
+    test(idStr == "\\177\\342\\202\\254/test")
+    ident2 = Ice::stringToIdentity(idStr)
+    test(ident == ident2)
+
+    ident2 = Ice::stringToIdentity(communicator.identityToString(ident))
+    test(ident == ident2)
+
     test(base.ice_facet("facet").ice_getFacet() == "facet")
     test(base.ice_adapterId("id").ice_getAdapterId() == "id")
     test(base.ice_twoway().ice_isTwoway())
@@ -483,10 +508,18 @@ def allTests(communicator)
     #test(compObj.ice_compress(false) < compObj.ice_compress(true))
     #test(!(compObj.ice_compress(true) < compObj.ice_compress(false)))
 
+    test(compObj.ice_getCompress() == Ice::Unset);
+    test(compObj.ice_compress(true).ice_getCompress() == true);
+    test(compObj.ice_compress(false).ice_getCompress() == false);
+
     test(compObj.ice_timeout(20) == compObj.ice_timeout(20))
     test(compObj.ice_timeout(10) != compObj.ice_timeout(20))
     #test(compObj.ice_timeout(10) < compObj.ice_timeout(20))
     #test(!(compObj.ice_timeout(20) < compObj.ice_timeout(10)))
+
+    test(compObj.ice_getTimeout() == Ice::Unset);
+    test(compObj.ice_timeout(10).ice_getTimeout() == 10);
+    test(compObj.ice_timeout(20).ice_getTimeout() == 20);
 
     loc1 = Ice::LocatorPrx::uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"))
     loc2 = Ice::LocatorPrx::uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"))
@@ -569,9 +602,13 @@ def allTests(communicator)
     #test(compObj.ice_encodingVersion(Ice::Encoding_1_0) < compObj.ice_encodingVersion(Ice::Encoding_1_1))
     #test(! (compObj.ice_encodingVersion(Ice::Encoding_1_1) < compObj.ice_encodingVersion(Ice::Encoding_1_0)))
 
-    #
-    # TODO: Ideally we should also test comparison of fixed proxies.
-    #
+    baseConnection = base.ice_getConnection();
+    if(baseConnection != nil)
+        baseConnection2 = base.ice_connectionId("base2").ice_getConnection();
+        compObj1 = compObj1.ice_fixed(baseConnection);
+        compObj2 = compObj2.ice_fixed(baseConnection2);
+        test(compObj1 != compObj2);
+    end
 
     puts "ok"
 
@@ -613,6 +650,44 @@ def allTests(communicator)
     tccp = Test::MyClassPrx::checkedCast(base, c)
     c2 = tccp.getContext()
     test(c == c2)
+    puts "ok"
+
+    print "testing ice_fixed... "
+    STDOUT.flush
+    connection = cl.ice_getConnection()
+    if connection != nil
+        cl.ice_fixed(connection).getContext()
+        test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure())
+        test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet() == "facet")
+        test(cl.ice_oneway().ice_fixed(connection).ice_isOneway())
+        ctx = { }
+        ctx["one"] = "hello"
+        ctx["two"] =  "world"
+        test(cl.ice_fixed(connection).ice_getContext().length == 0);
+        test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().length == 2);
+        test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+        test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
+        test(cl.ice_fixed(connection).ice_getConnection() == connection)
+        test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection)
+        test(cl.ice_fixed(connection).ice_getTimeout() == Ice::Unset)
+        fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection()
+        test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection)
+        begin
+            cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+        rescue Ice::NoEndpointException
+        end
+        begin
+            cl.ice_datagram().ice_fixed(connection).ice_ping();
+        rescue Ice::NoEndpointException
+        end
+    else
+        begin
+            cl.ice_fixed(connection)
+            test(false)
+        rescue
+            # Expected with null connection.
+        end
+    end
     puts "ok"
 
     print "testing encoding versioning... "
@@ -783,6 +858,19 @@ def allTests(communicator)
         end
     end
     puts "ok"
+
+    print "testing communicator shutdown/destroy... "
+    STDOUT.flush
+    c = Ice::initialize();
+    c.shutdown();
+    test(c.isShutdown());
+    c.waitForShutdown();
+    c.destroy();
+    c.shutdown();
+    test(c.isShutdown());
+    c.waitForShutdown();
+    c.destroy();
+    puts "ok";
 
     return cl
 end

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,12 +18,14 @@ import test.Ice.objects.Test.D;
 import test.Ice.objects.Test.DHolder;
 import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
+import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.D1;
 import test.Ice.objects.Test.EDerived;
 import test.Ice.objects.Test.Base;
 import test.Ice.objects.Test.BaseSeqHolder;
+import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.Initial;
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
@@ -126,6 +128,18 @@ public final class InitialI extends Initial
     }
 
     @Override
+    public void
+    setRecursive(Recursive r, Ice.Current current)
+    {
+    }
+
+    @Override
+    public boolean supportsClassGraphDepthMax(Ice.Current current)
+    {
+        return false;
+    }
+
+    @Override
     public B
     getMB(Ice.Current current)
     {
@@ -159,19 +173,25 @@ public final class InitialI extends Initial
     {
         return new HI();
     }
-    
+
     @Override
     public D1
     getD1(D1 d1, Ice.Current current)
     {
         return d1;
     }
-    
+
     @Override
     public void
     throwEDerived(Ice.Current current) throws EDerived
     {
         throw new EDerived(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
+    }
+
+    @Override
+    public void
+    setG(G theG, Ice.Current current)
+    {
     }
 
     @Override

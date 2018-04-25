@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -294,7 +294,7 @@ public class AllTests
         response(Ice.Object o)
         {
             test(o instanceof Ice.UnknownSlicedValue);
-            test(((Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+            test(((Ice.UnknownSlicedValue)o).ice_id().equals("::Test::SUnknown"));
             callback.called();
         }
 
@@ -1319,11 +1319,14 @@ public class AllTests
     }
 
     public static TestIntfPrx
-    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
+    allTests(test.Util.Application app, boolean collocated)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "Test:default -p 12010 -t 10000";
+        String ref = "Test:" + app.getTestEndpoint(0) + " -t 10000";
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -1537,7 +1540,8 @@ public class AllTests
                 o = test.SUnknownAsObject();
                 test(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0));
                 test(o instanceof Ice.UnknownSlicedValue);
-                test(((Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+                test(((Ice.UnknownSlicedValue)o).ice_id().equals("::Test::SUnknown"));
+                test(((Ice.UnknownSlicedValue)o).ice_getSlicedData() != null);
                 test.checkSUnknown(o);
             }
             catch(Ice.NoValueFactoryException ex)
@@ -2468,7 +2472,7 @@ public class AllTests
                 int i;
                 for(i = 0; i < 10; ++i)
                 {
-                    String s = "D1." + new Integer(i).toString();
+                    String s = "D1." + Integer.valueOf(i).toString();
                     D1 d1 = new D1();
                     d1.sb = s;
                     d1.pb = d1;
@@ -2483,7 +2487,7 @@ public class AllTests
                 {
                     B b = boutH.value.get(i * 10);
                     test(b != null);
-                    String s = "D1." + new Integer(i).toString();
+                    String s = "D1." + Integer.valueOf(i).toString();
                     test(b.sb.equals(s));
                     test(b.pb != null);
                     test(b.pb != b);
@@ -2496,7 +2500,7 @@ public class AllTests
                 {
                     B b = r.get(i * 20);
                     test(b != null);
-                    String s = "D1." + new Integer(i * 20).toString();
+                    String s = "D1." + Integer.valueOf(i * 20).toString();
                     test(b.sb.equals(s));
                     test(b.pb == (i == 0 ? null : r.get((i - 1) * 20)));
                     D1 d1 = (D1)b;
@@ -2521,7 +2525,7 @@ public class AllTests
             int i;
             for(i = 0; i < 10; ++i)
             {
-                String s = "D1." + new Integer(i).toString();
+                String s = "D1." + Integer.valueOf(i).toString();
                 D1 d1 = new D1();
                 d1.sb = s;
                 d1.pb = d1;
@@ -2540,7 +2544,7 @@ public class AllTests
             {
                 B b = bout.get(i * 10);
                 test(b != null);
-                String s = "D1." + new Integer(i).toString();
+                String s = "D1." + Integer.valueOf(i).toString();
                 test(b.sb.equals(s));
                 test(b.pb != null);
                 test(b.pb != b);
@@ -2553,7 +2557,7 @@ public class AllTests
             {
                 B b = r.get(i * 20);
                 test(b != null);
-                String s = "D1." + new Integer(i * 20).toString();
+                String s = "D1." + Integer.valueOf(i * 20).toString();
                 test(b.sb.equals(s));
                 test(b.pb == (i == 0 ? null : r.get((i - 1) * 20)));
                 D1 d1 = (D1)b;
@@ -2895,7 +2899,15 @@ public class AllTests
             test.checkPBSUnknown(p);
             if(!test.ice_getEncodingVersion().equals(Ice.Util.Encoding_1_0))
             {
+                Ice.SlicedData slicedData = p.ice_getSlicedData();
+                test(slicedData != null);
+                test(slicedData.slices.length == 1);
+                test(slicedData.slices[0].typeId.equals("::Test::PSUnknown"));
                 ((TestIntfPrx)test.ice_encodingVersion(Ice.Util.Encoding_1_0)).checkPBSUnknown(p);
+            }
+            else
+            {
+                test(p.ice_getSlicedData() == null);
             }
         }
         catch(Ice.OperationNotExistException ex)

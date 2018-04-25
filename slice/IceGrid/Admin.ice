@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "js:ice-build", "python:pkgdir:IceGrid"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Identity.ice>
@@ -87,7 +87,7 @@ enum ServerState
      *
      **/
     Destroyed
-};
+}
 
 /**
  *
@@ -117,7 +117,7 @@ struct ObjectInfo
      *
      **/
     string type;
-};
+}
 
 /**
  *
@@ -155,7 +155,7 @@ struct AdapterInfo
      *
      **/
     string replicaGroupId;
-};
+}
 
 /**
  *
@@ -212,7 +212,7 @@ struct ServerInfo
      *
      **/
     string sessionId;
-};
+}
 
 /**
  *
@@ -279,7 +279,7 @@ struct NodeInfo
      *
      **/
     string dataDir;
-};
+}
 
 /**
  *
@@ -302,7 +302,7 @@ struct RegistryInfo
      *
      **/
     string hostname;
-};
+}
 
 /**
  *
@@ -326,7 +326,7 @@ struct LoadInfo
 
     /** The load average over the past 15 minutes. */
     float avg15;
-};
+}
 
 /**
  *
@@ -355,7 +355,7 @@ struct ApplicationInfo
 
     /** The application descriptor */
     ApplicationDescriptor descriptor;
-};
+}
 
 /**
  *
@@ -382,11 +382,11 @@ struct ApplicationUpdateInfo
 
     /** The update descriptor. */
     ApplicationUpdateDescriptor descriptor;
-};
+}
 
 /**
  *
- * The IceGrid administrative interface. </p>
+ * The IceGrid administrative interface.
  * <p class="Warning">Allowing access to this interface
  * is a security risk! Please see the IceGrid documentation
  * for further information.
@@ -454,7 +454,6 @@ interface Admin
     void updateApplication(ApplicationUpdateDescriptor descriptor)
         throws AccessDeniedException, DeploymentException, ApplicationNotExistException;
 
-
     /**
      *
      * Synchronize a deployed application with the given application
@@ -513,6 +512,8 @@ interface Admin
      * @throws AccessDeniedException Raised if the session doesn't
      * hold the exclusive lock or if another session is holding the
      * lock.
+     *
+     * @throws DeploymentException Raised if application deployment failed.
      *
      * @throws ApplicationNotExistException Raised if the application
      * doesn't exist.
@@ -583,6 +584,8 @@ interface Admin
     /**
      *
      * Get the default application descriptor.
+     *
+     * @return The default application descriptor.
      *
      * @throws DeploymentException Raised if the default application
      * descriptor can't be accessed or is invalid.
@@ -688,7 +691,6 @@ interface Admin
     idempotent Object* getServerAdmin(string id)
         throws ServerNotExistException, NodeUnreachableException, DeploymentException;
 
-
     /**
      *
      * Enable or disable a server. A disabled server can't be started
@@ -717,6 +719,8 @@ interface Admin
      * Check if the server is enabled or disabled.
      *
      * @param id The server id.
+     *
+     * @return True if the server is enabled.
      *
      * @throws ServerNotExistException Raised if the server doesn't
      * exist.
@@ -860,6 +864,8 @@ interface Admin
      * @throws AdapterNotExistException Raised if the adapter doesn't
      * exist.
      *
+     * @throws DeploymentException Raised if application deployment failed.
+     *
      **/
     void removeAdapter(string id)
         throws AdapterNotExistException, DeploymentException;
@@ -923,6 +929,8 @@ interface Admin
      *
      * @throws ObjectExistsException Raised if the object is already
      * registered.
+     *
+     * @throws DeploymentException Raised if application deployment failed.
      *
      **/
     void addObjectWithType(Object* obj, string type)
@@ -1038,7 +1046,6 @@ interface Admin
      **/
     ["nonmutating", "cpp:const"] idempotent NodeInfo getNodeInfo(string name)
         throws NodeNotExistException, NodeUnreachableException;
-
 
     /**
      *
@@ -1206,7 +1213,7 @@ interface Admin
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Ice::SliceChecksumDict getSliceChecksums();
-};
+}
 
 /**
  *
@@ -1244,7 +1251,7 @@ interface FileIterator
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -1280,7 +1287,7 @@ struct ServerDynamicInfo
      *
      **/
     bool enabled;
-};
+}
 
 /**
  *
@@ -1309,7 +1316,7 @@ struct AdapterDynamicInfo
      *
      **/
     Object* proxy;
-};
+}
 
 /**
  *
@@ -1345,7 +1352,7 @@ struct NodeDynamicInfo
      *
      **/
     AdapterDynamicInfoSeq adapters;
-};
+}
 
 /**
  *
@@ -1384,7 +1391,7 @@ interface RegistryObserver
      *
      **/
     void registryDown(string name);
-};
+}
 
 /**
  *
@@ -1455,7 +1462,7 @@ interface NodeObserver
      *
      **/
      void updateAdapter(string node, AdapterDynamicInfo updatedInfo);
-};
+}
 
 /**
  *
@@ -1516,7 +1523,7 @@ interface ApplicationObserver
      *
      **/
     void applicationUpdated(int serial, ApplicationUpdateInfo desc);
-};
+}
 
 /**
  *
@@ -1565,7 +1572,7 @@ interface AdapterObserver
      *
      **/
     void adapterRemoved(string id);
-};
+}
 
 /**
  *
@@ -1614,17 +1621,16 @@ interface ObjectObserver
      *
      **/
     void objectRemoved(Ice::Identity id);
-};
+}
 
 /**
  *
  * Used by administrative clients to view,
  * update, and receive observer updates from the IceGrid
- * registry. Admin sessions are created either with the {@link Registry}
- * object or the registry admin {@link Glacier2.SessionManager} object.
+ * registry. Admin sessions are created either via the {@link Registry}
+ * object or via the registry admin <tt>SessionManager</tt> object.
  *
  * @see Registry
- * @see Glacier2.SessionManager
  *
  **/
 interface AdminSession extends Glacier2::Session
@@ -1649,7 +1655,6 @@ interface AdminSession extends Glacier2::Session
      **/
     ["nonmutating", "cpp:const"] idempotent Admin* getAdmin();
 
-
     /**
      *
      * Get a "template" proxy for admin callback objects.
@@ -1662,7 +1667,6 @@ interface AdminSession extends Glacier2::Session
      *
      **/
     ["cpp:const"] idempotent Object* getAdminCallbackTemplate();
-
 
     /**
      *
@@ -1941,6 +1945,6 @@ interface AdminSession extends Glacier2::Session
     FileIterator * openRegistryStdOut(string name, int count)
         throws FileNotAvailableException, RegistryNotExistException, RegistryUnreachableException;
 
-};
+}
 
-};
+}

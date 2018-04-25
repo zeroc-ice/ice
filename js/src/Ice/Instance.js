@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/AsyncResultBase",
         "../Ice/Debug",
@@ -17,7 +17,6 @@ Ice.__M.require(module,
         "../Ice/ImplicitContextI",
         "../Ice/IdentityUtil",
         "../Ice/LocatorManager",
-        "../Ice/Logger",
         "../Ice/ObjectAdapterFactory",
         "../Ice/ValueFactoryManagerI",
         "../Ice/OutgoingConnectionFactory",
@@ -36,10 +35,10 @@ Ice.__M.require(module,
         "../Ice/LocalException",
         "../Ice/Exception",
         "../Ice/ProcessLogger",
-        "../Ice/ACM"
+        "../Ice/ACM",
+        "../Ice/ToStringMode",
+        "../Ice/EndpointInfo"
     ]);
-
-const IceSSL = Ice.__M.require(module, ["../Ice/EndpointInfo"]).IceSSL;
 
 const AsyncResultBase = Ice.AsyncResultBase;
 const Debug = Ice.Debug;
@@ -47,7 +46,6 @@ const DefaultsAndOverrides = Ice.DefaultsAndOverrides;
 const EndpointFactoryManager = Ice.EndpointFactoryManager;
 const ImplicitContextI = Ice.ImplicitContextI;
 const LocatorManager = Ice.LocatorManager;
-const Logger = Ice.Logger;
 const ObjectAdapterFactory = Ice.ObjectAdapterFactory;
 const ValueFactoryManagerI = Ice.ValueFactoryManagerI;
 const OutgoingConnectionFactory = Ice.OutgoingConnectionFactory;
@@ -80,6 +78,7 @@ class Instance
         this._messageSizeMax = 0;
         this._batchAutoFlushSize = 0;
         this._clientACM = null;
+        this._toStringMode = Ice.ToStringMode.Unicode;
         this._implicitContext = null;
         this._routerManager = null;
         this._locatorManager = null;
@@ -247,6 +246,12 @@ class Instance
         return this._clientACM;
     }
 
+    toStringMode()
+    {
+        // this value is immutable
+        return this._toStringMode;
+    }
+
     getImplicitContext()
     {
         return this._implicitContext;
@@ -290,12 +295,12 @@ class Instance
                 this._initData.properties = Properties.createProperties();
             }
 
-            if(Ice.__oneOfDone === undefined)
+            if(Ice._oneOfDone === undefined)
             {
-                Ice.__printStackTraces =
+                Ice._printStackTraces =
                     this._initData.properties.getPropertyAsIntWithDefault("Ice.PrintStackTraces", 0) > 0;
 
-                Ice.__oneOfDone = true;
+                Ice._oneOfDone = true;
             }
 
             if(this._initData.logger === null)
@@ -346,6 +351,20 @@ class Instance
             this._clientACM = new ACMConfig(this._initData.properties, this._initData.logger, "Ice.ACM.Client",
                                             new ACMConfig(this._initData.properties, this._initData.logger,
                                                             "Ice.ACM", new ACMConfig()));
+
+            const toStringModeStr = this._initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+            if(toStringModeStr === "ASCII")
+            {
+                this._toStringMode = Ice.ToStringMode.ASCII;
+            }
+            else if(toStringModeStr === "Compat")
+            {
+                this._toStringMode = Ice.ToStringMode.Compat;
+            }
+            else if(toStringModeStr !== "Unicode")
+            {
+                throw new Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+            }
 
             this._implicitContext =
                 ImplicitContextI.create(this._initData.properties.getProperty("Ice.ImplicitContext"));

@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#ifdef __sun 
+#ifdef __sun
 //
 // Solaris 10 bug: it's supposed to be defined in pthread.h
 //
@@ -19,10 +19,11 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Time.h>
 #include <IceUtil/ThreadException.h>
+#include <Ice/ConsoleUtil.h>
 #include <climits>
 #include <exception>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 #   include <thread>
 #endif
 
@@ -32,8 +33,9 @@
 #endif
 
 using namespace std;
+using namespace IceInternal;
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 
 IceUtil::ThreadControl::ThreadControl() :
     _id(this_thread::get_id())
@@ -83,7 +85,7 @@ IceUtil::ThreadControl::detach()
     {
         throw BadThreadControlException(__FILE__, __LINE__);
     }
-    
+
     try
     {
         _thread->detach();
@@ -169,13 +171,13 @@ WINAPI startHook(void* arg)
     {
         if(!thread->name().empty())
         {
-            cerr << thread->name() << " terminating" << endl;
+            consoleErr << thread->name() << " terminating" << endl;
         }
         std::terminate();
     }
 
     thread->_done();
-   
+
     return 0;
 }
 
@@ -216,7 +218,7 @@ IceUtil::Thread::start(size_t, int)
 
     _started = true;
     _running = true;
-    
+
     return ThreadControl(_thread);
 }
 
@@ -302,7 +304,7 @@ IceUtil::ThreadControl::join()
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
-    
+
     detach();
 }
 
@@ -313,7 +315,7 @@ IceUtil::ThreadControl::detach()
     {
         throw BadThreadControlException(__FILE__, __LINE__);
     }
-    
+
     if(CloseHandle(_handle) == 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
@@ -404,13 +406,13 @@ WINAPI startHook(void* arg)
     {
         if(!thread->name().empty())
         {
-            cerr << thread->name() << " terminating" << endl;
+            consoleErr << thread->name() << " terminating" << endl;
         }
         std::terminate();
     }
 
     thread->_done();
-   
+
     return 0;
 }
 
@@ -447,14 +449,14 @@ IceUtil::Thread::start(size_t stackSize, int priority)
     // __decRef().
     //
     __incRef();
-    
+
     unsigned int id;
-    _handle = 
+    _handle =
         reinterpret_cast<HANDLE>(
-            _beginthreadex(0, 
-                            static_cast<unsigned int>(stackSize), 
-                            startHook, this, 
-                            CREATE_SUSPENDED, 
+            _beginthreadex(0,
+                            static_cast<unsigned int>(stackSize),
+                            startHook, this,
+                            CREATE_SUSPENDED,
                             &id));
     _id = id;
     assert(_handle != (HANDLE)-1L);
@@ -475,7 +477,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
 
     _started = true;
     _running = true;
-    
+
     return ThreadControl(_handle, _id);
 }
 
@@ -623,7 +625,7 @@ IceUtil::Thread::~Thread()
 {
 }
 
-extern "C" 
+extern "C"
 {
 static void*
 startHook(void* arg)
@@ -650,17 +652,16 @@ startHook(void* arg)
     {
         if(!thread->name().empty())
         {
-            cerr << thread->name() << " terminating" << endl;
+            consoleErr << thread->name() << " terminating" << endl;
         }
         std::terminate();
     }
 
     thread->_done();
-    
+
     return 0;
 }
 }
-
 
 IceUtil::ThreadControl
 IceUtil::Thread::start(size_t stackSize)

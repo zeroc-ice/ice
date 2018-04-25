@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,7 +50,7 @@ public:
     virtual Ice::ACM getACM() = 0;
 };
 
-class FactoryACMMonitor : public ACMMonitor, public IceUtil::Mutex
+class FactoryACMMonitor : public ACMMonitor, public IceUtil::Monitor<IceUtil::Mutex>
 #ifdef ICE_CPP11_MAPPING
                         , public std::enable_shared_from_this<FactoryACMMonitor>
 #endif

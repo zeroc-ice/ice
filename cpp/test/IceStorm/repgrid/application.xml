@@ -1,7 +1,7 @@
 <!--
  **********************************************************************
 
- Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+ Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
  This copy of Ice is licensed to you under the terms described in the
  ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@
   <application name="Test" import-default-templates="true">
 
     <!--
-	This is the IceStorm-HA template, except we use a variable
+        This is the IceStorm-HA template, except we use a variable
         substitution for the icebox executable.
     -->
     <server-template id="IceStorm-HA-withsub">
@@ -30,12 +30,12 @@
 
       <icebox id="${instance-name}${node-id}" exe="${icebox.exe}" activation="on-demand">
         <service-instance template="IceStorm-HA"
-			  instance-name="${instance-name}"
-			  node-id="${node-id}"
-			  topic-manager-endpoints="${topic-manager-endpoints}"
-			  publish-endpoints="${publish-endpoints}"
-			  node-endpoints="${node-endpoints}"
-			  flush-timeout="${flush-timeout}"
+                          instance-name="${instance-name}"
+                          node-id="${node-id}"
+                          topic-manager-endpoints="${topic-manager-endpoints}"
+                          publish-endpoints="${publish-endpoints}"
+                          node-endpoints="${node-endpoints}"
+                          flush-timeout="${flush-timeout}"
                           publish-replica-group="${publish-replica-group}"
                           topic-manager-replica-group="${topic-manager-replica-group}">
            <properties>
@@ -60,8 +60,8 @@
 
       <icebox id="Test.IceStorm" exe="${icebox.exe}" activation="on-demand">
         <service-instance template="IceStorm-HA"
-			  node-id="2"
-       	                  publish-replica-group="PublishReplicaGroup"
+                          node-id="2"
+                          publish-replica-group="PublishReplicaGroup"
                           topic-manager-replica-group="TopicManagerReplicaGroup">
            <properties>
               <property name="${service}.LMDB.MapSize" value="1"/>
@@ -69,8 +69,8 @@
 
         </service-instance>
         <service-instance template="IceStorm-HA"
-			  node-id="3"
-       	                  publish-replica-group="PublishReplicaGroup"
+                          node-id="3"
+                          publish-replica-group="PublishReplicaGroup"
                           topic-manager-replica-group="TopicManagerReplicaGroup">
            <properties>
               <property name="${service}.LMDB.MapSize" value="1"/>

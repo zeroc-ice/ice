@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,20 +10,20 @@
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
+#include <IceUtil/FileUtil.h>
+#include <IceUtil/ConsoleUtil.h>
 #include <Slice/FileTracker.h>
 #include <Gen.h>
 
 #include <sys/types.h>
-#include <sys/stat.h>
 
 #ifdef _WIN32
-#include <direct.h>
+#  include <direct.h>
 #else
-#include <unistd.h>
+#  include <unistd.h>
 #endif
 
 #include <iterator>
-
 #include <string.h>
 
 using namespace std;
@@ -352,7 +352,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const SyntaxTreeBasePt
             {
                 item = q->substr(pos);
             }
-            
+
             start("dt", "Symbol");
             _out << term;
             end();
@@ -393,7 +393,7 @@ Slice::GeneratorBase::printComment(const ContainedPtr& p, const SyntaxTreeBasePt
             {
                 item = q->substr(pos);
             }
-            
+
             start("dt", "Symbol");
             _out << getURL(toSliceID(term, source->definitionContext()->filename()), source, false);
             end();
@@ -1172,8 +1172,8 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const SyntaxTree
             if(_warnOldCommentFiles.find(fileName) == _warnOldCommentFiles.end())
             {
                 _warnOldCommentFiles.insert(fileName);
-                cerr << fileName << ": warning: file contains old-style link syntax: `[" << literal << "]'"
-                     << endl;
+                consoleErr << fileName << ": warning: file contains old-style link syntax: `[" << literal << "]'"
+                           << endl;
             }
         }
         else if(s[i] == '{')
@@ -1212,8 +1212,8 @@ Slice::GeneratorBase::getComment(const ContainedPtr& contained, const SyntaxTree
 
     if(summary && _warnSummary && summarySize > _warnSummary)
     {
-        cerr << contained->file() << ": warning: summary size (" << summarySize << ") exceeds " << _warnSummary
-             << " characters: `" << comment << "'" << endl;
+        consoleErr << contained->file() << ": warning: summary size (" << summarySize << ") exceeds " << _warnSummary
+                   << " characters: `" << comment << "'" << endl;
     }
 
     return comment;
@@ -1316,14 +1316,14 @@ Slice::GeneratorBase::getTagged(const string& tag, string& comment)
         {
             return result;
         }
-        
+
         string::size_type pos1 = comment.find_first_not_of(" \t\r\n", begin + tag.size() + 1);
         if(pos1 == string::npos)
         {
             comment.erase(begin);
             return result;
         }
-        
+
         string::size_type pos2 = comment.find('@', pos1);
         string line = comment.substr(pos1, pos2 - pos1);
         comment.erase(begin, pos2 - 1 - begin);
@@ -1357,7 +1357,7 @@ Slice::GeneratorBase::getScopedMinimized(const SyntaxTreeBasePtr& target, const 
     {
         return scoped.substr(2);
     }
-    
+
     do
     {
         string scoped2 = s->scoped();
@@ -1481,13 +1481,13 @@ Slice::GeneratorBase::warnOldStyleIdent(const string& str, const string& fileNam
             lastName = newName.substr(pos + 1);
         }
 
-        cerr << fileName << ": warning: file contains old-style identifier syntax: `" << str << "'."
-             << " Use `'" << newName << "'";
+        consoleErr << fileName << ": warning: file contains old-style identifier syntax: `" << str << "'."
+                   << " Use `'" << newName << "'";
         if(!alternateName.empty())
         {
-             cerr << " or `" << alternateName << "' if `" << lastName << "' is a member";
+             consoleErr << " or `" << alternateName << "' if `" << lastName << "' is a member";
         }
-        cerr << endl;
+        consoleErr << endl;
     }
 }
 
@@ -1559,9 +1559,8 @@ Slice::GeneratorBase::toStringList(const string& scoped)
 void
 Slice::GeneratorBase::makeDir(const string& dir)
 {
-    struct stat st;
-    int rc = stat(dir.c_str(), &st);
-    if(rc == 0)
+    IceUtilInternal::structstat st;
+    if(!IceUtilInternal::stat(dir, &st))
     {
         if(!(st.st_mode & S_IFDIR))
         {
@@ -1573,12 +1572,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
         return;
     }
 
-#ifdef _WIN32
-    rc = _mkdir(dir.c_str());
-#else
-    rc = mkdir(dir.c_str(), S_IRWXU | S_IRWXG | S_IRWXO);
-#endif
-    if(rc != 0)
+    if(IceUtilInternal::mkdir(dir, 0777) != 0)
     {
         ostringstream os;
         os << "cannot create directory `" << dir << "': " << strerror(errno);
@@ -1590,7 +1584,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
 string
 Slice::GeneratorBase::readFile(const string& file)
 {
-    ifstream in(file.c_str());
+    ifstream in(streamFilename(file).c_str());
     if(!in)
     {
         ostringstream os;
@@ -1606,7 +1600,7 @@ Slice::GeneratorBase::readFile(const string& file)
         result << line << '\n';
         getline(in, line);
     }
-    
+
     return result.str();
 }
 
@@ -1664,7 +1658,7 @@ Slice::GeneratorBase::getFooter(const string& footer)
 void
 Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
 {
-    ifstream in(file.c_str());
+    ifstream in(streamFilename(file).c_str());
     if(!in)
     {
         ostringstream os;
@@ -1691,8 +1685,7 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
 
     if(!foundTitle)
     {
-        string err = "no TITLE marker in `" + file + "'";
-        throw err;
+        throw logic_error("no TITLE marker in `" + file + "'");
     }
 
     ostringstream p2;
@@ -1806,8 +1799,8 @@ Slice::StartPageGenerator::printHeaderFooter()
     end(); // table
 }
 
-Slice::FileVisitor::FileVisitor(Files& files)
-    : _files(files)
+Slice::FileVisitor::FileVisitor(Files& files) :
+    _files(files)
 {
 }
 
@@ -1869,8 +1862,8 @@ Slice::FileVisitor::visitEnum(const EnumPtr& e)
     _files.insert(e->file());
 }
 
-Slice::StartPageVisitor::StartPageVisitor(const Files& files)
-    : _spg(files)
+Slice::StartPageVisitor::StartPageVisitor(const Files& files) :
+    _spg(files)
 {
 }
 
@@ -1947,7 +1940,6 @@ TOCGenerator::symbols() const
     return _symbols;
 }
 
-
 void
 TOCGenerator::writeEntry(const ContainedPtr& c)
 {
@@ -1962,7 +1954,7 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     EnumPtr en = EnumPtr::dynamicCast(c);
     if(en)
     {
-        EnumeratorList enumerators = en->getEnumerators();
+        EnumeratorList enumerators = en->enumerators();
         for(EnumeratorList::const_iterator i = enumerators.begin(); i != enumerators.end(); ++i)
         {
             cl.push_back(*i);
@@ -2047,8 +2039,8 @@ TOCGenerator::writeEntry(const ContainedPtr& c)
     end();
 }
 
-TOCVisitor::TOCVisitor(const Files& files, const string& header, const string& footer)
-    : _tg(files, header, footer)
+TOCVisitor::TOCVisitor(const Files& files, const string& header, const string& footer) :
+    _tg(files, header, footer)
 {
 }
 
@@ -2568,7 +2560,7 @@ Slice::ExceptionGenerator::generate(const ExceptionPtr& e)
         }
         end();
     }
-        
+
     _out << nl << "<hr>";
     printHeaderFooter(e);
 
@@ -2894,7 +2886,7 @@ Slice::StructGenerator::generate(const StructPtr& s)
         }
         end();
     }
-        
+
     _out << nl << "<hr>";
     printHeaderFooter(s);
 
@@ -2950,7 +2942,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
 
     printComment(e, e, deprecateReason);
 
-    EnumeratorList enumerators = e->getEnumerators();
+    EnumeratorList enumerators = e->enumerators();
     if(!enumerators.empty())
     {
         start("h2");
@@ -2973,7 +2965,7 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
         }
         end();
     }
-        
+
     closeDoc();
 
     _out << nl << "<hr>";
@@ -2982,8 +2974,8 @@ Slice::EnumGenerator::generate(const EnumPtr& e)
     assert(_out.currIndent() == indent);
 }
 
-Slice::PageVisitor::PageVisitor(const Files& files)
-    : _files(files)
+Slice::PageVisitor::PageVisitor(const Files& files) :
+    _files(files)
 {
 }
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,10 +9,8 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
-
-    var Promise = Ice.Promise;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
     class BI extends Test.B
     {
@@ -60,7 +58,7 @@
             super(1, "hello");
         }
 
-        checkValues(current)
+        checkValues()
         {
             return this.i == 1 && this.s == "hello";
         }
@@ -73,7 +71,7 @@
             super(e, e);
         }
 
-        checkValues(current)
+        checkValues()
         {
             return this.e1 !== null && this.e1 === this.e2;
         }
@@ -83,12 +81,20 @@
     {
     }
 
-    class II extends Test.I
+    class II extends Ice.InterfaceByValue
     {
+        constructor()
+        {
+            super(Test.I.ice_staticId());
+        }
     }
 
-    class JI extends Test.J
+    class JI extends Ice.InterfaceByValue
     {
+        constructor()
+        {
+            super(Test.J.ice_staticId());
+        }
     }
 
     function MyValueFactory(type)
@@ -121,7 +127,7 @@
         return null;
     }
 
-    class MyObjectFactory extends Ice.ObjectFactory
+    class MyObjectFactory
     {
 
         create(type)
@@ -134,334 +140,325 @@
         }
     }
 
-    var allTests = function(out, communicator)
+    async function allTests(out, communicator)
     {
-        var factory, ref, base, initial, b1, b2, c, d, i, j, h;
-
-        var p = new Ice.Promise();
-        var test = function(b)
+        function test(value, ex)
         {
-            if(!b)
+            if(!value)
             {
-                try
+                let message = "test failed";
+                if(ex)
                 {
-                    throw new Error("test failed");
+                    message += "\n" + ex.toString();
                 }
-                catch(err)
-                {
-                    p.reject(err);
-                    throw err;
-                }
+                throw new Error(message);
             }
-        };
+        }
 
-        Promise.try(
-            function()
-            {
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
-                communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::E");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::F");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::A");
+        communicator.getValueFactoryManager().add(MyValueFactory, "::Test::Inner::Sub::A");
 
-                communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
+        communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
-                out.write("testing stringToProxy... ");
-                ref = "initial:default -p 12010";
-                base = communicator.stringToProxy(ref);
-                test(base !== null);
-                out.writeLine("ok");
+        out.write("testing stringToProxy... ");
+        let ref = "initial:default -p 12010";
+        let base = communicator.stringToProxy(ref);
+        test(base !== null);
+        out.writeLine("ok");
 
-                out.write("testing checked cast... ");
-                return Test.InitialPrx.checkedCast(base);
-            }
-        ).then(obj =>
-            {
-                initial = obj;
-                test(initial !== null);
-                test(initial.equals(base));
-                out.writeLine("ok");
-            }
-        ).then(() =>
-            {
-                out.write("getting B1... ");
-                return initial.getB1();
-            }
-        ).then(obj =>
-            {
-                b1 = obj;
-                test(b1 !== null);
-                out.writeLine("ok");
-                out.write("getting B2... ");
-                return initial.getB2();
-            }
-        ).then(obj =>
-            {
-                b2 = obj;
-                test(b2 !== null);
-                out.writeLine("ok");
-                out.write("getting C... ");
-                return initial.getC();
-            }
-        ).then(obj =>
-            {
-                c = obj;
-                test(c !== null);
-                out.writeLine("ok");
-                out.write("getting D... ");
-                return initial.getD();
-            }
-        ).then(obj =>
-            {
-                d = obj;
-                test(d !== null);
-                out.writeLine("ok");
-            }
-        ).then(() =>
-            {
-                out.write("checking consistency... ");
-                test(b1 !== b2);
-                //test(b1 != c);
-                //test(b1 != d);
-                //test(b2 != c);
-                //test(b2 != d);
-                //test(c != d);
+        out.write("testing checked cast... ");
+        let initial = await Test.InitialPrx.checkedCast(base);
+        test(initial !== null);
+        test(initial.equals(base));
+        out.writeLine("ok");
 
-                test(b1.theB === b1);
-                test(b1.theC === null);
-                test(b1.theA instanceof Test.B);
-                test(b1.theA.theA === b1.theA);
-                test(b1.theA.theB === b1);
-                test(b1.theA.theC instanceof Test.C);
-                test(b1.theA.theC.theB === b1.theA);
+        out.write("getting B1... ");
+        let b1 = await initial.getB1();
+        test(b1 !== null);
+        out.writeLine("ok");
 
-                test(b1.preMarshalInvoked);
-                test(b1.postUnmarshalInvoked);
-                test(b1.theA.preMarshalInvoked);
-                test(b1.theA.postUnmarshalInvoked);
-                test(b1.theA.theC.preMarshalInvoked);
-                test(b1.theA.theC.postUnmarshalInvoked);
+        out.write("getting B2... ");
+        let b2 = await initial.getB2();
+        test(b2 !== null);
+        out.writeLine("ok");
 
-                // More tests possible for b2 and d, but I think this is already
-                // sufficient.
-                test(b2.theA === b2);
-                test(d.theC === null);
-                out.writeLine("ok");
-                out.write("getting B1, B2, C, and D all at once... ");
+        out.write("getting C... ");
+        let c = await initial.getC();
+        test(c !== null);
+        out.writeLine("ok");
 
-                return initial.getAll();
-            }
-        ).then(r =>
-            {
-                var [b1, b2, c, d] = r;
-                test(b1);
-                test(b2);
-                test(c);
-                test(d);
-                out.writeLine("ok");
+        out.write("getting D... ");
+        let d = await initial.getD();
+        test(d !== null);
+        out.writeLine("ok");
 
-                out.write("checking consistency... ");
-                test(b1 !== b2);
-                //test(b1 != c);
-                //test(b1 != d);
-                //test(b2 != c);
-                //test(b2 != d);
-                //test(c != d);
-                test(b1.theA === b2);
-                test(b1.theB === b1);
-                test(b1.theC === null);
-                test(b2.theA === b2);
-                test(b2.theB === b1);
-                test(b2.theC === c);
-                test(c.theB === b2);
-                test(d.theA === b1);
-                test(d.theB === b2);
-                test(d.theC === null);
-                test(d.preMarshalInvoked);
-                test(d.postUnmarshalInvoked);
-                test(d.theA.preMarshalInvoked);
-                test(d.theA.postUnmarshalInvoked);
-                test(d.theB.preMarshalInvoked);
-                test(d.theB.postUnmarshalInvoked);
-                test(d.theB.theC.preMarshalInvoked);
-                test(d.theB.theC.postUnmarshalInvoked);
-                out.writeLine("ok");
+        out.write("checking consistency... ");
+        test(b1 !== b2);
+        //test(b1 != c);
+        //test(b1 != d);
+        //test(b2 != c);
+        //test(b2 != d);
+        //test(c != d);
 
-                out.write("testing protected members... ");
-                return initial.getE();
-            }
-        ).then(e =>
-            {
-                test(e.checkValues());
-                return initial.getF();
-            }
-        ).then(f =>
-            {
-                test(f.checkValues());
-                test(f.e2.checkValues());
-                out.writeLine("ok");
-                out.write("getting I, J and H... ");
-                return initial.getI();
-            }
-        ).then(obj =>
-            {
-                i = obj;
-                test(i);
-                return initial.getJ();
-            }
-        ).then(obj =>
-            {
-                j = obj;
-                test(j);
-                return initial.getH();
-            }
-        ).then(obj =>
-            {
-                h = obj;
-                test(h);
-                out.writeLine("ok");
-                out.write("getting D1... ");
-                return initial.getD1(new Test.D1(new Test.A1("a1"),
+        test(b1.theB === b1);
+        test(b1.theC === null);
+        test(b1.theA instanceof Test.B);
+        test(b1.theA.theA === b1.theA);
+        test(b1.theA.theB === b1);
+        test(b1.theA.theC instanceof Test.C);
+        test(b1.theA.theC.theB === b1.theA);
+
+        test(b1.preMarshalInvoked);
+        test(b1.postUnmarshalInvoked);
+        test(b1.theA.preMarshalInvoked);
+        test(b1.theA.postUnmarshalInvoked);
+        test(b1.theA.theC.preMarshalInvoked);
+        test(b1.theA.theC.postUnmarshalInvoked);
+
+        // More tests possible for b2 and d, but I think this is already
+        // sufficient.
+        test(b2.theA === b2);
+        test(d.theC === null);
+        out.writeLine("ok");
+        out.write("getting B1, B2, C, and D all at once... ");
+
+        [b1, b2, c, d] = await initial.getAll();
+
+        test(b1);
+        test(b2);
+        test(c);
+        test(d);
+        out.writeLine("ok");
+
+        out.write("checking consistency... ");
+        test(b1 !== b2);
+        //test(b1 != c);
+        //test(b1 != d);
+        //test(b2 != c);
+        //test(b2 != d);
+        //test(c != d);
+        test(b1.theA === b2);
+        test(b1.theB === b1);
+        test(b1.theC === null);
+        test(b2.theA === b2);
+        test(b2.theB === b1);
+        test(b2.theC === c);
+        test(c.theB === b2);
+        test(d.theA === b1);
+        test(d.theB === b2);
+        test(d.theC === null);
+        test(d.preMarshalInvoked);
+        test(d.postUnmarshalInvoked);
+        test(d.theA.preMarshalInvoked);
+        test(d.theA.postUnmarshalInvoked);
+        test(d.theB.preMarshalInvoked);
+        test(d.theB.postUnmarshalInvoked);
+        test(d.theB.theC.preMarshalInvoked);
+        test(d.theB.theC.postUnmarshalInvoked);
+        out.writeLine("ok");
+
+        out.write("testing protected members... ");
+        let e = await initial.getE();
+        test(e.checkValues());
+
+        let f = await initial.getF();
+        test(f.checkValues());
+        test(f.e2.checkValues());
+        out.writeLine("ok");
+
+        out.write("getting I, J and H... ");
+        let i = await initial.getI();
+        test(i);
+        let j = await initial.getJ();
+        test(j);
+        let h = await initial.getH();
+        test(h);
+        out.writeLine("ok");
+
+        out.write("getting D1... ");
+        let d1 = await initial.getD1(new Test.D1(new Test.A1("a1"),
                                                  new Test.A1("a2"),
                                                  new Test.A1("a3"),
                                                  new Test.A1("a4")));
-            }
-        ).then(d1 =>
-            {
-                test(d1.a1.name == "a1");
-                test(d1.a2.name == "a2");
-                test(d1.a3.name == "a3");
-                test(d1.a4.name == "a4");
-                out.writeLine("ok");
-                out.write("throw EDerived... ");
-                return initial.throwEDerived();
-            }
-        ).then(() => test(false),
-            ex =>
-            {
-                test(ex instanceof Test.EDerived);
-                test(ex.a1.name == "a1");
-                test(ex.a2.name == "a2");
-                test(ex.a3.name == "a3");
-                test(ex.a4.name == "a4");
-                out.writeLine("ok");
-                out.write("setting I... ");
-                return initial.setI(i);
-            }
-        ).then(() => initial.setI(j)
-        ).then(() => initial.setI(h)
-        ).then(() =>
-            {
-                out.writeLine("ok");
-                out.write("testing sequences... ");
-                return initial.opBaseSeq([]);
-            }
-        ).then(r =>
-            {
-                var [retS, outS] = r;
-                return initial.opBaseSeq([new Test.Base(new Test.S(), "")]);
-            }
-        ).then(r =>
-            {
-                var [retS, outS] = r;
-                test(retS.length === 1 && outS.length === 1);
-                out.writeLine("ok");
-                out.write("testing compact ID... ");
 
-                return initial.getCompact();
-            }
-        ).then(compact =>
-            {
-                test(compact !== null);
-                out.writeLine("ok");
+        test(d1.a1.name == "a1");
+        test(d1.a2.name == "a2");
+        test(d1.a3.name == "a3");
+        test(d1.a4.name == "a4");
+        out.writeLine("ok");
 
-                out.write("testing marshaled results...");
-                return initial.getMB();
-            }
-        ).then(b1 =>
-            {
-                test(b1 !== null && b1.theB === b1);
-                return initial.getAMDMB();
-            }
-        ).then(b1 =>
-            {
-                test(b1 !== null && b1.theB === b1);
-                out.writeLine("ok");
+        out.write("throw EDerived... ");
+        try
+        {
+            await initial.throwEDerived();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Test.EDerived, ex);
+            test(ex.a1.name == "a1");
+            test(ex.a2.name == "a2");
+            test(ex.a3.name == "a3");
+            test(ex.a4.name == "a4");
+        }
+        out.writeLine("ok");
 
-                out.write("testing UnexpectedObjectException... ");
-                ref = "uoet:default -p 12010";
-                base = communicator.stringToProxy(ref);
-                test(base !== null);
-                var uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
-                test(uoet !== null);
-                return uoet.op();
-            }
-        ).then(() =>
-            {
-                test(false);
-            },
-            ex =>
-            {
-                test(ex instanceof Ice.UnexpectedObjectException);
-                test(ex.type == "::Test::AlsoEmpty");
-                test(ex.expectedType == "::Test::Empty");
-            }
-        ).then(() =>
-            {
-                out.writeLine("ok");
-                out.write("testing inner modules... ");
-                return initial.getInnerA();
-            }
-        ).then(innerA =>
-            {
-                test(innerA instanceof Test.Inner.A);
-                test(innerA.theA instanceof Test.B);
-                return initial.getInnerSubA();
-            }
-        ).then(innerA =>
-            {
-                test(innerA instanceof Test.Inner.Sub.A);
-                test(innerA.theA instanceof Test.Inner.A);
-                return initial.throwInnerEx();
-            }
-        ).then(() => test(false),
-            ex =>
-            {
-                test(ex.reason == "Inner::Ex");
-                return initial.throwInnerSubEx();
-            }
-        ).then(() => test(false),
-            ex =>
-            {
-                test(ex.reason == "Inner::Sub::Ex");
-                out.writeLine("ok");
+        out.write("setting G... ");
+        try
+        {
+            await initial.setG(new Test.G(new Test.S("hello"), "g"));
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.OperationNotExistException, ex);
+        }
+        out.writeLine("ok");
 
-                out.write("testing getting ObjectFactory... ");
-                test(communicator.findObjectFactory("TestOF") !== null);
-                out.writeLine("ok");
-                out.write("testing getting ObjectFactory as ValueFactory... ");
-                test(communicator.getValueFactoryManager().find("TestOF") !== null);
-                out.writeLine("ok");
+        out.write("setting I... ");
+        await initial.setI(i);
+        await initial.setI(j);
+        await initial.setI(h);
+        out.writeLine("ok");
 
-                return initial.shutdown();
+        out.write("testing sequences... ");
+        let [retS, outS] = await initial.opBaseSeq([]);
+        [retS, outS] = await initial.opBaseSeq([new Test.Base(new Test.S(), "")]);
+        test(retS.length === 1 && outS.length === 1);
+        out.writeLine("ok");
+
+        out.write("testing recursive types... ");
+
+        let top = new Test.Recursive();
+        let p = top;
+        let depth = 0;
+
+        try
+        {
+            for(; depth <= 1000; ++depth)
+            {
+                p.v = new Test.Recursive();
+                p = p.v;
+                if((depth < 10 && (depth % 10) == 0) ||
+                   (depth < 1000 && (depth % 100) == 0) ||
+                   (depth < 10000 && (depth % 1000) == 0) ||
+                   (depth % 10000) == 0)
+                {
+                    await initial.setRecursive(top);
+                }
             }
-        ).then(p.resolve, p.reject);
-        return p;
-    };
+            test(!(await initial.supportsClassGraphDepthMax()));
+        }
+        catch(ex)
+        {
+            test((ex instanceof Ice.UnknownLocalException) || // Expected marshal exception from the server (max class graph depth reached)
+                 (ex instanceof Ice.UnknownException) ||      // Expected stack overflow from the server (Java only)
+                 (ex instanceof Error), ex);                  // Expected, JavaScript stack overflow
+        }
+        await initial.setRecursive(new Test.Recursive());
+        out.writeLine("ok");
 
-    var run = function(out, id)
+        out.write("testing compact ID... ");
+        test(await initial.getCompact() !== null);
+        out.writeLine("ok");
+
+        out.write("testing marshaled results...");
+        b1 = await initial.getMB();
+        test(b1 !== null && b1.theB === b1);
+        b1 = await initial.getAMDMB();
+        test(b1 !== null && b1.theB === b1);
+        out.writeLine("ok");
+
+        out.write("testing UnexpectedObjectException... ");
+        ref = "uoet:default -p 12010";
+        base = communicator.stringToProxy(ref);
+        test(base !== null);
+
+        let uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
+        test(uoet !== null);
+        try
+        {
+            await uoet.op();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Ice.UnexpectedObjectException, ex);
+            test(ex.type == "::Test::AlsoEmpty");
+            test(ex.expectedType == "::Test::Empty");
+        }
+        out.writeLine("ok");
+
+        out.write("testing inner modules... ");
+        let innerA = await initial.getInnerA();
+        test(innerA instanceof Test.Inner.A);
+        test(innerA.theA instanceof Test.B);
+        innerA = await initial.getInnerSubA();
+        test(innerA instanceof Test.Inner.Sub.A);
+        test(innerA.theA instanceof Test.Inner.A);
+
+        try
+        {
+            await initial.throwInnerEx();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Test.Inner.Ex, ex);
+            test(ex.reason == "Inner::Ex");
+        }
+
+        try
+        {
+            await initial.throwInnerSubEx();
+            test(false);
+        }
+        catch(ex)
+        {
+            test(ex instanceof Test.Inner.Sub.Ex, ex);
+            test(ex.reason == "Inner::Sub::Ex");
+        }
+        out.writeLine("ok");
+
+        out.write("testing getting ObjectFactory... ");
+        test(communicator.findObjectFactory("TestOF") !== null);
+        out.writeLine("ok");
+
+        out.write("testing getting ObjectFactory as ValueFactory... ");
+        test(communicator.getValueFactoryManager().find("TestOF") !== null);
+        out.writeLine("ok");
+
+        await initial.shutdown();
+    }
+
+    async function run(out, initData)
     {
-        var c = Ice.initialize(id);
-        return Promise.try(() => allTests(out, c)).finally(() => c.destroy());
-    };
-    exports.__test__ = run;
-    exports.__runServer__ = true;
+        let communicator;
+        try
+        {
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
+            communicator = await Ice.initialize(initData);
+            await allTests(out, communicator);
+        }
+        finally
+        {
+            if(communicator)
+            {
+                await communicator.destroy();
+            }
+        }
+    }
+
+    exports._test = run;
+    exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

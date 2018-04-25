@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in
 // the ICE_LICENSE file included in this distribution.
@@ -83,12 +83,15 @@ registerEndpointInfoClass(Class cl)
         return [[ICEOpaqueEndpointInfo alloc] initWithOpaqueEndpointInfo:opaqueInfo.get()];
     }
 
-    for(std::vector<Class>::const_iterator p = endpointInfoClasses->begin(); p != endpointInfoClasses->end(); ++p)
+    if(endpointInfoClasses)
     {
-        ICEEndpointInfo* r = [*p checkedEndpointInfoWithEndpointInfo:info];
-        if(r)
+        for(std::vector<Class>::const_iterator p = endpointInfoClasses->begin(); p != endpointInfoClasses->end(); ++p)
         {
-            return r;
+            ICEEndpointInfo* r = [*p checkedEndpointInfoWithEndpointInfo:info];
+            if(r)
+            {
+                return r;
+            }
         }
     }
 
@@ -230,4 +233,3 @@ registerEndpointInfoClass(Class cl)
 }
 
 @end
-

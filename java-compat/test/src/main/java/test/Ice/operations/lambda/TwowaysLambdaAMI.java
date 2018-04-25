@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,9 +10,9 @@
 package test.Ice.operations.lambda;
 
 import test.Ice.operations.Test.AnotherStruct;
-import test.Ice.operations.Test.MyClass;
+import test.Ice.operations.Test._MyClassDisp;
 import test.Ice.operations.Test.MyClassPrx;
-import test.Ice.operations.Test.MyDerivedClass;
+import test.Ice.operations.Test._MyDerivedClassDisp;
 import test.Ice.operations.Test.MyDerivedClassPrx;
 import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 import test.Ice.operations.Test.MyEnum;
@@ -100,7 +100,7 @@ public class TwowaysLambdaAMI
     {
         public void response(String id)
         {
-            test(id.equals(MyDerivedClass.ice_staticId()));
+            test(id.equals(_MyDerivedClassDisp.ice_staticId()));
             callback.called();
         }
 
@@ -731,8 +731,8 @@ public class TwowaysLambdaAMI
         public void response(java.util.Map<Long, Float> ro, java.util.Map<Long, Float> _do)
         {
             java.util.Map<Long, Float> di1 = new java.util.HashMap<Long, Float>();
-            di1.put(999999110L, new Float(-1.1f));
-            di1.put(999999111L, new Float(123123.2f));
+            di1.put(999999110L, Float.valueOf((float)-1.1f));
+            di1.put(999999111L, Float.valueOf((float)123123.2f));
             test(_do.equals(di1));
             test(ro.size() == 4);
             test(ro.get(999999110L).floatValue() == -1.1f);
@@ -947,7 +947,7 @@ public class TwowaysLambdaAMI
 
         {
             isAI cb = new isAI();
-            p.begin_ice_isA(MyClass.ice_staticId(), (boolean r) -> cb.response(r), (Ice.Exception ex) -> test(false));
+            p.begin_ice_isA(_MyClassDisp.ice_staticId(), (boolean r) -> cb.response(r), (Ice.Exception ex) -> test(false));
             cb.check();
         }
 
@@ -1291,12 +1291,12 @@ public class TwowaysLambdaAMI
 
         {
             java.util.Map<Long, Float> di1 = new java.util.HashMap<Long, Float>();
-            di1.put(999999110L, new Float(-1.1f));
-            di1.put(999999111L, new Float(123123.2f));
+            di1.put(999999110L, Float.valueOf((float)-1.1f));
+            di1.put(999999111L, Float.valueOf((float)123123.2f));
             java.util.Map<Long, Float> di2 = new java.util.HashMap<Long, Float>();
-            di2.put(999999110L, new Float(-1.1f));
-            di2.put(999999120L, new Float(-100.4f));
-            di2.put(999999130L, new Float(0.5f));
+            di2.put(999999110L, Float.valueOf((float)-1.1f));
+            di2.put(999999120L, Float.valueOf((float)-100.4f));
+            di2.put(999999130L, Float.valueOf((float)0.5f));
 
             opLongFloatDI cb = new opLongFloatDI();
             p.begin_opLongFloatD(di1, di2,

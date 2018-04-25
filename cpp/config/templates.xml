@@ -1,7 +1,7 @@
 <!--
  **********************************************************************
 
- Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+ Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
  This copy of Ice is licensed to you under the terms described in the
  ICE_LICENSE file included in this distribution.
@@ -11,27 +11,6 @@
 
 <icegrid>
   <application name="Templates">
-
-    <server-template id="IcePatch2">
-
-       <parameter name="instance-name" default="${application}.IcePatch2"/>
-       <parameter name="endpoints" default="default"/>
-       <parameter name="directory"/>
-
-       <server id="${instance-name}" exe="icepatch2server" application-distrib="false" activation="on-demand">
-
-         <adapter name="IcePatch2" endpoints="${endpoints}">
-           <object identity="${instance-name}/server" type="::IcePatch2::FileServer"/>
-         </adapter>
-
-         <properties>
-            <property name="IcePatch2.InstanceName" value="${instance-name}"/>
-            <property name="IcePatch2.Directory" value="${directory}"/>
-         </properties>
-       </server>
-
-    </server-template>
-
 
     <server-template id="Glacier2">
 
@@ -51,7 +30,6 @@
 
     </server-template>
 
-
     <service-template id="IceStorm">
 
       <parameter name="instance-name" default="${application}.IceStorm"/>
@@ -59,7 +37,7 @@
       <parameter name="publish-endpoints" default="default"/>
       <parameter name="flush-timeout" default="1000"/>
 
-      <service name="${instance-name}" entry="IceStormService,37a3:createIceStorm">
+      <service name="${instance-name}" entry="IceStormService,37:createIceStorm">
 
         <adapter name="${service}.TopicManager"
                  id="${instance-name}.TopicManager"
@@ -78,7 +56,6 @@
 
     </service-template>
 
-
     <server-template id="IceStorm">
 
       <parameter name="instance-name" default="${application}.IceStorm"/>
@@ -88,14 +65,13 @@
 
       <icebox id="${instance-name}" exe="icebox" activation="on-demand">
         <service-instance template="IceStorm"
-			  instance-name="${instance-name}"
-			  topic-manager-endpoints="${topic-manager-endpoints}"
-			  publish-endpoints="${publish-endpoints}"
-			  flush-timeout="${flush-timeout}"/>
+                          instance-name="${instance-name}"
+                          topic-manager-endpoints="${topic-manager-endpoints}"
+                          publish-endpoints="${publish-endpoints}"
+                          flush-timeout="${flush-timeout}"/>
       </icebox>
 
     </server-template>
-
 
     <service-template id="IceStorm-HA">
 
@@ -108,19 +84,19 @@
       <parameter name="publish-replica-group"/>
       <parameter name="topic-manager-replica-group"/>
 
-      <service name="${instance-name}${node-id}" entry="IceStormService,37a3:createIceStorm">
+      <service name="${instance-name}${node-id}" entry="IceStormService,37:createIceStorm">
 
         <adapter name="${service}.TopicManager"
-		 id="${instance-name}${node-id}.TopicManager"
-		 endpoints="${topic-manager-endpoints}"
+                 id="${instance-name}${node-id}.TopicManager"
+                 endpoints="${topic-manager-endpoints}"
                  replica-group="${topic-manager-replica-group}"/>
 
-	<adapter name="${service}.Publish"
-		 id="${instance-name}${node-id}.Publish"
-		 endpoints="${publish-endpoints}"
+        <adapter name="${service}.Publish"
+                 id="${instance-name}${node-id}.Publish"
+                 endpoints="${publish-endpoints}"
                  replica-group="${publish-replica-group}"/>
 
-	<adapter name="${service}.Node" id="${instance-name}${node-id}.Node" endpoints="${node-endpoints}"/>
+        <adapter name="${service}.Node" id="${instance-name}${node-id}.Node" endpoints="${node-endpoints}"/>
 
         <properties>
            <property name="${service}.LMDB.Path" value="${service.data}"/>
@@ -131,7 +107,6 @@
       </service>
 
     </service-template>
-
 
     <server-template id="IceStorm-HA">
 
@@ -146,12 +121,12 @@
 
       <icebox id="${instance-name}${node-id}" exe="icebox" activation="on-demand">
         <service-instance template="IceStorm-HA"
-			  instance-name="${instance-name}"
-			  node-id="${node-id}"
-			  topic-manager-endpoints="${topic-manager-endpoints}"
-			  publish-endpoints="${publish-endpoints}"
-			  node-endpoints="${node-endpoints}"
-			  flush-timeout="${flush-timeout}"
+                          instance-name="${instance-name}"
+                          node-id="${node-id}"
+                          topic-manager-endpoints="${topic-manager-endpoints}"
+                          publish-endpoints="${publish-endpoints}"
+                          node-endpoints="${node-endpoints}"
+                          flush-timeout="${flush-timeout}"
                           publish-replica-group="${publish-replica-group}"
                           topic-manager-replica-group="${topic-manager-replica-group}"/>
       </icebox>

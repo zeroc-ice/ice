@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -130,7 +130,7 @@ public class TwowaysAMI
 
         public void ice_id(string id)
         {
-            test(id.Equals(Test.MyDerivedClass.ice_staticId()));
+            test(id.Equals(Test.MyDerivedClassDisp_.ice_staticId()));
             called();
         }
 
@@ -997,8 +997,10 @@ public class TwowaysAMI
         private Dictionary<string, string> _d;
     }
 
-    internal static void twowaysAMI(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static void twowaysAMI(TestCommon.Application app, Test.MyClassPrx p)
     {
+        Ice.Communicator communicator = app.communicator();
+
         {
             p.ice_pingAsync().Wait();
         }
@@ -1029,23 +1031,23 @@ public class TwowaysAMI
         }
 
         {
-            test(p.ice_isAAsync(Test.MyClass.ice_staticId()).Result);
+            test(p.ice_isAAsync(Test.MyClassDisp_.ice_staticId()).Result);
         }
 
         {
-            Ice.AsyncResult r = p.begin_ice_isA(Test.MyClass.ice_staticId());
+            Ice.AsyncResult r = p.begin_ice_isA(Test.MyClassDisp_.ice_staticId());
             test(p.end_ice_isA(r));
         }
 
         {
             Callback cb = new Callback();
-            p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(cb.ice_isA, cb.exCB);
+            p.begin_ice_isA(Test.MyClassDisp_.ice_staticId()).whenCompleted(cb.ice_isA, cb.exCB);
             cb.check();
         }
 
         {
             Callback cb = new Callback();
-            p.begin_ice_isA(Test.MyClass.ice_staticId()).whenCompleted(
+            p.begin_ice_isA(Test.MyClassDisp_.ice_staticId()).whenCompleted(
                 (bool v) =>
                 {
                     cb.ice_isA(v);
@@ -1087,12 +1089,12 @@ public class TwowaysAMI
         }
 
         {
-            test(p.ice_idAsync().Result.Equals(Test.MyDerivedClass.ice_staticId()));
+            test(p.ice_idAsync().Result.Equals(Test.MyDerivedClassDisp_.ice_staticId()));
         }
 
         {
             Ice.AsyncResult r = p.begin_ice_id();
-            test(p.end_ice_id(r).Equals(Test.MyDerivedClass.ice_staticId()));
+            test(p.end_ice_id(r).Equals(Test.MyDerivedClassDisp_.ice_staticId()));
         }
 
         {
@@ -3249,7 +3251,7 @@ public class TwowaysAMI
                 ctx["three"] = "THREE";
 
                 Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                                        ic.stringToProxy("test:default -p 12010"));
+                                        ic.stringToProxy("test:" + app.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
@@ -3319,7 +3321,7 @@ public class TwowaysAMI
                 ctx["three"] = "THREE";
 
                 Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                                        ic.stringToProxy("test:default -p 12010"));
+                                        ic.stringToProxy("test:" + app.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));

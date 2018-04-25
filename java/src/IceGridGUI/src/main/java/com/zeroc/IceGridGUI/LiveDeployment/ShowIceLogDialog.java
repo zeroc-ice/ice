@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -451,7 +451,7 @@ class ShowIceLogDialog extends JDialog
     ShowIceLogDialog(TreeNode parent, String title, com.zeroc.Ice.LoggerAdminPrx loggerAdmin, String defaultFileName,
                      int maxMessages, int initialMessages)
     {
-        super(parent.getRoot().getCoordinator().getMainFrame(), title + " - IceGrid Admin", false);
+        super(parent.getRoot().getCoordinator().getMainFrame(), title + " - IceGrid GUI", false);
 
         _parent = parent;
         _title = title;
@@ -459,7 +459,7 @@ class ShowIceLogDialog extends JDialog
         _defaultFileName = defaultFileName;
         _maxMessages = maxMessages;
         _initialMessages = initialMessages;
-        _preferences = Preferences.userNodeForPackage(getClass());
+        _preferences = Coordinator.getPreferences().node("LiveDeployment");
 
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter()
@@ -634,11 +634,11 @@ class ShowIceLogDialog extends JDialog
             _tableModel.setRowCount(0);
             if(_messageTypeFilter != null || _traceCategoryFilter != null)
             {
-                setTitle(_title + " (Filtered) - IceGrid Admin");
+                setTitle(_title + " (Filtered) - IceGrid GUI");
             }
             else
             {
-                setTitle(_title + " (No filter) - IceGrid Admin");
+                setTitle(_title + " (No filter) - IceGrid GUI");
             }
 
             _playItem.setSelected(true);
@@ -649,7 +649,6 @@ class ShowIceLogDialog extends JDialog
             _remoteLogger = new RemoteLoggerI();
             _remoteLoggerPrx = RemoteLoggerPrx.uncheckedCast(
                 _parent.getRoot().getCoordinator().addCallback(_remoteLogger, id, ""));
-
 
             final String prefix = "Attaching remote logger to " + _loggerAdmin.ice_getIdentity().name + "...";
             final String errorTitle = "Failed to attach remote logger to " + _loggerAdmin.ice_getIdentity().name;

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <NoWarn>2008;8021</NoWarn>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <PackageType>2.0.0.0</PackageType>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <OutputPath>zeroc.ice.net</OutputPath>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <PackageId>zeroc.ice.net</PackageId>
+        <Title>ZeroC Ice for .NET</Title>
+        <PackageVersion>3.7.1</PackageVersion>
+        <Authors>ZeroC</Authors>
+        <PackageLicenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/zeroc-ice/ice</PackageProjectUrl>
+        <PackageIconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</PackageIconUrl>
+        <Copyright>Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved</Copyright>
+        <Description>Ice C#/.NET SDK. Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</Description>
+        <PackageReleaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.1+Release+Notes</PackageReleaseNotes>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+        <PackageTags>ice</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="zeroc.ice.net.props">
+            <Pack>true</Pack>
+            <PackagePath>build</PackagePath>
+        </Content>
+
+        <Content Include="..\..\ICE_LICENSE;..\..\LICENSE">
+            <PackagePath></PackagePath>
+            <Pack>true</Pack>
+        </Content>
+
+        <Content Include="..\lib\netstandard2.0\*.dll">
+            <Pack>true</Pack>
+            <PackagePath>lib\netstandard2.0</PackagePath>
+        </Content>
+
+        <Content Include="..\bin\netcoreapp2.0\publish\*">
+            <Pack>true</Pack>
+            <PackagePath>tools\netcoreapp2.0</PackagePath>
+        </Content>
+
+        <Content Include="..\..\slice\**\*.ice"
+                 Exclude="..\..\slice\IceDiscovery\*.ice;..\..\slice\IceLocatorDiscovery\*.ice">
+            <Pack>true</Pack>
+            <PackagePath>slice</PackagePath>
+        </Content>
+    </ItemGroup>
+</Project>

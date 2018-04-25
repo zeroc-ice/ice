@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,7 +29,7 @@ public class MetricsMap<T extends IceMX.Metrics>
                     _failures = new java.util.HashMap<String, Integer>();
                 }
                 Integer count = _failures.get(exceptionName);
-                _failures.put(exceptionName, new Integer(count == null ? 1 : count + 1));
+                _failures.put(exceptionName, Integer.valueOf(count == null ? 1 : count + 1));
             }
         }
 
@@ -311,7 +311,7 @@ public class MetricsMap<T extends IceMX.Metrics>
         int i = 0;
         for(Entry e : _objects.values())
         {
-	    metrics[i++] = e.clone();  
+            metrics[i++] = e.clone();
         }
         return metrics;
     }
@@ -426,7 +426,7 @@ public class MetricsMap<T extends IceMX.Metrics>
             {
                 try
                 {
-                    T t = _class.newInstance();
+                    T t = _class.getDeclaredConstructor().newInstance();
                     t.id = key;
                     e = new Entry(t);
                     _objects.put(key, e);

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
 class MyClass;
 
@@ -31,18 +31,24 @@ struct ValStruct
     int i;
     long l;
     MyEnum e;
-};
+}
 
-sequence<MyClass*> ProxySeq;
+interface MyInterface
+{
+    void op();
+}
+
+sequence<MyInterface*> ProxySeq;
 
 ["clr:property"]
 struct RefStruct
 {
     string s;
     string sp;
-    MyClass* p;
+    MyClass c;
+    MyInterface* p;
     ProxySeq seq;
-};
+}
 
 sequence<ValStruct> ValStructS;
 ["clr:generic:List"]
@@ -56,7 +62,7 @@ sequence<ValStruct> ValStructQueue;
 
 dictionary<int, string> IntStringD;
 dictionary<int, ValStruct> IntValStructD;
-dictionary<int, MyClass*> IntProxyD;
+dictionary<int, MyInterface*> IntProxyD;
 ["clr:generic:SortedDictionary"]
 dictionary<int, string> IntStringSD;
 
@@ -68,14 +74,14 @@ class Base
     int i;
     long l;
     MyEnum e;
-};
+}
 
 class MyClass extends Base
 {
     MyClass c;
     Object o;
     ValStruct s;
-};
+}
 
 exception MyException
 {
@@ -86,7 +92,8 @@ exception MyException
     long l;
     ValStruct vs;
     RefStruct rs;
-    MyClass* c;
+    MyClass c;
+    MyInterface* p;
 
     ValStructS vss;
     ValStructList vsl;
@@ -104,7 +111,8 @@ exception MyException
     optional(3) ValStruct optValStruct;
     optional(4) RefStruct optRefStruct;
     optional(5) MyEnum optEnum;
-    optional(6) MyClass* optProxy;
-};
+    optional(6) MyClass optClass;
+    optional(7) MyInterface* optProxy;
+}
 
-};
+}

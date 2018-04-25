@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,16 +10,39 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Diagnostics;
 
 namespace IceInternal
 {
     public class Ex
     {
-        public static void throwUOE(string expectedType, string actualType)
+        public static void throwUOE(Type expectedType, Ice.Value v)
         {
-            throw new Ice.UnexpectedObjectException(
-                        "expected element of type `" + expectedType + "' but received '" + actualType,
-                        actualType, expectedType);
+            //
+            // If the object is an unknown sliced object, we didn't find an
+            // value factory, in this case raise a NoValueFactoryException
+            // instead.
+            //
+            if(v is Ice.UnknownSlicedValue)
+            {
+                Ice.UnknownSlicedValue usv = (Ice.UnknownSlicedValue)v;
+                throw new Ice.NoValueFactoryException("", usv.ice_id());
+            }
+
+            string type = v.ice_id();
+            string expected;
+            try
+            {
+                expected = (string)expectedType.GetMethod("ice_staticId").Invoke(null, null);
+            }
+            catch(Exception)
+            {
+                expected = "";
+                Debug.Assert(false);
+            }
+
+            throw new Ice.UnexpectedObjectException("expected element of type `" + expected + "' but received '" + type,
+                                                    type, expected);
         }
 
         public static void throwMemoryLimitException(int requested, int maximum)
@@ -76,7 +99,7 @@ namespace Ice
         {
             return ice_id().Substring(2);
         }
-        
+
         /// <summary>
         /// Returns the type id of this exception.
         /// </summary>
@@ -126,18 +149,18 @@ namespace Ice
     }
 
     /// <summary>
-    /// Base class for local exceptions.
+    /// Base class for Ice run-time exceptions.
     /// </summary>
     [Serializable]
     public abstract class LocalException : Exception
     {
         /// <summary>
-        /// Creates a default-initialized local exception.
+        /// Creates a default-initialized Ice run-time exception.
         /// </summary>
         public LocalException() {}
 
         /// <summary>
-        /// Creates a default-initialized local exception and sets the InnerException
+        /// Creates a default-initialized Ice run-time exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
@@ -152,18 +175,19 @@ namespace Ice
     }
 
     /// <summary>
-    /// Base class for Ice run-time exceptions.
+    /// Base class for Ice system exceptions.
+    /// Ice system exceptions are currently Ice internal, non-documented exceptions.
     /// </summary>
     [Serializable]
     public abstract class SystemException : Exception
     {
         /// <summary>
-        /// Creates a default-initialized run-time exception.
+        /// Creates a default-initialized system exception.
         /// </summary>
         public SystemException() {}
 
         /// <summary>
-        /// Creates a default-initialized run-time exception and sets the InnerException
+        /// Creates a default-initialized system exception and sets the InnerException
         /// property to the passed exception.
         /// </summary>
         /// <param name="ex">The inner exception.</param>
@@ -202,33 +226,43 @@ namespace Ice
         /// <param name="context">Contains contextual information about the source or destination.</param>
         protected UserException(SerializationInfo info, StreamingContext context) : base(info, context) {}
 
-        public virtual void write__(OutputStream os__)
+        /// <summary>
+        /// Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
+        /// un-marshaling, null is returned otherwise.
+        /// </summary>
+        /// <returns>The sliced data or null.</returns>
+        public virtual Ice.SlicedData ice_getSlicedData()
         {
-            os__.startException(null);
-            writeImpl__(os__);
-            os__.endException();
+            return null;
         }
 
-        public virtual void read__(InputStream is__)
+        public virtual void iceWrite(OutputStream ostr)
         {
-            is__.startException();
-            readImpl__(is__);
-            is__.endException(false);
+            ostr.startException(null);
+            iceWriteImpl(ostr);
+            ostr.endException();
         }
 
-        public virtual bool usesClasses__()
+        public virtual void iceRead(InputStream istr)
+        {
+            istr.startException();
+            iceReadImpl(istr);
+            istr.endException(false);
+        }
+
+        public virtual bool iceUsesClasses()
         {
             return false;
         }
 
-        protected abstract void writeImpl__(OutputStream os__);
-        protected abstract void readImpl__(InputStream is__);
+        protected abstract void iceWriteImpl(OutputStream ostr);
+        protected abstract void iceReadImpl(InputStream istr);
     }
 }
 
 namespace IceInternal
 {
-    public class RetryException : System.Exception
+    public class RetryException : Exception
     {
         public RetryException(Ice.LocalException ex)
         {

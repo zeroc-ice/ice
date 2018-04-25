@@ -1,0 +1,1788 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Assets">
+      <UniqueIdentifier>f061aee4-1cfc-46e9-bec1-56862ef6eb8d</UniqueIdentifier>
+      <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
+    </Filter>
+    <Filter Include="Styles">
+      <UniqueIdentifier>65bbfccd-24aa-402e-8946-23421ba48638</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{15bd3b1e-b7ff-431e-8e7d-8d6889797c82}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{f70d7b91-c91b-4861-ba82-cab4aa7d2606}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32">
+      <UniqueIdentifier>{7a096aea-927e-46c2-aeac-921467bf661b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Debug">
+      <UniqueIdentifier>{35cc2d90-4003-4330-bae7-295228795a37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32">
+      <UniqueIdentifier>{f7ec83f3-6fa3-45d4-bf1c-df7d6c66c947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Debug">
+      <UniqueIdentifier>{65ea1ab1-79ab-47c8-a02e-05f64b2e594b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM">
+      <UniqueIdentifier>{5d72f31a-5d3e-47e9-afc2-9a1f418dcbc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Debug">
+      <UniqueIdentifier>{63fe2a6b-ace0-4a83-a1a6-cbbfb88e4ee6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM">
+      <UniqueIdentifier>{6bc0ca86-3742-4340-84c6-d825b90c9bd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Debug">
+      <UniqueIdentifier>{3c55920c-e412-4168-8958-2ca75785805f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64">
+      <UniqueIdentifier>{60333462-ea02-46cf-b9c5-4c2baf62e587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Debug">
+      <UniqueIdentifier>{bfbb6afc-3b5d-4cf8-9c41-820684df0003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64">
+      <UniqueIdentifier>{6f54da5c-6a0c-404e-bea3-f4b05361fe97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Debug">
+      <UniqueIdentifier>{c075b0c8-1de9-43db-a801-ce5c38d30abc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Win32\Release">
+      <UniqueIdentifier>{d4861aa5-864d-4813-819b-c27113e2f416}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Win32\Release">
+      <UniqueIdentifier>{1214e50b-83cf-46c6-b619-9085e94fbabe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Release">
+      <UniqueIdentifier>{66df8744-6bfd-441b-9879-384c83a87feb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Release">
+      <UniqueIdentifier>{b5279d6d-5df6-4bc6-8433-0e9ae7772164}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\x64\Release">
+      <UniqueIdentifier>{b1e5de95-d922-43fe-9fec-68fe68cf190d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\x64\Release">
+      <UniqueIdentifier>{199edc9c-ac6b-4501-b77a-ff1231d099f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Slice Files">
+      <UniqueIdentifier>{96f49ebc-6667-46e5-ac64-210fd7f3e75e}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{e4343f09-5b8b-443d-9f7e-ccfbde41221b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\x64">
+      <UniqueIdentifier>{34730048-d15b-42f7-93a6-8e933355e255}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\x64\Debug">
+      <UniqueIdentifier>{50142ac0-4697-4157-9945-25146ba37ca7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\x64\Release">
+      <UniqueIdentifier>{ea53d92c-3b00-4783-bb0f-f21d3a256ba9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\ARM">
+      <UniqueIdentifier>{53e89bb5-2f32-419a-996a-96216cd06df9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\Win32">
+      <UniqueIdentifier>{837d8bab-d7cf-4838-b88e-ac125c7af86d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\ARM\Debug">
+      <UniqueIdentifier>{ffbc01b7-9480-46af-88ce-8f625f737892}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\ARM\Release">
+      <UniqueIdentifier>{e1076a6a-7ddc-470e-a38c-53fa2b56f738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\Win32\Debug">
+      <UniqueIdentifier>{365e9f91-cff9-4722-8ca9-43b2a20f4fa0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests\Win32\Release">
+      <UniqueIdentifier>{08875c4d-f346-4e0d-8ca7-5485c5dc0bfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="certs">
+      <UniqueIdentifier>{b09e4692-84df-4259-a719-447f29dd7802}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="..\App.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\App.xaml.cpp" />
+    <ClCompile Include="..\pch.cpp" />
+    <ClCompile Include="Win32\Debug\Controller.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Debug\Controller.cpp">
+      <Filter>Source Files\ARM\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\Controller.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\Controller.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Release\Controller.cpp">
+      <Filter>Source Files\ARM\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\Controller.cpp">
+      <Filter>Source Files\x64\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="..\ViewController.xaml.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\App.xaml.h" />
+    <ClInclude Include="Win32\Debug\Controller.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="ARM\Debug\Controller.h">
+      <Filter>Header Files\ARM\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Debug\Controller.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Win32\Release\Controller.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="ARM\Release\Controller.h">
+      <Filter>Header Files\ARM\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="x64\Release\Controller.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\ViewController.xaml.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Assets\LockScreenLogo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\SplashScreen.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square150x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Square44x44Logo.targetsize-24_altform-unplated.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\StoreLogo.png">
+      <Filter>Assets</Filter>
+    </Image>
+    <Image Include="Assets\Wide310x150Logo.scale-200.png">
+      <Filter>Assets</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <AppxManifest Include="..\Package.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="..\StandardStyles.xaml">
+      <Filter>Styles</Filter>
+    </Page>
+    <Page Include="..\ViewController.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\certs\cacert.der">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\..\..\certs\client.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\c_rsa_ca1.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\c_rsa_ca1_exp.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\c_rsa_ca1_exp_pub.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\c_rsa_ca1_pub.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\c_rsa_ca2.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\c_rsa_cai2.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\c_rsa_pass_ca1.p12">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\cacert1.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\cacert2.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\cacerts.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\s_rsa_ca1_exp_pub.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="..\..\..\IceSSL\certs\s_rsa_ca1_pub.pem">
+      <Filter>certs</Filter>
+    </None>
+    <None Include="controller_TemporaryKey.pfx" />
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\client\x64\Debug\Ice_acm_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\server\x64\Debug\Ice_acm_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\client\x64\Debug\Ice_adapterDeactivation_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\collocated\x64\Debug\Ice_adapterDeactivation_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\server\x64\Debug\Ice_adapterDeactivation_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\client\x64\Debug\Ice_admin_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\server\x64\Debug\Ice_admin_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\client\x64\Debug\Ice_ami_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\collocated\x64\Debug\Ice_ami_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\server\x64\Debug\Ice_ami_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\client\x64\Debug\Ice_binding_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\server\x64\Debug\Ice_binding_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\client\x64\Debug\Ice_checksum_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\server\x64\Debug\Ice_checksum_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\client\x64\Debug\Ice_custom_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\collocated\x64\Debug\Ice_custom_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\server\x64\Debug\Ice_custom_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\serveramd\x64\Debug\Ice_custom_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultServant\msbuild\uwp\client\x64\Debug\Ice_defaultServant_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultValue\msbuild\uwp\client\x64\Debug\Ice_defaultValue_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\client\x64\Debug\Ice_dispatcher_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\collocated\x64\Debug\Ice_dispatcher_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\server\x64\Debug\Ice_dispatcher_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\client\x64\Debug\Ice_enums_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\server\x64\Debug\Ice_enums_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\client\x64\Debug\Ice_exceptions_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\collocated\x64\Debug\Ice_exceptions_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\server\x64\Debug\Ice_exceptions_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\serveramd\x64\Debug\Ice_exceptions_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\client\x64\Debug\Ice_facets_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\collocated\x64\Debug\Ice_facets_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\server\x64\Debug\Ice_facets_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hash\msbuild\uwp\x64\Debug\Ice_hash_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\client\x64\Debug\Ice_hold_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\server\x64\Debug\Ice_hold_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\client\x64\Debug\Ice_info_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\server\x64\Debug\Ice_info_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\client\x64\Debug\Ice_inheritance_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\collocated\x64\Debug\Ice_inheritance_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\server\x64\Debug\Ice_inheritance_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\interceptor\msbuild\uwp\client\x64\Debug\Ice_interceptor_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\client\x64\Debug\Ice_invoke_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\server\x64\Debug\Ice_invoke_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\client\x64\Debug\Ice_location_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\server\x64\Debug\Ice_location_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\client\x64\Debug\Ice_metrics_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\collocated\x64\Debug\Ice_metrics_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\server\x64\Debug\Ice_metrics_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\serveramd\x64\Debug\Ice_metrics_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\client\x64\Debug\Ice_networkProxy_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\server\x64\Debug\Ice_networkProxy_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\client\x64\Debug\Ice_objects_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\collocated\x64\Debug\Ice_objects_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\server\x64\Debug\Ice_objects_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\client\x64\Debug\Ice_operations_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\collocated\x64\Debug\Ice_operations_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\server\x64\Debug\Ice_operations_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\serveramd\x64\Debug\Ice_operations_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\client\x64\Debug\Ice_optional_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\server\x64\Debug\Ice_optional_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\serveramd\x64\Debug\Ice_optional_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\client\x64\Debug\Ice_proxy_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\collocated\x64\Debug\Ice_proxy_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\server\x64\Debug\Ice_proxy_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\serveramd\x64\Debug\Ice_proxy_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\client\x64\Debug\Ice_retry_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\collocated\x64\Debug\Ice_retry_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\server\x64\Debug\Ice_retry_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\client\x64\Debug\Ice_servantLocator_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\collocated\x64\Debug\Ice_servantLocator_collocated.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\server\x64\Debug\Ice_servantLocator_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\serveramd\x64\Debug\Ice_servantLocator_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\services\msbuild\uwp\client\x64\Debug\Ice_services_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\client\x64\Debug\Ice_slicing_exceptions_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\server\x64\Debug\Ice_slicing_exceptions_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\serveramd\x64\Debug\Ice_slicing_exceptions_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\client\x64\Debug\Ice_slicing_objects_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\server\x64\Debug\Ice_slicing_objects_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\serveramd\x64\Debug\Ice_slicing_objects_serveramd.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stream\msbuild\uwp\x64\Debug\Ice_stream_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\client\x64\Debug\Ice_stringConverter_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\server\x64\Debug\Ice_stringConverter_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\client\x64\Debug\Ice_timeout_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\server\x64\Debug\Ice_timeout_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\client\x64\Debug\Ice_udp_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\server\x64\Debug\Ice_udp_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\client\x64\Release\Ice_acm_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\server\x64\Release\Ice_acm_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\client\x64\Release\Ice_adapterDeactivation_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\collocated\x64\Release\Ice_adapterDeactivation_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\server\x64\Release\Ice_adapterDeactivation_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\client\x64\Release\Ice_admin_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\server\x64\Release\Ice_admin_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\client\x64\Release\Ice_ami_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\collocated\x64\Release\Ice_ami_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\server\x64\Release\Ice_ami_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\client\x64\Release\Ice_binding_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\server\x64\Release\Ice_binding_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\client\x64\Release\Ice_checksum_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\server\x64\Release\Ice_checksum_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\client\x64\Release\Ice_custom_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\collocated\x64\Release\Ice_custom_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\server\x64\Release\Ice_custom_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\serveramd\x64\Release\Ice_custom_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultServant\msbuild\uwp\client\x64\Release\Ice_defaultServant_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultValue\msbuild\uwp\client\x64\Release\Ice_defaultValue_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\client\x64\Release\Ice_dispatcher_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\collocated\x64\Release\Ice_dispatcher_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\server\x64\Release\Ice_dispatcher_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\client\x64\Release\Ice_enums_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\server\x64\Release\Ice_enums_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\client\x64\Release\Ice_exceptions_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\collocated\x64\Release\Ice_exceptions_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\server\x64\Release\Ice_exceptions_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\serveramd\x64\Release\Ice_exceptions_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\client\x64\Release\Ice_facets_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\collocated\x64\Release\Ice_facets_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\server\x64\Release\Ice_facets_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hash\msbuild\uwp\x64\Release\Ice_hash_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\client\x64\Release\Ice_hold_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\server\x64\Release\Ice_hold_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\client\x64\Release\Ice_info_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\server\x64\Release\Ice_info_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\client\x64\Release\Ice_inheritance_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\collocated\x64\Release\Ice_inheritance_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\server\x64\Release\Ice_inheritance_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\interceptor\msbuild\uwp\client\x64\Release\Ice_interceptor_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\client\x64\Release\Ice_invoke_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\server\x64\Release\Ice_invoke_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\client\x64\Release\Ice_location_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\server\x64\Release\Ice_location_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\client\x64\Release\Ice_metrics_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\collocated\x64\Release\Ice_metrics_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\server\x64\Release\Ice_metrics_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\serveramd\x64\Release\Ice_metrics_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\client\x64\Release\Ice_networkProxy_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\server\x64\Release\Ice_networkProxy_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\client\x64\Release\Ice_objects_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\collocated\x64\Release\Ice_objects_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\server\x64\Release\Ice_objects_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\client\x64\Release\Ice_operations_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\collocated\x64\Release\Ice_operations_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\server\x64\Release\Ice_operations_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\serveramd\x64\Release\Ice_operations_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\client\x64\Release\Ice_optional_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\server\x64\Release\Ice_optional_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\serveramd\x64\Release\Ice_optional_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\client\x64\Release\Ice_proxy_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\collocated\x64\Release\Ice_proxy_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\server\x64\Release\Ice_proxy_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\serveramd\x64\Release\Ice_proxy_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\client\x64\Release\Ice_retry_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\collocated\x64\Release\Ice_retry_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\server\x64\Release\Ice_retry_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\client\x64\Release\Ice_servantLocator_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\collocated\x64\Release\Ice_servantLocator_collocated.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\server\x64\Release\Ice_servantLocator_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\serveramd\x64\Release\Ice_servantLocator_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\services\msbuild\uwp\client\x64\Release\Ice_services_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\client\x64\Release\Ice_slicing_exceptions_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\server\x64\Release\Ice_slicing_exceptions_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\serveramd\x64\Release\Ice_slicing_exceptions_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\client\x64\Release\Ice_slicing_objects_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\server\x64\Release\Ice_slicing_objects_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\serveramd\x64\Release\Ice_slicing_objects_serveramd.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stream\msbuild\uwp\x64\Release\Ice_stream_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\client\x64\Release\Ice_stringConverter_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\server\x64\Release\Ice_stringConverter_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\client\x64\Release\Ice_timeout_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\server\x64\Release\Ice_timeout_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\client\x64\Release\Ice_udp_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\server\x64\Release\Ice_udp_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\client\Win32\Release\Ice_acm_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\server\Win32\Release\Ice_acm_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\client\Win32\Release\Ice_adapterDeactivation_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\collocated\Win32\Release\Ice_adapterDeactivation_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\server\Win32\Release\Ice_adapterDeactivation_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\client\Win32\Release\Ice_admin_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\server\Win32\Release\Ice_admin_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\client\Win32\Release\Ice_ami_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\collocated\Win32\Release\Ice_ami_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\server\Win32\Release\Ice_ami_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\client\Win32\Release\Ice_binding_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\server\Win32\Release\Ice_binding_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\client\Win32\Release\Ice_checksum_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\server\Win32\Release\Ice_checksum_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\client\Win32\Release\Ice_custom_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\collocated\Win32\Release\Ice_custom_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\server\Win32\Release\Ice_custom_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\serveramd\Win32\Release\Ice_custom_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultServant\msbuild\uwp\client\Win32\Release\Ice_defaultServant_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultValue\msbuild\uwp\client\Win32\Release\Ice_defaultValue_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\client\Win32\Release\Ice_dispatcher_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\collocated\Win32\Release\Ice_dispatcher_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\server\Win32\Release\Ice_dispatcher_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\client\Win32\Release\Ice_enums_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\server\Win32\Release\Ice_enums_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\client\Win32\Release\Ice_exceptions_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\collocated\Win32\Release\Ice_exceptions_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\server\Win32\Release\Ice_exceptions_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\serveramd\Win32\Release\Ice_exceptions_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\client\Win32\Release\Ice_facets_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\collocated\Win32\Release\Ice_facets_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\server\Win32\Release\Ice_facets_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hash\msbuild\uwp\Win32\Release\Ice_hash_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\client\Win32\Release\Ice_hold_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\server\Win32\Release\Ice_hold_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\client\Win32\Release\Ice_info_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\server\Win32\Release\Ice_info_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\client\Win32\Release\Ice_inheritance_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\collocated\Win32\Release\Ice_inheritance_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\server\Win32\Release\Ice_inheritance_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\interceptor\msbuild\uwp\client\Win32\Release\Ice_interceptor_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\client\Win32\Release\Ice_invoke_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\server\Win32\Release\Ice_invoke_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\client\Win32\Release\Ice_location_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\server\Win32\Release\Ice_location_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\client\Win32\Release\Ice_metrics_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\collocated\Win32\Release\Ice_metrics_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\server\Win32\Release\Ice_metrics_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\serveramd\Win32\Release\Ice_metrics_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\client\Win32\Release\Ice_networkProxy_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\server\Win32\Release\Ice_networkProxy_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\client\Win32\Release\Ice_objects_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\collocated\Win32\Release\Ice_objects_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\server\Win32\Release\Ice_objects_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\client\Win32\Release\Ice_operations_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\collocated\Win32\Release\Ice_operations_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\server\Win32\Release\Ice_operations_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\serveramd\Win32\Release\Ice_operations_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\client\Win32\Release\Ice_optional_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\server\Win32\Release\Ice_optional_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\serveramd\Win32\Release\Ice_optional_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\client\Win32\Release\Ice_proxy_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\collocated\Win32\Release\Ice_proxy_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\server\Win32\Release\Ice_proxy_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\serveramd\Win32\Release\Ice_proxy_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\client\Win32\Release\Ice_retry_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\collocated\Win32\Release\Ice_retry_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\server\Win32\Release\Ice_retry_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\client\Win32\Release\Ice_servantLocator_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\collocated\Win32\Release\Ice_servantLocator_collocated.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\server\Win32\Release\Ice_servantLocator_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\serveramd\Win32\Release\Ice_servantLocator_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\services\msbuild\uwp\client\Win32\Release\Ice_services_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\client\Win32\Release\Ice_slicing_exceptions_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\server\Win32\Release\Ice_slicing_exceptions_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\serveramd\Win32\Release\Ice_slicing_exceptions_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\client\Win32\Release\Ice_slicing_objects_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\server\Win32\Release\Ice_slicing_objects_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\serveramd\Win32\Release\Ice_slicing_objects_serveramd.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stream\msbuild\uwp\Win32\Release\Ice_stream_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\client\Win32\Release\Ice_stringConverter_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\server\Win32\Release\Ice_stringConverter_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\client\Win32\Release\Ice_timeout_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\server\Win32\Release\Ice_timeout_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\client\Win32\Release\Ice_udp_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\server\Win32\Release\Ice_udp_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\client\Win32\Debug\Ice_acm_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\server\Win32\Debug\Ice_acm_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\client\Win32\Debug\Ice_adapterDeactivation_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\collocated\Win32\Debug\Ice_adapterDeactivation_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\server\Win32\Debug\Ice_adapterDeactivation_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\client\Win32\Debug\Ice_admin_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\server\Win32\Debug\Ice_admin_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\client\Win32\Debug\Ice_ami_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\collocated\Win32\Debug\Ice_ami_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\server\Win32\Debug\Ice_ami_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\client\Win32\Debug\Ice_binding_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\server\Win32\Debug\Ice_binding_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\client\Win32\Debug\Ice_checksum_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\server\Win32\Debug\Ice_checksum_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\client\Win32\Debug\Ice_custom_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\collocated\Win32\Debug\Ice_custom_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\server\Win32\Debug\Ice_custom_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\serveramd\Win32\Debug\Ice_custom_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultServant\msbuild\uwp\client\Win32\Debug\Ice_defaultServant_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultValue\msbuild\uwp\client\Win32\Debug\Ice_defaultValue_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\client\Win32\Debug\Ice_dispatcher_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\collocated\Win32\Debug\Ice_dispatcher_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\server\Win32\Debug\Ice_dispatcher_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\client\Win32\Debug\Ice_enums_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\server\Win32\Debug\Ice_enums_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\client\Win32\Debug\Ice_exceptions_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\collocated\Win32\Debug\Ice_exceptions_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\server\Win32\Debug\Ice_exceptions_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\serveramd\Win32\Debug\Ice_exceptions_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\client\Win32\Debug\Ice_facets_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\collocated\Win32\Debug\Ice_facets_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\server\Win32\Debug\Ice_facets_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hash\msbuild\uwp\Win32\Debug\Ice_hash_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\client\Win32\Debug\Ice_hold_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\server\Win32\Debug\Ice_hold_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\client\Win32\Debug\Ice_info_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\server\Win32\Debug\Ice_info_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\client\Win32\Debug\Ice_inheritance_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\collocated\Win32\Debug\Ice_inheritance_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\server\Win32\Debug\Ice_inheritance_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\interceptor\msbuild\uwp\client\Win32\Debug\Ice_interceptor_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\client\Win32\Debug\Ice_invoke_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\server\Win32\Debug\Ice_invoke_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\client\Win32\Debug\Ice_location_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\server\Win32\Debug\Ice_location_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\client\Win32\Debug\Ice_metrics_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\collocated\Win32\Debug\Ice_metrics_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\server\Win32\Debug\Ice_metrics_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\serveramd\Win32\Debug\Ice_metrics_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\client\Win32\Debug\Ice_networkProxy_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\server\Win32\Debug\Ice_networkProxy_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\client\Win32\Debug\Ice_objects_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\collocated\Win32\Debug\Ice_objects_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\server\Win32\Debug\Ice_objects_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\client\Win32\Debug\Ice_operations_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\collocated\Win32\Debug\Ice_operations_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\server\Win32\Debug\Ice_operations_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\serveramd\Win32\Debug\Ice_operations_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\client\Win32\Debug\Ice_optional_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\server\Win32\Debug\Ice_optional_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\serveramd\Win32\Debug\Ice_optional_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\client\Win32\Debug\Ice_proxy_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\collocated\Win32\Debug\Ice_proxy_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\server\Win32\Debug\Ice_proxy_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\serveramd\Win32\Debug\Ice_proxy_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\client\Win32\Debug\Ice_retry_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\collocated\Win32\Debug\Ice_retry_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\server\Win32\Debug\Ice_retry_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\client\Win32\Debug\Ice_servantLocator_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\collocated\Win32\Debug\Ice_servantLocator_collocated.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\server\Win32\Debug\Ice_servantLocator_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\serveramd\Win32\Debug\Ice_servantLocator_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\services\msbuild\uwp\client\Win32\Debug\Ice_services_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\client\Win32\Debug\Ice_slicing_exceptions_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\server\Win32\Debug\Ice_slicing_exceptions_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\serveramd\Win32\Debug\Ice_slicing_exceptions_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\client\Win32\Debug\Ice_slicing_objects_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\server\Win32\Debug\Ice_slicing_objects_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\serveramd\Win32\Debug\Ice_slicing_objects_serveramd.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stream\msbuild\uwp\Win32\Debug\Ice_stream_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\client\Win32\Debug\Ice_stringConverter_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\server\Win32\Debug\Ice_stringConverter_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\client\Win32\Debug\Ice_timeout_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\server\Win32\Debug\Ice_timeout_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\client\Win32\Debug\Ice_udp_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\server\Win32\Debug\Ice_udp_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\server\ARM\Debug\Ice_udp_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\server\ARM\Debug\Ice_acm_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\client\ARM\Debug\Ice_adapterDeactivation_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\collocated\ARM\Debug\Ice_adapterDeactivation_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\server\ARM\Debug\Ice_adapterDeactivation_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\client\ARM\Debug\Ice_admin_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\server\ARM\Debug\Ice_admin_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\client\ARM\Debug\Ice_ami_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\collocated\ARM\Debug\Ice_ami_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\server\ARM\Debug\Ice_ami_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\client\ARM\Debug\Ice_binding_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\server\ARM\Debug\Ice_binding_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\client\ARM\Debug\Ice_checksum_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\server\ARM\Debug\Ice_checksum_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\client\ARM\Debug\Ice_custom_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\collocated\ARM\Debug\Ice_custom_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\server\ARM\Debug\Ice_custom_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\serveramd\ARM\Debug\Ice_custom_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultServant\msbuild\uwp\client\ARM\Debug\Ice_defaultServant_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultValue\msbuild\uwp\client\ARM\Debug\Ice_defaultValue_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\client\ARM\Debug\Ice_dispatcher_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\collocated\ARM\Debug\Ice_dispatcher_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\server\ARM\Debug\Ice_dispatcher_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\client\ARM\Debug\Ice_enums_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\server\ARM\Debug\Ice_enums_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\client\ARM\Debug\Ice_exceptions_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\collocated\ARM\Debug\Ice_exceptions_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\server\ARM\Debug\Ice_exceptions_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\serveramd\ARM\Debug\Ice_exceptions_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\client\ARM\Debug\Ice_facets_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\collocated\ARM\Debug\Ice_facets_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\server\ARM\Debug\Ice_facets_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hash\msbuild\uwp\ARM\Debug\Ice_hash_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\client\ARM\Debug\Ice_hold_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\server\ARM\Debug\Ice_hold_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\client\ARM\Debug\Ice_info_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\server\ARM\Debug\Ice_info_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\client\ARM\Debug\Ice_inheritance_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\collocated\ARM\Debug\Ice_inheritance_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\server\ARM\Debug\Ice_inheritance_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\interceptor\msbuild\uwp\client\ARM\Debug\Ice_interceptor_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\client\ARM\Debug\Ice_invoke_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\server\ARM\Debug\Ice_invoke_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\client\ARM\Debug\Ice_location_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\server\ARM\Debug\Ice_location_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\client\ARM\Debug\Ice_metrics_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\collocated\ARM\Debug\Ice_metrics_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\server\ARM\Debug\Ice_metrics_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\serveramd\ARM\Debug\Ice_metrics_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\client\ARM\Debug\Ice_networkProxy_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\server\ARM\Debug\Ice_networkProxy_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\client\ARM\Debug\Ice_objects_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\collocated\ARM\Debug\Ice_objects_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\server\ARM\Debug\Ice_objects_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\client\ARM\Debug\Ice_operations_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\collocated\ARM\Debug\Ice_operations_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\server\ARM\Debug\Ice_operations_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\serveramd\ARM\Debug\Ice_operations_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\client\ARM\Debug\Ice_optional_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\server\ARM\Debug\Ice_optional_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\serveramd\ARM\Debug\Ice_optional_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\client\ARM\Debug\Ice_proxy_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\collocated\ARM\Debug\Ice_proxy_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\server\ARM\Debug\Ice_proxy_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\serveramd\ARM\Debug\Ice_proxy_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\client\ARM\Debug\Ice_retry_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\collocated\ARM\Debug\Ice_retry_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\server\ARM\Debug\Ice_retry_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\client\ARM\Debug\Ice_servantLocator_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\collocated\ARM\Debug\Ice_servantLocator_collocated.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\server\ARM\Debug\Ice_servantLocator_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\serveramd\ARM\Debug\Ice_servantLocator_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\services\msbuild\uwp\client\ARM\Debug\Ice_services_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\client\ARM\Debug\Ice_slicing_exceptions_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\server\ARM\Debug\Ice_slicing_exceptions_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\serveramd\ARM\Debug\Ice_slicing_exceptions_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\client\ARM\Debug\Ice_slicing_objects_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\server\ARM\Debug\Ice_slicing_objects_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\serveramd\ARM\Debug\Ice_slicing_objects_serveramd.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stream\msbuild\uwp\ARM\Debug\Ice_stream_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\client\ARM\Debug\Ice_stringConverter_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\server\ARM\Debug\Ice_stringConverter_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\client\ARM\Debug\Ice_timeout_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\server\ARM\Debug\Ice_timeout_server.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\client\ARM\Debug\Ice_udp_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\client\ARM\Debug\Ice_acm_client.dll">
+      <Filter>Tests\ARM\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\client\ARM\Release\Ice_acm_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\acm\msbuild\uwp\server\ARM\Release\Ice_acm_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\client\ARM\Release\Ice_adapterDeactivation_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\collocated\ARM\Release\Ice_adapterDeactivation_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\adapterDeactivation\msbuild\uwp\server\ARM\Release\Ice_adapterDeactivation_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\client\ARM\Release\Ice_admin_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\admin\msbuild\uwp\server\ARM\Release\Ice_admin_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\client\ARM\Release\Ice_ami_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\collocated\ARM\Release\Ice_ami_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\ami\msbuild\uwp\server\ARM\Release\Ice_ami_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\client\ARM\Release\Ice_binding_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\binding\msbuild\uwp\server\ARM\Release\Ice_binding_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\client\ARM\Release\Ice_checksum_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\checksum\msbuild\uwp\server\ARM\Release\Ice_checksum_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\client\ARM\Release\Ice_custom_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\collocated\ARM\Release\Ice_custom_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\server\ARM\Release\Ice_custom_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\custom\msbuild\uwp\serveramd\ARM\Release\Ice_custom_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultServant\msbuild\uwp\client\ARM\Release\Ice_defaultServant_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\defaultValue\msbuild\uwp\client\ARM\Release\Ice_defaultValue_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\client\ARM\Release\Ice_dispatcher_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\collocated\ARM\Release\Ice_dispatcher_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\dispatcher\msbuild\uwp\server\ARM\Release\Ice_dispatcher_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\client\ARM\Release\Ice_enums_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\enums\msbuild\uwp\server\ARM\Release\Ice_enums_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\client\ARM\Release\Ice_exceptions_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\collocated\ARM\Release\Ice_exceptions_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\server\ARM\Release\Ice_exceptions_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\exceptions\msbuild\uwp\serveramd\ARM\Release\Ice_exceptions_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\client\ARM\Release\Ice_facets_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\collocated\ARM\Release\Ice_facets_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\facets\msbuild\uwp\server\ARM\Release\Ice_facets_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hash\msbuild\uwp\ARM\Release\Ice_hash_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\client\ARM\Release\Ice_hold_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\hold\msbuild\uwp\server\ARM\Release\Ice_hold_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\client\ARM\Release\Ice_info_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\info\msbuild\uwp\server\ARM\Release\Ice_info_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\client\ARM\Release\Ice_inheritance_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\collocated\ARM\Release\Ice_inheritance_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\inheritance\msbuild\uwp\server\ARM\Release\Ice_inheritance_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\interceptor\msbuild\uwp\client\ARM\Release\Ice_interceptor_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\client\ARM\Release\Ice_invoke_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\invoke\msbuild\uwp\server\ARM\Release\Ice_invoke_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\client\ARM\Release\Ice_location_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\location\msbuild\uwp\server\ARM\Release\Ice_location_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\client\ARM\Release\Ice_metrics_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\collocated\ARM\Release\Ice_metrics_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\server\ARM\Release\Ice_metrics_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\metrics\msbuild\uwp\serveramd\ARM\Release\Ice_metrics_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\client\ARM\Release\Ice_networkProxy_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\networkProxy\msbuild\uwp\server\ARM\Release\Ice_networkProxy_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\client\ARM\Release\Ice_objects_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\collocated\ARM\Release\Ice_objects_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\objects\msbuild\uwp\server\ARM\Release\Ice_objects_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\client\ARM\Release\Ice_operations_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\collocated\ARM\Release\Ice_operations_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\server\ARM\Release\Ice_operations_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\operations\msbuild\uwp\serveramd\ARM\Release\Ice_operations_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\client\ARM\Release\Ice_optional_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\server\ARM\Release\Ice_optional_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\optional\msbuild\uwp\serveramd\ARM\Release\Ice_optional_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\client\ARM\Release\Ice_proxy_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\collocated\ARM\Release\Ice_proxy_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\server\ARM\Release\Ice_proxy_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\proxy\msbuild\uwp\serveramd\ARM\Release\Ice_proxy_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\client\ARM\Release\Ice_retry_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\collocated\ARM\Release\Ice_retry_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\retry\msbuild\uwp\server\ARM\Release\Ice_retry_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\client\ARM\Release\Ice_servantLocator_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\collocated\ARM\Release\Ice_servantLocator_collocated.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\server\ARM\Release\Ice_servantLocator_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\servantLocator\msbuild\uwp\serveramd\ARM\Release\Ice_servantLocator_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\services\msbuild\uwp\client\ARM\Release\Ice_services_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\client\ARM\Release\Ice_slicing_exceptions_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\server\ARM\Release\Ice_slicing_exceptions_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\exceptions\msbuild\uwp\serveramd\ARM\Release\Ice_slicing_exceptions_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\client\ARM\Release\Ice_slicing_objects_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\server\ARM\Release\Ice_slicing_objects_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\slicing\objects\msbuild\uwp\serveramd\ARM\Release\Ice_slicing_objects_serveramd.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stream\msbuild\uwp\ARM\Release\Ice_stream_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\client\ARM\Release\Ice_stringConverter_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\stringConverter\msbuild\uwp\server\ARM\Release\Ice_stringConverter_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\client\ARM\Release\Ice_timeout_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\timeout\msbuild\uwp\server\ARM\Release\Ice_timeout_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\client\ARM\Release\Ice_udp_client.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\udp\msbuild\uwp\server\ARM\Release\Ice_udp_server.dll">
+      <Filter>Tests\ARM\Release</Filter>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\scripts\Controller.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+  </ItemGroup>
+</Project>

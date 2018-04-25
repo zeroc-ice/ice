@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ class WellKnownObjectsManager;
 typedef IceUtil::Handle<WellKnownObjectsManager> WellKnownObjectsManagerPtr;
 
 class ReapThread;
-typedef IceUtil::Handle<ReapThread> ReapThreadPtr;    
+typedef IceUtil::Handle<ReapThread> ReapThreadPtr;
 
 class RegistryI;
 typedef IceUtil::Handle<RegistryI> RegistryIPtr;
@@ -37,13 +37,13 @@ class InternalRegistryI : public InternalRegistry
 {
 public:
 
-    InternalRegistryI(const RegistryIPtr&, const DatabasePtr&, const ReapThreadPtr&, 
+    InternalRegistryI(const RegistryIPtr&, const DatabasePtr&, const ReapThreadPtr&,
                       const WellKnownObjectsManagerPtr&, ReplicaSessionManager&);
     virtual ~InternalRegistryI();
 
-    virtual NodeSessionPrx registerNode(const InternalNodeInfoPtr&, const NodePrx&, const LoadInfo&, 
+    virtual NodeSessionPrx registerNode(const InternalNodeInfoPtr&, const NodePrx&, const LoadInfo&,
                                         const Ice::Current&);
-    virtual ReplicaSessionPrx registerReplica(const InternalReplicaInfoPtr&, const InternalRegistryPrx&, 
+    virtual ReplicaSessionPrx registerReplica(const InternalReplicaInfoPtr&, const InternalRegistryPrx&,
                                               const Ice::Current&);
 
     virtual void registerWithReplica(const InternalRegistryPrx&, const Ice::Current&);
@@ -60,7 +60,7 @@ public:
     virtual Ice::Long getOffsetFromEnd(const std::string&, int, const Ice::Current&) const;
     virtual bool read(const std::string&, Ice::Long, int, Ice::Long&, Ice::StringSeq&, const Ice::Current&) const;
 
-private:    
+private:
 
     std::string getFilePath(const std::string&) const;
 
@@ -75,7 +75,7 @@ private:
     bool _requireNodeCertCN;
     bool _requireReplicaCertCN;
 };
-    
+
 };
 
 #endif

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,14 +17,14 @@ module Test
 ["java:serializable:test.Ice.seqMapping.Serialize.Large"] sequence<byte> SerialLarge;
 ["java:serializable:test.Ice.seqMapping.Serialize.Struct"] sequence<byte> SerialStruct;
 
-["amd"] class MyClass
+["amd"] interface MyClass
 {
     void shutdown();
 
     SerialSmall opSerialSmallJava(SerialSmall i, out SerialSmall o);
     SerialLarge opSerialLargeJava(SerialLarge i, out SerialLarge o);
     SerialStruct opSerialStructJava(SerialStruct i, out SerialStruct o);
-};
+}
 
 // Remaining type definitions are there to verify that the generated
 // code compiles correctly.
@@ -37,18 +37,18 @@ struct Foo
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
 exception Bar
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
 class Baz
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
-};
+}

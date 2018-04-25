@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,12 +23,12 @@ public class TestI implements TestIntf
     {
         return current.adapter.getCommunicator().getProperties().getProperty(name);
     }
-    
+
     @Override
     public String[] getArgs(com.zeroc.Ice.Current current)
     {
         return _args;
     }
-    
+
     final private String[] _args;
 }

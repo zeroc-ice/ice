@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -80,10 +80,10 @@ class UpdateUtilizationAverageThread : public IceUtil::Thread
 {
 public:
 
-    UpdateUtilizationAverageThread(PlatformInfo& platform) : 
+    UpdateUtilizationAverageThread(PlatformInfo& platform) :
         IceUtil::Thread("IceGrid update utilization average thread"),
         _platform(platform)
-    { 
+    {
     }
 
     virtual void
@@ -93,7 +93,7 @@ public:
     }
 
 private:
-    
+
     PlatformInfo& _platform;
 };
 
@@ -104,7 +104,7 @@ getSocketCount(const Ice::LoggerPtr& logger)
 {
     LPFN_GLPI glpi;
     glpi = (LPFN_GLPI) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetLogicalProcessorInformation");
-    if(!glpi) 
+    if(!glpi)
     {
         Ice::Warning out(logger);
         out << "Unable to figure out the number of process sockets:\n";
@@ -117,15 +117,15 @@ getSocketCount(const Ice::LoggerPtr& logger)
     while(true)
     {
         DWORD rc = glpi(&buffer[0], &returnLength);
-        if(!rc) 
+        if(!rc)
         {
             if(GetLastError() == ERROR_INSUFFICIENT_BUFFER)
             {
                 buffer.resize(returnLength / sizeof(SYSTEM_LOGICAL_PROCESSOR_INFORMATION) + 1);
                 continue;
-            } 
+            }
             else
-            { 
+            {
                 Ice::Warning out(logger);
                 out << "Unable to figure out the number of process sockets:\n";
                 out << IceUtilInternal::lastErrorToString();
@@ -179,9 +179,9 @@ toNodeInfo(const InternalNodeInfoPtr& node)
 
 }
 
-PlatformInfo::PlatformInfo(const string& prefix, 
-                           const Ice::CommunicatorPtr& communicator, 
-                           const TraceLevelsPtr& traceLevels) : 
+PlatformInfo::PlatformInfo(const string& prefix,
+                           const Ice::CommunicatorPtr& communicator,
+                           const TraceLevelsPtr& traceLevels) :
     _traceLevels(traceLevels)
 {
     //
@@ -228,9 +228,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     size_t sz = sizeof(_nProcessorThreads);
     if(sysctl(ncpu, 2, &_nProcessorThreads, &sz, 0, 0) == -1)
     {
-        Ice::SyscallException ex(__FILE__, __LINE__);
-        ex.error = IceInternal::getSystemErrno();
-        throw ex;
+        throw Ice::SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
     }
 #else
     _nProcessorThreads = static_cast<int>(sysconf(_SC_NPROCESSORS_ONLN));
@@ -251,6 +249,13 @@ PlatformInfo::PlatformInfo(const string& prefix,
     osInfo.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
 
 //
+// GetVersionEx will return the Windows 8 OS version value (6.2) for applications
+// not manifested for Windows 8.1 or Windows 10. We read the OS version info from
+// a system file resource and if that fail we just return whatever GetVersionEx
+// returns.
+//
+
+//
 // GetVersionEx deprecated in Windows 8.1
 //
 #  if defined(_MSC_VER) && _MSC_VER >= 1800
@@ -260,10 +265,43 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #  if defined(_MSC_VER) && _MSC_VER >= 1800
 #    pragma warning (default : 4996)
 #  endif
+
+    DWORD major = osInfo.dwMajorVersion;
+    DWORD minor = osInfo.dwMinorVersion;
+    DWORD build = osInfo.dwBuildNumber;
+
+    HMODULE handle = GetModuleHandleW(L"kernel32.dll");
+    if(handle)
+    {
+        wchar_t path[MAX_PATH];
+        if(GetModuleFileNameW(handle, path, MAX_PATH))
+        {
+            DWORD size = GetFileVersionInfoSizeW(path, 0);
+            if(size)
+            {
+                vector<unsigned char> buffer;
+                buffer.resize(size) ;
+
+                if(GetFileVersionInfoW(path, 0, size, &buffer[0]))
+                {
+                    VS_FIXEDFILEINFO* ffi;
+                    unsigned int ffiLen;
+                    if(VerQueryValueW(&buffer[0], L"", (LPVOID*)&ffi, &ffiLen))
+                    {
+                        major = HIWORD(ffi->dwProductVersionMS);
+                        minor = LOWORD(ffi->dwProductVersionMS);
+                        build = HIWORD(ffi->dwProductVersionLS);
+                    }
+                }
+            }
+        }
+    }
+
     ostringstream os;
-    os << osInfo.dwMajorVersion << "." << osInfo.dwMinorVersion;
+    os << major << "." << minor;
     _release = os.str();
-    _version = osInfo.szCSDVersion;
+    os << "." << build;
+    _version = os.str();
 
     switch(sysInfo.wProcessorArchitecture)
     {
@@ -303,7 +341,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #elif defined(__linux)
         ifstream is("/proc/cpuinfo");
         set<string> ids;
-        
+
         int nprocessor = 0;
         while(is)
         {
@@ -352,11 +390,11 @@ PlatformInfo::PlatformInfo(const string& prefix,
     string cwd;
     if(IceUtilInternal::getcwd(cwd) != 0)
     {
-        throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
+        throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
     }
     _cwd = string(cwd);
 
-    _dataDir = properties->getProperty(prefix + ".Data");    
+    _dataDir = properties->getProperty(prefix + ".Data");
     if(!IceUtilInternal::isAbsolutePath(_dataDir))
     {
         _dataDir = _cwd + '/' + _dataDir;
@@ -551,7 +589,7 @@ PlatformInfo::runUpdateLoadInfo()
     //
     // If either lookup fails, close the query system, and we're done.
     //
-    
+
     string processor;
     string percentProcessorTime;
     try
@@ -602,11 +640,11 @@ PlatformInfo::runUpdateLoadInfo()
             Ice::Warning out(_traceLevels->logger);
             out << "Could not collect performance counter data:\n" << pdhErrorToString(err);
         }
-        
+
         _last1Total += usage - _usages1.back();
         _last5Total += usage - _usages5.back();
         _last15Total += usage - _usages15.back();
-        
+
         _usages1.pop_back();
         _usages5.pop_back();
         _usages15.pop_back();

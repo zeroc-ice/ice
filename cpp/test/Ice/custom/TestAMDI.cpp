@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -77,7 +77,6 @@ TestIntfI::opVariableRangeAsync(Test::VariableList in,
     response(in, in);
 }
 
-
 void
 TestIntfI::opByteRangeTypeAsync(Test::ByteList in,
                                 std::function<void(const Test::ByteList&, const Test::ByteList&)> response,
@@ -102,7 +101,6 @@ TestIntfI::opBoolSeqAsync(std::deque<bool> in,
 {
     response(in, in);
 }
-
 
 void
 TestIntfI::opBoolListAsync(Test::BoolList in,
@@ -177,7 +175,6 @@ TestIntfI::opFixedListAsync(Test::FixedList in,
     response(in, in);
 }
 
-
 void
 TestIntfI::opVariableSeqAsync(std::deque<Test::Variable> in,
                               std::function<void(const std::deque<Test::Variable>&,
@@ -230,17 +227,17 @@ TestIntfI::opEListAsync(Test::EList in,
 }
 
 void
-TestIntfI::opCPrxSeqAsync(std::deque<std::shared_ptr<Ice::ObjectPrx>> in,
-                          std::function<void(const std::deque<std::shared_ptr<Ice::ObjectPrx>>&,
-                                              const std::deque<std::shared_ptr<Ice::ObjectPrx>>&)> response,
+TestIntfI::opDPrxSeqAsync(std::deque<std::shared_ptr<Test::DPrx>> in,
+                          std::function<void(const std::deque<std::shared_ptr<Test::DPrx>>&,
+                                             const std::deque<std::shared_ptr<Test::DPrx>>&)> response,
                           std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
 }
 
 void
-TestIntfI::opCPrxListAsync(Test::CPrxList in,
-                           std::function<void(const Test::CPrxList&, const Test::CPrxList&)> response,
+TestIntfI::opDPrxListAsync(Test::DPrxList in,
+                           std::function<void(const Test::DPrxList&, const Test::DPrxList&)> response,
                            std::function<void(std::exception_ptr)>, const Ice::Current&)
 {
     response(in, in);
@@ -327,7 +324,6 @@ TestIntfI::opShortBufferAsync(Test::ShortBuffer in,
     response(in, in);
 }
 
-
 void
 TestIntfI::opBoolBufferAsync(Test::CustomBuffer<bool> in,
                              std::function<void(const Test::CustomBuffer<bool>&,
@@ -344,7 +340,6 @@ TestIntfI::opBufferStructAsync(Test::BufferStruct in,
 {
     response(in);
 }
-
 
 void
 TestIntfI::shutdownAsync(std::function<void()> response,
@@ -585,21 +580,21 @@ TestIntfI::opEList_async(const Test::AMD_TestIntf_opEListPtr& opEListCB,
 }
 
 void
-TestIntfI::opCPrxSeq_async(const Test::AMD_TestIntf_opCPrxSeqPtr& opCPrxSeqCB,
-                           const std::deque<Test::CPrx>& inSeq,
+TestIntfI::opDPrxSeq_async(const Test::AMD_TestIntf_opDPrxSeqPtr& opDPrxSeqCB,
+                           const std::deque<Test::DPrx>& inSeq,
                            const Ice::Current&)
 {
-    std::deque<Test::CPrx> outSeq(inSeq);
-    opCPrxSeqCB->ice_response(outSeq, outSeq);
+    std::deque<Test::DPrx> outSeq(inSeq);
+    opDPrxSeqCB->ice_response(outSeq, outSeq);
 }
 
 void
-TestIntfI::opCPrxList_async(const Test::AMD_TestIntf_opCPrxListPtr& opCPrxListCB,
-                            const Test::CPrxList& inSeq,
+TestIntfI::opDPrxList_async(const Test::AMD_TestIntf_opDPrxListPtr& opDPrxListCB,
+                            const Test::DPrxList& inSeq,
                             const Ice::Current&)
 {
-    Test::CPrxList outSeq(inSeq);
-    opCPrxListCB->ice_response(outSeq, outSeq);
+    Test::DPrxList outSeq(inSeq);
+    opDPrxListCB->ice_response(outSeq, outSeq);
 }
 
 void
@@ -628,7 +623,6 @@ TestIntfI::opClassStruct_async(const Test::AMD_TestIntf_opClassStructPtr& cb,
 {
     cb->ice_response(inS, inS, inSeq);
 }
-
 
 void
 TestIntfI::opOutArrayByteSeq_async(const Test::AMD_TestIntf_opOutArrayByteSeqPtr& cb,

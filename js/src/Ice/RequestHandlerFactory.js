@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,15 +8,13 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
-        "../Ice/Debug",
         "../Ice/HashMap",
         "../Ice/Reference",
         "../Ice/ConnectRequestHandler"
     ]);
 
-const Debug = Ice.Debug;
 const HashMap = Ice.HashMap;
 const ConnectRequestHandler = Ice.ConnectRequestHandler;
 
@@ -50,16 +48,16 @@ class RequestHandlerFactory
 
         if(connect)
         {
-            ref.getConnection().then(values => 
+            ref.getConnection().then(connection =>
                                      {
-                                         handler.setConnection(values);
+                                         handler.setConnection(connection);
                                      },
                                      ex =>
                                      {
                                          handler.setException(ex);
                                      });
         }
-        return proxy.__setRequestHandler(handler.connect(proxy));
+        return proxy._setRequestHandler(handler.connect(proxy));
     }
 
     removeRequestHandler(ref, handler)

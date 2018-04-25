@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,100 +15,14 @@
 
 #include <IceUtil/Timer.h>
 #include <Ice/Properties.h>
+#include <Ice/Comparable.h>
+
+#include <set>
 
 namespace IceDiscovery
 {
 
 class LookupI;
-
-#ifdef ICE_CPP11_MAPPING
-
-template<class T> class Request : public IceUtil::TimerTask
-{
-public:
-
-    Request(std::shared_ptr<LookupI> lookup, const T& id, int retryCount) :
-        _lookup(lookup),
-        _id(id),
-        _nRetry(retryCount)
-    {
-    }
-
-    T getId() const
-    {
-        return _id;
-    }
-
-    virtual bool retry()
-    {
-        return --_nRetry >= 0;
-    }
-
-    bool addCallback(std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)> cb)
-    {
-        _callbacks.push_back(cb);
-        return _callbacks.size() == 1;
-    }
-
-    virtual void finished(const Ice::ObjectPrxPtr& proxy)
-    {
-        for(auto cb : _callbacks)
-        {
-            cb(proxy);
-        }
-        _callbacks.clear();
-    }
-
-protected:
-
-    LookupIPtr _lookup;
-    const T _id;
-    int _nRetry;
-    std::vector<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>> _callbacks;
-};
-
-class ObjectRequest : public Request<Ice::Identity>, public std::enable_shared_from_this<ObjectRequest>
-{
-public:
-
-    ObjectRequest(const std::shared_ptr<LookupI>& lookup, const Ice::Identity& id, int retryCount) :
-        Request<Ice::Identity>(lookup, id, retryCount)
-    {
-    }
-
-    void response(const std::shared_ptr<Ice::ObjectPrx>&);
-
-private:
-
-    virtual void runTimerTask();
-};
-typedef std::shared_ptr<ObjectRequest> ObjectRequestPtr;
-
-class AdapterRequest : public Request<std::string>, public std::enable_shared_from_this<AdapterRequest>
-{
-public:
-
-    AdapterRequest(std::shared_ptr<LookupI> lookup, const std::string& adapterId, int retryCount) :
-        Request<std::string>(lookup, adapterId, retryCount),
-        _start(IceUtil::Time::now())
-    {
-    }
-
-    bool response(const std::shared_ptr<Ice::ObjectPrx>&, bool);
-
-    virtual bool retry();
-    virtual void finished(const std::shared_ptr<Ice::ObjectPrx>&);
-
-private:
-
-    virtual void runTimerTask();
-    std::vector<Ice::ObjectPrxPtr> _proxies;
-    IceUtil::Time _start;
-    IceUtil::Time _latency;
-};
-typedef std::shared_ptr<AdapterRequest> AdapterRequestPtr;
-
-#else
 
 class Request : public IceUtil::TimerTask
 {
@@ -117,18 +31,29 @@ public:
     Request(const LookupIPtr&, int);
 
     virtual bool retry();
+    void invoke(const std::string&, const std::vector<std::pair<LookupPrxPtr, LookupReplyPrxPtr> >&);
+    bool exception();
+    std::string getRequestId() const;
+
+    virtual void finished(const Ice::ObjectPrxPtr&) = 0;
 
 protected:
 
+    virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&) = 0;
+
     LookupIPtr _lookup;
-    int _nRetry;
+    const std::string _requestId;
+    int _retryCount;
+    size_t _lookupCount;
+    size_t _failureCount;
 };
+ICE_DEFINE_PTR(RequestPtr, Request);
 
 template<class T, class CB> class RequestT : public Request
 {
 public:
 
-    RequestT(LookupI* lookup, T id, int retryCount) : Request(lookup, retryCount), _id(id)
+    RequestT(const LookupIPtr& lookup, T id, int retryCount) : Request(lookup, retryCount), _id(id)
     {
     }
 
@@ -137,7 +62,7 @@ public:
         return _id;
     }
 
-    bool addCallback(CB cb)
+    bool addCallback(const CB& cb)
     {
         _callbacks.push_back(cb);
         return _callbacks.size() == 1;
@@ -147,7 +72,11 @@ public:
     {
         for(typename std::vector<CB>::const_iterator p = _callbacks.begin(); p != _callbacks.end(); ++p)
         {
+#ifdef ICE_CPP11_MAPPING
+            p->first(proxy);
+#else
             (*p)->ice_response(proxy);
+#endif
         }
         _callbacks.clear();
     }
@@ -158,32 +87,42 @@ protected:
     std::vector<CB> _callbacks;
 };
 
-class ObjectRequest : public RequestT<Ice::Identity, Ice::AMD_Locator_findObjectByIdPtr>
+#ifdef ICE_CPP11_MAPPING
+typedef std::pair<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>,
+                  std::function<void(std::exception_ptr)>> ObjectCB;
+typedef std::pair<std::function<void(const std::shared_ptr<::Ice::ObjectPrx>&)>,
+                  std::function<void(std::exception_ptr)>> AdapterCB;
+#else
+typedef Ice::AMD_Locator_findObjectByIdPtr ObjectCB;
+typedef Ice::AMD_Locator_findAdapterByIdPtr AdapterCB;
+#endif
+
+class ObjectRequest : public RequestT<Ice::Identity, ObjectCB>
+#ifdef ICE_CPP11_MAPPING
+                      , public std::enable_shared_from_this<ObjectRequest>
+#endif
 {
 public:
 
-    ObjectRequest(LookupI* lookup, const Ice::Identity& id, int retryCount) :
-        RequestT<Ice::Identity, Ice::AMD_Locator_findObjectByIdPtr>(lookup, id, retryCount)
-    {
-    }
+    ObjectRequest(const LookupIPtr&, const Ice::Identity&, int);
 
     void response(const Ice::ObjectPrxPtr&);
 
 private:
 
+    virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&);
     virtual void runTimerTask();
 };
-typedef IceUtil::Handle<ObjectRequest> ObjectRequestPtr;
+ICE_DEFINE_PTR(ObjectRequestPtr, ObjectRequest);
 
-class AdapterRequest : public RequestT<std::string, Ice::AMD_Locator_findAdapterByIdPtr>
+class AdapterRequest : public RequestT<std::string, AdapterCB>
+#ifdef ICE_CPP11_MAPPING
+                      , public std::enable_shared_from_this<AdapterRequest>
+#endif
 {
 public:
 
-    AdapterRequest(LookupI* lookup, const std::string& adapterId, int retryCount) :
-        RequestT<std::string, Ice::AMD_Locator_findAdapterByIdPtr>(lookup, adapterId, retryCount),
-        _start(IceUtil::Time::now())
-    {
-    }
+    AdapterRequest(const LookupIPtr&, const std::string&, int);
 
     bool response(const Ice::ObjectPrxPtr&, bool);
 
@@ -192,14 +131,23 @@ public:
 
 private:
 
+    virtual void invokeWithLookup(const std::string&, const LookupPrxPtr&, const LookupReplyPrxPtr&);
     virtual void runTimerTask();
-    std::vector<Ice::ObjectPrxPtr> _proxies;
+
+    //
+    // We use a set because the same IceDiscovery plugin might return multiple times
+    // the same proxy if it's accessible through multiple network interfaces and if we
+    // also sent the request to multiple interfaces.
+    //
+#ifdef ICE_CPP11_MAPPING
+    std::set<std::shared_ptr<Ice::ObjectPrx>, Ice::TargetCompare<std::shared_ptr<Ice::ObjectPrx>, std::less>> _proxies;
+#else
+    std::set<Ice::ObjectPrx> _proxies;
+#endif
     IceUtil::Time _start;
     IceUtil::Time _latency;
 };
-typedef IceUtil::Handle<AdapterRequest> AdapterRequestPtr;
-
-#endif
+ICE_DEFINE_PTR(AdapterRequestPtr, AdapterRequest);
 
 class LookupI : public Lookup,
                 private IceUtil::Mutex
@@ -216,29 +164,20 @@ public:
 
     void setLookupReply(const LookupReplyPrxPtr&);
 
-#ifdef ICE_CPP11_MAPPING
-    virtual void findObjectById(std::string,
-                                Ice::Identity,
-                                ::std::shared_ptr<IceDiscovery::LookupReplyPrx>,
+    virtual void findObjectById(ICE_IN(std::string), ICE_IN(Ice::Identity), ICE_IN(IceDiscovery::LookupReplyPrxPtr),
                                 const Ice::Current&);
-    virtual void findAdapterById(std::string, std::string, ::std::shared_ptr<IceDiscovery::LookupReplyPrx>,
+    virtual void findAdapterById(ICE_IN(std::string), ICE_IN(std::string), ICE_IN(IceDiscovery::LookupReplyPrxPtr),
                                  const Ice::Current&);
-    void findObject(std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>, const Ice::Identity&);
-    void findAdapter(std::function<void(const std::shared_ptr<Ice::ObjectPrx>&)>, const std::string&);
-#else
-    virtual void findObjectById(const std::string&, const Ice::Identity&, const IceDiscovery::LookupReplyPrx&,
-                                const Ice::Current&);
-    virtual void findAdapterById(const std::string&, const std::string&, const IceDiscovery::LookupReplyPrx&,
-                                 const Ice::Current&);
-    void findObject(const Ice::AMD_Locator_findObjectByIdPtr&, const Ice::Identity&);
-    void findAdapter(const Ice::AMD_Locator_findAdapterByIdPtr&, const std::string&);
-#endif
+    void findObject(const ObjectCB&, const Ice::Identity&);
+    void findAdapter(const AdapterCB&, const std::string&);
 
-    void foundObject(const Ice::Identity&, const Ice::ObjectPrxPtr&);
-    void foundAdapter(const std::string&, const Ice::ObjectPrxPtr&, bool);
+    void foundObject(const Ice::Identity&, const std::string&, const Ice::ObjectPrxPtr&);
+    void foundAdapter(const std::string&, const std::string&, const Ice::ObjectPrxPtr&, bool);
 
     void adapterRequestTimedOut(const AdapterRequestPtr&);
+    void adapterRequestException(const AdapterRequestPtr&, const Ice::LocalException&);
     void objectRequestTimedOut(const ObjectRequestPtr&);
+    void objectRequestException(const ObjectRequestPtr&, const Ice::LocalException&);
 
     const IceUtil::TimerPtr&
     timer()
@@ -255,8 +194,8 @@ public:
 private:
 
     LocatorRegistryIPtr _registry;
-    const LookupPrxPtr _lookup;
-    LookupReplyPrxPtr _lookupReply;
+    LookupPrxPtr _lookup;
+    std::vector<std::pair<LookupPrxPtr, LookupReplyPrxPtr> > _lookups;
     const IceUtil::Time _timeout;
     const int _retryCount;
     const int _latencyMultiplier;
@@ -264,6 +203,7 @@ private:
 
     IceUtil::TimerPtr _timer;
     Ice::ObjectPrxPtr _wellKnownProxy;
+    bool _warnOnce;
 
     std::map<Ice::Identity, ObjectRequestPtr> _objectRequests;
     std::map<std::string, AdapterRequestPtr> _adapterRequests;

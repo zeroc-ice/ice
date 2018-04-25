@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,7 +28,7 @@ public:
         _data(0),
         _size(0)
     {}
-    
+
     string_view(const string_view& sv) :
         _data(sv._data),
         _size(sv._size)
@@ -71,7 +71,7 @@ public:
     {
         return _size != 0;
     }
-    
+
     const char* data() const
     {
         return _data;
@@ -85,7 +85,7 @@ public:
 
     std::string to_string() const
     {
-        return std::string(_data, _size);  
+        return std::string(_data, _size);
     }
 
     int compare(string_view str) const
@@ -110,26 +110,25 @@ public:
             return 1;
         }
     }
-  
+
 private:
     const char* _data;
     size_t _size;
 };
 
-inline bool 
+inline bool
 operator==(string_view lhs, string_view rhs)
 {
    return lhs.compare(rhs) == 0;
 }
 
-inline bool 
+inline bool
 operator!=(string_view lhs, string_view rhs)
 {
     return lhs.compare(rhs) != 0;
 }
 
 }
-
 
 namespace Ice
 {
@@ -163,7 +162,7 @@ struct StreamHelper<Util::string_view, StreamHelperCategoryBuiltin>
 #endif
     }
 
-    template<class S> static inline void 
+    template<class S> static inline void
     read(S* stream, Util::string_view& v)
     {
         const char* vdata = 0;

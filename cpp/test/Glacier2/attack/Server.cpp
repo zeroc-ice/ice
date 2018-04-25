@@ -1,13 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
+#include <TestCommon.h>
 #include <BackendI.h>
 
 using namespace std;
@@ -51,18 +52,15 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     BackendServer app;
-    return app.main(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int
 BackendServer::run(int, char**)
 {
-    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", "tcp -p 12010");
+    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", getTestEndpoint(communicator(), 0));
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("BackendAdapter");
     adapter->addServantLocator(new ServantLocatorI, "");
     adapter->activate();

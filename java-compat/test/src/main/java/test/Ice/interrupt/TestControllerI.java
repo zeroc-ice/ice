@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,8 +19,8 @@ class TestControllerI extends test.Ice.interrupt.Test._TestIntfControllerDisp
     {
         _threads.add(Thread.currentThread());
     }
-    
-    synchronized void 
+
+    synchronized void
     removeUpcallThread()
     {
         _threads.remove(Thread.currentThread());
@@ -29,10 +29,10 @@ class TestControllerI extends test.Ice.interrupt.Test._TestIntfControllerDisp
         //
         Thread.interrupted();
     }
-    
+
     @Override
     synchronized public void
-    interrupt(Ice.Current __current)
+    interrupt(Ice.Current current)
         throws test.Ice.interrupt.Test.CannotInterruptException
     {
         if(_threads.isEmpty())
@@ -51,7 +51,7 @@ class TestControllerI extends test.Ice.interrupt.Test._TestIntfControllerDisp
     {
         _adapter.hold();
     }
-    
+
     @Override
     public void
     resumeAdapter(Ice.Current current)

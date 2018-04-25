@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Stream",
         "../Ice/BuiltinSequences",
@@ -25,7 +25,6 @@ Ice.__M.require(module,
 const OutputStream = Ice.OutputStream;
 const Current = Ice.Current;
 const Debug = Ice.Debug;
-const FormatType = Ice.FormatType;
 const Context = Ice.Context;
 const Identity = Ice.Identity;
 const Protocol = Ice.Protocol;
@@ -33,11 +32,10 @@ const StringUtil = Ice.StringUtil;
 
 class IncomingAsync
 {
-    constructor(instance, connection, adapter, response, compress, requestId)
+    constructor(instance, connection, adapter, response, requestId)
     {
         this._instance = instance;
         this._response = response;
-        this._compress = compress;
         this._connection = connection;
         this._format = Ice.FormatType.DefaultFormat;
 
@@ -123,17 +121,24 @@ class IncomingAsync
 
         const s = [];
         s.push("dispatch exception:");
-        s.push("\nidentity: " + Ice.identityToString(this._current.id));
-        s.push("\nfacet: " + StringUtil.escapeString(this._current.facet, ""));
+        s.push("\nidentity: " + Ice.identityToString(this._current.id, this._instance.toStringMode()));
+        s.push("\nfacet: " + StringUtil.escapeString(this._current.facet, "", this._instance.toStringMode()));
         s.push("\noperation: " + this._current.operation);
         if(this._connection !== null)
         {
-            for(let p = this._connection.getInfo(); p; p = p.underlying)
+            try
             {
-                if(p instanceof Ice.IPConnectionInfo)
+                for(let p = this._connection.getInfo(); p; p = p.underlying)
                 {
-                    s.push("\nremote host: " + p.remoteAddress + " remote port: " + p.remotePort);
+                    if(p instanceof Ice.IPConnectionInfo)
+                    {
+                        s.push("\nremote host: " + p.remoteAddress + " remote port: " + p.remotePort);
+                    }
                 }
+            }
+            catch(exc)
+            {
+                // Ignore.
             }
         }
         if(ex.stack)
@@ -144,22 +149,7 @@ class IncomingAsync
         this._instance.initializationData().logger.warning(s.join(""));
     }
 
-    servantLocatorFinished()
-    {
-        Debug.assert(this._locator !== null && this._servant !== null);
-        try
-        {
-            this._locator.finished(this._current, this._servant, this._cookie.value);
-            return true;
-        }
-        catch(ex)
-        {
-            this.handleException(ex);
-        }
-        return false;
-    }
-
-    handleException(ex)
+    handleException(ex, amd)
     {
         Debug.assert(this._connection !== null);
 
@@ -207,7 +197,7 @@ class IncomingAsync
                 {
                     Debug.assert(false);
                 }
-                ex.id.__write(this._os);
+                ex.id._write(this._os);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -223,7 +213,7 @@ class IncomingAsync
 
                 this._os.writeString(ex.operation);
 
-                this._connection.sendResponse(this._os, this._compress);
+                this._connection.sendResponse(this._os);
             }
             else
             {
@@ -244,7 +234,7 @@ class IncomingAsync
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownLocalException);
                 this._os.writeString(ex.unknown);
-                this._connection.sendResponse(this._os, this._compress);
+                this._connection.sendResponse(this._os);
             }
             else
             {
@@ -265,7 +255,7 @@ class IncomingAsync
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownUserException);
                 this._os.writeString(ex.unknown);
-                this._connection.sendResponse(this._os, this._compress);
+                this._connection.sendResponse(this._os);
             }
             else
             {
@@ -286,7 +276,7 @@ class IncomingAsync
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownException);
                 this._os.writeString(ex.unknown);
-                this._connection.sendResponse(this._os, this._compress);
+                this._connection.sendResponse(this._os);
             }
             else
             {
@@ -306,15 +296,15 @@ class IncomingAsync
                 this._os.writeBlob(Protocol.replyHdr);
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownLocalException);
-                //this._os.writeString(ex.toString());
-                let s = [ ex.ice_name() ];
+                // this._os.writeString(ex.toString());
+                const s = [ex.ice_id()];
                 if(ex.stack)
                 {
                     s.push("\n");
                     s.push(ex.stack);
                 }
                 this._os.writeString(s.join(""));
-                this._connection.sendResponse(this._os, this._compress);
+                this._connection.sendResponse(this._os);
             }
             else
             {
@@ -332,7 +322,7 @@ class IncomingAsync
                 this._os.startEncapsulation(this._current.encoding, this._format);
                 this._os.writeUserException(ex);
                 this._os.endEncapsulation();
-                this._connection.sendResponse(this._os, this._compress);
+                this._connection.sendResponse(this._os);
             }
             else
             {
@@ -353,12 +343,17 @@ class IncomingAsync
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownException);
                 //this._os.writeString(ex.toString());
-                this._os.writeString(ex.stack ? ex.stack : "");
-                this._connection.sendResponse(this._os, this._compress);
+                this._os.writeString(ex.toString() + (ex.stack ? "\n" + ex.stack : ""));
+                this._connection.sendResponse(this._os);
             }
             else
             {
                 this._connection.sendNoResponse();
+            }
+
+            if(!amd)
+            {
+                throw new Ice.ServantError(ex);
             }
         }
 
@@ -372,7 +367,7 @@ class IncomingAsync
         //
         // Read the current.
         //
-        this._current.id.__read(this._is);
+        this._current.id._read(this._is);
 
         //
         // For compatibility with the old FacetPath.
@@ -425,7 +420,7 @@ class IncomingAsync
                     catch(ex)
                     {
                         this.skipReadParams(); // Required for batch requests.
-                        this.handleException(ex);
+                        this.handleException(ex, false);
                         return;
                     }
                 }
@@ -451,7 +446,7 @@ class IncomingAsync
             catch(ex)
             {
                 this.skipReadParams(); // Required for batch requests.
-                this.handleException(ex);
+                this.handleException(ex, false);
                 return;
             }
         }
@@ -459,20 +454,19 @@ class IncomingAsync
         try
         {
             Debug.assert(this._servant !== null);
-
-            let promise = this._servant.__dispatch(this, this._current);
+            const promise = this._servant._iceDispatch(this, this._current);
             if(promise !== null)
             {
-                promise.then(() => this.response(), (ex) => this.exception(ex));
+                promise.then(() => this.completed(null, true), (ex) => this.completed(ex, true));
                 return;
             }
 
             Debug.assert(!this._response || this._os !== null);
-            this.response();
+            this.completed(null, false);
         }
         catch(ex)
         {
-            this.exception(ex);
+            this.completed(ex, false);
         }
     }
 
@@ -507,20 +501,33 @@ class IncomingAsync
         this._current.encoding = this._is.skipEncapsulation();
     }
 
-    response()
+    completed(exc, amd)
     {
         try
         {
-            if(this._locator !== null && !this.servantLocatorFinished())
+            if(this._locator !== null)
             {
-                return;
+                Debug.assert(this._locator !== null && this._servant !== null);
+                try
+                {
+                    this._locator.finished(this._current, this._servant, this._cookie.value);
+                }
+                catch(ex)
+                {
+                    this.handleException(ex, amd);
+                    return;
+                }
             }
 
             Debug.assert(this._connection !== null);
 
-            if(this._response)
+            if(exc !== null)
             {
-                this._connection.sendResponse(this._os, this._compress);
+                this.handleException(exc, amd);
+            }
+            else if(this._response)
+            {
+                this._connection.sendResponse(this._os);
             }
             else
             {
@@ -529,27 +536,18 @@ class IncomingAsync
         }
         catch(ex)
         {
-            console.log(ex);
-            this._connection.invokeException(ex, 1);
+            if(ex instanceof Ice.LocalException)
+            {
+                this._connection.invokeException(ex, 1);
+            }
+            else
+            {
+                throw ex;
+            }
         }
         this._connection = null;
     }
 
-    exception(exc)
-    {
-        try
-        {
-            if(this._locator !== null && !this.servantLocatorFinished())
-            {
-                return;
-            }
-            this.handleException(exc);
-        }
-        catch(ex)
-        {
-            this._connection.invokeException(ex, 1);
-        }
-    }
 }
 
 Ice.IncomingAsync = IncomingAsync;

@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <Test.h>
 #include <TestCommon.h>
@@ -26,14 +26,9 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     SessionControlClient app;
 
-    Ice::InitializationData initData;
-    initData.properties = Ice::createProperties(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
 
     //
     // We want to check whether the client retries for evicted
@@ -57,7 +52,7 @@ SessionControlClient::run(int argc, char* argv[])
     initData.properties = communicator()->getProperties();
     Ice::CommunicatorPtr controlComm = Ice::initialize(argc, argv, initData);
     TestControllerPrx controller = TestControllerPrx::checkedCast(
-        controlComm->stringToProxy("testController:tcp -p 12013"));
+        controlComm->stringToProxy("testController:" + getTestEndpoint(communicator(), 2, "tcp")));
     test(controller);
     TestToken currentState;
     TestToken newState;
@@ -70,7 +65,7 @@ SessionControlClient::run(int argc, char* argv[])
     cout << "ok" << endl;
 
     cout << "getting router... " << flush;
-    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
+    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator(), 50));
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
     test(router);
     communicator()->setDefaultRouter(router);
@@ -164,7 +159,8 @@ SessionControlClient::run(int argc, char* argv[])
     // Shut down the router.
     //
     communicator()->setDefaultRouter(0);
-    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -p 12348");
+    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
+                                                          getTestEndpoint(communicator(), 51));
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
     test(process);
     process->shutdown();

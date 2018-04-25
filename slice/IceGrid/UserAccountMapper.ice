@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "js:ice-build", "python:pkgdir:IceGrid"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
@@ -28,7 +28,7 @@ module IceGrid
  **/
 exception UserAccountNotFoundException
 {
-};
+}
 
 /**
  *
@@ -57,6 +57,6 @@ interface UserAccountMapper
      **/
     string getUserAccount(string user)
         throws UserAccountNotFoundException;
-};
+}
 
-};
+}

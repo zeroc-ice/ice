@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -575,9 +575,11 @@ class AdapterEditor extends CommunicatorChildEditor
     private java.util.Map<String, String[]> objectDescriptorSeqToMap(java.util.List<ObjectDescriptor> objects)
     {
         java.util.Map<String, String[]> result = new java.util.TreeMap<>();
+        com.zeroc.Ice.Communicator communicator = getAdapter().getRoot().getCoordinator().getCommunicator();
+
         for(ObjectDescriptor p : objects)
         {
-            String k = com.zeroc.Ice.Util.identityToString(p.id);
+            String k = communicator.identityToString(p.id);
             result.put(k, new String[]{p.type, getAdapter().lookupPropertyValue(k),p.proxyOptions});
         }
         return result;
@@ -587,11 +589,12 @@ class AdapterEditor extends CommunicatorChildEditor
     {
         String badIdentities = "";
         java.util.LinkedList<ObjectDescriptor> result = new java.util.LinkedList<>();
+        com.zeroc.Ice.Communicator communicator = getAdapter().getRoot().getCoordinator().getCommunicator();
         for(java.util.Map.Entry<String, String[]> p : map.entrySet())
         {
             try
             {
-                com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity(p.getKey());
+                com.zeroc.Ice.Identity id = communicator.stringToIdentity(p.getKey());
                 String[] val = p.getValue();
                 result.add(new ObjectDescriptor(id, val[0], val[2]));
             }

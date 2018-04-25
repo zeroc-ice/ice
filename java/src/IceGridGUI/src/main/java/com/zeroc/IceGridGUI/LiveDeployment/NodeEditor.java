@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,7 +23,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 
 import com.zeroc.IceGrid.*;
 
-class NodeEditor extends Editor
+class NodeEditor extends CommunicatorEditor
 {
     NodeEditor()
     {
@@ -32,21 +32,24 @@ class NodeEditor extends Editor
         _machineType.setEditable(false);
         _loadAverage.setEditable(false);
 
-        Action refresh = new AbstractAction("Refresh")
+        Action refreshLoad = new AbstractAction("Refresh")
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    _target.showLoad();
+                    _loadAverage.setText("");
+                    _loadRetrieved = false;
+                    ((Node)_target).showLoad();
                 }
             };
-        refresh.putValue(Action.SHORT_DESCRIPTION,
+        refreshLoad.putValue(Action.SHORT_DESCRIPTION,
                         "Fetch the latest values from this IceGrid Node");
-        _refreshButton = new JButton(refresh);
+        _refreshLoadButton = new JButton(refreshLoad);
     }
 
     void show(Node node)
     {
+        Node previous = (Node)_target;
         _target = node;
 
         NodeInfo info = node.getStaticInfo();
@@ -58,6 +61,9 @@ class NodeEditor extends Editor
             _machineType.setText("Unknown");
             _loadAverageLabel.setText("Load Average");
             _loadAverage.setText("Unknown");
+            _loadRetrieved = false;
+            _refreshLoadButton.setEnabled(false);
+            clearRuntimeProperties("Unknown");
         }
         else
         {
@@ -79,8 +85,16 @@ class NodeEditor extends Editor
                 _loadAverageLabel.setText("Load Average");
                 _loadAverage.setToolTipText("Load average in the past 1 min, 5 min and 15 min period");
             }
-            _loadAverage.setText("Refreshing...");
-            node.showLoad();
+
+            if(_target != previous || !_loadRetrieved)
+            {
+                _loadAverage.setText("Refreshing load...");
+                _loadRetrieved = true;
+                node.showLoad();
+                _refreshLoadButton.setEnabled(true);
+            }
+
+            showRuntimeProperties(previous);
         }
 
         _loadFactor.setSortedMap(node.getLoadFactors());
@@ -91,6 +105,7 @@ class NodeEditor extends Editor
         if(node == _target)
         {
             _loadAverage.setText(load);
+            _loadRetrieved = true;
         }
         //
         // Otherwise, we've already moved to another node
@@ -112,11 +127,11 @@ class NodeEditor extends Editor
         builder.append("Machine Type");
         builder.append(_machineType, 3);
         builder.append(_loadAverageLabel, _loadAverage);
-        builder.append(_refreshButton);
+        builder.append(_refreshLoadButton);
         builder.nextLine();
+        appendRuntimeProperties(builder);
 
         builder.appendSeparator("Configuration");
-
         builder.append("Load Factor");
         builder.nextLine();
 
@@ -147,9 +162,8 @@ class NodeEditor extends Editor
     private JTextField _machineType = new JTextField(20);
     private JLabel _loadAverageLabel = new JLabel();
     private JTextField _loadAverage = new JTextField(20);
-    private JButton _refreshButton;
+    private JButton _refreshLoadButton;
+    private boolean _loadRetrieved = false;
 
     private TableField _loadFactor = new TableField("Application", "Value");
-
-    private Node _target;
 }

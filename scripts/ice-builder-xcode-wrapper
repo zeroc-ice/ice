@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# **********************************************************************
+#
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+#
+# This copy of Ice is licensed to you under the terms described in the
+# ICE_LICENSE file included in this distribution.
+#
+# **********************************************************************
+
+# This is a wrapper around Ice Builder for Xcode which is used by the
+# iOS C++ and Objective-C Xcode projects to help find binary and source
+# distributions.
+
+if [[ "$ICE_BIN_DIST" =~ ^(all|cpp)$ ]]; then
+    if [ -n "$ICE_HOME" ]; then
+        FLAGS="--ice-home \"$ICE_HOME\""
+    fi
+else
+    FLAGS="--ice-home ../../../.."
+fi
+
+/usr/local/bin/icebuilder $FLAGS "$@"

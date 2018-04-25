@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+    <Configuration Condition="'$(Configuration)' == ''">Debug</Configuration>
+  </PropertyGroup>
+
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+
+  <PropertyGroup>
+    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <!-- For PHP build both thread safe and non thread safe configurations -->
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <Configuration>NTS-$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)js\msbuild\ice.proj">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
+      <Configuration>$(Configuration)</Configuration>
+    </Projects>
+  </ItemGroup>
+
+  <Target Name="Build">
+    <MSBuild Projects="@(Projects)"
+             BuildInParallel="false"
+             Properties="Platform=$(Platform);Configuration=%(Configuration)" />
+  </Target>
+
+  <Target Name="Clean">
+    <MSBuild Projects="@(Projects)"
+             BuildInParallel="false"
+             Targets="Clean"
+             Properties="Platform=$(Platform);Configuration=%(Configuration)" />
+  </Target>
+
+</Project>

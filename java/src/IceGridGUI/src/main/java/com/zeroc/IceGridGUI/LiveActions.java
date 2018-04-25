@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -85,7 +85,6 @@ public class LiveActions
             };
         _array[TreeNode.STOP].putValue(Action.SHORT_DESCRIPTION, "Stop this server or service");
 
-
         _array[TreeNode.ENABLE] = new AbstractAction("Enable", Utils.getIcon("/icons/16x16/enable.png"))
             {
                 @Override
@@ -124,7 +123,6 @@ public class LiveActions
             };
         _array[TreeNode.WRITE_MESSAGE].putValue(Action.SHORT_DESCRIPTION, "Write message to stdout or stderr");
 
-        
         _array[TreeNode.RETRIEVE_ICE_LOG] = new AbstractAction("Retrieve Ice log")
         {
             @Override
@@ -134,7 +132,6 @@ public class LiveActions
             }
         };
         _array[TreeNode.RETRIEVE_ICE_LOG].putValue(Action.SHORT_DESCRIPTION, "Attach RemoteLogger to Ice logger");
-
 
         _array[TreeNode.RETRIEVE_STDOUT] = new AbstractAction("Retrieve stdout")
             {
@@ -226,6 +223,24 @@ public class LiveActions
                 public void actionPerformed(ActionEvent e)
                 {
                     _target.enableMetricsView(false);
+                }
+            };
+
+        _array[TreeNode.START_ALL_SERVERS] =  new AbstractAction("Start All Servers")
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    _target.startAllServers();
+                }
+            };
+
+        _array[TreeNode.STOP_ALL_SERVERS] =  new AbstractAction("Stop All Servers")
+            {
+                @Override
+                public void actionPerformed(ActionEvent e)
+                {
+                    _target.stopAllServers();
                 }
             };
     }

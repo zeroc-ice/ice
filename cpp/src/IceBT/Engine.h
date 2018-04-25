@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,14 +19,47 @@
 namespace IceBT
 {
 
-class FindServiceCallback : public IceUtil::Shared
+//
+// Notifies the transport about a new incoming connection.
+//
+class ProfileCallback
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
 {
 public:
 
-    virtual void completed(const std::vector<int>&) = 0;
-    virtual void exception(const Ice::LocalException&) = 0;
+    virtual void newConnection(int) = 0;
 };
-typedef IceUtil::Handle<FindServiceCallback> FindServiceCallbackPtr;
+ICE_DEFINE_PTR(ProfileCallbackPtr, ProfileCallback);
+
+//
+// Represents an outgoing (client) connection. The transport must keep a reference to this object
+// and call close() when no longer needed.
+//
+class Connection : public IceUtil::Shared
+{
+public:
+
+    virtual void close() = 0;
+
+};
+typedef IceUtil::Handle<Connection> ConnectionPtr;
+
+//
+// Callback API for an outgoing connection attempt.
+//
+class ConnectCallback
+#ifndef ICE_CPP11_MAPPING
+    : public virtual IceUtil::Shared
+#endif
+{
+public:
+
+    virtual void completed(int, const ConnectionPtr&) = 0;
+    virtual void failed(const Ice::LocalException&) = 0;
+};
+ICE_DEFINE_PTR(ConnectCallbackPtr, ConnectCallback);
 
 //
 // Engine encapsulates all Bluetooth activities.
@@ -45,21 +78,12 @@ public:
     std::string getDefaultAdapterAddress() const;
     bool adapterExists(const std::string&) const;
 
-    //
-    // Blocks while we register a service with the Bluetooth daemon. Returns a
-    // handle to the service that can be passed to removeService().
-    //
-    unsigned int addService(const std::string&, const std::string&, const std::string&, int);
+    bool deviceExists(const std::string&) const;
 
-    //
-    // Asynchronously looks for a service at the given target device with the given UUID.
-    //
-    void findService(const std::string&, const std::string&, const FindServiceCallbackPtr&);
+    std::string registerProfile(const std::string&, const std::string&, int, const ProfileCallbackPtr&);
+    void unregisterProfile(const std::string&);
 
-    //
-    // Removes a service added by addService().
-    //
-    void removeService(const std::string&, unsigned int);
+    void connect(const std::string&, const std::string&, const ConnectCallbackPtr&);
 
 #ifdef ICE_CPP11_MAPPING
     void startDiscovery(const std::string&, std::function<void(const std::string&, const PropertyMap&)>);
@@ -67,6 +91,8 @@ public:
     void startDiscovery(const std::string&, const DiscoveryCallbackPtr&);
 #endif
     void stopDiscovery(const std::string&);
+
+    DeviceMap getDevices() const;
 
     void destroy();
 

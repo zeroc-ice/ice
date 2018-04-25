@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -54,7 +54,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
     {
         return _localLogger.cloneWithPrefix(prefix);
     }
- 
+
     @Override
     public Ice.Object getFacet()
     {
@@ -75,7 +75,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
                 notifyAll();
             }
         }
-        
+
         if(thread != null)
         {
             try
@@ -103,18 +103,18 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
             _localLogger.trace(_traceCategory, "send log thread started");
         }
 
-        final Ice.Callback logCompletedCb = new Ice.Callback() 
+        final Ice.Callback logCompletedCb = new Ice.Callback()
             {
 
                 @Override
                 public void completed(Ice.AsyncResult r)
                 {
                     Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(r.getProxy());
-                    
+
                     try
                     {
                         remoteLogger.end_log(r);
-                        
+
                         if(_loggerAdmin.getTraceLevel() > 1)
                         {
                             _localLogger.trace(_traceCategory, r.getOperation() + " on `" + remoteLogger.toString() +
@@ -132,7 +132,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
                     }
                 }
             };
-        
+
         for(;;)
         {
             Job job = null;
@@ -149,7 +149,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
                         // Ignored, this should never occur
                     }
                 }
-                
+
                 if(_destroyed)
                 {
                     break; // for(;;)
@@ -158,14 +158,14 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
                 assert(!_jobQueue.isEmpty());
                 job = _jobQueue.removeFirst();
             }
-            
+
             for(Ice.RemoteLoggerPrx p : job.remoteLoggers)
             {
                 if(_loggerAdmin.getTraceLevel() > 1)
                 {
                     _localLogger.trace(_traceCategory, "sending log message to `" + p.toString() + "'");
                 }
-            
+
                 try
                 {
                     //
@@ -177,7 +177,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
                 {
                     _loggerAdmin.deadRemoteLogger(p, _localLogger, ex, "log");
                 }
-            }  
+            }
         }
 
         if(_loggerAdmin.getTraceLevel() > 1)
@@ -208,11 +208,11 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
     void log(Ice.LogMessage logMessage)
     {
         java.util.List<Ice.RemoteLoggerPrx> remoteLoggers = _loggerAdmin.log(logMessage);
-        
+
         if(remoteLoggers != null)
         {
             assert(!remoteLoggers.isEmpty());
-            
+
             synchronized(this)
             {
                 if(_sendLogThread == null)
@@ -220,10 +220,10 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
                     _sendLogThread = new Thread(this, "Ice.SendLogThread");
                     _sendLogThread.start();
                 }
-                
+
                 _jobQueue.addLast(new Job(remoteLoggers, logMessage));
                 notifyAll();
-            }            
+            }
         }
     }
 
@@ -231,7 +231,7 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
     {
         return java.util.Calendar.getInstance().getTimeInMillis() * 1000;
     }
-    
+
     private static class Job
     {
         Job(java.util.List<Ice.RemoteLoggerPrx> r, Ice.LogMessage l)
@@ -239,16 +239,16 @@ final class LoggerAdminLoggerI implements LoggerAdminLogger, Runnable
             remoteLoggers = r;
             logMessage = l;
         }
-        
+
         final java.util.List<Ice.RemoteLoggerPrx> remoteLoggers;
         final Ice.LogMessage logMessage;
-    } 
-   
+    }
+
     private final Ice.Logger _localLogger;
     private final LoggerAdminI _loggerAdmin;
     private boolean _destroyed = false;
     private Thread _sendLogThread;
     private final java.util.Deque<Job> _jobQueue = new java.util.ArrayDeque<Job>();
-    
+
     static private final String _traceCategory = "Admin.Logger";
 }

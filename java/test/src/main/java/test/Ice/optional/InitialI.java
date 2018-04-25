@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@ import com.zeroc.Ice.Current;
 
 import test.Ice.optional.Test.*;
 
-public final class InitialI implements _InitialDisp
+public final class InitialI implements Initial
 {
     @Override
     public void shutdown(Current current)
@@ -151,7 +151,14 @@ public final class InitialI implements _InitialDisp
     @Override
     public Initial.OpIntResult opInt(OptionalInt p1, Current current)
     {
-        return new Initial.OpIntResult(p1, p1);
+        if(p1.isPresent())
+        {
+            return new Initial.OpIntResult(p1.getAsInt(), p1.getAsInt());
+        }
+        else
+        {
+            return new Initial.OpIntResult(p1, p1);
+        }
     }
 
     @Override
@@ -175,7 +182,14 @@ public final class InitialI implements _InitialDisp
     @Override
     public Initial.OpFloatResult opFloat(Optional<Float> p1, Current current)
     {
-        return new Initial.OpFloatResult(p1, p1);
+        if(p1.isPresent())
+        {
+            return new Initial.OpFloatResult(p1.get(), p1.get());
+        }
+        else
+        {
+            return new Initial.OpFloatResult(p1, p1);
+        }
     }
 
     @Override
@@ -211,7 +225,15 @@ public final class InitialI implements _InitialDisp
     @Override
     public Initial.OpMyEnumResult opMyEnum(Optional<MyEnum> p1, Current current)
     {
-        return new Initial.OpMyEnumResult(p1, p1);
+        if(p1.isPresent())
+        {
+            return new Initial.OpMyEnumResult(p1.get(), p1.get());
+        }
+        else
+        {
+            MyEnum e = null;
+            return new Initial.OpMyEnumResult(e, e);
+        }
     }
 
     @Override
@@ -521,7 +543,7 @@ public final class InitialI implements _InitialDisp
     @Override
     public OpMStruct1MarshaledResult opMStruct1(Current current)
     {
-        return new OpMStruct1MarshaledResult(Optional.of(new SmallStruct()), current);
+        return new OpMStruct1MarshaledResult(new SmallStruct(), current);
     }
 
     @Override
@@ -533,7 +555,7 @@ public final class InitialI implements _InitialDisp
     @Override
     public OpMSeq1MarshaledResult opMSeq1(Current current)
     {
-        return new OpMSeq1MarshaledResult(Optional.of(new String[0]), current);
+        return new OpMSeq1MarshaledResult(new String[0], current);
     }
 
     @Override

@@ -1,14 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_INSTANCE_H
-#define ICE_SSL_INSTANCE_H
+#ifndef ICESSL_INSTANCE_H
+#define ICESSL_INSTANCE_H
 
 #include <Ice/ProtocolInstance.h>
 #include <IceSSL/InstanceF.h>
@@ -17,7 +17,7 @@
 namespace IceSSL
 {
 
-class Instance : public IceInternal::ProtocolInstance
+class ICESSL_API Instance : public IceInternal::ProtocolInstance
 {
 public:
 

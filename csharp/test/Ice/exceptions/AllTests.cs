@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private class Callback
     {
@@ -47,9 +47,9 @@ public class AllTests : TestCommon.TestApp
         private bool _called;
     }
 
-
-    public static ThrowerPrx allTests(Ice.Communicator communicator)
+    public static ThrowerPrx allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         {
             Write("testing object adapter registration exceptions... ");
             Ice.ObjectAdapter first;
@@ -62,7 +62,7 @@ public class AllTests : TestCommon.TestApp
                 // Expected
             }
 
-            communicator.getProperties().setProperty("TestAdapter0.Endpoints", "default");
+            communicator.getProperties().setProperty("TestAdapter0.Endpoints", "tcp -h *");
             first = communicator.createObjectAdapter("TestAdapter0");
             try
             {
@@ -95,7 +95,7 @@ public class AllTests : TestCommon.TestApp
 
         {
             Write("testing servant registration exceptions... ");
-            communicator.getProperties().setProperty("TestAdapter1.Endpoints", "default");
+            communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter1");
             Ice.Object obj = new EmptyI();
             adapter.add(obj, Ice.Util.stringToIdentity("x"));
@@ -142,7 +142,7 @@ public class AllTests : TestCommon.TestApp
 
         {
             Write("testing servant locator registration exceptions... ");
-            communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default");
+            communicator.getProperties().setProperty("TestAdapter2.Endpoints", "tcp -h *");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter2");
             Ice.ServantLocator loc = new ServantLocatorI();
             adapter.addServantLocator(loc, "x");
@@ -175,7 +175,7 @@ public class AllTests : TestCommon.TestApp
 
         Write("testing stringToProxy... ");
         Flush();
-        String @ref = "thrower:default -p 12010";
+        String @ref = "thrower:" + app.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -425,29 +425,40 @@ public class AllTests : TestCommon.TestApp
             catch(Ice.ConnectionLostException)
             {
             }
+            catch(Ice.UnknownLocalException)
+            {
+                // Expected with JS bidir server
+            }
             catch(Exception)
             {
                 test(false);
             }
 
-            ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
-                communicator.stringToProxy("thrower:default -p 12011"));
             try
             {
-                thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
+                ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
+                    communicator.stringToProxy("thrower:" + app.getTestEndpoint(1)));
+                try
+                {
+                    thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
+                }
+                catch(Ice.MemoryLimitException)
+                {
+                }
+                ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
+                    communicator.stringToProxy("thrower:" + app.getTestEndpoint(2)));
+                try
+                {
+                    thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
+                    test(false);
+                }
+                catch(Ice.ConnectionLostException)
+                {
+                }
             }
-            catch(Ice.MemoryLimitException)
+            catch(Ice.ConnectionRefusedException)
             {
-            }
-            ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
-                communicator.stringToProxy("thrower:default -p 12012"));
-            try
-            {
-                thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit
-                test(false);
-            }
-            catch(Ice.ConnectionLostException)
-            {
+                // Expected with JS bidir server
             }
 
             WriteLine("ok");

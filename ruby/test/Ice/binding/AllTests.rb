@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -45,9 +45,9 @@ def allTests(communicator)
 
     test1.ice_ping()
     test2.ice_ping()
-    
+
     com.deactivateObjectAdapter(adapter)
-    
+
     test3 = Test::TestIntfPrx::uncheckedCast(test1)
     test(test3.ice_getConnection() == test1.ice_getConnection())
     test(test3.ice_getConnection() == test2.ice_getConnection())
@@ -56,6 +56,8 @@ def allTests(communicator)
         test3.ice_ping()
         test(false)
     rescue Ice::ConnectionRefusedException
+        # Expected
+    rescue Ice::ConnectTimeoutException
         # Expected
     end
 
@@ -90,7 +92,7 @@ def allTests(communicator)
         if names.include?(name)
             names.delete(name)
         end
-        test1.ice_getConnection().close(false)
+        test1.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     #
@@ -109,11 +111,11 @@ def allTests(communicator)
         i = i + 1
     end
     test(i == nRetry)
-    
+
     for a in adapters
-        a.getTestIntf().ice_getConnection().close(false)
+        a.getTestIntf().ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
-        
+
     #
     # Deactivate an adapter and ensure that we can still
     # establish the connection to the remaining adapters.
@@ -137,14 +139,14 @@ def allTests(communicator)
         if names.include?(name)
             names.delete(name)
         end
-        test1.ice_getConnection().close(false)
+        test1.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     #
     # Deactivate an adapter and ensure that we can still
     # establish the connection to the remaining adapters.
     #
-    com.deactivateObjectAdapter(adapters[2])    
+    com.deactivateObjectAdapter(adapters[2])
     t = createTestIntfPrx(adapters)
     test(t.getAdapterName() == "Adapter12")
 
@@ -169,7 +171,7 @@ def allTests(communicator)
         if names.include?(name)
             names.delete(name)
         end
-        t.ice_getConnection().close(false)
+        t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     t = Test::TestIntfPrx::uncheckedCast(t.ice_endpointSelection(Ice::EndpointSelectionType::Random))
@@ -183,7 +185,7 @@ def allTests(communicator)
         if names.include?(name)
             names.delete(name)
         end
-        t.ice_getConnection().close(false)
+        t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     end
 
     deactivate(com, adapters)
@@ -230,6 +232,8 @@ def allTests(communicator)
         t.getAdapterName()
     rescue Ice::ConnectionRefusedException
         # Expected
+    rescue Ice::ConnectTimeoutException
+        # Expected
     end
 
     endpoints = t.ice_getEndpoints()
@@ -239,21 +243,21 @@ def allTests(communicator)
     #
     # Now, re-activate the adapters with the same endpoints in the opposite
     # order.
-    # 
+    #
     adapters.push(com.createObjectAdapter("Adapter36", endpoints[2].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter36"
         i = i + 1
     end
     test(i == nRetry)
-    t.ice_getConnection().close(false)
+    t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     adapters.push(com.createObjectAdapter("Adapter35", endpoints[1].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter35"
         i = i + 1
     end
     test(i == nRetry)
-    t.ice_getConnection().close(false)
+    t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     adapters.push(com.createObjectAdapter("Adapter34", endpoints[0].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter34"
@@ -285,6 +289,8 @@ def allTests(communicator)
         test(test3.ice_getConnection() == test1.ice_getConnection())
         test(false)
     rescue Ice::ConnectionRefusedException
+        # Expected
+    rescue Ice::ConnectTimeoutException
         # Expected
     end
 
@@ -370,6 +376,8 @@ def allTests(communicator)
         t.getAdapterName()
     rescue Ice::ConnectionRefusedException
         # Expected
+    rescue Ice::ConnectTimeoutException
+        # Expected
     end
 
     endpoints = t.ice_getEndpoints()
@@ -379,7 +387,7 @@ def allTests(communicator)
     #
     # Now, re-activate the adapters with the same endpoints in the opposite
     # order.
-    # 
+    #
     adapters.push(com.createObjectAdapter("Adapter66", endpoints[2].toString()))
     i = 0
     while i < nRetry and t.getAdapterName() == "Adapter66"
@@ -430,11 +438,11 @@ def allTests(communicator)
         adapters = []
         adapters.push(com.createObjectAdapter("Adapter81", "ssl"))
         adapters.push(com.createObjectAdapter("Adapter82", "tcp"))
-        
+
         t = createTestIntfPrx(adapters)
         for i in 0...5
             test(t.getAdapterName() == "Adapter82")
-            t.ice_getConnection().close(false)
+            t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
         end
 
         testSecure = Test::TestIntfPrx::uncheckedCast(t.ice_secure(true))
@@ -449,14 +457,14 @@ def allTests(communicator)
 
         for i in 0...5
             test(t.getAdapterName() == "Adapter81")
-            t.ice_getConnection().close(false)
+            t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
         end
 
         com.createObjectAdapter("Adapter83", (t.ice_getEndpoints()[1]).toString()) # Reactive tcp OA.
 
         for i in 0...5
             test(t.getAdapterName() == "Adapter83")
-            t.ice_getConnection().close(false)
+            t.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
         end
 
         com.deactivateObjectAdapter(adapters[0])
@@ -464,6 +472,8 @@ def allTests(communicator)
             testSecure.ice_ping()
             test(false)
         rescue Ice::ConnectionRefusedException
+            # Expected
+        rescue Ice::ConnectTimeoutException
             # Expected
         end
 

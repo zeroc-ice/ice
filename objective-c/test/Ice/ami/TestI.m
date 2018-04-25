@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -90,9 +90,65 @@
     }
     return NO;
 }
+-(void) close:(TestAMICloseMode)mode current:(ICECurrent *)current
+{
+    [current.con close:(ICEConnectionClose)mode];
+}
+-(void) sleep:(ICEInt)delay current:(ICECurrent *)current
+{
+    [_cond lock];
+    @try
+    {
+        [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:delay / 1000.0]];
+    }
+    @finally
+    {
+        [_cond unlock];
+    }
+}
+-(void) startDispatch:(ICECurrent*)current
+{
+    [_cond lock];
+    _dispatching = YES;
+    @try
+    {
+        while(_dispatching)
+        {
+            [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:30.0]];
+        }
+    }
+    @finally
+    {
+        [_cond unlock];
+    }
+}
+-(void) finishDispatch:(ICECurrent*)current
+{
+    [_cond lock];
+    _dispatching = NO;
+    [_cond signal];
+    [_cond unlock];
+}
+-(BOOL) supportsAMD:(ICECurrent *)current
+{
+    return NO;
+}
 -(BOOL) supportsFunctionalTests:(ICECurrent *)current
 {
     return NO;
+}
+
+-(void) pingBiDir:(ICEIdentity*)id_ current:(ICECurrent *)current
+{
+    [[TestAMIPingReplyPrx uncheckedCast:[current.con createProxy:id_]] reply];
+}
+@end
+
+@implementation TestAMITestOuterInnerTestIntfI
+-(int) op:(ICEInt)i j:(ICEInt*)j current:(ICECurrent*)current
+{
+    *j = i;
+    return i;
 }
 @end
 

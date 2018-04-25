@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,35 +50,29 @@ public class TestI implements TestIntf
         }
     }
 
-    static class Counter
+    public void startHeartbeatCount(com.zeroc.Ice.Current current)
     {
-        Counter(int v)
-        {
-            value = v;
-        }
-
-        int value;
-    }
-
-    public void waitForHeartbeat(int count, com.zeroc.Ice.Current current)
-    {
-        final Counter c = new Counter(count);
+        _counter = new Counter();
         current.con.setHeartbeatCallback(con ->
             {
-                synchronized(c)
+                synchronized(_counter)
                 {
-                    --c.value;
-                    c.notifyAll();
+                    ++_counter.value;
+                    _counter.notifyAll();
                 }
             });
+    }
 
-        synchronized(c)
+    public void waitForHeartbeatCount(int count, com.zeroc.Ice.Current current)
+    {
+        assert(_counter != null);
+        synchronized(_counter)
         {
-            while(c.value > 0)
+            while(_counter.value < count)
             {
                 try
                 {
-                    c.wait();
+                    _counter.wait();
                 }
                 catch(InterruptedException ex)
                 {
@@ -86,4 +80,11 @@ public class TestI implements TestIntf
             }
         }
     }
+
+    static class Counter
+    {
+        int value;
+    }
+
+    private Counter _counter;
 }

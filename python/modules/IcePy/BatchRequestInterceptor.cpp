@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -237,6 +237,12 @@ IcePy::initBatchRequest(PyObject* module)
 
 IcePy::BatchRequestInterceptor::BatchRequestInterceptor(PyObject* interceptor) : _interceptor(interceptor)
 {
+    if(!PyCallable_Check(interceptor) && !PyObject_HasAttrString(interceptor, STRCAST("enqueue")))
+    {
+        throw Ice::InitializationException(__FILE__, __LINE__,
+            "batch request interceptor must either be a callable or an object with an 'enqueue' method");
+    }
+
     Py_INCREF(interceptor);
 }
 
@@ -255,8 +261,16 @@ IcePy::BatchRequestInterceptor::enqueue(const Ice::BatchRequest& request, int qu
     obj->size = 0;
     obj->operation = 0;
     obj->proxy = 0;
-    PyObjectHandle tmp = PyObject_CallMethod(_interceptor.get(), STRCAST("enqueue"), STRCAST("Oii"), obj, queueCount,
-                                             queueSize);
+    PyObjectHandle tmp;
+    if(PyCallable_Check(_interceptor.get()))
+    {
+        tmp = PyObject_CallFunction(_interceptor.get(), STRCAST("Oii"), obj, queueCount, queueSize);
+    }
+    else
+    {
+        tmp = PyObject_CallMethod(_interceptor.get(), STRCAST("enqueue"), STRCAST("Oii"), obj, queueCount, queueSize);
+    }
+    Py_DECREF(reinterpret_cast<PyObject*>(obj));
     if(!tmp.get())
     {
         throwPythonException();

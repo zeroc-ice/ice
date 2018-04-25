@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Protocol",
         "../Ice/LocalException",
@@ -101,6 +101,16 @@ Ice.currentProtocol = function()
 Ice.currentEncoding = function()
 {
     return Protocol.currentEncoding.clone();
+};
+
+Ice.stringVersion = function()
+{
+    return "3.7.1"; // "A.B.C", with A=major, B=minor, C=patch
+};
+
+Ice.intVersion = function()
+{
+    return 30701; // AABBCC, with AA=major, BB=minor, CC=patch
 };
 
 module.exports.Ice = Ice;

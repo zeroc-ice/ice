@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ public class TestFacetI : TestFacetDisp_
     }
 }
 
-public class RemoteCommunicatorI : RemoteCommunicatorDisp_, Ice.PropertiesAdminUpdateCallback
+public class RemoteCommunicatorI : RemoteCommunicatorDisp_
 {
     public RemoteCommunicatorI(Ice.Communicator communicator)
     {
@@ -130,7 +130,7 @@ public class RemoteCommunicatorFactoryI : RemoteCommunicatorFactoryDisp_
         {
             Ice.NativePropertiesAdmin admin = (Ice.NativePropertiesAdmin)propFacet;
             Debug.Assert(admin != null);
-            admin.addUpdateCallback(servant);
+            admin.addUpdateCallback(servant.updated);
         }
 
         Ice.ObjectPrx proxy = current.adapter.addWithUUID(servant);

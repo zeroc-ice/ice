@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,9 +50,9 @@ class TestObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void _iceRead(Ice::InputStream* in)
     {
         in->startValue();
         in->startSlice();
@@ -64,7 +64,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -80,9 +80,9 @@ class BObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void _iceRead(Ice::InputStream* in)
     {
         in->startValue();
         // ::Test::B
@@ -101,7 +101,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -117,9 +117,9 @@ class CObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void _iceRead(Ice::InputStream* in)
     {
         in->startValue();
         // ::Test::C
@@ -141,7 +141,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -158,7 +158,7 @@ class DObjectWriter : public Ice::Object
 {
 public:
 
-    virtual void __write(Ice::OutputStream* out) const
+    virtual void _iceWrite(Ice::OutputStream* out) const
     {
         out->startValue(0);
         // ::Test::D
@@ -188,13 +188,13 @@ public:
         out->endValue();
     }
 
-    virtual void __read(Ice::InputStream*) { }
+    virtual void _iceRead(Ice::InputStream*) { }
 
 #ifdef ICE_CPP11_MAPPING
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -211,9 +211,9 @@ class DObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void _iceRead(Ice::InputStream* in)
     {
         in->startValue();
         // ::Test::D
@@ -248,7 +248,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -268,9 +268,9 @@ class FObjectReader : public Ice::Object
 #endif
 {
 public:
-    virtual void __write(Ice::OutputStream*) const { }
+    virtual void _iceWrite(Ice::OutputStream*) const { }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void _iceRead(Ice::InputStream* in)
     {
         _f = ICE_MAKE_SHARED(F);
         in->startValue();
@@ -294,7 +294,7 @@ public:
 
 protected:
 
-    virtual std::shared_ptr<Value> cloneImpl() const
+    virtual std::shared_ptr<Value> _iceCloneImpl() const
     {
         assert(0); // not used
         return nullptr;
@@ -306,7 +306,6 @@ private:
 
     FPtr _f;
 };
-
 
 class FactoryI
 #ifndef ICE_CPP11_MAPPING
@@ -541,7 +540,6 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
 
     cout << "ok" << endl;
 
-
     cout << "testing marshalling... " << flush;
     OneOptionalPtr oo4 = ICE_DYNAMIC_CAST(OneOptional, initial->pingPong(ICE_MAKE_SHARED(OneOptional)));
     test(!oo4->a);
@@ -698,6 +696,9 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
 
     // Clear the second half of the optional parameters
     MultiOptionalPtr mo8 = ICE_MAKE_SHARED(MultiOptional, *mo5);
+#ifndef ICE_CPP11_MAPPING
+    mo8->ice_collectable(true);
+#endif
     mo8->b = IceUtil::None;
     mo8->d = IceUtil::None;
     mo8->f = IceUtil::None;
@@ -714,6 +715,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     mo8->ifsd = IceUtil::None;
     mo8->iood = IceUtil::None;
 
+    mo8->k = mo8;
     MultiOptionalPtr mo9 = ICE_DYNAMIC_CAST(MultiOptional, initial->pingPong(mo8));
     test(mo9->a == mo1->a);
     test(!mo9->b);
@@ -725,7 +727,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
     test(!mo9->h);
     test(mo9->i == mo1->i);
     test(!mo9->j);
-    test(mo9->k == mo9->k);
+    test(mo9->k == mo9);
     test(!mo9->bs);
     test(mo9->ss == mo1->ss);
     test(!mo9->iid);
@@ -793,6 +795,18 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         test(obj && dynamic_cast<TestObjectReader*>(obj.get()));
         factory->setEnabled(false);
     }
+
+#ifdef ICE_CPP11_MAPPING
+    mo1->k = shared_ptr<MultiOptional>();
+    mo2->k = shared_ptr<MultiOptional>();
+    mo3->k = shared_ptr<MultiOptional>();
+    mo4->k = shared_ptr<MultiOptional>();
+    mo5->k = shared_ptr<MultiOptional>();
+    mo6->k = shared_ptr<MultiOptional>();
+    mo7->k = shared_ptr<MultiOptional>();
+    mo8->k = shared_ptr<MultiOptional>();
+    mo9->k = shared_ptr<MultiOptional>();
+#endif
 
     //
     // Use the 1.0 encoding with operations whose only class parameters are optional.
@@ -1428,6 +1442,12 @@ allTests(const Ice::CommunicatorPtr& communicator, bool)
         IceUtil::Optional<OneOptionalPtr> p3;
         IceUtil::Optional<OneOptionalPtr> p2 = initial->opOneOptional(p1, p3);
         test(!p2 && !p3);
+
+        if(initial->supportsNullOptional())
+        {
+            p2 = initial->opOneOptional(OneOptionalPtr(), p3);
+            test(*p2 == ICE_NULLPTR && *p3 == ICE_NULLPTR);
+        }
 
         p1 = ICE_MAKE_SHARED(OneOptional, 58);
         p2 = initial->opOneOptional(p1, p3);

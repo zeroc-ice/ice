@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@
 #include <Ice/Transceiver.h>
 #include <Ice/Network.h>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 #   include <deque>
 #endif
 
@@ -38,7 +38,7 @@ class UdpTransceiver : public Transceiver, public NativeInfo
 public:
 
     virtual NativeInfoPtr getNativeInfo();
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
 
@@ -48,7 +48,7 @@ public:
     virtual EndpointIPtr bind();
     virtual SocketOperation write(Buffer&);
     virtual SocketOperation read(Buffer&);
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual bool startWrite(Buffer&);
     virtual void finishWrite(Buffer&);
     virtual void startRead(Buffer&);
@@ -73,9 +73,15 @@ private:
 
     void setBufSize(int, int);
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     void appendMessage(Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^);
     Windows::Networking::Sockets::DatagramSocketMessageReceivedEventArgs^ readMessage();
+
+    void connectCompleted(Windows::Foundation::IAsyncAction^, Windows::Foundation::AsyncStatus);
+    void getOutputStreamMcastCompleted(
+        Windows::Foundation::IAsyncOperation<Windows::Storage::Streams::IOutputStream^>^,
+        Windows::Foundation::AsyncStatus);
+    void getOutputStreamCompleted(concurrency::task<Windows::Storage::Streams::IOutputStream^>, Buffer&);
 #endif
 
     friend class UdpEndpointI;
@@ -103,7 +109,7 @@ private:
     AsyncInfo _write;
     Address _readAddr;
     socklen_t _readAddrLen;
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     AsyncInfo _write;
     Windows::Storage::Streams::DataWriter^ _writer;
     IceUtil::Mutex _mutex;

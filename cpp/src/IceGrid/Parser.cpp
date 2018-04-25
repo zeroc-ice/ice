@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -251,71 +251,17 @@ Ice::StringConverterPtr windowsConsoleConverter = 0;
 
 void outputNewline()
 {
-#ifdef _WIN32
-    fprintf_s(stdout, "\n");
-#else
-    cout << endl;
-#endif
+    consoleOut << endl;
 }
 
 void flushOutput()
 {
-#ifdef _WIN32
-    fflush(stdout);
-#else
-    cout << flush;
-#endif
+    consoleOut << flush;
 }
-
-#ifdef _WIN32
-string toConsoleEncoding(const string& s)
-{
-    if(windowsConsoleConverter)
-    {
-        try
-        {
-            // Convert from UTF-8 to console CP
-            string consoleString;
-            windowsConsoleConverter->fromUTF8(reinterpret_cast<const IceUtil::Byte*>(s.data()),
-                                              reinterpret_cast<const IceUtil::Byte*>(s.data() + s.size()),
-                                              consoleString);
-
-            return consoleString;
-        }
-        catch(const IceUtil::IllegalConversionException&)
-        {
-            //
-            // If there is a problem with the encoding conversions we just
-            // return the original message without encoding conversions.
-            //
-            return s;
-        }
-    }
-    else
-    {
-        return s;
-    }
-}
-#endif
 
 void outputString(const string& s)
 {
-#ifdef _WIN32
-    if(windowsConsoleConverter)
-    {
-        fprintf_s(stdout, "%s", toConsoleEncoding(s).c_str());
-    }
-    else
-    {
-        //
-        // Use fprintf_s to avoid encoding conversion when stdout is connected
-        // to Windows console.
-        //
-        fprintf_s(stdout, "%s", s.c_str());
-    }
-#else
-    cout << s;
-#endif
+    consoleOut << s;
 }
 
 void writeMessage(const string& message, bool indent)
@@ -382,8 +328,6 @@ void printLogMessage(const string& p, const Ice::LogMessage& logMessage)
         }
     }
 }
-
-
 
 class RemoteLoggerI : public Ice::RemoteLogger
 {
@@ -481,7 +425,7 @@ Parser::usage(const string& category, const string& command)
     }
     else
     {
-        cout << _helpCommands[category][command];
+        consoleOut << _helpCommands[category][command];
     }
 }
 
@@ -505,7 +449,7 @@ Parser::usage(const string& category, const list<string>& args)
 void
 Parser::usage()
 {
-     cout <<
+     consoleOut <<
          "help                        Print this message.\n"
          "exit, quit                  Exit this program.\n"
          "CATEGORY help               Print the help section of the given CATEGORY.\n"
@@ -555,7 +499,7 @@ Parser::checkInterrupted()
         Lock sync(*this);
         if(_interrupted)
         {
-            throw "interrupted with Ctrl-C";
+            throw runtime_error("interrupted with Ctrl-C");
         }
     }
 }
@@ -1119,11 +1063,11 @@ Parser::pingNode(const list<string>& args)
     {
         if(_admin->pingNode(args.front()))
         {
-            cout << "node is up" << endl;
+            consoleOut << "node is up" << endl;
         }
         else
         {
-            cout << "node is down" << endl;
+            consoleOut << "node is down" << endl;
         }
     }
     catch(const Ice::Exception& ex)
@@ -1144,7 +1088,7 @@ Parser::printLoadNode(const list<string>& args)
     try
     {
         LoadInfo load = _admin->getNodeLoad(args.front());
-        cout << "load average (1/5/15): " << load.avg1 << " / " << load.avg5 << " / " << load.avg15 << endl;
+        consoleOut << "load average (1/5/15): " << load.avg1 << " / " << load.avg5 << " / " << load.avg15 << endl;
     }
     catch(const Ice::Exception& ex)
     {
@@ -1167,11 +1111,11 @@ Parser::printNodeProcessorSockets(const list<string>& args)
         {
             try
             {
-                cout << _admin->getNodeProcessorSocketCount(args.front()) << endl;
+                consoleOut << _admin->getNodeProcessorSocketCount(args.front()) << endl;
             }
             catch(const Ice::OperationNotExistException&)
             {
-                cout << "not supported" << endl;
+                consoleOut << "not supported" << endl;
             }
         }
         else
@@ -1202,17 +1146,19 @@ Parser::printNodeProcessorSockets(const list<string>& args)
                 }
             }
 
-            cout.flags(ios::left);
-            cout << setw(20) << "Hostname" << setw(20) << "| # of sockets" << setw(39) << "| Nodes" << endl;
-            cout << setw(79) << "=====================================================================" << endl;
+            ostringstream os;
+            os.flags(ios::left);
+            os << setw(20) << "Hostname" << setw(20) << "| # of sockets" << setw(39) << "| Nodes" << endl;
+            os << setw(79) << "=====================================================================" << endl;
             for(map<string, pair< vector<string>, int> >::const_iterator q = processorSocketCounts.begin();
                 q != processorSocketCounts.end(); ++q)
             {
-                cout << setw(20) << setiosflags(ios::left) <<q->first;
-                cout << "| " << setw(18) << setiosflags(ios::left) << q->second.second;
-                cout << "| " << setw(37) << setiosflags(ios::left) << toString(q->second.first);
-                cout << endl;
+                os << setw(20) << setiosflags(ios::left) <<q->first;
+                os << "| " << setw(18) << setiosflags(ios::left) << q->second.second;
+                os << "| " << setw(37) << setiosflags(ios::left) << toString(q->second.first);
+                os << endl;
             }
+            consoleOut << os.str() << flush;
         }
     }
     catch(const Ice::Exception& ex)
@@ -1251,8 +1197,10 @@ Parser::listAllNodes(const list<string>& args)
 
     try
     {
+        ostringstream os;
         Ice::StringSeq names = _admin->getAllNodeNames();
-        copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+        copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
+        consoleOut << os.str();
     }
     catch(const Ice::Exception& ex)
     {
@@ -1300,11 +1248,11 @@ Parser::pingRegistry(const list<string>& args)
     {
         if(_admin->pingRegistry(args.front()))
         {
-            cout << "registry is up" << endl;
+            consoleOut << "registry is up" << endl;
         }
         else
         {
-            cout << "registry is down" << endl;
+            consoleOut << "registry is down" << endl;
         }
     }
     catch(const Ice::Exception& ex)
@@ -1350,8 +1298,10 @@ Parser::listAllRegistries(const list<string>& args)
 
     try
     {
+        ostringstream os;
         Ice::StringSeq names = _admin->getAllRegistryNames();
-        copy(names.begin(), names.end(), ostream_iterator<string>(cout,"\n"));
+        copy(names.begin(), names.end(), ostream_iterator<string>(os,"\n"));
+        consoleOut << os.str();
     }
     catch(const Ice::Exception& ex)
     {
@@ -1491,7 +1441,6 @@ Parser::signalServer(const list<string>& args)
     }
 }
 
-
 void
 Parser::writeMessage(const list<string>& args, int fd)
 {
@@ -1574,39 +1523,39 @@ Parser::stateServer(const list<string>& args)
         {
         case Inactive:
         {
-            cout << "inactive (" << enabled << ")" << endl;
+            consoleOut << "inactive (" << enabled << ")" << endl;
             break;
         }
         case Activating:
         {
-            cout << "activating (" << enabled << ")" << endl;
+            consoleOut << "activating (" << enabled << ")" << endl;
             break;
         }
         case Active:
         {
             int pid = _admin->getServerPid(args.front());
-            cout << "active (pid = " << pid << ", " << enabled << ")" << endl;
+            consoleOut << "active (pid = " << pid << ", " << enabled << ")" << endl;
             break;
         }
         case ActivationTimedOut:
         {
             int pid = _admin->getServerPid(args.front());
-            cout << "activation timed out (pid = " << pid << ", " << enabled << ")" << endl;
+            consoleOut << "activation timed out (pid = " << pid << ", " << enabled << ")" << endl;
             break;
         }
         case Deactivating:
         {
-            cout << "deactivating (" << enabled << ")" << endl;
+            consoleOut << "deactivating (" << enabled << ")" << endl;
             break;
         }
         case Destroying:
         {
-            cout << "destroying (" << enabled << ")" << endl;
+            consoleOut << "destroying (" << enabled << ")" << endl;
             break;
         }
         case Destroyed:
         {
-            cout << "destroyed (" << enabled << ")" << endl;
+            consoleOut << "destroyed (" << enabled << ")" << endl;
             break;
         }
         default:
@@ -1633,7 +1582,7 @@ Parser::pidServer(const list<string>& args)
         int pid = _admin->getServerPid(args.front());
         if(pid > 0)
         {
-            cout << pid << endl;
+            consoleOut << pid << endl;
         }
         else
         {
@@ -1668,14 +1617,14 @@ Parser::propertiesServer(const list<string>& args, bool single)
         if(single)
         {
             string val = propAdmin->getProperty(*(++args.begin()));
-            cout << val << endl;
+            consoleOut << val << endl;
         }
         else
         {
             Ice::PropertyDict properties = propAdmin->getPropertiesForPrefix("");
             for(Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
             {
-                cout << p->first << "=" << p->second << endl;
+                consoleOut << p->first << "=" << p->second << endl;
             }
         }
     }
@@ -1730,8 +1679,10 @@ Parser::listAllServers(const list<string>& args)
 
     try
     {
+        ostringstream os;
         Ice::StringSeq ids = _admin->getAllServerIds();
-        copy(ids.begin(), ids.end(), ostream_iterator<string>(cout,"\n"));
+        copy(ids.begin(), ids.end(), ostream_iterator<string>(os,"\n"));
+        consoleOut << os.str();
     }
     catch(const Ice::Exception& ex)
     {
@@ -1926,14 +1877,14 @@ Parser::propertiesService(const list<string>& args, bool single)
         if(single)
         {
             string val = propAdmin->getProperty(property);
-            cout << val << endl;
+            consoleOut << val << endl;
         }
         else
         {
             Ice::PropertyDict properties = propAdmin->getPropertiesForPrefix("");
             for(Ice::PropertyDict::const_iterator p = properties.begin(); p != properties.end(); ++p)
             {
-                cout << p->first << "=" << p->second << endl;
+                consoleOut << p->first << "=" << p->second << endl;
             }
         }
     }
@@ -1974,7 +1925,7 @@ Parser::listServices(const list<string>& args)
         {
             if(p->descriptor)
             {
-                cout << p->descriptor->name << endl;
+                consoleOut << p->descriptor->name << endl;
             }
         }
     }
@@ -1983,7 +1934,6 @@ Parser::listServices(const list<string>& args)
         exception(ex);
     }
 }
-
 
 void
 Parser::endpointsAdapter(const list<string>& args)
@@ -2001,15 +1951,15 @@ Parser::endpointsAdapter(const list<string>& args)
         if(adpts.size() == 1 && adpts.begin()->id == adapterId)
         {
             string endpoints = _communicator->proxyToString(adpts.begin()->proxy);
-            cout << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
+            consoleOut << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
         }
         else
         {
             for(AdapterInfoSeq::const_iterator p = adpts.begin(); p != adpts.end(); ++p)
             {
-                cout << (p->id.empty() ? string("<empty>") : p->id) << ": ";
+                consoleOut << (p->id.empty() ? string("<empty>") : p->id) << ": ";
                 string endpoints = _communicator->proxyToString(p->proxy);
-                cout << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
+                consoleOut << (endpoints.empty() ? string("<inactive>") : endpoints) << endl;
             }
         }
     }
@@ -2049,8 +1999,10 @@ Parser::listAllAdapters(const list<string>& args)
 
     try
     {
+        ostringstream os;
         Ice::StringSeq ids = _admin->getAllAdapterIds();
-        copy(ids.begin(), ids.end(), ostream_iterator<string>(cout,"\n"));
+        copy(ids.begin(), ids.end(), ostream_iterator<string>(os,"\n"));
+        consoleOut << os.str();
     }
     catch(const Ice::Exception& ex)
     {
@@ -2100,7 +2052,7 @@ Parser::removeObject(const list<string>& args)
 
     try
     {
-        _admin->removeObject(stringToIdentity((*(args.begin()))));
+        _admin->removeObject(Ice::stringToIdentity((*(args.begin()))));
     }
     catch(const Ice::Exception& ex)
     {
@@ -2122,7 +2074,7 @@ Parser::findObject(const list<string>& args)
         ObjectInfoSeq objects = _admin->getObjectInfosByType(*(args.begin()));
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            cout << _communicator->proxyToString(p->proxy) << endl;
+            consoleOut << _communicator->proxyToString(p->proxy) << endl;
         }
     }
     catch(const Ice::Exception& ex)
@@ -2148,9 +2100,9 @@ Parser::describeObject(const list<string>& args)
             string arg = *(args.begin());
             if(arg.find('*') == string::npos)
             {
-                ObjectInfo info = _admin->getObjectInfo(stringToIdentity(arg));
-                cout << "proxy = `" << _communicator->proxyToString(info.proxy) << "'" << endl;
-                cout << "type = `" << info.type << "'" << endl;
+                ObjectInfo info = _admin->getObjectInfo(Ice::stringToIdentity(arg));
+                consoleOut << "proxy = `" << _communicator->proxyToString(info.proxy) << "'" << endl;
+                consoleOut << "type = `" << info.type << "'" << endl;
                 return;
             }
             else
@@ -2165,7 +2117,7 @@ Parser::describeObject(const list<string>& args)
 
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            cout << "proxy = `" << _communicator->proxyToString(p->proxy) << "' type = `" << p->type << "'" << endl;
+            consoleOut << "proxy = `" << _communicator->proxyToString(p->proxy) << "' type = `" << p->type << "'" << endl;
         }
 
     }
@@ -2198,7 +2150,7 @@ Parser::listObject(const list<string>& args)
 
         for(ObjectInfoSeq::const_iterator p = objects.begin(); p != objects.end(); ++p)
         {
-            cout << identityToString(p->proxy->ice_getIdentity()) << endl;
+            consoleOut << _communicator->identityToString(p->proxy->ice_getIdentity()) << endl;
         }
     }
     catch(const Ice::Exception& ex)
@@ -2245,7 +2197,7 @@ Parser::show(const string& reader, const list<string>& origArgs)
         string id = *p++;
         string filename = *p++;
 
-        cout << reader << " `" << id << "' " << filename << ": " << flush;
+        consoleOut << reader << " `" << id << "' " << filename << ": " << flush;
         Ice::StringSeq lines;
 
         bool head = opts.isSet("head");
@@ -2574,19 +2526,19 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 void
 Parser::showBanner()
 {
-    cout << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2016 ZeroC, Inc." << endl;
+    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2018 ZeroC, Inc." << endl;
 }
 
 void
 Parser::showCopying()
 {
-    cout << "This command is not implemented." << endl;
+    consoleOut << "This command is not implemented." << endl;
 }
 
 void
 Parser::showWarranty()
 {
-    cout << "This command is not implemented." << endl;
+    consoleOut << "This command is not implemented." << endl;
 }
 
 //
@@ -2654,9 +2606,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
             }
         }
 #else
-
-        cout << parser->getPrompt() << flush;
-
+        consoleOut << parser->getPrompt() << flush;
         string line;
         while(true)
         {
@@ -2669,14 +2619,19 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 }
                 break;
             }
-            line += c;
 
+            line += c;
             if(c == '\n')
             {
                 break;
             }
         }
-
+#ifdef _WIN32
+        if(windowsConsoleConverter)
+        {
+            line = nativeToUTF8(line, windowsConsoleConverter);
+        }
+#endif
         result = line.length();
         if(result > maxSize)
         {
@@ -2688,7 +2643,6 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         {
             strcpy(buf, line.c_str());
         }
-
 #endif
     }
 }
@@ -2744,11 +2698,11 @@ Parser::invalidCommand(const list<string>& s)
     string cat = *s.begin();
     if(_helpCommands.find(cat) == _helpCommands.end())
     {
-        cerr << "unknown `" << cat << "' command (see `help' for more info)" << endl;
+        consoleErr << "unknown `" << cat << "' command (see `help' for more info)" << endl;
     }
     else if(s.size() == 1)
     {
-        cerr << "invalid `" << cat << "' command (see `" << cat << " help' for more info)" << endl;
+        consoleErr << "invalid `" << cat << "' command (see `" << cat << " help' for more info)" << endl;
     }
     else
     {
@@ -2756,12 +2710,12 @@ Parser::invalidCommand(const list<string>& s)
         if(_helpCommands[cat].find(cmd) == _helpCommands[cat].end())
         {
             cmd = cat + " " + cmd;
-            cerr << "unknown `" << cmd << "' command (see `" << cat << " help' for more info)" << endl;
+            consoleErr << "unknown `" << cmd << "' command (see `" << cat << " help' for more info)" << endl;
         }
         else
         {
             cmd = cat + " " + cmd;
-            cerr << "invalid `" << cmd << "' command (see `" << cmd << " help' for more info)" << endl;
+            consoleErr << "invalid `" << cmd << "' command (see `" << cmd << " help' for more info)" << endl;
         }
     }
 }
@@ -2817,13 +2771,7 @@ void
 Parser::error(const char* s)
 {
 
-    cerr << "error: "
-#ifdef _WIN32
-         << toConsoleEncoding(s)
-#else
-         << s
-#endif
-         << endl;
+    consoleErr << "error: " << s << endl;
     _errors++;
 }
 
@@ -2836,13 +2784,7 @@ Parser::error(const string& s)
 void
 Parser::warning(const char* s)
 {
-    cerr << "warning: "
-#ifdef _WIN32
-         << toConsoleEncoding(s)
-#else
-         << s
-#endif
-         << endl;
+    consoleErr << "warning: " << s << endl;
 }
 
 void
@@ -2957,11 +2899,11 @@ Parser::exception(const Ice::Exception& ex)
     }
     catch(const ObjectNotRegisteredException& ex)
     {
-        error("couldn't find object `" + identityToString(ex.id) + "'");
+        error("couldn't find object `" + _communicator->identityToString(ex.id) + "'");
     }
     catch(const ObjectExistsException& ex)
     {
-        error("object `" + identityToString(ex.id) + "' already exists");
+        error("object `" + _communicator->identityToString(ex.id) + "' already exists");
     }
     catch(const DeploymentException& ex)
     {

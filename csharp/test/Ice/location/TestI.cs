@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,15 +16,15 @@ public class TestI : TestIntfDisp_
         _adapter1 = adapter1;
         _adapter2 = adapter2;
         _registry = registry;
-        
+
         _registry.addObject(_adapter1.add(new HelloI(), Ice.Util.stringToIdentity("hello")));
     }
-    
+
     public override void shutdown(Ice.Current current)
     {
         _adapter1.getCommunicator().shutdown();
     }
-    
+
     public override HelloPrx getHello(Ice.Current current)
     {
         return HelloPrxHelper.uncheckedCast(_adapter1.createIndirectProxy(

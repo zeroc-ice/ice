@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -399,7 +399,7 @@ TopicImpl::TopicImpl(
             if(traceLevels->topic > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-                out << _name << " recreate " << identityToString(id);
+                out << _name << " recreate " << _instance->communicator()->identityToString(id);
                 if(traceLevels->topic > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(p->obj);
@@ -418,7 +418,7 @@ TopicImpl::TopicImpl(
             catch(const Ice::Exception& ex)
             {
                 Ice::Warning out(traceLevels->logger);
-                out << _name << " recreate " << identityToString(id);
+                out << _name << " recreate " << _instance->communicator()->identityToString(id);
                 if(traceLevels->topic > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(p->obj);
@@ -439,11 +439,6 @@ TopicImpl::TopicImpl(
         throw;
     }
     __setNoDelete(false);
-}
-
-TopicImpl::~TopicImpl()
-{
-    //cout << "~TopicImpl" << endl;
 }
 
 string
@@ -491,7 +486,7 @@ trace(Ice::Trace& out, const PersistentInstancePtr& instance, const vector<Subsc
         {
             out << ",";
         }
-        out << identityToString((*p)->id());
+        out << instance->communicator()->identityToString((*p)->id());
     }
     out << "]";
 }
@@ -516,7 +511,7 @@ TopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPrx& obj)
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": subscribeAndGetPublisher: " << identityToString(id);
+        out << _name << ": subscribeAndGetPublisher: " << _instance->communicator()->identityToString(id);
 
         if(traceLevels->topic > 1)
         {
@@ -600,7 +595,7 @@ TopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber)
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": unsubscribe: " << identityToString(id);
+        out << _name << ": unsubscribe: " << _instance->communicator()->identityToString(id);
 
         if(traceLevels->topic > 1)
         {
@@ -637,7 +632,7 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": link " << identityToString(topic->ice_getIdentity())
+        out << _name << ": link " << _instance->communicator()->identityToString(topic->ice_getIdentity())
             << " cost " << cost;
     }
 
@@ -657,9 +652,7 @@ TopicImpl::link(const TopicPrx& topic, Ice::Int cost)
     if(p != _subscribers.end())
     {
         string name = IceStormInternal::identityToTopicName(id);
-        LinkExists ex;
-        ex.name = name;
-        throw ex;
+        throw LinkExists(name);
     }
 
     LogUpdate llu;
@@ -713,16 +706,14 @@ TopicImpl::unlink(const TopicPrx& topic)
             out << _name << ": unlink " << name << " failed - not linked";
         }
 
-        NoSuchLink ex;
-        ex.name = name;
-        throw ex;
+        throw NoSuchLink(name);
     }
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << " unlink " << identityToString(id);
+        out << _name << " unlink " << _instance->communicator()->identityToString(id);
     }
 
     Ice::IdentitySeq ids;
@@ -746,7 +737,7 @@ TopicImpl::reap(const Ice::IdentitySeq& ids)
             {
                 out << ",";
             }
-            out << identityToString(*p);
+            out << _instance->communicator()->identityToString(*p);
         }
     }
 
@@ -1022,7 +1013,6 @@ TopicImpl::publish(bool forwarded, const EventDataSeq& events)
         generation = unlock.generation();
     }
 
-
     // Tell the master to reap this set of subscribers. This is an
     // AMI invocation so it shouldn't block the caller (in the
     // typical case) we do it outside of the mutex lock for
@@ -1045,7 +1035,7 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": add replica observer: " << identityToString(record.id);
+        out << _name << ": add replica observer: " << _instance->communicator()->identityToString(record.id);
 
         if(traceLevels->topic > 1)
         {
@@ -1072,7 +1062,7 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
         if(traceLevels->topic > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-            out << identityToString(record.id) << ": already subscribed";
+            out << _instance->communicator()->identityToString(record.id) << ": already subscribed";
         }
         return;
     }
@@ -1116,13 +1106,12 @@ TopicImpl::observerRemoveSubscriber(const LogUpdate& llu, const Ice::IdentitySeq
             {
                 out << ",";
             }
-            out << identityToString(*id);
+            out << _instance->communicator()->identityToString(*id);
         }
         out << " llu: " << llu.generation << "/" << llu.iteration;
     }
 
     IceUtil::Mutex::Lock sync(_subscribersMutex);
-
 
     // First remove from the database.
     try

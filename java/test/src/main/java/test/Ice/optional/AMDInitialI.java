@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,7 +20,7 @@ import com.zeroc.Ice.Current;
 
 import test.Ice.optional.AMD.Test.*;
 
-public final class AMDInitialI implements _InitialDisp
+public final class AMDInitialI implements Initial
 {
     @Override
     public CompletionStage<Void> shutdownAsync(Current current)

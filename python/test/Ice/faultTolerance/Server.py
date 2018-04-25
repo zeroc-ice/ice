@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -43,14 +43,14 @@ def run(args, communicator):
             usage(args[0])
             return False
 
-        port = int(arg)
+        port = 12010 + int(arg)
 
     if port <= 0:
         sys.stderr.write(args[0] + ": no port specified\n")
         usage(args[0])
         return False
 
-    endpts = "default -p " + str(port) + ":udp"
+    endpts = "default -p " + str(port)
     communicator.getProperties().setProperty("TestAdapter.Endpoints", endpts)
     adapter = communicator.createObjectAdapter("TestAdapter")
     object = TestI()
@@ -69,17 +69,10 @@ try:
     initData.properties = Ice.createProperties(sys.argv)
     initData.properties.setProperty("Ice.ServerIdleTime", "120") # Two minutes.
 
-    communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv, initData) as communicator:
+        status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

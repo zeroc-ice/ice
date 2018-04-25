@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -63,8 +63,6 @@ static union _zend_function* handleGetMethod(zend_object**, zend_string*, const 
 static int handleCompare(zval*, zval*);
 }
 
-static ClassInfoPtr lookupClass(const string&);
-
 namespace IcePHP
 {
 
@@ -75,15 +73,15 @@ class Proxy : public IceUtil::Shared
 {
 public:
 
-    Proxy(const Ice::ObjectPrx&, const ClassInfoPtr&, const CommunicatorInfoPtr&);
+    Proxy(const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr&);
     ~Proxy();
 
     bool clone(zval*, const Ice::ObjectPrx&);
     bool cloneUntyped(zval*, const Ice::ObjectPrx&);
-    static bool create(zval*, const Ice::ObjectPrx&, const ClassInfoPtr&, const CommunicatorInfoPtr&);
+    static bool create(zval*, const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr&);
 
     Ice::ObjectPrx proxy;
-    ClassInfoPtr info;
+    ProxyInfoPtr info;
     CommunicatorInfoPtr communicator;
     zval* connection;
     zval* cachedConnection;
@@ -750,7 +748,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getRouter)
         Ice::RouterPrx router = _this->proxy->ice_getRouter();
         if(router)
         {
-            ClassInfoPtr info = lookupClass("::Ice::Router");
+            ProxyInfoPtr info = getProxyInfo("::Ice::Router");
             if(!info)
             {
                 RETURN_NULL();
@@ -788,7 +786,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_router)
     }
 
     Ice::ObjectPrx proxy;
-    ClassInfoPtr def;
+    ProxyInfoPtr def;
     if(zprx && !fetchProxy(zprx, proxy, def))
     {
         RETURN_NULL();
@@ -834,7 +832,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getLocator)
         Ice::LocatorPrx locator = _this->proxy->ice_getLocator();
         if(locator)
         {
-            ClassInfoPtr info = lookupClass("::Ice::Locator");
+            ProxyInfoPtr info = getProxyInfo("::Ice::Locator");
             if(!info)
             {
                 RETURN_NULL();
@@ -870,7 +868,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locator)
     }
 
     Ice::ObjectPrx proxy;
-    ClassInfoPtr def;
+    ProxyInfoPtr def;
     if(zprx && !fetchProxy(zprx, proxy, def))
     {
         RETURN_NULL();
@@ -1156,6 +1154,35 @@ ZEND_METHOD(Ice_ObjectPrx, ice_compress)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_getCompress)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        IceUtil::Optional<bool> compress = _this->proxy->ice_getCompress();
+        if(compress)
+        {
+            RETURN_BOOL(*compress ? 1 : 0);
+        }
+        else
+        {
+            assignUnset(return_value TSRMLS_CC);
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1181,6 +1208,81 @@ ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
     }
 }
 
+ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        IceUtil::Optional<int> timeout = _this->proxy->ice_getTimeout();
+        if(timeout)
+        {
+            ZVAL_LONG(return_value, static_cast<long>(*timeout));
+        }
+        else
+        {
+            assignUnset(return_value TSRMLS_CC);
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout )
+{
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
+    assert(_this);
+
+    try
+    {
+        long l;
+        if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
+        {
+            RETURN_NULL();
+        }
+        // TODO: range check?
+        if(!_this->clone(return_value, _this->proxy->ice_invocationTimeout (l)))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_ObjectPrx, ice_getInvocationTimeout)
+{
+    if(ZEND_NUM_ARGS() != 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        ZVAL_LONG(return_value, static_cast<long>(_this->proxy->ice_getInvocationTimeout()));
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
 ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
@@ -1202,6 +1304,38 @@ ZEND_METHOD(Ice_ObjectPrx, ice_connectionId)
     catch(const IceUtil::Exception& ex)
     {
         throwException(ex);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_ObjectPrx, ice_fixed)
+{
+    ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    zval* zcon;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O!"), &zcon, connectionClassEntry TSRMLS_CC) !=
+        SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    Ice::ConnectionPtr connection;
+    if(zcon && !fetchConnection(zcon, connection TSRMLS_CC))
+    {
+        RETURN_NULL();
+    }
+
+    try
+    {
+        if(!_this->clone(return_value, _this->proxy->ice_fixed(connection) TSRMLS_CC))
+        {
+            RETURN_NULL();
+        }
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
         RETURN_NULL();
     }
 }
@@ -1277,30 +1411,6 @@ ZEND_METHOD(Ice_ObjectPrx, ice_flushBatchRequests)
     }
 }
 
-static ClassInfoPtr
-lookupClass(const string& id)
-{
-    ClassInfoPtr info = getClassInfoById(id);
-    if(!info)
-    {
-        if(!id.empty() && id[id.size() - 1] == '*')
-        {
-            info = getClassInfoById(id.substr(0, id.size() - 1));
-        }
-    }
-
-    if(info && !info->defined)
-    {
-        runtimeError("%s is declared but not defined", id.c_str());
-    }
-    else if(!info)
-    {
-        runtimeError("no definition found for class or interface %s", id.c_str());
-    }
-
-    return info;
-}
-
 static void
 do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 {
@@ -1346,7 +1456,7 @@ do_cast(INTERNAL_FUNCTION_PARAMETERS, bool check)
 
     try
     {
-        ClassInfoPtr info = lookupClass(id);
+        ProxyInfoPtr info = getProxyInfo(id);
         if(!info)
         {
             RETURN_NULL();
@@ -1400,7 +1510,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_checkedCast)
     do_cast(INTERNAL_FUNCTION_PARAM_PASSTHRU, true);
 }
 
-IcePHP::Proxy::Proxy(const Ice::ObjectPrx& p, const ClassInfoPtr& i, const CommunicatorInfoPtr& comm) :
+IcePHP::Proxy::Proxy(const Ice::ObjectPrx& p, const ProxyInfoPtr& i, const CommunicatorInfoPtr& comm) :
     proxy(p), info(i), communicator(comm), connection(0), cachedConnection(0)
 {
     //
@@ -1436,14 +1546,13 @@ IcePHP::Proxy::cloneUntyped(zval* zv, const Ice::ObjectPrx& p)
 }
 
 bool
-IcePHP::Proxy::create(zval* zv, const Ice::ObjectPrx& p, const ClassInfoPtr& info, const CommunicatorInfoPtr& comm
-                     )
+IcePHP::Proxy::create(zval* zv, const Ice::ObjectPrx& p, const ProxyInfoPtr& info, const CommunicatorInfoPtr& comm)
 {
-    ClassInfoPtr cls = info;
-    if(!cls)
+    ProxyInfoPtr prx = info;
+    if(!prx)
     {
-        cls = getClassInfoById("::Ice::Object");
-        assert(cls);
+        prx = getProxyInfo("::Ice::Object");
+        assert(prx);
     }
 
     if(object_init_ex(zv, proxyClassEntry) != SUCCESS)
@@ -1453,7 +1562,7 @@ IcePHP::Proxy::create(zval* zv, const Ice::ObjectPrx& p, const ClassInfoPtr& inf
     }
 
     Wrapper<ProxyPtr>* obj = Wrapper<ProxyPtr>::extract(zv);
-    ProxyPtr proxy = new Proxy(p, cls, comm);
+    ProxyPtr proxy = new Proxy(p, prx, comm);
     assert(!obj->ptr);
     obj->ptr = new ProxyPtr(proxy);
     return true;
@@ -1525,7 +1634,7 @@ handleGetMethod(zend_object **object, zend_string *name, const zval *key )
         assert(obj->ptr);
         ProxyPtr _this = *obj->ptr;
 
-        ClassInfoPtr info = _this->info;
+        ProxyInfoPtr info = _this->info;
         assert(info);
 
         OperationPtr op = info->getOperation(name->val);
@@ -1589,55 +1698,60 @@ handleCompare(zval* zobj1, zval* zobj2)
 //
 static zend_function_entry _proxyMethods[] =
 {
-    ZEND_ME(Ice_ObjectPrx, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_ObjectPrx, __toString, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getCommunicator, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_toString, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getIdentity, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_identity, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getContext, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_context, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getFacet, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_facet, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getAdapterId, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_adapterId, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getEndpoints, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_endpoints, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getLocatorCacheTimeout, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getConnectionId, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_locatorCacheTimeout, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_isConnectionCached, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_connectionCached, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getEndpointSelection, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_endpointSelection, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_isSecure, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_secure, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getEncodingVersion, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_encodingVersion, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_isPreferSecure, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_preferSecure, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getRouter, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_router, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getLocator, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_locator, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_twoway, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_isTwoway, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_oneway, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_isOneway, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_batchOneway, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_isBatchOneway, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_datagram, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_isDatagram, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_batchDatagram, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_isBatchDatagram, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_compress, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_timeout, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_connectionId, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getConnection, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_getCachedConnection, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_flushBatchRequests, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_uncheckedCast, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ObjectPrx, ice_checkedCast, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_ObjectPrx, __toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getCommunicator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getIdentity, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_identity, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getContext, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_context, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getFacet, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_facet, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getAdapterId, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_adapterId, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getEndpoints, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_endpoints, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getLocatorCacheTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getConnectionId, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_locatorCacheTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isConnectionCached, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_connectionCached, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getEndpointSelection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_endpointSelection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isSecure, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_secure, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getEncodingVersion, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_encodingVersion, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isPreferSecure, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_preferSecure, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getRouter, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_router, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getLocator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_locator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_twoway, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isTwoway, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_oneway, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isOneway, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_batchOneway, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isBatchOneway, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_datagram, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isDatagram, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_batchDatagram, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_isBatchDatagram, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_compress, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getCompress, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_timeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_invocationTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getInvocationTimeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_connectionId, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_fixed, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_getCachedConnection, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_uncheckedCast, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ObjectPrx, ice_checkedCast, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -1680,21 +1794,21 @@ IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const CommunicatorInfoPtr
 }
 
 bool
-IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const ClassInfoPtr& info, const CommunicatorInfoPtr& comm
+IcePHP::createProxy(zval* zv, const Ice::ObjectPrx& p, const ProxyInfoPtr& info, const CommunicatorInfoPtr& comm
                    )
 {
     return Proxy::create(zv, p, info, comm);
 }
 
 bool
-IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ClassInfoPtr& cls)
+IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ProxyInfoPtr& info)
 {
     CommunicatorInfoPtr comm;
-    return fetchProxy(zv, prx, cls, comm);
+    return fetchProxy(zv, prx, info, comm);
 }
 
 bool
-IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ClassInfoPtr& cls, CommunicatorInfoPtr& comm)
+IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ProxyInfoPtr& info, CommunicatorInfoPtr& comm)
 {
     if(!ZVAL_IS_NULL(zv))
     {
@@ -1711,7 +1825,7 @@ IcePHP::fetchProxy(zval* zv, Ice::ObjectPrx& prx, ClassInfoPtr& cls, Communicato
         }
         assert(obj->ptr);
         prx = (*obj->ptr)->proxy;
-        cls = (*obj->ptr)->info;
+        info = (*obj->ptr)->info;
         comm = (*obj->ptr)->communicator;
     }
     return true;

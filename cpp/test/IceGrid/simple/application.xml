@@ -1,0 +1,28 @@
+<icegrid>
+  <application name="Test">
+    <node name="localnode">
+      <server id="server" exe="${server.dir}/server" activation="on-demand">
+
+        <adapter name="TestAdapter" endpoints="default" id="TestAdapter">
+          <object identity="test" type="Test" property="Identity"/>
+        </adapter>
+
+        <target name="debug">
+          <properties>
+            <property name="Ice.Trace.Network" value="0"/>
+            <property name="Ice.Trace.Protocol" value="0"/>
+          </properties>
+        </target>
+
+      </server>
+
+      <server id="server10" exe="${server.dir}/server" activation="on-demand">
+        <adapter name="TestAdapter" endpoints="default" id="TestAdapter10">
+          <object identity="test10" type="Test" property="Identity"/>
+        </adapter>
+        <property name="Ice.Default.EncodingVersion" value="1.0"/>
+      </server>
+
+    </node>
+  </application>
+</icegrid>

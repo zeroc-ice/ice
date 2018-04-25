@@ -14,7 +14,7 @@ The icestormdb utility is a command-line tool for importing and exporting IceSto
 databases. Full documentation for icestormdb is available
 online at:
 .br
-"https://doc.zeroc.com/display/Ice37/icestormdb+Command+Line+Tool".
+https://doc.zeroc.com/display/Ice37/IceStorm+Database+Utility
 
 .SH OPTIONS
 
@@ -29,24 +29,34 @@ Show program help.
 Display the Ice version.
 
 .TP
-.BR \-d ", " \-\-debug\fR
+.BR \-v ", " \-\-version\fR
 .br
-Print debug messages.
+Display the Ice version.
 
 .TP
 .BR \-\-import " " FILE\fR
 .br
-Import database from specifed file.
+Import database from the specifed file.
 
 .TP
 .BR \-\-export " " FILE\fR
 .br
-Export database to specified file.
+Export database to the specified file.
 
 .TP
-.BR \-\-dbhome " " DIR\fR
+.BR \-\-dbpath " " DIR\fR
 .br
-The database directory.
+Source or target database environment.
+
+.TP
+.BR \-\-mapsize " " VALUE\fR
+.br
+Set LMDB map size in MB (optional, import only).
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug messages.
 
 .SH SEE ALSO
 

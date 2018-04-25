@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -42,19 +42,15 @@ public:
 
     iAPEndpointFactoryPlugin(const Ice::CommunicatorPtr& com)
     {
-        ProtocolPluginFacadePtr pluginFacade = getProtocolPluginFacade(com);
+        ProtocolPluginFacadePtr f = getProtocolPluginFacade(com);
 
         // iAP transport
-        ProtocolInstancePtr instance = new ProtocolInstance(com, iAPEndpointType, "iap", false);
-        pluginFacade->addEndpointFactory(new IceObjC::iAPEndpointFactory(instance));
+        ProtocolInstancePtr iap = new ProtocolInstance(com, iAPEndpointType, "iap", false);
+        f->addEndpointFactory(new IceObjC::iAPEndpointFactory(iap));
 
         // SSL based on iAP transport
-        EndpointFactoryPtr ssl = pluginFacade->getEndpointFactory(SSLEndpointType);
-        if(ssl)
-        {
-            ProtocolInstancePtr sslinstance = new ProtocolInstance(com, iAPSEndpointType, "iaps", true);
-            pluginFacade->addEndpointFactory(ssl->clone(sslinstance, new IceObjC::iAPEndpointFactory(sslinstance)));
-        }
+        ProtocolInstancePtr iaps = new ProtocolInstance(com, iAPSEndpointType, "iaps", true);
+        f->addEndpointFactory(new UnderlyingEndpointFactory(iaps, SSLEndpointType, iAPEndpointType));
     }
 
     virtual void initialize() {}
@@ -63,7 +59,7 @@ public:
 
 }
 
-extern "C" ICE_IAP_API Plugin*
+extern "C" ICEIAP_API Plugin*
 createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
 {
     return new iAPEndpointFactoryPlugin(com);
@@ -72,7 +68,7 @@ createIceIAP(const CommunicatorPtr& com, const string&, const StringSeq&)
 namespace Ice
 {
 
-ICE_IAP_API void
+ICEIAP_API void
 registerIceIAP(bool loadOnInitialize)
 {
     Ice::registerPluginFactory("IceIAP", createIceIAP, loadOnInitialize);
@@ -83,7 +79,7 @@ registerIceIAP(bool loadOnInitialize)
 //
 // Objective-C function to allow Objective-C programs to register plugin.
 //
-extern "C" ICE_IAP_API void
+extern "C" ICEIAP_API void
 ICEregisterIceIAP(bool loadOnInitialize)
 {
     Ice::registerIceIAP(loadOnInitialize);
@@ -135,7 +131,7 @@ IceObjC::iAPEndpointI::streamWriteImpl(OutputStream* s) const
 }
 
 EndpointInfoPtr
-IceObjC::iAPEndpointI::getInfo() const
+IceObjC::iAPEndpointI::getInfo() const ICE_NOEXCEPT
 {
     IceIAP::EndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<IceIAP::EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
     info->timeout = _timeout;
@@ -300,7 +296,15 @@ IceObjC::iAPEndpointI::acceptor(const string&) const
 }
 
 vector<EndpointIPtr>
-IceObjC::iAPEndpointI::expand() const
+IceObjC::iAPEndpointI::expandIfWildcard() const
+{
+    vector<EndpointIPtr> endps;
+    endps.push_back(ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
+    return endps;
+}
+
+vector<EndpointIPtr>
+IceObjC::iAPEndpointI::expandHost(EndpointIPtr&) const
 {
     vector<EndpointIPtr> endps;
     endps.push_back(ICE_SHARED_FROM_CONST_THIS(iAPEndpointI));
@@ -700,7 +704,7 @@ IceObjC::iAPEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceObjC::iAPEndpointFactory::clone(const ProtocolInstancePtr& instance, const IceInternal::EndpointFactoryPtr&) const
+IceObjC::iAPEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new iAPEndpointFactory(instance);
 }

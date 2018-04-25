@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,6 +27,12 @@
 
 namespace IcePy
 {
+
+inline PyObject* incRef(PyObject* obj)
+{
+    Py_XINCREF(obj);
+    return obj;
+}
 
 //
 // This should be used instead of Py_False to avoid GCC compiler warnings.
@@ -58,16 +64,12 @@ inline PyObject* getTrue()
 
 inline PyObject* incFalse()
 {
-    PyObject* f = getFalse();
-    Py_INCREF(f);
-    return f;
+    return incRef(getFalse());
 }
 
 inline PyObject* incTrue()
 {
-    PyObject* t = getTrue();
-    Py_INCREF(t);
-    return t;
+    return incRef(getTrue());
 }
 
 //
@@ -106,6 +108,13 @@ inline bool checkString(PyObject* p)
 // Validate and retrieve a string argument; None is also legal.
 //
 bool getStringArg(PyObject*, const std::string&, std::string&);
+
+//
+// Get an object attribute having the given name. If allowNone is true, a value of Py_None is allowed, otherwise
+// a value of Py_None is treated as if the attribute is undefined (i.e., the function returns nil). The caller
+// must release the reference to the returned object.
+//
+PyObject* getAttr(PyObject*, const std::string&, bool allowNone);
 
 //
 // Get the name of the current Python function.
@@ -261,6 +270,12 @@ PyObject* createEncodingVersion(const Ice::EncodingVersion&);
 // Extracts the members of an encoding version.
 //
 bool getEncodingVersion(PyObject*, Ice::EncodingVersion&);
+
+//
+// Call a Python method.
+//
+PyObject* callMethod(PyObject*, const std::string&, PyObject* = 0, PyObject* = 0);
+PyObject* callMethod(PyObject*, PyObject* = 0, PyObject* = 0);
 
 }
 

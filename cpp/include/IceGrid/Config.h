@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@
 // Automatically link with IceGrid[D|++11|++11D].lib
 //
 
-#if !defined(ICE_BUILDING_ICE_GRID) && defined(ICE_GRID_API_EXPORTS)
+#if !defined(ICE_BUILDING_ICE_GRID) && defined(ICEGRID_API_EXPORTS)
 #   define ICE_BUILDING_ICE_GRID
 #endif
 

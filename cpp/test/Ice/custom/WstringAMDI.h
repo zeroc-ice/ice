@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@ namespace Test1
 {
 
 #ifdef ICE_CPP11_MAPPING
-class WstringClassI : public virtual WstringClassDisp
+class WstringClassI : public virtual WstringClass
 {
 public:
 
@@ -55,7 +55,7 @@ public:
 namespace Test2
 {
 #ifdef ICE_CPP11_MAPPING
-class WstringClassI : public virtual WstringClassDisp
+class WstringClassI : public virtual WstringClass
 {
 public:
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
@@ -28,7 +28,7 @@ module Ice
  * with the communicator.
  *
  **/
-["delegate"]
+["delegate", "php:internal"]
 local interface ValueFactory
 {
     /**
@@ -37,9 +37,9 @@ local interface ValueFactory
      * absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute
      * Slice type id for an interface <tt>Bar</tt> in the module
-     * <tt>Foo</tt> is <tt>::Foo::Bar</tt>.
+     * <tt>Foo</tt> is <tt>"::Foo::Bar"</tt>.
      *
-     * <p class="Note">The leading "<tt>::</tt>" is required.
+     * Note that the leading "<tt>::</tt>" is required.
      *
      * @param type The value type.
      *
@@ -48,7 +48,7 @@ local interface ValueFactory
      *
      **/
     Value create(string type);
-};
+}
 
 /**
  *
@@ -59,31 +59,30 @@ local interface ValueFactory
  * @see ValueFactory
  *
  **/
+["php:internal"]
 local interface ValueFactoryManager
 {
     /**
      *
-     * <p>Add a value factory. Attempting to add a
-     * factory with an id for which a factory is already registered
-     * throws {@link AlreadyRegisteredException}.</p>
+     * Add a value factory. Attempting to add a factory with an id for
+     * which a factory is already registered throws AlreadyRegisteredException.
      *
-     * <p>When unmarshaling an Ice value, the Ice run time reads the
+     * When unmarshaling an Ice value, the Ice run time reads the
      * most-derived type id off the wire and attempts to create an
      * instance of the type using a factory. If no instance is created,
      * either because no factory was found, or because all factories
      * returned nil, the behavior of the Ice run time depends on the
-     * format with which the value was marshaled:</p>
+     * format with which the value was marshaled:
      *
-     * <p>If the value uses the "sliced" format, Ice ascends the class
+     * If the value uses the "sliced" format, Ice ascends the class
      * hierarchy until it finds a type that is recognized by a factory,
      * or it reaches the least-derived type. If no factory is found that
-     * can create an instance, the run time throws
-     * {@link NoValueFactoryException}.</p>
+     * can create an instance, the run time throws NoValueFactoryException.
      *
-     * <p>If the value uses the "compact" format, Ice immediately raises
-     * {@link NoValueFactoryException}.</p>
+     * If the value uses the "compact" format, Ice immediately raises
+     * NoValueFactoryException.
      *
-     * <p>The following order is used to locate a factory for a type:</p>
+     * The following order is used to locate a factory for a type:
      *
      * <ol>
      *
@@ -120,7 +119,7 @@ local interface ValueFactoryManager
      * found for the given id.
      *
      **/
-    ["cpp:const"] ValueFactory find(string id);
-};
+    ["cpp:const", "cpp:noexcept"] ValueFactory find(string id);
+}
 
-};
+}

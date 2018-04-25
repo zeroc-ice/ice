@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,15 +19,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         _metrics = metrics;
         _name = name;
         _class = cl;
-        _metrics.registerMap(name, _class, new Runnable()
-            {
-                @Override
-                public void
-                run()
-                {
-                    update();
-                }
-            });
+        _metrics.registerMap(name, _class, () -> { update(); });
     }
 
     public void
@@ -83,7 +75,7 @@ public class ObserverFactory<T extends Metrics, O extends Observer<T>>
         O obsv;
         try
         {
-            obsv = cl.newInstance();
+            obsv = cl.getDeclaredConstructor().newInstance();
         }
         catch(Exception ex)
         {

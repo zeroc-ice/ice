@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -283,6 +283,12 @@ public class ServiceManagerI implements ServiceManager
             //
             final String prefix = "IceBox.Service.";
             java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+
+            if(services.isEmpty())
+            {
+                throw new FailureException("ServiceManager: configuration must include at least one IceBox service");
+            }
+
             String[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
             java.util.List<StartServiceInfo> servicesInfo = new java.util.ArrayList<>();
             for(String name : loadOrder)
@@ -329,8 +335,9 @@ public class ServiceManagerI implements ServiceManager
                     // Load the service properties using the shared communicator properties as
                     // the default properties.
                     //
-                    Util.CreatePropertiesResult cpr = Util.createProperties(service.args, initData.properties);
-                    service.args = cpr.args;
+                    java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                    Properties serviceProps = Util.createProperties(service.args, initData.properties, remainingArgs);
+                    service.args = remainingArgs.toArray(new String[remainingArgs.size()]);
 
                     //
                     // Remove properties from the shared property set that a service explicitly clears.
@@ -338,7 +345,7 @@ public class ServiceManagerI implements ServiceManager
                     java.util.Map<String, String> allProps = initData.properties.getPropertiesForPrefix("");
                     for(String key : allProps.keySet())
                     {
-                        if(cpr.properties.getProperty(key).length() == 0)
+                        if(serviceProps.getProperty(key).length() == 0)
                         {
                             initData.properties.setProperty(key, "");
                         }
@@ -347,7 +354,7 @@ public class ServiceManagerI implements ServiceManager
                     //
                     // Add the service properties to the shared communicator properties.
                     //
-                    for(java.util.Map.Entry<String, String> p : cpr.properties.getPropertiesForPrefix("").entrySet())
+                    for(java.util.Map.Entry<String, String> p : serviceProps.getPropertiesForPrefix("").entrySet())
                     {
                         initData.properties.setProperty(p.getKey(), p.getValue());
                     }
@@ -590,14 +597,15 @@ public class ServiceManagerI implements ServiceManager
                     // Create the service properties with the given service arguments. This should
                     // read the service config file if it's specified with --Ice.Config.
                     //
-                    Util.CreatePropertiesResult cpr = Util.createProperties(serviceArgs, initData.properties);
-                    initData.properties = cpr.properties;
+                    java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                    initData.properties = Util.createProperties(serviceArgs, initData.properties, remainingArgs);
+                    serviceArgs = remainingArgs.toArray(new String[remainingArgs.size()]);
 
                     //
                     // Next, parse the service "<service>.*" command line options (the Ice command
                     // line options were parsed by the createProperties above).
                     //
-                    serviceArgs = initData.properties.parseCommandLineOptions(service, cpr.args);
+                    serviceArgs = initData.properties.parseCommandLineOptions(service, serviceArgs);
                 }
 
                 //
@@ -623,9 +631,9 @@ public class ServiceManagerI implements ServiceManager
                 // Remaining command line options are passed to the communicator. This is
                 // necessary for Ice plug-in properties (e.g.: IceSSL).
                 //
-                Util.InitializeResult ir = Util.initialize(serviceArgs, initData);
-                info.communicator = ir.communicator;
-                info.args = ir.args;
+                java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+                info.communicator = Util.initialize(serviceArgs, initData, remainingArgs);
+                info.args = remainingArgs.toArray(new String[remainingArgs.size()]);
                 communicator = info.communicator;
 
                 if(addFacets)
@@ -699,7 +707,7 @@ public class ServiceManagerI implements ServiceManager
                     //
                     try
                     {
-                        obj = c.newInstance();
+                        obj = c.getDeclaredConstructor().newInstance();
                     }
                     catch(IllegalAccessException ex)
                     {
@@ -1095,20 +1103,7 @@ public class ServiceManagerI implements ServiceManager
         }
 
         removeAdminFacets("IceBox.Service." + service + ".");
-
-        try
-        {
-            communicator.destroy();
-        }
-        catch(java.lang.Exception e)
-        {
-            java.io.StringWriter sw = new java.io.StringWriter();
-            java.io.PrintWriter pw = new java.io.PrintWriter(sw);
-            e.printStackTrace(pw);
-            pw.flush();
-            _logger.warning("ServiceManager: exception in destroying communicator for service "
-                            + service + "\n" + sw.toString());
-        }
+        communicator.destroy();
     }
 
     private boolean configureAdmin(Properties properties, String prefix)
@@ -1161,7 +1156,6 @@ public class ServiceManagerI implements ServiceManager
             // Ignored
         }
     }
-
 
     private com.zeroc.Ice.Communicator _communicator;
     private boolean _adminEnabled = false;

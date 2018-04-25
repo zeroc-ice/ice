@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "js:ice-build", "python:pkgdir:IceGrid"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <IceGrid/Exception.ice>
@@ -46,7 +46,7 @@ enum LoadSample
      * Sample every fifteen minutes.
      **/
     LoadSample15
-};
+}
 
 /**
  *
@@ -122,7 +122,7 @@ interface Query
      *
      **/
     ["cpp:const"] idempotent Ice::ObjectProxySeq findAllReplicas(Object* proxy);
-};
+}
 
 /**
  *
@@ -138,9 +138,6 @@ interface Registry
     /**
      *
      * Create a client session.
-     *
-     * @see Session
-     * @see Glacier2.PermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
@@ -160,9 +157,6 @@ interface Registry
      *
      * Create an administrative session.
      *
-     * @see Session
-     * @see Glacier2.PermissionsVerifier
-     *
      * @return A proxy for the newly created session.
      *
      * @param userId The user id.
@@ -181,9 +175,6 @@ interface Registry
      *
      * Create a client session from a secure connection.
      *
-     * @see Session
-     * @see Glacier2.SSLPermissionsVerifier
-     *
      * @return A proxy for the newly created session.
      *
      * @throws PermissionDeniedException Raised if the password for
@@ -197,9 +188,6 @@ interface Registry
     /**
      *
      * Create an administrative session from a secure connection.
-     *
-     * @see Session
-     * @see Glacier2.SSLPermissionsVerifier
      *
      * @return A proxy for the newly created session.
      *
@@ -237,7 +225,7 @@ interface Registry
      *
      **/
     ["nonmutating", "cpp:const"] idempotent int getACMTimeout();
-};
+}
 
 /**
  *
@@ -269,6 +257,6 @@ interface Locator extends Ice::Locator
      *
      **/
     ["cpp:const"] idempotent Query* getLocalQuery();
-};
+}
 
-};
+}

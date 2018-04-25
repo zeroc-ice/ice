@@ -57,14 +57,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\ServerPrivateAMD.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\TestAMD.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Header Files">
       <UniqueIdentifier>{9a2b6787-c321-4553-a2f6-4604f2a0fff9}</UniqueIdentifier>
     </Filter>
@@ -188,5 +180,16 @@
     <ClInclude Include="Win32\Cpp11-Release\TestAMD.h">
       <Filter>Header Files\Win32\Cpp11-Release</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\ServerPrivateAMD.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\TestAMD.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

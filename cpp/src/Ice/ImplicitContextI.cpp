@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -39,7 +39,6 @@ private:
     IceUtil::Mutex _mutex;
 };
 
-#ifndef ICE_OS_WINRT
 class PerThreadImplicitContext : public ImplicitContextI
 {
 public:
@@ -70,7 +69,6 @@ public:
         long owner;
     };
 
-
     //
     // Each thread maintains a SlotVector. Each PerThreadImplicitContext instance
     // is assigned a slot in this vector.
@@ -85,12 +83,16 @@ public:
     static IceUtil::Mutex* _mutex;
 
     static long _nextId;
+    static long _destroyedIds;
+    static size_t _slotVectors;
 
 #ifdef _WIN32
     static DWORD _key;
 #else
     static pthread_key_t _key;
 #endif
+
+    static void tryCleanupKey(); // must be called with _mutex locked
 
 private:
 
@@ -100,12 +102,9 @@ private:
     size_t _index; // index in all SlotVector
     long _id; // corresponds to owner in the Slot
 };
-#endif
 }
 
 extern "C" void iceImplicitContextThreadDestructor(void*);
-
-
 
 ImplicitContextIPtr
 ImplicitContextI::create(const std::string& kind)
@@ -120,13 +119,7 @@ ImplicitContextI::create(const std::string& kind)
     }
     else if(kind == "PerThread")
     {
-#ifndef ICE_OS_WINRT
         return ICE_MAKE_SHARED(PerThreadImplicitContext);
-#else
-        throw InitializationException(__FILE__, __LINE__,
-                                      "'PerThread' Ice.ImplicitContext isn't supported for WinRT.");
-        return 0; // Keep the compiler happy.
-#endif
     }
     else
     {
@@ -137,7 +130,7 @@ ImplicitContextI::create(const std::string& kind)
     }
 }
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32)
 void
 ImplicitContextI::cleanupThread()
 {
@@ -147,7 +140,6 @@ ImplicitContextI::cleanupThread()
     }
 }
 #endif
-
 
 //
 // SharedImplicitContext implementation
@@ -186,7 +178,6 @@ SharedImplicitContext::get(const string& k) const
     }
     return p->second;
 }
-
 
 string
 SharedImplicitContext::put(const string& k, const string& v)
@@ -260,8 +251,9 @@ SharedImplicitContext::combine(const Context& proxyCtx, Context& ctx) const
 //
 // PerThreadImplicitContext implementation
 //
-#ifndef ICE_OS_WINRT
 long PerThreadImplicitContext::_nextId;
+long PerThreadImplicitContext::_destroyedIds;
+size_t PerThreadImplicitContext::_slotVectors;
 PerThreadImplicitContext::IndexInUse* PerThreadImplicitContext::_indexInUse;
 IceUtil::Mutex* PerThreadImplicitContext::_mutex = 0;
 
@@ -300,10 +292,6 @@ PerThreadImplicitContext::PerThreadImplicitContext()
     _id = _nextId++;
     if(_id == 0)
     {
-        //
-        // Initialize; note that we never dealloc this key (it would be
-        // complex, and since it's a static variable, it's not really a leak)
-        //
 #   ifdef _WIN32
         _key = TlsAlloc();
         if(_key == TLS_OUT_OF_INDEXES)
@@ -320,7 +308,7 @@ PerThreadImplicitContext::PerThreadImplicitContext()
     }
 
     //
-    // Now grabs an index
+    // Now grab an index
     //
     if(_indexInUse == 0)
     {
@@ -350,6 +338,27 @@ PerThreadImplicitContext::~PerThreadImplicitContext()
         delete _indexInUse;
         _indexInUse = 0;
     }
+
+    _destroyedIds++;
+    tryCleanupKey();
+}
+
+void
+PerThreadImplicitContext::tryCleanupKey()
+{
+    if(_destroyedIds == _nextId && _slotVectors == 0)
+    {
+        //
+        // We can do a full reset
+        //
+        _nextId = 0;
+        _destroyedIds = 0;
+#   ifdef _WIN32
+        TlsFree(_key);
+#   else
+        pthread_key_delete(_key);
+#   endif
+    }
 }
 
 Context*
@@ -367,7 +376,12 @@ PerThreadImplicitContext::getThreadContext(bool allocate) const
             return 0;
         }
 
-        sv = new SlotVector(_index + 1);
+        {
+             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
+             sv = new SlotVector(_index + 1);
+             _slotVectors++;
+        }
+
 #   ifdef _WIN32
 
         if(TlsSetValue(_key, sv) == 0)
@@ -470,6 +484,11 @@ PerThreadImplicitContext::clearThreadContext() const
             {
                 throw IceUtil::ThreadSyscallException(__FILE__, __LINE__, err);
             }
+
+            {
+                IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_mutex);
+                _slotVectors--;
+            }
 #   endif
         }
         else
@@ -478,7 +497,6 @@ PerThreadImplicitContext::clearThreadContext() const
         }
     }
 }
-
 
 Context
 PerThreadImplicitContext::getContext() const
@@ -633,7 +651,11 @@ extern "C" void iceImplicitContextThreadDestructor(void* v)
         // Then the vector
         //
         delete sv;
+
+        {
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(PerThreadImplicitContext::_mutex);
+            PerThreadImplicitContext::_slotVectors--;
+            PerThreadImplicitContext::tryCleanupKey();
+        }
     }
 }
-
-#endif

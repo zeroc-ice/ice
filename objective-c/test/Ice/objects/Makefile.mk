@@ -1,12 +1,15 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-$(test)_client_sources 	= $(test-client-sources) TestI.m
+$(test)_sliceflags              := -I$(test)
+$(test)_client_sources          = Client.m ObjectsTest.ice ObjectsDerived.ice ObjectsDerivedEx.ice TestI.m AllTests.m
+$(test)_server_sources          = Server.m ObjectsTest.ice ObjectsDerived.ice ObjectsDerivedEx.ice TestI.m TestIntfI.m
+$(test)_collocated_sources      = Collocated.m ObjectsTest.ice ObjectsDerived.ice ObjectsDerivedEx.ice TestI.m TestIntfI.m AllTests.m
 
 tests += $(test)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,7 +23,7 @@ public:
     FileServerI(const std::string&, const LargeFileInfoSeq&);
 
     FileInfoSeq getFileInfoSeq(Ice::Int, const Ice::Current&) const;
-    
+
     LargeFileInfoSeq
     getLargeFileInfoSeq(Ice::Int, const Ice::Current&) const;
 
@@ -40,15 +40,15 @@ public:
     void getLargeFileCompressed_async(const AMD_FileServer_getLargeFileCompressedPtr&,
                                       const std::string&,
                                       Ice::Long,
-                                      Ice::Int, 
+                                      Ice::Int,
                                       const Ice::Current&) const;
 
 private:
-    
+
     void
     getFileCompressedInternal(const std::string&,
                               Ice::Long,
-                              Ice::Int, 
+                              Ice::Int,
                               std::vector<Ice::Byte>&,
                               bool) const;
 

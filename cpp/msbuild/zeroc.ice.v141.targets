@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <!-- If MSBuildToolsVersion is 14.0 we are using Visual Studio 2017 RC1 -->
+    <ItemDefinitionGroup Condition="'$(MSBuildToolsVersion)' == '15.0'">
+        <ClCompile>
+            <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+        </ClCompile>
+    </ItemDefinitionGroup>
+
+    <!-- Use bin and lib directories that match the used platform toolset -->
+    <PropertyGroup Condition="'$(PlatformToolset)' == 'v141'">
+        <IceConfiguration Condition="'$(UseDebugLibraries)' == 'true'">Debug</IceConfiguration>
+        <IceConfiguration Condition="'$(UseDebugLibraries)' != 'true'">Release</IceConfiguration>
+        <LocalDebuggerEnvironment Condition="'$(LocalDebuggerEnvironment)' == ''">PATH=$(MSBuildThisFileDirectory)bin\$(Platform)\$(IceConfiguration)</LocalDebuggerEnvironment>
+    </PropertyGroup>
+
+    <ItemDefinitionGroup Condition="'$(PlatformToolset)' == 'v141'">
+        <Link>
+            <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)lib\$(Platform)\Release;$(MSBuildThisFileDirectory)lib\$(Platform)\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+        </Link>
+    </ItemDefinitionGroup>
+
+</Project>

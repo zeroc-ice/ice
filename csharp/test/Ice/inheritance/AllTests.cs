@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,24 +9,25 @@
 
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
-    public static InitialPrx allTests(Ice.Communicator communicator)
+    public static InitialPrx allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        string ref_Renamed = "initial:default -p 12010";
+        string ref_Renamed = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(ref_Renamed);
         test(@base != null);
         WriteLine("ok");
-        
+
         Write("testing checked cast... ");
         Flush();
         InitialPrx initial = InitialPrxHelper.checkedCast(@base);
         test(initial != null);
         test(initial.Equals(@base));
         WriteLine("ok");
-        
+
         Write("getting proxies for class hierarchy... ");
         Flush();
         Test.MA.CAPrx ca = initial.caop();
@@ -40,7 +41,7 @@ public class AllTests : TestCommon.TestApp
         test(cb != cd);
         test(cc != cd);
         WriteLine("ok");
-        
+
         Write("getting proxies for interface hierarchy... ");
         Flush();
         Test.MA.IAPrx ia = initial.iaop();
@@ -53,13 +54,13 @@ public class AllTests : TestCommon.TestApp
         test(ib1 != ic);
         test(ib2 != ic);
         WriteLine("ok");
-        
+
         Write("invoking proxy operations on class hierarchy... ");
         Flush();
         Test.MA.CAPrx cao;
         Test.MB.CBPrx cbo;
         Test.MA.CCPrx cco;
-        
+
         cao = ca.caop(ca);
         test(cao.Equals(ca));
         cao = ca.caop(cb);
@@ -78,7 +79,7 @@ public class AllTests : TestCommon.TestApp
         test(cao.Equals(cb));
         cao = cc.caop(cc);
         test(cao.Equals(cc));
-        
+
         cao = cb.cbop(cb);
         test(cao.Equals(cb));
         cbo = cb.cbop(cb);
@@ -95,7 +96,7 @@ public class AllTests : TestCommon.TestApp
         test(cao.Equals(cc));
         cbo = cc.cbop(cc);
         test(cbo.Equals(cc));
-        
+
         cao = cc.ccop(cc);
         test(cao.Equals(cc));
         cbo = cc.ccop(cc);
@@ -103,14 +104,14 @@ public class AllTests : TestCommon.TestApp
         cco = cc.ccop(cc);
         test(cco.Equals(cc));
         WriteLine("ok");
-        
+
         Write("ditto, but for interface hierarchy... ");
         Flush();
         Test.MA.IAPrx iao;
         Test.MB.IB1Prx ib1o;
         Test.MB.IB2Prx ib2o;
         Test.MA.ICPrx ico;
-        
+
         iao = ia.iaop(ia);
         test(iao.Equals(ia));
         iao = ia.iaop(ib1);
@@ -143,7 +144,7 @@ public class AllTests : TestCommon.TestApp
         test(iao.Equals(ib2));
         iao = ic.iaop(ic);
         test(iao.Equals(ic));
-        
+
         iao = ib1.ib1op(ib1);
         test(iao.Equals(ib1));
         ib1o = ib1.ib1op(ib1);
@@ -160,7 +161,7 @@ public class AllTests : TestCommon.TestApp
         test(iao.Equals(ic));
         ib1o = ic.ib1op(ic);
         test(ib1o.Equals(ic));
-        
+
         iao = ib2.ib2op(ib2);
         test(iao.Equals(ib2));
         ib2o = ib2.ib2op(ib2);
@@ -177,7 +178,7 @@ public class AllTests : TestCommon.TestApp
         test(iao.Equals(ic));
         ib2o = ic.ib2op(ic);
         test(ib2o.Equals(ic));
-        
+
         iao = ic.icop(ic);
         test(iao.Equals(ic));
         ib1o = ic.icop(ic);
@@ -187,31 +188,31 @@ public class AllTests : TestCommon.TestApp
         ico = ic.icop(ic);
         test(ico.Equals(ic));
         WriteLine("ok");
-        
+
         Write("ditto, but for class implementing interfaces... ");
         Flush();
-        
+
         cao = cd.caop(cd);
         test(cao.Equals(cd));
         cbo = cd.cbop(cd);
         test(cbo.Equals(cd));
         cco = cd.ccop(cd);
         test(cco.Equals(cd));
-        
+
         iao = cd.iaop(cd);
         test(iao.Equals(cd));
         ib1o = cd.ib1op(cd);
         test(ib1o.Equals(cd));
         ib2o = cd.ib2op(cd);
         test(ib2o.Equals(cd));
-        
+
         cao = cd.cdop(cd);
         test(cao.Equals(cd));
         cbo = cd.cdop(cd);
         test(cbo.Equals(cd));
         cco = cd.cdop(cd);
         test(cco.Equals(cd));
-        
+
         iao = cd.cdop(cd);
         test(iao.Equals(cd));
         ib1o = cd.cdop(cd);

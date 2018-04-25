@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,8 +17,7 @@ DEFINE_TEST("server")
 using namespace std;
 
 int
-run(int, char**, const Ice::CommunicatorPtr& communicator,
-    const Ice::InitializationData& initData)
+run(int, char**, const Ice::CommunicatorPtr& communicator, const Ice::InitializationData& initData)
 {
     //
     // Register the server manager. The server manager creates a new
@@ -27,7 +26,7 @@ run(int, char**, const Ice::CommunicatorPtr& communicator,
     //
     Ice::PropertiesPtr properties = communicator->getProperties();
     properties->setProperty("Ice.ThreadPool.Server.Size", "2");
-    properties->setProperty("ServerManager.Endpoints", getTestEndpoint(communicator, 0) + ":udp");
+    properties->setProperty("ServerManager.Endpoints", getTestEndpoint(communicator, 0));
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ServerManager");
 
@@ -59,13 +58,14 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
+    Ice::registerIceUDP(true);
 #endif
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
         assert(initData.properties != ich->getProperties());
         return run(argc, argv, ich.communicator(), initData);
     }

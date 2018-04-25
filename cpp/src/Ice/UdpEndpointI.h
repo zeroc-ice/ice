@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,7 +29,7 @@ public:
 
     virtual void streamWriteImpl(Ice::OutputStream*) const;
 
-    virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
 
     virtual Ice::Int timeout() const;
     virtual EndpointIPtr timeout(Ice::Int) const;
@@ -52,6 +52,8 @@ public:
     UdpEndpointIPtr endpoint(const UdpTransceiverPtr&) const;
 
     using IPEndpointI::connectionId;
+
+    virtual void initWithOptions(std::vector<std::string>&, bool);
 
 protected:
 
@@ -86,7 +88,7 @@ public:
     virtual EndpointIPtr read(Ice::InputStream*) const;
     virtual void destroy();
 
-    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&, const EndpointFactoryPtr&) const;
+    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&) const;
 
 private:
 

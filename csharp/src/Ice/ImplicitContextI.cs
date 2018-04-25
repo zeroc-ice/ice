@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,6 @@
 
 namespace Ice
 {
-    using System.Collections;
     using System.Collections.Generic;
     using System.Threading;
 
@@ -34,14 +33,13 @@ namespace Ice
             }
             else
             {
-                throw new Ice.InitializationException(
-                    "'" + kind + "' is not a valid value for Ice.ImplicitContext"); 
+                throw new InitializationException("'" + kind + "' is not a valid value for Ice.ImplicitContext");
             }
         }
-        
+
         public abstract Dictionary<string, string> getContext();
         public abstract void setContext(Dictionary<string, string> newContext);
-        public abstract bool containsKey(string key);    
+        public abstract bool containsKey(string key);
         public abstract string get(string key);
         public abstract string put(string key, string value);
         public abstract string remove(string key);
@@ -49,8 +47,7 @@ namespace Ice
         abstract public void write(Dictionary<string, string> prxContext, OutputStream os);
         abstract internal Dictionary<string, string> combine(Dictionary<string, string> prxContext);
     }
-        
-        
+
     internal class SharedImplicitContext : ImplicitContextI
     {
         public override Dictionary<string, string> getContext()
@@ -60,7 +57,7 @@ namespace Ice
                 return new Dictionary<string, string>(_context);
             }
         }
-            
+
         public override void setContext(Dictionary<string, string> context)
         {
             lock(this)
@@ -75,7 +72,7 @@ namespace Ice
                 }
             }
         }
-            
+
         public override bool containsKey(string key)
         {
             lock(this)
@@ -84,7 +81,7 @@ namespace Ice
                 {
                     key = "";
                 }
-                
+
                 return _context.ContainsKey(key);
             }
         }
@@ -97,7 +94,7 @@ namespace Ice
                 {
                     key = "";
                 }
-                
+
                 string val = _context[key];
                 if(val == null)
                 {
@@ -106,8 +103,7 @@ namespace Ice
                 return val;
             }
         }
-            
-            
+
         public override string put(string key, string value)
         {
             lock(this)
@@ -128,11 +124,11 @@ namespace Ice
                     oldVal = "";
                 }
                 _context[key] = value;
-                
+
                 return oldVal;
             }
         }
-            
+
         public override string remove(string key)
         {
             lock(this)
@@ -156,7 +152,7 @@ namespace Ice
                 return val;
             }
         }
-            
+
         public override void write(Dictionary<string, string> prxContext, OutputStream os)
         {
             if(prxContext.Count == 0)
@@ -166,12 +162,12 @@ namespace Ice
                     ContextHelper.write(os, _context);
                 }
             }
-            else 
+            else
             {
                 Dictionary<string, string> ctx = null;
                 lock(this)
                 {
-                    ctx = _context.Count == 0 ? prxContext : combine(prxContext); 
+                    ctx = _context.Count == 0 ? prxContext : combine(prxContext);
                 }
                 ContextHelper.write(os, ctx);
             }
@@ -210,7 +206,7 @@ namespace Ice
             {
                 if(_map.ContainsKey(currentThread))
                 {
-                    threadContext = (Dictionary<string, string>)_map[currentThread];
+                    threadContext = _map[currentThread];
                 }
             }
 
@@ -233,7 +229,7 @@ namespace Ice
             else
             {
                 Dictionary<string, string> threadContext = new Dictionary<string, string>(context);
-                
+
                 lock(this)
                 {
                     _map.Add(Thread.CurrentThread, threadContext);
@@ -304,7 +300,7 @@ namespace Ice
                     _map.Add(Thread.CurrentThread, threadContext);
                 }
             }
-           
+
             string oldVal;
             if(!threadContext.TryGetValue(key, out oldVal))
             {
@@ -331,7 +327,6 @@ namespace Ice
                 }
             }
 
-
             string val = null;
             if(!threadContext.TryGetValue(key, out val))
             {
@@ -351,7 +346,7 @@ namespace Ice
             {
                 _map.TryGetValue(Thread.CurrentThread, out threadContext);
             }
-            
+
             if(threadContext == null || threadContext.Count == 0)
             {
                 ContextHelper.write(os, prxContext);
@@ -400,9 +395,7 @@ namespace Ice
         //
         //  map Thread -> Context
         //
-        private Dictionary<Thread, Dictionary<string, string> > _map = 
+        private Dictionary<Thread, Dictionary<string, string> > _map =
             new Dictionary<Thread, Dictionary<string, string> >();
-    } 
+    }
 }
-
-

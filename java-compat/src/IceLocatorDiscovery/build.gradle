@@ -1,22 +1,21 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
 
 project.ext.displayName = "IceLocatorDiscovery Compat"
 project.ext.description = "Ice plug-in that enables the discovery of IceGrid and custom locators via UDP multicast"
 
 slice {
     java {
-        args = "--ice"
-        files = fileTree(dir: "$sliceDir/IceLocatorDiscovery", includes:['*.ice'], excludes:["*F.ice"])
+        files = fileTree(dir: "$project.ext.topSrcDir/slice/IceLocatorDiscovery", includes:['*.ice'], excludes:["*F.ice"])
     }
 }
 
@@ -24,4 +23,4 @@ dependencies {
     compile project(':ice-compat')
 }
 
-apply from: "$rootProject.projectDir/../java/gradle/library.gradle"
+apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

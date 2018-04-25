@@ -131,8 +131,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\Backend.ice">
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\Backend.ice">
       <Filter>Slice Files</Filter>
-    </IceBuilder>
+    </SliceCompile>
   </ItemGroup>
 </Project>

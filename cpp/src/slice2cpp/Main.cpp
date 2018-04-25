@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,6 +11,8 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/ConsoleUtil.h>
+
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
@@ -18,6 +20,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtilInternal;
 
 namespace
 {
@@ -54,39 +57,42 @@ interruptedCallback(int /*signal*/)
 }
 
 void
-usage(const char* n)
+usage(const string& n)
 {
-    getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<
+    consoleErr << "Usage: " << n << " [options] slice-files...\n";
+    consoleErr <<
         "Options:\n"
         "-h, --help               Show this message.\n"
         "-v, --version            Display the Ice version.\n"
-        "--validate               Validate command line options.\n"
-        "--header-ext EXT         Use EXT instead of the default `h' extension.\n"
-        "--source-ext EXT         Use EXT instead of the default `cpp' extension.\n"
-        "--add-header HDR[,GUARD] Add #include for HDR (with guard GUARD) to generated source file.\n"
         "-DNAME                   Define NAME as 1.\n"
         "-DNAME=DEF               Define NAME as DEF.\n"
         "-UNAME                   Remove any definition for NAME.\n"
         "-IDIR                    Put DIR in the include file search path.\n"
         "-E                       Print preprocessor output on stdout.\n"
-        "--include-dir DIR        Use DIR as the header include directory in source files.\n"
         "--output-dir DIR         Create files in the directory DIR.\n"
-        "--dll-export SYMBOL      Use SYMBOL for DLL exports.\n"
-        "--impl-c++98             Generate sample implementations for C++98 mapping.\n"
-        "--impl-c++11             Generate sample implementations for C++11 mapping.\n"
+        "-d, --debug              Print debug messages.\n"
         "--depend                 Generate Makefile dependencies.\n"
         "--depend-xml             Generate dependencies in XML format.\n"
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
-        "-d, --debug              Print debug messages.\n"
-        "--ice                    Allow reserved Ice prefix in Slice identifiers.\n"
-        "--underscore             Allow underscores in Slice identifiers.\n"
+        "--validate               Validate command line options.\n"
+        "--header-ext EXT         Use EXT instead of the default `h' extension.\n"
+        "--source-ext EXT         Use EXT instead of the default `cpp' extension.\n"
+        "--add-header HDR[,GUARD] Add #include for HDR (with guard GUARD) to generated source file.\n"
+        "--include-dir DIR        Use DIR as the header include directory in source files.\n"
+        "--impl-c++11             Generate sample implementations for C++11 mapping.\n"
+        "--impl-c++98             Generate sample implementations for C++98 mapping.\n"
         "--checksum               Generate checksums for Slice definitions.\n"
+        "--dll-export SYMBOL      Use SYMBOL for DLL exports\n"
+        "                         deprecated: use instead [[\"cpp:dll-export:SYMBOL\"]] metadata.\n"
+        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
+        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
+        "--underscore             Allow underscores in Slice identifiers\n"
+        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 
 int
-compile(int argc, char* argv[])
+compile(const vector<string>& argv)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -112,24 +118,15 @@ compile(int argc, char* argv[])
     opts.addOpt("", "underscore");
     opts.addOpt("", "checksum");
 
-    bool validate = false;
-    for(int i = 0; i < argc; ++i)
-    {
-        if(string(argv[i]) == "--validate")
-        {
-            validate = true;
-            break;
-        }
-    }
-
+    bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
     vector<string> args;
     try
     {
-        args = opts.parse(argc, const_cast<const char**>(argv));
+        args = opts.parse(argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        getErrorStream() << argv[0] << ": " << e.reason << endl;
+        consoleErr << argv[0] << ": " << e.reason << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -145,7 +142,7 @@ compile(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        getErrorStream() << ICE_STRING_VERSION << endl;
+        consoleErr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -183,7 +180,7 @@ compile(int argc, char* argv[])
     string dllExport = opts.optArg("dll-export");
 
     bool implCpp98 = opts.isSet("impl-c++98");
-    
+
     bool implCpp11 = opts.isSet("impl-c++11");
 
     bool depend = opts.isSet("depend");
@@ -202,7 +199,7 @@ compile(int argc, char* argv[])
 
     if(args.empty())
     {
-        getErrorStream() << argv[0] << ": error: no input file" << endl;
+        consoleErr << argv[0] << ": error: no input file" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -212,17 +209,17 @@ compile(int argc, char* argv[])
 
     if(depend && dependxml)
     {
-        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
+        consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         if(!validate)
         {
             usage(argv[0]);
         }
         return EXIT_FAILURE;
     }
-    
+
     if(implCpp98 && implCpp11)
     {
-        getErrorStream() << argv[0] << ": error: cannot specify both --impl-c++98 and --impl-c++11" << endl;
+        consoleErr << argv[0] << ": error: cannot specify both --impl-c++98 and --impl-c++11" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -240,10 +237,10 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    DependOutputUtil out(dependFile);
+    ostringstream os;
     if(dependxml)
     {
-        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+        os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
     for(vector<string>::const_iterator i = args.begin(); i != args.end(); ++i)
@@ -264,37 +261,44 @@ compile(int argc, char* argv[])
 
             if(cppHandle == 0)
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             UnitPtr u = Unit::createUnit(false, false, ice, underscore);
             int parseStatus = u->parse(*i, cppHandle, debug);
+
+            string ext = headerExtension;
+            static const string headerExtPrefix = "cpp:header-ext:";
+            DefinitionContextPtr dc = u->findDefinitionContext(u->topLevelFile());
+            assert(dc);
+            string meta = dc->findMetaData(headerExtPrefix);
+            if(meta.size() > headerExtPrefix.size())
+            {
+                ext = meta.substr(headerExtPrefix.size());
+            }
+
             u->destroy();
 
             if(parseStatus == EXIT_FAILURE)
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
-            if(!icecpp->printMakefileDependencies(out.os(), depend ? Preprocessor::CPlusPlus : Preprocessor::SliceXML,
-                                                  includePaths, "-D__SLICE2CPP__", sourceExtension, headerExtension))
+            if(!icecpp->printMakefileDependencies(os, depend ? Preprocessor::CPlusPlus : Preprocessor::SliceXML,
+                                                  includePaths, "-D__SLICE2CPP__", sourceExtension, ext))
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             if(!icecpp->close())
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
         }
         else
         {
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2CPP__");
+            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2CPP__");
 
             if(cppHandle == 0)
             {
@@ -304,7 +308,7 @@ compile(int argc, char* argv[])
             if(preprocess)
             {
                 char buf[4096];
-                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != ICE_NULLPTR)
                 {
                     if(fputs(buf, stdout) == EOF)
                     {
@@ -345,7 +349,7 @@ compile(int argc, char* argv[])
                         // cleanup any created files.
                         FileTracker::instance()->cleanup();
                         u->destroy();
-                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
+                        consoleErr << argv[0] << ": error: " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
                 }
@@ -359,7 +363,6 @@ compile(int argc, char* argv[])
 
             if(interrupted)
             {
-                out.cleanup();
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
@@ -368,37 +371,46 @@ compile(int argc, char* argv[])
 
     if(dependxml)
     {
-        out.os() << "</dependencies>\n";
+        os << "</dependencies>\n";
+    }
+
+    if(depend || dependxml)
+    {
+        writeDependencies(os.str(), dependFile);
     }
 
     return status;
 }
 
-int
-main(int argc, char* argv[])
+#ifdef _WIN32
+int wmain(int argc, wchar_t* argv[])
+#else
+int main(int argc, char* argv[])
+#endif
 {
+    vector<string> args = Slice::argvToArgs(argc, argv);
     try
     {
-        return compile(argc, argv);
+        return compile(args);
     }
     catch(const std::exception& ex)
     {
-        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+        consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)
     {
-        getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

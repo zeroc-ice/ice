@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private static string getAdapterNameWithAMI(TestIntfPrx testIntf)
     {
@@ -45,7 +45,7 @@ public class AllTests : TestCommon.TestApp
     {
         for (int i = 0; i < array.Count - 1; ++i)
         {
-            int r = rand_.Next(array.Count - i) + i;
+            int r = _rand.Next(array.Count - i) + i;
             Debug.Assert(r >= i && r < array.Count);
             if (r != i)
             {
@@ -89,9 +89,10 @@ public class AllTests : TestCommon.TestApp
         }
     };
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
-        string @ref = "communicator:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string @ref = "communicator:" + app.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         System.Random rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
@@ -120,6 +121,9 @@ public class AllTests : TestCommon.TestApp
                 test(false);
             }
             catch(Ice.ConnectFailedException)
+            {
+            }
+            catch(Ice.ConnectTimeoutException)
             {
             }
         }
@@ -155,7 +159,7 @@ public class AllTests : TestCommon.TestApp
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.Remove(test1.getAdapterName());
-                test1.ice_getConnection().close(false);
+                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             //
@@ -177,7 +181,7 @@ public class AllTests : TestCommon.TestApp
 
                 foreach(RemoteObjectAdapterPrx adpt in adapters)
                 {
-                    adpt.getTestIntf().ice_getConnection().close(false);
+                    adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
             }
 
@@ -202,7 +206,7 @@ public class AllTests : TestCommon.TestApp
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.Remove(test1.getAdapterName());
-                test1.ice_getConnection().close(false);
+                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             //
@@ -227,38 +231,17 @@ public class AllTests : TestCommon.TestApp
             adapters[3] = com.createObjectAdapter("AdapterRandom14", "default");
             adapters[4] = com.createObjectAdapter("AdapterRandom15", "default");
 
-            int count;
-            if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
-            {
-                count = 20;
-            }
-            else
-            {
-                count = 60;
-            }
-
+            int count = 20;
             int adapterCount = adapters.Length;
             while(--count > 0)
             {
                 TestIntfPrx[] proxies;
-                if(IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+                if(count == 1)
                 {
-                    if(count == 10)
-                    {
-                        com.deactivateObjectAdapter(adapters[4]);
-                        --adapterCount;
-                    }
-                    proxies = new TestIntfPrx[10];
+                    com.deactivateObjectAdapter(adapters[4]);
+                    --adapterCount;
                 }
-                else
-                {
-                    if(count < 60 && count % 10 == 0)
-                    {
-                        com.deactivateObjectAdapter(adapters[count / 10 - 1]);
-                        --adapterCount;
-                    }
-                    proxies = new TestIntfPrx[40];
-                }
+                proxies = new TestIntfPrx[10];
 
                 int i;
                 for(i = 0; i < proxies.Length; ++i)
@@ -307,7 +290,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     try
                     {
-                        a.getTestIntf().ice_getConnection().close(false);
+                        a.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     }
                     catch(Ice.LocalException)
                     {
@@ -348,7 +331,7 @@ public class AllTests : TestCommon.TestApp
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.Remove(getAdapterNameWithAMI(test1));
-                test1.ice_getConnection().close(false);
+                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             //
@@ -370,7 +353,7 @@ public class AllTests : TestCommon.TestApp
 
                 foreach(RemoteObjectAdapterPrx adpt in adapters)
                 {
-                    adpt.getTestIntf().ice_getConnection().close(false);
+                    adpt.getTestIntf().ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
             }
 
@@ -395,7 +378,7 @@ public class AllTests : TestCommon.TestApp
                 test(test2.ice_getConnection() == test3.ice_getConnection());
 
                 names.Remove(getAdapterNameWithAMI(test1));
-                test1.ice_getConnection().close(false);
+                test1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             //
@@ -428,7 +411,7 @@ public class AllTests : TestCommon.TestApp
             while(names.Count > 0)
             {
                 names.Remove(obj.getAdapterName());
-                obj.ice_getConnection().close(false);
+                obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             obj = TestIntfPrxHelper.uncheckedCast(obj.ice_endpointSelection(Ice.EndpointSelectionType.Random));
@@ -440,7 +423,7 @@ public class AllTests : TestCommon.TestApp
             while(names.Count > 0)
             {
                 names.Remove(obj.getAdapterName());
-                obj.ice_getConnection().close(false);
+                obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             }
 
             deactivate(com, adapters);
@@ -482,6 +465,9 @@ public class AllTests : TestCommon.TestApp
             catch(Ice.ConnectFailedException)
             {
             }
+            catch(Ice.ConnectTimeoutException)
+            {
+            }
 
             Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
 
@@ -494,11 +480,11 @@ public class AllTests : TestCommon.TestApp
             adapters.Add(com.createObjectAdapter("Adapter36", endpoints[2].ToString()));
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter36"); i++);
             test(i == nRetry);
-            obj.ice_getConnection().close(false);
+            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             adapters.Add(com.createObjectAdapter("Adapter35", endpoints[1].ToString()));
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter35"); i++);
             test(i == nRetry);
-            obj.ice_getConnection().close(false);
+            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             adapters.Add(com.createObjectAdapter("Adapter34", endpoints[0].ToString()));
             for(i = 0; i < nRetry && obj.getAdapterName().Equals("Adapter34"); i++);
             test(i == nRetry);
@@ -530,6 +516,9 @@ public class AllTests : TestCommon.TestApp
                 test(false);
             }
             catch(Ice.ConnectFailedException)
+            {
+            }
+            catch(Ice.ConnectTimeoutException)
             {
             }
         }
@@ -565,7 +554,6 @@ public class AllTests : TestCommon.TestApp
             }
 
             com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
-
 
             test(obj.getAdapterName().Equals("Adapter52"));
 
@@ -603,7 +591,6 @@ public class AllTests : TestCommon.TestApp
             }
 
             com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[2]);
-
 
             test(getAdapterNameWithAMI(obj).Equals("AdapterAMI52"));
 
@@ -646,6 +633,9 @@ public class AllTests : TestCommon.TestApp
                 obj.getAdapterName();
             }
             catch(Ice.ConnectFailedException)
+            {
+            }
+            catch(Ice.ConnectTimeoutException)
             {
             }
 
@@ -708,6 +698,9 @@ public class AllTests : TestCommon.TestApp
             catch(Ice.ConnectFailedException)
             {
             }
+            catch(Ice.ConnectTimeoutException)
+            {
+            }
 
             Ice.Endpoint[] endpoints = obj.ice_getEndpoints();
 
@@ -747,7 +740,7 @@ public class AllTests : TestCommon.TestApp
             {
                 testUDP.getAdapterName();
             }
-            catch(System.ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }
@@ -766,7 +759,7 @@ public class AllTests : TestCommon.TestApp
                 for(i = 0; i < 5; i++)
                 {
                     test(obj.getAdapterName().Equals("Adapter82"));
-                    obj.ice_getConnection().close(false);
+                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
 
                 TestIntfPrx testSecure = TestIntfPrxHelper.uncheckedCast(obj.ice_secure(true));
@@ -782,7 +775,7 @@ public class AllTests : TestCommon.TestApp
                 for(i = 0; i < 5; i++)
                 {
                     test(obj.getAdapterName().Equals("Adapter81"));
-                    obj.ice_getConnection().close(false);
+                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
 
                 com.createObjectAdapter("Adapter83", (obj.ice_getEndpoints()[1]).ToString()); // Reactive tcp OA.
@@ -790,7 +783,7 @@ public class AllTests : TestCommon.TestApp
                 for(i = 0; i < 5; i++)
                 {
                     test(obj.getAdapterName().Equals("Adapter83"));
-                    obj.ice_getConnection().close(false);
+                    obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
 
                 com.deactivateObjectAdapter((RemoteObjectAdapterPrx)adapters[0]);
@@ -800,6 +793,9 @@ public class AllTests : TestCommon.TestApp
                     test(false);
                 }
                 catch(Ice.ConnectFailedException)
+                {
+                }
+                catch(Ice.ConnectTimeoutException)
                 {
                 }
 
@@ -840,19 +836,21 @@ public class AllTests : TestCommon.TestApp
             clientProps.Add(bothPreferIPv4);
             clientProps.Add(bothPreferIPv6);
 
+            string endpoint = "tcp -p " + app.getTestPort(2).ToString();
+
             Ice.Properties anyipv4 = ipv4.ice_clone_();
-            anyipv4.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyipv4.setProperty("Adapter.PublishedEndpoints", "tcp -h 127.0.0.1 -p 12012");
+            anyipv4.setProperty("Adapter.Endpoints", endpoint);
+            anyipv4.setProperty("Adapter.PublishedEndpoints", endpoint + " -h 127.0.0.1");
 
             Ice.Properties anyipv6 = ipv6.ice_clone_();
-            anyipv6.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyipv6.setProperty("Adapter.PublishedEndpoints", "tcp -h \".1\" -p 12012");
+            anyipv6.setProperty("Adapter.Endpoints", endpoint);
+            anyipv6.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \".1\"");
 
             Ice.Properties anyboth = Ice.Util.createProperties();
             anyboth.setProperty("Ice.IPv4", "1");
             anyboth.setProperty("Ice.IPv6", "1");
-            anyboth.setProperty("Adapter.Endpoints", "tcp -p 12012");
-            anyboth.setProperty("Adapter.PublishedEndpoints", "tcp -h \"::1\" -p 12012:tcp -h 127.0.0.1 -p 12012");
+            anyboth.setProperty("Adapter.Endpoints", endpoint);
+            anyboth.setProperty("Adapter.PublishedEndpoints", endpoint + " -h \"::1\":" + endpoint + " -h 127.0.0.1");
 
             Ice.Properties localipv4 = ipv4.ice_clone_();
             localipv4.setProperty("Adapter.Endpoints", "tcp -h 127.0.0.1");
@@ -949,5 +947,5 @@ public class AllTests : TestCommon.TestApp
         com.shutdown();
     }
 
-    private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
+    private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
 }

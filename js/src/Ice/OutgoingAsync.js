@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_FOR_ACTIONSCRIPT_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/AsyncStatus",
         "../Ice/AsyncResult",
@@ -29,7 +29,6 @@ const InputStream = Ice.InputStream;
 const OutputStream = Ice.OutputStream;
 const Debug = Ice.Debug;
 const RetryException = Ice.RetryException;
-const OperationMode = Ice.OperationMode;
 const Protocol = Ice.Protocol;
 const Identity = Ice.Identity;
 
@@ -41,19 +40,19 @@ class OutgoingAsyncBase extends AsyncResult
         this._os = new OutputStream(this._instance, Protocol.currentProtocolEncoding);
     }
 
-    __os()
+    getOs()
     {
         return this._os;
     }
 
-    __sent()
+    sent()
     {
-        this.__markSent(true);
+        this.markSent(true);
     }
 
-    __completedEx(ex)
+    completedEx(ex)
     {
-        this.__markFinishedEx(ex);
+        this.markFinishedEx(ex);
     }
 }
 
@@ -68,54 +67,54 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         this._handler = null;
     }
 
-    __completedEx(ex)
+    completedEx(ex)
     {
         try
         {
-            this._instance.retryQueue().add(this, this.__handleException(ex));
+            this._instance.retryQueue().add(this, this.handleException(ex));
         }
         catch(ex)
         {
-            this.__markFinishedEx(ex);
+            this.markFinishedEx(ex);
         }
     }
 
-    __retryException(ex)
+    retryException(ex)
     {
         try
         {
-            this._proxy.__updateRequestHandler(this._handler, null); // Clear request handler and always retry.
+            this._proxy._updateRequestHandler(this._handler, null); // Clear request handler and always retry.
             this._instance.retryQueue().add(this, 0);
         }
         catch(ex)
         {
-            this.__completedEx(ex);
+            this.completedEx(ex);
         }
     }
 
-    __retry()
+    retry()
     {
-        this.__invokeImpl(false);
+        this.invokeImpl(false);
     }
 
-    __abort(ex)
+    abort(ex)
     {
-        this.__markFinishedEx(ex);
+        this.markFinishedEx(ex);
     }
-    
-    __invokeImpl(userThread)
+
+    invokeImpl(userThread)
     {
         try
         {
             if(userThread)
             {
-                const invocationTimeout = this._proxy.__reference().getInvocationTimeout();
+                const invocationTimeout = this._proxy._getReference().getInvocationTimeout();
                 if(invocationTimeout > 0)
                 {
                     this._timeoutToken = this._instance.timer().schedule(
                         () =>
                         {
-                            this.__cancel(new Ice.InvocationTimeoutException());
+                            this.cancelWithException(new Ice.InvocationTimeoutException());
                         },
                         invocationTimeout);
                 }
@@ -126,7 +125,7 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                 try
                 {
                     this._sent  = false;
-                    this._handler = this._proxy.__getRequestHandler();
+                    this._handler = this._proxy._getRequestHandler();
                     if((this._handler.sendAsyncRequest(this) & AsyncStatus.Sent) > 0)
                     {
                         if(userThread)
@@ -141,11 +140,11 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                     if(ex instanceof RetryException)
                     {
                         // Clear request handler and always retry
-                        this._proxy.__updateRequestHandler(this._handler, null);
+                        this._proxy._updateRequestHandler(this._handler, null);
                     }
                     else
                     {
-                        const interval = this.__handleException(ex);
+                        const interval = this.handleException(ex);
                         if(interval > 0)
                         {
                             this._instance.retryQueue().add(this, interval);
@@ -157,11 +156,11 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
         }
         catch(ex)
         {
-            this.__markFinishedEx(ex);
+            this.markFinishedEx(ex);
         }
     }
 
-    __markSent(done)
+    markSent(done)
     {
         this._sent = true;
         if(done)
@@ -171,22 +170,22 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
                 this._instance.timer().cancel(this._timeoutToken);
             }
         }
-        super.__markSent.call(this, done);
+        super.markSent.call(this, done);
     }
 
-    __markFinishedEx(ex)
+    markFinishedEx(ex)
     {
         if(this._timeoutToken)
         {
             this._instance.timer().cancel(this._timeoutToken);
         }
-        super.__markFinishedEx.call(this, ex);
+        super.markFinishedEx.call(this, ex);
     }
-    
-    __handleException(ex)
+
+    handleException(ex)
     {
         const interval = { value: 0 };
-        this._cnt = this._proxy.__handleException(ex, this._handler, this._mode, this._sent, interval, this._cnt);
+        this._cnt = this._proxy._handleException(ex, this._handler, this._mode, this._sent, interval, this._cnt);
         return interval.value;
     }
 }
@@ -196,13 +195,13 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
     constructor(prx, operation, completed)
     {
         super(prx, operation);
-        this._encoding = Protocol.getCompatibleEncoding(this._proxy.__reference().getEncoding());
+        this._encoding = Protocol.getCompatibleEncoding(this._proxy._getReference().getEncoding());
         this._completed = completed;
     }
 
-    __prepare(op, mode, ctx)
+    prepare(op, mode, ctx)
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(this._proxy.__reference().getProtocol()));
+        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(this._proxy._getReference().getProtocol()));
 
         this._mode = mode;
         if(ctx === null)
@@ -212,16 +211,16 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
 
         if(this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram())
         {
-            this._proxy.__getBatchRequestQueue().prepareBatchRequest(this._os);
+            this._proxy._getBatchRequestQueue().prepareBatchRequest(this._os);
         }
         else
         {
             this._os.writeBlob(Protocol.requestHdr);
         }
 
-        const ref = this._proxy.__reference();
+        const ref = this._proxy._getReference();
 
-        ref.getIdentity().__write(this._os);
+        ref.getIdentity()._write(this._os);
 
         //
         // For compatibility with the old FacetPath.
@@ -271,32 +270,32 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
         }
     }
 
-    __sent()
+    sent()
     {
-        this.__markSent(!this._proxy.ice_isTwoway());
+        this.markSent(!this._proxy.ice_isTwoway());
     }
 
-    __invokeRemote(connection, compress, response)
+    invokeRemote(connection, response)
     {
-        return connection.sendAsyncRequest(this, compress, response, 0);
+        return connection.sendAsyncRequest(this, response, 0);
     }
 
-    __abort(ex)
+    abort(ex)
     {
         if(this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram())
         {
-            this._proxy.__getBatchRequestQueue().abortBatchRequest(this._os);
+            this._proxy._getBatchRequestQueue().abortBatchRequest(this._os);
         }
-        super.__abort(ex);
+        super.abort(ex);
     }
 
-    __invoke()
+    invoke()
     {
         if(this._proxy.ice_isBatchOneway() || this._proxy.ice_isBatchDatagram())
         {
             this._sentSynchronously = true;
-            this._proxy.__getBatchRequestQueue().finishBatchRequest(this._os, this._proxy, this._operation);
-            this.__markFinished(true);
+            this._proxy._getBatchRequestQueue().finishBatchRequest(this._os, this._proxy, this._operation);
+            this.markFinished(true);
             return;
         }
 
@@ -305,10 +304,10 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
         // try block with the catch block calling abort() in case of an
         // exception.
         //
-        this.__invokeImpl(true); // userThread = true
+        this.invokeImpl(true); // userThread = true
     }
 
-    __completed(istr)
+    completed(istr)
     {
         Debug.assert(this._proxy.ice_isTwoway()); // Can only be called for twoways.
 
@@ -335,7 +334,7 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
                 case Protocol.replyOperationNotExist:
                 {
                     const id = new Identity();
-                    id.__read(this._is);
+                    id._read(this._is);
 
                     //
                     // For compatibility with the old FacetPath.
@@ -435,69 +434,47 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
                 }
             }
 
-            this.__markFinished(replyStatus == Protocol.replyOK, this._completed);
+            this.markFinished(replyStatus == Protocol.replyOK, this._completed);
         }
         catch(ex)
         {
-            this.__completedEx(ex);
+            this.completedEx(ex);
         }
     }
 
-    __startWriteParams(format)
+    startWriteParams(format)
     {
         this._os.startEncapsulation(this._encoding, format);
         return this._os;
     }
 
-    __endWriteParams()
+    endWriteParams()
     {
         this._os.endEncapsulation();
     }
 
-    __writeEmptyParams()
+    writeEmptyParams()
     {
         this._os.writeEmptyEncapsulation(this._encoding);
     }
 
-    __writeParamEncaps(encaps)
-    {
-        if(encaps === null || encaps.length === 0)
-        {
-            this._os.writeEmptyEncapsulation(this._encoding);
-        }
-        else
-        {
-            this._os.writeEncapsulation(encaps);
-        }
-    }
-
-    __is()
-    {
-        return this._is;
-    }
-
-    __startReadParams()
+    startReadParams()
     {
         this._is.startEncapsulation();
         return this._is;
     }
 
-    __endReadParams()
+    endReadParams()
     {
         this._is.endEncapsulation();
     }
 
-    __readEmptyParams()
+    readEmptyParams()
     {
         this._is.skipEmptyEncapsulation();
     }
 
-    __readParamEncaps()
-    {
-        return this._is.readEncapsulation(null);
-    }
-
-    __throwUserException()
+    throwUserException()
     {
         Debug.assert((this._state & AsyncResult.Done) !== 0);
         if((this._state & AsyncResult.OK) === 0)
@@ -526,23 +503,23 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase
     constructor(prx, operation)
     {
         super(prx, operation);
-        this._batchRequestNum = prx.__getBatchRequestQueue().swap(this._os);
+        this._batchRequestNum = prx._getBatchRequestQueue().swap(this._os);
     }
 
-    __invokeRemote(connection, compress, response)
+    invokeRemote(connection, response)
     {
         if(this._batchRequestNum === 0)
         {
-            this.__sent();
+            this.sent();
             return AsyncStatus.Sent;
         }
-        return connection.sendAsyncRequest(this, compress, response, this._batchRequestNum);
+        return connection.sendAsyncRequest(this, response, this._batchRequestNum);
     }
 
-    __invoke()
+    invoke()
     {
-        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(this._proxy.__reference().getProtocol()));
-        this.__invokeImpl(true); // userThread = true
+        Protocol.checkSupportedProtocol(Protocol.getCompatibleProtocol(this._proxy._getReference().getProtocol()));
+        this.invokeImpl(true); // userThread = true
     }
 }
 
@@ -553,15 +530,15 @@ class ProxyGetConnection extends ProxyOutgoingAsyncBase
         super(prx, operation);
     }
 
-    __invokeRemote(connection, compress, response)
+    invokeRemote(connection, response)
     {
-        this.__markFinished(true, r => r.resolve(connection));
+        this.markFinished(true, r => r.resolve(connection));
         return AsyncStatus.Sent;
     }
-    
-    __invoke()
+
+    invoke()
     {
-        this.__invokeImpl(true); // userThread = true
+        this.invokeImpl(true); // userThread = true
     }
 }
 
@@ -572,7 +549,7 @@ class ConnectionFlushBatch extends OutgoingAsyncBase
         super(communicator, operation, con, null, null);
     }
 
-    __invoke()
+    invoke()
     {
         try
         {
@@ -580,12 +557,12 @@ class ConnectionFlushBatch extends OutgoingAsyncBase
             let status;
             if(batchRequestNum === 0)
             {
-                this.__sent();
+                this.sent();
                 status = AsyncStatus.Sent;
             }
             else
             {
-                status = this._connection.sendAsyncRequest(this, false, false, batchRequestNum);
+                status = this._connection.sendAsyncRequest(this, false, batchRequestNum);
             }
 
             if((status & AsyncStatus.Sent) > 0)
@@ -595,7 +572,38 @@ class ConnectionFlushBatch extends OutgoingAsyncBase
         }
         catch(ex)
         {
-            this.__completedEx(ex);
+            this.completedEx(ex);
+        }
+    }
+}
+
+class HeartbeatAsync extends OutgoingAsyncBase
+{
+    constructor(con, communicator)
+    {
+        super(communicator, "heartbeat", con, null, null);
+    }
+
+    invoke()
+    {
+        try
+        {
+            this._os.writeBlob(Protocol.magic);
+            Protocol.currentProtocol._write(this._os);
+            Protocol.currentProtocolEncoding._write(this._os);
+            this._os.writeByte(Protocol.validateConnectionMsg);
+            this._os.writeByte(0);
+            this._os.writeInt(Protocol.headerSize); // Message size.
+
+            const status = this._connection.sendAsyncRequest(this, false, 0);
+            if((status & AsyncStatus.Sent) > 0)
+            {
+                this._sentSynchronously = true;
+            }
+        }
+        catch(ex)
+        {
+            this.completedEx(ex);
         }
     }
 }
@@ -604,5 +612,6 @@ Ice.OutgoingAsync = OutgoingAsync;
 Ice.ProxyFlushBatch = ProxyFlushBatch;
 Ice.ProxyGetConnection = ProxyGetConnection;
 Ice.ConnectionFlushBatch = ConnectionFlushBatch;
+Ice.HeartbeatAsync = HeartbeatAsync;
 
 module.exports.Ice = Ice;

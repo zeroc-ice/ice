@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,35 +22,35 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     int num = argc == 2 ? atoi(argv[1]) : 0;
 
-    ostringstream os;
-    os << "tcp -p " << (12010 + num);
-    properties->setProperty("ControlAdapter.Endpoints", os.str());
+    properties->setProperty("ControlAdapter.Endpoints", getTestEndpoint(communicator, num, "tcp"));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ControlAdapter");
     adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("control"));
     adapter->activate();
 
     if(num == 0)
     {
-        properties->setProperty("TestAdapter.Endpoints", "udp -p 12010");
+        properties->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, num, "udp"));
         Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter");
         adapter2->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
         adapter2->activate();
     }
 
-    string endpoint;
+    ostringstream endpoint;
     if(properties->getProperty("Ice.IPv6") == "1")
     {
-#ifndef __APPLE__
-        endpoint = "udp -h \"ff15::1:1\" -p 12020";
-#else
-        endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
+        endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(properties, 10);
+#if defined(__APPLE__) || defined(_WIN32)
+        endpoint << " --interface \"::1\""; // Use loopback to prevent other machines to answer.
 #endif
     }
     else
     {
-        endpoint = "udp -h 239.255.1.1 -p 12020";
+        endpoint << "udp -h 239.255.1.1 -p " << getTestPort(properties, 10);
+#if defined(__APPLE__) || defined(_WIN32)
+        endpoint << " --interface 127.0.0.1"; // Use loopback to prevent other machines to answer.
+#endif
     }
-    properties->setProperty("McastTestAdapter.Endpoints", endpoint);
+    properties->setProperty("McastTestAdapter.Endpoints", endpoint.str());
     Ice::ObjectAdapterPtr mcastAdapter = communicator->createObjectAdapter("McastTestAdapter");
     mcastAdapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
     mcastAdapter->activate();
@@ -65,18 +65,19 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
+    Ice::registerIceUDP(true);
 #endif
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.UDP.SndSize", "16384");
         initData.properties->setProperty("Ice.UDP.RcvSize", "16384");
 
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)
@@ -85,4 +86,3 @@ main(int argc, char* argv[])
         return  EXIT_FAILURE;
     }
 }
-

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -162,13 +162,15 @@ public sealed class TestI : TestIntfDisp_
 
     public override void relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
     {
-        r.knownPreservedAsBase();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.knownPreservedAsBase();
         test(false);
     }
 
     public override void relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
     {
-        r.knownPreservedAsKnownPreserved();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.knownPreservedAsKnownPreserved();
         test(false);
     }
 
@@ -196,13 +198,15 @@ public sealed class TestI : TestIntfDisp_
 
     public override void relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
     {
-        r.unknownPreservedAsBase();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.unknownPreservedAsBase();
         test(false);
     }
 
     public override void relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
     {
-        r.unknownPreservedAsKnownPreserved();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.unknownPreservedAsKnownPreserved();
         test(false);
     }
 }

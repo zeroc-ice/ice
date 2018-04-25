@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,16 +17,16 @@ IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
 {
     string retval;
 
-    if(plainSeq.size() == 0) 
+    if(plainSeq.size() == 0)
     {
         return retval;
     }
- 
+
     // Reserve enough space for the returned base64 string
     size_t base64Bytes = (((plainSeq.size() * 4) / 3) + 1);
     size_t newlineBytes = (((base64Bytes * 2) / 76) + 1);
     size_t totalBytes = base64Bytes + newlineBytes;
- 
+
     retval.reserve(totalBytes);
 
     unsigned char by1 = 0;
@@ -52,7 +52,7 @@ IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
         {
             by3 = plainSeq[i+2];
         }
- 
+
         by4 = by1 >> 2;
         by5 = ((by1 & 0x3) << 4) | (by2 >> 4);
         by6 = ((by2 & 0xf) << 2) | (by3 >> 6);
@@ -60,7 +60,7 @@ IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
 
         retval += encode(by4);
         retval += encode(by5);
- 
+
         if((i + 1) < plainSeq.size())
         {
             retval += encode(by6);
@@ -69,7 +69,7 @@ IceInternal::Base64::encode(const vector<unsigned char>& plainSeq)
         {
             retval += "=";
         }
- 
+
         if((i + 2) < plainSeq.size())
         {
             retval += encode(by7);
@@ -223,17 +223,17 @@ IceInternal::Base64::encode(unsigned char uc)
     {
         return 'A' + uc;
     }
-    
+
     if(uc < 52)
     {
         return 'a' + (uc - 26);
     }
-    
+
     if(uc < 62)
     {
         return '0' + (uc - 52);
     }
-    
+
     if(uc == 62)
     {
         return '+';
@@ -264,6 +264,6 @@ IceInternal::Base64::decode(char c)
     {
         return 62;
     }
- 
+
     return 63;
 }

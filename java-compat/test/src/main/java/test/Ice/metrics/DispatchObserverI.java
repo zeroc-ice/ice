@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ package test.Ice.metrics;
 class DispatchObserverI extends ObserverI implements Ice.Instrumentation.DispatchObserver
 {
     @Override
-    public synchronized void 
+    public synchronized void
     reset()
     {
         super.reset();
@@ -21,14 +21,14 @@ class DispatchObserverI extends ObserverI implements Ice.Instrumentation.Dispatc
     }
 
     @Override
-    public synchronized void 
+    public synchronized void
     userException()
     {
         ++userExceptionCount;
     }
 
     @Override
-    public synchronized void 
+    public synchronized void
     reply(int s)
     {
         replySize += s;
@@ -37,4 +37,3 @@ class DispatchObserverI extends ObserverI implements Ice.Instrumentation.Dispatc
     int userExceptionCount;
     int replySize;
 };
-

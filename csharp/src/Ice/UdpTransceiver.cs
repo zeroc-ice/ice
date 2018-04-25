@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -53,20 +53,17 @@ namespace IceInternal
 
             if(_state <= StateConnectPending)
             {
-                if(!AssemblyUtil.osx_)
+                //
+                // On Windows, we delay the join for the mcast group after the connection
+                // establishment succeeds. This is necessary for older Windows versions
+                // where joining the group fails if the socket isn't bound. See ICE-5113.
+                //
+                if(Network.isMulticast((IPEndPoint)_addr))
                 {
-                    //
-                    // On Windows, we delay the join for the mcast group after the connection
-                    // establishment succeeds. This is necessary for older Windows versions
-                    // where joining the group fails if the socket isn't bound. See ICE-5113.
-                    //
-                    if(Network.isMulticast((IPEndPoint)_addr))
+                    Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
+                    if(_mcastTtl != -1)
                     {
-                        Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
-                        if(_mcastTtl != -1)
-                        {
-                            Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
-                        }
+                        Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
                     }
                 }
                 _state = StateConnected;
@@ -105,7 +102,7 @@ namespace IceInternal
             {
                 Network.setReuseAddress(_fd, true);
                 _mcastAddr = (IPEndPoint)_addr;
-                if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+                if(AssemblyUtil.isWindows)
                 {
                     //
                     // Windows does not allow binding to the mcast address itself
@@ -123,6 +120,7 @@ namespace IceInternal
                         _addr = new IPEndPoint(IPAddress.IPv6Any, _port);
                     }
                 }
+
                 _addr = Network.doBind(_fd, _addr);
                 if(_port == 0)
                 {
@@ -132,23 +130,7 @@ namespace IceInternal
             }
             else
             {
-                if(AssemblyUtil.platform_ != AssemblyUtil.Platform.Windows)
-                {
-                    //
-                    // Enable SO_REUSEADDR on Unix platforms to allow re-using
-                    // the socket even if it's in the TIME_WAIT state. On
-                    // Windows, this doesn't appear to be necessary and
-                    // enabling SO_REUSEADDR would actually not be a good
-                    // thing since it allows a second process to bind to an
-                    // address even it's already bound by another process.
-                    //
-                    // TODO: using SO_EXCLUSIVEADDRUSE on Windows would
-                    // probably be better but it's only supported by recent
-                    // Windows versions (XP SP2, Windows Server 2003).
-                    //
-                    Network.setReuseAddress(_fd, true);
-                }
-                _addr = Network.doBind(_fd, _addr);
+                 _addr = Network.doBind(_fd, _addr);
             }
             _bound = true;
             _endpoint = _endpoint.endpoint(this);
@@ -172,7 +154,7 @@ namespace IceInternal
             Debug.Assert(_fd != null && _state >= StateConnected);
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
+            Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
 
             int ret = 0;
             while(true)
@@ -214,7 +196,7 @@ namespace IceInternal
                         throw new Ice.SocketException(ex);
                     }
                 }
-                catch(System.Exception e)
+                catch(Exception e)
                 {
                     throw new Ice.SyscallException(e);
                 }
@@ -236,7 +218,7 @@ namespace IceInternal
             Debug.Assert(buf.b.position() == 0);
             Debug.Assert(_fd != null);
 
-            int packetSize = System.Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
+            int packetSize = Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
             buf.resize(packetSize, true);
             buf.b.position(0);
 
@@ -259,7 +241,9 @@ namespace IceInternal
                         }
                     }
 
-                    if(_state == StateConnected)
+                    // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                    if(_state == StateConnected ||
+                       AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                     {
                         ret = _fd.Receive(buf.b.rawBytes(), 0, buf.b.limit(), SocketFlags.None);
                     }
@@ -300,7 +284,7 @@ namespace IceInternal
                         throw new Ice.SocketException(e);
                     }
                 }
-                catch(System.Exception e)
+                catch(Exception e)
                 {
                     throw new Ice.SyscallException(e);
                 }
@@ -339,13 +323,15 @@ namespace IceInternal
         {
             Debug.Assert(buf.b.position() == 0);
 
-            int packetSize = System.Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
+            int packetSize = Math.Min(_maxPacketSize, _rcvSize - _udpOverhead);
             buf.resize(packetSize, true);
             buf.b.position(0);
 
             try
             {
-                if(_state == StateConnected)
+                // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                if(_state == StateConnected ||
+                   AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                 {
                     _readCallback = callback;
                     _readEventArgs.UserToken = state;
@@ -397,7 +383,9 @@ namespace IceInternal
                     throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 ret = _readEventArgs.BytesTransferred;
-                if(_state != StateConnected)
+                // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                if(_state != StateConnected &&
+                   !(AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
                     _peerAddr = _readEventArgs.RemoteEndPoint;
                 }
@@ -476,7 +464,7 @@ namespace IceInternal
             Debug.Assert(_fd != null);
 
             // The caller is supposed to check the send size before by calling checkSendSize
-            Debug.Assert(System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
+            Debug.Assert(Math.Min(_maxPacketSize, _sndSize - _udpOverhead) >= buf.size());
 
             Debug.Assert(buf.b.position() == 0);
 
@@ -606,10 +594,9 @@ namespace IceInternal
                         info.remotePort = Network.endpointPort(remoteEndpoint);
                     }
                 }
+                info.rcvSize = Network.getRecvBufferSize(_fd);
+                info.sndSize = Network.getSendBufferSize(_fd);
             }
-
-            info.rcvSize = Network.getRecvBufferSize(_fd);
-            info.sndSize = Network.getSendBufferSize(_fd);
 
             if(_mcastAddr != null)
             {
@@ -625,7 +612,7 @@ namespace IceInternal
             // The maximum packetSize is either the maximum allowable UDP packet size, or
             // the UDP send buffer size (which ever is smaller).
             //
-            int packetSize = System.Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
+            int packetSize = Math.Min(_maxPacketSize, _sndSize - _udpOverhead);
             if(packetSize < buf.size())
             {
                 throw new Ice.DatagramLimitException();
@@ -672,12 +659,21 @@ namespace IceInternal
         public string toDetailedString()
         {
             StringBuilder s = new StringBuilder(ToString());
-            List<string> intfs = Network.getHostsForEndpointExpand(
-                Network.endpointAddressToString(_addr), _instance.protocolSupport(), true);
+            List<string> intfs;
+            if(_mcastAddr == null)
+            {
+                intfs = Network.getHostsForEndpointExpand(Network.endpointAddressToString(_addr),
+                                                          _instance.protocolSupport(), true);
+            }
+            else
+            {
+                intfs = Network.getInterfacesForMulticast(_mcastInterface,
+                                                          Network.getProtocolSupport(_mcastAddr.Address));
+            }
             if(intfs.Count != 0)
             {
                 s.Append("\nlocal interfaces = ");
-                s.Append(String.Join(", ", intfs.ToArray()));
+                s.Append(string.Join(", ", intfs.ToArray()));
             }
             return s.ToString();
         }
@@ -720,19 +716,6 @@ namespace IceInternal
                     if(_mcastInterface.Length > 0)
                     {
                         Network.setMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
-                    }
-                    if(AssemblyUtil.osx_)
-                    {
-                        //
-                        // On Windows, we delay the join for the mcast group after the connection
-                        // establishment succeeds. This is necessary for older Windows versions
-                        // where joining the group fails if the socket isn't bound. See ICE-5113.
-                        //
-                        Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
-                        if(_mcastTtl != -1)
-                        {
-                            Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
-                        }
                     }
                 }
             }
@@ -827,7 +810,7 @@ namespace IceInternal
                 //
                 // Check for sanity.
                 //
-                if(sizeRequested < (_udpOverhead + IceInternal.Protocol.headerSize))
+                if(sizeRequested < (_udpOverhead + Protocol.headerSize))
                 {
                     _instance.logger().warning("Invalid " + prop + " value of " + sizeRequested + " adjusted to " +
                                                dfltSize);

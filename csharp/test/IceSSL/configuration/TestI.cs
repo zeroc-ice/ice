@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@ internal sealed class ServerI : ServerDisp_
 {
     internal ServerI(Ice.Communicator communicator)
     {
-        communicator_ = communicator;
+        _communicator = communicator;
     }
 
     public override void
@@ -24,8 +24,8 @@ internal sealed class ServerI : ServerDisp_
     {
         try
         {
-            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
-            test(info.nativeCerts == null);
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.con.getInfo();
+            test(info.certs == null);
         }
         catch(Ice.LocalException)
         {
@@ -38,11 +38,11 @@ internal sealed class ServerI : ServerDisp_
     {
         try
         {
-            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.con.getInfo();
             test(info.verified);
-            test(info.nativeCerts.Length == 2 &&
-                 info.nativeCerts[0].Subject.Equals(subjectDN) &&
-                 info.nativeCerts[0].Issuer.Equals(issuerDN));
+            test(info.certs.Length == 2 &&
+                 info.certs[0].Subject.Equals(subjectDN) &&
+                 info.certs[0].Issuer.Equals(issuerDN));
         }
         catch(Ice.LocalException)
         {
@@ -55,7 +55,7 @@ internal sealed class ServerI : ServerDisp_
     {
         try
         {
-            IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)current.con.getInfo();
+            IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)current.con.getInfo();
             test(info.cipher.Equals(cipher));
         }
         catch(Ice.LocalException)
@@ -66,7 +66,7 @@ internal sealed class ServerI : ServerDisp_
 
     internal void destroy()
     {
-        communicator_.destroy();
+        _communicator.destroy();
     }
 
     private static void test(bool b)
@@ -77,7 +77,7 @@ internal sealed class ServerI : ServerDisp_
         }
     }
 
-    private Ice.Communicator communicator_;
+    private Ice.Communicator _communicator;
 }
 
 internal sealed class ServerFactoryI : ServerFactoryDisp_
@@ -90,6 +90,11 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         }
     }
 
+    public ServerFactoryI(string defaultDir)
+    {
+        _defaultDir = defaultDir;
+    }
+
     public override ServerPrx createServer(Dictionary<string, string> props, Ice.Current current)
     {
         Ice.InitializationData initData = new Ice.InitializationData();
@@ -98,12 +103,13 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
         {
             initData.properties.setProperty(key, props[key]);
         }
+        initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
         string[] args = new string[0];
         Ice.Communicator communicator = Ice.Util.initialize(ref args, initData);
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
         ServerI server = new ServerI(communicator);
         Ice.ObjectPrx obj = adapter.addWithUUID(server);
-        servers_[obj.ice_getIdentity()] = server;
+        _servers[obj.ice_getIdentity()] = server;
         adapter.activate();
         return ServerPrxHelper.uncheckedCast(obj);
     }
@@ -111,19 +117,20 @@ internal sealed class ServerFactoryI : ServerFactoryDisp_
     public override void destroyServer(ServerPrx srv, Ice.Current current)
     {
         Ice.Identity key = srv.ice_getIdentity();
-        if(servers_.Contains(key))
+        if(_servers.Contains(key))
         {
-            ServerI server = servers_[key] as ServerI;
+            ServerI server = _servers[key] as ServerI;
             server.destroy();
-            servers_.Remove(key);
+            _servers.Remove(key);
         }
     }
 
     public override void shutdown(Ice.Current current)
     {
-        test(servers_.Count == 0);
+        test(_servers.Count == 0);
         current.adapter.getCommunicator().shutdown();
     }
 
-    private Hashtable servers_ = new Hashtable();
+    private string _defaultDir;
+    private Hashtable _servers = new Hashtable();
 }

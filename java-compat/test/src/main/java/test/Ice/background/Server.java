@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,34 +32,35 @@ public class Server extends test.Util.Application
             _controller.checkCallPause(current);
             response.ice_response(current.adapter.createDirectProxy(id));
         }
-    
+
         @Override
         public Ice.LocatorRegistryPrx
         getRegistry(Ice.Current current)
         {
             return null;
         }
-        
+
         LocatorI(BackgroundControllerI controller)
         {
             _controller = controller;
         }
-        
+
         final private BackgroundControllerI _controller;
     }
 
     static public class RouterI extends Ice._RouterDisp
     {
         @Override
-        public Ice.ObjectPrx 
-        getClientProxy(Ice.Current current)
+        public Ice.ObjectPrx
+        getClientProxy(Ice.BooleanHolder hasRoutingTable, Ice.Current current)
         {
             _controller.checkCallPause(current);
+            hasRoutingTable.value = true;
             return null;
         }
 
         @Override
-        public Ice.ObjectPrx 
+        public Ice.ObjectPrx
         getServerProxy(Ice.Current current)
         {
             _controller.checkCallPause(current);
@@ -77,7 +78,7 @@ public class Server extends test.Util.Application
         {
             _controller = controller;
         }
-        
+
         final private BackgroundControllerI _controller;
     }
 
@@ -85,11 +86,9 @@ public class Server extends test.Util.Application
     public int
     run(String[] args)
     {
-        Configuration configuration = new Configuration();
         PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
-        plugin.setConfiguration(configuration);
-        communicator().getPluginManager().initializePlugins();
-        
+        Configuration configuration = plugin.getConfiguration();
+
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
 
@@ -109,9 +108,8 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
-        
+        Ice.InitializationData initData = super.getInitData(argsH);
+
         //
         // This test kills connections, so we don't want warnings.
         //
@@ -128,16 +126,13 @@ public class Server extends test.Util.Application
         initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
         String defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
-        
+
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
-        initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp -p 12011");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1, "tcp"));
         initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-        
-        // Don't initialize the plugin until I've set the configuration.
-        initData.properties.setProperty("Ice.InitPlugins", "0");
-        
+
         return initData;
     }
 

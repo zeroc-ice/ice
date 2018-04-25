@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,6 +26,8 @@ public abstract class DispatchInterceptor extends ObjectImpl
      *
      * @param request The details of the incoming request.
      * @return The return value must be whatever is returned by {@link #ice_dispatch}.
+     * @throws UserException A user exception that propagates out of this method will be
+     * marshaled as the result.
      *
      * @see Request
      **/
@@ -35,7 +37,7 @@ public abstract class DispatchInterceptor extends ObjectImpl
 
     @Override
     public boolean
-    __dispatch(IceInternal.Incoming in, Current current)
+    _iceDispatch(IceInternal.Incoming in, Current current)
         throws Ice.UserException
     {
         try

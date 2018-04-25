@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,6 +11,7 @@
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
+#include <IceUtil/ConsoleUtil.h>
 #include <Slice/Preprocessor.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
@@ -18,6 +19,7 @@
 
 using namespace std;
 using namespace Slice;
+using namespace IceUtilInternal;
 
 namespace
 {
@@ -54,33 +56,35 @@ interruptedCallback(int /*signal*/)
 }
 
 void
-usage(const char* n)
+usage(const string& n)
 {
-    getErrorStream() << "Usage: " << n << " [options] slice-files...\n";
-    getErrorStream() <<
+    consoleErr << "Usage: " << n << " [options] slice-files...\n";
+    consoleErr <<
         "Options:\n"
-        "-h, --help              Show this message.\n"
-        "-v, --version           Display the Ice version.\n"
-        "--validate              Validate command line options.\n"
-        "-DNAME                  Define NAME as 1.\n"
-        "-DNAME=DEF              Define NAME as DEF.\n"
-        "-UNAME                  Remove any definition for NAME.\n"
-        "-IDIR                   Put DIR in the include file search path.\n"
-        "-E                      Print preprocessor output on stdout.\n"
-        "--stdout                Print genreated code to stdout.\n"
-        "--output-dir DIR        Create files in the directory DIR.\n"
-        "--depend                Generate Makefile dependencies.\n"
-        "--depend-json           Generate Makefile dependencies in JSON format.\n"
-        "--depend-xml            Generate dependencies in XML format.\n"
-        "--depend-file FILE      Write dependencies to FILE instead of standard output.\n"
-        "-d, --debug             Print debug messages.\n"
-        "--ice                   Allow reserved Ice prefix in Slice identifiers.\n"
-        "--underscore            Allow underscores in Slice identifiers.\n"
+        "-h, --help               Show this message.\n"
+        "-v, --version            Display the Ice version.\n"
+        "-DNAME                   Define NAME as 1.\n"
+        "-DNAME=DEF               Define NAME as DEF.\n"
+        "-UNAME                   Remove any definition for NAME.\n"
+        "-IDIR                    Put DIR in the include file search path.\n"
+        "-E                       Print preprocessor output on stdout.\n"
+        "--output-dir DIR         Create files in the directory DIR.\n"
+        "-d, --debug              Print debug messages.\n"
+        "--depend                 Generate Makefile dependencies.\n"
+        "--depend-xml             Generate dependencies in XML format.\n"
+        "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
+        "--validate               Validate command line options.\n"
+        "--stdout                 Print generated code to stdout.\n"
+        "--depend-json            Generate dependency information in JSON format.\n"
+        "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
+        "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
+        "--underscore             Allow underscores in Slice identifiers\n"
+        "                         deprecated: use instead [[\"underscore\"]] metadata.\n"
         ;
 }
 
 int
-compile(int argc, char* argv[])
+compile(const vector<string>& argv)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -100,24 +104,16 @@ compile(int argc, char* argv[])
     opts.addOpt("", "ice");
     opts.addOpt("", "underscore");
 
-    bool validate = false;
-    for(int i = 0; i < argc; ++i)
-    {
-        if(string(argv[i]) == "--validate")
-        {
-            validate = true;
-            break;
-        }
-    }
+    bool validate = find(argv.begin(), argv.end(), "--validate") != argv.end();
 
     vector<string> args;
     try
     {
-        args = opts.parse(argc, const_cast<const char**>(argv));
+        args = opts.parse(argv);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        getErrorStream() << argv[0] << ": error: " << e.reason << endl;
+        consoleErr << argv[0] << ": error: " << e.reason << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -133,7 +129,7 @@ compile(int argc, char* argv[])
 
     if(opts.isSet("version"))
     {
-        getErrorStream() << ICE_STRING_VERSION << endl;
+        consoleErr << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
 
@@ -178,7 +174,7 @@ compile(int argc, char* argv[])
 
     if(args.empty())
     {
-        getErrorStream() << argv[0] << ": error: no input file" << endl;
+        consoleErr << argv[0] << ": error: no input file" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -188,7 +184,7 @@ compile(int argc, char* argv[])
 
     if(depend && dependJSON)
     {
-        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --depend-json" << endl;
+        consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-json" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -198,7 +194,7 @@ compile(int argc, char* argv[])
 
     if(depend && dependxml)
     {
-        getErrorStream() << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
+        consoleErr << argv[0] << ": error: cannot specify both --depend and --depend-xml" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -208,7 +204,7 @@ compile(int argc, char* argv[])
 
     if(dependxml && dependJSON)
     {
-        getErrorStream() << argv[0] << ": error: cannot specify both --depend-xml and --depend-json" << endl;
+        consoleErr << argv[0] << ": error: cannot specify both --depend-xml and --depend-json" << endl;
         if(!validate)
         {
             usage(argv[0]);
@@ -226,14 +222,14 @@ compile(int argc, char* argv[])
     IceUtil::CtrlCHandler ctrlCHandler;
     ctrlCHandler.setCallback(interruptedCallback);
 
-    DependOutputUtil out(dependFile);
+    ostringstream os;
     if(dependJSON)
     {
-        out.os() << "{" << endl;
+        os << "{" << endl;
     }
     else if(dependxml)
     {
-        out.os() << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
+        os << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<dependencies>" << endl;
     }
 
     //
@@ -258,7 +254,6 @@ compile(int argc, char* argv[])
 
             if(cppHandle == 0)
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
@@ -268,24 +263,21 @@ compile(int argc, char* argv[])
 
             if(parseStatus == EXIT_FAILURE)
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             bool last = (++i == sources.end());
 
-            if(!icecpp->printMakefileDependencies(out.os(),
+            if(!icecpp->printMakefileDependencies(os,
                     depend ? Preprocessor::JavaScript : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
                     includePaths,
                     "-D__SLICE2JS__"))
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
             if(!icecpp->close())
             {
-                out.cleanup();
                 return EXIT_FAILURE;
             }
 
@@ -293,9 +285,9 @@ compile(int argc, char* argv[])
             {
                 if(!last)
                 {
-                    out.os() << ",";
+                    os << ",";
                 }
-                out.os() << "\n";
+                os << "\n";
             }
         }
         else
@@ -310,7 +302,7 @@ compile(int argc, char* argv[])
             if(preprocess)
             {
                 char buf[4096];
-                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != NULL)
+                while(fgets(buf, static_cast<int>(sizeof(buf)), cppHandle) != ICE_NULLPTR)
                 {
                     if(fputs(buf, stdout) == EOF)
                     {
@@ -359,7 +351,7 @@ compile(int argc, char* argv[])
                         //
                         FileTracker::instance()->cleanup();
                         p->destroy();
-                        getErrorStream() << argv[0] << ": error: " << ex.reason() << endl;
+                        consoleErr << argv[0] << ": error: " << ex.reason() << endl;
                         return EXIT_FAILURE;
                     }
                 }
@@ -374,7 +366,6 @@ compile(int argc, char* argv[])
 
             if(interrupted)
             {
-                out.cleanup();
                 FileTracker::instance()->cleanup();
                 return EXIT_FAILURE;
             }
@@ -383,41 +374,50 @@ compile(int argc, char* argv[])
 
     if(dependJSON)
     {
-        out.os() << "}" << endl;
+        os << "}\n";
     }
     else if(dependxml)
     {
-        out.os() << "</dependencies>\n";
+        os << "</dependencies>\n";
+    }
+
+    if(depend || dependJSON || dependxml)
+    {
+        writeDependencies(os.str(), dependFile);
     }
 
     return status;
 }
 
-int
-main(int argc, char* argv[])
+#ifdef _WIN32
+int wmain(int argc, wchar_t* argv[])
+#else
+int main(int argc, char* argv[])
+#endif
 {
+    vector<string> args = Slice::argvToArgs(argc, argv);
     try
     {
-        return compile(argc, argv);
+        return compile(args);
     }
     catch(const std::exception& ex)
     {
-        getErrorStream() << argv[0] << ": error:" << ex.what() << endl;
+        consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const std::string& msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(const char* msg)
     {
-        getErrorStream() << argv[0] << ": error:" << msg << endl;
+        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)
     {
-        getErrorStream() << argv[0] << ": error:" << "unknown exception" << endl;
+        consoleErr << args[0] << ": error:" << "unknown exception" << endl;
         return EXIT_FAILURE;
     }
 }

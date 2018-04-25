@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -58,7 +58,7 @@ public final class LocatorManager
 
         LocatorKey set(Ice.LocatorPrx locator)
         {
-            Reference r = ((Ice.ObjectPrxHelperBase)locator).__reference();
+            Reference r = ((Ice.ObjectPrxHelperBase)locator)._getReference();
             _id = r.getIdentity();
             _encoding = r.getEncoding();
             return this;

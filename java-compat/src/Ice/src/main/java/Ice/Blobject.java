@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,6 +28,9 @@ public abstract class Blobject extends Ice.ObjectImpl
      * the return value is <code>false</code>; in this case, <code>outEncaps</code>
      * must contain the encoded user exception. If the operation raises an
      * Ice run-time exception, it must throw it directly.
+     *
+     * @throws UserException A user exception can be raised directly and the
+     * run time will marshal it.
      **/
     public abstract boolean
     ice_invoke(byte[] inEncaps, ByteSeqHolder outEncaps, Current current)
@@ -35,7 +38,7 @@ public abstract class Blobject extends Ice.ObjectImpl
 
     @Override
     public boolean
-    __dispatch(IceInternal.Incoming in, Current current)
+    _iceDispatch(IceInternal.Incoming in, Current current)
         throws UserException
     {
         byte[] inEncaps;
@@ -43,6 +46,6 @@ public abstract class Blobject extends Ice.ObjectImpl
         inEncaps = in.readParamEncaps();
         boolean ok = ice_invoke(inEncaps, outEncaps, current);
         in.writeParamEncaps(outEncaps.value, ok);
-        return false;
+        return true;
     }
 }

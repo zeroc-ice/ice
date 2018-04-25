@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -168,7 +168,7 @@ class ValueFactoryManager : public Ice::ValueFactoryManager
 public:
 
     virtual void add(const Ice::ValueFactoryPtr&, const string&);
-    virtual Ice::ValueFactoryPtr find(const string&) const;
+    virtual Ice::ValueFactoryPtr find(const string&) const ICE_NOEXCEPT;
 
     void setCommunicator(const Ice::CommunicatorPtr& c) { _communicator = c; }
     Ice::CommunicatorPtr getCommunicator() const { return _communicator; }
@@ -265,47 +265,87 @@ ZEND_METHOD(Ice_Communicator, __construct)
     runtimeError("communicators cannot be instantiated directly" TSRMLS_CC);
 }
 
+ZEND_METHOD(Ice_Communicator, shutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        _this->getCommunicator()->shutdown();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+}
+
+ZEND_METHOD(Ice_Communicator, isShutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        RETURN_BOOL(_this->getCommunicator()->isShutdown() ? 1 : 0);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_FALSE;
+    }
+}
+
+ZEND_METHOD(Ice_Communicator, waitForShutdown)
+{
+    CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        _this->getCommunicator()->waitForShutdown();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+    }
+}
+
 ZEND_METHOD(Ice_Communicator, destroy)
 {
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
     assert(_this);
 
-    //
-    // Remove all registrations.
-    //
-    {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
-        for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
-        {
-            _registeredCommunicators.erase(*p);
-        }
-        _this->ac->ids.clear();
-    }
-
-    //
-    // We need to destroy any object|value factories installed by this request.
-    //
-    _this->destroyFactories(TSRMLS_C);
-
     Ice::CommunicatorPtr c = _this->getCommunicator();
     assert(c);
     CommunicatorMap* m = reinterpret_cast<CommunicatorMap*>(ICE_G(communicatorMap));
     assert(m);
-    assert(m->find(c) != m->end());
-    m->erase(c);
-
-    ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(c->getValueFactoryManager());
-    assert(vfm);
-    vfm->destroy();
-
-    try
+    if(m->find(c) != m->end()) // If not already destroyed
     {
+        m->erase(c);
+
+        //
+        // Remove all registrations.
+        //
+        {
+            IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_registeredCommunicatorsMutex);
+            for(vector<string>::iterator p = _this->ac->ids.begin(); p != _this->ac->ids.end(); ++p)
+            {
+                _registeredCommunicators.erase(*p);
+            }
+            _this->ac->ids.clear();
+        }
+
+        //
+        // We need to destroy any object|value factories installed by this request.
+        //
+        _this->destroyFactories(TSRMLS_C);
+
+        ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast(c->getValueFactoryManager());
+        assert(vfm);
+        vfm->destroy();
+
         c->destroy();
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        throwException(ex TSRMLS_CC);
-        RETURN_NULL();
     }
 }
 
@@ -354,7 +394,7 @@ ZEND_METHOD(Ice_Communicator, proxyToString)
         if(zv)
         {
             Ice::ObjectPrx prx;
-            ClassInfoPtr info;
+            ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info TSRMLS_CC))
             {
                 RETURN_NULL();
@@ -420,7 +460,7 @@ ZEND_METHOD(Ice_Communicator, proxyToProperty)
         if(zv)
         {
             Ice::ObjectPrx prx;
-            ClassInfoPtr info;
+            ProxyInfoPtr info;
             if(!fetchProxy(zv, prx, info TSRMLS_CC))
             {
                 RETURN_NULL();
@@ -664,7 +704,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultRouter)
         Ice::RouterPrx router = _this->getCommunicator()->getDefaultRouter();
         if(router)
         {
-            ClassInfoPtr info = getClassInfoById("::Ice::Router" TSRMLS_CC);
+            ProxyInfoPtr info = getProxyInfo("::Ice::Router" TSRMLS_CC);
             if(!info)
             {
                 runtimeError("no definition for Ice::Router" TSRMLS_CC);
@@ -700,7 +740,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultRouter)
     }
 
     Ice::ObjectPrx proxy;
-    ClassInfoPtr info;
+    ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info TSRMLS_CC))
     {
         RETURN_NULL();
@@ -742,7 +782,7 @@ ZEND_METHOD(Ice_Communicator, getDefaultLocator)
         Ice::LocatorPrx locator = _this->getCommunicator()->getDefaultLocator();
         if(locator)
         {
-            ClassInfoPtr info = getClassInfoById("::Ice::Locator" TSRMLS_CC);
+            ProxyInfoPtr info = getProxyInfo("::Ice::Locator" TSRMLS_CC);
             if(!info)
             {
                 runtimeError("no definition for Ice::Locator" TSRMLS_CC);
@@ -778,7 +818,7 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
     }
 
     Ice::ObjectPrx proxy;
-    ClassInfoPtr info;
+    ProxyInfoPtr info;
     if(zv && !fetchProxy(zv, proxy, info TSRMLS_CC))
     {
         RETURN_NULL();
@@ -807,17 +847,25 @@ ZEND_METHOD(Ice_Communicator, setDefaultLocator)
 
 ZEND_METHOD(Ice_Communicator, flushBatchRequests)
 {
+    zval* compress;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("z"), &compress TSRMLS_CC) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    if(Z_TYPE_P(compress) != IS_LONG)
+    {
+        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch" TSRMLS_CC);
+        RETURN_NULL();
+    }
+    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(Z_LVAL_P(compress));
+
     CommunicatorInfoIPtr _this = Wrapper<CommunicatorInfoIPtr>::value(getThis() TSRMLS_CC);
     assert(_this);
 
-    if(ZEND_NUM_ARGS() != 8)
-    {
-        WRONG_PARAM_COUNT;
-    }
-
     try
     {
-        _this->getCommunicator()->flushBatchRequests();
+        _this->getCommunicator()->flushBatchRequests(cb);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1092,50 +1140,72 @@ ZEND_FUNCTION(Ice_initialize)
     zval* zvinit = 0;
 
     //
-    // Accept the following invocations:
+    // The argument options are:
     //
-    // initialize(array, InitializationData)
-    // initialize(array)
-    // initialize(InitializationData)
     // initialize()
+    // initialize(args)
+    // initialize(initData)
+    // initialize(args, initData)
+    // initialize(initData, args)
     //
-    bool hasArgs = false;
-    if(ZEND_NUM_ARGS())
+
+    if(ZEND_NUM_ARGS() > 2)
     {
-        if(Z_TYPE_PP(args[0]) == IS_ARRAY)
+        runtimeError("too many arguments to initialize" TSRMLS_CC);
+        RETURN_NULL();
+    }
+
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        zval* arg = *args[0];
+
+        if(Z_TYPE_P(arg) == IS_ARRAY)
         {
-            if(!extractStringArray(*args[0], seq TSRMLS_CC))
-            {
-                RETURN_NULL();
-            }
-            zvargs = *args[0];
-            hasArgs = true;
-            if(ZEND_NUM_ARGS() > 1)
-            {
-                if(Z_TYPE_PP(args[1]) != IS_OBJECT || Z_OBJCE_PP(args[1]) != initClass)
-                {
-                    string s = zendTypeToString(Z_TYPE_PP(args[1]));
-                    invalidArgument("expected InitializationData object but received %s" TSRMLS_CC, s.c_str());
-                    RETURN_NULL();
-                }
-                zvinit = *args[1];
-            }
+            zvargs = arg;
         }
-        else if(Z_TYPE_PP(args[0]) == IS_OBJECT && Z_OBJCE_PP(args[0]) == initClass)
+        else if(Z_TYPE_P(arg) == IS_OBJECT && Z_OBJCE_P(arg) == initClass)
         {
-            if(ZEND_NUM_ARGS() > 1)
-            {
-                runtimeError("too many arguments" TSRMLS_CC);
-                RETURN_NULL();
-            }
-            zvinit = *args[0];
+            zvinit = arg;
         }
         else
         {
-            string s = zendTypeToString(Z_TYPE_PP(args[0]));
-            invalidArgument("unexpected argument type %s" TSRMLS_CC, s.c_str());
+            invalidArgument("initialize expects an argument list, an InitializationData object, or both" TSRMLS_CC);
             RETURN_NULL();
         }
+    }
+
+    if(ZEND_NUM_ARGS() > 1)
+    {
+        zval* arg = *args[1];
+
+        if(Z_TYPE_P(arg) == IS_ARRAY)
+        {
+            if(zvargs)
+            {
+                invalidArgument("unexpected array argument to initialize" TSRMLS_CC);
+                RETURN_NULL();
+            }
+            zvargs = arg;
+        }
+        else if(Z_TYPE_P(arg) == IS_OBJECT && Z_OBJCE_P(arg) == initClass)
+        {
+            if(zvinit)
+            {
+                invalidArgument("unexpected InitializationData argument to initialize" TSRMLS_CC);
+                RETURN_NULL();
+            }
+            zvinit = arg;
+        }
+        else
+        {
+            invalidArgument("initialize expects an argument list, an InitializationData object, or both" TSRMLS_CC);
+            RETURN_NULL();
+        }
+    }
+
+    if(zvargs && !extractStringArray(zvargs, seq TSRMLS_CC))
+    {
+        RETURN_NULL();
     }
 
     if(zvinit)
@@ -1169,7 +1239,7 @@ ZEND_FUNCTION(Ice_initialize)
     initData.compactIdResolver = new IdResolver(TSRMLS_C);
     initData.valueFactoryManager = new ValueFactoryManager;
 
-    CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, hasArgs, initData TSRMLS_CC);
+    CommunicatorInfoIPtr info = initializeCommunicator(return_value, seq, zvargs != 0, initData TSRMLS_CC);
     if(!info)
     {
         RETURN_NULL();
@@ -1365,7 +1435,9 @@ ZEND_FUNCTION(Ice_identityToString)
     assert(identityClass);
 
     zval* zv;
-    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O"), &zv, identityClass) != SUCCESS)
+    long mode = 0;
+
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("O|l"), &zv, identityClass, &mode TSRMLS_CC) != SUCCESS)
     {
         RETURN_NULL();
     }
@@ -1377,7 +1449,7 @@ ZEND_FUNCTION(Ice_identityToString)
 
     try
     {
-        string str = Ice::identityToString(id);
+        string str = identityToString(id, static_cast<Ice::ToStringMode>(mode));
         RETURN_STRINGL(STRCAST(str.c_str()), static_cast<int>(str.length()), 1);
     }
     catch(const IceUtil::Exception& ex)
@@ -1429,25 +1501,28 @@ static zend_function_entry _interfaceMethods[] =
 };
 static zend_function_entry _classMethods[] =
 {
-    ZEND_ME(Ice_Communicator, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Communicator, destroy, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToProxy, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, proxyToString, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, propertyToProxy, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, proxyToProperty, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, stringToIdentity, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, identityToString, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, addObjectFactory, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, findObjectFactory, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getValueFactoryManager, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getImplicitContext, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getProperties, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getLogger, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getDefaultRouter, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, setDefaultRouter, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, getDefaultLocator, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, setDefaultLocator, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Communicator, flushBatchRequests, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Communicator, shutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, isShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, waitForShutdown, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, destroy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, stringToProxy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, propertyToProxy, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, proxyToProperty, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, stringToIdentity, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, identityToString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, addObjectFactory, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, findObjectFactory, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getValueFactoryManager, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getImplicitContext, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getProperties, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getLogger, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getDefaultRouter, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, setDefaultRouter, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, getDefaultLocator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, setDefaultLocator, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Communicator, flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -1460,9 +1535,9 @@ static zend_function_entry _vfmInterfaceMethods[] =
 };
 static zend_function_entry _vfmClassMethods[] =
 {
-    ZEND_ME(Ice_ValueFactoryManager, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_ValueFactoryManager, add, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_ValueFactoryManager, find, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ValueFactoryManager, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_ValueFactoryManager, add, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_ValueFactoryManager, find, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -1848,7 +1923,7 @@ IcePHP::FactoryWrapper::create(const string& id)
         // When the ID is that of Ice::Object, it indicates that the stream has not
         // found a factory and is providing us an opportunity to preserve the object.
         //
-        cls = getClassInfoById("::Ice::UnknownSlicedObject" TSRMLS_CC);
+        cls = getClassInfoById("::Ice::UnknownSlicedValue" TSRMLS_CC);
     }
     else
     {
@@ -1959,7 +2034,7 @@ IcePHP::DefaultValueFactory::create(const string& id)
         // When the ID is that of Ice::Object, it indicates that the stream has not
         // found a factory and is providing us an opportunity to preserve the object.
         //
-        cls = getClassInfoById("::Ice::UnknownSlicedObject" TSRMLS_CC);
+        cls = getClassInfoById("::Ice::UnknownSlicedValue" TSRMLS_CC);
     }
     else
     {
@@ -1967,14 +2042,6 @@ IcePHP::DefaultValueFactory::create(const string& id)
     }
 
     if(!cls)
-    {
-        return 0;
-    }
-
-    //
-    // If the requested type is an abstract class, then we give up.
-    //
-    if(cls->isAbstract)
     {
         return 0;
     }
@@ -2004,7 +2071,7 @@ IcePHP::DefaultValueFactory::destroy(TSRMLS_D)
 {
     if(_delegate)
     {
-        _delegate->destroy();
+        _delegate->destroy(TSRMLS_C);
         _delegate = 0;
     }
     _info = 0;
@@ -2119,7 +2186,7 @@ IcePHP::ValueFactoryManager::add(const Ice::ValueFactoryPtr&, const string&)
 }
 
 Ice::ValueFactoryPtr
-IcePHP::ValueFactoryManager::find(const string& id) const
+IcePHP::ValueFactoryManager::find(const string& id) const ICE_NOEXCEPT
 {
     //
     // Get the TSRM id for the current request.

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -178,7 +178,7 @@ TransientTopicImpl::subscribe(const QoS& origQoS, const Ice::ObjectPrx& obj, con
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": subscribe: " << identityToString(id);
+        out << _name << ": subscribe: " << _instance->communicator()->identityToString(id);
 
         if(traceLevels->topic > 1)
         {
@@ -280,7 +280,7 @@ TransientTopicImpl::subscribeAndGetPublisher(const QoS& qos, const Ice::ObjectPr
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": subscribeAndGetPublisher: " << identityToString(id);
+        out << _name << ": subscribeAndGetPublisher: " << _instance->communicator()->identityToString(id);
 
         if(traceLevels->topic > 1)
         {
@@ -338,7 +338,7 @@ TransientTopicImpl::unsubscribe(const Ice::ObjectPrx& subscriber, const Ice::Cur
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": unsubscribe: " << identityToString(id);
+        out << _name << ": unsubscribe: " << _instance->communicator()->identityToString(id);
         if(traceLevels->topic > 1)
         {
             out << " endpoints: " << IceStormInternal::describeEndpoints(subscriber);
@@ -374,7 +374,7 @@ TransientTopicImpl::link(const TopicPrx& topic, Ice::Int cost, const Ice::Curren
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << ": link " << identityToString(topic->ice_getIdentity())
+        out << _name << ": link " << _instance->communicator()->identityToString(topic->ice_getIdentity())
             << " cost " << cost;
     }
 
@@ -393,10 +393,7 @@ TransientTopicImpl::link(const TopicPrx& topic, Ice::Int cost, const Ice::Curren
     vector<SubscriberPtr>::iterator p = find(_subscribers.begin(), _subscribers.end(), record.id);
     if(p != _subscribers.end())
     {
-        string name = IceStormInternal::identityToTopicName(id);
-        LinkExists ex;
-        ex.name = name;
-        throw ex;
+        throw LinkExists(IceStormInternal::identityToTopicName(id));
     }
 
     SubscriberPtr subscriber = Subscriber::create(_instance, record);
@@ -424,17 +421,14 @@ TransientTopicImpl::unlink(const TopicPrx& topic, const Ice::Current&)
             Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
             out << _name << ": unlink " << name << " failed - not linked";
         }
-
-        NoSuchLink ex;
-        ex.name = name;
-        throw ex;
+        throw NoSuchLink(name);
     }
 
     TraceLevelsPtr traceLevels = _instance->traceLevels();
     if(traceLevels->topic > 0)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-        out << _name << " unlink " << identityToString(id);
+        out << _name << " unlink " << _instance->communicator()->identityToString(id);
     }
 
     // Remove the subscriber from the subscribers list. Note

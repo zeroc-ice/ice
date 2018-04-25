@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,7 +33,10 @@ using namespace IceUtilInternal;
 typedef map<string, ClassInfoPtr> ClassInfoMap;
 static ClassInfoMap _classInfoMap;
 
-typedef map<Ice::Int, ClassInfoPtr> CompactIdMap;
+typedef map<string, ValueInfoPtr> ValueInfoMap;
+static ValueInfoMap _valueInfoMap;
+
+typedef map<Ice::Int, ValueInfoPtr> CompactIdMap;
 static CompactIdMap _compactIdMap;
 
 typedef map<string, ProxyInfoPtr> ProxyInfoMap;
@@ -44,14 +47,6 @@ static ExceptionInfoMap _exceptionInfoMap;
 
 namespace IcePy
 {
-
-class InfoMapDestroyer
-{
-public:
-
-    ~InfoMapDestroyer();
-};
-static InfoMapDestroyer infoMapDestroyer;
 
 struct TypeInfoObject
 {
@@ -68,18 +63,38 @@ struct ExceptionInfoObject
 extern PyTypeObject TypeInfoType;
 extern PyTypeObject ExceptionInfoType;
 
+#if PY_VERSION_HEX >= 0x03000000
 bool
 writeString(PyObject* p, Ice::OutputStream* os)
 {
     if(p == Py_None)
     {
-        os->write(string());
+        os->write(string(), false); // Bypass string conversion.
     }
     else if(checkString(p))
     {
-        os->write(getString(p));
+        os->write(getString(p), false); // Bypass string conversion.
     }
-#if defined(Py_USING_UNICODE) && PY_VERSION_HEX < 0x03000000
+    else
+    {
+        assert(false);
+    }
+
+    return true;
+}
+#else
+bool
+writeString(PyObject* p, Ice::OutputStream* os)
+{
+    if(p == Py_None)
+    {
+        os->write(string(), true);
+    }
+    else if(checkString(p))
+    {
+        os->write(getString(p), true);
+    }
+#if defined(Py_USING_UNICODE)
     else if(PyUnicode_Check(p))
     {
         //
@@ -101,6 +116,7 @@ writeString(PyObject* p, Ice::OutputStream* os)
 
     return true;
 }
+#endif
 
 }
 
@@ -125,6 +141,12 @@ extern "C"
 static void
 typeInfoDealloc(TypeInfoObject* self)
 {
+    //
+    // Every TypeInfo object is assigned to a "_t_XXX" variable in its enclosing module. Python releases these
+    // objects during shutdown, which gives us a chance to release resources and break cyclic references.
+    //
+    assert(self->info);
+    (*self->info)->destroy();
     delete self->info;
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
@@ -206,6 +228,26 @@ addClassInfo(const string& id, const ClassInfoPtr& info)
         _classInfoMap.erase(p);
     }
     _classInfoMap.insert(ClassInfoMap::value_type(id, info));
+}
+
+//
+// addValueInfo()
+//
+static void
+addValueInfo(const string& id, const ValueInfoPtr& info)
+{
+    //
+    // Do not assert. An application may load statically-
+    // translated definitions and then dynamically load
+    // duplicate definitions.
+    //
+//    assert(_valueInfoMap.find(id) == _valueInfoMap.end());
+    ValueInfoMap::iterator p = _valueInfoMap.find(id);
+    if(p != _valueInfoMap.end())
+    {
+        _valueInfoMap.erase(p);
+    }
+    _valueInfoMap.insert(ValueInfoMap::value_type(id, info));
 }
 
 //
@@ -484,7 +526,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
 
     if(PyObject_HasAttrString(obj, STRCAST("_ice_slicedData")))
     {
-        PyObjectHandle sd = PyObject_GetAttrString(obj, STRCAST("_ice_slicedData"));
+        PyObjectHandle sd = getAttr(obj, "_ice_slicedData", false);
         assert(sd.get());
 
         if(sd.get() != Py_None)
@@ -492,7 +534,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
             //
             // The "slices" member is a tuple of Ice.SliceInfo objects.
             //
-            PyObjectHandle sl = PyObject_GetAttrString(sd.get(), STRCAST("slices"));
+            PyObjectHandle sl = getAttr(sd.get(), "slices", false);
             assert(sl.get());
             assert(PyTuple_Check(sl.get()));
 
@@ -506,15 +548,15 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
 
                 Ice::SliceInfoPtr info = new Ice::SliceInfo;
 
-                PyObjectHandle typeId = PyObject_GetAttrString(s.get(), STRCAST("typeId"));
+                PyObjectHandle typeId = getAttr(s.get(), "typeId", false);
                 assert(typeId.get());
                 info->typeId = getString(typeId.get());
 
-                PyObjectHandle compactId = PyObject_GetAttrString(s.get(), STRCAST("compactId"));
+                PyObjectHandle compactId = getAttr(s.get(), "compactId", false);
                 assert(compactId.get());
                 info->compactId = static_cast<int>(PyLong_AsLong(compactId.get()));
 
-                PyObjectHandle bytes = PyObject_GetAttrString(s.get(), STRCAST("bytes"));
+                PyObjectHandle bytes = getAttr(s.get(), "bytes", false);
                 assert(bytes.get());
                 char* str;
                 Py_ssize_t strsz;
@@ -528,7 +570,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                 vector<Ice::Byte> vtmp(reinterpret_cast<Ice::Byte*>(str), reinterpret_cast<Ice::Byte*>(str + strsz));
                 info->bytes.swap(vtmp);
 
-                PyObjectHandle instances = PyObject_GetAttrString(s.get(), STRCAST("instances"));
+                PyObjectHandle instances = getAttr(s.get(), "instances", false);
                 assert(instances.get());
                 assert(PyTuple_Check(instances.get()));
                 Py_ssize_t osz = PyTuple_GET_SIZE(instances.get());
@@ -541,7 +583,7 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                     ObjectMap::iterator i = objectMap->find(o);
                     if(i == objectMap->end())
                     {
-                        writer = new ObjectWriter(o, objectMap);
+                        writer = new ObjectWriter(o, objectMap, 0);
                         objectMap->insert(ObjectMap::value_type(o, writer));
                     }
                     else
@@ -552,11 +594,11 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
                     info->instances.push_back(writer);
                 }
 
-                PyObjectHandle hasOptionalMembers = PyObject_GetAttrString(s.get(), STRCAST("hasOptionalMembers"));
+                PyObjectHandle hasOptionalMembers = getAttr(s.get(), "hasOptionalMembers", false);
                 assert(hasOptionalMembers.get());
                 info->hasOptionalMembers = PyObject_IsTrue(hasOptionalMembers.get()) ? true : false;
 
-                PyObjectHandle isLastSlice = PyObject_GetAttrString(s.get(), STRCAST("isLastSlice"));
+                PyObjectHandle isLastSlice = getAttr(s.get(), "isLastSlice", false);
                 assert(isLastSlice.get());
                 info->isLastSlice = PyObject_IsTrue(isLastSlice.get()) ? true : false;
 
@@ -978,7 +1020,11 @@ IcePy::PrimitiveInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
     case PrimitiveInfo::KindString:
     {
         string val;
-        is->read(val);
+#if PY_VERSION_HEX >= 0x03000000
+        is->read(val, false); // Bypass string conversion.
+#else
+        is->read(val, true);
+#endif
         PyObjectHandle p = createString(val);
         cb->unmarshaled(p.get(), target, closure);
         break;
@@ -1011,8 +1057,6 @@ IcePy::EnumInfo::EnumInfo(const string& ident, PyObject* t, PyObject* e) :
 {
     assert(PyType_Check(t));
     assert(PyDict_Check(e));
-
-    Py_INCREF(t);
 
     Py_ssize_t pos = 0;
     PyObject* key;
@@ -1047,7 +1091,7 @@ IcePy::EnumInfo::getId() const
 bool
 IcePy::EnumInfo::validate(PyObject* val)
 {
-    return PyObject_IsInstance(val, pythonType.get()) == 1;
+    return PyObject_IsInstance(val, pythonType) == 1;
 }
 
 bool
@@ -1119,10 +1163,16 @@ IcePy::EnumInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjec
     out << getString(p.get());
 }
 
+void
+IcePy::EnumInfo::destroy()
+{
+    const_cast<EnumeratorMap&>(enumerators).clear();
+}
+
 Ice::Int
 IcePy::EnumInfo::valueForEnumerator(PyObject* p) const
 {
-    assert(PyObject_IsInstance(p, pythonType.get()) == 1);
+    assert(PyObject_IsInstance(p, pythonType) == 1);
 
     PyObjectHandle v = PyObject_GetAttrString(p, STRCAST("_value"));
     if(!v.get())
@@ -1260,8 +1310,6 @@ IcePy::StructInfo::StructInfo(const string& ident, PyObject* t, PyObject* m) :
     assert(PyType_Check(t));
     assert(PyTuple_Check(m));
 
-    Py_INCREF(t);
-
     DataMemberList opt;
     convertDataMembers(m, const_cast<DataMemberList&>(members), opt, false);
     assert(opt.empty());
@@ -1287,7 +1335,7 @@ IcePy::StructInfo::getId() const
 bool
 IcePy::StructInfo::validate(PyObject* val)
 {
-    return val == Py_None || PyObject_IsInstance(val, pythonType.get()) == 1;
+    return val == Py_None || PyObject_IsInstance(val, pythonType) == 1;
 }
 
 bool
@@ -1326,14 +1374,14 @@ void
 IcePy::StructInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool optional,
                            const Ice::StringSeq*)
 {
-    assert(p == Py_None || PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
+    assert(p == Py_None || PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
 
     if(p == Py_None)
     {
         if(!_nullMarshalValue.get())
         {
             PyObjectHandle args = PyTuple_New(0);
-            PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType.get());
+            PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType);
             _nullMarshalValue = type->tp_new(type, args.get(), 0);
             type->tp_init(_nullMarshalValue.get(), args.get(), 0); // Initialize the struct members
         }
@@ -1357,7 +1405,7 @@ IcePy::StructInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* object
     {
         DataMemberPtr member = *q;
         char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(p, memberName);
+        PyObjectHandle attr = getAttr(p, member->name, true);
         if(!attr.get())
         {
             PyErr_Format(PyExc_AttributeError, STRCAST("no member `%s' found in %s value"), memberName,
@@ -1383,7 +1431,7 @@ void
 IcePy::StructInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target,
                              void* closure, bool optional, const Ice::StringSeq*)
 {
-    PyObjectHandle p = instantiate(pythonType.get());
+    PyObjectHandle p = instantiate(pythonType);
     if(!p.get())
     {
         assert(PyErr_Occurred());
@@ -1430,8 +1478,7 @@ IcePy::StructInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObj
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             DataMemberPtr member = *q;
-            char* memberName = const_cast<char*>(member->name.c_str());
-            PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+            PyObjectHandle attr = getAttr(value, member->name, true);
             out << nl << member->name << " = ";
             if(!attr.get())
             {
@@ -1449,15 +1496,8 @@ IcePy::StructInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObj
 void
 IcePy::StructInfo::destroy()
 {
-    for(DataMemberList::const_iterator p = members.begin(); p != members.end(); ++p)
-    {
-        (*p)->type->destroy();
-    }
     const_cast<DataMemberList&>(members).clear();
-    if(_nullMarshalValue.get())
-    {
-        _nullMarshalValue.release();
-    }
+    _nullMarshalValue = 0;
 }
 
 PyObject*
@@ -1727,11 +1767,7 @@ IcePy::SequenceInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintO
 void
 IcePy::SequenceInfo::destroy()
 {
-    if(elementType)
-    {
-        elementType->destroy();
-        const_cast<TypeInfoPtr&>(elementType) = 0;
-    }
+    const_cast<TypeInfoPtr&>(elementType) = 0;
 }
 
 PyObject*
@@ -2266,7 +2302,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
     case PrimitiveInfo::KindString:
     {
         Ice::StringSeq seq;
-        is->read(seq);
+#if PY_VERSION_HEX >= 0x03000000
+        is->read(seq, false); // Bypass string conversion.
+#else
+        is->read(seq, true);
+#endif
         int sz = static_cast<int>(seq.size());
         result = sm->createContainer(sz);
         if(!result.get())
@@ -2397,7 +2437,7 @@ IcePy::CustomInfo::getId() const
 bool
 IcePy::CustomInfo::validate(PyObject* val)
 {
-    return PyObject_IsInstance(val, pythonType.get()) == 1;
+    return PyObject_IsInstance(val, pythonType) == 1;
 }
 
 bool
@@ -2428,7 +2468,7 @@ void
 IcePy::CustomInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool,
                            const Ice::StringSeq* metaData)
 {
-    assert(PyObject_IsInstance(p, pythonType.get()) == 1); // validate() should have caught this.
+    assert(PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
 
     PyObjectHandle obj = PyObject_CallMethod(p, STRCAST("IsInitialized"), 0);
     if(!obj.get())
@@ -2479,7 +2519,7 @@ IcePy::CustomInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
         assert(PyErr_Occurred());
         throw AbortMarshaling();
     }
-    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType.get());
+    PyTypeObject* type = reinterpret_cast<PyTypeObject*>(pythonType);
     PyObjectHandle p = type->tp_new(type, args.get(), 0);
     if(!p.get())
     {
@@ -2540,11 +2580,6 @@ IcePy::CustomInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObj
     else
     {
     }
-}
-
-void
-IcePy::CustomInfo::destroy()
-{
 }
 
 //
@@ -2774,37 +2809,24 @@ IcePy::DictionaryInfo::KeyCallback::unmarshaled(PyObject* val, PyObject*, void*)
 void
 IcePy::DictionaryInfo::destroy()
 {
-    if(keyType)
-    {
-        keyType->destroy();
-        keyType = 0;
-    }
-    if(valueType)
-    {
-        valueType->destroy();
-        valueType = 0;
-    }
+    keyType = 0;
+    valueType = 0;
 }
 
 //
 // ClassInfo implementation.
 //
 IcePy::ClassInfo::ClassInfo(const string& ident) :
-    id(ident), compactId(-1), isAbstract(false), preserve(false), defined(false)
+    id(ident), defined(false)
 {
-    const_cast<PyObjectHandle&>(typeObj) = createType(this);
+    typeObj = createType(this);
 }
 
 void
-IcePy::ClassInfo::define(PyObject* t, int compact, bool abstr, bool pres, PyObject* b, PyObject* i, PyObject* m)
+IcePy::ClassInfo::define(PyObject* t, PyObject* b, PyObject* i)
 {
     assert(PyType_Check(t));
     assert(PyTuple_Check(i));
-    assert(PyTuple_Check(m));
-
-    const_cast<int&>(compactId) = compact;
-    const_cast<bool&>(isAbstract) = abstr;
-    const_cast<bool&>(preserve) = pres;
 
     if(b != Py_None)
     {
@@ -2822,10 +2844,7 @@ IcePy::ClassInfo::define(PyObject* t, int compact, bool abstr, bool pres, PyObje
         const_cast<ClassInfoList&>(interfaces).push_back(iface);
     }
 
-    convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers), true);
-
-    const_cast<PyObjectHandle&>(pythonType) = t;
-    Py_INCREF(t);
+    pythonType = t;
 
     const_cast<bool&>(defined) = true;
 }
@@ -2839,12 +2858,14 @@ IcePy::ClassInfo::getId() const
 bool
 IcePy::ClassInfo::validate(PyObject* val)
 {
-    return val == Py_None || PyObject_IsInstance(val, pythonType.get()) == 1;
+    assert(false);
+    return true;
 }
 
 bool
 IcePy::ClassInfo::variableLength() const
 {
+    assert(false);
     return true;
 }
 
@@ -2870,7 +2891,143 @@ void
 IcePy::ClassInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool,
                           const Ice::StringSeq*)
 {
-    if(!pythonType.get())
+    assert(false);
+    throw AbortMarshaling();
+}
+
+void
+IcePy::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target,
+                            void* closure, bool, const Ice::StringSeq*)
+{
+    assert(false);
+    throw AbortMarshaling();
+}
+
+void
+IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+{
+    if(!validate(value))
+    {
+        out << "<invalid value - expected " << id << ">";
+        return;
+    }
+
+    if(value == Py_None)
+    {
+        out << "<nil>";
+    }
+    else
+    {
+        map<PyObject*, int>::iterator q = history->objects.find(value);
+        if(q != history->objects.end())
+        {
+            out << "<object #" << q->second << ">";
+        }
+        else
+        {
+            PyObjectHandle iceType = getAttr(value, "_ice_type", false);
+            ClassInfoPtr info;
+            if(!iceType.get())
+            {
+                //
+                // The _ice_type attribute will be missing in an instance of LocalObject
+                // that does not derive from a user-defined type.
+                //
+                assert(id == "::Ice::LocalObject");
+                info = this;
+            }
+            else
+            {
+                info = ClassInfoPtr::dynamicCast(getType(iceType.get()));
+                assert(info);
+            }
+            out << "object #" << history->index << " (" << info->id << ')';
+            history->objects.insert(map<PyObject*, int>::value_type(value, history->index));
+            ++history->index;
+        }
+    }
+}
+
+void
+IcePy::ClassInfo::destroy()
+{
+    const_cast<ClassInfoPtr&>(base) = 0;
+    const_cast<ClassInfoList&>(interfaces).clear();
+}
+
+//
+// ValueInfo implementation.
+//
+IcePy::ValueInfo::ValueInfo(const string& ident) :
+    id(ident), compactId(-1), preserve(false), interface(false), defined(false)
+{
+    typeObj = createType(this);
+}
+
+void
+IcePy::ValueInfo::define(PyObject* t, int compact, bool pres, bool intf, PyObject* b, PyObject* m)
+{
+    assert(PyType_Check(t));
+    assert(PyTuple_Check(m));
+
+    const_cast<int&>(compactId) = compact;
+    const_cast<bool&>(preserve) = pres;
+    const_cast<bool&>(interface) = intf;
+
+    if(b != Py_None)
+    {
+        const_cast<ValueInfoPtr&>(base) = ValueInfoPtr::dynamicCast(getType(b));
+        assert(base);
+    }
+
+    convertDataMembers(m, const_cast<DataMemberList&>(members), const_cast<DataMemberList&>(optionalMembers), true);
+
+    pythonType = t;
+
+    const_cast<bool&>(defined) = true;
+}
+
+string
+IcePy::ValueInfo::getId() const
+{
+    return id;
+}
+
+bool
+IcePy::ValueInfo::validate(PyObject* val)
+{
+    return val == Py_None || PyObject_IsInstance(val, pythonType) == 1;
+}
+
+bool
+IcePy::ValueInfo::variableLength() const
+{
+    return true;
+}
+
+int
+IcePy::ValueInfo::wireSize() const
+{
+    return 1;
+}
+
+Ice::OptionalFormat
+IcePy::ValueInfo::optionalFormat() const
+{
+    return Ice::OptionalFormatClass;
+}
+
+bool
+IcePy::ValueInfo::usesClasses() const
+{
+    return true;
+}
+
+void
+IcePy::ValueInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool,
+                          const Ice::StringSeq*)
+{
+    if(!pythonType)
     {
         PyErr_Format(PyExc_RuntimeError, STRCAST("class %s is declared but not defined"), id.c_str());
         throw AbortMarshaling();
@@ -2883,7 +3040,7 @@ IcePy::ClassInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
         return;
     }
 
-    if(!PyObject_IsInstance(p, pythonType.get()))
+    if(!PyObject_IsInstance(p, pythonType))
     {
         PyErr_Format(PyExc_ValueError, STRCAST("expected value of type %s"), id.c_str());
         throw AbortMarshaling();
@@ -2900,7 +3057,7 @@ IcePy::ClassInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
     ObjectMap::iterator q = objectMap->find(p);
     if(q == objectMap->end())
     {
-        writer = new ObjectWriter(p, objectMap);
+        writer = new ObjectWriter(p, objectMap, this);
         objectMap->insert(ObjectMap::value_type(p, writer));
     }
     else
@@ -2928,10 +3085,10 @@ patchObject(void* addr, const Ice::ObjectPtr& v)
 }
 
 void
-IcePy::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target,
+IcePy::ValueInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target,
                             void* closure, bool, const Ice::StringSeq*)
 {
-    if(!pythonType.get())
+    if(!pythonType)
     {
         PyErr_Format(PyExc_RuntimeError, STRCAST("class %s is declared but not defined"), id.c_str());
         throw AbortMarshaling();
@@ -2950,7 +3107,7 @@ IcePy::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb
 }
 
 void
-IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::ValueInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(!validate(value))
     {
@@ -2971,8 +3128,8 @@ IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObje
         }
         else
         {
-            PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("_ice_type"));
-            ClassInfoPtr info;
+            PyObjectHandle iceType = getAttr(value, "_ice_type", false);
+            ValueInfoPtr info;
             if(!iceType.get())
             {
                 //
@@ -2984,7 +3141,7 @@ IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObje
             }
             else
             {
-                info = ClassInfoPtr::dynamicCast(getType(iceType.get()));
+                info = ValueInfoPtr::dynamicCast(getType(iceType.get()));
                 assert(info);
             }
             out << "object #" << history->index << " (" << info->id << ')';
@@ -2998,24 +3155,14 @@ IcePy::ClassInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObje
 }
 
 void
-IcePy::ClassInfo::destroy()
+IcePy::ValueInfo::destroy()
 {
-    const_cast<ClassInfoPtr&>(base) = 0;
-    const_cast<ClassInfoList&>(interfaces).clear();
-    if(!members.empty())
-    {
-        DataMemberList ml = members;
-        const_cast<DataMemberList&>(members).clear();
-        for(DataMemberList::iterator p = ml.begin(); p != ml.end(); ++p)
-        {
-            (*p)->type->destroy();
-        }
-    }
-    const_cast<PyObjectHandle&>(typeObj) = 0; // Break circular reference.
+    const_cast<ValueInfoPtr&>(base) = 0;
+    const_cast<DataMemberList&>(members).clear();
 }
 
 void
-IcePy::ClassInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::ValueInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
 {
     if(base)
     {
@@ -3027,8 +3174,7 @@ IcePy::ClassInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, Pr
     for(q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
         if(!attr.get())
         {
@@ -3043,8 +3189,7 @@ IcePy::ClassInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, Pr
     for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
         if(!attr.get())
         {
@@ -3067,14 +3212,13 @@ IcePy::ClassInfo::printMembers(PyObject* value, IceUtilInternal::Output& out, Pr
 IcePy::ProxyInfo::ProxyInfo(const string& ident) :
     id(ident)
 {
-    const_cast<PyObjectHandle&>(typeObj) = createType(this);
+    typeObj = createType(this); // Borrowed reference.
 }
 
 void
 IcePy::ProxyInfo::define(PyObject* t)
 {
-    const_cast<PyObjectHandle&>(pythonType) = t;
-    Py_INCREF(t);
+    pythonType = t; // Borrowed reference.
 }
 
 string
@@ -3086,7 +3230,7 @@ IcePy::ProxyInfo::getId() const
 bool
 IcePy::ProxyInfo::validate(PyObject* val)
 {
-    return val == Py_None || PyObject_IsInstance(val, pythonType.get()) == 1;
+    return val == Py_None || PyObject_IsInstance(val, pythonType) == 1;
 }
 
 bool
@@ -3153,13 +3297,13 @@ IcePy::ProxyInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb
         return;
     }
 
-    if(!pythonType.get())
+    if(!pythonType)
     {
         PyErr_Format(PyExc_RuntimeError, STRCAST("class %s is declared but not defined"), id.c_str());
         throw AbortMarshaling();
     }
 
-    PyObjectHandle p = createProxy(proxy, proxy->ice_getCommunicator(), pythonType.get());
+    PyObjectHandle p = createProxy(proxy, proxy->ice_getCommunicator(), pythonType);
     cb->unmarshaled(p.get(), target, closure);
 }
 
@@ -3188,28 +3332,24 @@ IcePy::ProxyInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObje
     }
 }
 
-void
-IcePy::ProxyInfo::destroy()
-{
-    const_cast<PyObjectHandle&>(typeObj) = 0; // Break circular reference.
-}
-
 //
 // ObjectWriter implementation.
 //
-IcePy::ObjectWriter::ObjectWriter(PyObject* object, ObjectMap* objectMap) :
-    _object(object), _map(objectMap)
+IcePy::ObjectWriter::ObjectWriter(PyObject* object, ObjectMap* objectMap, const ValueInfoPtr& formal) :
+    _object(object), _map(objectMap), _formal(formal)
 {
     Py_INCREF(_object);
-
-    PyObjectHandle iceType = PyObject_GetAttrString(object, STRCAST("_ice_type"));
-    if(!iceType.get())
+    if(!_formal || !_formal->interface)
     {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
+        PyObjectHandle iceType = getAttr(object, "_ice_type", false);
+        if(!iceType.get())
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+        _info = ValueInfoPtr::dynamicCast(getType(iceType.get()));
+        assert(_info);
     }
-    _info = ClassInfoPtr::dynamicCast(getType(iceType.get()));
-    assert(_info);
 }
 
 IcePy::ObjectWriter::~ObjectWriter()
@@ -3232,11 +3372,11 @@ IcePy::ObjectWriter::ice_preMarshal()
 }
 
 void
-IcePy::ObjectWriter::__write(Ice::OutputStream* os) const
+IcePy::ObjectWriter::_iceWrite(Ice::OutputStream* os) const
 {
     Ice::SlicedDataPtr slicedData;
 
-    if(_info->preserve)
+    if(_info && _info->preserve)
     {
         //
         // Retrieve the SlicedData object that we stored as a hidden member of the Python object.
@@ -3246,19 +3386,34 @@ IcePy::ObjectWriter::__write(Ice::OutputStream* os) const
 
     os->startValue(slicedData);
 
-    if(_info->id != "::Ice::UnknownSlicedObject")
+    if(_formal && _formal->interface)
     {
-        ClassInfoPtr info = _info;
-        while(info)
+        PyObjectHandle ret = PyObject_CallMethod(_object, STRCAST("ice_id"), 0);
+        if(!ret.get())
         {
-            os->startSlice(info->id, info->compactId, !info->base);
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+        string id = getString(ret.get());
+        os->startSlice(id, -1, true);
+        os->endSlice();
+    }
+    else
+    {
+        if(_info->id != "::Ice::UnknownSlicedValue")
+        {
+            ValueInfoPtr info = _info;
+            while(info)
+            {
+                os->startSlice(info->id, info->compactId, !info->base);
 
-            writeMembers(os, info->members);
-            writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
+                writeMembers(os, info->members);
+                writeMembers(os, info->optionalMembers); // The optional members have already been sorted by tag.
 
-            os->endSlice();
+                os->endSlice();
 
-            info = info->base;
+                info = info->base;
+            }
         }
     }
 
@@ -3266,7 +3421,7 @@ IcePy::ObjectWriter::__write(Ice::OutputStream* os) const
 }
 
 void
-IcePy::ObjectWriter::__read(Ice::InputStream*)
+IcePy::ObjectWriter::_iceRead(Ice::InputStream*)
 {
     assert(false);
 }
@@ -3280,7 +3435,7 @@ IcePy::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
 
         char* memberName = const_cast<char*>(member->name.c_str());
 
-        PyObjectHandle val = PyObject_GetAttrString(_object, memberName);
+        PyObjectHandle val = getAttr(_object, member->name, true);
         if(!val.get())
         {
             if(member->optional)
@@ -3315,7 +3470,7 @@ IcePy::ObjectWriter::writeMembers(Ice::OutputStream* os, const DataMemberList& m
 //
 // ObjectReader implementation.
 //
-IcePy::ObjectReader::ObjectReader(PyObject* object, const ClassInfoPtr& info) :
+IcePy::ObjectReader::ObjectReader(PyObject* object, const ValueInfoPtr& info) :
     _object(object), _info(info)
 {
     Py_INCREF(_object);
@@ -3341,24 +3496,24 @@ IcePy::ObjectReader::ice_postUnmarshal()
 }
 
 void
-IcePy::ObjectReader::__write(Ice::OutputStream*) const
+IcePy::ObjectReader::_iceWrite(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePy::ObjectReader::__read(Ice::InputStream* is)
+IcePy::ObjectReader::_iceRead(Ice::InputStream* is)
 {
     is->startValue();
 
-    const bool unknown = _info->id == "::Ice::UnknownSlicedObject";
+    const bool unknown = _info->id == "::Ice::UnknownSlicedValue";
 
     //
     // Unmarshal the slices of a user-defined class.
     //
     if(!unknown && _info->id != Ice::Object::ice_staticId())
     {
-        ClassInfoPtr info = _info;
+        ValueInfoPtr info = _info;
         while(info)
         {
             is->startSlice();
@@ -3419,7 +3574,7 @@ IcePy::ObjectReader::__read(Ice::InputStream* is)
     }
 }
 
-ClassInfoPtr
+ValueInfoPtr
 IcePy::ObjectReader::getInfo() const
 {
     return _info;
@@ -3438,30 +3593,9 @@ IcePy::ObjectReader::getSlicedData() const
 }
 
 //
-// InfoMapDestroyer implementation.
-//
-IcePy::InfoMapDestroyer::~InfoMapDestroyer()
-{
-    {
-        for(ProxyInfoMap::iterator p = _proxyInfoMap.begin(); p != _proxyInfoMap.end(); ++p)
-        {
-            p->second->destroy();
-        }
-    }
-    {
-        for(ClassInfoMap::iterator p = _classInfoMap.begin(); p != _classInfoMap.end(); ++p)
-        {
-            p->second->destroy();
-        }
-    }
-    _compactIdMap.clear();
-    _exceptionInfoMap.clear();
-}
-
-//
 // ReadObjectCallback implementation.
 //
-IcePy::ReadObjectCallback::ReadObjectCallback(const ClassInfoPtr& info, const UnmarshalCallbackPtr& cb,
+IcePy::ReadObjectCallback::ReadObjectCallback(const ValueInfoPtr& info, const UnmarshalCallbackPtr& cb,
                                               PyObject* target, void* closure) :
     _info(info), _cb(cb), _target(target), _closure(closure)
 {
@@ -3485,7 +3619,7 @@ IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
         // Verify that the object's type is compatible with the formal type.
         //
         PyObject* obj = reader->getObject(); // Borrowed reference.
-        if(!PyObject_IsInstance(obj, _info->pythonType.get()))
+        if(!PyObject_IsInstance(obj, _info->pythonType))
         {
             Ice::UnexpectedObjectException ex(__FILE__, __LINE__);
             ex.reason = "unmarshaled object is not an instance of " + _info->id;
@@ -3508,7 +3642,7 @@ IcePy::ReadObjectCallback::invoke(const Ice::ObjectPtr& p)
 void
 IcePy::ExceptionInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap)
 {
-    if(!PyObject_IsInstance(p, pythonType.get()))
+    if(!PyObject_IsInstance(p, pythonType))
     {
         PyErr_Format(PyExc_ValueError, STRCAST("expected exception %s"), id.c_str());
         throw AbortMarshaling();
@@ -3552,7 +3686,7 @@ IcePy::ExceptionInfo::writeMembers(PyObject* p, Ice::OutputStream* os, const Dat
 
         char* memberName = const_cast<char*>(member->name.c_str());
 
-        PyObjectHandle val = PyObject_GetAttrString(p, memberName);
+        PyObjectHandle val = getAttr(p, member->name, true);
         if(!val.get())
         {
             if(member->optional)
@@ -3587,7 +3721,7 @@ IcePy::ExceptionInfo::writeMembers(PyObject* p, Ice::OutputStream* os, const Dat
 PyObject*
 IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
 {
-    PyObjectHandle p = createExceptionInstance(pythonType.get());
+    PyObjectHandle p = createExceptionInstance(pythonType);
 
     ExceptionInfoPtr info = this;
     while(info)
@@ -3630,7 +3764,7 @@ IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
 void
 IcePy::ExceptionInfo::print(PyObject* value, IceUtilInternal::Output& out)
 {
-    if(!PyObject_IsInstance(value, pythonType.get()))
+    if(!PyObject_IsInstance(value, pythonType))
     {
         out << "<invalid value - expected " << id << ">";
         return;
@@ -3658,8 +3792,7 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
     for(q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
         if(!attr.get() || attr.get() == Unset)
         {
@@ -3674,8 +3807,7 @@ IcePy::ExceptionInfo::printMembers(PyObject* value, IceUtilInternal::Output& out
     for(q = optionalMembers.begin(); q != optionalMembers.end(); ++q)
     {
         DataMemberPtr member = *q;
-        char* memberName = const_cast<char*>(member->name.c_str());
-        PyObjectHandle attr = PyObject_GetAttrString(value, memberName);
+        PyObjectHandle attr = getAttr(value, member->name, true);
         out << nl << member->name << " = ";
         if(!attr.get())
         {
@@ -3700,7 +3832,7 @@ IcePy::ExceptionWriter::ExceptionWriter(const PyObjectHandle& ex, const Exceptio
 {
     if(!info)
     {
-        PyObjectHandle iceType = PyObject_GetAttrString(ex.get(), STRCAST("_ice_type"));
+        PyObjectHandle iceType = getAttr(ex.get(), "_ice_type", false);
         assert(iceType.get());
         _info = ExceptionInfoPtr::dynamicCast(getException(iceType.get()));
         assert(_info);
@@ -3735,7 +3867,7 @@ IcePy::ExceptionWriter::ice_throw() const
 }
 
 void
-IcePy::ExceptionWriter::__write(Ice::OutputStream* os) const
+IcePy::ExceptionWriter::_write(Ice::OutputStream* os) const
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -3743,12 +3875,12 @@ IcePy::ExceptionWriter::__write(Ice::OutputStream* os) const
 }
 
 void
-IcePy::ExceptionWriter::__read(Ice::InputStream*)
+IcePy::ExceptionWriter::_read(Ice::InputStream*)
 {
 }
 
 bool
-IcePy::ExceptionWriter::__usesClasses() const
+IcePy::ExceptionWriter::_usesClasses() const
 {
     return _info->usesClasses;
 }
@@ -3790,13 +3922,13 @@ IcePy::ExceptionReader::ice_throw() const
 }
 
 void
-IcePy::ExceptionReader::__write(Ice::OutputStream*) const
+IcePy::ExceptionReader::_write(Ice::OutputStream*) const
 {
     assert(false);
 }
 
 void
-IcePy::ExceptionReader::__read(Ice::InputStream* is)
+IcePy::ExceptionReader::_read(Ice::InputStream* is)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
@@ -3808,7 +3940,7 @@ IcePy::ExceptionReader::__read(Ice::InputStream* is)
 }
 
 bool
-IcePy::ExceptionReader::__usesClasses() const
+IcePy::ExceptionReader::_usesClasses() const
 {
     return _info->usesClasses;
 }
@@ -3847,6 +3979,20 @@ IcePy::lookupClassInfo(const string& id)
 {
     ClassInfoMap::iterator p = _classInfoMap.find(id);
     if(p != _classInfoMap.end())
+    {
+        return p->second;
+    }
+    return 0;
+}
+
+//
+// lookupClassInfo()
+//
+IcePy::ValueInfoPtr
+IcePy::lookupValueInfo(const string& id)
+{
+    ValueInfoMap::iterator p = _valueInfoMap.find(id);
+    if(p != _valueInfoMap.end())
     {
         return p->second;
     }
@@ -4288,10 +4434,13 @@ IcePy_declareProxy(PyObject*, PyObject* args)
     {
         info = new ProxyInfo(proxyId);
         addProxyInfo(proxyId, info);
+        return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
     }
-
-    Py_INCREF(info->typeObj.get());
-    return info->typeObj.get();
+    else
+    {
+        Py_INCREF(info->typeObj);
+        return info->typeObj;
+    }
 }
 
 extern "C"
@@ -4315,12 +4464,15 @@ IcePy_defineProxy(PyObject*, PyObject* args)
     {
         info = new ProxyInfo(proxyId);
         addProxyInfo(proxyId, info);
+        info->define(type);
+        return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
     }
-
-    info->define(type);
-
-    Py_INCREF(info->typeObj.get());
-    return info->typeObj.get();
+    else
+    {
+        info->define(type);
+        Py_INCREF(info->typeObj);
+        return info->typeObj;
+    }
 }
 
 extern "C"
@@ -4338,10 +4490,13 @@ IcePy_declareClass(PyObject*, PyObject* args)
     {
         info = new ClassInfo(id);
         addClassInfo(id, info);
+        return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
     }
-
-    Py_INCREF(info->typeObj.get());
-    return info->typeObj.get();
+    else
+    {
+        Py_INCREF(info->typeObj);
+        return info->typeObj;
+    }
 }
 
 extern "C"
@@ -4350,15 +4505,10 @@ IcePy_defineClass(PyObject*, PyObject* args)
 {
     char* id;
     PyObject* type;
-    int compactId;
     PyObject* meta; // Not currently used.
-    int isAbstract;
-    int preserve;
     PyObject* base;
     PyObject* interfaces;
-    PyObject* members;
-    if(!PyArg_ParseTuple(args, STRCAST("sOiOiiOOO"), &id, &type, &compactId, &meta, &isAbstract, &preserve, &base,
-                         &interfaces, &members))
+    if(!PyArg_ParseTuple(args, STRCAST("sOOOO"), &id, &type, &meta, &base, &interfaces))
     {
         return 0;
     }
@@ -4375,19 +4525,94 @@ IcePy_defineClass(PyObject*, PyObject* args)
     {
         info = new ClassInfo(id);
         addClassInfo(id, info);
+        info->define(type, base, interfaces);
+        return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
     }
-
-    info->define(type, compactId, isAbstract ? true : false, preserve ? true : false, base, interfaces, members);
-
-    CompactIdMap::iterator q = _compactIdMap.find(info->compactId);
-    if(q != _compactIdMap.end())
+    else
     {
-        _compactIdMap.erase(q);
+        info->define(type, base, interfaces);
+        Py_INCREF(info->typeObj);
+        return info->typeObj;
     }
-    _compactIdMap.insert(CompactIdMap::value_type(info->compactId, info));
+}
 
-    Py_INCREF(info->typeObj.get());
-    return info->typeObj.get();
+extern "C"
+PyObject*
+IcePy_declareValue(PyObject*, PyObject* args)
+{
+    char* id;
+    if(!PyArg_ParseTuple(args, STRCAST("s"), &id))
+    {
+        return 0;
+    }
+
+    ValueInfoPtr info = lookupValueInfo(id);
+    if(!info)
+    {
+        info = new ValueInfo(id);
+        addValueInfo(id, info);
+        return info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
+    }
+    else
+    {
+        Py_INCREF(info->typeObj);
+        return info->typeObj;
+    }
+}
+
+extern "C"
+PyObject*
+IcePy_defineValue(PyObject*, PyObject* args)
+{
+    char* id;
+    PyObject* type;
+    int compactId;
+    PyObject* meta; // Not currently used.
+    int preserve;
+    int interface;
+    PyObject* base;
+    PyObject* members;
+    if(!PyArg_ParseTuple(args, STRCAST("sOiOiiOO"), &id, &type, &compactId, &meta, &preserve, &interface, &base,
+                         &members))
+    {
+        return 0;
+    }
+
+    assert(PyTuple_Check(meta));
+
+    PyObject* r;
+
+    //
+    // A ClassInfo object will already exist for this id if a forward declaration
+    // was encountered, or if the Slice definition is being reloaded. In the latter
+    // case, we act as if it hasn't been defined yet.
+    //
+    ValueInfoPtr info = lookupValueInfo(id);
+    if(!info || info->defined)
+    {
+        info = new ValueInfo(id);
+        addValueInfo(id, info);
+        r = info->typeObj; // Delegate ownership to the global "_t_XXX" variable.
+    }
+    else
+    {
+        Py_INCREF(info->typeObj);
+        r = info->typeObj;
+    }
+
+    info->define(type, compactId, preserve ? true : false, interface ? true : false, base, members);
+
+    if(info->compactId != -1)
+    {
+        CompactIdMap::iterator q = _compactIdMap.find(info->compactId);
+        if(q != _compactIdMap.end())
+        {
+            _compactIdMap.erase(q);
+        }
+        _compactIdMap.insert(CompactIdMap::value_type(info->compactId, info));
+    }
+
+    return r;
 }
 
 extern "C"
@@ -4436,7 +4661,6 @@ IcePy_defineException(PyObject*, PyObject* args)
     }
 
     info->pythonType = type;
-    Py_INCREF(type);
 
     addExceptionInfo(id, info);
 
@@ -4477,7 +4701,7 @@ IcePy_stringifyException(PyObject*, PyObject* args)
         return 0;
     }
 
-    PyObjectHandle iceType = PyObject_GetAttrString(value, STRCAST("_ice_type"));
+    PyObjectHandle iceType = getAttr(value, "_ice_type", false);
     assert(iceType.get());
     ExceptionInfoPtr info = getException(iceType.get());
     assert(info);

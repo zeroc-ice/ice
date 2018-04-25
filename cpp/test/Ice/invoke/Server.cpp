@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -79,7 +79,6 @@ private:
     Ice::ObjectPtr _blobject;
 };
 
-
 int
 run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 {
@@ -100,7 +99,7 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
     bool array = opts.isSet("array");
     bool async = opts.isSet("async");
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0) + ":udp");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->addServantLocator(ICE_MAKE_SHARED(ServantLocatorI, array, async), "");
     adapter->activate();
@@ -115,7 +114,9 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
+    Ice::registerIceUDP(true);
 #endif
 
     int status;
@@ -123,8 +124,7 @@ main(int argc, char* argv[])
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
@@ -136,15 +136,7 @@ main(int argc, char* argv[])
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        communicator->destroy();
     }
 
     return status;

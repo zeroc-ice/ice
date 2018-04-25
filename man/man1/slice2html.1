@@ -10,11 +10,12 @@ slice2html [options] [files]
 
 .SH DESCRIPTION
 
-slice2html generates HTML documentation from Slice files.
+slice2html generates HTML documentation from Slice files. The
+macro __SLICE2HTML__ is defined during this compilation.
 
 Full documentation for slice2html is available online at:
 .br
-"https://doc.zeroc.com/display/Ice37/Generating+Slice+Documentation".
+https://doc.zeroc.com/display/Ice37/Generating+Slice+Documentation
 
 .SH OPTIONS
 
@@ -34,7 +35,7 @@ Defines the preprocessor symbol NAME.
 
 .TP
 .BR \-DNAME=DEF\fR
-.br 
+.br
 Defines the preprocessor symbol NAME with the value DEF.
 
 .TP
@@ -61,12 +62,6 @@ Place the generated files into directory DIR.
 .BR \-d ", " \-\-debug\fR
 .br
 Print debug information showing the operation of the Slice parser.
-
-.TP
-.BR \-\-ice\fR
-.br
-Permit use of the normally reserved prefix Ice for identifiers. Use this
-option only when compiling the source code for the Ice run time.
 
 .TP
 .BR \-\-hdr " " FILE\fR
@@ -100,8 +95,8 @@ with a <body> tag). The default value is the setting of --hdr (if any).
 .BR \-\-indexftr " " FILE\fR
 .br
 Append FILE to the generated sindex.html page. This allows you to add, for
-example, a custom footer to the table of contents, or to invoke a JavaScript. 
-FILE is must end with a </body> tag. The default value is the setting of 
+example, a custom footer to the table of contents, or to invoke a JavaScript.
+FILE is must end with a </body> tag. The default value is the setting of
 --ftr (if any).
 
 .TP
@@ -122,8 +117,8 @@ each page (if --image-dir is specified). The company logo is expected to be in
 .TP
 .BR \-\-search " " ACTION\fR
 .br
-If this option is specified, the generated pages contain a search box that 
-allows you to connect the generated pages to a search engine. On pressing 
+If this option is specified, the generated pages contain a search box that
+allows you to connect the generated pages to a search engine. On pressing
 the "Search" button, the specified ACTION is carried out.
 
 .TP
@@ -146,10 +141,10 @@ a warning.
 
 .BR slice2cpp (1),
 .BR slice2cs (1),
-.BR slice2freeze (1),
-.BR slice2freezej (1),
-.BR slice2html (1),
-.BR slice2java (1), 
+.BR slice2java (1),
+.BR slice2js (1),
+.BR slice2matlab (1),
+.BR slice2objc (1),
 .BR slice2php (1),
 .BR slice2py (1),
 .BR slice2rb (1)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,7 +34,6 @@ public final class RouterInfo
     destroy()
     {
         _clientEndpoints = new EndpointI[0];
-        _serverEndpoints = new EndpointI[0];
         _adapter = null;
         _identities.clear();
     }
@@ -83,7 +82,9 @@ public final class RouterInfo
             }
         }
 
-        return setClientEndpoints(_router.getClientProxy());
+        Ice.BooleanOptional hasRoutingTable = new Ice.BooleanOptional();
+        Ice.ObjectPrx proxy = _router.getClientProxy(hasRoutingTable);
+        return setClientEndpoints(proxy, hasRoutingTable.isSet() ? hasRoutingTable.get() : true);
     }
 
     public void
@@ -105,9 +106,10 @@ public final class RouterInfo
             {
                 @Override
                 public void
-                response(Ice.ObjectPrx clientProxy)
+                response(Ice.ObjectPrx clientProxy, Ice.BooleanOptional hasRoutingTable)
                 {
-                    callback.setEndpoints(setClientEndpoints(clientProxy));
+                    callback.setEndpoints(setClientEndpoints(clientProxy,
+                                                             hasRoutingTable.isSet() ? hasRoutingTable.get() : true));
                 }
 
                 @Override
@@ -122,15 +124,13 @@ public final class RouterInfo
     public EndpointI[]
     getServerEndpoints()
     {
-        synchronized(this)
+        Ice.ObjectPrx serverProxy = _router.getServerProxy();
+        if(serverProxy == null)
         {
-            if(_serverEndpoints != null) // Lazy initialization.
-            {
-                return _serverEndpoints;
-            }
+            throw new Ice.NoEndpointException();
         }
-
-        return setServerEndpoints(_router.getServerProxy());
+        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+        return ((Ice.ObjectPrxHelperBase)serverProxy)._getReference().getEndpoints();
     }
 
     public boolean
@@ -139,6 +139,10 @@ public final class RouterInfo
         assert(proxy != null);
         synchronized(this)
         {
+            if(!_hasRoutingTable)
+            {
+                return true; // The router implementation doesn't maintain a routing table.
+            }
             if(_identities.contains(proxy.ice_getIdentity()))
             {
                 //
@@ -188,16 +192,17 @@ public final class RouterInfo
     }
 
     private synchronized EndpointI[]
-    setClientEndpoints(Ice.ObjectPrx clientProxy)
+    setClientEndpoints(Ice.ObjectPrx clientProxy, boolean hasRoutingTable)
     {
         if(_clientEndpoints == null)
         {
+            _hasRoutingTable = hasRoutingTable;
             if(clientProxy == null)
             {
                 //
                 // If getClientProxy() return nil, use router endpoints.
                 //
-                _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).__reference().getEndpoints();
+                _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router)._getReference().getEndpoints();
             }
             else
             {
@@ -213,23 +218,10 @@ public final class RouterInfo
                     clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
                 }
 
-                _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).__reference().getEndpoints();
+                _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy)._getReference().getEndpoints();
             }
         }
         return _clientEndpoints;
-    }
-
-    private synchronized EndpointI[]
-    setServerEndpoints(Ice.ObjectPrx serverProxy)
-    {
-        if(serverProxy == null)
-        {
-            throw new Ice.NoEndpointException();
-        }
-
-        serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-        _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy).__reference().getEndpoints();
-        return _serverEndpoints;
     }
 
     private synchronized void
@@ -273,8 +265,8 @@ public final class RouterInfo
 
     private final Ice.RouterPrx _router;
     private EndpointI[] _clientEndpoints;
-    private EndpointI[] _serverEndpoints;
     private Ice.ObjectAdapter _adapter;
     private java.util.Set<Ice.Identity> _identities = new java.util.HashSet<Ice.Identity>();
     private java.util.List<Ice.Identity> _evictedIdentities = new java.util.ArrayList<Ice.Identity>();
+    private boolean _hasRoutingTable;
 }

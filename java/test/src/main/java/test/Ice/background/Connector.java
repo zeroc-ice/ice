@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -65,7 +65,7 @@ final class Connector implements com.zeroc.IceInternal.Connector
         }
 
         return _connector.equals(p._connector);
-    } 
+    }
 
     final private com.zeroc.IceInternal.Connector _connector;
     final private Configuration _configuration;

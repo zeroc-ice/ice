@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,9 +30,8 @@
 #include <IceUtil/Random.h>
 #include <functional>
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 #   include <IceUtil/InputUtil.h>
-#   include <IceUtil/CountDownLatch.h>
 #elif defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
@@ -73,12 +72,12 @@ extern "C"
 }
 #endif
 
-
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
+using namespace Concurrency;
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Foundation::Collections;
@@ -105,7 +104,18 @@ IceInternal::getSystemErrno()
 namespace
 {
 
-#ifndef ICE_OS_WINRT
+struct AddressCompare
+{
+public:
+
+    bool
+    operator()(const Address& lhs, const Address& rhs) const
+    {
+        return compareAddress(lhs, rhs) < 0;
+    }
+};
+
+#ifndef ICE_OS_UWP
 struct AddressIsIPv6 : public unary_function<Address, bool>
 {
 public:
@@ -128,7 +138,7 @@ struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
 void
 sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
 {
-    if(selType == Ice::Random)
+    if(selType == Ice::ICE_ENUM(EndpointSelectionType, Random))
     {
         RandomNumberGenerator rng;
         random_shuffle(addrs.begin(), addrs.end(), rng);
@@ -154,9 +164,7 @@ setTcpNoDelay(SOCKET fd)
     if(setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, reinterpret_cast<char*>(&flag), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
 
@@ -167,14 +175,12 @@ setKeepAlive(SOCKET fd)
     if(setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, reinterpret_cast<char*>(&flag), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
 void
 setTcpLoopbackFastPath(SOCKET fd)
 {
@@ -182,7 +188,7 @@ setTcpLoopbackFastPath(SOCKET fd)
     DWORD NumberOfBytesReturned = 0;
 
     int status =
-        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), NULL, 0, &NumberOfBytesReturned, 0, 0);
+        WSAIoctl(fd, SIO_LOOPBACK_FAST_PATH, &OptionValue, sizeof(OptionValue), ICE_NULLPTR, 0, &NumberOfBytesReturned, 0, 0);
     if(status == SOCKET_ERROR)
     {
             // On platforms that do not support fast path (< Windows 8), WSAEONOTSUPP is expected.
@@ -190,15 +196,13 @@ setTcpLoopbackFastPath(SOCKET fd)
         if(LastError != WSAEOPNOTSUPP)
         {
             closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
     }
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 SOCKET
 createSocketImpl(bool udp, int)
 {
@@ -234,9 +238,7 @@ createSocketImpl(bool udp, int family)
 
     if(fd == INVALID_SOCKET)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     if(!udp)
@@ -244,7 +246,7 @@ createSocketImpl(bool udp, int family)
         setTcpNoDelay(fd);
         setKeepAlive(fd);
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
         //
         // FIX: the fast path loopback appears to cause issues with
         // connection closure when it's enabled. Sometime, a peer
@@ -261,9 +263,9 @@ createSocketImpl(bool udp, int family)
 }
 #endif
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 vector<Address>
-getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
+getLocalAddresses(ProtocolSupport protocol, bool includeLoopback, bool singleAddressPerInterface)
 {
     vector<Address> result;
 
@@ -283,16 +285,20 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
     }
 
     DWORD size;
-    DWORD rv = GetAdaptersAddresses(family, 0, NULL, NULL, &size);
-    if (rv == ERROR_BUFFER_OVERFLOW)
+    DWORD rv = GetAdaptersAddresses(family, 0, ICE_NULLPTR, ICE_NULLPTR, &size);
+    if(rv == ERROR_BUFFER_OVERFLOW)
     {
         PIP_ADAPTER_ADDRESSES adapter_addresses = (PIP_ADAPTER_ADDRESSES) malloc(size);
-        rv = GetAdaptersAddresses(family, 0, NULL, adapter_addresses, &size);
-        if (rv == ERROR_SUCCESS)
+        rv = GetAdaptersAddresses(family, 0, ICE_NULLPTR, adapter_addresses, &size);
+        if(rv == ERROR_SUCCESS)
         {
-            for (PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != NULL; aa = aa->Next)
+            for(PIP_ADAPTER_ADDRESSES aa = adapter_addresses; aa != ICE_NULLPTR; aa = aa->Next)
             {
-                for (PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != NULL; ua = ua->Next)
+                if(aa->OperStatus != IfOperStatusUp)
+                {
+                    continue;
+                }
+                for(PIP_ADAPTER_UNICAST_ADDRESS ua = aa->FirstUnicastAddress; ua != ICE_NULLPTR; ua = ua->Next)
                 {
                     Address addr;
                     memcpy(&addr.saStorage, ua->Address.lpSockaddr, ua->Address.iSockaddrLength);
@@ -302,6 +308,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                            (includeLoopback || addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK)))
                         {
                             result.push_back(addr);
+                            if(singleAddressPerInterface)
+                            {
+                                break; // One address is enough for each interface.
+                            }
                         }
                     }
                     else if(addr.saStorage.ss_family == AF_INET6 && protocol != EnableIPv4)
@@ -310,6 +320,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                            (includeLoopback || !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr)))
                         {
                             result.push_back(addr);
+                            if(singleAddressPerInterface)
+                            {
+                                break; // One address is enough for each interface.
+                            }
                         }
                     }
                 }
@@ -322,12 +336,11 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
     struct ifaddrs* ifap;
     if(::getifaddrs(&ifap) == SOCKET_ERROR)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     struct ifaddrs* curr = ifap;
+    set<string> interfaces;
     while(curr != 0)
     {
         if(curr->ifa_addr && (includeLoopback || !(curr->ifa_flags & IFF_LOOPBACK)))
@@ -338,7 +351,11 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                 memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in));
                 if(addr.saIn.sin_addr.s_addr != 0)
                 {
-                    result.push_back(addr);
+                    if(!singleAddressPerInterface || interfaces.find(curr->ifa_name) == interfaces.end())
+                    {
+                        result.push_back(addr);
+                        interfaces.insert(curr->ifa_name);
+                    }
                 }
             }
             else if(curr->ifa_addr->sa_family == AF_INET6 && protocol != EnableIPv4)
@@ -347,7 +364,11 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                 memcpy(&addr.saStorage, curr->ifa_addr, sizeof(sockaddr_in6));
                 if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
                 {
-                    result.push_back(addr);
+                    if(!singleAddressPerInterface || interfaces.find(curr->ifa_name) == interfaces.end())
+                    {
+                        result.push_back(addr);
+                        interfaces.insert(curr->ifa_name);
+                    }
                 }
             }
         }
@@ -391,9 +412,7 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
             {
                 free(ifc.ifc_buf);
                 closeSocketNoThrow(fd);
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, getSocketErrno());
             }
             else if(ifc.ifc_len == old_ifc_len)
             {
@@ -414,6 +433,7 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
 
         numaddrs = ifc.ifc_len / static_cast<int>(sizeof(struct ifreq));
         struct ifreq* ifr = ifc.ifc_req;
+        set<string> interfaces;
         for(int i = 0; i < numaddrs; ++i)
         {
             if(!(ifr[i].ifr_flags & IFF_LOOPBACK)) // Don't include loopback interface addresses
@@ -430,17 +450,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                     if(addr.saIn.sin_addr.s_addr != 0 &&
                        (includeLoopback || addr.saIn.sin_addr.s_addr != htonl(INADDR_LOOPBACK)))
                     {
-                        unsigned int j;
-                        for(j = 0; j < result.size(); ++j)
-                        {
-                            if(compareAddress(addr, result[j]) == 0)
-                            {
-                                break;
-                            }
-                        }
-                        if(j == result.size())
+                        if(!singleAddressPerInterface || interfaces.find(ifr[i].ifr_name) == interfaces.end())
                         {
                             result.push_back(addr);
+                            interfaces.insert(ifr[i].ifr_name);
                         }
                     }
                 }
@@ -451,17 +464,10 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
                     if(!IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr) &&
                        (includeLoopback || !IN6_IS_ADDR_LOOPBACK(&addr.saIn6.sin6_addr)))
                     {
-                        unsigned int j;
-                        for(j = 0; j < result.size(); ++j)
-                        {
-                            if(compareAddress(addr, result[j]) == 0)
-                            {
-                                break;
-                            }
-                        }
-                        if(j == result.size())
+                        if(!singleAddressPerInterface || interfaces.find(ifr[i].ifr_name) == interfaces.end())
                         {
                             result.push_back(addr);
+                            interfaces.insert(ifr[i].ifr_name);
                         }
                     }
                 }
@@ -471,17 +477,31 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
     }
 #endif
 
+    //
+    // Remove potential duplicates from the result.
+    //
+    set<Address, AddressCompare> seen;
+    vector<Address> tmp;
+    tmp.swap(result);
+    for(vector<Address>::const_iterator p = tmp.begin(); p != tmp.end(); ++p)
+    {
+        if(seen.find(*p) == seen.end())
+        {
+            result.push_back(*p);
+            seen.insert(*p);
+        }
+    }
     return result;
 }
 
 bool
 isLinklocal(const Address& addr)
 {
-    if (addr.saStorage.ss_family == AF_INET6)
+    if(addr.saStorage.ss_family == AF_INET6)
     {
         return IN6_IS_ADDR_LINKLOCAL(&addr.saIn6.sin6_addr);
     }
-    else if (addr.saStorage.ss_family == AF_INET)
+    else if(addr.saStorage.ss_family == AF_INET)
     {
         // Check for 169.254.X.X in network order
         return (addr.saIn.sin_addr.s_addr & 0xFF) == 169 && ((addr.saIn.sin_addr.s_addr & 0xFF00)>>8) == 254;
@@ -492,57 +512,65 @@ isLinklocal(const Address& addr)
 bool
 isWildcard(const string& host, ProtocolSupport protocol, bool& ipv4)
 {
-    try
+    Address addr = getAddressForServer(host, 0, protocol, true, false);
+    if(addr.saStorage.ss_family == AF_INET)
     {
-        Address addr = getAddressForServer(host, 0, protocol, true);
-        if(addr.saStorage.ss_family == AF_INET)
+        if(addr.saIn.sin_addr.s_addr == INADDR_ANY)
         {
-            if(addr.saIn.sin_addr.s_addr == INADDR_ANY)
-            {
-                ipv4 = true;
-                return true;
-            }
-        }
-        else if(addr.saStorage.ss_family)
-        {
-            if(IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
-            {
-                ipv4 = false;
-                return true;
-            }
+            ipv4 = true;
+            return true;
         }
     }
-    catch(const DNSException&)
+    else if(addr.saStorage.ss_family == AF_INET6)
     {
+        if(IN6_IS_ADDR_UNSPECIFIED(&addr.saIn6.sin6_addr))
+        {
+            ipv4 = false;
+            return true;
+        }
     }
     return false;
 }
 
 int
-getInterfaceIndex(const string& name)
+getInterfaceIndex(const string& intf)
 {
-    if(name.empty())
+    if(intf.empty())
     {
         return 0;
     }
 
-    int index = 0;
+    string name;
+    bool isAddr;
+    in6_addr addr;
+    string::size_type pos = intf.find("%");
+    if(pos != string::npos)
+    {
+        //
+        // If it's a link-local address, use the zone indice.
+        //
+        isAddr = false;
+        name = intf.substr(pos + 1);
+    }
+    else
+    {
+        //
+        // Then check if it's an IPv6 address. If it's an address we'll
+        // look for the interface index by address.
+        //
+        isAddr = inet_pton(AF_INET6, intf.c_str(), &addr) > 0;
+        name = intf;
+    }
 
     //
-    // First check if index
+    // Check if index
     //
+    int index = -1;
     istringstream p(name);
     if((p >> index) && p.eof())
     {
         return index;
     }
-
-    //
-    // Then check if it's an IPv6 address. If it's an address we'll
-    // look for the interface index by address.
-    //
-    in6_addr addr;
-    bool isAddr = inet_pton(AF_INET6, name.c_str(), &addr) > 0;
 
 #ifdef _WIN32
     IP_ADAPTER_ADDRESSES addrs;
@@ -594,6 +622,10 @@ getInterfaceIndex(const string& name)
             }
         }
         delete[] buf;
+    }
+    if(index < 0) // interface not found
+    {
+        throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
     }
 #elif !defined(__hpux)
 
@@ -692,6 +724,11 @@ getInterfaceIndex(const string& name)
     {
         index = if_nametoindex(name.c_str());
     }
+    if(index <= 0)
+    {
+        // index == 0 if if_nametoindex returned 0, < 0 if name wasn't found
+        throw Ice::SocketException(__FILE__, __LINE__, index == 0 ? getSocketErrno() : ENXIO);
+    }
 #endif
 
     return index;
@@ -733,14 +770,15 @@ getInterfaceAddress(const string& name)
                     struct sockaddr_in addrin;
                     memcpy(&addrin, paddrs->FirstUnicastAddress->Address.lpSockaddr,
                            paddrs->FirstUnicastAddress->Address.iSockaddrLength);
-                    addr =  addrin.sin_addr;
-                    break;
+                    delete[] buf;
+                    return addrin.sin_addr;
                 }
                 paddrs = paddrs->Next;
             }
         }
         delete[] buf;
     }
+    throw Ice::SocketException(__FILE__, __LINE__, WSAEINVAL);
 #else
     ifreq if_address;
     strcpy(if_address.ifr_name, name.c_str());
@@ -748,14 +786,12 @@ getInterfaceAddress(const string& name)
     SOCKET fd = createSocketImpl(false, AF_INET);
     int rc = ioctl(fd, SIOCGIFADDR, &if_address);
     closeSocketNoThrow(fd);
-
-    if(rc != SOCKET_ERROR)
+    if(rc == SOCKET_ERROR)
     {
-        addr = reinterpret_cast<struct sockaddr_in*>(&if_address.ifr_addr)->sin_addr;
+        throw Ice::SocketException(__FILE__, __LINE__, getSocketErrno());
     }
+    return reinterpret_cast<struct sockaddr_in*>(&if_address.ifr_addr)->sin_addr;
 #endif
-
-    return addr;
 }
 
 int
@@ -773,7 +809,36 @@ getAddressStorageSize(const Address& addr)
     return size;
 }
 
-#endif // #ifndef ICE_OS_WINRT
+vector<Address>
+getLoopbackAddresses(ProtocolSupport protocol, int port = 0)
+{
+    vector<Address> result;
+
+    Address addr;
+    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
+
+    //
+    // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
+    // versions don't support it).
+    //
+    if(protocol != EnableIPv4)
+    {
+        addr.saIn6.sin6_family = AF_INET6;
+        addr.saIn6.sin6_port = htons(port);
+        addr.saIn6.sin6_addr = in6addr_loopback;
+        result.push_back(addr);
+    }
+    if(protocol != EnableIPv6)
+    {
+        addr.saIn.sin_family = AF_INET;
+        addr.saIn.sin_port = htons(port);
+        addr.saIn.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+        result.push_back(addr);
+    }
+    return result;
+}
+
+#endif // #ifndef ICE_OS_UWP
 
 }
 
@@ -813,19 +878,17 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
 {
     if(!PostQueuedCompletionStatus(_handle, 0, _key, getAsyncInfo(operation)))
     {
-        Ice::SocketException ex(__FILE__, __LINE__);
-        ex.error = GetLastError();
-        throw ex;
+        throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
     }
 }
 
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 
 void
 IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, bool connect)
 {
     AsyncInfo* asyncInfo = getAsyncInfo(op);
-    if(checkIfErrorOrCompleted(op, action, connect))
+    if(checkIfErrorOrCompleted(op, action, action->Status, connect))
     {
         asyncInfo->count = 0;
     }
@@ -834,49 +897,86 @@ IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, b
         action->Completed = ref new AsyncActionCompletedHandler(
             [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
             {
-                if(status != Windows::Foundation::AsyncStatus::Completed)
-                {
-                    asyncInfo->count = SOCKET_ERROR;
-                    asyncInfo->error = info->ErrorCode.Value;
-                }
-                else
-                {
-                    asyncInfo->count = 0;
-                }
-                completed(op);
+                //
+                // COMPILERFIX with VC141 using operator!= and operator== inside
+                // a lambda callback triggers a compiler bug, we move the code to
+                // a seperate private method to workaround the issue.
+                //
+                this->queueActionCompleted(op, asyncInfo, info, status);
             });
+        asyncInfo->operation = action;
     }
+}
+
+void
+IceInternal::NativeInfo::queueActionCompleted(SocketOperation op, AsyncInfo* asyncInfo, IAsyncAction^ info,
+                                              Windows::Foundation::AsyncStatus status)
+{
+    if(status != Windows::Foundation::AsyncStatus::Completed)
+    {
+        asyncInfo->count = SOCKET_ERROR;
+        asyncInfo->error = info->ErrorCode.Value;
+    }
+    else
+    {
+        asyncInfo->count = 0;
+    }
+    completed(op);
 }
 
 void
 IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsigned int>^ operation)
 {
     AsyncInfo* info = getAsyncInfo(op);
-    if(checkIfErrorOrCompleted(op, operation))
+    Windows::Foundation::AsyncStatus status = operation->Status;
+    if(status == Windows::Foundation::AsyncStatus::Completed)
     {
+        //
+        // NOTE: it's important to modify the count _before_ calling the completion handler
+        // since this might not always be called with the connection mutex but from a Windows
+        // thread pool thread if we chained multiple Async calls (GetGetOutputStreamAsync and
+        // StoreAsync for example, see the UDPTransceiver implementation). So we can't modify
+        // the AsyncInfo structure after calling the completed callback.
+        //
         info->count = static_cast<int>(operation->GetResults());
+        _completedHandler(op);
+        return;
     }
-    else
+    else if(!checkIfErrorOrCompleted(op, operation, status))
     {
         if(!info->completedHandler)
         {
             info->completedHandler = ref new AsyncOperationCompletedHandler<unsigned int>(
                 [=] (IAsyncOperation<unsigned int>^ operation, Windows::Foundation::AsyncStatus status)
                 {
-                    if(status != Windows::Foundation::AsyncStatus::Completed)
-                    {
-                        info->count = SOCKET_ERROR;
-                        info->error = operation->ErrorCode.Value;
-                    }
-                    else
-                    {
-                        info->count = static_cast<int>(operation->GetResults());
-                    }
-                    completed(op);
+                    //
+                    // COMPILERFIX with VC141 using operator!= and operator== inside
+                    // a lambda callback triggers a compiler bug, we move the code to
+                    // a seperate private method to workaround the issue.
+                    //
+                    this->queueOperationCompleted(op, info, operation, status);
                 });
         }
         operation->Completed = info->completedHandler;
+        info->operation = operation;
     }
+}
+
+void
+IceInternal::NativeInfo::queueOperationCompleted(SocketOperation op, AsyncInfo* info,
+                                                 IAsyncOperation<unsigned int>^ operation,
+                                                 Windows::Foundation::AsyncStatus status)
+{
+    if(status != Windows::Foundation::AsyncStatus::Completed)
+    {
+        info->count = SOCKET_ERROR;
+        info->error = operation->ErrorCode.Value;
+    }
+    else
+    {
+        info->count = static_cast<int>(operation->GetResults());
+    }
+    completed(op);
 }
 
 void
@@ -893,7 +993,7 @@ IceInternal::NativeInfo::completed(SocketOperation operation)
 }
 
 bool
-IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info, bool connect)
+IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^ info, Windows::Foundation::AsyncStatus status, bool connect)
 {
     //
     // NOTE: It's important to only check for info->Status once as it
@@ -904,7 +1004,6 @@ IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^
     // error. A canceled async status can occur if there's a timeout
     // and the socket is closed.
     //
-    Windows::Foundation::AsyncStatus status = info->Status;
     if(status == Windows::Foundation::AsyncStatus::Completed)
     {
         _completedHandler(op);
@@ -928,12 +1027,33 @@ IceInternal::NativeInfo::checkIfErrorOrCompleted(SocketOperation op, IAsyncInfo^
     }
 }
 
+#else
+
+void
+IceInternal::NativeInfo::setNewFd(SOCKET fd)
+{
+    assert(_fd == INVALID_SOCKET); // This can only be called once, when the current socket isn't set yet.
+    _newFd = fd;
+}
+
+bool
+IceInternal::NativeInfo::newFd()
+{
+    if(_newFd == INVALID_SOCKET)
+    {
+        return false;
+    }
+    assert(_fd == INVALID_SOCKET);
+    swap(_fd, _newFd);
+    return true;
+}
+
 #endif
 
 bool
 IceInternal::noMoreFds(int error)
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     return error == (int)SocketErrorStatus::TooManyOpenFiles;
 #elif defined(_WIN32)
     return error == WSAEMFILE;
@@ -942,7 +1062,7 @@ IceInternal::noMoreFds(int error)
 #endif
 }
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 string
 IceInternal::errorToStringDNS(int)
 {
@@ -960,7 +1080,7 @@ IceInternal::errorToStringDNS(int error)
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 vector<Address>
 IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::EndpointSelectionType, bool, bool)
 {
@@ -994,22 +1114,16 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport, Ice::En
     }
     catch(Platform::Exception^ pex)
     {
-        DNSException ex(__FILE__, __LINE__);
-        ex.error = (int)SocketError::GetStatus(pex->HResult);
-        ex.host = host;
-        throw ex;
+        throw DNSException(__FILE__, __LINE__, (int)SocketError::GetStatus(pex->HResult), host);
     }
 
 }
 #else
 vector<Address>
 IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol, Ice::EndpointSelectionType selType,
-                          bool preferIPv6, bool blocking)
+                          bool preferIPv6, bool canBlock)
 {
     vector<Address> result;
-    Address addr;
-
-    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
     //
     // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
@@ -1017,23 +1131,13 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     //
     if(host.empty())
     {
-        if(protocol != EnableIPv4)
-        {
-            addr.saIn6.sin6_family = AF_INET6;
-            addr.saIn6.sin6_port = htons(port);
-            addr.saIn6.sin6_addr = in6addr_loopback;
-            result.push_back(addr);
-        }
-        if(protocol != EnableIPv6)
-        {
-            addr.saIn.sin_family = AF_INET;
-            addr.saIn.sin_port = htons(port);
-            addr.saIn.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-            result.push_back(addr);
-        }
+        result = getLoopbackAddresses(protocol, port);
         sortAddresses(result, protocol, selType, preferIPv6);
         return result;
     }
+
+    Address addr;
+    memset(&addr.saStorage, 0, sizeof(sockaddr_storage));
 
     struct addrinfo* info = 0;
     int retry = 5;
@@ -1052,7 +1156,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
         hints.ai_family = PF_UNSPEC;
     }
 
-    if(!blocking)
+    if(!canBlock)
     {
         hints.ai_flags = AI_NUMERICHOST;
     }
@@ -1066,25 +1170,22 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
 
     // In theory, getaddrinfo should only return EAI_NONAME if
     // AI_NUMERICHOST is specified and the host name is not a IP
-    // address. However on some platforms (e.g. OS X 10.4.x)
+    // address. However on some platforms (e.g. macOS 10.4.x)
     // EAI_NODATA is also returned so we also check for it.
 #  ifdef EAI_NODATA
-    if(!blocking && (rs == EAI_NONAME || rs == EAI_NODATA))
+    if(!canBlock && (rs == EAI_NONAME || rs == EAI_NODATA))
 #  else
-    if(!blocking && rs == EAI_NONAME)
+    if(!canBlock && rs == EAI_NONAME)
 #  endif
     {
-        return result; // Empty result indicates that a blocking lookup is necessary.
+        return result; // Empty result indicates that a canBlock lookup is necessary.
     }
     else if(rs != 0)
     {
-        DNSException ex(__FILE__, __LINE__);
-        ex.error = rs;
-        ex.host = host;
-        throw ex;
+        throw DNSException(__FILE__, __LINE__, rs, host);
     }
 
-    for(struct addrinfo* p = info; p != NULL; p = p->ai_next)
+    for(struct addrinfo* p = info; p != ICE_NULLPTR; p = p->ai_next)
     {
         memcpy(&addr.saStorage, p->ai_addr, p->ai_addrlen);
         if(p->ai_family == PF_INET)
@@ -1115,20 +1216,18 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
 
     if(result.empty())
     {
-        DNSException ex(__FILE__, __LINE__);
-        ex.host = host;
-        throw ex;
+        throw DNSException(__FILE__, __LINE__, 0, host);
     }
     sortAddresses(result, protocol, selType, preferIPv6);
     return result;
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 ProtocolSupport
 IceInternal::getProtocolSupport(const Address&)
 {
-    // For WinRT, there's no distinction between IPv4 and IPv6 adresses.
+    // For UWP, there's no distinction between IPv4 and IPv6 adresses.
     return EnableBoth;
 }
 #else
@@ -1140,7 +1239,7 @@ IceInternal::getProtocolSupport(const Address& addr)
 #endif
 
 Address
-IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol, bool preferIPv6)
+IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport protocol, bool preferIPv6, bool canBlock)
 {
     //
     // We don't use getaddrinfo when host is empty as it's not portable (some old Linux
@@ -1149,7 +1248,7 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
     if(host.empty())
     {
         Address addr;
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
         ostringstream os;
         os << port;
         //
@@ -1175,13 +1274,15 @@ IceInternal::getAddressForServer(const string& host, int port, ProtocolSupport p
 #endif
         return addr;
     }
-    return getAddresses(host, port, protocol, Ice::Ordered, preferIPv6, true)[0];
+    vector<Address> addrs = getAddresses(host, port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Ordered),
+                                         preferIPv6, canBlock);
+    return addrs.empty() ? Address() : addrs[0];
 }
 
 int
 IceInternal::compareAddress(const Address& addr1, const Address& addr2)
 {
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     int o = String::CompareOrdinal(addr1.port, addr2.port);
     if(o != 0)
     {
@@ -1256,7 +1357,7 @@ IceInternal::compareAddress(const Address& addr1, const Address& addr2)
 #endif
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 bool
 IceInternal::isIPv6Supported()
 {
@@ -1279,7 +1380,7 @@ IceInternal::isIPv6Supported()
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 SOCKET
 IceInternal::createSocket(bool udp, const Address&)
 {
@@ -1293,7 +1394,7 @@ IceInternal::createSocket(bool udp, const Address& addr)
 }
 #endif
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 SOCKET
 IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport protocol)
 {
@@ -1310,9 +1411,7 @@ IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport p
             }
 #endif
             closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
     }
     return fd;
@@ -1328,7 +1427,7 @@ IceInternal::createServerSocket(bool udp, const Address& addr, ProtocolSupport)
 void
 IceInternal::closeSocketNoThrow(SOCKET fd)
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     //
     // NOTE: StreamSocket::Close or DatagramSocket::Close aren't
     // exposed in C++, you have to delete the socket to close
@@ -1351,7 +1450,7 @@ IceInternal::closeSocketNoThrow(SOCKET fd)
 void
 IceInternal::closeSocket(SOCKET fd)
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     //
     // NOTE: StreamSocket::Close or DatagramSocket::Close aren't
     // exposed in C++, you have to delete the socket to close
@@ -1364,17 +1463,15 @@ IceInternal::closeSocket(SOCKET fd)
     int error = WSAGetLastError();
     if(closesocket(fd) == SOCKET_ERROR)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
     WSASetLastError(error);
 #else
     int error = errno;
-    
+
 #  if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     //
-    // FreeBSD returns ECONNRESET if the underlying object was 
+    // FreeBSD returns ECONNRESET if the underlying object was
     // a stream socket that was shut down by the peer before all
     // pending data was delivered.
     //
@@ -1383,9 +1480,7 @@ IceInternal::closeSocket(SOCKET fd)
     if(close(fd) == SOCKET_ERROR)
 #  endif
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
     errno = error;
 #endif
@@ -1402,13 +1497,11 @@ IceInternal::addrToString(const Address& addr)
 void
 IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if(getsockname(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 #else
     StreamSocket^ stream = dynamic_cast<StreamSocket^>(fd);
@@ -1429,7 +1522,7 @@ IceInternal::fdToLocalAddress(SOCKET fd, Address& addr)
 bool
 IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_storage));
     if(getpeername(fd, &addr.sa, &len) == SOCKET_ERROR)
     {
@@ -1439,9 +1532,7 @@ IceInternal::fdToRemoteAddress(SOCKET fd, Address& addr)
         }
         else
         {
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
     }
 
@@ -1584,14 +1675,14 @@ IceInternal::addressesToString(const Address& localAddr, const Address& remoteAd
 bool
 IceInternal::isAddressValid(const Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     return addr.saStorage.ss_family != AF_UNSPEC;
 #else
     return addr.host != nullptr || addr.port != nullptr;
 #endif
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 vector<string>
 IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
 {
@@ -1603,11 +1694,10 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
             HostName^ h = it->Current;
             if(h->IPInformation != nullptr && h->IPInformation->NetworkAdapter != nullptr)
             {
-                hosts.push_back(wstringToString(h->CanonicalName->Data(),
-                                                getProcessStringConverter()));
+                hosts.push_back(wstringToString(h->CanonicalName->Data(), getProcessStringConverter()));
             }
         }
-        if(includeLoopback)
+        if(hosts.empty() || includeLoopback)
         {
             if(protocolSupport != EnableIPv6)
             {
@@ -1621,6 +1711,32 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
     }
     return hosts;
 }
+
+vector<string>
+IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport protocolSupport)
+{
+    vector<string> interfaces;
+    if(intf.empty() || intf == "0.0.0.0" || intf == "::" || intf == "0:0:0:0:0:0:0:0")
+    {
+        for(IIterator<HostName^>^ it = NetworkInformation::GetHostNames()->First(); it->HasCurrent; it->MoveNext())
+        {
+            HostName^ h = it->Current;
+            if(h->IPInformation != nullptr && h->IPInformation->NetworkAdapter != nullptr)
+            {
+                string s = wstringToString(h->CanonicalName->Data(), getProcessStringConverter());
+                if(find(interfaces.begin(), interfaces.end(), s) == interfaces.end())
+                {
+                    interfaces.push_back(s);
+                }
+            }
+        }
+    }
+    if(interfaces.empty())
+    {
+        interfaces.push_back(intf);
+    }
+    return interfaces;
+}
 #else
 vector<string>
 IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport protocolSupport, bool includeLoopback)
@@ -1629,7 +1745,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
     bool ipv4Wildcard = false;
     if(isWildcard(host, protocolSupport, ipv4Wildcard))
     {
-        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback);
+        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, includeLoopback, false);
         for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
         {
             //
@@ -1642,15 +1758,44 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
                 hosts.push_back(inetAddrToString(*p));
             }
         }
+        if(hosts.empty())
+        {
+            // Return loopback if no other local addresses are available.
+            addrs = getLoopbackAddresses(protocolSupport);
+            for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+            {
+                hosts.push_back(inetAddrToString(*p));
+            }
+        }
     }
     return hosts; // An empty host list indicates to just use the given host.
+}
+
+vector<string>
+IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport protocolSupport)
+{
+    vector<string> interfaces;
+    bool ipv4Wildcard = false;
+    if(isWildcard(intf, protocolSupport, ipv4Wildcard))
+    {
+        vector<Address> addrs = getLocalAddresses(ipv4Wildcard ? EnableIPv4 : protocolSupport, true, true);
+        for(vector<Address>::const_iterator p = addrs.begin(); p != addrs.end(); ++p)
+        {
+            interfaces.push_back(inetAddrToString(*p)); // We keep link local addresses for multicast
+        }
+    }
+    if(interfaces.empty())
+    {
+        interfaces.push_back(intf);
+    }
+    return interfaces;
 }
 #endif
 
 string
 IceInternal::inetAddrToString(const Address& ss)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     int size = getAddressStorageSize(ss);
     if(size == 0)
     {
@@ -1680,7 +1825,7 @@ IceInternal::inetAddrToString(const Address& ss)
 int
 IceInternal::getPort(const Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         return ntohs(addr.saIn.sin_port);
@@ -1709,7 +1854,7 @@ IceInternal::getPort(const Address& addr)
 void
 IceInternal::setPort(Address& addr, int port)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         addr.saIn.sin_port = htons(port);
@@ -1733,7 +1878,7 @@ IceInternal::setPort(Address& addr, int port)
 bool
 IceInternal::isMulticast(const Address& addr)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(addr.saStorage.ss_family == AF_INET)
     {
         return IN_MULTICAST(ntohl(addr.saIn.sin_addr.s_addr));
@@ -1846,7 +1991,7 @@ IceInternal::setTcpBufSize(SOCKET fd, int rcvSize, int sndSize, const ProtocolIn
     }
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setBlock(SOCKET fd, bool)
 {
@@ -1862,9 +2007,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
         if(ioctlsocket(fd, FIONBIO, &arg) == SOCKET_ERROR)
         {
             closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = WSAGetLastError();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, WSAGetLastError());
         }
     }
     else
@@ -1873,9 +2016,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
         if(ioctlsocket(fd, FIONBIO, &arg) == SOCKET_ERROR)
         {
             closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = WSAGetLastError();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, WSAGetLastError());
         }
     }
 #else
@@ -1886,9 +2027,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
         if(fcntl(fd, F_SETFL, flags) == SOCKET_ERROR)
         {
             closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = errno;
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, errno);
         }
     }
     else
@@ -1898,9 +2037,7 @@ IceInternal::setBlock(SOCKET fd, bool block)
         if(fcntl(fd, F_SETFL, flags) == SOCKET_ERROR)
         {
             closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = errno;
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, errno);
         }
     }
 #endif
@@ -1910,13 +2047,11 @@ IceInternal::setBlock(SOCKET fd, bool block)
 void
 IceInternal::setSendBufferSize(SOCKET fd, int sz)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(setsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 #else
     StreamSocket^ stream = dynamic_cast<StreamSocket^>(fd);
@@ -1930,16 +2065,14 @@ IceInternal::setSendBufferSize(SOCKET fd, int sz)
 int
 IceInternal::getSendBufferSize(SOCKET fd)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     int sz;
     socklen_t len = sizeof(sz);
     if(getsockopt(fd, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
        static_cast<unsigned int>(len) != sizeof(sz))
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
     return sz;
 #else
@@ -1952,7 +2085,7 @@ IceInternal::getSendBufferSize(SOCKET fd)
 #endif
 }
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setRecvBufferSize(SOCKET, int)
 {
@@ -1964,9 +2097,7 @@ IceInternal::setRecvBufferSize(SOCKET fd, int sz)
     if(setsockopt(fd, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&sz), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
 #endif
@@ -1974,16 +2105,14 @@ IceInternal::setRecvBufferSize(SOCKET fd, int sz)
 int
 IceInternal::getRecvBufferSize(SOCKET fd)
 {
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     int sz;
     socklen_t len = sizeof(sz);
     if(getsockopt(fd, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<char*>(&sz), &len) == SOCKET_ERROR ||
        static_cast<unsigned int>(len) != sizeof(sz))
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
     return sz;
 #else
@@ -1991,31 +2120,39 @@ IceInternal::getRecvBufferSize(SOCKET fd)
 #endif
 }
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 void
 IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string& intf)
 {
-    int rc;
-    if(group.saStorage.ss_family == AF_INET)
+    vector<string> interfaces = getInterfacesForMulticast(intf, getProtocolSupport(group));
+    set<int> indexes;
+    for(vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
     {
-        struct ip_mreq mreq;
-        mreq.imr_multiaddr = group.saIn.sin_addr;
-        mreq.imr_interface = getInterfaceAddress(intf);
-        rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
-    }
-    else
-    {
-        struct ipv6_mreq mreq;
-        mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
-        mreq.ipv6mr_interface = getInterfaceIndex(intf);
-        rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
-    }
-    if(rc == SOCKET_ERROR)
-    {
-        closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        int rc = 0;
+        if(group.saStorage.ss_family == AF_INET)
+        {
+            struct ip_mreq mreq;
+            mreq.imr_multiaddr = group.saIn.sin_addr;
+            mreq.imr_interface = getInterfaceAddress(*p);
+            rc = setsockopt(fd, IPPROTO_IP, IP_ADD_MEMBERSHIP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+        }
+        else
+        {
+            int index = getInterfaceIndex(*p);
+            if(indexes.find(index) == indexes.end()) // Don't join twice the same interface (if it has multiple IPs)
+            {
+                indexes.insert(index);
+                struct ipv6_mreq mreq;
+                mreq.ipv6mr_multiaddr = group.saIn6.sin6_addr;
+                mreq.ipv6mr_interface = index;
+                rc = setsockopt(fd, IPPROTO_IPV6, IPV6_JOIN_GROUP, reinterpret_cast<char*>(&mreq), int(sizeof(mreq)));
+            }
+        }
+        if(rc == SOCKET_ERROR)
+        {
+            closeSocketNoThrow(fd);
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
+        }
     }
 }
 #else
@@ -2025,9 +2162,34 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
     try
     {
         //
-        // NOTE: WinRT doesn't allow specyfing the interface.
+        // NOTE: UWP mcast interface is set earlier in doBind.
         //
         safe_cast<DatagramSocket^>(fd)->JoinMulticastGroup(group.host);
+
+        //
+        // BUGFIX DatagramSocket will not recive any messages from a multicast group if the
+        // messages originate in the same host until the socket is used to send at least one
+        // message. We send a valiate connection message that the peers will ignore to workaround
+        // the issue.
+        //
+        auto out = IceInternal::runSync(safe_cast<DatagramSocket^>(fd)->GetOutputStreamAsync(group.host, group.port));
+        auto writer = ref new DataWriter(out);
+
+        OutputStream os;
+        os.write(magic[0]);
+        os.write(magic[1]);
+        os.write(magic[2]);
+        os.write(magic[3]);
+        os.write(currentProtocol);
+        os.write(currentProtocolEncoding);
+        os.write(validateConnectionMsg);
+        os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
+        os.write(headerSize); // Message size.
+        os.i = os.b.begin();
+
+        writer->WriteBytes(ref new Array<unsigned char>(&*os.i, static_cast<unsigned int>(headerSize)));
+
+        IceInternal::runSync(writer->StoreAsync());
     }
     catch(Platform::Exception^ pex)
     {
@@ -2036,7 +2198,7 @@ IceInternal::setMcastGroup(SOCKET fd, const Address& group, const string&)
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setMcastInterface(SOCKET, const string&, const Address&)
 {
@@ -2059,14 +2221,12 @@ IceInternal::setMcastInterface(SOCKET fd, const string& intf, const Address& add
     if(rc == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setMcastTtl(SOCKET, int, const Address&)
 {
@@ -2087,14 +2247,12 @@ IceInternal::setMcastTtl(SOCKET fd, int ttl, const Address& addr)
     if(rc == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
 #endif
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 void
 IceInternal::setReuseAddress(SOCKET, bool)
 {
@@ -2107,53 +2265,56 @@ IceInternal::setReuseAddress(SOCKET fd, bool reuse)
     if(setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, reinterpret_cast<char*>(&flag), int(sizeof(int))) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
 #endif
 
-
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 namespace
 {
 
 void
 checkResultAndWait(IAsyncAction^ action)
 {
-    if(action->Status == Windows::Foundation::AsyncStatus::Started)
+    auto status = action->Status;
+    switch(status)
     {
-        IceUtilInternal::CountDownLatch count(1);
-        HRESULT result = 0;
-        action->Completed = ref new AsyncActionCompletedHandler(
-            [&count, &result] (IAsyncAction^ action, Windows::Foundation::AsyncStatus status)
-                {
-                    if(status != Windows::Foundation::AsyncStatus::Completed)
-                    {
-                        result = action->ErrorCode.Value;
-                    }
-                    count.countDown();
-                });
-        count.await();
-        if(result)
+        case Windows::Foundation::AsyncStatus::Started:
         {
-            checkErrorCode(__FILE__, __LINE__, result);
+            promise<HRESULT> p;
+            action->Completed = ref new AsyncActionCompletedHandler(
+                [&p] (IAsyncAction^ action, Windows::Foundation::AsyncStatus status)
+                    {
+                        p.set_value(status != Windows::Foundation::AsyncStatus::Completed ? action->ErrorCode.Value : 0);
+                    });
+
+            HRESULT result = p.get_future().get();
+            if(result)
+            {
+                checkErrorCode(__FILE__, __LINE__, result);
+            }
+            break;
         }
-    }
-    else if(action->Status == Windows::Foundation::AsyncStatus::Error)
-    {
-        checkErrorCode(__FILE__, __LINE__, action->ErrorCode.Value);
+        case Windows::Foundation::AsyncStatus::Error:
+        {
+            checkErrorCode(__FILE__, __LINE__, action->ErrorCode.Value);
+            break;
+        }
+        default:
+        {
+            break;
+        }
     }
 }
 
 }
 #endif
 
+#ifdef ICE_OS_UWP
 Address
-IceInternal::doBind(SOCKET fd, const Address& addr)
+IceInternal::doBind(SOCKET fd, const Address& addr, const string& intf)
 {
-#ifdef ICE_OS_WINRT
     Address local;
     try
     {
@@ -2177,7 +2338,32 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
         {
             if(addr.host == nullptr) // inaddr_any
             {
-                checkResultAndWait(datagram->BindServiceNameAsync(addr.port));
+                NetworkAdapter^ adapter;
+                if(!intf.empty())
+                {
+                    auto s = ref new String(Ice::stringToWstring(intf).c_str());
+                    auto profiles = NetworkInformation::GetConnectionProfiles();
+                    for(auto i = profiles->First(); adapter == nullptr && i->HasCurrent; i->MoveNext())
+                    {
+                        auto names = i->Current->GetNetworkNames();
+                        for(auto j = names->First(); adapter == nullptr && j->HasCurrent; j->MoveNext())
+                        {
+                            if(j->Current->Equals(s))
+                            {
+                                adapter = i->Current->NetworkAdapter;
+                            }
+                        }
+                    }
+                }
+
+                if(adapter)
+                {
+                    checkResultAndWait(datagram->BindServiceNameAsync(addr.port, adapter));
+                }
+                else
+                {
+                    checkResultAndWait(datagram->BindServiceNameAsync(addr.port));
+                }
             }
             else
             {
@@ -2193,16 +2379,18 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
         throw;
     }
     return local;
+}
 #else
+Address
+IceInternal::doBind(SOCKET fd, const Address& addr, const string&)
+{
     int size = getAddressStorageSize(addr);
     assert(size != 0);
 
     if(::bind(fd, &addr.sa, size) == SOCKET_ERROR)
     {
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     Address local;
@@ -2214,15 +2402,16 @@ IceInternal::doBind(SOCKET fd, const Address& addr)
     assert(ret != SOCKET_ERROR);
 #  endif
     return local;
-#endif
 }
+#endif
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 
 Address
 IceInternal::getNumericAddress(const std::string& address)
 {
-    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::Ordered, false, false);
+    vector<Address> addrs = getAddresses(address, 0, EnableBoth, Ice::ICE_ENUM(EndpointSelectionType, Ordered), false,
+                                         false);
     if(addrs.empty())
     {
         return Address();
@@ -2404,9 +2593,7 @@ repeatListen:
         }
 
         closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
 
@@ -2437,21 +2624,15 @@ repeatConnect:
         closeSocketNoThrow(fd);
         if(connectionRefused())
         {
-            ConnectionRefusedException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
         }
         else if(connectFailed())
         {
-            ConnectFailedException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectFailedException(__FILE__, __LINE__, getSocketErrno());
         }
         else
         {
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
     }
 
@@ -2467,9 +2648,7 @@ repeatConnect:
         fdToLocalAddress(fd, localAddr);
         if(compareAddress(addr, localAddr) == 0)
         {
-            ConnectionRefusedException ex(__FILE__, __LINE__);
-            ex.error = 0; // No appropriate errno
-            throw ex;
+            throw ConnectionRefusedException(__FILE__, __LINE__, 0); // No appropriate errno
         }
     }
     catch(const LocalException&)
@@ -2502,9 +2681,7 @@ IceInternal::doFinishConnect(SOCKET fd)
     socklen_t len = static_cast<socklen_t>(sizeof(int));
     if(getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     if(val > 0)
@@ -2516,21 +2693,15 @@ IceInternal::doFinishConnect(SOCKET fd)
 #endif
         if(connectionRefused())
         {
-            ConnectionRefusedException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
         }
         else if(connectFailed())
         {
-            ConnectFailedException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectFailedException(__FILE__, __LINE__, getSocketErrno());
         }
         else
         {
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
     }
 
@@ -2545,9 +2716,7 @@ IceInternal::doFinishConnect(SOCKET fd)
     Address remoteAddr;
     if(fdToRemoteAddress(fd, remoteAddr) && compareAddress(remoteAddr, localAddr) == 0)
     {
-        ConnectionRefusedException ex(__FILE__, __LINE__);
-        ex.error = 0; // No appropriate errno
-        throw ex;
+        throw ConnectionRefusedException(__FILE__, __LINE__, 0); // No appropriate errno
     }
 #endif
 }
@@ -2569,16 +2738,13 @@ repeatAccept:
             goto repeatAccept;
         }
 
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     setTcpNoDelay(ret);
     setKeepAlive(ret);
     return ret;
 }
-
 
 void
 IceInternal::createPipe(SOCKET fds[2])
@@ -2653,9 +2819,7 @@ IceInternal::createPipe(SOCKET fds[2])
 
     if(::pipe(fds) != 0)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSocketErrno());
     }
 
     try
@@ -2683,23 +2847,19 @@ IceInternal::createPipe(SOCKET fds[2])
 #endif
 }
 
-#else // ICE_OS_WINRT
+#else // ICE_OS_UWP
 
 void
 IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr)
 {
     if(herr == E_ACCESSDENIED)
     {
-        SocketException ex(file, line);
-        ex.error = static_cast<int>(herr);
-        throw ex;
+        throw SocketException(file, line, static_cast<int>(herr));
     }
     SocketErrorStatus error = SocketError::GetStatus(herr);
     if(error == SocketErrorStatus::ConnectionRefused)
     {
-        ConnectionRefusedException ex(file, line);
-        ex.error = static_cast<int>(error);
-        throw ex;
+        throw ConnectionRefusedException(file, line, static_cast<int>(error));
     }
     else if(error == SocketErrorStatus::NetworkDroppedConnectionOnReset ||
             error == SocketErrorStatus::ConnectionTimedOut ||
@@ -2708,21 +2868,15 @@ IceInternal::checkConnectErrorCode(const char* file, int line, HRESULT herr)
             error == SocketErrorStatus::ConnectionResetByPeer ||
             error == SocketErrorStatus::SoftwareCausedConnectionAbort)
     {
-        ConnectFailedException ex(file, line);
-        ex.error = static_cast<int>(error);
-        throw ex;
+        throw ConnectFailedException(file, line, static_cast<int>(error));
     }
     else if(error == SocketErrorStatus::HostNotFound)
     {
-        DNSException ex(file, line);
-        ex.error = static_cast<int>(error);
-        throw ex;
+        throw DNSException(file, line, static_cast<int>(error), "");
     }
     else
     {
-        SocketException ex(file, line);
-        ex.error = static_cast<int>(error);
-        throw ex;
+        throw SocketException(file, line, static_cast<int>(error));
     }
 }
 
@@ -2731,33 +2885,53 @@ IceInternal::checkErrorCode(const char* file, int line, HRESULT herr)
 {
     if(herr == E_ACCESSDENIED)
     {
-        SocketException ex(file, line);
-        ex.error = static_cast<int>(herr);
-        throw ex;
+        throw SocketException(file, line, static_cast<int>(herr));
     }
     SocketErrorStatus error = SocketError::GetStatus(herr);
     if(error == SocketErrorStatus::NetworkDroppedConnectionOnReset ||
        error == SocketErrorStatus::SoftwareCausedConnectionAbort ||
        error == SocketErrorStatus::ConnectionResetByPeer)
     {
-        ConnectionLostException ex(file, line);
-        ex.error = static_cast<int>(error);
-        throw ex;
+        throw ConnectionLostException(file, line, static_cast<int>(error));
     }
     else if(error == SocketErrorStatus::HostNotFound)
     {
-        DNSException ex(file, line);
-        ex.error = static_cast<int>(error);
-        throw ex;
+        throw DNSException(file, line, static_cast<int>(error), "");
     }
     else
     {
-        SocketException ex(file, line);
-        ex.error = static_cast<int>(error);
-        throw ex;
+        throw SocketException(file, line, static_cast<int>(error));
     }
 }
 
+//
+// UWP impose some restriction on operations that block when run from
+// STA thread and throws concurrency::invalid_operation. We cannot
+// directly call task::get or task::way, this helper method is used to
+// workaround this limitation.
+//
+void
+IceInternal::runSync(Windows::Foundation::IAsyncAction^ action)
+{
+    std::promise<void> p;
+
+    concurrency::create_task(action).then(
+        [&p](concurrency::task<void> t)
+        {
+            try
+            {
+                t.get();
+                p.set_value();
+            }
+            catch(...)
+            {
+                p.set_exception(std::current_exception());
+            }
+        },
+        concurrency::task_continuation_context::use_arbitrary());
+
+    return p.get_future().get();
+}
 
 #endif
 
@@ -2796,12 +2970,10 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
 
     if(::bind(fd, &bindAddr.sa, size) == SOCKET_ERROR)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
-    LPFN_CONNECTEX ConnectEx = NULL; // a pointer to the 'ConnectEx()' function
+    LPFN_CONNECTEX ConnectEx = ICE_NULLPTR; // a pointer to the 'ConnectEx()' function
     GUID GuidConnectEx = WSAID_CONNECTEX; // The Guid
     DWORD dwBytes;
     if(WSAIoctl(fd,
@@ -2811,12 +2983,10 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
                 &ConnectEx,
                 sizeof(ConnectEx),
                 &dwBytes,
-                NULL,
-                NULL) == SOCKET_ERROR)
+                ICE_NULLPTR,
+                ICE_NULLPTR) == SOCKET_ERROR)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     if(!ConnectEx(fd, &addr.sa, size, 0, 0, 0, &info))
@@ -2825,21 +2995,15 @@ IceInternal::doConnectAsync(SOCKET fd, const Address& addr, const Address& sourc
         {
             if(connectionRefused())
             {
-                ConnectionRefusedException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
             }
             else if(connectFailed())
             {
-                ConnectFailedException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw ConnectFailedException(__FILE__, __LINE__, getSocketErrno());
             }
             else
             {
-                SocketException ex(__FILE__, __LINE__);
-                ex.error = getSocketErrno();
-                throw ex;
+                throw SocketException(__FILE__, __LINE__, getSocketErrno());
             }
         }
     }
@@ -2858,29 +3022,36 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
         WSASetLastError(info.error);
         if(connectionRefused())
         {
-            ConnectionRefusedException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectionRefusedException(__FILE__, __LINE__, getSocketErrno());
         }
         else if(connectFailed())
         {
-            ConnectFailedException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw ConnectFailedException(__FILE__, __LINE__, getSocketErrno());
         }
         else
         {
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
     }
 
-    if(setsockopt(fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, NULL, 0) == SOCKET_ERROR)
+    if(setsockopt(fd, SOL_SOCKET, SO_UPDATE_CONNECT_CONTEXT, ICE_NULLPTR, 0) == SOCKET_ERROR)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 }
 #endif
+
+bool
+IceInternal::isIpAddress(const string& name)
+{
+#ifdef ICE_OS_UWP
+     HostName^ hostname = ref new HostName(ref new String(stringToWstring(name,
+                                                          getProcessStringConverter()).c_str()));
+     return hostname->Type == HostNameType::Ipv4 || hostname->Type == HostNameType::Ipv6;
+#else
+    in_addr addr;
+    in6_addr addr6;
+
+    return inet_pton(AF_INET, name.c_str(), &addr) > 0 || inet_pton(AF_INET6, name.c_str(), &addr6) > 0;
+#endif
+}

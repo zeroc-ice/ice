@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,54 +9,26 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/Network.h> // For getInterfacesForMulticast
+#include <Ice/LoggerUtil.h>
 
-#include <IceLocatorDiscovery/PluginI.h>
+#include <IceLocatorDiscovery/Plugin.h>
 #include <IceLocatorDiscovery/IceLocatorDiscovery.h>
 
 using namespace std;
 using namespace IceLocatorDiscovery;
 
-#ifndef ICE_LOCATOR_DISCOVERY_API
-#   ifdef ICE_LOCATOR_DISCOVERY_API_EXPORTS
-#   define ICE_LOCATOR_DISCOVERY_API ICE_DECLSPEC_EXPORT
-#   else
-#   define ICE_LOCATOR_DISCOVERY_API /**/
-#   endif
-#endif
-
-//
-// Plugin factory function.
-//
-extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
-createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
-{
-    return new PluginI(communicator);
-}
-
-namespace Ice
-{
-
-ICE_LOCATOR_DISCOVERY_API void
-registerIceLocatorDiscovery(bool loadOnInitialize)
-{
-    Ice::registerPluginFactory("IceLocatorDiscovery", createIceLocatorDiscovery, loadOnInitialize);
-}
-
-}
-
-//
-// Objective-C function to allow Objective-C programs to register plugin.
-//
-extern "C" ICE_LOCATOR_DISCOVERY_API void
-ICEregisterIceLocatorDiscovery(bool loadOnInitialize)
-{
-    Ice::registerIceLocatorDiscovery(loadOnInitialize);
-}
-
 namespace
 {
 
 class LocatorI; // Forward declaration
+
+#ifdef ICE_CPP11_MAPPING
+typedef std::pair<function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>,
+                  function<void(exception_ptr)>> AMDCallback;
+#else
+typedef Ice::AMD_Object_ice_invokePtr AMDCallback;
+#endif
 
 class Request :
 #ifdef ICE_CPP11_MAPPING
@@ -67,44 +39,23 @@ class Request :
 {
 public:
 
-#ifdef ICE_CPP11_MAPPING
     Request(LocatorI* locator,
             const string& operation,
             Ice::OperationMode mode,
             const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
             const Ice::Context& ctx,
-            function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> responseCB,
-            function<void(exception_ptr)> exceptionCB) :
-        _locator(locator),
-        _operation(operation),
-        _mode(mode),
-        _context(ctx),
-        _inParams(inParams.first, inParams.second),
-        _responseCB(move(responseCB)),
-        _exceptionCB(move(exceptionCB))
-#else
-    Request(LocatorI* locator,
-            const string& operation,
-            Ice::OperationMode mode,
-            const pair<const Ice::Byte*, const Ice::Byte*>& inParams,
-            const Ice::Context& ctx,
-            const Ice::AMD_Object_ice_invokePtr& amdCB) :
+            const AMDCallback& amdCB) :
         _locator(locator),
         _operation(operation),
         _mode(mode),
         _context(ctx),
         _inParams(inParams.first, inParams.second),
         _amdCB(amdCB)
-#endif
     {
     }
 
     void invoke(const Ice::LocatorPrxPtr&);
-#ifdef ICE_CPP11_MAPPING
-    void response(const bool, pair<const Ice::Byte*, const Ice::Byte*>);
-#else
-    void response(const bool, const pair<const Ice::Byte*, const Ice::Byte*>&);
-#endif
+    void response(bool, const pair<const Ice::Byte*, const Ice::Byte*>&);
     void exception(const Ice::Exception&);
 
 protected:
@@ -114,13 +65,11 @@ protected:
     const Ice::OperationMode _mode;
     const Ice::Context _context;
     const Ice::ByteSeq _inParams;
+    AMDCallback _amdCB;
 #ifdef ICE_CPP11_MAPPING
-    function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> _responseCB;
-    function<void(exception_ptr)> _exceptionCB;
     exception_ptr _exception;
 #else
-    const Ice::AMD_Object_ice_invokePtr _amdCB;
-    IceUtil::UniquePtr<Ice::Exception> _exception;
+    IceInternal::UniquePtr<Ice::Exception> _exception;
 #endif
 
     Ice::LocatorPrxPtr _locatorPrx;
@@ -136,12 +85,12 @@ class LocatorI : public Ice::BlobjectArrayAsync,
 {
 public:
 
-    LocatorI(const LookupPrxPtr&, const Ice::PropertiesPtr&, const string&, const Ice::LocatorPrxPtr&);
+    LocatorI(const string&, const LookupPrxPtr&, const Ice::PropertiesPtr&, const string&, const Ice::LocatorPrxPtr&);
     void setLookupReply(const LookupReplyPrxPtr&);
 
 #ifdef ICE_CPP11_MAPPING
     virtual void ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*>,
-                                 function<void(bool, pair<const Ice::Byte*, const Ice::Byte*>)>,
+                                 function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)>,
                                  function<void(exception_ptr)>,
                                  const Ice::Current&);
 #else
@@ -152,24 +101,32 @@ public:
     void foundLocator(const Ice::LocatorPrxPtr&);
     void invoke(const Ice::LocatorPrxPtr&, const RequestPtr&);
 
+    vector<Ice::LocatorPrxPtr> getLocators(const string&, const IceUtil::Time&);
+
+    void exception(const Ice::LocalException&);
+
 private:
 
     virtual void runTimerTask();
 
-    const LookupPrxPtr _lookup;
+    LookupPrxPtr _lookup;
+    vector<pair<LookupPrxPtr, LookupReplyPrxPtr> > _lookups;
     const IceUtil::Time _timeout;
     const int _retryCount;
     const IceUtil::Time _retryDelay;
     const IceUtil::TimerPtr _timer;
+    const int _traceLevel;
 
     string _instanceName;
     bool _warned;
-    LookupReplyPrxPtr _lookupReply;
     Ice::LocatorPrxPtr _locator;
+    map<string, Ice::LocatorPrxPtr> _locators;
     Ice::LocatorPrxPtr _voidLocator;
 
     IceUtil::Time _nextRetry;
     int _pendingRetryCount;
+    size_t _failureCount;
+    bool _warnOnce;
     vector<RequestPtr> _pendingRequests;
 };
 ICE_DEFINE_PTR(LocatorIPtr, LocatorI);
@@ -187,13 +144,6 @@ public:
 private:
 
     const LocatorIPtr _locator;
-};
-
-const ::std::string IceGrid_Locator_ids[3] =
-{
-    "::Ice::Locator",
-    "::Ice::Object",
-    "::IceGrid::Locator"
 };
 
 //
@@ -246,9 +196,97 @@ public:
     }
 };
 
+class PluginI : public Plugin
+{
+public:
+
+    PluginI(const std::string&, const Ice::CommunicatorPtr&);
+
+    virtual void initialize();
+    virtual void destroy();
+    virtual vector<Ice::LocatorPrxPtr> getLocators(const string&, const IceUtil::Time&) const;
+
+private:
+
+    const string _name;
+    const Ice::CommunicatorPtr _communicator;
+    Ice::ObjectAdapterPtr _locatorAdapter;
+    Ice::ObjectAdapterPtr _replyAdapter;
+    LocatorIPtr _locator;
+    Ice::LocatorPrxPtr _locatorPrx;
+    Ice::LocatorPrxPtr _defaultLocator;
+};
+
+#ifndef ICE_CPP11_MAPPING
+
+class CallbackI : public IceUtil::Shared
+{
+public:
+
+    CallbackI(const LocatorIPtr& locator) : _locator(locator)
+    {
+    }
+
+    void
+    completed(const Ice::AsyncResultPtr& result)
+    {
+        try
+        {
+            result->throwLocalException();
+        }
+        catch(const Ice::LocalException& ex)
+        {
+            _locator->exception(ex);
+        }
+    }
+
+private:
+
+    LocatorIPtr _locator;
+};
+
+#endif
+
 }
 
-PluginI::PluginI(const Ice::CommunicatorPtr& communicator) : _communicator(communicator)
+//
+// Plugin factory function.
+//
+extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
+createIceLocatorDiscovery(const Ice::CommunicatorPtr& communicator, const string& name, const Ice::StringSeq&)
+{
+    return new PluginI(name, communicator);
+}
+
+namespace Ice
+{
+
+ICE_LOCATOR_DISCOVERY_API void
+registerIceLocatorDiscovery(bool loadOnInitialize)
+{
+    Ice::registerPluginFactory("IceLocatorDiscovery", createIceLocatorDiscovery, loadOnInitialize);
+
+#ifdef ICE_STATIC_LIBS
+    //
+    // Also register the UDP plugin with static builds to ensure the UDP transport is loaded.
+    //
+    registerIceUDP(true);
+#endif
+}
+
+}
+
+//
+// Objective-C function to allow Objective-C programs to register plugin.
+//
+extern "C" ICE_LOCATOR_DISCOVERY_API void
+ICEregisterIceLocatorDiscovery(bool loadOnInitialize)
+{
+    Ice::registerIceLocatorDiscovery(loadOnInitialize);
+}
+
+PluginI::PluginI(const string& name, const Ice::CommunicatorPtr& communicator) :
+    _name(name), _communicator(communicator)
 {
 }
 
@@ -262,114 +300,99 @@ PluginI::initialize()
     string address;
     if(ipv4 && !preferIPv6)
     {
-        address = properties->getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
+        address = properties->getPropertyWithDefault(_name + ".Address", "239.255.0.1");
     }
     else
     {
-        address = properties->getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
+        address = properties->getPropertyWithDefault(_name + ".Address", "ff15::1");
     }
-    int port = properties->getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
-    string intf = properties->getProperty("IceLocatorDiscovery.Interface");
+    int port = properties->getPropertyAsIntWithDefault(_name + ".Port", 4061);
+    string intf = properties->getProperty(_name + ".Interface");
 
-    if(properties->getProperty("IceLocatorDiscovery.Reply.Endpoints").empty())
+    string lookupEndpoints = properties->getProperty(_name + ".Lookup");
+    if(lookupEndpoints.empty())
     {
-        ostringstream os;
-        os << "udp";
-        if(!intf.empty())
+        //
+        // If no lookup endpoints are specified, we get all the network interfaces and create
+        // an endpoint for each of them. We'll send UDP multicast packages on each interface.
+        //
+        IceInternal::ProtocolSupport protocol = ipv4 && !preferIPv6 ? IceInternal::EnableIPv4 : IceInternal::EnableIPv6;
+        vector<string> interfaces = IceInternal::getInterfacesForMulticast(intf, protocol);
+        ostringstream lookup;
+        for(vector<string>::const_iterator p = interfaces.begin(); p != interfaces.end(); ++p)
         {
-            os << " -h \"" << intf << "\"";
+            if(p != interfaces.begin())
+            {
+                lookup << ":";
+            }
+            lookup << "udp -h \"" << address << "\" -p " << port << " --interface \"" << *p << "\"";
         }
-        properties->setProperty("IceLocatorDiscovery.Reply.Endpoints", os.str());
-    }
-    if(properties->getProperty("IceLocatorDiscovery.Locator.Endpoints").empty())
-    {
-        properties->setProperty("IceLocatorDiscovery.Locator.AdapterId", Ice::generateUUID()); // Collocated adapter
+        lookupEndpoints = lookup.str();
     }
 
-    _replyAdapter = _communicator->createObjectAdapter("IceLocatorDiscovery.Reply");
-    _locatorAdapter = _communicator->createObjectAdapter("IceLocatorDiscovery.Locator");
+    if(properties->getProperty(_name + ".Reply.Endpoints").empty())
+    {
+        properties->setProperty(_name + ".Reply.Endpoints", "udp -h " + (intf.empty() ? "*" : "\"" + intf + "\""));
+    }
+
+    if(properties->getProperty(_name + ".Locator.Endpoints").empty())
+    {
+        properties->setProperty(_name + ".Locator.AdapterId", Ice::generateUUID()); // Collocated adapter
+    }
+
+    _replyAdapter = _communicator->createObjectAdapter(_name + ".Reply");
+    _locatorAdapter = _communicator->createObjectAdapter(_name + ".Locator");
 
     // We don't want those adapters to be registered with the locator so clear their locator.
     _replyAdapter->setLocator(0);
     _locatorAdapter->setLocator(0);
 
-    string lookupEndpoints = properties->getProperty("IceLocatorDiscovery.Lookup");
-    if(lookupEndpoints.empty())
-    {
-        ostringstream os;
-        os << "udp -h \"" << address << "\" -p " << port;
-        if(!intf.empty())
-        {
-            os << " --interface \"" << intf << "\"";
-        }
-        lookupEndpoints = os.str();
-    }
-
     Ice::ObjectPrxPtr lookupPrx = _communicator->stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-    lookupPrx = lookupPrx->ice_collocationOptimized(false); // No collocation optimization for the multicast proxy!
-    try
-    {
-        // Ensure we can establish a connection to the multicast proxy
-        // but don't block.
-#ifdef ICE_CPP11_MAPPING
-        promise<bool> sent;
-        promise<void> completed;
+    // No collocation optimization for the multicast proxy!
+    lookupPrx = lookupPrx->ice_collocationOptimized(false)->ice_router(ICE_NULLPTR);
 
-        lookupPrx->ice_getConnectionAsync(
-            [&](shared_ptr<Ice::Connection>)
-            {
-                completed.set_value();
-            },
-            [&](exception_ptr ex)
-            {
-                completed.set_exception(ex);
-            },
-            [&](bool sentSynchronously)
-            {
-                sent.set_value(sentSynchronously);
-            });
-        if(sent.get_future().get())
-        {
-            completed.get_future().get();
-        }
-#else
-        Ice::AsyncResultPtr result = lookupPrx->begin_ice_getConnection();
-        if(result->sentSynchronously())
-        {
-            lookupPrx->end_ice_getConnection(result);
-        }
-#endif
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        ostringstream os;
-        os << "IceLocatorDiscovery is unable to establish a multicast connection:\n";
-        os << "proxy = " << lookupPrx << '\n';
-        os << ex;
-        throw Ice::PluginInitializationException(__FILE__, __LINE__, os.str());
-    }
+    Ice::LocatorPrxPtr voidLocator = ICE_UNCHECKED_CAST(Ice::LocatorPrx,
+                                                        _locatorAdapter->addWithUUID(ICE_MAKE_SHARED(VoidLocatorI)));
 
-    Ice::LocatorPrxPtr voidLocator = ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->addWithUUID(ICE_MAKE_SHARED(VoidLocatorI)));
-
-    string instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
+    string instanceName = properties->getProperty(_name + ".InstanceName");
     Ice::Identity id;
     id.name = "Locator";
     id.category = !instanceName.empty() ? instanceName : Ice::generateUUID();
-    LocatorIPtr locator = ICE_MAKE_SHARED(LocatorI, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties, instanceName, voidLocator);
-    _communicator->setDefaultLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->add(locator, id)));
+    _locator = ICE_MAKE_SHARED(LocatorI, _name, ICE_UNCHECKED_CAST(LookupPrx, lookupPrx), properties, instanceName,
+                               voidLocator);
+    _defaultLocator = _communicator->getDefaultLocator();
+    _locatorPrx = ICE_UNCHECKED_CAST(Ice::LocatorPrx, _locatorAdapter->add(_locator, id));
+    _communicator->setDefaultLocator(_locatorPrx);
 
-    Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(ICE_MAKE_SHARED(LookupReplyI, locator))->ice_datagram();
-    locator->setLookupReply(ICE_UNCHECKED_CAST(LookupReplyPrx, lookupReply));
+    Ice::ObjectPrxPtr lookupReply = _replyAdapter->addWithUUID(ICE_MAKE_SHARED(LookupReplyI, _locator))->ice_datagram();
+    _locator->setLookupReply(ICE_UNCHECKED_CAST(LookupReplyPrx, lookupReply));
 
     _replyAdapter->activate();
     _locatorAdapter->activate();
 }
 
+vector<Ice::LocatorPrxPtr>
+PluginI::getLocators(const string& instanceName, const IceUtil::Time& waitTime) const
+{
+    return _locator->getLocators(instanceName, waitTime);
+}
+
 void
 PluginI::destroy()
 {
-    _replyAdapter->destroy();
-    _locatorAdapter->destroy();
+    if(_replyAdapter)
+    {
+        _replyAdapter->destroy();
+    }
+    if(_locatorAdapter)
+    {
+        _locatorAdapter->destroy();
+    }
+    if(_communicator->getDefaultLocator() == _locatorPrx)
+    {
+        // Restore original default locator proxy, if the user didn't change it in the meantime
+        _communicator->setDefaultLocator(_defaultLocator);
+    }
 }
 
 void
@@ -395,7 +418,7 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
                                        outPair.first = &outParams[0];
                                        outPair.second = outPair.first + outParams.size();
                                    }
-                                   self->response(ok, move(outPair));
+                                   self->response(ok, outPair);
                                },
                                [self](exception_ptr e)
                                {
@@ -419,7 +442,7 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
     else
     {
         assert(_exception); // Don't retry if the proxy didn't change
-        _exceptionCB(_exception);
+        _amdCB.second(_exception);
     }
 
 #else
@@ -444,19 +467,15 @@ Request::invoke(const Ice::LocatorPrxPtr& l)
 #endif
 }
 
-#ifdef ICE_CPP11_MAPPING
-void
-Request::response(bool ok, pair<const Ice::Byte*, const Ice::Byte*> outParams)
-{
-    _responseCB(ok, move(outParams));
-}
-#else
 void
 Request::response(bool ok, const pair<const Ice::Byte*, const Ice::Byte*>& outParams)
 {
+#ifdef ICE_CPP11_MAPPING
+    _amdCB.first(ok, outParams);
+#else
     _amdCB->ice_response(ok, outParams);
-}
 #endif
+}
 
 void
 Request::exception(const Ice::Exception& ex)
@@ -468,11 +487,11 @@ Request::exception(const Ice::Exception& ex)
     }
     catch(const Ice::RequestFailedException&)
     {
-        _exceptionCB(current_exception());
+        _amdCB.second(current_exception());
     }
     catch(const Ice::UnknownException&)
     {
-        _exceptionCB(current_exception());
+        _amdCB.second(current_exception());
     }
     catch(const Ice::NoEndpointException&)
     {
@@ -482,7 +501,7 @@ Request::exception(const Ice::Exception& ex)
         }
         catch(...)
         {
-            _exceptionCB(current_exception());
+            _amdCB.second(current_exception());
         }
     }
     catch(const Ice::CommunicatorDestroyedException&)
@@ -493,7 +512,7 @@ Request::exception(const Ice::Exception& ex)
         }
         catch(...)
         {
-            _exceptionCB(current_exception());
+            _amdCB.second(current_exception());
         }
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
@@ -504,7 +523,7 @@ Request::exception(const Ice::Exception& ex)
         }
         catch(...)
         {
-            _exceptionCB(current_exception());
+            _amdCB.second(current_exception());
         }
     }
     catch(const Ice::Exception&)
@@ -545,38 +564,79 @@ Request::exception(const Ice::Exception& ex)
 #endif
 }
 
-LocatorI::LocatorI(const LookupPrxPtr& lookup,
+LocatorI::LocatorI(const string& name,
+                   const LookupPrxPtr& lookup,
                    const Ice::PropertiesPtr& p,
                    const string& instanceName,
                    const Ice::LocatorPrxPtr& voidLocator) :
     _lookup(lookup),
-    _timeout(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault("IceLocatorDiscovery.Timeout", 300))),
-    _retryCount(p->getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryCount", 3)),
-    _retryDelay(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryDelay", 2000))),
+    _timeout(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault(name + ".Timeout", 300))),
+    _retryCount(p->getPropertyAsIntWithDefault(name + ".RetryCount", 3)),
+    _retryDelay(IceUtil::Time::milliSeconds(p->getPropertyAsIntWithDefault(name + ".RetryDelay", 2000))),
     _timer(IceInternal::getInstanceTimer(lookup->ice_getCommunicator())),
+    _traceLevel(p->getPropertyAsInt(name + ".Trace.Lookup")),
     _instanceName(instanceName),
     _warned(false),
     _locator(lookup->ice_getCommunicator()->getDefaultLocator()),
     _voidLocator(voidLocator),
-    _pendingRetryCount(0)
+    _pendingRetryCount(0),
+    _failureCount(0),
+    _warnOnce(true)
 {
+    //
+    // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
+    // datagram on each endpoint.
+    //
+    Ice::EndpointSeq endpoints = lookup->ice_getEndpoints();
+    for(vector<Ice::EndpointPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    {
+        Ice::EndpointSeq single;
+        single.push_back(*p);
+        _lookups.push_back(make_pair(lookup->ice_endpoints(single), LookupReplyPrxPtr()));
+    }
+    assert(!_lookups.empty());
 }
 
 void
 LocatorI::setLookupReply(const LookupReplyPrxPtr& lookupReply)
 {
-    _lookupReply = lookupReply;
+    //
+    // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+    //
+    for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::iterator p = _lookups.begin(); p != _lookups.end(); ++p)
+    {
+        Ice::UDPEndpointInfoPtr info = ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, p->first->ice_getEndpoints()[0]->getInfo());
+        if(info && !info->mcastInterface.empty())
+        {
+            Ice::EndpointSeq endpts = lookupReply->ice_getEndpoints();
+            for(Ice::EndpointSeq::const_iterator q = endpts.begin(); q != endpts.end(); ++q)
+            {
+                Ice::IPEndpointInfoPtr r = ICE_DYNAMIC_CAST(Ice::IPEndpointInfo, (*q)->getInfo());
+                if(r && r->host == info->mcastInterface)
+                {
+                    Ice::EndpointSeq single;
+                    single.push_back(*q);
+                    p->second = lookupReply->ice_endpoints(single);
+                }
+            }
+        }
+
+        if(!p->second)
+        {
+            p->second = lookupReply; // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+        }
+    }
 }
 
 #ifdef ICE_CPP11_MAPPING
 void
 LocatorI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> inParams,
-                          function<void(bool, pair<const Ice::Byte*, const Ice::Byte*>)> responseCB,
+                          function<void(bool, const pair<const Ice::Byte*, const Ice::Byte*>&)> responseCB,
                           function<void(exception_ptr)> exceptionCB,
                           const Ice::Current& current)
 {
     invoke(nullptr, make_shared<Request>(this, current.operation, current.mode, inParams, current.ctx,
-                                         move(responseCB), move(exceptionCB)));
+                                         make_pair(move(responseCB), move(exceptionCB))));
 }
 #else
 void
@@ -588,12 +648,63 @@ LocatorI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCB,
 }
 #endif
 
+vector<Ice::LocatorPrxPtr>
+LocatorI::getLocators(const string& instanceName, const IceUtil::Time& waitTime)
+{
+    //
+    // Clear locators from previous search
+    //
+    {
+        Lock sync(*this);
+        _locators.clear();
+    }
+
+    //
+    // Find a locator
+    //
+    invoke(ICE_NULLPTR, ICE_NULLPTR);
+
+    //
+    // Wait for responses
+    //
+    if(instanceName.empty())
+    {
+        IceUtil::ThreadControl::sleep(waitTime);
+    }
+    else
+    {
+        Lock sync(*this);
+        while(_locators.find(instanceName) == _locators.end() && _pendingRetryCount > 0)
+        {
+            timedWait(waitTime);
+        }
+    }
+
+    //
+    // Return found locators
+    //
+    Lock sync(*this);
+    vector<Ice::LocatorPrxPtr> locators;
+    for(map<string, Ice::LocatorPrxPtr>::const_iterator p = _locators.begin(); p != _locators.end(); ++p)
+    {
+        locators.push_back(p->second);
+    }
+    return locators;
+}
+
 void
 LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
 {
     Lock sync(*this);
     if(!locator || (!_instanceName.empty() && locator->ice_getIdentity().category != _instanceName))
     {
+        if(_traceLevel > 2)
+        {
+            Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+            out << "ignoring locator reply: instance name doesn't match\n";
+            out << "expected = " << _instanceName;
+            out << "received = " << locator->ice_getIdentity().category;
+        }
         return;
     }
 
@@ -601,7 +712,8 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
     // If we already have a locator assigned, ensure the given locator
     // has the same identity, otherwise ignore it.
     //
-    if(_locator && locator->ice_getIdentity().category != _locator->ice_getIdentity().category)
+    if(!_pendingRequests.empty() &&
+       _locator && locator->ice_getIdentity().category != _locator->ice_getIdentity().category)
     {
         if(!_warned)
         {
@@ -624,13 +736,24 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
         _pendingRetryCount = 0;
     }
 
-    if(_locator)
+    if(_traceLevel > 0)
+    {
+        Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+        out << "locator lookup succeeded:\nlocator = " << locator;
+        if(!_instanceName.empty())
+        {
+            out << "\ninstance name = " << _instanceName;
+        }
+    }
+
+    Ice::LocatorPrxPtr l = _pendingRequests.empty() ? _locators[locator->ice_getIdentity().category] : _locator;
+    if(l)
     {
         //
         // We found another locator replica, append its endpoints to the
         // current locator proxy endpoints.
         //
-        Ice::EndpointSeq newEndpoints = _locator->ice_getEndpoints();
+        Ice::EndpointSeq newEndpoints = l->ice_getEndpoints();
         Ice::EndpointSeq endpts = locator->ice_getEndpoints();
         for(Ice::EndpointSeq::const_iterator p = endpts.begin(); p != endpts.end(); ++p)
         {
@@ -651,36 +774,46 @@ LocatorI::foundLocator(const Ice::LocatorPrxPtr& locator)
                 newEndpoints.push_back(*p);
             }
         }
-        _locator = _locator->ice_endpoints(newEndpoints);
+        l = l->ice_endpoints(newEndpoints);
     }
     else
     {
-        _locator = locator;
+        l = locator;
+    }
+
+    if(_pendingRequests.empty())
+    {
+        _locators[locator->ice_getIdentity().category] = l;
+        notify();
+    }
+    else
+    {
+        _locator = l;
         if(_instanceName.empty())
         {
             _instanceName = _locator->ice_getIdentity().category; // Stick to the first discovered locator.
         }
-    }
 
-    //
-    // Send pending requests if any.
-    //
-    for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
-    {
-        (*p)->invoke(_locator);
+        //
+        // Send pending requests if any.
+        //
+        for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
+        {
+            (*p)->invoke(_locator);
+        }
+        _pendingRequests.clear();
     }
-    _pendingRequests.clear();
 }
 
 void
 LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
 {
     Lock sync(*this);
-    if(_locator && _locator != locator)
+    if(request && _locator && _locator != locator)
     {
         request->invoke(_locator);
     }
-    else if(IceUtil::Time::now() < _nextRetry)
+    else if(request && IceUtil::Time::now() < _nextRetry)
     {
         request->invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
     }
@@ -688,22 +821,62 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
     {
         _locator = 0;
 
-        _pendingRequests.push_back(request);
+        if(request)
+        {
+            _pendingRequests.push_back(request);
+        }
 
         if(_pendingRetryCount == 0) // No request in progress
         {
+            _failureCount = 0;
             _pendingRetryCount = _retryCount;
             try
             {
+                if(_traceLevel > 1)
+                {
+                    Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+                    out << "looking up locator:\nlookup = " << _lookup;
+                    if(!_instanceName.empty())
+                    {
+                        out << "\ninstance name = " << _instanceName;
+                    }
+                }
+                for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::const_iterator l = _lookups.begin();
+                    l != _lookups.end(); ++l)
+                {
 #ifdef ICE_CPP11_MAPPING
-                _lookup->findLocatorAsync(_instanceName, _lookupReply); // Send multicast request.
+                    auto self = shared_from_this();
+                    l->first->findLocatorAsync(_instanceName, l->second, nullptr, [self](exception_ptr ex)
+                    {
+                        try
+                        {
+                            rethrow_exception(ex);
+                        }
+                        catch(const Ice::LocalException& e)
+                        {
+                            self->exception(e);
+                        }
+                    });
 #else
-                _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                    l->first->begin_findLocator(_instanceName, l->second, Ice::newCallback(new CallbackI(this),
+                                                                                           &CallbackI::completed));
 #endif
+                }
                 _timer->schedule(ICE_SHARED_FROM_THIS, _timeout);
             }
-            catch(const Ice::LocalException&)
+            catch(const Ice::LocalException& ex)
             {
+                if(_traceLevel > 0)
+                {
+                    Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+                    out << "locator lookup failed:\nlookup = " << _lookup;
+                    if(!_instanceName.empty())
+                    {
+                        out << "\ninstance name = " << _instanceName;
+                    }
+                    out << "\n" << ex;
+                }
+
                 for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
                 {
                     (*p)->invoke(_voidLocator);
@@ -716,6 +889,51 @@ LocatorI::invoke(const Ice::LocatorPrxPtr& locator, const RequestPtr& request)
 }
 
 void
+LocatorI::exception(const Ice::LocalException& ex)
+{
+    Lock sync(*this);
+    if(++_failureCount == _lookups.size() && _pendingRetryCount > 0)
+    {
+        //
+        // All the lookup calls failed, cancel the timer and propagate the error to the requests.
+        //
+        _timer->cancel(ICE_SHARED_FROM_THIS);
+        _pendingRetryCount = 0;
+
+        if(_warnOnce)
+        {
+            Ice::Warning warn(_lookup->ice_getCommunicator()->getLogger());
+            warn << "failed to lookup locator with lookup proxy `" << _lookup << "':\n" << ex;
+            _warnOnce = false;
+        }
+
+        if(_traceLevel > 0)
+        {
+            Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+            out << "locator lookup failed:\nlookup = " << _lookup;
+            if(!_instanceName.empty())
+            {
+                out << "\ninstance name = " << _instanceName;
+            }
+            out << "\n" << ex;
+        }
+
+        if(_pendingRequests.empty())
+        {
+            notify();
+        }
+        else
+        {
+            for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
+            {
+                (*p)->invoke(_voidLocator);
+            }
+           _pendingRequests.clear();
+        }
+    }
+}
+
+void
 LocatorI::runTimerTask()
 {
     Lock sync(*this);
@@ -723,11 +941,37 @@ LocatorI::runTimerTask()
     {
         try
         {
+            if(_traceLevel > 1)
+            {
+                Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+                out << "retrying locator lookup:\nlookup = " << _lookup << "\nretry count = " << _pendingRetryCount;
+                if(!_instanceName.empty())
+                {
+                    out << "\ninstance name = " << _instanceName;
+                }
+            }
+            _failureCount = 0;
+            for(vector<pair<LookupPrxPtr, LookupReplyPrxPtr> >::const_iterator l = _lookups.begin();
+                l != _lookups.end(); ++l)
+            {
 #ifdef ICE_CPP11_MAPPING
-            _lookup->findLocatorAsync(_instanceName, _lookupReply); // Send multicast request.
+                    auto self = shared_from_this();
+                    l->first->findLocatorAsync(_instanceName, l->second, nullptr, [self](exception_ptr ex)
+                    {
+                        try
+                        {
+                            rethrow_exception(ex);
+                        }
+                        catch(const Ice::LocalException& e)
+                        {
+                            self->exception(e);
+                        }
+                    });
 #else
-            _lookup->begin_findLocator(_instanceName, _lookupReply); // Send multicast request.
+                    l->first->begin_findLocator(_instanceName, l->second, Ice::newCallback(new CallbackI(this),
+                                                                                           &CallbackI::completed));
 #endif
+            }
             _timer->schedule(ICE_SHARED_FROM_THIS, _timeout);
             return;
         }
@@ -737,11 +981,28 @@ LocatorI::runTimerTask()
         _pendingRetryCount = 0;
     }
 
-    for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
+    if(_traceLevel > 0)
     {
-        (*p)->invoke(_voidLocator); // Send pending requests on void locator.
+        Ice::Trace out(_lookup->ice_getCommunicator()->getLogger(), "Lookup");
+        out << "locator lookup timed out:\nlookup = " << _lookup;
+        if(!_instanceName.empty())
+        {
+            out << "\ninstance name = " << _instanceName;
+        }
     }
-    _pendingRequests.clear();
+
+    if(_pendingRequests.empty())
+    {
+        notify();
+    }
+    else
+    {
+        for(vector<RequestPtr>::const_iterator p = _pendingRequests.begin(); p != _pendingRequests.end(); ++p)
+        {
+            (*p)->invoke(_voidLocator); // Send pending requests on void locator.
+        }
+       _pendingRequests.clear();
+    }
     _nextRetry = IceUtil::Time::now() + _retryDelay; // Only retry when the retry delay expires
 }
 

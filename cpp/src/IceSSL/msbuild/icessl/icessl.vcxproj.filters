@@ -60,14 +60,6 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-    <IceBuilder Include="..\..\..\..\..\slice\IceSSL\EndpointInfo.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\..\TrustManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -95,14 +87,32 @@
     <ClCompile Include="..\..\ConnectorI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Certificate.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\AcceptorI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Util.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SChannelPluginI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\CertificateI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SChannelCertificateI.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Debug\ConnectionInfoF.cpp">
+      <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Debug\ConnectionInfoF.cpp">
+      <Filter>Source Files\x64\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Win32\Release\ConnectionInfoF.cpp">
+      <Filter>Source Files\Win32\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="x64\Release\ConnectionInfoF.cpp">
+      <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\ConnectionInfo.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
@@ -178,6 +188,24 @@
     <ClInclude Include="..\..\..\..\include\IceSSL\Plugin.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\SChannelEngine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\CertificateI.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\Win32\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Debug\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\x64\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Release\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\Win32\Release</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceSSL\ConnectionInfoF.h">
+      <Filter>Header Files\x64\Release</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\include\generated\cpp98\Win32\Debug\IceSSL\ConnectionInfo.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
@@ -202,5 +230,19 @@
     <ClInclude Include="..\..\..\..\include\generated\cpp98\x64\Release\IceSSL\EndpointInfo.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\ConnectionInfo.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\ConnectionInfoF.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+    <SliceCompile Include="..\..\..\..\..\slice\IceSSL\EndpointInfo.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>

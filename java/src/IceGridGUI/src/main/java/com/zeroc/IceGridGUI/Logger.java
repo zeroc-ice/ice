@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@ public class Logger extends com.zeroc.Ice.LoggerI
     public
     Logger(JFrame mainFrame)
     {
-        super("IceGrid Admin", "");
+        super("IceGrid GUI", "");
 
         _mainFrame = mainFrame;
     }
@@ -36,7 +36,7 @@ public class Logger extends com.zeroc.Ice.LoggerI
         }
         SwingUtilities.invokeLater(() ->
             {
-                JOptionPane.showMessageDialog(_mainFrame, message, "Warning - IceGrid Admin Logger",
+                JOptionPane.showMessageDialog(_mainFrame, message, "Warning - IceGrid GUI Logger",
                                               JOptionPane.WARNING_MESSAGE);
             });
     }
@@ -47,12 +47,12 @@ public class Logger extends com.zeroc.Ice.LoggerI
     {
         SwingUtilities.invokeLater(() ->
             {
-                JOptionPane.showMessageDialog(_mainFrame, message, "Error - IceGrid Admin Logger",
+                JOptionPane.showMessageDialog(_mainFrame, message, "Error - IceGrid GUI Logger",
                                               JOptionPane.ERROR_MESSAGE);
             });
     }
 
     private final JFrame _mainFrame;
-    
-    private static final boolean OS_IS_SOLARIS = System.getProperty("os.name").equals("SunOS"); 
+
+    private static final boolean OS_IS_SOLARIS = System.getProperty("os.name").equals("SunOS");
 }

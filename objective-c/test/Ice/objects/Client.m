@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,41 +15,48 @@
 #   import <Foundation/NSGarbageCollector.h>
 #endif
 
-// Note that the factory must not autorelease the
-// returned objects.
+#if defined(__clang__)
+// For 'Ice::Communicator::addObjectFactory()' deprecation
+#   pragma clang diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+#if defined(__clang__) && __has_feature(objc_arc)
+static ICEValueFactory factory = ^ICEObject* (NSString* type) NS_RETURNS_RETAINED
+#else
 static ICEValueFactory factory = ^ICEObject* (NSString* type)
+#endif
 {
     if([type isEqualToString:@"::Test::B"])
     {
-        return  ICE_AUTORELEASE([[TestObjectsBI alloc] init]);
+        return [[TestObjectsBI alloc] init];
     }
     else if([type isEqualToString:@"::Test::C"])
     {
-        return ICE_AUTORELEASE([[TestObjectsCI alloc] init]);
+        return [[TestObjectsCI alloc] init];
     }
     else if([type isEqualToString:@"::Test::D"])
     {
-        return ICE_AUTORELEASE([[TestObjectsDI alloc] init]);
+        return [[TestObjectsDI alloc] init];
     }
     else if([type isEqualToString:@"::Test::E"])
     {
-        return ICE_AUTORELEASE([[TestObjectsEI alloc] init]);
+        return [[TestObjectsEI alloc] init];
     }
     else if([type isEqualToString:@"::Test::F"])
     {
-        return ICE_AUTORELEASE([[TestObjectsFI alloc] init]);
+        return [[TestObjectsFI alloc] init];
     }
     else if([type isEqualToString:@"::Test::I"])
     {
-        return ICE_AUTORELEASE([[TestObjectsI alloc] init]);
+        return [[TestObjectsI alloc] init];
     }
     else if([type isEqualToString:@"::Test::J"])
     {
-        return ICE_AUTORELEASE([[TestObjectsJI alloc] init]);
+        return [[TestObjectsJI alloc] init];
     }
     else if([type isEqualToString:@"::Test::H"])
     {
-        return ICE_AUTORELEASE([[TestObjectsHI alloc] init]);
+        return [[TestObjectsHI alloc] init];
     }
     else
     {
@@ -105,7 +112,8 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+    ICEregisterIceWS(YES);
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif
@@ -119,7 +127,7 @@ main(int argc, char* argv[])
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultClientProperties(&argc, argv);
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestObjects", @"::Test",
                                       nil];
 #endif
@@ -138,15 +146,7 @@ main(int argc, char* argv[])
 
         if(communicator)
         {
-            @try
-            {
-                [communicator destroy];
-            }
-            @catch(ICEException* ex)
-            {
-                tprintf("%@\n", ex);
-                status = EXIT_FAILURE;
-            }
+            [communicator destroy];
         }
     }
     return status;

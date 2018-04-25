@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, [ "../Ice/StringUtil", "../Ice/Identity", "../Ice/LocalException"]);
+Ice._ModuleRegistry.require(module, [ "../Ice/StringUtil", "../Ice/Identity", "../Ice/LocalException"]);
 
 const StringUtil = Ice.StringUtil;
 const Identity = Ice.Identity;
@@ -38,7 +38,7 @@ Ice.stringToIdentity = function(s)
         {
             escapes++;
         }
-            
+
         //
         // We ignore escaped escapes
         //
@@ -64,7 +64,7 @@ Ice.stringToIdentity = function(s)
         ident.category = "";
         try
         {
-            ident.name = StringUtil.unescapeString(s);
+            ident.name = StringUtil.unescapeString(s, 0, s.length, "/");
         }
         catch(e)
         {
@@ -75,7 +75,7 @@ Ice.stringToIdentity = function(s)
     {
         try
         {
-            ident.category = StringUtil.unescapeString(s, 0, slash);
+            ident.category = StringUtil.unescapeString(s, 0, slash, "/");
         }
         catch(e)
         {
@@ -85,7 +85,7 @@ Ice.stringToIdentity = function(s)
         {
             try
             {
-                ident.name = StringUtil.unescapeString(s, slash + 1, s.length);
+                ident.name = StringUtil.unescapeString(s, slash + 1, s.length, "/");
             }
             catch(e)
             {
@@ -106,17 +106,19 @@ Ice.stringToIdentity = function(s)
 *
 * @param ident The object identity to convert.
 *
+* @param toStringMode Specifies if and how non-printable ASCII characters are escaped in the result.
+*
 * @return The string representation of the object identity.
 **/
-Ice.identityToString = function(ident)
+Ice.identityToString = function(ident, toStringMode = Ice.ToStringMode.Unicode)
 {
     if(ident.category === null || ident.category.length === 0)
     {
-        return StringUtil.escapeString(ident.name, "/");
+        return StringUtil.escapeString(ident.name, "/", toStringMode);
     }
     else
     {
-        return StringUtil.escapeString(ident.category, "/") + '/' + StringUtil.escapeString(ident.name, "/");
+        return StringUtil.escapeString(ident.category, "/", toStringMode) + '/' + StringUtil.escapeString(ident.name, "/", toStringMode);
     }
 };
 

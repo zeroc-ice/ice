@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,11 +16,11 @@ module Test
 exception InvalidInputException
 {
     string message;
-};
+}
 
 local exception RetryException
 {
-};
+}
 
 interface MyObject
 {
@@ -67,18 +67,17 @@ interface MyObject
     // Raise user exception
     //
     ["amd"] int amdBadAdd(int x, int y) throws InvalidInputException;
-    
+
     //
     // Raise ONE
     //
     ["amd"] int amdNotExistAdd(int x, int y);
-    
+
     //
     // Raise system exception
     //
     ["amd"] int amdBadSystemAdd(int x, int y);
 
-};
+}
 
-
-};
+}

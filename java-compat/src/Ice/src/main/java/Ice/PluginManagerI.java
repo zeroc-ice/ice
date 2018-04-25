@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -474,7 +474,7 @@ public final class PluginManagerI implements PluginManager
                 throw new PluginInitializationException("class " + className + " not found");
             }
 
-            java.lang.Object obj = c.newInstance();
+            java.lang.Object obj = c.getDeclaredConstructor().newInstance();
             try
             {
                 pluginFactory = (PluginFactory)obj;
@@ -484,6 +484,14 @@ public final class PluginManagerI implements PluginManager
                 throw new PluginInitializationException("class " + className + " does not implement Ice.PluginFactory",
                                                         ex);
             }
+        }
+        catch(NoSuchMethodException ex)
+        {
+            throw new PluginInitializationException("unable to instantiate class " + className, ex);
+        }
+        catch(java.lang.reflect.InvocationTargetException ex)
+        {
+            throw new PluginInitializationException("unable to instantiate class " + className, ex);
         }
         catch(IllegalAccessException ex)
         {

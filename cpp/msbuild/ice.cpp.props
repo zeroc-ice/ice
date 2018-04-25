@@ -1,15 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <!--
-      If we are building Ice source distribution or if UseBinDist was not set to
-      yes, set IceHome to point to this source distribution.
+      If we are building a source distribution, set IceHome to this
+      source distribution.
   -->
-  <PropertyGroup Condition="'$(UseBinDist)' != 'yes' or '$(Ice_BuildingSrc)' == yes">
-    <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+  <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(IceBuildingSrc)' == yes">
+      <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+  </PropertyGroup>
+
+  <!-- Visual Studio 2010 doesn't set DefaultPlatformToolset -->
+  <PropertyGroup>
+    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
   </PropertyGroup>
 
   <!--
-      Import version settings required for library targets
+      Import version settings required for library targets.
   -->
   <Import Project="$(IceHome)\config\icebuilder.props"
           Condition="Exists('$(IceHome)\config\icebuilder.props')" />
@@ -18,46 +23,47 @@
       Common properties
   -->
   <PropertyGroup>
-    <Ice_SrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</Ice_SrcRootDir>
+    <IceSrcRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..'))</IceSrcRootDir>
     <IntDir>$(Platform)\$(Configuration)\</IntDir>
-    <IceBuilderOutputDir Condition="'$(IceBuilderOutputDir)' == ''">$(Platform)\$(Configuration)</IceBuilderOutputDir>
-    <IceBuilderAllowIcePrefix Condition="'$(IceBuilderAllowIcePrefix)' == ''">true</IceBuilderAllowIcePrefix>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
 
   <Choose>
     <When Condition="'$(ConfigurationType)' == 'StaticLibrary'">
       <PropertyGroup>
-        <OutDir>$(Ice_SrcRootDir)\lib\$(Platform)\$(Configuration)\</OutDir>
+        <OutDir>$(IceHome)\cpp\lib\$(Platform)\$(Configuration)\</OutDir>
       </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>
-        <OutDir>$(Ice_SrcRootDir)\bin\$(Platform)\$(Configuration)\</OutDir>
+        <OutDir>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)\</OutDir>
       </PropertyGroup>
     </Otherwise>
   </Choose>
 
   <!--
-      Ice_Configuration to use for C++ builds, we map all configurations that use
-      debug libraries to Debug configuration, this allow us to define common
-      settings for the different debug configurations "Debug" and "Cpp11-Debug"
+      Define IceConfiguration for C++ builds. This allows us to define common
+      settings for different debug configurations such as "Debug" and "Cpp11-Debug".
   -->
   <Choose>
     <When Condition="'$(UseDebugLibraries)' == 'true'">
       <PropertyGroup>
-        <Ice_Configuration>Debug</Ice_Configuration>
+        <IceConfiguration>Debug</IceConfiguration>
       </PropertyGroup>
     </When>
     <Otherwise>
       <PropertyGroup>
-        <Ice_Configuration>Release</Ice_Configuration>
+        <IceConfiguration>Release</IceConfiguration>
       </PropertyGroup>
     </Otherwise>
   </Choose>
 
+  <PropertyGroup Condition="'$(ICE_BIN_DIST)' != 'all' or '$(IceBuildingSrc)' == yes">
+      <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(IceConfiguration)</IceToolsPath>
+  </PropertyGroup>
+
   <!--
-      Common properties set for all builds, configurations and platforms
+      Common properties set for all builds, configurations and platforms.
   -->
   <ItemDefinitionGroup>
     <ClCompile>
@@ -72,10 +78,9 @@
       <PrecompiledHeaderOutputFile />
       <OmitFramePointers>false</OmitFramePointers>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <AdditionalIncludeDirectories>$(Ice_SrcRootDir)\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <!-- PDB settings -->
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(IntDir)$(TargetName)-objs.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
       <AdditionalDependencies />
@@ -84,10 +89,37 @@
     </Link>
   </ItemDefinitionGroup>
 
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
+      <ClCompile>
+          <AdditionalIncludeDirectories>$(IceHome)\cpp\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(IceHome)\cpp\lib\$(Platform)\$(IceConfiguration)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(IceBuildingUWP)' == 'yes'">
+      <ClCompile>
+          <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\uwp\$(Platform)\$(IceConfiguration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      </ClCompile>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(ICE_BIN_DIST)' != 'all' and '$(IceBuildingUWP)' != 'yes'">
+      <ClCompile>
+          <AdditionalIncludeDirectories>$(IceHome)\cpp\include\generated\$(IceCppMapping)\$(Platform)\$(IceConfiguration);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      </ClCompile>
+  </ItemDefinitionGroup>
+
   <!--
       Common properties set for all debug builds and platforms.
   -->
-  <ItemDefinitionGroup Condition="'$(Ice_Configuration)'=='Debug'">
+  <ItemDefinitionGroup Condition="'$(IceConfiguration)'=='Debug'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -98,24 +130,7 @@
   </ItemDefinitionGroup>
 
   <!--
-      GenerateDebugInformation supported values change from v120 to v140,
-      we set it conditionally to the platform tool set.
-  -->
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v140'">
-    <Link>
-      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
-      <GenerateDebugInformation>Debug</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v120'">
-    <Link>
-      <GenerateDebugInformation>Yes</GenerateDebugInformation>
-    </Link>
-  </ItemDefinitionGroup>
-
-  <!--
-      Common properties set for all static libraries.
+      Common properties for all static libraries.
   -->
   <ItemDefinitionGroup Condition="'$(ConfigurationType)'=='StaticLibrary'">
     <ClCompile>
@@ -124,21 +139,24 @@
   </ItemDefinitionGroup>
 
   <!--
-      Common properties set for all release builds and platforms.
+      Common properties for all release builds and platforms.
   -->
-  <ItemDefinitionGroup Condition="'$(Ice_Configuration)'=='Release'">
+  <ItemDefinitionGroup Condition="'$(IceConfiguration)'=='Release'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <WholeProgramOptimization>false</WholeProgramOptimization>
     </ClCompile>
+    <Link>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
   </ItemDefinitionGroup>
 
   <!--
-      Definitions required when building the C++11 mapping, note that UWP also use
-      the C++11 mapping.
+      ICE_CPP11_MAPPING is required with the cpp11 mapping (the only mapping with uwp)
   -->
-  <ItemDefinitionGroup Condition="'$(Ice_CppMapping)' == 'cpp11' or '$(Ice_CppMapping)' == 'uwp'">
+  <ItemDefinitionGroup Condition="'$(IceCppMapping)' == 'cpp11'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_CPP11_MAPPING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
@@ -149,29 +167,67 @@
   </ItemDefinitionGroup>
 
   <!--
-      Definitions that are only required when build Ice C++ source distribution as opposed to test suite.
+      Definitions when building the Ice C++ sources (as opposed to the test suite).
   -->
-  <ItemDefinitionGroup Condition="'$(Ice_BuildingSrc)' == 'yes'">
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Ice_SrcRootDir)\include\generated\$(Ice_CppMapping)\$(Platform)\$(Ice_Configuration);
-                                    $(Ice_SrcRootDir)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>ICE_BUILDING_SRC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions Condition="'$(IceLanguageMapping)' == 'cpp'">ICE_BUILDING_SRC;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(IceHome)\cpp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+
+  <!--
+      The correct value for GenerateDebugInformation depends on the compiler:
+  -->
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes'">
     <Link>
-      <AdditionalLibraryDirectories>$(Ice_SrcRootDir)\lib\$(Platform)\$(Ice_Configuration)</AdditionalLibraryDirectories>
+      <GenerateDebugInformation>Yes</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(Ice_BuildingSrc)' == 'DynamicLibrary|yes'">
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes' and '$(DefaultPlatformToolset)'=='v140'">
     <Link>
-      <ImportLibrary>$(Ice_SrcRootDir)\lib\$(Platform)\$(Ice_Configuration)\$(TargetName).lib</ImportLibrary>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
 
-  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(Ice_BuildingSrc)' == 'Application|yes'">
+  <ItemDefinitionGroup Condition="'$(IceBuildingSrc)' == 'yes' and '$(DefaultPlatformToolset)'=='v141'">
+    <Link>
+      <FullProgramDatabaseFile>true</FullProgramDatabaseFile>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'DynamicLibrary|yes'">
+    <Link>
+      <ImportLibrary>$(IceHome)\cpp\lib\$(Platform)\$(IceConfiguration)\$(TargetName).lib</ImportLibrary>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(ConfigurationType)|$(IceBuildingSrc)' == 'Application|yes'">
     <Link>
       <AdditionalDependencies>wsetargv.obj</AdditionalDependencies>
     </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'!='v100'">
+    <Link>
+      <!--
+         We disable incremental linking (see above), which turns on
+         /OPT:LBR, which in turn conflicts with /EDITANDCONTINUE even
+         though /OPT:LBR is an ARM-only option. So we turn off LBR.
+      -->
+      <AdditionalOptions>/OPT:NOLBR %(AdditionalOptions)</AdditionalOptions>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(IceBuildingUWP)' == 'yes'">
+    <ClCompile>
+      <ProgramDataBaseFileName>$(OutDir)$(TargetName).pdb</ProgramDataBaseFileName>
+    </ClCompile>
   </ItemDefinitionGroup>
 
   <!--
@@ -181,12 +237,12 @@
     <!--
         C++11 mapping target names.
     -->
-    <When Condition="'$(Ice_CppMapping)' == 'cpp11'">
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
+    <When Condition="'$(IceCppMapping)' == 'cpp11' and '$(IceBuildingUWP)' != 'yes'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11d"))</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
         <TargetName>$(ProjectName.Replace("++11", "$(IceSoVersion)++11"))</TargetName>
       </PropertyGroup>
     </When>
@@ -194,12 +250,12 @@
     <!--
         UWP mapping target names.
     -->
-    <When Condition="'$(Ice_CppMapping)' == 'uwp'">
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
+    <When Condition="'$(IceBuildingUWP)' == 'yes'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
         <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11d"))</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
         <TargetName>$(ProjectName.Replace("uwp++11", "$(IceSoVersion)uwp++11"))</TargetName>
       </PropertyGroup>
     </When>
@@ -208,27 +264,26 @@
         C++98 mapping target names.
     -->
     <Otherwise>
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|DynamicLibrary'">
         <TargetName>$(ProjectName)$(IceSoVersion)d</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
         <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Debug|StaticLibrary'">
         <TargetName>$(ProjectName)d</TargetName>
       </PropertyGroup>
 
-      <PropertyGroup Condition="'$(Ice_Configuration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
+      <PropertyGroup Condition="'$(IceConfiguration)|$(ConfigurationType)' == 'Release|StaticLibrary'">
         <TargetName>$(ProjectName)</TargetName>
       </PropertyGroup>
     </Otherwise>
   </Choose>
 
-
   <!--
-      Workaround to avoid annoying warnings from Nuget restore.
+      Workaround to avoid annoying warnings from NuGet restore.
   -->
   <Target Name="BeforeGenerateProjectPriFile"></Target>
 </Project>

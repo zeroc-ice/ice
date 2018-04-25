@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -51,9 +51,10 @@ public class AllTests
         return null;
     }
 
-    public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    public static void allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator=app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing proxy endpoint information... ");
         out.flush();
         {
@@ -98,11 +99,12 @@ public class AllTests
         }
         out.println("ok");
 
-        String defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
         out.print("test object adapter endpoint information... ");
         out.flush();
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -t 15000:udp");
+            final String host = communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
+                "\" -t 15000:udp -h \"" + host + "\"");
             Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
 
             Ice.Endpoint[] endpoints = adapter.getEndpoints();
@@ -113,19 +115,26 @@ public class AllTests
             Ice.TCPEndpointInfo tcpEndpoint = getTCPEndpointInfo(endpoints[0].getInfo());
             test(tcpEndpoint.type() == Ice.TCPEndpointType.value || tcpEndpoint.type() == Ice.SSLEndpointType.value ||
                  tcpEndpoint.type() == Ice.WSEndpointType.value || tcpEndpoint.type() == Ice.WSSEndpointType.value);
-            test(tcpEndpoint.host.equals(defaultHost));
+            test(tcpEndpoint.host.equals(host));
             test(tcpEndpoint.port > 0);
             test(tcpEndpoint.timeout == 15000);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
-            test(udpEndpoint.host.equals(defaultHost));
+            test(udpEndpoint.host.equals(host));
             test(udpEndpoint.datagram());
             test(udpEndpoint.port > 0);
 
+            endpoints = new Ice.Endpoint[]{endpoints[0]};
+            test(endpoints.length == 1);
+            adapter.setPublishedEndpoints(endpoints);
+            publishedEndpoints = adapter.getPublishedEndpoints();
+            test(java.util.Arrays.equals(endpoints, publishedEndpoints));
+
             adapter.destroy();
 
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 12020");
-            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020");
+            int port = app.getTestPort(1);
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h * -p " + port);
+            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "tcp -h dummy -p " + port);
             adapter = communicator.createObjectAdapter("TestAdapter");
 
             endpoints = adapter.getEndpoints();
@@ -136,26 +145,30 @@ public class AllTests
             for(Ice.Endpoint endpoint : endpoints)
             {
                 tcpEndpoint = getTCPEndpointInfo(endpoint.getInfo());
-                test(tcpEndpoint.port == 12020);
+                test(tcpEndpoint.port == port);
             }
 
             tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo());
-            test(tcpEndpoint.host.equals("127.0.0.1"));
-            test(tcpEndpoint.port == 12020);
+            test(tcpEndpoint.host.equals("dummy"));
+            test(tcpEndpoint.port == port);
 
             adapter.destroy();
         }
         out.println("ok");
 
-        Ice.ObjectPrx base = communicator.stringToProxy("test:default -p 12010:udp -p 12010");
+        Ice.ObjectPrx base = communicator.stringToProxy("test:" +
+                                                        app.getTestEndpoint(0) + ":" +
+                                                        app.getTestEndpoint(0, "udp"));
         TestIntfPrx testIntf = TestIntfPrxHelper.checkedCast(base);
+        int endpointPort = app.getTestPort(0);
 
+        final String defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
         out.print("test connection endpoint information... ");
         out.flush();
         {
             Ice.EndpointInfo info = base.ice_getConnection().getEndpoint().getInfo();
             Ice.TCPEndpointInfo tcpinfo = getTCPEndpointInfo(info);
-            test(tcpinfo.port == 12010);
+            test(tcpinfo.port == endpointPort);
             test(!tcpinfo.compress);
             test(tcpinfo.host.equals(defaultHost));
 
@@ -167,7 +180,7 @@ public class AllTests
 
             info = base.ice_datagram().ice_getConnection().getEndpoint().getInfo();
             Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)info;
-            test(udp.port == 12010);
+            test(udp.port == endpointPort);
             test(udp.host.equals(defaultHost));
         }
         out.println("ok");
@@ -182,7 +195,7 @@ public class AllTests
             test(!info.incoming);
             test(info.adapterName.length() == 0);
             test(info.localPort > 0);
-            test(info.remotePort == 12010);
+            test(info.remotePort == endpointPort);
             if(defaultHost.equals("127.0.0.1"))
             {
                 test(info.remoteAddress.equals(defaultHost));
@@ -190,6 +203,12 @@ public class AllTests
             }
             test(info.rcvSize >= 1024);
             test(info.sndSize >= 2048);
+
+            //
+            // Make sure the local slice class is cloneable
+            //
+            java.lang.Cloneable cloneable = info;
+            Ice.TCPConnectionInfo info2 = (Ice.TCPConnectionInfo)info.clone();
 
             java.util.Map<String, String> ctx = testIntf.getConnectionInfoAsContext();
             test(ctx.get("incoming").equals("true"));
@@ -221,7 +240,7 @@ public class AllTests
             test(!udpinfo.incoming);
             test(udpinfo.adapterName.length() == 0);
             test(udpinfo.localPort > 0);
-            test(udpinfo.remotePort == 12010);
+            test(udpinfo.remotePort == endpointPort);
             if(defaultHost.equals("127.0.0.1"))
             {
                 test(udpinfo.remoteAddress.equals(defaultHost));

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,8 +8,6 @@
 // **********************************************************************
 
 package com.zeroc.IceInternal;
-
-import com.zeroc.Ice.PropertiesAdminUpdateCallback;
 
 class PropertiesAdminI implements com.zeroc.Ice.PropertiesAdmin, com.zeroc.Ice.NativePropertiesAdmin
 {
@@ -168,11 +166,11 @@ class PropertiesAdminI implements com.zeroc.Ice.PropertiesAdmin, com.zeroc.Ice.N
             //
             // Copy the callbacks to allow callbacks to update the callbacks.
             //
-            for(PropertiesAdminUpdateCallback callback : new java.util.ArrayList<>(_updateCallbacks))
+            for(java.util.function.Consumer<java.util.Map<String, String>> callback : new java.util.ArrayList<>(_updateCallbacks))
             {
                 try
                 {
-                    callback.updated(changes);
+                    callback.accept(changes);
                 }
                 catch(RuntimeException ex)
                 {
@@ -191,20 +189,20 @@ class PropertiesAdminI implements com.zeroc.Ice.PropertiesAdmin, com.zeroc.Ice.N
     }
 
     @Override
-    public synchronized void addUpdateCallback(PropertiesAdminUpdateCallback cb)
+    public synchronized void addUpdateCallback(java.util.function.Consumer<java.util.Map<String, String>> cb)
     {
         _updateCallbacks.add(cb);
     }
 
     @Override
-    public synchronized void removeUpdateCallback(PropertiesAdminUpdateCallback cb)
+    public synchronized void removeUpdateCallback(java.util.function.Consumer<java.util.Map<String, String>> cb)
     {
         _updateCallbacks.remove(cb);
     }
 
     private final com.zeroc.Ice.Properties _properties;
     private final com.zeroc.Ice.Logger _logger;
-    private java.util.List<PropertiesAdminUpdateCallback> _updateCallbacks = new java.util.ArrayList<>();
+    private java.util.List<java.util.function.Consumer<java.util.Map<String, String>>> _updateCallbacks = new java.util.ArrayList<>();
 
     static private final String _traceCategory = "Admin.Properties";
 }

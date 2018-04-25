@@ -1,3 +1,13 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+#include <IceUtil/ConsoleUtil.h>
 #include <ConfluenceOutput.h>
 #include <iostream>
 #include <sstream>
@@ -128,7 +138,7 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
         // For each position of a found escape character
         while(pos != string::npos)
         {
-            pair<unsigned int,unsigned int> *region = NULL;
+            pair<unsigned int,unsigned int> *region = ICE_NULLPTR;
 
             // Is this pos in an escaped section?
             for(list<pair<unsigned int,unsigned int> >::iterator i = escaperLimits.begin(); i != escaperLimits.end();
@@ -141,7 +151,7 @@ Confluence::ConfluenceOutput::escapeComment(string comment)
                 }
             }
 
-            if(region == NULL)
+            if(region == ICE_NULLPTR)
             {
                 comment.replace(pos, c.size(), replacement);
                 pos = comment.find(c, pos + replacement.size());
@@ -382,7 +392,6 @@ Confluence::ConfluenceOutput::convertCommentHTML(string comment)
             comment.replace(tagStart, tagEnd + 1 - tagStart, replacement); // Don't skip whitespace
         }
 
-
         // Special case: terminate <p> (and any italics) on double newline or end of comment
         size_t dnl = comment.find("\n\n", tagStart + replacement.size());
         tagStart = comment.find("<");
@@ -447,7 +456,6 @@ Confluence::ConfluenceOutput::startElement(const string& element)
 
     string::size_type tagpos = element.find_first_of(" ");
     const string tagname = element.substr(0, tagpos).c_str();
-
 
     if(tagname == "p")
     {
@@ -795,8 +803,8 @@ Confluence::ConfluenceOutput::getMarkerLimits(const string& str)
         }
         else
         {
-            cerr << "getEscaperLimits FOUND START OF ESCAPE MARKER WITH NO MATCHING END IN STRING:" << endl
-                 << str.substr(start) << endl;
+            consoleErr << "getMarkerLimits FOUND START OF ESCAPE MARKER WITH NO MATCHING END IN STRING:"
+                       << endl << str.substr(start) << endl;
             break;
         }
     }

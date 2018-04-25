@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,12 +25,21 @@ using namespace IceInternal;
 namespace
 {
 
-Ice::IPEndpointInfoPtr
-getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
+class WSEndpointFactoryPlugin : public Plugin
 {
-    for(Ice::EndpointInfoPtr p = info; p; p = p->underlying)
+public:
+
+    WSEndpointFactoryPlugin(const CommunicatorPtr&);
+    virtual void initialize();
+    virtual void destroy();
+};
+
+IPEndpointInfoPtr
+getIPEndpointInfo(const EndpointInfoPtr& info)
+{
+    for(EndpointInfoPtr p = info; p; p = p->underlying)
     {
-        Ice::IPEndpointInfoPtr ipInfo = ICE_DYNAMIC_CAST(Ice::IPEndpointInfo, p);
+        IPEndpointInfoPtr ipInfo = ICE_DYNAMIC_CAST(IPEndpointInfo, p);
         if(ipInfo)
         {
             return ipInfo;
@@ -41,9 +50,59 @@ getIPEndpointInfo(const Ice::EndpointInfoPtr& info)
 
 }
 
+extern "C"
+{
+
+Plugin*
+createIceWS(const CommunicatorPtr& c, const string&, const StringSeq&)
+{
+    return new WSEndpointFactoryPlugin(c);
+}
+
+}
+
+namespace Ice
+{
+
+ICE_API void
+registerIceWS(bool loadOnInitialize)
+{
+    registerPluginFactory("IceWS", createIceWS, loadOnInitialize);
+}
+
+}
+
+//
+// Objective-C function to allow Objective-C programs to register plugin.
+//
+extern "C" ICE_API void
+ICEregisterIceWS(bool loadOnInitialize)
+{
+    Ice::registerIceWS(loadOnInitialize);
+}
+
 #ifndef ICE_CPP11_MAPPING
 IceUtil::Shared* IceInternal::upCast(WSEndpoint* p) { return p; }
 #endif
+
+WSEndpointFactoryPlugin::WSEndpointFactoryPlugin(const CommunicatorPtr& communicator)
+{
+    assert(communicator);
+
+    const EndpointFactoryManagerPtr efm = getInstance(communicator)->endpointFactoryManager();
+    efm->add(new WSEndpointFactory(new ProtocolInstance(communicator, WSEndpointType, "ws", false), TCPEndpointType));
+    efm->add(new WSEndpointFactory(new ProtocolInstance(communicator, WSSEndpointType, "wss", true), SSLEndpointType));
+}
+
+void
+WSEndpointFactoryPlugin::initialize()
+{
+}
+
+void
+WSEndpointFactoryPlugin::destroy()
+{
+}
 
 IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const EndpointIPtr& del, const string& res) :
     _instance(instance), _delegate(del), _resource(res)
@@ -67,10 +126,10 @@ IceInternal::WSEndpoint::WSEndpoint(const ProtocolInstancePtr& instance, const E
     s->read(const_cast<string&>(_resource), false);
 }
 
-Ice::EndpointInfoPtr
-IceInternal::WSEndpoint::getInfo() const
+EndpointInfoPtr
+IceInternal::WSEndpoint::getInfo() const ICE_NOEXCEPT
 {
-    WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::WSEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
+    WSEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<WSEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
     info->underlying = _delegate->getInfo();
     info->compress = info->underlying->compress;
     info->timeout = info->underlying->timeout;
@@ -78,7 +137,7 @@ IceInternal::WSEndpoint::getInfo() const
     return info;
 }
 
-Ice::Short
+Short
 IceInternal::WSEndpoint::type() const
 {
     return _delegate->type();
@@ -173,7 +232,7 @@ IceInternal::WSEndpoint::transceiver() const
 }
 
 void
-IceInternal::WSEndpoint::connectors_async(Ice::EndpointSelectionType selType,
+IceInternal::WSEndpoint::connectors_async(EndpointSelectionType selType,
                                          const EndpointI_connectorsPtr& callback) const
 {
     class CallbackI : public EndpointI_connectors
@@ -196,7 +255,7 @@ IceInternal::WSEndpoint::connectors_async(Ice::EndpointSelectionType selType,
             _callback->connectors(connectors);
         }
 
-        virtual void exception(const Ice::LocalException& ex)
+        virtual void exception(const LocalException& ex)
         {
             _callback->exception(ex);
         }
@@ -228,16 +287,56 @@ IceInternal::WSEndpoint::acceptor(const string& adapterName) const
 WSEndpointPtr
 IceInternal::WSEndpoint::endpoint(const EndpointIPtr& delEndp) const
 {
-    return ICE_MAKE_SHARED(WSEndpoint, _instance, delEndp, _resource);
+    if(delEndp.get() == _delegate.get())
+    {
+        return ICE_DYNAMIC_CAST(WSEndpoint, ICE_SHARED_FROM_CONST_THIS(WSEndpoint));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(WSEndpoint, _instance, delEndp, _resource);
+    }
 }
 
 vector<EndpointIPtr>
-IceInternal::WSEndpoint::expand() const
+IceInternal::WSEndpoint::expandIfWildcard() const
 {
-    vector<EndpointIPtr> endps = _delegate->expand();
+    vector<EndpointIPtr> endps = _delegate->expandIfWildcard();
     for(vector<EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
-        *p = p->get() == _delegate.get() ? ICE_SHARED_FROM_CONST_THIS(WSEndpoint) : ICE_MAKE_SHARED(WSEndpoint, _instance, *p, _resource);
+        if(p->get() == _delegate.get())
+        {
+            *p = ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+        }
+        else
+        {
+            *p = ICE_MAKE_SHARED(WSEndpoint, _instance, *p, _resource);
+        }
+    }
+    return endps;
+}
+
+vector<EndpointIPtr>
+IceInternal::WSEndpoint::expandHost(EndpointIPtr& publish) const
+{
+    vector<EndpointIPtr> endps = _delegate->expandHost(publish);
+    if(publish.get() == _delegate.get())
+    {
+        publish = ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+    }
+    else if(publish.get())
+    {
+        publish = ICE_MAKE_SHARED(WSEndpoint, _instance, publish, _resource);
+    }
+    for(vector<EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
+    {
+        if(p->get() == _delegate.get())
+        {
+            *p = ICE_SHARED_FROM_CONST_THIS(WSEndpoint);
+        }
+        else
+        {
+            *p = ICE_MAKE_SHARED(WSEndpoint, _instance, *p, _resource);
+        }
     }
     return endps;
 }
@@ -253,7 +352,7 @@ IceInternal::WSEndpoint::equivalent(const EndpointIPtr& endpoint) const
     return _delegate->equivalent(wsEndpointI->_delegate);
 }
 
-Ice::Int
+Int
 IceInternal::WSEndpoint::hash() const
 {
     int h = _delegate->hash();
@@ -296,7 +395,7 @@ bool
 #ifdef ICE_CPP11_MAPPING
 IceInternal::WSEndpoint::operator==(const Endpoint& r) const
 #else
-IceInternal::WSEndpoint::operator==(const Ice::LocalObject& r) const
+IceInternal::WSEndpoint::operator==(const LocalObject& r) const
 #endif
 {
     const WSEndpoint* p = dynamic_cast<const WSEndpoint*>(&r);
@@ -310,7 +409,7 @@ IceInternal::WSEndpoint::operator==(const Ice::LocalObject& r) const
         return true;
     }
 
-    if(!Ice::targetEqualTo(_delegate, p->_delegate))
+    if(!targetEqualTo(_delegate, p->_delegate))
     {
         return false;
     }
@@ -327,7 +426,7 @@ bool
 #ifdef ICE_CPP11_MAPPING
 IceInternal::WSEndpoint::operator<(const Endpoint& r) const
 #else
-IceInternal::WSEndpoint::operator<(const Ice::LocalObject& r) const
+IceInternal::WSEndpoint::operator<(const LocalObject& r) const
 #endif
 {
     const WSEndpoint* p = dynamic_cast<const WSEndpoint*>(&r);
@@ -346,11 +445,11 @@ IceInternal::WSEndpoint::operator<(const Ice::LocalObject& r) const
         return false;
     }
 
-    if(Ice::targetLess(_delegate, p->_delegate))
+    if(targetLess(_delegate, p->_delegate))
     {
         return true;
     }
-    else if (Ice::targetLess(p->_delegate, _delegate))
+    else if (targetLess(p->_delegate, _delegate))
     {
         return false;
     }
@@ -376,9 +475,8 @@ IceInternal::WSEndpoint::checkOption(const string& option, const string& argumen
     {
         if(argument.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -r option in endpoint " + endpoint + _delegate->options();
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -r option in endpoint " +
+                                         endpoint + _delegate->options());
         }
         const_cast<string&>(_resource) = argument;
         return true;
@@ -391,48 +489,25 @@ IceInternal::WSEndpoint::checkOption(const string& option, const string& argumen
     }
 }
 
-IceInternal::WSEndpointFactory::WSEndpointFactory(const ProtocolInstancePtr& instance, const EndpointFactoryPtr& del) :
-    _instance(instance), _delegate(del)
+IceInternal::WSEndpointFactory::WSEndpointFactory(const ProtocolInstancePtr& instance, Short type) :
+    EndpointFactoryWithUnderlying(instance, type)
 {
-}
-
-IceInternal::WSEndpointFactory::~WSEndpointFactory()
-{
-}
-
-Short
-IceInternal::WSEndpointFactory::type() const
-{
-    return _instance->type();
-}
-
-string
-IceInternal::WSEndpointFactory::protocol() const
-{
-    return _instance->protocol();
-}
-
-EndpointIPtr
-IceInternal::WSEndpointFactory::create(vector<string>& args, bool oaEndpoint) const
-{
-    return ICE_MAKE_SHARED(WSEndpoint, _instance, _delegate->create(args, oaEndpoint), args);
-}
-
-EndpointIPtr
-IceInternal::WSEndpointFactory::read(InputStream* s) const
-{
-    return ICE_MAKE_SHARED(WSEndpoint, _instance, _delegate->read(s), s);
-}
-
-void
-IceInternal::WSEndpointFactory::destroy()
-{
-    _delegate->destroy();
-    _instance = 0;
 }
 
 EndpointFactoryPtr
-IceInternal::WSEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr& delegate) const
+IceInternal::WSEndpointFactory::cloneWithUnderlying(const ProtocolInstancePtr& instance, Short underlying) const
 {
-    return new WSEndpointFactory(instance, delegate);
+    return new WSEndpointFactory(instance, underlying);
+}
+
+EndpointIPtr
+IceInternal::WSEndpointFactory::createWithUnderlying(const EndpointIPtr& underlying, vector<string>& args, bool) const
+{
+    return ICE_MAKE_SHARED(WSEndpoint, _instance, underlying, args);
+}
+
+EndpointIPtr
+IceInternal::WSEndpointFactory::readWithUnderlying(const EndpointIPtr& underlying, InputStream* s) const
+{
+    return ICE_MAKE_SHARED(WSEndpoint, _instance, underlying, s);
 }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -74,6 +74,51 @@ public class Buffer
         }
     }
 
+    public java.nio.Buffer position(int newPosition)
+    {
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        return ((java.nio.Buffer)b).position(newPosition);
+    }
+
+    public java.nio.Buffer limit(int newLimit)
+    {
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        return ((java.nio.Buffer)b).limit(newLimit);
+    }
+
+    public java.nio.Buffer flip()
+    {
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        return ((java.nio.Buffer)b).flip();
+    }
+
+    public void swap(Buffer buf)
+    {
+        final java.nio.ByteBuffer bb = buf.b;
+        final int size = buf._size;
+        final int capacity = buf._capacity;
+        final boolean direct = buf._direct;
+        final int shrinkCounter = buf._shrinkCounter;
+        final java.nio.ByteOrder order = buf._order;
+
+        buf.b = b;
+        buf._size = _size;
+        buf._capacity = _capacity;
+        buf._direct = _direct;
+        buf._shrinkCounter = _shrinkCounter;
+        buf._order = _order;
+
+        b = bb;
+        _size = size;
+        _capacity = capacity;
+        _direct = direct;
+        _shrinkCounter = shrinkCounter;
+        _order = order;
+    }
+
     public int size()
     {
         return _size;
@@ -126,7 +171,7 @@ public class Buffer
         //
         if(reading)
         {
-            b.limit(_size);
+            limit(_size);
         }
     }
 
@@ -153,8 +198,8 @@ public class Buffer
         _size = 0;
         if(b != _emptyBuffer)
         {
-            b.limit(b.capacity());
-            b.position(0);
+            limit(b.capacity());
+            position(0);
         }
     }
 
@@ -194,12 +239,12 @@ public class Buffer
             else
             {
                 final int pos = b.position();
-                b.position(0);
-                b.limit(java.lang.Math.min(_capacity, b.capacity()));
+                position(0);
+                limit(java.lang.Math.min(_capacity, b.capacity()));
                 buf.put(b);
                 b = buf;
-                b.limit(b.capacity());
-                b.position(pos);
+                limit(b.capacity());
+                position(pos);
             }
 
             b.order(_order); // Preserve the original order.

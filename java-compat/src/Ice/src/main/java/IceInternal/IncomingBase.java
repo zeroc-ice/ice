@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -236,18 +236,25 @@ class IncomingBase
         IceUtilInternal.OutputBase out = new IceUtilInternal.OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch exception:");
-        out.print("\nidentity: " + Ice.Util.identityToString(_current.id));
-        out.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
+        out.print("\nidentity: " + Ice.Util.identityToString(_current.id, _instance.toStringMode()));
+        out.print("\nfacet: " + IceUtilInternal.StringUtil.escapeString(_current.facet, "", _instance.toStringMode()));
         out.print("\noperation: " + _current.operation);
         if(_current.con != null)
         {
-            for(Ice.ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
+            try
             {
-                if(connInfo instanceof Ice.IPConnectionInfo)
+                for(Ice.ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
                 {
-                    Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
-                    out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                    if(connInfo instanceof Ice.IPConnectionInfo)
+                    {
+                        Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
+                        out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                    }
                 }
+            }
+            catch(Ice.LocalException exc)
+            {
+                // Ignore.
             }
         }
         out.print("\n");
@@ -338,7 +345,7 @@ class IncomingBase
                 {
                     assert(false);
                 }
-                ex.id.__write(_os);
+                ex.id.ice_writeMembers(_os);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -554,20 +561,25 @@ class IncomingBase
                 _responseHandler.sendNoResponse();
             }
 
-            if(!amd && ex instanceof java.lang.Error)
-            {
-                throw new ServantError((java.lang.Error)ex);
-            }
-        }
-        finally
-        {
             if(_observer != null)
             {
                 _observer.detach();
                 _observer = null;
             }
             _responseHandler = null;
+
+            if(!amd && ex instanceof java.lang.Error)
+            {
+                throw new ServantError((java.lang.Error)ex);
+            }
         }
+
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
+        _responseHandler = null;
     }
 
     protected Instance _instance;

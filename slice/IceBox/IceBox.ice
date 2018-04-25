@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBOX_API", "cpp:doxygen:include:IceBox/IceBox.h", "objc:header-dir:objc", "python:pkgdir:IceBox"]]
 [["cpp:include:IceBox/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -49,8 +49,7 @@ local exception FailureException
      *
      **/
     string reason;
-};
-
+}
 
 /**
  *
@@ -60,7 +59,7 @@ local exception FailureException
  **/
 exception AlreadyStartedException
 {
-};
+}
 
 /**
  *
@@ -70,7 +69,7 @@ exception AlreadyStartedException
  **/
 exception AlreadyStoppedException
 {
-};
+}
 
 /**
  *
@@ -80,7 +79,7 @@ exception AlreadyStoppedException
  **/
 exception NoSuchServiceException
 {
-};
+}
 
 /**
  *
@@ -118,8 +117,7 @@ local interface Service
      *
      **/
     void stop();
-};
-
+}
 
 /**
  *
@@ -133,8 +131,7 @@ interface ServiceObserver
 {
     void servicesStarted(Ice::StringSeq services);
     void servicesStopped(Ice::StringSeq services);
-};
-
+}
 
 /**
  *
@@ -160,6 +157,8 @@ interface ServiceManager
      *
      * @param service The service name.
      *
+     * @throws AlreadyStartedException If the service is already running.
+     * @throws NoSuchServiceException If no service could be found with the given name.
      **/
     void startService(string service)
         throws AlreadyStartedException, NoSuchServiceException;
@@ -170,10 +169,11 @@ interface ServiceManager
      *
      * @param service The service name.
      *
+     * @throws AlreadyStoppedException If the service is already stopped.
+     * @throws NoSuchServiceException If no service could be found with the given name.
      **/
     void stopService(string service)
         throws AlreadyStoppedException, NoSuchServiceException;
-
 
     /**
      *
@@ -184,14 +184,12 @@ interface ServiceManager
      **/
     void addObserver(ServiceObserver* observer);
 
-
     /**
      *
-     * Shut down all services. This causes {@link Service#stop} to be
-     * invoked on all configured services.
+     * Shut down all services. This causes stop to be invoked on all configured services.
      *
      **/
     void shutdown();
-};
+}
 
-};
+}

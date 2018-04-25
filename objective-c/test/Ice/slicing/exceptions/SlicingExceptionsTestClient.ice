@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,54 +16,54 @@ module Test
 exception Base
 {
     string b;
-};
+}
 
 exception KnownDerived extends Base
 {
     string kd;
-};
+}
 
 exception KnownIntermediate extends Base
 {
     string ki;
-};
+}
 
 exception KnownMostDerived extends KnownIntermediate
 {
     string kmd;
-};
+}
 
 ["preserve-slice"]
 exception KnownPreserved extends Base
 {
     string kp;
-};
+}
 
 exception KnownPreservedDerived extends KnownPreserved
 {
     string kpd;
-};
+}
 
 ["preserve-slice"]
 class BaseClass
 {
     string bc;
-};
+}
 
 class PreservedClass extends BaseClass
 {
     string pc;
-};
+}
 
 exception Preserved1 extends KnownPreservedDerived
 {
     BaseClass p1;
-};
+}
 
 exception Preserved2 extends Preserved1
 {
     BaseClass p2;
-};
+}
 
 ["format:sliced"]
 interface Relay
@@ -73,7 +73,7 @@ interface Relay
 
     void unknownPreservedAsBase() throws Base;
     void unknownPreservedAsKnownPreserved() throws KnownPreserved;
-};
+}
 
 ["format:sliced"] interface TestIntf
 {
@@ -108,6 +108,6 @@ interface Relay
     void relayUnknownPreservedAsKnownPreserved(Relay* r) throws KnownPreserved;
 
     void shutdown();
-};
+}
 
-};
+}

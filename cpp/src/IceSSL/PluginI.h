@@ -1,14 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_PLUGIN_I_H
-#define ICE_SSL_PLUGIN_I_H
+#ifndef ICESSL_PLUGIN_I_H
+#define ICESSL_PLUGIN_I_H
 
 #include <IceSSL/Plugin.h>
 #include <IceSSL/SSLEngineF.h>
@@ -17,12 +17,11 @@
 namespace IceSSL
 {
 
-class PluginI : public IceSSL::Plugin
+class ICESSL_API PluginI : public virtual IceSSL::Plugin
 {
 public:
 
-    PluginI(const Ice::CommunicatorPtr&);
-
+    PluginI(const Ice::CommunicatorPtr&, const IceSSL::SSLEnginePtr&);
     //
     // From Ice::Plugin.
     //
@@ -33,29 +32,18 @@ public:
     // From IceSSL::Plugin.
     //
 #ifdef ICE_CPP11_MAPPING
-    virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<NativeConnectionInfo>&)>);
+    virtual void setCertificateVerifier(std::function<bool(const std::shared_ptr<ConnectionInfo>&)>);
     virtual void setPasswordPrompt(std::function<std::string()>);
 #else
     virtual void setCertificateVerifier(const CertificateVerifierPtr&);
     virtual void setPasswordPrompt(const PasswordPromptPtr&);
 #endif
 
-#ifdef ICE_USE_OPENSSL
-    virtual void setContext(SSL_CTX*);
-    virtual SSL_CTX* getContext();
-#endif
+    virtual CertificatePtr load(const std::string&) const = 0;
+    virtual CertificatePtr decode(const std::string&) const = 0;
+protected:
 
-private:
-
-#if defined(ICE_USE_SECURE_TRANSPORT)
-    SecureTransportEnginePtr _engine;
-#elif defined(ICE_USE_SCHANNEL)
-    SChannelEnginePtr _engine;
-#elif defined(ICE_OS_WINRT)
-    WinRTEnginePtr _engine;
-#else
-    OpenSSLEnginePtr _engine;
-#endif
+    SSLEnginePtr _engine;
 };
 
 }

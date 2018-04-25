@@ -1,11 +1,15 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
+#ifndef TEST_API_EXPORTS
+#   define TEST_API_EXPORTS
+#endif
 
 #include <EndpointI.h>
 #include <Transceiver.h>
@@ -204,13 +208,35 @@ EndpointI::endpoint(const IceInternal::TransceiverPtr& transceiver) const
 EndpointIPtr
 EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
-    return ICE_MAKE_SHARED(EndpointI, delEndp);
+    if(delEndp.get() == _endpoint.get())
+    {
+        return ICE_DYNAMIC_CAST(EndpointI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(EndpointI, delEndp);
+    }
 }
 
 vector<IceInternal::EndpointIPtr>
-EndpointI::expand() const
+EndpointI::expandIfWildcard() const
 {
-    vector<IceInternal::EndpointIPtr> e = _endpoint->expand();
+    vector<IceInternal::EndpointIPtr> e = _endpoint->expandIfWildcard();
+    for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
+    {
+        *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, *p);
+    }
+    return e;
+}
+
+vector<IceInternal::EndpointIPtr>
+EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
+{
+    vector<IceInternal::EndpointIPtr> e = _endpoint->expandHost(publish);
+    if(publish)
+    {
+        publish = publish == _endpoint ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, publish);
+    }
     for(vector<IceInternal::EndpointIPtr>::iterator p = e.begin(); p != e.end(); ++p)
     {
         *p = (*p == _endpoint) ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, *p);
@@ -230,13 +256,13 @@ EndpointI::equivalent(const IceInternal::EndpointIPtr& endpoint) const
 }
 
 string
-EndpointI::toString() const
+EndpointI::toString() const ICE_NOEXCEPT
 {
     return "test-" + _endpoint->toString();
 }
 
 Ice::EndpointInfoPtr
-EndpointI::getInfo() const
+EndpointI::getInfo() const ICE_NOEXCEPT
 {
     return _endpoint->getInfo();
 }
@@ -258,7 +284,6 @@ EndpointI::operator==(const Ice::LocalObject& r) const
     {
         return true;
     }
-
 
     return *p->_endpoint == *_endpoint;
 }

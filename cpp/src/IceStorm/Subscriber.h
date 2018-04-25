@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,8 +30,6 @@ class Subscriber : public IceUtil::Shared
 public:
 
     static SubscriberPtr create(const InstancePtr&, const IceStorm::SubscriberRecord&);
-
-    ~Subscriber();
 
     Ice::ObjectPrx proxy() const; // Get the per subscriber object.
     Ice::Identity id() const; // Return the id of the subscriber.

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,13 +8,10 @@
 // **********************************************************************
 
 #include <Slice/FileTracker.h>
+#include <IceUtil/ConsoleUtil.h>
+#include <IceUtil/FileUtil.h>
 
-#ifdef _WIN32
-#   include <direct.h>
-#else
-#   include <unistd.h>
-#endif
-
+using namespace IceUtilInternal;
 using namespace std;
 
 Slice::FileException::FileException(const char* file, int line, const string& r) :
@@ -62,7 +59,6 @@ Slice::FileException::reason() const
     return _reason;
 }
 
-
 static Slice::FileTrackerPtr Instance;
 
 Slice::FileTracker::FileTracker() :
@@ -95,15 +91,11 @@ Slice::FileTracker::setSource(const string& source)
 }
 
 void
-Slice::FileTracker::setOutput(const string& output, bool error)
+Slice::FileTracker::error()
 {
-    assert(!_source.empty());
-    _errors.insert(make_pair(_source, output));
-    if(error)
-    {
-        _generated.erase(_curr);
-        _curr = _generated.end();
-    }
+    assert(_curr != _generated.end());
+    _generated.erase(_curr);
+    _curr = _generated.end();
 }
 
 void
@@ -129,19 +121,11 @@ Slice::FileTracker::cleanup()
     {
         if(!p->second)
         {
-#ifdef _WIN32
-            _unlink(p->first.c_str());
-#else
-            unlink(p->first.c_str());
-#endif
+            IceUtilInternal::unlink(p->first);
         }
         else
         {
-#ifdef _WIN32
-            _rmdir(p->first.c_str());
-#else
-            rmdir(p->first.c_str());
-#endif
+            IceUtilInternal::rmdir(p->first);
         }
     }
 }
@@ -149,58 +133,19 @@ Slice::FileTracker::cleanup()
 void
 Slice::FileTracker::dumpxml()
 {
-    cout << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
-
-    cout << "<generated>" << endl;
-    for(map<string, string>::const_iterator p = _errors.begin(); p != _errors.end(); ++p)
+    consoleOut << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << endl;
+    consoleOut << "<generated>";
+    for(map<string, list<string> >::const_iterator p = _generated.begin(); p != _generated.end(); ++p)
     {
-        cout << "  <source name=\"" << p->first << "\"";
-
-        map<string, list<string> >::const_iterator q = _generated.find(p->first);
-        if(q == _generated.end())
+        if(!p->second.empty())
         {
-            cout << " error=\"true\">" << endl;
-        }
-        else
-        {
-            cout << ">" << endl;
-            for(list<string>::const_iterator r = q->second.begin(); r != q->second.end(); ++r)
+            consoleOut << endl << "  <source name=\"" << p->first << "\">";
+            for(list<string>::const_iterator q = p->second.begin(); q != p->second.end(); ++q)
             {
-                cout << "    <file name=\"" << *r << "\"/>" << endl;
+                consoleOut << endl << "    <file name=\"" << *q << "\"/>";
             }
-        }
-        cout << "    <output>" << escape(p->second) << "</output>" << endl;
-        cout << "  </source>" << endl;
-    }
-    cout << "</generated>" << endl;
-}
-
-string
-Slice::FileTracker::escape(const string& str) const
-{
-    ostringstream ostr;
-
-    for(string::const_iterator p = str.begin(); p != str.end(); ++p)
-    {
-        switch(*p)
-        {
-        case '<':
-            ostr << "&lt;";
-            break;
-        case '>':
-            ostr << "&gt;";
-            break;
-        case '&':
-            ostr << "&amp;";
-            break;
-        case '"':
-            ostr << "&quot;";
-            break;
-        default:
-            ostr << *p;
-            break;
+            consoleOut << endl << "  </source>";
         }
     }
-
-    return ostr.str();
+    consoleOut << endl << "</generated>" << endl;
 }

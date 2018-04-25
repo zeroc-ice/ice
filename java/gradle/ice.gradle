@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,12 +8,6 @@
 // **********************************************************************
 
 buildscript {
-    def env = System.getenv()
-    ext.iceMavenRepo = env['ICE_MAVEN_REPOSITORY']
-    if (ext.iceMavenRepo == null) {
-        ext.iceMavenRepo = "repo.zeroc.com"
-    }
-
     //
     // If iceBuilderHome is set add its lib directory it to the local maven repositories
     // so we can build using a local plugin version
@@ -39,14 +33,19 @@ buildscript {
         mavenCentral()
 
         maven {
-            url "https://${iceMavenRepo}/nexus/content/repositories/releases"
+            url "https://plugins.gradle.org/m2/"
         }
     }
     dependencies {
-        classpath group: 'com.zeroc.gradle.ice-builder', name: 'slice', version: "${iceBuilderVersion}"
+        classpath group: "${iceBuilderClassPath}", name: 'slice', version: "${iceBuilderVersion}"
     }
 }
 
+//
+// We do not use the new gradle Plugin DSL because on debian we want to use the plug-in
+// from gradle-ice-builder-plugin package and this is not possible when using gradle 3.2
+// included in stretch and the Plugin DSL.
+//
 if (!project.plugins.findPlugin(com.zeroc.gradle.icebuilder.slice.SlicePlugin)) {
     project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
 }
@@ -54,14 +53,13 @@ if (!project.plugins.findPlugin(com.zeroc.gradle.icebuilder.slice.SlicePlugin)) 
 slice {
     cppConfiguration = this.cppConfiguration
     cppPlatform = this.cppPlatform
-    if(System.env.USE_BIN_DIST != "yes") {
+    if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
         iceHome =  this.hasProperty('iceHome') ? this.iceHome
-            : new File([rootProject.projectDir, ".."].join(File.separator)).getCanonicalPath()
+            : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File(project.ext.topSrcDir).getCanonicalPath()
     }
 }
 
 ext.generatedDir = "$project.buildDir/generated"
-ext.useLocalOnly = false
 
 // Android does not have a compileJava task
 if(!(project.hasProperty('android') && project.android.sourceSets)) {
@@ -75,12 +73,18 @@ def env = System.getenv()
 // Determine the name of the Slice-to-Java translator
 def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 
+// If the prefix isn't set use these default locations.
 if (!prefix) {
-    // If the prefix isn't set use these default locations.
+    def prefixVersion = iceVersion
+    if(prefixVersion.indexOf(".0-alpha")){
+        prefixVersion = prefixVersion.replace(".0-alpha", "a")
+    } else if(prefixVersion.indexOf(".0-beta")){
+        prefixVersion = prefixVersion.replace(".0-beta", "b")
+    }
     if (isWindows) {
-        prefix = "C:\\Ice-${project.version}"
+        prefix = "C:\\Ice-${prefixVersion}"
     } else {
-        prefix = "/opt/Ice-${project.version}"
+        prefix = "/opt/Ice-${prefixVersion}"
     }
 }
 
@@ -96,11 +100,6 @@ if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.st
     ext.binDir = prefix + "/bin"
 }
 
-// Check if we are building against source distribution
-def iceCppDir = slice.srcDist ? [slice.iceHome, "cpp"].join(File.separator) : slice.iceHome
-def iceSrcDist = false
-
-
 // Check is DESTDIR is set (non-Windows)
 if (isWindows) {
     ext.DESTDIR = ""
@@ -109,13 +108,13 @@ if (isWindows) {
 ext.versionSuffix = "-${project.version}"
 ext.libDir = "$rootProject.projectDir/lib"
 
-ext.iceSourceCompatibility = 1.7
-ext.iceTargetCompatibility = 1.7
+ext.iceSourceCompatibility = 1.8
+ext.iceTargetCompatibility = 1.8
 
 ext.searchFile = { List<Closure> places, List<String> searchPaths ->
     def dirs = []
     places.each {
-        def dir = it()
+        def dir = it
         if(dir != null) {
             dirs << dir + "/"
         }
@@ -134,7 +133,7 @@ ext.searchFile = { List<Closure> places, List<String> searchPaths ->
 }
 
 ext.localDependency = { artifactId ->
-    if (project.slice.srcDist) {
+    if (project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
         return project(":${artifactId}")
     } else {
         return "com.zeroc:${artifactId}:${project.version}"

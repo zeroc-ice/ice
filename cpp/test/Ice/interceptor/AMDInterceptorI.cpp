@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,6 @@ AMDInterceptorI::AMDInterceptorI(const Ice::ObjectPtr& servant) :
 {
 }
 
-
 bool
 AMDInterceptorI::dispatch(Ice::Request& request)
 {
@@ -30,6 +29,9 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     class CallbackI : public Ice::DispatchInterceptorAsyncCallback
     {
     public:
+        CallbackI() : _count(0)
+        {
+        }
 
         virtual bool response()
         {
@@ -38,6 +40,7 @@ AMDInterceptorI::dispatch(Ice::Request& request)
 
         virtual bool exception(const std::exception& ex)
         {
+            test(_count++ == 0); // Ensure it's only called once
             test(dynamic_cast<const Test::RetryException*>(&ex) != 0);
             return false;
         }
@@ -50,8 +53,11 @@ AMDInterceptorI::dispatch(Ice::Request& request)
             test(false);
             return false;
         }
+
+    private:
+
+        int _count;
     };
-    Ice::DispatchInterceptorAsyncCallbackPtr cb = ICE_MAKE_SHARED(CallbackI);
 #endif
 
     Ice::Current& current = const_cast<Ice::Current&>(request.getCurrent());
@@ -61,34 +67,25 @@ AMDInterceptorI::dispatch(Ice::Request& request)
     {
         for(int i = 0; i < 10; ++i)
         {
-            try
-            {
 #ifdef ICE_CPP11_MAPPING
-                _lastStatus =  _servant->ice_dispatch(request, nullptr, [](exception_ptr ex) {
-                    try
-                    {
-                        rethrow_exception(ex);
-                    }
-                    catch(Test::RetryException&)
-                    {
-                    }
-                    catch(...)
-                    {
-                        test(false);
-                    }
-                    return false;
-                });
+            _lastStatus = _servant->ice_dispatch(request, nullptr, [](exception_ptr ex) {
+                try
+                {
+                    rethrow_exception(ex);
+                }
+                catch(const Test::RetryException&)
+                {
+                }
+                catch(...)
+                {
+                    test(false);
+                }
+                return false;
+            });
 #else
-                _lastStatus =  _servant->ice_dispatch(request, cb);
+            _lastStatus =  _servant->ice_dispatch(request, new CallbackI());
 #endif
-                test(_lastStatus);
-            }
-            catch(const Test::RetryException&)
-            {
-                //
-                // Expected, retry
-                //
-            }
+            test(!_lastStatus);
         }
 
         current.ctx["retry"] = "no";
@@ -149,7 +146,6 @@ DispatchInterceptorAsyncCallbackI::response()
 {
     return true;
 }
-
 
 bool
 DispatchInterceptorAsyncCallbackI::exception(const std::exception& ex)

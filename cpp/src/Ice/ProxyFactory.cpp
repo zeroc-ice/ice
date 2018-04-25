@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -41,7 +41,7 @@ IceInternal::ProxyFactory::proxyToString(const ObjectPrxPtr& proxy) const
 {
     if(proxy)
     {
-        return proxy->__reference()->toString();
+        return proxy->_getReference()->toString();
     }
     else
     {
@@ -62,7 +62,7 @@ IceInternal::ProxyFactory::proxyToProperty(const ObjectPrxPtr& proxy, const stri
 {
     if(proxy)
     {
-        return proxy->__reference()->toProperty(prefix);
+        return proxy->_getReference()->toProperty(prefix);
     }
     else
     {
@@ -201,11 +201,12 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
     }
 
     //
-    // Don't retry if the communicator is destroyed or object adapter
-    // deactivated.
+    // Don't retry if the communicator is destroyed, object adapter is deactivated,
+    // or connection is manually closed.
     //
     if(dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
-       dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex))
+       dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
+       dynamic_cast<const ConnectionManuallyClosedException*>(&ex))
     {
         ex.ice_throw();
     }
@@ -229,7 +230,7 @@ IceInternal::ProxyFactory::checkRetryAfterException(const LocalException& ex, co
         // limit is reached.
         //
         interval = 0;
-    } 
+    }
     else if(cnt > static_cast<int>(_retryIntervals.size()))
     {
         if(traceLevels->retry >= 1)

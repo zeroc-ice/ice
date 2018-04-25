@@ -10,67 +10,87 @@
     <ClCompile Include="Win32\Debug\Test.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
+    <ClCompile Include="ARM\Debug\Test.cpp">
+      <Filter>Source Files\ARM\Debug</Filter>
+    </ClCompile>
     <ClCompile Include="x64\Debug\Test.cpp">
       <Filter>Source Files\x64\Debug</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Release\Test.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
+    <ClCompile Include="ARM\Release\Test.cpp">
+      <Filter>Source Files\ARM\Release</Filter>
+    </ClCompile>
     <ClCompile Include="x64\Release\Test.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{ab9af709-8a45-4b44-af8f-6cc7c2a986a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{e3f72f74-d2ad-452d-825b-8f4f67131dfd}</UniqueIdentifier>
+      <UniqueIdentifier>{2e6c5d23-e463-4ad2-abf9-97f161dfa494}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{f1b65a39-2f52-4dfb-b507-595a731c5b2f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Slice Files">
-      <UniqueIdentifier>{6f6474fa-6b0c-422c-8a32-f0c5c2e9d713}</UniqueIdentifier>
+      <UniqueIdentifier>{060daba1-f5a0-439e-a147-ae647ae4d559}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
     </Filter>
     <Filter Include="Source Files\Win32">
-      <UniqueIdentifier>{faa93517-f0d1-4e5f-b5f6-fdac0b5b2c28}</UniqueIdentifier>
+      <UniqueIdentifier>{2b907810-df0b-40e4-8a76-a6c3a2835bee}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Debug">
-      <UniqueIdentifier>{0018d8f2-ecb4-4cef-8ad8-796e5322e383}</UniqueIdentifier>
+      <UniqueIdentifier>{99e96ab1-8db4-4721-919d-6cc25bf21679}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32">
-      <UniqueIdentifier>{b11d0d2b-6d39-4d17-9ba9-c76d11852123}</UniqueIdentifier>
+      <UniqueIdentifier>{2f8ed57a-2c11-49ca-a170-9a4a5a5ec82e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Debug">
-      <UniqueIdentifier>{cf96d6f1-ad32-4aac-95f3-a10b6f745fbe}</UniqueIdentifier>
+      <UniqueIdentifier>{da91d5f0-6eea-481d-b894-39c2a66e1ddf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM">
+      <UniqueIdentifier>{6f875a3a-6dc1-4634-a35e-774d1d97aca0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Debug">
+      <UniqueIdentifier>{7f1717cb-0a83-482c-a682-bde6578fc202}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM">
+      <UniqueIdentifier>{18f98377-e1f4-45bd-b35a-5e5fe94ef159}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Debug">
+      <UniqueIdentifier>{8bd0d1ba-596b-49eb-b7fc-50e6c8da529d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64">
-      <UniqueIdentifier>{9b201016-3f2c-4a7b-ae34-c65e9770547c}</UniqueIdentifier>
+      <UniqueIdentifier>{4367f030-b91f-4c39-8fde-f01ee4079cec}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Debug">
-      <UniqueIdentifier>{2f994275-e9eb-4811-b404-5a994a1f2fca}</UniqueIdentifier>
+      <UniqueIdentifier>{b8b345b8-5a88-4169-b959-e4e094257d73}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64">
-      <UniqueIdentifier>{93a99a86-f72a-4be7-8060-890e16857439}</UniqueIdentifier>
+      <UniqueIdentifier>{d16fdd9d-9cfd-48df-94b5-29f8e4e48670}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Debug">
-      <UniqueIdentifier>{23a13e75-c20c-4702-bbf9-c3b91071ca98}</UniqueIdentifier>
+      <UniqueIdentifier>{b2e22a9a-33ee-42e7-a527-d19e43a3ba40}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Release">
-      <UniqueIdentifier>{195ddf49-84db-4e8b-81e2-b7c988f3f5c2}</UniqueIdentifier>
+      <UniqueIdentifier>{ee75911b-dfa9-4c35-a942-766f30e04e3e}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Release">
-      <UniqueIdentifier>{6940cb27-e75c-4e86-bed0-b3042a83b589}</UniqueIdentifier>
+      <UniqueIdentifier>{129e4440-4997-42d9-80d0-8181f365fbb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Release">
+      <UniqueIdentifier>{d68ad82e-476b-43d7-aa03-53e1a76dfa18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Release">
+      <UniqueIdentifier>{0d68e621-8581-47fa-b5d0-bd67ee466c5d}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Release">
-      <UniqueIdentifier>{54d967fb-8ce4-4392-951a-f8d8e2b6bee1}</UniqueIdentifier>
+      <UniqueIdentifier>{24fc68f9-9ccb-47ce-851f-75f3e2849a45}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Release">
-      <UniqueIdentifier>{fee9c9d2-6fa5-4645-abea-0289a8b873c1}</UniqueIdentifier>
+      <UniqueIdentifier>{c5695bad-dc45-479e-a16e-5eaa46df2518}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <IceBuilder Include="..\..\..\Test.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\TestI.h">
@@ -79,14 +99,28 @@
     <ClInclude Include="Win32\Debug\Test.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
+    <ClInclude Include="ARM\Debug\Test.h">
+      <Filter>Header Files\ARM\Debug</Filter>
+    </ClInclude>
     <ClInclude Include="x64\Debug\Test.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Win32\Release\Test.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
+    <ClInclude Include="ARM\Release\Test.h">
+      <Filter>Header Files\ARM\Release</Filter>
+    </ClInclude>
     <ClInclude Include="x64\Release\Test.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\Test.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

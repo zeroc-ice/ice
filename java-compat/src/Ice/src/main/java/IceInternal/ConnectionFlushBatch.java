@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -42,12 +42,12 @@ public class ConnectionFlushBatch extends OutgoingAsyncBase
         return _connection;
     }
 
-    public void invoke()
+    public void invoke(final Ice.CompressBatch compressBatch)
     {
         try
         {
-            final int batchRequestNum = _connection.getBatchRequestQueue().swap(_os);
-
+            final Ice.BooleanHolder compress = new Ice.BooleanHolder();
+            final int batchRequestNum = _connection.getBatchRequestQueue().swap(_os, compress);
             int status;
             if(batchRequestNum == 0)
             {
@@ -64,13 +64,39 @@ public class ConnectionFlushBatch extends OutgoingAsyncBase
                     @Override
                     public Integer call() throws RetryException
                     {
-                        return _connection.sendAsyncRequest(ConnectionFlushBatch.this, false, false, batchRequestNum);
+                        boolean comp;
+                        if(compressBatch == Ice.CompressBatch.Yes)
+                        {
+                            comp = true;
+                        }
+                        else if(compressBatch == Ice.CompressBatch.No)
+                        {
+                            comp = false;
+                        }
+                        else
+                        {
+                            comp = compress.value;
+                        }
+                        return _connection.sendAsyncRequest(ConnectionFlushBatch.this, comp, false, batchRequestNum);
                     }
                 });
             }
             else
             {
-                status = _connection.sendAsyncRequest(this, false, false, batchRequestNum);
+                boolean comp;
+                if(compressBatch == Ice.CompressBatch.Yes)
+                {
+                    comp = true;
+                }
+                else if(compressBatch == Ice.CompressBatch.No)
+                {
+                    comp = false;
+                }
+                else
+                {
+                    comp = compress.value;
+                }
+                status = _connection.sendAsyncRequest(this, comp, false, batchRequestNum);
             }
 
             if((status & AsyncStatus.Sent) > 0)

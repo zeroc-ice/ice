@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -56,13 +56,24 @@ public abstract class UserException extends java.lang.Exception implements Clone
     {
         return ice_id().substring(2);
     }
-    
+
     /**
      * Returns the type id of this exception.
      *
      * @return The type id of this exception.
      **/
     public abstract String ice_id();
+
+    /**
+     * Returns the sliced data if the exception has a preserved-slice base class and has been sliced during
+     * un-marshaling, null is returned otherwise.
+     *
+     * @return The sliced data or null.
+     **/
+    public com.zeroc.Ice.SlicedData ice_getSlicedData()
+    {
+        return null;
+    }
 
     /**
      * Returns a string representation of this exception.
@@ -83,26 +94,28 @@ public abstract class UserException extends java.lang.Exception implements Clone
         return sw.toString();
     }
 
-    public void __write(OutputStream os)
+    public void _write(OutputStream os)
     {
         os.startException(null);
-        __writeImpl(os);
+        _writeImpl(os);
         os.endException();
     }
 
-    public void __read(InputStream is)
+    public void _read(InputStream is)
     {
         is.startException();
-        __readImpl(is);
+        _readImpl(is);
         is.endException(false);
     }
 
-    public boolean __usesClasses()
+    public boolean _usesClasses()
     {
         return false;
     }
 
-    protected abstract void __writeImpl(OutputStream os);
+    protected abstract void _writeImpl(OutputStream os);
 
-    protected abstract void __readImpl(InputStream is);
+    protected abstract void _readImpl(InputStream is);
+
+    public static final long serialVersionUID = 0L;
 }

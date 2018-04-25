@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #pragma once
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:doxygen:include:IceLocatorDiscovery/IceLocatorDiscovery.h", "objc:header-dir:objc", "python:pkgdir:IceLocatorDiscovery"]]
 
 #include <Ice/Locator.ice>
 
@@ -29,9 +29,8 @@ module IceLocatorDiscovery
  * are searching for Ice locators. Ice locator implementations invoke
  * on this interface to provide their locator proxy.
  *
- * @see Locator
  * @see Lookup
- * 
+ *
  **/
 interface LookupReply
 {
@@ -44,21 +43,20 @@ interface LookupReply
      *
      **/
     void foundLocator(Ice::Locator* prx);
-};
+}
 
 /**
  *
  * The Ice lookup interface is implemented by Ice locator
  * implementations and can be used by clients to find available Ice
  * locators on the network.
- * 
- * Ice locator implementations provide a well-known `Ice/LocatorLookup' 
- * object accessible through UDP multicast. Clients typically make a 
+ *
+ * Ice locator implementations provide a well-known `Ice/LocatorLookup'
+ * object accessible through UDP multicast. Clients typically make a
  * multicast findLocator request to find the locator proxy.
  *
- * @see Locator
  * @see LookupReply
- * 
+ *
  **/
 interface Lookup
 {
@@ -74,6 +72,6 @@ interface Lookup
      *
      **/
     idempotent void findLocator(string instanceName, LookupReply* reply);
-};
+}
 
-};
+}

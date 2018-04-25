@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,7 +27,7 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
-class RegistryEditor extends Editor
+class RegistryEditor extends CommunicatorEditor
 {
     RegistryEditor()
     {
@@ -42,7 +42,7 @@ class RegistryEditor extends Editor
                     if(selectedRow != -1)
                     {
                         String appName = (String)_applications.getValueAt(selectedRow, 0);
-                        ApplicationPane app = _target.getCoordinator().openLiveApplication(appName);
+                        ApplicationPane app = ((Root)_target).getCoordinator().openLiveApplication(appName);
 
                         if(app != null && app.getRoot().getSelectedNode() == null)
                         {
@@ -61,7 +61,7 @@ class RegistryEditor extends Editor
                     if(selectedRow != -1)
                     {
                         String appName = (String)_applications.getValueAt(selectedRow, 0);
-                        _target.showApplicationDetails(appName);
+                        ((Root)_target).showApplicationDetails(appName);
                     }
                 }
             };
@@ -75,7 +75,7 @@ class RegistryEditor extends Editor
                     if(selectedRow != -1)
                     {
                         String appName = (String)_applications.getValueAt(selectedRow, 0);
-                        _target.patch(appName);
+                        ((Root)_target).patch(appName);
                     }
                 }
             };
@@ -91,7 +91,7 @@ class RegistryEditor extends Editor
                         String appName = (String)_applications.getValueAt(selectedRow, 0);
 
                         int confirm = JOptionPane.showConfirmDialog(
-                            _target.getCoordinator().getMainFrame(),
+                            ((Root)_target).getCoordinator().getMainFrame(),
                             "You are about to remove application '" + appName + "' from the IceGrid registry. "
                             + "Do you want to proceed?",
                             "Remove Confirmation",
@@ -99,7 +99,7 @@ class RegistryEditor extends Editor
 
                         if(confirm == JOptionPane.YES_OPTION)
                         {
-                            _target.getCoordinator().removeApplicationFromRegistry(appName);
+                            ((Root)_target).getCoordinator().removeApplicationFromRegistry(appName);
                         }
                     }
                 }
@@ -129,7 +129,7 @@ class RegistryEditor extends Editor
                         if(selectedRow != -1)
                         {
                             String appName = (String)_applications.getValueAt(selectedRow, 0);
-                            _target.showApplicationDetails(appName);
+                            ((Root)_target).showApplicationDetails(appName);
                         }
                     }
                 }
@@ -152,25 +152,24 @@ class RegistryEditor extends Editor
                     if (e.isPopupTrigger() && selectedRow != -1)
                     {
                         String appName = (String)_applications.getValueAt(selectedRow, 0);
-                        ApplicationDescriptor desc = _target.getApplicationDescriptor(appName);
+                        ApplicationDescriptor desc = ((Root)_target).getApplicationDescriptor(appName);
                         patch.setEnabled(desc != null && desc.distrib.icepatch.length() > 0);
                         appPopup.show(_applications, e.getX(), e.getY());
                     }
                 }
             });
 
-
         Action deleteObject = new AbstractAction("Remove selected object")
             {
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    if(_target.getCoordinator().connectedToMaster())
+                    if(((Root)_target).getCoordinator().connectedToMaster())
                     {
                         int selectedRow = _objects.getSelectedRow();
                         if(selectedRow != -1)
                         {
-                            _target.removeObject((String)_objects.getValueAt(selectedRow, 0));
+                            ((Root)_target).removeObject((String)_objects.getValueAt(selectedRow, 0));
                         }
                     }
                 }
@@ -190,7 +189,7 @@ class RegistryEditor extends Editor
                     {
                         String proxy = (String)_objects.getValueAt(selectedRow, 0);
                         String type = (String)_objects.getValueAt(selectedRow, 1);
-                        _target.showObject(proxy, type);
+                        ((Root)_target).showObject(proxy, type);
                     }
                 }
             };
@@ -200,9 +199,9 @@ class RegistryEditor extends Editor
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    if(_target.getCoordinator().connectedToMaster())
+                    if(((Root)_target).getCoordinator().connectedToMaster())
                     {
-                        _target.addObject();
+                        ((Root)_target).addObject();
                     }
                 }
             };
@@ -234,7 +233,7 @@ class RegistryEditor extends Editor
                         {
                             String proxy = (String)_objects.getValueAt(selectedRow, 0);
                             String type = (String)_objects.getValueAt(selectedRow, 1);
-                            _target.showObject(proxy, type);
+                            ((Root)_target).showObject(proxy, type);
                         }
                     }
                 }
@@ -267,12 +266,12 @@ class RegistryEditor extends Editor
                 @Override
                 public void actionPerformed(ActionEvent e)
                 {
-                    if(_target.getCoordinator().connectedToMaster())
+                    if(((Root)_target).getCoordinator().connectedToMaster())
                     {
                         int selectedRow = _adapters.getSelectedRow();
                         if(selectedRow != -1)
                         {
-                            _target.removeAdapter((String)_adapters.getValueAt(selectedRow, 0));
+                            ((Root)_target).removeAdapter((String)_adapters.getValueAt(selectedRow, 0));
                         }
                     }
                 }
@@ -318,6 +317,7 @@ class RegistryEditor extends Editor
         builder.append("Hostname" );
         builder.append(_hostname, 3);
         builder.nextLine();
+        appendRuntimeProperties(builder);
 
         builder.appendSeparator("Deployed Applications");
         builder.append("");
@@ -398,8 +398,10 @@ class RegistryEditor extends Editor
 
     void show(Root root)
     {
+        Root previous = (Root)_target;
         _target = root;
         _hostname.setText(root.getRegistryInfo().hostname);
+        showRuntimeProperties(previous);
         _applications.setSortedMap(root.getApplicationMap());
         _objects.setObjects(root.getObjects());
         _adapters.setAdapters(root.getAdapters());
@@ -409,6 +411,4 @@ class RegistryEditor extends Editor
     private TableField _applications = new TableField("Name", "Last Update");
     private TableField _objects = new TableField("Proxy", "Type");
     private TableField _adapters = new TableField("ID", "Endpoints", "Replica Group");
-
-    private Root _target;
 }

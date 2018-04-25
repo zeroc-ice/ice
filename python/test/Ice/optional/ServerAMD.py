@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,25 +11,28 @@
 import os, sys, traceback
 
 import Ice
-Ice.loadSlice('TestAMD.ice')
+Ice.loadSlice('Test.ice')
 import Test
 
 class InitialI(Test.Initial):
 
-    def shutdown_async(self, cb, current=None):
+    def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
-        cb.ice_response()
 
-    def pingPong_async(self, cb, o, current=None):
-        cb.ice_response(o)
+    def pingPong(self, o, current=None):
+        return Ice.Future.completed(o)
 
-    def opOptionalException_async(self, cb, a, b, o, current=None):
-        cb.ice_exception(Test.OptionalException(False, a, b, o))
+    def opOptionalException(self, a, b, o, current=None):
+        f = Ice.Future()
+        f.set_exception(Test.OptionalException(False, a, b, o))
+        return f
 
-    def opDerivedException_async(self, cb, a, b, o, current=None):
-        cb.ice_exception(Test.DerivedException(False, a, b, o, b, o))
+    def opDerivedException(self, a, b, o, current=None):
+        f = Ice.Future()
+        f.set_exception(Test.DerivedException(False, a, b, o, b, o))
+        return f
 
-    def opRequiredException_async(self, cb, a, b, o, current=None):
+    def opRequiredException(self, a, b, o, current=None):
         e = Test.RequiredException()
         e.a = a
         e.b = b
@@ -38,157 +41,159 @@ class InitialI(Test.Initial):
             e.ss = b
         if o is not Ice.Unset:
             e.o2 = o
-        cb.ice_exception(e)
+        f = Ice.Future()
+        f.set_exception(e)
+        return f
 
-    def opByte_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opByte(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opBool_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opBool(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opShort_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opShort(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opInt_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opInt(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opLong_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opLong(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opFloat_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opFloat(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opDouble_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opDouble(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opString_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opString(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opMyEnum_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opMyEnum(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opSmallStruct_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opSmallStruct(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opFixedStruct_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opFixedStruct(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opVarStruct_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opVarStruct(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opOneOptional_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opOneOptional(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opOneOptionalProxy_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opOneOptionalProxy(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opByteSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opByteSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opBoolSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opBoolSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opShortSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opShortSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opIntSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opIntSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opLongSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opLongSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opFloatSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opFloatSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opDoubleSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opDoubleSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opStringSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opStringSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opSmallStructSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opSmallStructSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opSmallStructList_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opSmallStructList(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opFixedStructSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opFixedStructSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opFixedStructList_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opFixedStructList(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opVarStructSeq_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opVarStructSeq(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opSerializable_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opSerializable(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opIntIntDict_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opIntIntDict(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opStringIntDict_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opStringIntDict(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opIntOneOptionalDict_async(self, cb, p1, current=None):
-        cb.ice_response(p1, p1)
+    def opIntOneOptionalDict(self, p1, current=None):
+        return Ice.Future.completed((p1, p1))
 
-    def opClassAndUnknownOptional_async(self, cb, p, current=None):
-        cb.ice_response()
+    def opClassAndUnknownOptional(self, p, current=None):
+        return Ice.Future.completed(None)
 
-    def sendOptionalClass_async(self, cb, req, o, current=None):
-        cb.ice_response()
+    def sendOptionalClass(self, req, o, current=None):
+        return Ice.Future.completed(None)
 
-    def returnOptionalClass_async(self, cb, req, current=None):
-        cb.ice_response(Test.OneOptional(53))
+    def returnOptionalClass(self, req, current=None):
+        return Ice.Future.completed(Test.OneOptional(53))
 
-    def opG_async(self, cb, g, current=None):
-        cb.ice_response(g)
+    def opG(self, g, current=None):
+        return Ice.Future.completed(g)
 
-    def opVoid_async(self, cb, current=None):
-        cb.ice_response()
+    def opVoid(self, current=None):
+        return Ice.Future.completed(None)
 
-    def opMStruct1_async(self, cb, current):
-        cb.ice_response(Test.SmallStruct())
+    def opMStruct1(self, current):
+        return Ice.Future.completed(Test.Initial.OpMStruct1MarshaledResult(Test.SmallStruct(), current))
 
-    def opMStruct2_async(self, cb, p1, current):
-        cb.ice_response(p1, p1)
+    def opMStruct2(self, p1, current):
+        return Ice.Future.completed(Test.Initial.OpMStruct2MarshaledResult((p1, p1), current))
 
-    def opMSeq1_async(self, cb, current):
-        cb.ice_response([])
+    def opMSeq1(self, current):
+        return Ice.Future.completed(Test.Initial.OpMSeq1MarshaledResult([], current))
 
-    def opMSeq2_async(self, cb, p1, current):
-        cb.ice_response(p1, p1)
+    def opMSeq2(self, p1, current):
+        return Ice.Future.completed(Test.Initial.OpMSeq2MarshaledResult((p1, p1), current))
 
-    def opMDict1_async(self, cb, current):
-        cb.ice_response({})
+    def opMDict1(self, current):
+        return Ice.Future.completed(Test.Initial.OpMDict1MarshaledResult({}, current))
 
-    def opMDict2_async(self, cb, p1, current):
-        cb.ice_response(p1, p1)
+    def opMDict2(self, p1, current):
+        return Ice.Future.completed(Test.Initial.OpMDict2MarshaledResult((p1, p1), current))
 
-    def opMG1_async(self, cb, current):
-        cb.ice_response(Test.G())
+    def opMG1(self, current):
+        return Ice.Future.completed(Test.Initial.OpMG1MarshaledResult(Test.G(), current))
 
-    def opMG2_async(self, cb, p1, current):
-        cb.ice_response(p1, p1)
+    def opMG2(self, p1, current):
+        return Ice.Future.completed(Test.Initial.OpMG2MarshaledResult((p1, p1), current))
 
-    def supportsRequiredParams_async(self, cb, current=None):
-        cb.ice_response(False)
+    def supportsRequiredParams(self, current=None):
+        return Ice.Future.completed(False)
 
-    def supportsJavaSerializable_async(self, cb, current=None):
-        cb.ice_response(True)
+    def supportsJavaSerializable(self, current=None):
+        return Ice.Future.completed(True)
 
-    def supportsCsharpSerializable_async(self, cb, current=None):
-        cb.ice_response(False)
+    def supportsCsharpSerializable(self, current=None):
+        return Ice.Future.completed(False)
 
-    def supportsCppStringView_async(self, cb, current=None):
-        cb.ice_response(False)
+    def supportsCppStringView(self, current=None):
+        return Ice.Future.completed(False)
 
-    def supportsNullOptional_async(self, cb, current=None):
-        cb.ice_response(True)
+    def supportsNullOptional(self, current=None):
+        return Ice.Future.completed(True)
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
     adapter = communicator.createObjectAdapter("TestAdapter")
     initial = InitialI()
     adapter.add(initial, Ice.stringToIdentity("initial"))
@@ -198,17 +203,10 @@ def run(args, communicator):
     return True
 
 try:
-    communicator = Ice.initialize(sys.argv)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv) as communicator:
+         status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

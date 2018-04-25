@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -103,15 +103,20 @@ Ice::ConnectionIPtr
 ConnectRequestHandler::getConnection()
 {
     Lock sync(*this);
-    if(_exception)
-    {
-        _exception->ice_throw();
-        return 0; // Keep the compiler happy.
-    }
-    else
+    //
+    // First check for the connection, it's important otherwise the user could first get a connection
+    // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
+    // exception can be set after the connection is set if the flush of pending requests fails).
+    //
+    if(_connection)
     {
         return _connection;
     }
+    else if(_exception)
+    {
+        _exception->ice_throw();
+    }
+    return ICE_NULLPTR;
 }
 
 Ice::ConnectionIPtr
@@ -146,7 +151,7 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 {
     {
         Lock sync(*this);
-        assert(!_exception && !_connection);
+        assert(!_flushing && !_exception && !_connection);
         _connection = connection;
         _compress = compress;
     }
@@ -170,18 +175,17 @@ ConnectRequestHandler::setConnection(const Ice::ConnectionIPtr& connection, bool
 void
 ConnectRequestHandler::setException(const Ice::LocalException& ex)
 {
-    Lock sync(*this);
-    assert(!_initialized && !_exception);
-    ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
-
-    _proxies.clear();
-    _proxy = 0; // Break cyclic reference count.
+    {
+        Lock sync(*this);
+        assert(!_flushing && !_initialized && !_exception);
+        _flushing = true; // Ensures request handler is removed before processing new requests.
+        ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
+    }
 
     //
-    // NOTE: remove the request handler *before* notifying the
-    // requests that the connection failed. It's important to ensure
-    // that future invocations will obtain a new connect request
-    // handler once invocations are notified.
+    // NOTE: remove the request handler *before* notifying the requests that the connection
+    // failed. It's important to ensure that future invocations will obtain a new connect
+    // request handler once invocations are notified.
     //
     try
     {
@@ -192,7 +196,6 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
         // Ignore
     }
 
-
     for(deque<ProxyOutgoingAsyncBasePtr>::const_iterator p = _requests.begin(); p != _requests.end(); ++p)
     {
         if((*p)->exception(ex))
@@ -200,9 +203,15 @@ ConnectRequestHandler::setException(const Ice::LocalException& ex)
             (*p)->invokeExceptionAsync();
         }
     }
-
     _requests.clear();
-    notifyAll();
+
+    {
+        Lock sync(*this);
+        _flushing = false;
+        _proxies.clear();
+        _proxy = 0; // Break cyclic reference count.
+        notifyAll();
+    }
 }
 
 void
@@ -227,7 +236,7 @@ ConnectRequestHandler::initialized()
     }
     else
     {
-        while(_flushing && !_exception)
+        while(_flushing)
         {
             wait();
         }
@@ -272,7 +281,7 @@ ConnectRequestHandler::flushRequests()
 #ifdef ICE_CPP11_MAPPING
     std::unique_ptr<Ice::LocalException> exception;
 #else
-    IceUtil::UniquePtr<Ice::LocalException> exception;
+    IceInternal::UniquePtr<Ice::LocalException> exception;
 #endif
     while(!_requests.empty()) // _requests is immutable when _flushing = true
     {
@@ -316,7 +325,7 @@ ConnectRequestHandler::flushRequests()
         _requestHandler = ICE_MAKE_SHARED(ConnectionRequestHandler, _reference, _connection, _compress);
         for(set<Ice::ObjectPrxPtr>::const_iterator p = _proxies.begin(); p != _proxies.end(); ++p)
         {
-            (*p)->__updateRequestHandler(ICE_SHARED_FROM_THIS, _requestHandler);
+            (*p)->_updateRequestHandler(ICE_SHARED_FROM_THIS, _requestHandler);
         }
     }
 

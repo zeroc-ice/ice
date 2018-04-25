@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -292,11 +292,12 @@ TestI::knownPreservedAsKnownPreservedAsync(function<void()>, function<void(excep
 void
 TestI::relayKnownPreservedAsBaseAsync(shared_ptr<RelayPrx> r,
                                       function<void()>, function<void(exception_ptr)> error,
-                                      const ::Ice::Current&)
+                                      const ::Ice::Current& c)
 {
     try
     {
-        r->knownPreservedAsBase();
+        RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+        p->knownPreservedAsBase();
         test(false);
     }
     catch(...)
@@ -308,11 +309,12 @@ TestI::relayKnownPreservedAsBaseAsync(shared_ptr<RelayPrx> r,
 void
 TestI::relayKnownPreservedAsKnownPreservedAsync(shared_ptr<RelayPrx> r,
                                                 function<void()>, function<void(exception_ptr)> error,
-                                                const ::Ice::Current&)
+                                                const ::Ice::Current& c)
 {
     try
     {
-        r->knownPreservedAsKnownPreserved();
+        RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+        p->knownPreservedAsKnownPreserved();
         test(false);
     }
     catch(...)
@@ -363,11 +365,12 @@ TestI::unknownPreservedAsKnownPreservedAsync(function<void()>, function<void(exc
 void
 TestI::relayUnknownPreservedAsBaseAsync(shared_ptr<RelayPrx> r,
                                         function<void()>, function<void(exception_ptr)> error,
-                                        const ::Ice::Current&)
+                                        const ::Ice::Current& c)
 {
     try
     {
-        r->unknownPreservedAsBase();
+        RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+        p->unknownPreservedAsBase();
         test(false);
     }
     catch(...)
@@ -379,11 +382,12 @@ TestI::relayUnknownPreservedAsBaseAsync(shared_ptr<RelayPrx> r,
 void
 TestI::relayUnknownPreservedAsKnownPreservedAsync(shared_ptr<RelayPrx> r,
                                                   function<void()>, function<void(exception_ptr)> error,
-                                                  const ::Ice::Current&)
+                                                  const ::Ice::Current& c)
 {
     try
     {
-        r->unknownPreservedAsKnownPreserved();
+        RelayPrxPtr p = Ice::uncheckedCast<RelayPrx>(c.con->createProxy(r->ice_getIdentity()));
+        p->unknownPreservedAsKnownPreserved();
         test(false);
     }
     catch(...)
@@ -560,11 +564,12 @@ TestI::knownPreservedAsKnownPreserved_async(const AMD_TestIntf_knownPreservedAsK
 
 void
 TestI::relayKnownPreservedAsBase_async(const AMD_TestIntf_relayKnownPreservedAsBasePtr& cb, const RelayPrx& r,
-                                       const ::Ice::Current&)
+                                       const ::Ice::Current& c)
 {
     try
     {
-        r->knownPreservedAsBase();
+        RelayPrxPtr p = RelayPrx::uncheckedCast(c.con->createProxy(r->ice_getIdentity()));
+        p->knownPreservedAsBase();
         test(false);
     }
     catch(const Ice::Exception& ex)
@@ -575,11 +580,12 @@ TestI::relayKnownPreservedAsBase_async(const AMD_TestIntf_relayKnownPreservedAsB
 
 void
 TestI::relayKnownPreservedAsKnownPreserved_async(const AMD_TestIntf_relayKnownPreservedAsKnownPreservedPtr& cb,
-                                                 const RelayPrx& r, const ::Ice::Current&)
+                                                 const RelayPrx& r, const ::Ice::Current& c)
 {
     try
     {
-        r->knownPreservedAsKnownPreserved();
+        RelayPrxPtr p = RelayPrx::uncheckedCast(c.con->createProxy(r->ice_getIdentity()));
+        p->knownPreservedAsKnownPreserved();
         test(false);
     }
     catch(const Ice::Exception& ex)
@@ -615,11 +621,12 @@ TestI::unknownPreservedAsKnownPreserved_async(const AMD_TestIntf_unknownPreserve
 
 void
 TestI::relayUnknownPreservedAsBase_async(const AMD_TestIntf_relayUnknownPreservedAsBasePtr& cb, const RelayPrx& r,
-                                         const ::Ice::Current&)
+                                         const ::Ice::Current& c)
 {
     try
     {
-        r->unknownPreservedAsBase();
+        RelayPrxPtr p = RelayPrx::uncheckedCast(c.con->createProxy(r->ice_getIdentity()));
+        p->unknownPreservedAsBase();
         test(false);
     }
     catch(const Ice::Exception& ex)
@@ -630,11 +637,12 @@ TestI::relayUnknownPreservedAsBase_async(const AMD_TestIntf_relayUnknownPreserve
 
 void
 TestI::relayUnknownPreservedAsKnownPreserved_async(const AMD_TestIntf_relayUnknownPreservedAsKnownPreservedPtr& cb,
-                                                   const RelayPrx& r, const ::Ice::Current&)
+                                                   const RelayPrx& r, const ::Ice::Current& c)
 {
     try
     {
-        r->unknownPreservedAsKnownPreserved();
+        RelayPrxPtr p = RelayPrx::uncheckedCast(c.con->createProxy(r->ice_getIdentity()));
+        p->unknownPreservedAsKnownPreserved();
         test(false);
     }
     catch(const Ice::Exception& ex)

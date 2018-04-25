@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -60,7 +60,7 @@ public abstract class Exception extends RuntimeException implements Cloneable
     {
         return ice_id().substring(2);
     }
-    
+
     /**
      * Returns the type id of this exception.
      *
@@ -88,4 +88,6 @@ public abstract class Exception extends RuntimeException implements Cloneable
         pw.flush();
         return sw.toString();
     }
+
+    public static final long serialVersionUID = 0L;
 }

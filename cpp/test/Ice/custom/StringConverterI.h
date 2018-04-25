@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,7 +36,7 @@ public:
     virtual Ice::Byte* toUTF8(const wchar_t*, const wchar_t*, Ice::UTF8Buffer&) const;
     virtual void fromUTF8(const Ice::Byte* sourceStart, const Ice::Byte* sourceEnd,
                           std::wstring& target) const;
-    
+
 };
 
 }

@@ -1,6 +1,7 @@
+
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -51,7 +52,7 @@ public:
     // Note that lock/tryLock & unlock in general should not be used
     // directly. Instead use Lock & TryLock.
     //
- 
+
     void lock() const;
 
     //
@@ -64,9 +65,9 @@ public:
     //
     // Returns true if the mutex will unlock when calling unlock()
     // (false otherwise). For non-recursive mutexes, this will always
-    // return true. 
-    // This function is used by the Monitor implementation to know whether 
-    // the Mutex has been locked for the first time, or unlocked for the 
+    // return true.
+    // This function is used by the Monitor implementation to know whether
+    // the Mutex has been locked for the first time, or unlocked for the
     // last time (that is another thread is able to acquire the mutex).
     // Pre-condition: the mutex must be locked.
     //
@@ -88,7 +89,7 @@ private:
     {
 #   ifdef ICE_HAS_WIN32_CONDVAR
         CRITICAL_SECTION* mutex;
-#   endif 
+#   endif
     };
 #else
     struct LockState
@@ -141,7 +142,7 @@ Mutex::Mutex(MutexProtocol protocol)
 inline void
 Mutex::init(MutexProtocol)
 {
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     InitializeCriticalSectionEx(&_mutex, 0, 0);
 #else
     InitializeCriticalSection(&_mutex);
@@ -158,7 +159,13 @@ inline void
 Mutex::lock() const
 {
     EnterCriticalSection(&_mutex);
-    assert(_mutex.RecursionCount == 1);
+#ifndef NDEBUG
+    if(_mutex.RecursionCount > 1)
+    {
+        LeaveCriticalSection(&_mutex);
+        throw ThreadLockedException(__FILE__, __LINE__);
+    }
+#endif
 }
 
 inline bool
@@ -211,7 +218,7 @@ Mutex::lock(LockState&) const
 #else
 
 inline void
-Mutex::init(MutexProtocol 
+Mutex::init(MutexProtocol
 #if defined(_POSIX_THREAD_PRIO_INHERIT) && _POSIX_THREAD_PRIO_INHERIT > 0
             protocol
 #endif
@@ -231,11 +238,7 @@ Mutex::init(MutexProtocol
     // Enable mutex error checking in debug builds
     //
 #ifndef NDEBUG
-#if defined(__linux) && !defined(__USE_UNIX98)
-    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK_NP);
-#else
     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
-#endif
     assert(rc == 0);
     if(rc != 0)
     {
@@ -344,7 +347,7 @@ Mutex::lock(LockState&) const
 {
 }
 
-#endif    
+#endif
 
 inline bool
 Mutex::willUnlock() const

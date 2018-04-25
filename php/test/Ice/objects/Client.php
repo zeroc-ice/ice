@@ -1,7 +1,7 @@
-<?
+<?php
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,8 +17,8 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-require_once 'Test.php';
+require_once('Ice.php');
+require_once('Test.php');
 
 if($NS)
 {
@@ -30,10 +30,11 @@ if($NS)
         class Test_D1 extends Test\D1 {}
         abstract class Test_E extends Test\E {}
         abstract class Test_F extends Test\F {}
-        interface Test_I extends Test\I {}
-        interface Test_J extends Test\J {}
+        class Test_G extends Test\G {}
         class Test_H extends Test\H {}
-        class Ice_ObjectImpl extends Ice\ObjectImpl {}
+        class Test_Recursive extends Test\Recursive {}
+        class Ice_Value extends Ice\Value {}
+        class Ice_InterfaceByValue extends Ice\InterfaceByValue {}
         interface Ice_ObjectFactory extends Ice\ObjectFactory {}
         interface Ice_ValueFactory extends Ice\ValueFactory {}
 EOT;
@@ -107,12 +108,20 @@ class FI extends Test_F
     }
 }
 
-class II extends Ice_ObjectImpl implements Test_I
+class II extends Ice_InterfaceByValue
 {
+    public function __construct()
+    {
+        parent::__construct("::Test::I");
+    }
 }
 
-class JI extends Ice_ObjectImpl implements Test_J
+class JI extends Ice_InterfaceByValue
 {
+    public function __construct()
+    {
+        parent::__construct("::Test::J");
+    }
 }
 
 class HI extends Test_H
@@ -349,9 +358,9 @@ function allTests($communicator)
     $i = $initial->getI();
     test($i != null);
     $j = $initial->getJ();
-    test($j != null and $j instanceof Test_J);
+    test($j != null and $j instanceof JI);
     $h = $initial->getH();
-    test($h != null and $h instanceof Test_H);
+    test($h != null and $h instanceof HI);
     echo "ok\n";
 
     echo "getting D1... ";
@@ -384,6 +393,23 @@ function allTests($communicator)
     }
     echo "ok\n";
 
+    echo "setting G... ";
+    flush();
+    $cls = $NS ? "Test\\S" : "Test_S";
+    try
+    {
+        $initial->setG(new Test_G(new $cls("hello"), "g"));
+    }
+    catch(Exception $ex)
+    {
+        $one = $NS ? "Ice\\OperationNotExistException" : "Ice_OperationNotExistException";
+        if(!($ex instanceof $one))
+        {
+            throw $ex;
+        }
+    }
+    echo "ok\n";
+
     echo "setting I... ";
     flush();
     $initial->setI($i);
@@ -399,6 +425,48 @@ function allTests($communicator)
     $base = $NS ? eval("return new Test\\Base;") : eval("return new Test_Base;");
     $retS = $initial->opBaseSeq(array($base), $outS);
     test(count($retS) == 1 && count($outS) == 1);
+    echo "ok\n";
+
+    echo "testing recursive type... ";
+    flush();
+    $top = new Test_Recursive();
+    $p = $top;
+    $depth = 0;
+    try
+    {
+        while($depth <= 700)
+        {
+            $p->v = new Test_Recursive();
+            $p = $p->v;
+            if(($depth < 10 && ($depth % 10) == 0) ||
+               ($depth < 1000 && ($depth % 100) == 0) ||
+               ($depth < 10000 && ($depth % 1000) == 0) ||
+               ($depth % 10000) == 0)
+            {
+                $initial->setRecursive($top);
+            }
+            $depth += 1;
+        }
+        test(!$initial->supportsClassGraphDepthMax());
+    }
+    catch(Exception $ex)
+    {
+        $ule = $NS ? "Ice\\UnknownLocalException" : "Ice_UnknownLocalException";
+        $ue = $NS ? "Ice\\UnknownException" : "Ice_UnknownException";
+        if($ex instanceof $ule)
+        {
+            // Expected marshal exception from the server (max class graph depth reached)
+        }
+        else if($ex instanceof $ue)
+        {
+            // Expected stack overflow from the server (Java only)
+        }
+        else
+        {
+            throw $ex;
+        }
+    }
+    $initial->setRecursive(new Test_Recursive());
     echo "ok\n";
 
     echo "testing compact ID... ";
@@ -418,7 +486,7 @@ function allTests($communicator)
     }
     echo "ok\n";
 
-    echo "testing marshaled results...";
+    echo "testing marshaled results... ";
     flush();
     $b1 = $initial->getMB();
     test($b1 != null && $b1->theB == $b1);
@@ -473,7 +541,8 @@ function allTests($communicator)
     return $initial;
 }
 
-$communicator = Ice_initialize($argv);
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
+                      eval("return Ice_initialize(\$argv);");
 $factory = new MyValueFactory();
 $communicator->getValueFactoryManager()->add($factory, "::Test::B");
 $communicator->getValueFactoryManager()->add($factory, "::Test::C");

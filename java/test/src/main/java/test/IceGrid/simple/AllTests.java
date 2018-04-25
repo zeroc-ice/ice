@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -67,7 +67,7 @@ public class AllTests
             com.zeroc.IceGrid.RegistryPrx registry = com.zeroc.IceGrid.RegistryPrx.checkedCast(
                 communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
             test(registry != null);
-            
+
             try
             {
                 com.zeroc.IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
@@ -86,16 +86,12 @@ public class AllTests
             com.zeroc.Ice.InitializationData initData = app.createInitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery", 
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
-            if(System.getProperty("os.name").contains("OS X") && 
-               initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0)
-            {
-                initData.properties.setProperty("IceLocatorDiscovery.Interface", "::1");
-            }
+            initData.properties.setProperty("IceLocatorDiscovery.Port", Integer.toString(app.getTestPort(99)));
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
-        
+
             com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(initData);
             test(comm.getDefaultLocator() != null);
             comm.stringToProxy("test @ TestAdapter").ice_ping();
@@ -113,7 +109,7 @@ public class AllTests
             //
             // Now, ensure that the IceGrid discovery locator correctly
             // handles failure to find a locator.
-            // 
+            //
             initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");
@@ -147,6 +143,64 @@ public class AllTests
             adapter.activate();
             adapter.deactivate();
 
+            comm.destroy();
+
+            String multicast;
+            if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+            {
+                multicast = "\"ff15::1\"";
+            }
+            else
+            {
+                multicast = "239.255.0.1";
+            }
+
+            //
+            // Test invalid lookup endpoints
+            //
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "com.zeroc.IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                             "udp -h " + multicast + " --interface unknown");
+            comm = com.zeroc.Ice.Util.initialize(initData);
+            test(comm.getDefaultLocator() != null);
+            try
+            {
+                comm.stringToProxy("test @ TestAdapter").ice_ping();
+                test(false);
+            }
+            catch(com.zeroc.Ice.NoEndpointException ex)
+            {
+            }
+            comm.destroy();
+
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "com.zeroc.IceLocatorDiscovery.PluginFactory");
+            {
+                String intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
+                if(!intf.isEmpty())
+                {
+                    intf = " --interface \"" + intf + "\"";
+                }
+                String port = Integer.toString(app.getTestPort(99));
+                initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                                 "udp -h " + multicast + " --interface unknown:" +
+                                                 "udp -h " + multicast + " -p " + port + intf);
+            }
+            comm = com.zeroc.Ice.Util.initialize(initData);
+            test(comm.getDefaultLocator() != null);
+            try
+            {
+                comm.stringToProxy("test @ TestAdapter").ice_ping();
+            }
+            catch(com.zeroc.Ice.NoEndpointException ex)
+            {
+                test(false);
+            }
             comm.destroy();
         }
         out.println("ok");

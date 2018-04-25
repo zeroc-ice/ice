@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestControllerI.h>
+#include <TestCommon.h>
 #include <vector>
 #include <string>
 
@@ -20,23 +21,23 @@ using namespace std;
 // TODO: More test cases.
 //
 
-TestControllerI::TestControllerI()
+TestControllerI::TestControllerI(const string& endpoint)
 {
     TestConfiguration current;
     current.description = "No filters at all";
-    current.cases.push_back(TestCase("foo/bar:default -p 12012", true));
+    current.cases.push_back(TestCase("foo/bar:" + endpoint, true));
 
     _configurations.push_back(current);
 
     current = TestConfiguration();
     current.description = "Category filter";
-    current.cases.push_back(TestCase("foo/barA:default -p 12012", true));
-    current.cases.push_back(TestCase("bar/fooA:default -p 12012", false));
-    current.cases.push_back(TestCase("\"a cat with spaces/fooX\":default -p 12012", true));
+    current.cases.push_back(TestCase("foo/barA:" + endpoint, true));
+    current.cases.push_back(TestCase("bar/fooA:" + endpoint, false));
+    current.cases.push_back(TestCase("\"a cat with spaces/fooX\":" + endpoint, true));
     current.categoryFiltersAccept.push_back("foo");
     current.categoryFiltersAccept.push_back("a cat with spaces");
     _configurations.push_back(current);
- 
+
     current = TestConfiguration();
     current.description = "Adapter id filter";
     current.cases.push_back(TestCase("fooB @ bar", true));
@@ -46,8 +47,8 @@ TestControllerI::TestControllerI()
 
     current = TestConfiguration();
     current.description = "Object id filter";
-    current.cases.push_back(TestCase("foo/barC:default -p 12012", true));
-    current.cases.push_back(TestCase("bar/fooC:default -p 12012", false));
+    current.cases.push_back(TestCase("foo/barC:" + endpoint, true));
+    current.cases.push_back(TestCase("bar/fooC:" + endpoint, false));
     Identity id;
     id.category = "foo";
     id.name = "barC";
@@ -66,13 +67,12 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
             assert("TestController::step() shouldn't have been called with a state of Finished" == 0);
             break;
         }
-            
+
         case Test::Running:
         {
             TestConfiguration& config = _configurations[currentState.config];
             assert(!config.description.empty());
 
-            
             bool found = false;
             SessionTuple session;
             for(vector<SessionTuple>::const_iterator i = _sessions.begin(); i != _sessions.end() && !found; ++i)
@@ -95,7 +95,7 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
             // We start with the previous known state.
             //
             newState = currentState;
-                    
+
             ++newState.caseIndex;
             if(!(newState.caseIndex < (long)config.cases.size()))
             {
@@ -134,14 +134,14 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
 
                 Glacier2::StringSetPrx adapterIds = session.sessionControl->adapterIds();
                 adapterIds->add(config.adapterIdFiltersAccept);
-                        
+
                 Glacier2::IdentitySetPrx ids = session.sessionControl->identities();
                 ids->add(config.objectIdFiltersAccept);
                 session.configured = true;
             }
             break;
         }
-            
+
         default:
         {
             newState.code = Running;

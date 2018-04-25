@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,9 +23,10 @@ import com.zeroc.IceGridGUI.*;
 abstract class Communicator extends TreeNode implements DescriptorHolder
 {
     @Override
-    public Enumeration<Object> children()
+    @SuppressWarnings("unchecked")
+    public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<Object>()
+        return new Enumeration<javax.swing.tree.TreeNode>()
             {
                 @Override
                 public boolean hasMoreElements()
@@ -47,7 +48,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                 }
 
                 @Override
-                public Object nextElement()
+                public javax.swing.tree.TreeNode nextElement()
                 {
                     try
                     {
@@ -67,7 +68,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                 }
 
                 private int _index = 0;
-                private java.util.Iterator _p = _childListArray[0].iterator();
+                private java.util.Iterator<javax.swing.tree.TreeNode> _p = _childListArray[0].iterator();
             };
     }
 
@@ -729,7 +730,7 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                     if(templateDescriptor == null)
                     {
                         throw new UpdateFailedException("Cannot find template descriptor '" +
-                                                        descriptor.template + 
+                                                        descriptor.template +
                                                         "' referenced by service-instance");
                     }
 
@@ -738,10 +739,10 @@ abstract class Communicator extends TreeNode implements DescriptorHolder
                                                          templateDescriptor.parameterDefaults);
 
                     ServiceDescriptor serviceDescriptor = (ServiceDescriptor)templateDescriptor.descriptor;
-                    
+
                     //
                     // If it's not null, it's a bug in the provider of this descriptor, e.g.
-                    // the icegridadmin parsing code. 
+                    // the icegridadmin parsing code.
                     //
                     assert serviceDescriptor != null;
 

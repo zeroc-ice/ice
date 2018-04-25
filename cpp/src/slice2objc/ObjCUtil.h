@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -51,6 +51,7 @@ protected:
     static std::string fixName(const ContainedPtr&, int = 0, bool = false);
     static std::string fixScoped(const ContainedPtr&, int = 0, bool = false);
     static std::string getParamId(const ContainedPtr&);
+    static std::string getParamName(const ContainedPtr&, bool = false);
     static std::string getFactoryMethod(const ContainedPtr&, bool);
     static std::string typeToString(const TypePtr&);
     static std::string inTypeToString(const TypePtr&, bool, bool = false, bool = false);
@@ -80,7 +81,6 @@ private:
     class MetaDataVisitor : public ParserVisitor
     {
     public:
-        MetaDataVisitor();
 
         virtual bool visitUnitStart(const UnitPtr&);
         virtual bool visitModuleStart(const ModulePtr&);
@@ -105,14 +105,12 @@ private:
         void validate(const ContainedPtr&);
 
         static Slice::StringList getMetaData(const ContainedPtr&);
+        static void setMetaData(const ContainedPtr&, const Slice::StringList&);
         static void modulePrefixError(const ModulePtr&, const std::string&);
 
         static const std::string _objcPrefix; // "objc:"
         static const std::string _msg; // "ignoring invalid metadata"
-
-        StringSet _history;
     };
-
 
     //
     // Map of module scoped name to ModulePtr. Used to verify that objc:prefix metadata directives are consistent.

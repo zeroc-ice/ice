@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,8 +18,8 @@ public class AMDServer extends test.Util.Application
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
         adapter.add(new AMDMetricsI(), com.zeroc.Ice.Util.stringToIdentity("metrics"));
         adapter.activate();
-        
-        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
+
+        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
         com.zeroc.Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
         controllerAdapter.add(new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
         controllerAdapter.activate();
@@ -28,17 +28,17 @@ public class AMDServer extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        r.initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        r.initData.properties.setProperty("Ice.Admin.InstanceName", "server");
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        r.initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-        return r;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        initData.properties.setProperty("Ice.Admin.InstanceName", "server");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        return initData;
     }
 
     public static void main(String[] args)

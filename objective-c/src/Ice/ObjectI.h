@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,7 +21,7 @@
 namespace IceObjC
 {
 
-class ServantWrapper : virtual public Ice::Object
+class ServantWrapper : public virtual Ice::Object
 {
 public:
 
@@ -33,12 +33,12 @@ typedef IceUtil::Handle<ServantWrapper> ServantWrapperPtr;
 };
 
 @interface ICEObject (ICEInternal)
--(Ice::Object*) object__;
+-(Ice::Object*) iceObject;
 @end
 
 @interface ICEServantWrapper : ICEObject
 {
-    Ice::Object* object__;
+    Ice::Object* object_;
 }
-+(id) servantWrapperWithCxxObject:(Ice::Object*)arg;
++(id) servantWrapperWithCxxObjectNoAutoRelease:(Ice::Object*)arg;
 @end

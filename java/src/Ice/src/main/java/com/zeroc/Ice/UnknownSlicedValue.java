@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,29 +25,44 @@ public final class UnknownSlicedValue extends Value
     }
 
     /**
+     * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+     * un-marshaling of the value, null is returned otherwise.
+     *
+     * @return The sliced data or null.
+     **/
+    @Override
+    public SlicedData ice_getSlicedData()
+    {
+        return _slicedData;
+    }
+
+    /**
      * Determine the Slice type ID associated with this object.
      *
      * @return The type ID.
      **/
-    public String getUnknownTypeId()
+    @Override
+    public String ice_id()
     {
         return _unknownTypeId;
     }
 
     @Override
-    public void __write(OutputStream __os)
+    public void _iceWrite(OutputStream ostr)
     {
-        __os.startValue(_slicedData);
-        __os.endValue();
+        ostr.startValue(_slicedData);
+        ostr.endValue();
     }
 
     @Override
-    public void __read(InputStream __is)
+    public void _iceRead(InputStream istr)
     {
-        __is.startValue();
-        _slicedData = __is.endValue(true);
+        istr.startValue();
+        _slicedData = istr.endValue(true);
     }
 
     private final String _unknownTypeId;
     private SlicedData _slicedData;
+
+    public static final long serialVersionUID = 0L;
 }

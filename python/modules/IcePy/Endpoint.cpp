@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -251,4 +251,28 @@ IcePy::createEndpoint(const Ice::EndpointPtr& endpoint)
     }
     obj->endpoint = new Ice::EndpointPtr(endpoint);
     return (PyObject*)obj;
+}
+
+bool
+IcePy::toEndpointSeq(PyObject* endpoints, Ice::EndpointSeq& seq)
+{
+    Py_ssize_t sz = PySequence_Fast_GET_SIZE(endpoints);
+    for(Py_ssize_t i = 0; i < sz; ++i)
+    {
+        PyObject* p = PySequence_Fast_GET_ITEM(endpoints, i);
+        PyTypeObject* type = &EndpointType; // Necessary to prevent GCC's strict-alias warnings.
+        if(!PyObject_IsInstance(p, reinterpret_cast<PyObject*>(type)))
+        {
+            PyErr_Format(PyExc_ValueError, STRCAST("expected element of type Ice.Endpoint"));
+            return false;
+        }
+        Ice::EndpointPtr endp = getEndpoint(p);
+        if(!endp)
+        {
+            return false;
+        }
+        seq.push_back(endp);
+    }
+
+    return true;
 }

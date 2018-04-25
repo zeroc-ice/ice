@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -44,7 +44,7 @@ public abstract class EditorBase
     protected void appendProperties(DefaultFormBuilder builder)
     {
     }
-    
+
     protected JComponent createPropertiesPanel()
     {
         return null;
@@ -53,7 +53,7 @@ public abstract class EditorBase
     protected void buildPropertiesPanel()
     {
         JComponent contents = createPropertiesPanel();
-        
+
         if(contents == null)
         {
             FormLayout layout = new FormLayout("right:pref, 3dlu, fill:pref:grow, 3dlu, pref", "");
@@ -64,10 +64,10 @@ public abstract class EditorBase
             builder.lineGapSize(LayoutStyle.getCurrent().getLinePad());
 
             appendProperties(builder);
-            
+
             contents = builder.getPanel();
         }
-        
+
         JScrollPane scrollPane =
             new JScrollPane(contents,
                             ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED,

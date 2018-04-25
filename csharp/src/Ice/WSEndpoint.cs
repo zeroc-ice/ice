@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -212,16 +212,36 @@ namespace IceInternal
 
         public WSEndpoint endpoint(EndpointI delEndp)
         {
-            return new WSEndpoint(_instance, delEndp, _resource);
+            if(delEndp == _delegate)
+            {
+                return this;
+            }
+            else
+            {
+                return new WSEndpoint(_instance, delEndp, _resource);
+            }
         }
 
-        public override List<EndpointI> expand()
+        public override List<EndpointI> expandIfWildcard()
         {
-            List<EndpointI> endps = _delegate.expand();
             List<EndpointI> l = new List<EndpointI>();
-            foreach(EndpointI e in endps)
+            foreach(EndpointI e in _delegate.expandIfWildcard())
             {
                 l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
+            }
+            return l;
+        }
+
+        public override List<EndpointI> expandHost(out EndpointI publish)
+        {
+            List<EndpointI> l = new List<EndpointI>();
+            foreach(EndpointI e in _delegate.expandHost(out publish))
+            {
+                l.Add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
+            }
+            if(publish != null)
+            {
+                publish = publish == _delegate ? this : new WSEndpoint(_instance, publish, _resource);
             }
             return l;
         }
@@ -274,7 +294,7 @@ namespace IceInternal
 
         public override int CompareTo(EndpointI obj)
         {
-            if(!(obj is EndpointI))
+            if(!(obj is WSEndpoint))
             {
                 return type() < obj.type() ? -1 : 1;
             }
@@ -322,46 +342,25 @@ namespace IceInternal
         private string _resource;
     }
 
-    public class WSEndpointFactory : EndpointFactory
+    public class WSEndpointFactory : EndpointFactoryWithUnderlying
     {
-        public WSEndpointFactory(ProtocolInstance instance, EndpointFactory del)
+        public WSEndpointFactory(ProtocolInstance instance, short type) : base(instance, type)
         {
-            _instance = instance;
-            _delegate = del;
         }
 
-        public short type()
+        override public EndpointFactory cloneWithUnderlying(ProtocolInstance instance, short underlying)
         {
-            return _instance.type();
+            return new WSEndpointFactory(instance, underlying);
         }
 
-        public string protocol()
+        override protected EndpointI createWithUnderlying(EndpointI underlying, List<string> args, bool oaEndpoint)
         {
-            return _instance.protocol();
+            return new WSEndpoint(instance_, underlying, args);
         }
 
-        public EndpointI create(List<string> args, bool oaEndpoint)
+        override protected EndpointI readWithUnderlying(EndpointI underlying, Ice.InputStream s)
         {
-            return new WSEndpoint(_instance, _delegate.create(args, oaEndpoint), args);
+            return new WSEndpoint(instance_, underlying, s);
         }
-
-        public EndpointI read(Ice.InputStream s)
-        {
-            return new WSEndpoint(_instance, _delegate.read(s), s);
-        }
-
-        public void destroy()
-        {
-            _delegate.destroy();
-            _instance = null;
-        }
-
-        public EndpointFactory clone(ProtocolInstance instance, EndpointFactory del)
-        {
-            return new WSEndpointFactory(instance, del);
-        }
-
-        private ProtocolInstance _instance;
-        private EndpointFactory _delegate;
     }
 }

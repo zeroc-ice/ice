@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@ using namespace IceStorm;
 using namespace IceStorm::Instrumentation;
 using namespace IceMX;
 
-namespace 
+namespace
 {
 
 class TopicHelper : public MetricsHelperT<TopicMetrics>
@@ -28,7 +28,7 @@ public:
     class Attributes : public AttributeResolverT<TopicHelper>
     {
     public:
-        
+
         Attributes()
         {
             add("parent", &TopicHelper::getService);
@@ -38,7 +38,7 @@ public:
         }
     };
     static Attributes attributes;
-    
+
     TopicHelper(const string& service, const string& name) : _service(service), _name(name)
     {
     }
@@ -57,7 +57,7 @@ public:
     {
         return _name;
     }
-    
+
 private:
 
     const string& _service;
@@ -73,7 +73,7 @@ public:
     class Attributes : public AttributeResolverT<SubscriberHelper>
     {
     public:
-        
+
         Attributes()
         {
             add("parent", &SubscriberHelper::getTopic);
@@ -93,8 +93,8 @@ public:
         }
     };
     static Attributes attributes;
-    
-    SubscriberHelper(const string& svc, const string& topic, const ::Ice::ObjectPrx& proxy, const IceStorm::QoS& qos, 
+
+    SubscriberHelper(const string& svc, const string& topic, const ::Ice::ObjectPrx& proxy, const IceStorm::QoS& qos,
                      const IceStorm::TopicPrx& link, SubscriberState state) :
         _service(svc), _topic(topic), _proxy(proxy), _qos(qos), _link(link), _state(state)
     {
@@ -140,23 +140,23 @@ public:
         if(_proxy->ice_isTwoway())
         {
             return "twoway";
-        } 
+        }
         else if(_proxy->ice_isOneway())
         {
             return "oneway";
-        } 
+        }
         else if(_proxy->ice_isBatchOneway())
         {
             return "batch-oneway";
-        } 
+        }
         else if(_proxy->ice_isDatagram())
         {
             return "datagram";
-        } 
+        }
         else if(_proxy->ice_isBatchDatagram())
         {
             return "batch-datagram";
-        } 
+        }
         else
         {
             return "unknown";
@@ -174,7 +174,7 @@ public:
             }
             catch(const ::Ice::FixedProxyException&)
             {
-                _id = identityToString(_proxy->ice_getIdentity());
+                _id = _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
             }
         }
         return _id;
@@ -206,7 +206,7 @@ public:
     string
     getIdentity() const
     {
-        return identityToString(_proxy->ice_getIdentity());
+        return _proxy->ice_getCommunicator()->identityToString(_proxy->ice_getIdentity());
     }
 
 private:
@@ -318,7 +318,7 @@ SubscriberObserverI::delivered(int count)
     forEach(DeliveredUpdate(count));
 }
 
-TopicManagerObserverI::TopicManagerObserverI(const IceInternal::MetricsAdminIPtr& metrics) : 
+TopicManagerObserverI::TopicManagerObserverI(const IceInternal::MetricsAdminIPtr& metrics) :
     _metrics(metrics),
     _topics(metrics, "Topic"),
     _subscribers(metrics, "Subscriber")
@@ -351,9 +351,9 @@ TopicManagerObserverI::getTopicObserver(const string& service, const string& top
 }
 
 SubscriberObserverPtr
-TopicManagerObserverI::getSubscriberObserver(const string& svc, 
-                                             const string& topic, 
-                                             const ::Ice::ObjectPrx& proxy, 
+TopicManagerObserverI::getSubscriberObserver(const string& svc,
+                                             const string& topic,
+                                             const ::Ice::ObjectPrx& proxy,
                                              const IceStorm::QoS& qos,
                                              const IceStorm::TopicPrx& link,
                                              SubscriberState state,
@@ -373,4 +373,3 @@ TopicManagerObserverI::getSubscriberObserver(const string& svc,
     }
     return 0;
 }
-

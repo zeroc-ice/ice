@@ -1,8 +1,0 @@
-  0 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7a3.dylib
-  1 (anonymous namespace)::Thrower::fifth in client
-  2 (anonymous namespace)::Thrower::forth in client
-  3 (anonymous namespace)::Thrower::third in client
-  4 (anonymous namespace)::Thrower::second in client
-  5 (anonymous namespace)::Thrower::first in client
-  6 main in client
-  7 start in libdyld.dylib

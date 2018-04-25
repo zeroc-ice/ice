@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,6 @@
 namespace Slice
 {
 
-extern FeatureProfile featureProfile;
 extern std::string paramPrefix;
 
 struct ToIfdef
@@ -38,13 +37,14 @@ const int TypeContextCpp11 = 64;
 
 bool isMovable(const TypePtr&);
 
-std::string typeToString(const TypePtr&, const StringList& = StringList(), int = 0);
-std::string typeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
-std::string returnTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
-std::string inputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
-std::string outputTypeToString(const TypePtr&, bool, const StringList& = StringList(), int = 0);
+std::string getAbsolute(const std::string&, const std::string&);
+std::string typeToString(const TypePtr&, const std::string& = "", const StringList& = StringList(), int = 0);
+std::string typeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+std::string returnTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+std::string inputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
+std::string outputTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
 std::string operationModeToString(Operation::Mode, bool = false);
-std::string opFormatTypeToString(const OperationPtr&);
+std::string opFormatTypeToString(const OperationPtr&, bool);
 
 std::string fixKwd(const std::string&);
 
@@ -52,17 +52,19 @@ void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, bool,
                                bool, const StringList& = StringList(), int = 0, const std::string& = "",
                                bool = true, const std::string& = "");
 
-void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
+void writeMarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool,
+                      int = 0, const std::string& = "", const std::string& = "");
 void writeUnmarshalCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0,
-                        const std::string& = "", const std::string& = "");
-void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, int = 0);
+                        const std::string& = "", const std::string& = "", const std::string& = "");
+void writeAllocateCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool, const std::string&,
+                       int = 0, const std::string& = "");
 
 std::string getEndArg(const TypePtr&, const StringList&, const std::string&);
 void writeEndCode(::IceUtilInternal::Output&, const ParamDeclList&, const OperationPtr&, bool = false);
 void writeMarshalUnmarshalDataMemberInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, bool);
 void writeMarshalUnmarshalAllInHolder(IceUtilInternal::Output&, const std::string&, const DataMemberList&, bool, bool);
 void writeStreamHelpers(::IceUtilInternal::Output&, const ContainedPtr&, DataMemberList, bool, bool, bool);
-void writeIceTuple(::IceUtilInternal::Output&, DataMemberList, int);
+void writeIceTuple(::IceUtilInternal::Output&, const std::string&, DataMemberList, int);
 
 bool findMetaData(const std::string&, const ClassDeclPtr&, std::string&);
 bool findMetaData(const std::string&, const StringList&, std::string&);
@@ -70,8 +72,6 @@ std::string findMetaData(const StringList&, int = 0);
 bool inWstringModule(const SequencePtr&);
 
 std::string getDataMemberRef(const DataMemberPtr&);
-
-std::string classDefToDelegateString(const ClassDefPtr&, int = 0);
 }
 
 #endif

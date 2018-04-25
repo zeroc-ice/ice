@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,8 +35,8 @@ protected:
     // Compose the parameter lists for an operation.
     //
     std::vector<std::string> getParams(const OperationPtr&, const std::string&, bool, bool);
-    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool);
-    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool, bool);
+    std::vector<std::string> getParamsProxy(const OperationPtr&, const std::string&, bool, bool, bool = false);
+    std::vector<std::string> getInOutParams(const OperationPtr&, const std::string&, ParamDir, bool, bool, bool = false);
     std::vector<std::string> getParamsAsync(const OperationPtr&, const std::string&, bool, bool);
     std::vector<std::string> getParamsAsyncCB(const OperationPtr&, const std::string&, bool, bool);
 
@@ -46,25 +46,28 @@ protected:
     std::vector<std::string> getParamsAsyncLambda(const OperationPtr&, const std::string&,
                                                   bool context = false, bool sentCB = false,
                                                   bool optionalMapping = false,
-                                                  bool inParams = true);
+                                                  bool inParams = true,
+                                                  bool internal = false);
     std::vector<std::string> getArgsAsyncLambda(const OperationPtr&, const std::string&,
-                                                bool context = false, bool sentCB = false);
+                                                bool context = false,
+                                                bool sentCB = false);
 
     //
     // Compose the argument lists for an operation.
     //
     std::vector<std::string> getArgs(const OperationPtr&);
-    std::vector<std::string> getInOutArgs(const OperationPtr&, ParamDir);
+    std::vector<std::string> getInOutArgs(const OperationPtr&, ParamDir, bool = false);
     std::vector<std::string> getArgsAsync(const OperationPtr&);
     std::vector<std::string> getArgsAsyncCB(const OperationPtr&);
 
     void writeMarshalUnmarshalParams(::IceUtilInternal::Output&, const std::string&, const ParamDeclList&,
-                                     const OperationPtr&, int&, bool, bool, bool = false);
+                                     const OperationPtr&, int&, bool, bool, bool, const std::string& = "", bool = false);
 
     //
-    // Generate a throws clause containing only non-local exceptions.
+    // Generate a throws clause containing only checked exceptions.
+    // op is provided only when we want to check for the java:UserException metadata
     //
-    void writeThrowsClause(const std::string&, const ExceptionList&);
+    void writeThrowsClause(const std::string&, const ExceptionList&, const OperationPtr& op = 0);
 
     //
     // Generate code to compute a hash code for a type.
@@ -75,9 +78,9 @@ protected:
     //
     // Marshal/unmarshal a data member.
     //
-    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
+    void writeMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&, bool = false);
     void writeUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&,
-                                  bool, int&);
+                                  bool, int&, bool = false);
     void writeStreamMarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&);
     void writeStreamUnmarshalDataMember(::IceUtilInternal::Output&, const std::string&, const DataMemberPtr&, int&,
                                         bool, int&);
@@ -127,11 +130,11 @@ public:
     GenCompat(const std::string&,
               const std::string&,
               const std::vector<std::string>&,
-              const std::string&);
+              const std::string&,
+              bool);
     ~GenCompat();
 
     void generate(const UnitPtr&);
-    void generateTie(const UnitPtr&);
     void generateImpl(const UnitPtr&);
     void generateImplTie(const UnitPtr&);
 
@@ -142,6 +145,7 @@ private:
     std::string _base;
     std::vector<std::string> _includePaths;
     std::string _dir;
+    bool _tie;
 
     class OpsVisitor : public JavaCompatVisitor
     {
@@ -153,15 +157,6 @@ private:
 
     private:
         void writeOperations(const ClassDefPtr&, bool);
-    };
-
-    class TieVisitor : public JavaCompatVisitor
-    {
-    public:
-
-        TieVisitor(const std::string&);
-
-        virtual bool visitClassDefStart(const ClassDefPtr&);
     };
 
     class PackageVisitor : public JavaCompatVisitor
@@ -253,9 +248,12 @@ private:
     {
     public:
 
-        DispatcherVisitor(const std::string&);
+        DispatcherVisitor(const std::string&, bool);
 
         virtual bool visitClassDefStart(const ClassDefPtr&);
+
+    private:
+        bool _tie;
     };
 
     class BaseImplVisitor : public JavaCompatVisitor

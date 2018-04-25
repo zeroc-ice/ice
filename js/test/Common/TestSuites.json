@@ -1,0 +1,192 @@
+{
+    "Ice/acm":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/adapterDeactivation":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/ami":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/binding":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/defaultValue":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/enums":
+    {
+        "files": ["Test.js", "Client.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server with 1.0 encoding",
+                "args": ["--Ice.Default.EncodingVersion=1.0"]
+            },
+            {
+                "name": "client/server with default encoding"
+            }
+        ]
+    },
+    "Ice/exceptions":
+    {
+        "files": ["Test.js", "Client.js", "ThrowerI.js", "AMDThrowerI.js", "Server.js", "ServerAMD.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server with compact format"
+            },
+            {
+                "name": "client/server with sliced format",
+                "args": ["--Ice.Default.SlicedFormat"]
+            },
+            {
+                "name": "client/server with 1.0 encoding",
+                "args": ["--Ice.Default.EncodingVersion=1.0"]
+            }
+        ]
+    },
+    "Ice/facets":
+    {
+        "files": ["Test.js", "Client.js", "TestI.js", "Server.js"]
+    },
+    "Ice/hold":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/info":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/inheritance":
+    {
+        "files": ["Test.js", "Client.js", "InitialI.js", "Server.js"]
+    },
+    "Ice/operations":
+    {
+        "files": ["Test.js", "Twoways.js", "Oneways.js", "BatchOneways.js", "Client.js",
+                  "MyDerivedClassI.js", "AMDMyDerivedClassI.js", "Server.js", "ServerAMD.js"]
+    },
+    "Ice/objects":
+    {
+        "files": ["Test.js", "Client.js", "InitialI.js", "Server.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server with compact format"
+            },
+            {
+                "name": "client/server with sliced format",
+                "args": ["--Ice.Default.SlicedFormat"]
+            },
+            {
+                "name": "client/server with 1.0 encoding",
+                "args": ["--Ice.Default.EncodingVersion=1.0"]
+            }
+        ]
+    },
+    "Ice/optional":
+    {
+        "files": ["Test.js", "Client.js", "ClientPrivate.js", "InitialI.js", "AMDInitialI.js", "Server.js", "ServerAMD.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server with compact format"
+            },
+            {
+                "name": "client/server with sliced format",
+                "args": ["--Ice.Default.SlicedFormat"]
+            }
+        ]
+    },
+    "Ice/location":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/properties":
+    {
+        "files": ["Client.js"]
+    },
+    "Ice/proxy":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/retry":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/servantLocator":
+    {
+        "files": ["Test.js", "Client.js", "TestI.js", "ServantLocatorI.js", "TestActivationI.js", "Server.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server"
+            }
+        ]
+    },
+    "Ice/slicing/exceptions":
+    {
+        "files": ["Test.js", "Client.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server"
+            },
+            {
+                "name": "client/server with 1.0 encoding",
+                "args": ["--Ice.Default.EncodingVersion=1.0"]
+            }
+        ]
+    },
+    "Ice/slicing/objects":
+    {
+        "files": ["Test.js", "Client.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server"
+            },
+            {
+                "name": "client/server with 1.0 encoding",
+                "args": ["--Ice.Default.EncodingVersion=1.0"]
+            }
+        ]
+    },
+    "Ice/timeout":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
+    "Ice/number":
+    {
+        "files": ["Client.js"]
+    },
+    "Glacier2/router":
+    {
+        "files": ["/lib/Glacier2.js", "Callback.js", "Client.js"],
+        "testcases":
+        [
+            {
+                "name": "client/server with router in unbuffered mode",
+                "args": ["--shutdown"]
+            },
+            {
+                "name": "client/server with router in buffered mode",
+                "args": ["--shutdown"]
+            }
+        ]
+    },
+    "Slice/escape":
+    {
+        "files": ["Clash.js", "Key.js", "Client.js"]
+    },
+    "Slice/macros":
+    {
+        "files": ["Test.js", "Client.js"]
+    }
+}

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/HashMap", "../Ice/RouterInfo", "../Ice/Router"]);
+Ice._ModuleRegistry.require(module, ["../Ice/HashMap", "../Ice/RouterInfo", "../Ice/Router"]);
 
 const HashMap = Ice.HashMap;
 const RouterInfo = Ice.RouterInfo;
@@ -23,7 +23,7 @@ class RouterManager
 
     destroy()
     {
-        for(let router of this._table.values())
+        for(const router of this._table.values())
         {
             router.destroy();
         }
@@ -62,7 +62,7 @@ class RouterManager
         if(rtr !== null)
         {
             // The router cannot be routed.
-            let router = RouterPrx.uncheckedCast(rtr.ice_router(null));
+            const router = RouterPrx.uncheckedCast(rtr.ice_router(null));
 
             info = this._table.get(router);
             this._table.delete(router);

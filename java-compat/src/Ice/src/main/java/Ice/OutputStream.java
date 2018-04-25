@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -162,7 +162,7 @@ public class OutputStream
     }
 
     /**
-     * Releases any data retained by encapsulations. The {@link #reset} method internally calls </code>clear</code>.
+     * Releases any data retained by encapsulations. The {@link #reset} method internally calls <code>clear</code>.
      **/
     public void clear()
     {
@@ -270,16 +270,18 @@ public class OutputStream
     public void resize(int sz)
     {
         _buf.resize(sz, false);
-        _buf.b.position(sz);
+        _buf.position(sz);
     }
 
     /**
      * Prepares the internal data buffer to be written to a socket.
+     *
+     * @return The internal buffer.
      **/
     public IceInternal.Buffer prepareWrite()
     {
-        _buf.b.limit(_buf.size());
-        _buf.b.position(0);
+        _buf.limit(_buf.size());
+        _buf.position(0);
         return _buf;
     }
 
@@ -384,7 +386,7 @@ public class OutputStream
         _encapsStack.start = _buf.size();
 
         writeInt(0); // Placeholder for the encapsulation length.
-        _encapsStack.encoding.__write(this);
+        _encapsStack.encoding.ice_writeMembers(this);
     }
 
     /**
@@ -415,7 +417,7 @@ public class OutputStream
     {
         IceInternal.Protocol.checkSupportedEncoding(encoding);
         writeInt(6); // Size
-        encoding.__write(this);
+        encoding.ice_writeMembers(this);
     }
 
     /**
@@ -576,6 +578,7 @@ public class OutputStream
      *
      * @param tag The numeric tag associated with the value.
      * @param format The optional format of the value.
+     * @return True if the current encoding supports optionals, false otherwise.
      **/
     public boolean writeOptional(int tag, OptionalFormat format)
     {
@@ -891,7 +894,7 @@ public class OutputStream
             expand(v.length * 2);
             java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
             shortBuf.put(v);
-            _buf.b.position(_buf.b.position() + v.length * 2);
+            _buf.position(_buf.b.position() + v.length * 2);
         }
     }
 
@@ -943,7 +946,7 @@ public class OutputStream
 
             java.nio.ShortBuffer shortBuf = _buf.b.asShortBuffer();
             shortBuf.put(v);
-            _buf.b.position(_buf.b.position() + sz * 2);
+            _buf.position(_buf.b.position() + sz * 2);
         }
     }
 
@@ -1015,7 +1018,7 @@ public class OutputStream
             expand(v.length * 4);
             java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
             intBuf.put(v);
-            _buf.b.position(_buf.b.position() + v.length * 4);
+            _buf.position(_buf.b.position() + v.length * 4);
         }
     }
 
@@ -1067,7 +1070,7 @@ public class OutputStream
 
             java.nio.IntBuffer intBuf = _buf.b.asIntBuffer();
             intBuf.put(v);
-            _buf.b.position(_buf.b.position() + sz * 4);
+            _buf.position(_buf.b.position() + sz * 4);
         }
     }
 
@@ -1128,7 +1131,7 @@ public class OutputStream
             expand(v.length * 8);
             java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
             longBuf.put(v);
-            _buf.b.position(_buf.b.position() + v.length * 8);
+            _buf.position(_buf.b.position() + v.length * 8);
         }
     }
 
@@ -1180,7 +1183,7 @@ public class OutputStream
 
             java.nio.LongBuffer longBuf = _buf.b.asLongBuffer();
             longBuf.put(v);
-            _buf.b.position(_buf.b.position() + sz * 8);
+            _buf.position(_buf.b.position() + sz * 8);
         }
     }
 
@@ -1241,7 +1244,7 @@ public class OutputStream
             expand(v.length * 4);
             java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
             floatBuf.put(v);
-            _buf.b.position(_buf.b.position() + v.length * 4);
+            _buf.position(_buf.b.position() + v.length * 4);
         }
     }
 
@@ -1293,7 +1296,7 @@ public class OutputStream
 
             java.nio.FloatBuffer floatBuf = _buf.b.asFloatBuffer();
             floatBuf.put(v);
-            _buf.b.position(_buf.b.position() + sz * 4);
+            _buf.position(_buf.b.position() + sz * 4);
         }
     }
 
@@ -1354,7 +1357,7 @@ public class OutputStream
             expand(v.length * 8);
             java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
             doubleBuf.put(v);
-            _buf.b.position(_buf.b.position() + v.length * 8);
+            _buf.position(_buf.b.position() + v.length * 8);
         }
     }
 
@@ -1406,7 +1409,7 @@ public class OutputStream
 
             java.nio.DoubleBuffer doubleBuf = _buf.b.asDoubleBuffer();
             doubleBuf.put(v);
-            _buf.b.position(_buf.b.position() + sz * 8);
+            _buf.position(_buf.b.position() + sz * 8);
         }
     }
 
@@ -1570,12 +1573,12 @@ public class OutputStream
     {
         if(v != null)
         {
-            v.__write(this);
+            v._write(this);
         }
         else
         {
             Identity ident = new Identity();
-            ident.__write(this);
+            ident.ice_writeMembers(this);
         }
     }
 
@@ -1655,6 +1658,7 @@ public class OutputStream
      *
      * @param tag The optional tag.
      * @param v The optional value to write to the stream.
+     * @param <T> The type of the optional value.
      **/
     public <T extends Ice.Object> void writeValue(int tag, Optional<T> v)
     {
@@ -1728,7 +1732,7 @@ public class OutputStream
      **/
     public void pos(int n)
     {
-        _buf.b.position(n);
+        _buf.position(n);
     }
 
     /**
@@ -1862,9 +1866,9 @@ public class OutputStream
             // This allows reading the pending instances even if some part of
             // the exception was sliced.
             //
-            boolean usesClasses = v.__usesClasses();
+            boolean usesClasses = v._usesClasses();
             _stream.writeBool(usesClasses);
-            v.__write(_stream);
+            v._write(_stream);
             if(usesClasses)
             {
                 writePendingValues();
@@ -1969,7 +1973,7 @@ public class OutputStream
                         _stream.instance().initializationData().logger.warning(s);
                     }
 
-                    p.getKey().__write(_stream);
+                    p.getKey()._iceWrite(_stream);
                 }
             }
             _stream.writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
@@ -2069,7 +2073,7 @@ public class OutputStream
         @Override
         void writeException(UserException v)
         {
-            v.__write(_stream);
+            v._write(_stream);
         }
 
         @Override
@@ -2316,7 +2320,7 @@ public class OutputStream
             }
 
             _stream.writeSize(1); // Class instance marker.
-            v.__write(_stream);
+            v._iceWrite(_stream);
         }
 
         private static final class InstanceData

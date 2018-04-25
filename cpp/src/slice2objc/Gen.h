@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,7 +15,6 @@
 namespace Slice
 {
 
-
 class ObjCVisitor : public ObjCGenerator, public ParserVisitor
 {
 public:
@@ -29,10 +28,10 @@ protected:
     virtual void writeMarshalUnmarshalParams(const ParamDeclList&, const OperationPtr&, bool, bool = false);
     virtual std::string getName(const OperationPtr&) const;
     virtual std::string getSelector(const OperationPtr&) const;
-    virtual std::string getParams(const OperationPtr&) const;
+    virtual std::string getParams(const OperationPtr&, bool = false) const;
     virtual std::string getBlockParams(const OperationPtr&) const;
-    virtual std::string getMarshalParams(const OperationPtr&) const;
-    virtual std::string getUnmarshalParams(const OperationPtr&) const;
+    virtual std::string getMarshalParams(const OperationPtr&, bool = false) const;
+    virtual std::string getUnmarshalParams(const OperationPtr&, bool = false) const;
     virtual std::string getServerParams(const OperationPtr&) const;
     virtual std::string getResponseCBSig(const OperationPtr&) const;
     virtual std::string getArgs(const OperationPtr&) const;
@@ -131,7 +130,7 @@ private:
         enum Escape { NoEscape, WithEscape };
         enum ContainerType { LocalException, Other };
 
-        void writeConstantValue(IceUtilInternal::Output&, const TypePtr&, const std::string&) const;
+        void writeConstantValue(IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&) const;
         void writeInit(const ContainedPtr&, const DataMemberList&, const DataMemberList&, const DataMemberList&, bool,
                        int, ContainerType) const;
         void writeFactory(const ContainedPtr&, const DataMemberList&, int, ContainerType) const;
@@ -147,7 +146,7 @@ private:
         void writeOptionalDataMemberSelectors(const DataMemberList&, int) const;
         void writeMemberHashCode(const DataMemberList&, int) const;
         void writeMemberEquals(const DataMemberList&, int) const;
-        void writeMemberDealloc(const DataMemberList&, int, bool slicedData = false) const;
+        void writeMemberDealloc(const DataMemberList&, int, const std::string& = "") const;
         void writeMemberMarshal(const DataMemberList&, const DataMemberList&, int) const;
         void writeMemberUnmarshal(const DataMemberList&, const DataMemberList&, int) const;
     };

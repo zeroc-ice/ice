@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,7 @@
 using System;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private class Condition
     {
@@ -18,7 +18,7 @@ public class AllTests : TestCommon.TestApp
         {
             _value = value;
         }
-        
+
         public void
         set(bool value)
         {
@@ -36,7 +36,7 @@ public class AllTests : TestCommon.TestApp
                 return _value;
             }
         }
-    
+
         private bool _value;
     }
 
@@ -67,18 +67,19 @@ public class AllTests : TestCommon.TestApp
         private int _expected;
     }
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        String @ref = "hold:default -p 12010";
+        String @ref = "hold:" + app.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        String refSerialized = "hold:default -p 12011";
+        String refSerialized = "hold:" + app.getTestEndpoint(1);
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         WriteLine("ok");
-        
+
         Write("testing checked cast... ");
         Flush();
         HoldPrx hold = HoldPrxHelper.checkedCast(@base);
@@ -90,7 +91,7 @@ public class AllTests : TestCommon.TestApp
         test(holdSerialized != null);
         test(holdSerialized.Equals(baseSerialized));
         WriteLine("ok");
-        
+
         Write("changing state between active and hold rapidly... ");
         Flush();
         for(int i = 0; i < 100; ++i)
@@ -110,7 +111,7 @@ public class AllTests : TestCommon.TestApp
             holdSerializedOneway.putOnHold(0);
         }
         WriteLine("ok");
-        
+
         Write("testing without serialize mode... ");
         Flush();
         System.Random rand = new System.Random();
@@ -186,7 +187,7 @@ public class AllTests : TestCommon.TestApp
                 {
                     result.waitForSent();
                     holdSerialized.ice_ping(); // Ensure everything's dispatched.
-                    holdSerialized.ice_getConnection().close(false);
+                    holdSerialized.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 }
             }
             result.waitForCompleted();
@@ -209,7 +210,7 @@ public class AllTests : TestCommon.TestApp
             hold.putOnHold(-1);
             hold.ice_ping();
             hold.putOnHold(-1);
-            hold.ice_ping();            
+            hold.ice_ping();
         }
         WriteLine("ok");
 
@@ -219,4 +220,3 @@ public class AllTests : TestCommon.TestApp
         WriteLine("ok");
     }
 }
-        

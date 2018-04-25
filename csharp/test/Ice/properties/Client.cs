@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -66,7 +66,7 @@ public class Client
             Console.Error.WriteLine(ex);
             status = 1;
         }
-        
+
         //
         // Try to load multiple config files.
         //
@@ -116,10 +116,10 @@ public class Client
                                           "AServer", "\\\\server\\dir",
                                           "BServer", "\\server\\dir",
                                           ""};
-            
+
             for(int i = 0; props[i].Length > 0; i += 2)
             {
-                test(properties.getProperty(props[i]).Equals(props[i + 1])); 
+                test(properties.getProperty(props[i]).Equals(props[i + 1]));
             }
             Console.Out.WriteLine("ok");
         }

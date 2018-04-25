@@ -1,14 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-const Ice = require("../Ice/Object").Ice;
-    
+const Ice = require("../Ice/Value").Ice;
+
 class SliceInfo
 {
     constructor()
@@ -55,7 +55,7 @@ class SlicedData
 }
 Ice.SlicedData = SlicedData;
 
-class UnknownSlicedValue extends Ice.Object
+class UnknownSlicedValue extends Ice.Value
 {
     constructor(unknownTypeId)
     {
@@ -63,18 +63,23 @@ class UnknownSlicedValue extends Ice.Object
         this._unknownTypeId = unknownTypeId;
     }
 
-    getUnknownTypeId()
+    ice_getSlicedData()
+    {
+        return this._slicedData;
+    }
+
+    ice_id()
     {
         return this._unknownTypeId;
     }
 
-    __write(os)
+    _iceWrite(os)
     {
         os.startValue(this._slicedData);
         os.endValue();
     }
 
-    __read(is)
+    _iceRead(is)
     {
         is.startValue();
         this._slicedData = is.endValue(true);

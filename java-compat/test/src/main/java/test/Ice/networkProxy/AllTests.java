@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,9 +31,15 @@ public class AllTests
         Ice.Communicator communicator = app.communicator();
         PrintWriter out = app.getWriter();
 
-        String sref = "test:default -p 12010";
+        String sref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
+
+        int proxyPort = communicator.getProperties().getPropertyAsInt("Ice.HTTPProxyPort");
+        if(proxyPort == 0)
+        {
+            proxyPort = communicator.getProperties().getPropertyAsInt("Ice.SOCKSProxyPort");
+        }
 
         TestIntfPrx test = TestIntfPrxHelper.checkedCast(obj);
         test(test != null);
@@ -56,7 +62,7 @@ public class AllTests
                     info = (Ice.IPConnectionInfo)p;
                 }
             }
-            test(info.remotePort == 12030 || info.remotePort == 12031); // make sure we are connected to the proxy port.
+            test(info.remotePort == proxyPort); // make sure we are connected to the proxy port.
         }
         out.println("ok");
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,25 +13,40 @@ import test.Ice.binding.Test._RemoteCommunicatorDisp;
 
 public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
 {
+    public
+    RemoteCommunicatorI(test.Util.Application app)
+    {
+        _app = app;
+    }
+
     @Override
     public RemoteObjectAdapterPrx
     createObjectAdapter(String name, String endpts, Ice.Current current)
     {
-        String endpoints = endpts;
-        if(endpoints.indexOf("-p") < 0)
+        int retry = 5;
+        while(true)
         {
-            // Use a fixed port if none is specified (bug 2896)
-            endpoints += " -h \"" + 
-                (current.adapter.getCommunicator().getProperties().getPropertyWithDefault(
-                                                                                    "Ice.Default.Host", "127.0.0.1")) +
-                "\" -p " + _nextPort++;
-        }
+            try
+            {
+                String endpoints = endpts;
+                if(endpoints.indexOf("-p") < 0)
+                {
+                    endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
+                }
 
-        Ice.Communicator com = current.adapter.getCommunicator();
-        com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-        Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
-        return RemoteObjectAdapterPrxHelper.uncheckedCast(
-            current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+                Ice.Communicator com = current.adapter.getCommunicator();
+                com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
+                Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
+                return RemoteObjectAdapterPrxHelper.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+            }
+            catch(Ice.SocketException ex)
+            {
+                if(--retry == 0)
+                {
+                    throw ex;
+                }
+            }
+        }
     }
 
     @Override
@@ -48,5 +63,6 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
         current.adapter.getCommunicator().shutdown();
     }
 
-    private int _nextPort = 10001;
+    private final test.Util.Application _app;
+    private int _nextPort = 10;
 }

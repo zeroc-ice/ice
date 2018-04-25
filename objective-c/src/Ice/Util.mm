@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,22 +50,34 @@ void completed(const Ice::AsyncResultPtr& result)
     {
         @try
         {
+            NSException* nsex = nil;
             try
             {
                 _completed(result);
             }
             catch(const Ice::Exception& ex)
             {
+                nsex = toObjCException(ex);
+            }
+            if(nsex != nil)
+            {
                 @try
                 {
-                    NSException* nsex = toObjCException(ex);
+
                     @throw nsex;
                 }
                 @catch(ICEException* e)
                 {
                     if(_exception)
                     {
-                        _exception(e);
+                        try
+                        {
+                            _exception(e);
+                        }
+                        catch(const Ice::Exception& ex)
+                        {
+                            exception = [toObjCException(ex) retain];
+                        }
                     }
                 }
             }
@@ -157,7 +169,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&), ICEObjectPrx* prx
     {
         Ice::AsyncResultPtr r;
         fn(r);
-        return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
+        return [ICEAsyncResult asyncResultWithAsyncResult:r operation:nil proxy:prx];
     }
     catch(const std::exception& ex)
     {
@@ -179,7 +191,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Callbac
         Ice::AsyncResultPtr r;
         Ice::CallbackPtr callback = Ice::newCallback(cb, &AsyncCallback::completed, &AsyncCallback::sent);
         fn(r, callback);
-        return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
+        return [ICEAsyncResult asyncResultWithAsyncResult:r operation:nil proxy:prx];
     }
     catch(const std::exception& ex)
     {
@@ -199,7 +211,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context
         fromNSDictionary(context, ctx);
         Ice::AsyncResultPtr r;
         fn(r, ctx);
-        return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
+        return [ICEAsyncResult asyncResultWithAsyncResult:r operation:nil proxy:prx];
     }
     catch(const std::exception& ex)
     {
@@ -224,7 +236,7 @@ ICEAsyncResult* beginCppCall(void (^fn)(Ice::AsyncResultPtr&, const Ice::Context
         Ice::AsyncResultPtr r;
         Ice::CallbackPtr callback = Ice::newCallback(cb, &AsyncCallback::completed, &AsyncCallback::sent);
         fn(r, ctx, callback);
-        return [ICEAsyncResult asyncResultWithAsyncResult__:r operation:nil proxy:prx];
+        return [ICEAsyncResult asyncResultWithAsyncResult:r operation:nil proxy:prx];
     }
     catch(const std::exception& ex)
     {
@@ -238,7 +250,7 @@ void endCppCall(void (^fn)(const Ice::AsyncResultPtr&), ICEAsyncResult* r)
     NSException* nsex = nil;
     try
     {
-        fn([r asyncResult__]);
+        fn([r asyncResult]);
         return;
     }
     catch(const std::exception& ex)
@@ -462,7 +474,7 @@ toObjC(const Ice::ObjectPtr& object)
         // Given object is an Objective-C servant wrapped into a C++
         // object, return the wrapped Objective-C object.
         //
-        return [[wrapper->getServant() retain] autorelease];
+        return [wrapper->getServant() retain];
     }
     else if(Ice::NativePropertiesAdminPtr::dynamicCast(object))
     {
@@ -470,13 +482,13 @@ toObjC(const Ice::ObjectPtr& object)
         // Given object is a properties admin facet, return the
         // Objective-C wrapper.
         //
-        return [ICENativePropertiesAdmin servantWrapperWithCxxObject:object.get()];
+        return [ICENativePropertiesAdmin servantWrapperWithCxxObjectNoAutoRelease:object.get()];
     }
     else
     {
         //
         // Given object is a C++ servant, return an Objective-C wrapper.
         //
-        return [ICEServantWrapper servantWrapperWithCxxObject:object.get()];
+        return [ICEServantWrapper servantWrapperWithCxxObjectNoAutoRelease:object.get()];
     }
 }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -37,16 +37,15 @@ public class Server extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.hold");
-        initData.properties.setProperty("TestAdapter1.Endpoints", "default -p 12010:udp");
+        initData.properties.setProperty("TestAdapter1.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.properties.setProperty("TestAdapter1.ThreadPool.Size", "5");
         initData.properties.setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
         initData.properties.setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
         initData.properties.setProperty("TestAdapter1.ThreadPool.Serialize", "0");
 
-        initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011:udp");
+        initData.properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(initData.properties, 1));
         initData.properties.setProperty("TestAdapter2.ThreadPool.Size", "5");
         initData.properties.setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
         initData.properties.setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@ namespace IceSSL
         // Return true to allow a connection using the provided certificate
         // information, or false to reject the connection.
         //
-        bool verify(NativeConnectionInfo info);
+        bool verify(IceSSL.ConnectionInfo info);
     }
 
     /// <summary>
@@ -56,13 +56,13 @@ namespace IceSSL
         abstract public void initialize();
 
         /// <summary>
-        /// Specify the certificate authorities certificates to use 
+        /// Specify the certificate authorities certificates to use
         /// when validating SSL peer certificates. This must be done
-        /// before the plug-in is initialized; therefore, the application 
-        /// must define the property Ice.InitPlugins=0, set the certificates, 
+        /// before the plug-in is initialized; therefore, the application
+        /// must define the property Ice.InitPlugins=0, set the certificates,
         /// and finally invoke initializePlugins on the PluginManager.
-        /// When the application supplies its own certificate authorities 
-        /// certificates, the plug-in skips its normal property-based 
+        /// When the application supplies its own certificate authorities
+        /// certificates, the plug-in skips its normal property-based
         /// configuration.
         /// </summary>
         /// <param name="certs">The certificate authorities certificates to use.</param>

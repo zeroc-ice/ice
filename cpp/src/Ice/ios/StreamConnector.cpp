@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,6 +12,7 @@
 #include "StreamConnector.h"
 
 #include <Ice/Network.h>
+#include <Ice/UniqueRef.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
 #include <Ice/NetworkProxy.h>
@@ -25,31 +26,13 @@ using namespace IceInternal;
 TransceiverPtr
 IceObjC::StreamConnector::connect()
 {
-    CFReadStreamRef readStream = nil;
-    CFWriteStreamRef writeStream = nil;
-    try
-    {
-        CFStringRef h = CFStringCreateWithCString(NULL, _host.c_str(), kCFStringEncodingUTF8);
-        CFHostRef host = CFHostCreateWithName(NULL, h);
-        CFRelease(h);
-        CFStreamCreatePairWithSocketToCFHost(NULL, host, _port, &readStream, &writeStream);
-        CFRelease(host);
-
-        _instance->setupStreams(readStream, writeStream, false, _host);
-        return new StreamTransceiver(_instance, readStream, writeStream, _host, _port);
-    }
-    catch(const Ice::LocalException& ex)
-    {
-        if(readStream)
-        {
-            CFRelease(readStream);
-        }
-        if(writeStream)
-        {
-            CFRelease(writeStream);
-        }
-        throw;
-    }
+    UniqueRef<CFReadStreamRef> readStream;
+    UniqueRef<CFWriteStreamRef> writeStream;
+    UniqueRef<CFStringRef> h(CFStringCreateWithCString(ICE_NULLPTR, _host.c_str(), kCFStringEncodingUTF8));
+    UniqueRef<CFHostRef> host(CFHostCreateWithName(ICE_NULLPTR, h.get()));
+    CFStreamCreatePairWithSocketToCFHost(ICE_NULLPTR, host.get(), _port, &readStream.get(), &writeStream.get());
+    _instance->setupStreams(readStream.get(), writeStream.get(), false, _host);
+    return new StreamTransceiver(_instance, readStream.release(), writeStream.release(), _host, _port);
 }
 
 Short

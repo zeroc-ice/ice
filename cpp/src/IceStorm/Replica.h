@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -37,8 +37,6 @@ struct GroupNodeInfo
 class Replica : public virtual IceUtil::Shared
 {
 public:
-
-    ~Replica();
 
     virtual LogUpdate getLastLogUpdate() const = 0;
     virtual void sync(const Ice::ObjectPrx&) = 0;

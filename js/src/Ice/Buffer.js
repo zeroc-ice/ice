@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,9 +10,9 @@
 const Ice = require("../Ice/Long").Ice;
 const Long = Ice.Long;
 
-const __BufferOverflowException__ = "BufferOverflowException";
-const __BufferUnderflowException__ = "BufferUnderflowException";
-const __IndexOutOfBoundsException__ = "IndexOutOfBoundsException";
+const bufferOverflowExceptionMsg = "BufferOverflowException";
+const bufferUnderflowExceptionMsg = "BufferUnderflowException";
+const indexOutOfBoundsExceptionMsg = "IndexOutOfBoundsException";
 
 //
 // Buffer implementation to be used by web browsers, it uses ArrayBuffer as
@@ -71,7 +71,7 @@ class Buffer
     //
     expand(n)
     {
-        var sz = this.capacity === 0 ? n : this._position + n;
+        const sz = this.capacity === 0 ? n : this._position + n;
         if(sz > this._limit)
         {
             this.resize(sz);
@@ -106,15 +106,14 @@ class Buffer
     {
         if(n > this.capacity)
         {
-            var capacity = Math.max(n, 2 * this.capacity);
-            capacity = Math.max(1024, capacity);
+            const capacity = Math.max(1024, Math.max(n, 2 * this.capacity));
             if(!this.b)
             {
                 this.b = new ArrayBuffer(capacity);
             }
             else
             {
-                var b = new Uint8Array(capacity);
+                const b = new Uint8Array(capacity);
                 b.set(new Uint8Array(this.b));
                 this.b = b.buffer;
             }
@@ -125,17 +124,13 @@ class Buffer
             this.b = this.b.slice(0, this.capacity);
             this.v = new DataView(this.b);
         }
-        else
-        {
-            return;
-        }
     }
 
     put(v)
     {
         if(this._position === this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setUint8(this._position, v);
         this._position++;
@@ -145,7 +140,7 @@ class Buffer
     {
         if(i >= this._limit)
         {
-            throw new Error(__IndexOutOfBoundsException__);
+            throw new Error(indexOutOfBoundsExceptionMsg);
         }
         this.v.setUint8(i, v);
     }
@@ -161,7 +156,7 @@ class Buffer
         {
             if(this._position + v.length > this._limit)
             {
-                throw new Error(__BufferOverflowException__);
+                throw new Error(bufferOverflowExceptionMsg);
             }
             new Uint8Array(this.b, 0, this.b.byteLength).set(v, this._position);
             this._position += v.byteLength;
@@ -172,7 +167,7 @@ class Buffer
     {
         if(this._position + 2 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setInt16(this._position, v, true);
         this._position += 2;
@@ -182,7 +177,7 @@ class Buffer
     {
         if(this._position + 4 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setInt32(this._position, v, true);
         this._position += 4;
@@ -192,7 +187,7 @@ class Buffer
     {
         if(i + 4 > this._limit || i < 0)
         {
-            throw new Error(__IndexOutOfBoundsException__);
+            throw new Error(indexOutOfBoundsExceptionMsg);
         }
         this.v.setInt32(i, v, true);
     }
@@ -201,7 +196,7 @@ class Buffer
     {
         if(this._position + 4 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setFloat32(this._position, v, true);
         this._position += 4;
@@ -211,7 +206,7 @@ class Buffer
     {
         if(this._position + 8 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setFloat64(this._position, v, true);
         this._position += 8;
@@ -221,7 +216,7 @@ class Buffer
     {
         if(this._position + 8 > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
         this.v.setInt32(this._position, v.low, true);
         this._position += 4;
@@ -234,7 +229,7 @@ class Buffer
         //
         // Encode the string as utf8
         //
-        var encoded = unescape(encodeURIComponent(v));
+        const encoded = unescape(encodeURIComponent(v));
 
         stream.writeSize(encoded.length);
         stream.expand(encoded.length);
@@ -245,9 +240,9 @@ class Buffer
     {
         if(this._position + sz > this._limit)
         {
-            throw new Error(__BufferOverflowException__);
+            throw new Error(bufferOverflowExceptionMsg);
         }
-        for(var i = 0; i < sz; ++i)
+        for(let i = 0; i < sz; ++i)
         {
             this.v.setUint8(this._position, v.charCodeAt(i));
             this._position++;
@@ -258,9 +253,9 @@ class Buffer
     {
         if(this._position >= this._limit)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getUint8(this._position);
+        const v = this.v.getUint8(this._position);
         this._position++;
         return v;
     }
@@ -269,7 +264,7 @@ class Buffer
     {
         if(i < 0 || i >= this._limit)
         {
-            throw new Error(__IndexOutOfBoundsException__);
+            throw new Error(indexOutOfBoundsExceptionMsg);
         }
         return this.v.getUint8(i);
     }
@@ -278,9 +273,9 @@ class Buffer
     {
         if(this._position + length > this._limit)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
-        var buffer = this.b.slice(this._position, this._position + length);
+        const buffer = this.b.slice(this._position, this._position + length);
         this._position += length;
         return new Uint8Array(buffer);
     }
@@ -289,7 +284,7 @@ class Buffer
     {
         if(position + length > this._limit)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
         length = length === undefined ? (this.b.byteLength - position) : length;
         return new Uint8Array(this.b.slice(position, position + length));
@@ -299,9 +294,9 @@ class Buffer
     {
         if(this._limit - this._position < 2)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getInt16(this._position, true);
+        const v = this.v.getInt16(this._position, true);
         this._position += 2;
         return v;
     }
@@ -310,9 +305,9 @@ class Buffer
     {
         if(this._limit - this._position < 4)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getInt32(this._position, true);
+        const v = this.v.getInt32(this._position, true);
         this._position += 4;
         return v;
     }
@@ -321,9 +316,9 @@ class Buffer
     {
         if(this._limit - this._position < 4)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getFloat32(this._position, true);
+        const v = this.v.getFloat32(this._position, true);
         this._position += 4;
         return v;
     }
@@ -332,9 +327,9 @@ class Buffer
     {
         if(this._limit - this._position < 8)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = this.v.getFloat64(this._position, true);
+        const v = this.v.getFloat64(this._position, true);
         this._position += 8;
         return v;
     }
@@ -343,40 +338,38 @@ class Buffer
     {
         if(this._limit - this._position < 8)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
-        var v = new Long();
-        v.low = this.v.getUint32(this._position, true);
+        const low = this.v.getUint32(this._position, true);
         this._position += 4;
-        v.high = this.v.getUint32(this._position, true);
+        const high = this.v.getUint32(this._position, true);
         this._position += 4;
-        return v;
+
+        return new Long(high, low);
     }
 
     getString(length)
     {
         if(this._position + length > this._limit)
         {
-            throw new Error(__BufferUnderflowException__);
+            throw new Error(bufferUnderflowExceptionMsg);
         }
 
-        var data = new DataView(this.b, this._position, length);
-        var s = "";
-
-        for(var i = 0; i < length; ++i)
+        const data = new DataView(this.b, this._position, length);
+        let s = "";
+        for(let i = 0; i < length; ++i)
         {
             s += String.fromCharCode(data.getUint8(i));
         }
         this._position += length;
-        s = decodeURIComponent(escape(s));
-        return s;
+        return decodeURIComponent(escape(s));
     }
-    
+
     get position()
     {
         return this._position;
     }
-    
+
     set position(value)
     {
         if(value >= 0 && value <= this._limit)
@@ -384,12 +377,12 @@ class Buffer
             this._position = value;
         }
     }
-    
+
     get limit()
     {
         return this._limit;
     }
-    
+
     set limit(value)
     {
         if(value <= this.capacity)
@@ -401,30 +394,15 @@ class Buffer
             }
         }
     }
-    
+
     get capacity()
     {
         return this.b === null ? 0 : this.b.byteLength;
     }
-    
+
     get remaining()
     {
         return this._limit - this._position;
-    }
-    
-    //
-    // Create a native buffer from an array of bytes.
-    //
-    static createNative(data)
-    {
-        if(data === undefined)
-        {
-            return new Uint8Array(0);
-        }
-        else
-        {
-            return new Uint8Array(data);
-        }
     }
 }
 

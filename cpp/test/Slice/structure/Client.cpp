@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -51,7 +51,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     // cpp:comparable required by tests bellow is only
     // supported with C++98 mapping.
     //
-    
+
     //
     // Change one primitive member at a time.
     //
@@ -275,7 +275,7 @@ main(int argc, char* argv[])
 {
     try
     {
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv);
+        Ice::CommunicatorHolder ich(argc, argv);
         return run(ich.communicator());
     }
     catch(const Ice::Exception& ex)

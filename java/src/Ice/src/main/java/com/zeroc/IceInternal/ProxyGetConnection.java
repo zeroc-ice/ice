@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 package com.zeroc.IceInternal;
 
-public class ProxyGetConnection extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Connection>
+public class ProxyGetConnection extends ProxyOutgoingAsyncBaseI<com.zeroc.Ice.Connection>
 {
     public ProxyGetConnection(com.zeroc.Ice._ObjectPrxI prx)
     {
@@ -18,24 +18,9 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Con
     }
 
     @Override
-    protected boolean __needCallback()
+    protected void markCompleted()
     {
-        return true;
-    }
-
-    @Override
-    protected void __completed()
-    {
-        super.__completed();
-
-        if(_exception != null)
-        {
-            completeExceptionally(_exception);
-        }
-        else
-        {
-            complete(_cachedConnection);
-        }
+        complete(_cachedConnection);
     }
 
     @Override
@@ -50,7 +35,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Con
         throws RetryException
     {
         _cachedConnection = connection;
-        if(finished(true))
+        if(finished(true, true))
         {
             invokeCompletedAsync();
         }
@@ -60,7 +45,7 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Con
     @Override
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
-        if(finished(true))
+        if(finished(true, true))
         {
             invokeCompletedAsync();
         }
@@ -70,37 +55,5 @@ public class ProxyGetConnection extends ProxyOutgoingAsyncBase<com.zeroc.Ice.Con
     public void invoke()
     {
         invokeImpl(true); // userThread = true
-    }
-
-    public com.zeroc.Ice.Connection __wait()
-    {
-        if(Thread.currentThread().interrupted())
-        {
-            throw new com.zeroc.Ice.OperationInterruptedException();
-        }
-
-        try
-        {
-            return get();
-        }
-        catch(InterruptedException ex)
-        {
-            throw new com.zeroc.Ice.OperationInterruptedException();
-        }
-        catch(java.util.concurrent.ExecutionException ee)
-        {
-            try
-            {
-                throw ee.getCause();
-            }
-            catch(RuntimeException ex) // Includes LocalException
-            {
-                throw ex;
-            }
-            catch(Throwable ex)
-            {
-                throw new com.zeroc.Ice.UnknownException(ex);
-            }
-        }
     }
 }

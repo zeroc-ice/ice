@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -71,7 +71,6 @@ IceUtilInternal::OutputBase::OutputBase(ostream& os) :
 {
 }
 
-
 IceUtilInternal::OutputBase::OutputBase(const string& s) :
     _out(_fout),
     _pos(0),
@@ -95,7 +94,7 @@ IceUtilInternal::OutputBase::open(const string& s)
     // mismatches on case-insensitive OSs.
     //
     IceUtilInternal::unlink(s);
-    _fout.open(s.c_str());
+    _fout.open(IceUtilInternal::streamFilename(s).c_str());
 }
 
 void
@@ -172,13 +171,13 @@ IceUtilInternal::OutputBase::currIndent()
     return _indent;
 }
 
-void 
+void
 IceUtilInternal::OutputBase::setIndent(int indentSize)
 {
-    _indentSize = indentSize; 
+    _indentSize = indentSize;
 }
 
-void 
+void
 IceUtilInternal::OutputBase::setUseTab(bool useTab)
 {
     _useTab = useTab;
@@ -554,7 +553,7 @@ IceUtilInternal::StartElement::StartElement(const string& name) :
     _name(name)
 {
 }
-    
+
 const string&
 IceUtilInternal::StartElement::getName() const
 {

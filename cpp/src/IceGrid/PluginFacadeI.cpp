@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@ using namespace IceGrid;
 namespace IceGrid
 {
 
-ICE_GRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
+ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
 
 }
 
@@ -42,7 +42,7 @@ public:
 
 Init init;
 
-bool 
+bool
 hasAdapter(const CommunicatorDescriptorPtr& descriptor, const string& adapterId)
 {
     for(AdapterDescriptorSeq::const_iterator p = descriptor->adapters.begin(); p != descriptor->adapters.end(); ++p)
@@ -195,7 +195,7 @@ RegistryPluginFacadeI::getPropertyForAdapter(const std::string& adapterId, const
 }
 
 void
-RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const ReplicaGroupFilterPtr& filter)
+RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const ReplicaGroupFilterPtr& filter) ICE_NOEXCEPT
 {
     Lock sync(*this);
     map<string, vector<ReplicaGroupFilterPtr> >::iterator p = _replicaGroupFilters.find(id);
@@ -207,7 +207,7 @@ RegistryPluginFacadeI::addReplicaGroupFilter(const string& id, const ReplicaGrou
 }
 
 bool
-RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const ReplicaGroupFilterPtr& filter)
+RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const ReplicaGroupFilterPtr& filter) ICE_NOEXCEPT
 {
     Lock sync(*this);
 
@@ -232,7 +232,7 @@ RegistryPluginFacadeI::removeReplicaGroupFilter(const string& id, const ReplicaG
 }
 
 void
-RegistryPluginFacadeI::addTypeFilter(const string& id, const TypeFilterPtr& filter)
+RegistryPluginFacadeI::addTypeFilter(const string& id, const TypeFilterPtr& filter) ICE_NOEXCEPT
 {
     Lock sync(*this);
     map<string, vector<TypeFilterPtr> >::iterator p = _typeFilters.find(id);
@@ -244,7 +244,7 @@ RegistryPluginFacadeI::addTypeFilter(const string& id, const TypeFilterPtr& filt
 }
 
 bool
-RegistryPluginFacadeI::removeTypeFilter(const string& id, const TypeFilterPtr& filter)
+RegistryPluginFacadeI::removeTypeFilter(const string& id, const TypeFilterPtr& filter) ICE_NOEXCEPT
 {
     Lock sync(*this);
 
@@ -281,7 +281,7 @@ RegistryPluginFacadeI::getReplicaGroupFilters(const string& id) const
 }
 
 bool
-RegistryPluginFacadeI::hasReplicaGroupFilters() const 
+RegistryPluginFacadeI::hasReplicaGroupFilters() const
 {
     return !_replicaGroupFilters.empty();
 }
@@ -299,7 +299,7 @@ RegistryPluginFacadeI::getTypeFilters(const string& id) const
 }
 
 bool
-RegistryPluginFacadeI::hasTypeFilters() const 
+RegistryPluginFacadeI::hasTypeFilters() const
 {
     return !_typeFilters.empty();
 }

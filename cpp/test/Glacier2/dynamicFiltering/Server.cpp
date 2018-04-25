@@ -1,15 +1,16 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <Glacier2/PermissionsVerifier.h>
+#include <TestCommon.h>
 #include <TestControllerI.h>
 #include <SessionI.h>
 #include <BackendI.h>
@@ -121,12 +122,9 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     SessionControlServer app;
-    return app.main(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
+    return app.main(argc, argv, initData);
 }
 
 int
@@ -143,19 +141,20 @@ SessionControlServer::run(int, char*[])
     // servant, allowing us to use any reference as long as the client
     // expects to use a proxy for the correct type of object.
     //
-    communicator()->getProperties()->setProperty("TestControllerAdapter.Endpoints", "tcp -p 12013");
+    communicator()->getProperties()->setProperty("TestControllerAdapter.Endpoints",
+                                                 getTestEndpoint(communicator(), 2, "tcp"));
     ObjectAdapterPtr controllerAdapter = communicator()->createObjectAdapter("TestControllerAdapter");
-    TestControllerIPtr controller = new TestControllerI;
+    TestControllerIPtr controller = new TestControllerI(getTestEndpoint(communicator(), 1));
     controllerAdapter->add(controller, Ice::stringToIdentity("testController"));
     controllerAdapter->activate();
 
-    communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", "tcp -p 12010");
+    communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", getTestEndpoint(communicator(), 0));
     ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");
     adapter->add(new SessionManagerI(controller), Ice::stringToIdentity("SessionManager"));
     adapter->activate();
 
     BackendPtr backend = new BackendI;
-    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", "default -p 12012");
+    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", getTestEndpoint(communicator(), 1));
     ObjectAdapterPtr backendAdapter = communicator()->createObjectAdapter("BackendAdapter");
     backendAdapter->addServantLocator(new ServantLocatorI(backend), "");
     backendAdapter->activate();

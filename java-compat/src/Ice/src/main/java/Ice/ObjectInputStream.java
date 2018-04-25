@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,6 +21,7 @@ public class ObjectInputStream extends java.io.ObjectInputStream
      *
      * @param communicator The communicator to use to deserialize proxies.
      * @param stream The input stream to read from.
+     * @throws java.io.IOException If an I/O error occurs.
      **/
     public
     ObjectInputStream(Communicator communicator, java.io.InputStream stream)
@@ -32,6 +33,8 @@ public class ObjectInputStream extends java.io.ObjectInputStream
 
     /**
      * Returns the communicator for this stream.
+     *
+     * @return The communicator instance.
      **/
     public Communicator
     getCommunicator()

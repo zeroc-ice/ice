@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ class ApplicationDetailsDialog extends JDialog
 {
     ApplicationDetailsDialog(final Root root)
     {
-        super(root.getCoordinator().getMainFrame(), "Application Details - IceGrid Admin", true);
+        super(root.getCoordinator().getMainFrame(), "Application Details - IceGrid GUI", true);
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
 

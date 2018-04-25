@@ -1,14 +1,14 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import os, sys, shutil, re, signal, time, string, pprint
+import os, sys, shutil, re, signal, time, pprint
 
 from xml.sax import make_parser
 from xml.sax.handler import feature_namespaces
@@ -24,7 +24,7 @@ propertyClasses = {}
 
 commonPreamble = """// **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -102,6 +102,13 @@ cppSrcPreamble = commonPreamble + """
 """
 
 javaPreamble = commonPreamble + """
+package com.zeroc.IceInternal;
+
+public final class %(classname)s
+{
+"""
+
+javaCompatPreamble = commonPreamble + """
 package IceInternal;
 
 public final class %(classname)s
@@ -129,7 +136,7 @@ module.exports.Ice = Ice;
 
 def usage():
     global progname
-    print >> sys.stderr, "Usage: " + progname + " [--{cpp|java|cs|js} file]"
+    print >> sys.stderr, "Usage: " + progname + " [--{cpp|java|java-compat|csharp|js} file]"
 
 def progError(msg):
     global progname
@@ -272,7 +279,7 @@ class PropertyHandler(ContentHandler):
 
         elif name == "property":
             propertyName = attrs.get("name", None)
-            if attrs.has_key("class"):
+            if "class" in attrs:
                 c = propertyClasses[attrs["class"]]
                 for p in c.getChildren():
                     if propertyName == None:
@@ -284,7 +291,7 @@ class PropertyHandler(ContentHandler):
                         # are special. deprecatedBy attributes are
                         # usually absolute or 'raw', but in the case of
                         # a property class, they need to be expanded.
-                        if t.has_key("deprecatedBy"):
+                        if "deprecatedBy" in t:
                             t["deprecatedBy"] = "%s.%s.%s" % (self.currentSection, propertyName, t["deprecatedBy"])
                         t['name'] =  "%s.%s" % (propertyName, p['name'])
                         self.startElement(name, t)
@@ -326,14 +333,14 @@ class CppPropertyHandler(PropertyHandler):
                 os.remove(self.className + ".cpp")
 
     def startFiles(self):
-        self.hFile = open(self.className + ".h", "wb")
-        self.cppFile = open(self.className + ".cpp", "wb")
+        self.hFile = open(self.className + ".h", "w")
+        self.cppFile = open(self.className + ".cpp", "w")
         self.hFile.write(cppHeaderPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
         self.cppFile.write(cppSrcPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def closeFiles(self):
         self.hFile.write(cppHeaderPostamble % {'classname' : self.className})
-        self.cppFile.write("\nconst IceInternal::PropertyArray "\
+        self.cppFile.write("const IceInternal::PropertyArray "\
                         "IceInternal::%(classname)s::validProps[] =\n" % \
                 {'classname' : self.className})
 
@@ -343,18 +350,18 @@ class CppPropertyHandler(PropertyHandler):
         self.cppFile.write("    IceInternal::PropertyArray(0,0)\n");
         self.cppFile.write("};\n\n")
 
-        self.cppFile.write("\nconst char* IceInternal::%(classname)s::clPropNames[] =\n" % \
+        self.cppFile.write("const char* IceInternal::%(classname)s::clPropNames[] =\n" % \
                 {'classname' : self.className})
         self.cppFile.write("{\n")
         for s in self.cmdLineOptions:
             self.cppFile.write("    \"%s\",\n" % s)
         self.cppFile.write("    0\n")
-        self.cppFile.write("};\n\n")
+        self.cppFile.write("};\n")
         self.hFile.close()
         self.cppFile.close()
 
     def fix(self, propertyName):
-        return string.replace(propertyName, "[any]", "*")
+        return propertyName.replace("[any]", "*")
 
     def deprecatedImpl(self, propertyName):
         self.cppFile.write("    IceInternal::Property(\"%s.%s\", true, 0),\n" % (self.currentSection, \
@@ -370,7 +377,7 @@ class CppPropertyHandler(PropertyHandler):
 
     def newSection(self):
         self.hFile.write("    static const PropertyArray %sProps;\n" % self.currentSection)
-        self.cppFile.write("const IceInternal::Property %sPropsData[] = \n" % self.currentSection)
+        self.cppFile.write("const IceInternal::Property %sPropsData[] =\n" % self.currentSection)
         self.cppFile.write("{\n")
 
     def closeSection(self):
@@ -403,11 +410,11 @@ class JavaPropertyHandler(PropertyHandler):
                 os.remove(self.className + ".java")
 
     def startFiles(self):
-        self.srcFile = file(self.className + ".java", "wb")
+        self.srcFile = open(self.className + ".java", "w")
         self.srcFile.write(javaPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def closeFiles(self):
-        self.srcFile.write("\n    public static final Property[] validProps[] =\n")
+        self.srcFile.write("    public static final Property[] validProps[] =\n")
 
         self.srcFile.write("    {\n")
         for s in self.sections:
@@ -428,8 +435,7 @@ class JavaPropertyHandler(PropertyHandler):
         #
         # The Java property strings are actually regexp's that will be passed to Java's regexp facitlity.
         #
-        propertyName = string.replace(propertyName, ".", "\\\\.")
-        return string.replace(propertyName, "[any]", "[^\\\\s]+")
+        return propertyName.replace(".", "\\\\.").replace("[any]", "[^\\\\s]+")
 
     def deprecatedImpl(self, propertyName):
         self.srcFile.write("        new Property(\"%(section)s\\\\.%(pattern)s\", " \
@@ -448,7 +454,7 @@ class JavaPropertyHandler(PropertyHandler):
                 {"section" : self.currentSection, "pattern": self.fix(propertyName)} )
 
     def newSection(self):
-        self.srcFile.write("    public static final Property %sProps[] = \n" % self.currentSection)
+        self.srcFile.write("    public static final Property %sProps[] =\n" % self.currentSection)
         self.srcFile.write("    {\n")
 
     def closeSection(self):
@@ -456,10 +462,24 @@ class JavaPropertyHandler(PropertyHandler):
         self.srcFile.write("    };\n\n")
 
     def moveFiles(self, location):
-        dest = os.path.join(location, "java", "src", "Ice", "src", "main", "java", "IceInternal")
+        dest = os.path.join(location, "java", "src", "Ice", "src", "main", "java", "com", "zeroc", "IceInternal")
         if os.path.exists(os.path.join(dest, self.className + ".java")):
             os.remove(os.path.join(dest, self.className + ".java"))
         shutil.move(self.className + ".java", dest)
+
+class JavaCompatPropertyHandler(JavaPropertyHandler):
+    def __init__(self, inputfile, c):
+        JavaPropertyHandler.__init__(self, inputfile, c)
+
+    def startFiles(self):
+        self.srcFile = open(self.className + "-compat.java", "w")
+        self.srcFile.write(javaCompatPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
+
+    def moveFiles(self, location):
+        dest = os.path.join(location, "java-compat", "src", "Ice", "src", "main", "java", "IceInternal")
+        if os.path.exists(os.path.join(dest, self.className + ".java")):
+            os.remove(os.path.join(dest, self.className + ".java"))
+        shutil.move(self.className + "-compat.java", os.path.join(dest, self.className + ".java"))
 
 class CSPropertyHandler(PropertyHandler):
     def __init__(self, inputfile, c):
@@ -473,7 +493,7 @@ class CSPropertyHandler(PropertyHandler):
                 os.remove(self.className + ".cs")
 
     def startFiles(self):
-        self.srcFile = file(self.className + ".cs", "wb")
+        self.srcFile = open(self.className + ".cs", "w")
         self.srcFile.write(csPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
 
     def closeFiles(self):
@@ -496,8 +516,7 @@ class CSPropertyHandler(PropertyHandler):
         self.srcFile.close()
 
     def fix(self, propertyName):
-        propertyName = string.replace(propertyName, ".", "\\.")
-        return string.replace(propertyName, "[any]", "[^\\s]+")
+        return propertyName.replace(".", "\\.").replace("[any]", "[^\\s]+")
 
     def deprecatedImpl(self, propertyName):
         self.srcFile.write("             new Property(@\"^%s\.%s$\", true, null),\n" % (self.currentSection, \
@@ -539,7 +558,7 @@ class JSPropertyHandler(PropertyHandler):
                 os.remove(self.className + ".js")
 
     def startFiles(self):
-        self.srcFile = file(self.className + ".js", "wb")
+        self.srcFile = open(self.className + ".js", "w")
         self.srcFile.write(jsPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
         self.srcFile.write("/* jshint -W044*/\n\n");
 
@@ -563,8 +582,7 @@ class JSPropertyHandler(PropertyHandler):
         self.srcFile.close()
 
     def fix(self, propertyName):
-        propertyName = string.replace(propertyName, ".", "\\.")
-        return string.replace(propertyName, "[any]", ".")
+        return propertyName.replace(".", "\\.").replace("[any]", ".")
 
     def deprecatedImpl(self, propertyName):
         if self.currentSection in self.validSections:
@@ -677,6 +695,8 @@ def main():
             lang = "cpp"
         elif option == "--java":
             lang = "java"
+        elif option == "--java-compat":
+            lang = "java-compat"
         elif option == "--csharp":
             lang = "csharp"
         elif option == "--js":
@@ -695,6 +715,7 @@ def main():
         contentHandler = MultiHandler(infile, "")
         contentHandler.addHandlers([CppPropertyHandler(infile, className),
             JavaPropertyHandler(infile, className),
+            JavaCompatPropertyHandler(infile, className),
             CSPropertyHandler(infile, className),
             JSPropertyHandler(infile, className)])
     else:
@@ -702,6 +723,8 @@ def main():
             contentHandler = CppPropertyHandler(infile, className)
         elif lang == "java":
             contentHandler = JavaPropertyHandler(infile, className)
+        elif lang == "java-compat":
+            contentHandler = JavaCompatPropertyHandler(infile, className)
         elif lang == "csharp":
             contentHandler = CSPropertyHandler(infile, className)
         elif lang == "js":
@@ -718,14 +741,14 @@ def main():
     parser = make_parser()
     parser.setFeature(feature_namespaces, 0)
     parser.setContentHandler(contentHandler)
-    pf = file(infile)
+    pf = open(infile)
     try:
         parser.parse(pf)
         contentHandler.moveFiles(toplevel)
-    except IOError, ex:
+    except IOError as ex:
         progError(str(ex))
         contentHandler.cleanup()
-    except SAXException, ex:
+    except SAXException as ex:
         progError(str(ex))
         contentHandler.cleanup()
 

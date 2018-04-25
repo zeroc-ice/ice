@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,38 +16,37 @@ module Test
 
 interface Empty
 {
-};
+}
 
 interface Thrower;
 
 exception A
 {
     int aMem;
-};
+}
 
 exception B extends A
 {
     int bMem;
-};
+}
 
 exception C extends B
 {
     int cMem;
-};
+}
 
 exception D
 {
     int dMem;
-};
+}
 
 module Mod
 {
     exception A extends ::Test::A
     {
         int a2Mem;
-    };
-};
-
+    }
+}
 
 interface Thrower
 {
@@ -74,11 +73,11 @@ interface Thrower
     Ice::ByteSeq throwMemoryLimitException(Ice::ByteSeq seq);
 
     idempotent void throwLocalExceptionIdempotent();
-};
+}
 
 interface WrongOperation
 {
     void noSuchOperation();
-};
+}
 
-};
+}

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -64,8 +64,7 @@ class OperationI : public Operation
 {
 public:
 
-    OperationI(const char*, Ice::OperationMode, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*
-              );
+    OperationI(const char*, Ice::OperationMode, Ice::OperationMode, Ice::FormatType, zval*, zval*, zval*, zval*);
     ~OperationI();
 
     virtual zend_function* function();
@@ -97,7 +96,7 @@ typedef IceUtil::Handle<OperationI> OperationIPtr;
 //
 // The base class for client-side invocations.
 //
-class Invocation : virtual public IceUtil::Shared
+class Invocation : public virtual IceUtil::Shared
 {
 public:
 
@@ -116,7 +115,7 @@ typedef IceUtil::Handle<Invocation> InvocationPtr;
 // TypedInvocation uses the information in the given operation to validate, marshal, and unmarshal
 // parameters and exceptions.
 //
-class TypedInvocation : virtual public Invocation
+class TypedInvocation : public virtual Invocation
 {
 public:
 
@@ -136,7 +135,7 @@ protected:
 //
 // A synchronous typed invocation.
 //
-class SyncTypedInvocation : virtual public TypedInvocation
+class SyncTypedInvocation : public virtual TypedInvocation
 {
 public:
 
@@ -364,18 +363,17 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
 {
     assert(Z_TYPE_P(p) == IS_ARRAY);
     HashTable* arr = Z_ARRVAL_P(p);
-    assert(zend_hash_num_elements(arr) == 3);
 
     ParamInfoPtr param = new ParamInfo;
 
     param->type = Wrapper<TypeInfoPtr>::value(zend_hash_index_find(arr, 0));
+    param->optional = zend_hash_num_elements(arr) > 1;
 
-    assert(Z_TYPE_P(zend_hash_index_find(arr, 1)) == IS_TRUE || Z_TYPE_P(zend_hash_index_find(arr, 1)) == IS_FALSE);
-    param->optional = Z_TYPE_P(zend_hash_index_find(arr, 1)) == IS_TRUE;
-
-    assert(Z_TYPE_P(zend_hash_index_find(arr, 2)) == IS_LONG);
-    param->tag = static_cast<int>(Z_LVAL_P(zend_hash_index_find(arr, 2)));
-
+    if(param->optional)
+    {
+        assert(Z_TYPE_P(zend_hash_index_find(arr, 1)) == IS_LONG);
+        param->tag = static_cast<int>(Z_LVAL_P(zend_hash_index_find(arr, 1)));
+    }
     param->pos = pos;
 
     return param;
@@ -384,22 +382,24 @@ IcePHP::OperationI::convertParam(zval* p, int pos)
 void
 IcePHP::OperationI::getArgInfo(zend_internal_arg_info& arg, const ParamInfoPtr& info, bool out)
 {
-    arg.name = 0;
-    arg.class_name = 0;
-    arg.allow_null = 1;
-
-    if(!info->optional)
+    const zend_uchar pass_by_ref = out ? 1 : 0;
+    const zend_bool allow_null = 1;
+    if(!info->optional && (SequenceInfoPtr::dynamicCast(info->type) || DictionaryInfoPtr::dynamicCast(info->type)))
     {
-        const bool isArray = SequenceInfoPtr::dynamicCast(info->type) || DictionaryInfoPtr::dynamicCast(info->type);
-        arg.type_hint = isArray ? IS_ARRAY : 0;
-
+        zend_internal_arg_info ai[] =
+        {
+            ZEND_ARG_ARRAY_INFO(pass_by_ref, 0, allow_null)
+        };
+        arg = ai[0];
     }
     else
     {
-        arg.type_hint = 0;
+        zend_internal_arg_info ai[] =
+        {
+            ZEND_ARG_CALLABLE_INFO(pass_by_ref, 0, allow_null)
+        };
+        arg = ai[0];
     }
-
-    arg.pass_by_reference = out ? 1 : 0;
 }
 
 //
@@ -841,11 +841,13 @@ ZEND_FUNCTION(IcePHP_defineOperation)
     }
 
     TypeInfoPtr type = Wrapper<TypeInfoPtr>::value(cls);
-    ClassInfoPtr c = ClassInfoPtr::dynamicCast(type);
+    ProxyInfoPtr c = ProxyInfoPtr::dynamicCast(type);
     assert(c);
 
-    OperationIPtr op = new OperationI(name, static_cast<Ice::OperationMode>(mode),
-                                      static_cast<Ice::OperationMode>(sendMode), static_cast<Ice::FormatType>(format),
+    OperationIPtr op = new OperationI(name,
+                                      static_cast<Ice::OperationMode>(mode),
+                                      static_cast<Ice::OperationMode>(sendMode),
+                                      static_cast<Ice::FormatType>(format),
                                       inParams, outParams, returnType, exceptions);
 
     c->addOperation(name, op);
@@ -854,17 +856,17 @@ ZEND_FUNCTION(IcePHP_defineOperation)
 ZEND_FUNCTION(IcePHP_Operation_call)
 {
     Ice::ObjectPrx proxy;
-    ClassInfoPtr cls;
+    ProxyInfoPtr info;
     CommunicatorInfoPtr comm;
 #ifndef NDEBUG
     bool b =
 #endif
-    fetchProxy(getThis(), proxy, cls, comm);
+    fetchProxy(getThis(), proxy, info, comm);
     assert(b);
     assert(proxy);
-    assert(cls);
+    assert(info);
 
-    OperationPtr op = cls->getOperation(get_active_function_name());
+    OperationPtr op = info->getOperation(get_active_function_name());
     assert(op); // handleGetMethod should have already verified the operation's existence.
     OperationIPtr opi = OperationIPtr::dynamicCast(op);
     assert(opi);

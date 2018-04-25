@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,9 +21,9 @@ import com.zeroc.IceGridGUI.*;
 abstract class ListTreeNode extends TreeNode
 {
     @Override
-    public Enumeration<Object> children()
+    public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<Object>()
+        return new Enumeration<javax.swing.tree.TreeNode>()
             {
                 @Override
                 public boolean hasMoreElements()
@@ -32,21 +32,21 @@ abstract class ListTreeNode extends TreeNode
                 }
 
                 @Override
-                public Object nextElement()
+                public javax.swing.tree.TreeNode nextElement()
                 {
                     return _p.next();
                 }
-                
+
                 private java.util.Iterator<TreeNodeBase> _p = _children.iterator();
             };
     }
-    
+
     @Override
     public boolean getAllowsChildren()
     {
         return true;
     }
-    
+
     @Override
     public javax.swing.tree.TreeNode getChildAt(int childIndex)
     {
@@ -63,13 +63,13 @@ abstract class ListTreeNode extends TreeNode
             throw new ArrayIndexOutOfBoundsException(childIndex);
         }
     }
-   
+
     @Override
     public int getChildCount()
     {
         return _children.size();
     }
-    
+
     @Override
     public int getIndex(javax.swing.tree.TreeNode node)
     {
@@ -120,7 +120,7 @@ abstract class ListTreeNode extends TreeNode
         throws UpdateFailedException
     {
         DefaultTreeModel treeModel = fireEvent ?  getRoot().getTreeModel() : null;
-        
+
         if(!insertSortedChild(child, _children, treeModel))
         {
             throw new UpdateFailedException(this, child.getId());
@@ -131,9 +131,9 @@ abstract class ListTreeNode extends TreeNode
         throws UpdateFailedException
     {
         DefaultTreeModel treeModel = fireEvent ?  getRoot().getTreeModel() : null;
-        
+
         String badChildId = insertSortedChildren(newChildren, _children, treeModel);
-        
+
         if(badChildId != null)
         {
             throw new UpdateFailedException(this, badChildId);
@@ -144,7 +144,7 @@ abstract class ListTreeNode extends TreeNode
     {
         int index = getIndex(child);
         _children.remove(child);
-        
+
         getRoot().getTreeModel().nodesWereRemoved(this, new int[]{index}, new Object[]{child});
         return index;
     }
@@ -168,12 +168,12 @@ abstract class ListTreeNode extends TreeNode
     {
         return new ComboBoxModel();
     }
-    
+
     javax.swing.ComboBoxModel createComboBoxModel(Object item)
     {
         return new ComboBoxModel(item);
     }
-    
+
     //
     // Adapts ListTreeNode to a ComboBoxModel
     //
@@ -211,7 +211,7 @@ abstract class ListTreeNode extends TreeNode
                 return getChildCount();
             }
         }
-        
+
         @Override
         public Object getSelectedItem()
         {

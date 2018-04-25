@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
 
 #include <Ice/Identity.ice>
 #include <Ice/Process.ice>
@@ -29,7 +29,7 @@ module Ice
  **/
 exception AdapterNotFoundException
 {
-};
+}
 
 /**
  *
@@ -39,7 +39,7 @@ exception AdapterNotFoundException
  **/
 exception InvalidReplicaGroupIdException
 {
-};
+}
 
 /**
  *
@@ -49,7 +49,7 @@ exception InvalidReplicaGroupIdException
  **/
 exception AdapterAlreadyActiveException
 {
-};
+}
 
 /**
  *
@@ -58,7 +58,7 @@ exception AdapterAlreadyActiveException
  **/
 exception ObjectNotFoundException
 {
-};
+}
 
 /**
  *
@@ -67,7 +67,7 @@ exception ObjectNotFoundException
  **/
 exception ServerNotFoundException
 {
-};
+}
 
 interface LocatorRegistry;
 
@@ -99,7 +99,7 @@ interface Locator
      * be found.
      *
      **/
-    ["amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Ice::Identity id)
+    ["amd", "nonmutating", "cpp:const"] idempotent Object* findObjectById(Identity id)
         throws ObjectNotFoundException;
 
     /**
@@ -126,7 +126,7 @@ interface Locator
      *
      **/
     ["nonmutating", "cpp:const"] idempotent LocatorRegistry* getRegistry();
-};
+}
 
 /**
  *
@@ -205,7 +205,7 @@ interface LocatorRegistry
      **/
     ["amd"] idempotent void setServerProcessProxy(string id, Process* proxy)
         throws ServerNotFoundException;
-};
+}
 
 /**
  *
@@ -227,6 +227,6 @@ interface LocatorFinder
      *
      **/
     Locator* getLocator();
-};
+}
 
-};
+}

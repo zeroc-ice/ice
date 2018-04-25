@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -58,16 +58,16 @@ class ThreadHook : public Ice::ThreadNotification
 {
 public:
 
-    ThreadHook(PyObject*);
+    ThreadHook(PyObject*, PyObject*, PyObject*);
 
     virtual void start();
     virtual void stop();
 
-    PyObject* getObject();
-
 private:
 
     PyObjectHandle _threadNotification;
+    PyObjectHandle _threadStart;
+    PyObjectHandle _threadStop;
 };
 typedef IceUtil::Handle<ThreadHook> ThreadHookPtr;
 

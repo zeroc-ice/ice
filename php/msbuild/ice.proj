@@ -1,95 +1,87 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\Ice.common.targets" />
-
-    <PropertyGroup Condition="'$(Configuration)' == ''">
-      <Configuration>Release</Configuration>
+    <PropertyGroup>
+        <Platform Condition="'$(Platform)' == ''">Win32</Platform>
+        <Configuration Condition="'$(Configuration)' == ''">Release</Configuration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(Platform)' == ''">
-      <Platform>Win32</Platform>
-    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+    <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
+    <Import Project="$(MSBuildThisFileDirectory)..\..\config\icebuilder.props" />
 
     <!-- Ice for PHP configurations -->
     <PropertyGroup>
-        <ProjectFiles>
-            ..\lib\Glacier2\msbuild\glacier2.proj;
-            ..\lib\Ice\msbuild\ice.proj;
-            ..\lib\IceBox\msbuild\icebox.proj;
-            ..\lib\IceGrid\msbuild\icegrid.proj;
-            ..\lib\IcePatch2\msbuild\icepatch2.proj;
-            ..\lib\IceStorm\msbuild\icestorm.proj
-        </ProjectFiles>
+        <CppDistTargets>c++98\slice2php;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
+        <CppConfiguration Condition="'$(Configuration)' == 'NTS-Debug' or '$(Configuration)' == 'Debug'">Debug</CppConfiguration>
+        <CppConfiguration Condition="'$(Configuration)' == 'NTS-Release' or '$(Configuration)' == 'Release'">Release</CppConfiguration>
     </PropertyGroup>
 
-    <!-- Restore Nuget packages -->
-    <Target Name="NugetRestore" DependsOnTargets="GetNuget">
-        <Exec Command="$(NugetExe) restore $(MSBuildThisFileDirectory)ice.sln"/>
+    <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
+        <!-- Restore NuGet packages to build Ice for PHP distribution -->
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(ICE_BIN_DIST)' != 'all'"/>
+        <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)\packages -Version $(IceJSONVersion)"
+              Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
     </Target>
 
     <Choose>
-        <!--
-            If BuildAllConfigurations is set to yes we build all configurations that are
-            part of the binary distribution, otherwise we just build the specific platform
-            and configuration.
-        -->
-        <When Condition="'$(BuildAllConfigurations)' == 'yes'">
-            <ItemGroup>
-                <DistProjects Include="ice.sln">
-                  <Properties>Configuration=Release;Platform=Win32</Properties>
-                </DistProjects>
-                <DistProjects Include="ice.sln">
-                  <Properties>Configuration=Release;Platform=x64</Properties>
-                </DistProjects>
-                <DistProjects Include="$(ProjectFiles)">
-                  <Properties>Configuration=Release;Platform=Win32</Properties>
-                </DistProjects>
-            </ItemGroup>
-
-            <ItemGroup>
-                <TestProjects Include="..\test\**\msbuild\test.proj">
-                    <Properties>Configuration=Release;Platform=Win32</Properties>
-                </TestProjects>
-            </ItemGroup>
+        <When Condition="'$(ICE_BIN_DIST)' == 'cpp'">
+            <PropertyGroup>
+                <IceHome>$(MSBuildThisFileDirectory)\packages\zeroc.ice.v140.$(IceJSONVersion)</IceHome>
+                <IceToolsPath>$(IceHome)\tools</IceToolsPath>
+            </PropertyGroup>
+        </When>
+        <When Condition="'$(ICE_BIN_DIST)' == 'all'">
+            <PropertyGroup>
+                <IceToolsPath>$(IceHome)\bin</IceToolsPath>
+            </PropertyGroup>
         </When>
         <Otherwise>
-            <ItemGroup>
-                <DistProjects Include="ice.sln;$(ProjectFiles)">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-                </DistProjects>
-            </ItemGroup>
-
-            <ItemGroup>
-                <TestProjects Include="..\test\**\msbuild\test.proj">
-                    <Properties>Configuration=$(Configuration);Platform=$(Platform)</Properties>
-                </TestProjects>
-            </ItemGroup>
+            <PropertyGroup>
+                <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
+                <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(CppConfiguration)</IceToolsPath>
+            </PropertyGroup>
         </Otherwise>
     </Choose>
 
-    <Target Name="BuildDist" DependsOnTargets="NugetRestore">
-        <MSBuild Projects="@(DistProjects)"
+    <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'cpp'">
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+                 Targets="$(CppDistTargets)"
                  BuildInParallel="true"
-                 Properties="%(Properties)" />
+                 Properties="Platform=$(Platform);Configuration=$(CppConfiguration)" />
     </Target>
 
-    <Target Name="CleanDist">
-        <MSBuild Projects="@(DistProjects)"
+    <Target Name="BuildDist" DependsOnTargets="NuGetRestore;BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
+        <MSBuild Projects="ice.php.proj"
+                 Properties="IceHome=$(IceHome);IceToolsPath=$(IceToolsPath)"
+                 Targets="SliceCompile"/>
+
+        <MSBuild Projects="ice.sln"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+    </Target>
+
+    <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
+        <MSBuild Projects="ice.php.proj"
+                 Properties="IceHome=$(IceHome);IceToolsPath=$(IceToolsPath)"
+                 Targets="SliceCompileClean"/>
+
+        <MSBuild Projects="ice.sln"
                  BuildInParallel="true"
-                 Properties="%(Properties)"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform)"
                  Targets="Clean" />
     </Target>
 
-    <Target Name="Build" DependsOnTargets="BuildDist">
-        <MSBuild Projects="@(TestProjects)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)" />
+    <Target Name="Build" DependsOnTargets="BuildDist;NuGetRestore">
+        <Error Text="Ice Installation invalid or not detected. Invalid IceHome setting `$(IceHome)'"
+               Condition="!Exists('$(IceHome)')" />
+        <MSBuild Projects="ice.php.test.proj"
+                 Properties="IceHome=$(IceHome);IceToolsPath=$(IceToolsPath)"
+                 Targets="SliceCompile"/>
     </Target>
 
     <Target Name="Clean" DependsOnTargets="CleanDist">
-        <MSBuild Projects="@(TestProjects)"
-                 BuildInParallel="true"
-                 Properties="%(Properties)"
-                 Targets="Clean" />
-     </Target>
+        <MSBuild Projects="ice.php.test.proj"
+                 Properties="IceHome=$(IceHome);IceToolsPath=$(IceToolsPath)"
+                 Targets="SliceCompileClean"/>
+    </Target>
 </Project>

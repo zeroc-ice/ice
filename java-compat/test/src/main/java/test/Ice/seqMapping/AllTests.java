@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,9 +16,12 @@ import test.Ice.seqMapping.Test.*;
 public class AllTests
 {
     public static MyClassPrx
-    allTests(Ice.Communicator communicator, boolean collocated, PrintWriter out)
+    allTests(test.Util.Application app, boolean collocated)
     {
-        String ref = "test:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+
+        String ref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(baseProxy);
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,6 +14,9 @@
 
 using namespace std;
 using namespace Test;
+
+namespace
+{
 
 class CallbackBase : public IceUtil::Monitor<IceUtil::Mutex>
 {
@@ -80,7 +83,34 @@ public:
 };
 typedef IceUtil::Handle<Callback> CallbackPtr;
 
-TimeoutPrxPtr
+Ice::ConnectionPtr
+connect(const Ice::ObjectPrxPtr& prx)
+{
+    //
+    // Establish connection with the given proxy (which might have a timeout
+    // set and might sporadically fail on connection establishment if it's
+    // too slow). The loop ensures that the connection is established by retrying
+    // in case we can a ConnectTimeoutException
+    //
+    int nRetry = 10;
+    while(--nRetry > 0)
+    {
+        try
+        {
+            prx->ice_getConnection(); // Establish connection
+            break;
+        }
+        catch(const Ice::ConnectTimeoutException&)
+        {
+            // Can sporadically occur with slow machines
+        }
+    }
+    return prx->ice_getConnection();
+}
+
+}
+
+void
 allTests(const Ice::CommunicatorPtr& communicator)
 {
     string sref = "timeout:" + getTestEndpoint(communicator, 0);
@@ -90,13 +120,17 @@ allTests(const Ice::CommunicatorPtr& communicator)
     TimeoutPrxPtr timeout = ICE_CHECKED_CAST(TimeoutPrx, obj);
     test(timeout);
 
+    ControllerPrxPtr controller =
+        ICE_CHECKED_CAST(ControllerPrx, communicator->stringToProxy("controller:" + getTestEndpoint(communicator, 1)));
+    test(controller);
+
     cout << "testing connect timeout... " << flush;
     {
         //
         // Expect ConnectTimeoutException.
         //
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(100));
-        timeout->holdAdapter(500);
+        controller->holdAdapter(-1);
         try
         {
             to->op();
@@ -106,14 +140,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
+        controller->resumeAdapter();
+        timeout->op(); // Ensure adapter is active.
     }
     {
         //
         // Expect success.
         //
-        timeout->op(); // Ensure adapter is active.
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(1000));
-        timeout->holdAdapter(500);
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(2000));
+        controller->holdAdapter(100);
         try
         {
             to->op();
@@ -133,8 +168,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Expect TimeoutException.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(100));
-        timeout->holdAdapter(500);
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
+        connect(to);
+        controller->holdAdapter(-1);
         try
         {
             to->sendData(seq);
@@ -144,14 +180,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
+        controller->resumeAdapter();
+        timeout->op(); // Ensure adapter is active.
     }
     {
         //
         // Expect success.
         //
-        timeout->op(); // Ensure adapter is active.
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(1000));
-        timeout->holdAdapter(500);
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(2000));
+        controller->holdAdapter(100);
         try
         {
             ByteSeq seq(1000000);
@@ -171,18 +208,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
         test(connection == to->ice_getConnection());
         try
         {
-            to->sleep(750);
+            to->sleep(500);
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
         {
         }
         obj->ice_ping();
-        to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(500));
+        to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(1000));
         test(connection == to->ice_getConnection());
         try
         {
-            to->sleep(250);
+            to->sleep(100);
         }
         catch(const Ice::InvocationTimeoutException&)
         {
@@ -197,7 +234,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(100));
 
 #ifdef ICE_CPP11_MAPPING
-        auto f = to->sleepAsync(750);
+        auto f = to->sleepAsync(500);
         try
         {
             f.get();
@@ -212,7 +249,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 #else
         CallbackPtr cb = new Callback();
-        to->begin_sleep(750, newCallback_Timeout_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
+        to->begin_sleep(500, newCallback_Timeout_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
         cb->check();
 #endif
         obj->ice_ping();
@@ -221,9 +258,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Expect success.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(500));
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(1000));
 #ifdef ICE_CPP11_MAPPING
-        auto f = to->sleepAsync(250);
+        auto f = to->sleepAsync(100);
         try
         {
             f.get();
@@ -234,7 +271,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
 #else
         CallbackPtr cb = new Callback();
-        to->begin_sleep(250, newCallback_Timeout_sleep(cb, &Callback::response, &Callback::exception));
+        to->begin_sleep(100, newCallback_Timeout_sleep(cb, &Callback::response, &Callback::exception));
         cb->check();
 #endif
     }
@@ -243,10 +280,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         // Backward compatible connection timeouts
         //
         TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_invocationTimeout(-2)->ice_timeout(250));
-        Ice::ConnectionPtr con;
+        Ice::ConnectionPtr con = connect(to);
         try
         {
-            con = to->ice_getConnection();
             to->sleep(750);
             test(false);
         }
@@ -265,7 +301,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         obj->ice_ping();
         try
         {
-            con = to->ice_getConnection();
+            con = connect(to);
 #ifdef ICE_CPP11_MAPPING
             to->sleepAsync(750).get();
 #else
@@ -291,10 +327,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing close timeout... " << flush;
     {
-        TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
-        Ice::ConnectionPtr connection = to->ice_getConnection();
-        timeout->holdAdapter(600);
-        connection->close(false);
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(250));
+        Ice::ConnectionPtr connection = connect(to);
+        controller->holdAdapter(-1);
+        connection->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
         try
         {
             connection->getInfo(); // getInfo() doesn't throw in the closing state.
@@ -303,16 +339,21 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             test(false);
         }
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(650));
-        try
+        while(true)
         {
-            connection->getInfo();
-            test(false);
+            try
+            {
+                connection->getInfo();
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(10));
+            }
+            catch(const Ice::ConnectionManuallyClosedException& ex)
+            {
+                // Expected.
+                test(ex.graceful);
+                break;
+            }
         }
-        catch(const Ice::CloseConnectionException&)
-        {
-            // Expected.
-        }
+        controller->resumeAdapter();
         timeout->op(); // Ensure adapter is active.
     }
     cout << "ok" << endl;
@@ -325,10 +366,12 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
-        initData.properties->setProperty("Ice.Override.Timeout", "250");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
-        TimeoutPrxPtr to = ICE_CHECKED_CAST(TimeoutPrx, comm->stringToProxy(sref));
-        timeout->holdAdapter(700);
+        initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
+        initData.properties->setProperty("Ice.Override.Timeout", "100");
+        Ice::CommunicatorHolder ich(initData);
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));
+        connect(to);
+        controller->holdAdapter(-1);
         try
         {
             to->sendData(seq);
@@ -338,13 +381,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
+        controller->resumeAdapter();
+        timeout->op(); // Ensure adapter is active.
 
         //
         // Calling ice_timeout() should have no effect.
         //
-        timeout->op(); // Ensure adapter is active.
-        to = ICE_CHECKED_CAST(TimeoutPrx, to->ice_timeout(1000));
-        timeout->holdAdapter(500);
+        to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(1000));
+        connect(to);
+        controller->holdAdapter(-1);
         try
         {
             to->sendData(seq);
@@ -354,7 +399,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
-        comm->destroy();
+        controller->resumeAdapter();
+        timeout->op(); // Ensure adapter is active.
     }
     {
         //
@@ -363,9 +409,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Override.ConnectTimeout", "250");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
-        timeout->holdAdapter(750);
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, comm->stringToProxy(sref));
+        Ice::CommunicatorHolder ich(initData);
+        controller->holdAdapter(-1);
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, ich->stringToProxy(sref));
         try
         {
             to->op();
@@ -375,11 +421,13 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
+        controller->resumeAdapter();
+        timeout->op(); // Ensure adapter is active.
+
         //
         // Calling ice_timeout() should have no effect on the connect timeout.
         //
-        timeout->op(); // Ensure adapter is active.
-        timeout->holdAdapter(750);
+        controller->holdAdapter(-1);
         to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(1000));
         try
         {
@@ -390,13 +438,15 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
+        controller->resumeAdapter();
+        timeout->op(); // Ensure adapter is active.
+
         //
         // Verify that timeout set via ice_timeout() is still used for requests.
         //
-        timeout->op(); // Ensure adapter is active.
         to = ICE_UNCHECKED_CAST(TimeoutPrx, to->ice_timeout(250));
-        to->ice_getConnection(); // Establish connection
-        timeout->holdAdapter(750);
+        connect(to);
+        controller->holdAdapter(-1);
         try
         {
             to->sendData(seq);
@@ -406,7 +456,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             // Expected.
         }
-        comm->destroy();
+        controller->resumeAdapter();
+        timeout->op(); // Ensure adapter is active.
     }
     {
         //
@@ -415,12 +466,14 @@ allTests(const Ice::CommunicatorPtr& communicator)
         Ice::InitializationData initData;
         initData.properties = communicator->getProperties()->clone();
         initData.properties->setProperty("Ice.Override.CloseTimeout", "100");
-        Ice::CommunicatorPtr comm = Ice::initialize(initData);
-        Ice::ConnectionPtr connection = comm->stringToProxy(sref)->ice_getConnection();
-        timeout->holdAdapter(500);
+        Ice::CommunicatorHolder ich(initData);
+        Ice::ConnectionPtr connection = ich->stringToProxy(sref)->ice_getConnection();
+        controller->holdAdapter(-1);
         IceUtil::Time now = IceUtil::Time::now();
-        comm->destroy();
-        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(400));
+        ich.release()->destroy();
+        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(700));
+        controller->resumeAdapter();
+        timeout->op(); // Ensure adapter is active.
     }
     cout << "ok" << endl;
 
@@ -435,7 +488,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         timeout = timeout->ice_invocationTimeout(100);
         try
         {
-            timeout->sleep(300);
+            timeout->sleep(500);
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
@@ -445,14 +498,28 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
 #ifdef ICE_CPP11_MAPPING
-            timeout->sleepAsync(300).get();
+            timeout->sleepAsync(500).get();
 #else
-            timeout->end_sleep(timeout->begin_sleep(300));
+            timeout->end_sleep(timeout->begin_sleep(500));
 #endif
             test(false);
         }
         catch(const Ice::InvocationTimeoutException&)
         {
+        }
+
+        try
+        {
+            timeout->ice_invocationTimeout(-2)->ice_ping();
+            #ifdef ICE_CPP11_MAPPING
+            timeout->ice_invocationTimeout(-2)->ice_pingAsync().get();
+            #else
+            timeout->ice_invocationTimeout(-2)->begin_ice_ping()->waitForCompleted();
+            #endif
+        }
+        catch(const Ice::Exception&)
+        {
+            test(false);
         }
 
         TimeoutPrxPtr batchTimeout = timeout->ice_batchOneway();
@@ -502,5 +569,5 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    return timeout;
+    controller->shutdown();
 }

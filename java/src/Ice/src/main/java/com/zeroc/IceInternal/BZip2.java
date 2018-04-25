@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,24 +36,18 @@ public class BZip2
             // Otherwise, allocate an array to hold a copy of the uncompressed data.
             //
             data = new byte[buf.size()];
-            buf.b.position(0);
+            buf.position(0);
             buf.b.get(data);
         }
 
         try
         {
             //
-            // Compress the data using the class org.apache.tools.bzip2.CBZip2OutputStream.
+            // Compress the data using the class org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream
             // Its constructor requires an OutputStream argument, therefore we pass the
             // compressed buffer in an OutputStream wrapper.
             //
             BufferedOutputStream bos = new BufferedOutputStream(compressed);
-            //
-            // For interoperability with the bzip2 C library, we insert the magic bytes
-            // 'B', 'Z' before invoking the Java implementation.
-            //
-            bos.write('B');
-            bos.write('Z');
             java.lang.Object[] args = new java.lang.Object[]{ bos, Integer.valueOf(compressionLevel) };
             java.io.OutputStream os = (java.io.OutputStream)_bzOutputStreamCtor.newInstance(args);
             os.write(data, offset + headerSize, uncompressedLen);
@@ -76,7 +70,7 @@ public class BZip2
 
         Buffer r = new Buffer(false);
         r.resize(headerSize + 4 + compressedLen, false);
-        r.b.position(0);
+        r.position(0);
 
         //
         // Copy the header from the uncompressed stream to the compressed one.
@@ -100,7 +94,7 @@ public class BZip2
     {
         assert(supported());
 
-        buf.b.position(headerSize);
+        buf.position(headerSize);
         int uncompressedSize = buf.b.getInt();
         if(uncompressedSize <= headerSize)
         {
@@ -130,7 +124,7 @@ public class BZip2
             // Otherwise, allocate an array to hold a copy of the compressed data.
             //
             compressed = new byte[buf.size()];
-            buf.b.position(0);
+            buf.position(0);
             buf.b.get(compressed);
         }
 
@@ -140,28 +134,16 @@ public class BZip2
         try
         {
             //
-            // Uncompress the data using the class org.apache.tools.bzip2.CBZip2InputStream.
+            // Uncompress the data using the class org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream.
             // Its constructor requires an InputStream argument, therefore we pass the
             // compressed data in a ByteArrayInputStream.
             //
             java.io.ByteArrayInputStream bais =
                 new java.io.ByteArrayInputStream(compressed, offset + headerSize + 4, compressedLen);
-            //
-            // For interoperability with the bzip2 C library, we insert the magic bytes
-            // 'B', 'Z' during compression and therefore must extract them before we
-            // invoke the Java implementation.
-            //
-            byte magicB = (byte)bais.read();
-            byte magicZ = (byte)bais.read();
-            if(magicB != (byte)'B' || magicZ != (byte)'Z')
-            {
-                com.zeroc.Ice.CompressionException e = new com.zeroc.Ice.CompressionException();
-                e.reason = "bzip2 uncompression failure: invalid magic bytes";
-                throw e;
-            }
+
             java.lang.Object[] args = new java.lang.Object[]{ bais };
             java.io.InputStream is = (java.io.InputStream)_bzInputStreamCtor.newInstance(args);
-            r.b.position(headerSize);
+            r.position(headerSize);
             byte[] arr = new byte[8 * 1024];
             int n;
             while((n = is.read(arr)) != -1)
@@ -178,7 +160,7 @@ public class BZip2
         //
         // Copy the header from the compressed stream to the uncompressed one.
         //
-        r.b.position(0);
+        r.position(0);
         r.b.put(compressed, offset, headerSize);
 
         return r;
@@ -200,16 +182,16 @@ public class BZip2
             {
                 Class<?> cls;
                 Class<?>[] types = new Class<?>[1];
-                cls = Util.findClass("org.apache.tools.bzip2.CBZip2InputStream", null);
+                cls = Util.findClass("org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream", null);
                 if(cls != null)
                 {
                     types[0] = java.io.InputStream.class;
                     _bzInputStreamCtor = cls.getDeclaredConstructor(types);
                 }
-                cls = Util.findClass("org.apache.tools.bzip2.CBZip2OutputStream", null);
+                cls = Util.findClass("org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream", null);
                 if(cls != null)
                 {
-                    types = new Class[2];
+                    types = new Class<?>[2];
                     types[0] = java.io.OutputStream.class;
                     types[1] = Integer.TYPE;
                     _bzOutputStreamCtor = cls.getDeclaredConstructor(types);

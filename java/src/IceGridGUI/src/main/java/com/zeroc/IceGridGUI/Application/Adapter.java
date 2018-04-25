@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -183,13 +183,13 @@ class Adapter extends TreeNode implements DescriptorHolder
             {
                 attributes.add(createAttribute("endpoints", value));
             }
-            
+
             value = getProperty(oaPrefix + "ProxyOptions");
             if(value != null && value.length() > 0)
             {
                 attributes.add(createAttribute("proxy-options", value));
             }
-            
+
             attributes.add(createAttribute("id", _descriptor.id));
             if(_descriptor.registerProcess)
             {

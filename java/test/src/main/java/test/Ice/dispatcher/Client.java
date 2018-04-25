@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,26 +14,26 @@ public class Client extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        AllTests.allTests(communicator(), getWriter(), _dispatcher);
+        AllTests.allTests(this, _dispatcher);
         return 0;
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         assert(_dispatcher == null);
         _dispatcher = new Dispatcher();
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
 
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        r.initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
 
-        r.initData.dispatcher = _dispatcher;
-        return r;
+        initData.dispatcher = _dispatcher;
+        return initData;
     }
 
     Dispatcher getDispatcher()

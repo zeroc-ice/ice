@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@
 static int
 run()
 {
-    void hashAllTests();
+    void hashAllTests(void);
     hashAllTests();
     return EXIT_SUCCESS;
 }
@@ -28,7 +28,9 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+    ICEregisterIceWS(YES);
+    ICEregisterIceUDP(YES);
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif

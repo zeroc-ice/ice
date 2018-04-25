@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,56 +17,31 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : TestCommon.Application
 {
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
-        Test.MetricsPrx metrics = AllTests.allTests(communicator, _observer);
+        Test.MetricsPrx metrics = AllTests.allTests(this, _observer);
         metrics.shutdown();
         return 0;
     }
 
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.observer = _observer;
+        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        initData.properties.setProperty("Ice.Admin.InstanceName", "client");
+        initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        return initData;
+    }
+
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-        Debug.Listeners.Add(new ConsoleTraceListener());
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
-            initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-            initData.properties.setProperty("Ice.Admin.InstanceName", "client");
-            initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-            initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-
-            initData.observer = _observer;
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Client app = new Client();
+        return app.runmain(args);
     }
 
     static CommunicatorObserverI _observer = new CommunicatorObserverI();

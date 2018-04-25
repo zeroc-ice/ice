@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,7 +23,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import com.zeroc.IceGrid.*;
 import com.zeroc.IceGridGUI.*;
 
-public class Server extends ListArrayTreeNode
+public class Server extends Communicator
 {
     //
     // Actions
@@ -102,7 +102,7 @@ public class Server extends ListArrayTreeNode
                     if(ex == null)
                     {
                         amiSuccess(prefix);
-                        SwingUtilities.invokeLater(() -> rebuild(Server.this, false));
+                        SwingUtilities.invokeLater(() -> rebuild(Server.this));
                     }
                     else if(ex instanceof com.zeroc.Ice.UserException)
                     {
@@ -140,31 +140,6 @@ public class Server extends ListArrayTreeNode
             _writeMessageDialog = new WriteMessageDialog(getRoot());
         }
         _writeMessageDialog.showDialog(_id);
-    }
-
-    @Override
-    public void retrieveIceLog()
-    {
-        if(_showIceLogDialog == null)
-        {
-            com.zeroc.Ice.ObjectPrx serverAdmin = getServerAdmin();
-            if(serverAdmin == null)
-            {
-                JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Admin not available",
-                        "No Admin for server " + _id, JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
-                com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(serverAdmin.ice_facet("Logger"));
-            String title = "Server " + _id + " Ice log";
-            _showIceLogDialog = new ShowIceLogDialog(this, title, loggerAdmin, _id, getRoot().getLogMaxLines(),
-                getRoot().getLogInitialLines());
-        }
-        else
-        {
-            _showIceLogDialog.toFront();
-        }
     }
 
     @Override
@@ -340,128 +315,6 @@ public class Server extends ListArrayTreeNode
         }
     }
 
-    public void fetchMetricsViewNames()
-    {
-        if(_metricsRetrieved)
-        {
-            return; // Already loaded.
-        }
-
-        com.zeroc.Ice.ObjectPrx admin = getServerAdmin();
-        if(admin == null)
-        {
-            return;
-        }
-        _metricsRetrieved = true;
-        final com.zeroc.IceMX.MetricsAdminPrx metricsAdmin =
-                com.zeroc.IceMX.MetricsAdminPrx.uncheckedCast(admin.ice_facet("Metrics"));
-        try
-        {
-            metricsAdmin.getMetricsViewNamesAsync().whenComplete((result, ex) ->
-                {
-                    if(ex == null)
-                    {
-                        SwingUtilities.invokeLater(() ->
-                            {
-                                for(String name : result.returnValue)
-                                {
-                                    insertSortedChild(
-                                        new MetricsView(Server.this, name, metricsAdmin, true), _metrics, null);
-                                }
-                                for(String name : result.disabledViews)
-                                {
-                                    insertSortedChild(
-                                        new MetricsView(Server.this, name, metricsAdmin, false), _metrics, null);
-                                }
-                                rebuild(Server.this, false);
-                            });
-                    }
-                    else
-                    {
-                        SwingUtilities.invokeLater(() ->
-                            {
-                                _metricsRetrieved = false;
-                                if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
-                                {
-                                    // Server is down.
-                                }
-                                else if(ex instanceof com.zeroc.Ice.FacetNotExistException)
-                                {
-                                    // MetricsAdmin facet not present. Old server version?
-                                }
-                                else
-                                {
-                                    ex.printStackTrace();
-                                    JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
-                                                                  "Error: " + ex.toString(), "Error",
-                                                                  JOptionPane.ERROR_MESSAGE);
-                                }
-                            });
-                    }
-                });
-        }
-        catch(com.zeroc.Ice.LocalException e)
-        {
-            _metricsRetrieved = false;
-            JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), "Error: " + e.toString(), "Error",
-                                          JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    void showRuntimeProperties()
-    {
-        com.zeroc.Ice.ObjectPrx serverAdmin = getServerAdmin();
-
-        if(serverAdmin == null)
-        {
-            _editor.setBuildId("", this);
-        }
-        else
-        {
-            try
-            {
-                com.zeroc.Ice.PropertiesAdminPrx propAdmin =
-                    com.zeroc.Ice.PropertiesAdminPrx.uncheckedCast(serverAdmin.ice_facet("Properties"));
-                propAdmin.getPropertiesForPrefixAsync("").whenComplete((result, ex) ->
-                    {
-                        if(ex == null)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    _editor.setRuntimeProperties((java.util.SortedMap<String, String>)result,
-                                                                 Server.this);
-                                });
-                        }
-                        else
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    if(ex instanceof com.zeroc.Ice.ObjectNotExistException)
-                                    {
-                                        _editor.setBuildId("Error: can't reach this server's Admin object",
-                                                           Server.this);
-                                    }
-                                    else if(ex instanceof com.zeroc.Ice.FacetNotExistException)
-                                    {
-                                        _editor.setBuildId("Error: this server's Admin object does not provide a " +
-                                                           "'Properties' facet", Server.this);
-                                    }
-                                    else
-                                    {
-                                        ex.printStackTrace();
-                                        _editor.setBuildId("Error: " + ex.toString(), Server.this);
-                                    }
-                                });
-                        }
-                    });
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
-                _editor.setBuildId("Error: " + e.toString(), this);
-            }
-        }
-    }
-
     @Override
     public void openDefinition()
     {
@@ -630,12 +483,6 @@ public class Server extends ListArrayTreeNode
         return _cellRenderer.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
     }
 
-    @Override
-    public void clearShowIceLogDialog()
-    {
-        _showIceLogDialog = null;
-    }
-
     Server(Node parent, String serverId, Utils.Resolver resolver, ServerInstanceDescriptor instanceDescriptor,
            ServerDescriptor serverDescriptor, ApplicationDescriptor application, ServerState state, int pid,
            boolean enabled)
@@ -647,10 +494,10 @@ public class Server extends ListArrayTreeNode
         _serverDescriptor = serverDescriptor;
         _application = application;
 
-        _childrenArray[0] = _adapters;
-        _childrenArray[1] = _dbEnvs;
-        _childrenArray[2] = _services;
-        _childrenArray[3] = _metrics;
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _adapters;
+        _childrenArray[2] = _dbEnvs;
+        _childrenArray[3] = _services;
 
         update(state, pid, enabled, false);
 
@@ -723,31 +570,22 @@ public class Server extends ListArrayTreeNode
         }
     }
 
-    void updateMetrics()
-    {
-        _metricsRetrieved = false;
-        if(getRoot().getTree().isExpanded(getPath()))
-        {
-            fetchMetricsViewNames();
-        }
-    }
-
-    void rebuild(Server server, boolean fetchMetrics)
+    void rebuild(Server server)
     {
         _resolver = server._resolver;
         _instanceDescriptor = server._instanceDescriptor;
         _serverDescriptor = server._serverDescriptor;
         _application = server._application;
 
+        _metrics = server._metrics;
         _adapters = server._adapters;
         _dbEnvs = server._dbEnvs;
         _services = server._services;
-        _metrics = server._metrics;
 
-        _childrenArray[0] = _adapters;
-        _childrenArray[1] = _dbEnvs;
-        _childrenArray[2] = _services;
-        _childrenArray[3] = _metrics;
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _adapters;
+        _childrenArray[2] = _dbEnvs;
+        _childrenArray[3] = _services;
 
         //
         // Need to re-parent all the children
@@ -775,11 +613,6 @@ public class Server extends ListArrayTreeNode
         updateServices();
 
         getRoot().getTreeModel().nodeStructureChanged(this);
-
-        if(fetchMetrics)
-        {
-            updateMetrics();
-        }
     }
 
     void rebuild(Utils.Resolver resolver, boolean variablesChanged, java.util.Set<String> serviceTemplates,
@@ -860,7 +693,7 @@ public class Server extends ListArrayTreeNode
                 if(!_metrics.isEmpty())
                 {
                     _metrics.clear();
-                    rebuild(this, false);
+                    rebuild(this);
                 }
             }
 
@@ -948,13 +781,11 @@ public class Server extends ListArrayTreeNode
                         // Note that duplicate registrations are ignored
                         //
 
-                        com.zeroc.Ice.ObjectPrx serverAdmin = getServerAdmin();
-                        if(serverAdmin != null)
-                        {
-                            com.zeroc.IceBox.ServiceManagerPrx serviceManager =
-                                com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(
-                                    serverAdmin.ice_facet("IceBox.ServiceManager"));
+                        com.zeroc.IceBox.ServiceManagerPrx serviceManager =
+                            com.zeroc.IceBox.ServiceManagerPrx.uncheckedCast(getAdminFacet("IceBox.ServiceManager"));
 
+                        if(serviceManager != null)
+                        {
                             try
                             {
                                 serviceManager.addObserverAsync(_serviceObserver).whenComplete((result, ex) ->
@@ -1170,21 +1001,51 @@ public class Server extends ListArrayTreeNode
                                   serverInstancePSDescriptor));
     }
 
-    com.zeroc.Ice.ObjectPrx getServerAdmin()
+    //
+    // Implement Communicator abstract methods
+    //
+
+    @Override
+    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
-        if(_state != ServerState.Active)
+        return java.util.concurrent.CompletableFuture.completedFuture(getAdmin());
+    }
+
+    @Override
+    protected String getDisplayName()
+    {
+        return "Server " + _id;
+    }
+
+    @Override
+    protected String getDefaultFileName()
+    {
+        return _id;
+    }
+
+    com.zeroc.Ice.ObjectPrx getAdmin()
+    {
+        if(_state == ServerState.Active)
         {
-            return null;
+            AdminPrx gridAdmin = getCoordinator().getAdmin();
+            if(gridAdmin != null)
+            {
+                return gridAdmin.ice_identity(new com.zeroc.Ice.Identity(_id, getCoordinator().getServerAdminCategory()));
+            }
         }
-        AdminPrx admin = getCoordinator().getAdmin();
-        if(admin == null)
+        return null;
+    }
+
+    com.zeroc.Ice.ObjectPrx getAdminFacet(String facet)
+    {
+        com.zeroc.Ice.ObjectPrx admin = getAdmin();
+        if(admin != null)
         {
-            return null;
+            return admin.ice_facet(facet);
         }
         else
         {
-            com.zeroc.Ice.Identity adminId = new com.zeroc.Ice.Identity(_id, getCoordinator().getServerAdminCategory());
-            return admin.ice_identity(adminId);
+            return null;
         }
     }
 
@@ -1204,12 +1065,6 @@ public class Server extends ListArrayTreeNode
         return result;
     }
 
-    public java.util.List<MetricsView>
-    getMetrics()
-    {
-        return new java.util.ArrayList<>(_metrics);
-    }
-
     private ServerInstanceDescriptor _instanceDescriptor;
     private java.util.Map<String, PropertySetDescriptor> _servicePropertySets =
         new java.util.HashMap<>(); // with substituted names!
@@ -1221,7 +1076,6 @@ public class Server extends ListArrayTreeNode
     private java.util.List<Adapter> _adapters = new java.util.LinkedList<>();
     private java.util.List<DbEnv> _dbEnvs = new java.util.LinkedList<>();
     private java.util.List<Service> _services = new java.util.LinkedList<>();
-    private java.util.List<MetricsView> _metrics = new java.util.LinkedList<>();
 
     private java.util.Set<String> _startedServices = new java.util.HashSet<>();
 
@@ -1230,10 +1084,8 @@ public class Server extends ListArrayTreeNode
     private int _stateIconIndex;
     private int _pid;
     private String _toolTip;
-    private boolean _metricsRetrieved = false;
 
     private com.zeroc.IceBox.ServiceObserverPrx _serviceObserver;
-    private ShowIceLogDialog _showIceLogDialog;
 
     static private DefaultTreeCellRenderer _cellRenderer;
     static private Icon[][][] _icons;

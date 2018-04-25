@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -427,7 +427,6 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
         }
         return com.zeroc.Ice.Util.initialize(initData);
     }
-
 
     private final java.util.List<LogMessage> _queue = new java.util.LinkedList<>();
     private int _logCount = 0; // non-trace messages

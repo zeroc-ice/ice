@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module, ["../Ice/Debug", "../Ice/LocalException"]);
+Ice._ModuleRegistry.require(module, ["../Ice/Debug", "../Ice/LocalException"]);
 
 class RetryException extends Error
 {
@@ -25,7 +25,7 @@ class RetryException extends Error
             this._ex = ex._ex;
         }
     }
-    
+
     get inner()
     {
         return this._ex;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,7 +31,7 @@ public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
 
     @Override
     public void
-    setReplicatedAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb, String adapter, 
+    setReplicatedAdapterDirectProxy_async(Ice.AMD_LocatorRegistry_setReplicatedAdapterDirectProxy cb, String adapter,
                                           String replica, Ice.ObjectPrx object, Ice.Current current)
     {
         if(object != null)
@@ -80,7 +80,7 @@ public class ServerLocatorRegistry extends _TestLocatorRegistryDisp
         Ice.ObjectPrx obj = _objects.get(id);
         if(obj == null)
         {
-            throw new Ice.ObjectNotFoundException();   
+            throw new Ice.ObjectNotFoundException();
         }
         return obj;
     }

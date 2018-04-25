@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,7 +20,7 @@ using namespace Test;
 class HelloI : public virtual Hello
 {
 public:
-    
+
     virtual void
     sayHello(const Ice::Current&)
     {
@@ -73,7 +73,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
     Ice::ObjectPrxPtr base2 = communicator->stringToProxy("test @ TestAdapter");
     Ice::ObjectPrxPtr base3 = communicator->stringToProxy("test");
-    Ice::ObjectPrxPtr base4 = communicator->stringToProxy("ServerManager"); 
+    Ice::ObjectPrxPtr base4 = communicator->stringToProxy("ServerManager");
     Ice::ObjectPrxPtr base5 = communicator->stringToProxy("test2");
     Ice::ObjectPrxPtr base6 = communicator->stringToProxy("test @ ReplicatedAdapter");
     cout << "ok" << endl;
@@ -90,8 +90,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     test(Ice::proxyIdentityEqual(base->ice_getLocator(), anotherLocator));
     communicator->setDefaultLocator(locator);
     base = communicator->stringToProxy("test @ TestAdapter");
-    test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator())); 
-    
+    test(Ice::proxyIdentityEqual(base->ice_getLocator(), communicator->getDefaultLocator()));
+
     //
     // We also test ice_router/ice_getRouter (perhaps we should add a
     // test/Ice/router test?)
@@ -127,7 +127,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     TestIntfPrxPtr obj6 = ICE_CHECKED_CAST(TestIntfPrx, base6);
     test(obj6);
     cout << "ok" << endl;
- 
+
     cout << "testing id@AdapterId indirect proxy... " << flush;
     obj->shutdown();
     manager->startServer();
@@ -140,8 +140,8 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         cerr << ex << endl;
         test(false);
     }
-    cout << "ok" << endl;    
-    
+    cout << "ok" << endl;
+
     cout << "testing id@ReplicaGroupId indirect proxy... " << flush;
     obj->shutdown();
     manager->startServer();
@@ -154,7 +154,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         cerr << ex << endl;
         test(false);
     }
-    cout << "ok" << endl;    
+    cout << "ok" << endl;
 
     cout << "testing identity indirect proxy... " << flush;
     obj->shutdown();
@@ -296,11 +296,11 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     count += 2;
     test(count == locator->getRequestCount());
 
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(-1)->ice_ping(); 
+    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(-1)->ice_ping();
     test(count == locator->getRequestCount());
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(-1)->ice_ping();
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test@TestAdapter")->ice_ping(); 
+    communicator->stringToProxy("test@TestAdapter")->ice_ping();
     test(count == locator->getRequestCount());
     communicator->stringToProxy("test")->ice_ping();
     test(count == locator->getRequestCount());
@@ -456,7 +456,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     {
         test(false);
     }
-    
+
     try
     {
         communicator->stringToProxy("test@TestAdapter3")->ice_locatorCacheTimeout(0)->ice_ping();
@@ -471,7 +471,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         test(false);
     }
     catch(const Ice::LocalException&)
-    {   
+    {
     }
     registry->setAdapterDirectProxy("TestAdapter3", locator->findAdapterById("TestAdapter"));
     try
@@ -541,7 +541,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
         test(false);
     }
     catch(const Ice::LocalException&)
-    {   
+    {
     }
     try
     {
@@ -560,7 +560,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     {
         test(false);
     }
-    
+
     registry->addObject(communicator->stringToProxy("test4"));
     try
     {
@@ -637,7 +637,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "testing object migration... " << flush;
     hello = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy("hello"));
     obj->migrateHello();
-    hello->ice_getConnection()->close(false);
+    hello->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
     hello->sayHello();
     obj->migrateHello();
     hello->sayHello();
@@ -689,29 +689,39 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     }
     cout << "ok" << endl;
 
-    string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ? 
+#ifdef ICE_OS_UWP
+    bool uwp = true;
+#else
+    bool uwp = false;
+#endif
+    string host = communicator->getProperties()->getPropertyAsIntWithDefault("Ice.IPv6", 0) == 0 ?
             "127.0.0.1" : "\"0:0:0:0:0:0:0:1\"";
-    if(communicator->getProperties()->getProperty("Ice.Default.Host") == host)
+
+    if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
-        cout << "testing indirect proxies to collocated objects... " << flush;
-        //
-        // Set up test for calling a collocated object through an indirect, adapterless reference.
-        //
-        Ice::PropertiesPtr properties = communicator->getProperties();
-        properties->setProperty("Ice.PrintAdapterReady", "0");
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
-        adapter->setLocator(locator);
+        if(communicator->getProperties()->getProperty("Ice.Default.Host") == host)
+        {
+            cout << "testing indirect proxies to collocated objects... " << flush;
+            //
+            // Set up test for calling a collocated object through an indirect, adapterless reference.
+            //
+            Ice::PropertiesPtr properties = communicator->getProperties();
+            properties->setProperty("Ice.PrintAdapterReady", "0");
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Hello", "default");
+            adapter->setLocator(locator);
 
-        Ice::Identity id;
-        id.name = Ice::generateUUID();
-        registry->addObject(adapter->add(ICE_MAKE_SHARED(HelloI), id));
-        adapter->activate();
-        
-        HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(identityToString(id)));
-        test(!helloPrx->ice_getConnection());
+            Ice::Identity id;
+            id.name = Ice::generateUUID();
+            registry->addObject(adapter->add(ICE_MAKE_SHARED(HelloI), id));
+            adapter->activate();
 
-        adapter->deactivate();
-        cout << "ok" << endl;
+            HelloPrxPtr helloPrx = ICE_CHECKED_CAST(HelloPrx, communicator->stringToProxy(communicator->identityToString(id)));
+            test(!helloPrx->ice_getConnection());
+
+            adapter->deactivate();
+            cout << "ok" << endl;
+        }
     }
     cout << "shutdown server manager... " << flush;
     manager->shutdown();

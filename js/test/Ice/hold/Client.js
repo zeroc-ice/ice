@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,351 +9,282 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
-    var Promise = Ice.Promise;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    function loop(fn, repetitions, condition)
+    async function allTests(out, communicator)
     {
-        var i = 0;
-        var next = function()
+        function test(value)
         {
-            while(i++ < repetitions && (!condition || condition.value))
+            if(!value)
             {
-                var r = fn.call(i);
-                if(r)
+                throw new Error("test failed");
+            }
+        }
+
+        class Condition
+        {
+            constructor(value)
+            {
+                this.value = value;
+            }
+        }
+
+        class SetCB
+        {
+            constructor(condition, expected)
+            {
+                this.condition = condition;
+                this.expected = expected;
+            }
+
+            response(value)
+            {
+                if(value != this.expected)
                 {
-                    return r.then(next);
+                    this.condition.value = value;
                 }
             }
-        };
-        return next();
+        }
+
+        const ref = "hold:default -p 12010";
+        const hold = await Test.HoldPrx.checkedCast(communicator.stringToProxy(ref));
+        test(hold !== null);
+        const holdOneway = Test.HoldPrx.uncheckedCast(hold.ice_oneway());
+
+        const refSerialized = "hold:default -p 12011";
+        const holdSerialized = await Test.HoldPrx.checkedCast(communicator.stringToProxy(refSerialized));
+        test(holdSerialized !== null);
+        const holdSerializedOneway = Test.HoldPrx.uncheckedCast(holdSerialized.ice_oneway());
+
+        out.write("changing state between active and hold rapidly... ");
+
+        for(let i = 0; i < 100; ++i)
+        {
+            await hold.putOnHold(0);
+        }
+        for(let i = 0; i < 100; ++i)
+        {
+            await holdOneway.putOnHold(0);
+        }
+        for(let i = 0; i < 100; ++i)
+        {
+            await holdSerialized.putOnHold(0);
+        }
+        for(let i = 0; i < 1; ++i)
+        {
+            await holdSerializedOneway.putOnHold(0);
+        }
+        out.writeLine("ok");
+
+        out.write("testing without serialize mode... ");
+        {
+            const condition = new Condition(true);
+            let value = 0;
+            let result;
+            const results = [];
+            while(condition.value)
+            {
+                const cb = new SetCB(condition, value);
+                result = hold.set(++value, value < 500 ? Math.floor((Math.random() * 5)) : 0);
+                results.push(
+                    result.then(
+                        v =>
+                            {
+                                cb.response(v);
+                            },
+                        () =>
+                            {
+                                // Ignore exception
+                            }));
+
+                if(value % 100 === 0)
+                {
+                    while(true)
+                    {
+                        if(result.isSent())
+                        {
+                            break;
+                        }
+                        else if(result.isCompleted())
+                        {
+                            await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
+                        }
+                        await Ice.Promise.delay(10);
+                    }
+                }
+
+                if(value > 10000)
+                {
+                    // Don't continue, it's possible that out-of-order dispatch doesn't occur
+                    // after 100000 iterations and we don't want the test to last for too long
+                    // when this occurs.
+                    break;
+                }
+            }
+            test(value > 10000 || !condition.value);
+            while(true)
+            {
+                if(result.isSent())
+                {
+                    break;
+                }
+                else if(result.isCompleted())
+                {
+                    await result; // This should throw the failure if the call wasn't sent but done.
+                    test(result.isSent());
+                }
+                await Ice.Promise.delay(10);
+            }
+            await Promise.all(results);
+        }
+        out.writeLine("ok");
+
+        out.write("testing with serialize mode... ");
+        {
+            const condition = new Condition(true);
+            let value = 0;
+            let result;
+            const results = [];
+            while(value < 3000 && condition.value)
+            {
+                const cb = new SetCB(condition, value);
+                result = holdSerialized.set(++value, 0);
+                results.push(
+                    result.then(
+                        v =>
+                            {
+                                cb.response(v);
+                            },
+                        () =>
+                            {
+                                // Ignore exceptions
+                            }));
+
+                if(value % 100 === 0)
+                {
+                    while(true)
+                    {
+                        if(result.isSent())
+                        {
+                            break;
+                        }
+                        else if(result.isCompleted())
+                        {
+                            await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
+                        }
+                        await Ice.Promise.delay(10);
+                    }
+                }
+            }
+            await result;
+            test(condition.value);
+
+            for(let i = 0; i < 10000; ++i)
+            {
+                await holdSerializedOneway.setOneway(value + 1, value);
+                ++value;
+                if((i % 100) == 0)
+                {
+                    await holdSerializedOneway.putOnHold(1);
+                }
+            }
+            await Promise.all(results);
+        }
+        out.writeLine("ok");
+
+        out.write("testing serialization... ");
+        {
+            let value = 0;
+            let result;
+            const results = [];
+            await holdSerialized.set(value, 0);
+
+            for(let i = 0; i < 10000; ++i)
+            {
+                // Create a new proxy for each request
+                result = holdSerialized.ice_oneway().setOneway(value + 1, value);
+                results.push(result);
+                ++value;
+                if((i % 100) === 0)
+                {
+                    while(true)
+                    {
+                        if(result.isSent())
+                        {
+                            break;
+                        }
+                        else if(result.isCompleted())
+                        {
+                            await result; // This should throw the failure if the call wasn't sent but done.
+                            test(result.isSent());
+                        }
+                        await Ice.Promise.delay(10);
+                    }
+                    await holdSerialized.ice_ping(); // Ensure everything's dispatched.
+                    const conn = await holdSerialized.ice_getConnection();
+                    await conn.close(Ice.ConnectionClose.GracefullyWithWait);
+                }
+            }
+            await Promise.all(results);
+        }
+        out.writeLine("ok");
+
+        out.write("testing waitForHold... ");
+        await hold.waitForHold();
+        await hold.waitForHold();
+        for(let i = 0; i < 1000; ++i)
+        {
+            await holdOneway.ice_ping();
+            if((i % 20) == 0)
+            {
+                await hold.putOnHold(0);
+            }
+        }
+        await hold.putOnHold(-1);
+        await hold.ice_ping();
+        await hold.putOnHold(-1);
+        await hold.ice_ping();
+        out.writeLine("ok");
+
+        out.write("changing state to hold and shutting down server... ");
+        await hold.shutdown();
+        out.writeLine("ok");
     }
 
-    var allTests = function(out, communicator)
+    async function run(out, initData)
     {
-        var failCB = function() { test(false); };
-        var hold, holdOneway, holdSerialized, holdSerializedOneway;
-        var condition = { value: true };
-        var value = 0;
-        var all = [];
-
-        var p = new Promise();
-        var test = function(b)
+        let communicator;
+        try
         {
-            if(!b)
-            {
-                try
-                {
-                    throw new Error("test failed");
-                }
-                catch(err)
-                {
-                    p.reject(err);
-                    throw err;
-                }
-            }
-        };
+            //
+            // For this test, we want to disable retries.
+            //
+            initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
-        var seq;
-        Promise.try(
-            function()
-            {
-                var ref = "hold:default -p 12010";
-                return Test.HoldPrx.checkedCast(communicator.stringToProxy(ref));
-            }
-        ).then(
-            function(obj)
-            {
-                test(obj !== null);
-                hold = obj;
-                holdOneway = Test.HoldPrx.uncheckedCast(hold.ice_oneway());
+            //
+            // We don't want connection warnings because of the timeout
+            //
+            initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-                var refSerialized = "hold:default -p 12011";
-                return Test.HoldPrx.checkedCast(communicator.stringToProxy(refSerialized));
-            }
-        ).then(
-            function(obj)
-            {
-                test(obj !== null);
-                holdSerialized = obj;
-                holdSerializedOneway = Test.HoldPrx.uncheckedCast(holdSerialized.ice_oneway());
+            initData.properties.setProperty("Ice.RetryIntervals", "-1");
 
-                out.write("changing state between active and hold rapidly... ");
-
-                var i;
-                var r = Ice.Promise.resolve();
-                /*jshint -W083 */
-                // Ignore this since we do not use i and
-                // have only a small number of iterations
-                for(i = 0; i < 1; ++i)
-                {
-                    r = r.then(function() { return hold.putOnHold(0); });
-                }
-                for(i = 0; i < 1; ++i)
-                {
-                    r = r.then(function() { return holdOneway.putOnHold(0); });
-                }
-                for(i = 0; i < 1; ++i)
-                {
-                    r = r.then(function() { return holdSerialized.putOnHold(0); });
-                }
-                for(i = 0; i < 1; ++i)
-                {
-                    r = r.then(function() { return holdSerializedOneway.putOnHold(0); });
-                }
-                /*jshint +W083 */
-                return r;
+            communicator = Ice.initialize(initData);
+            await allTests(out, communicator);
+        }
+        finally
+        {
+            if(communicator)
+            {
+                await communicator.destroy();
             }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-
-                out.write("testing without serialize mode... ");
-                var result = null;
-                condition.value = true;
-                all = [];
-                return loop(function()
-                            {
-                                var expected = value;
-                                var result = hold.set(value + 1, 3).then(function(v)
-                                                                         {
-                                                                             if(v !== expected)
-                                                                             {
-                                                                                 condition.value = false;
-                                                                             }
-                                                                         });
-                                all.push(result);
-                                ++value;
-                                if(value % 100 === 0)
-                                {
-                                    return result;
-                                }
-                                return null;
-                            }, 100000, condition);
-            }
-        ).then(
-            function()
-            {
-                test(!condition.value || value >= 100000);
-                out.writeLine("ok");
-                return Promise.all(all);
-            }
-        ).then(
-            function()
-            {
-                all = [];
-                out.write("testing with serialize mode... ");
-                value = 0;
-
-                condition.value = true;
-                var result;
-                return loop(
-                    function()
-                    {
-                        var expected = value;
-                        result = holdSerialized.set(value + 1, 1).then(function(v)
-                                                                       {
-                                                                           if(v !== expected)
-                                                                           {
-                                                                               condition.value = false;
-                                                                           }
-                                                                       });
-                        all.push(result);
-                        ++value;
-                        if(value % 100 === 0)
-                        {
-                            return result;
-                        }
-                        return null;
-                    }, 1000, condition);
-            }
-        ).then(
-            function()
-            {
-                test(condition.value);
-                return Promise.all(all);
-            }
-        ).then(
-            function()
-            {
-                all = [];
-                return loop(function()
-                            {
-                                all.push(holdSerializedOneway.setOneway(value + 1, value));
-                                ++value;
-                                if((value % 100) === 0)
-                                {
-                                    all.push(holdSerializedOneway.putOnHold(1));
-                                }
-                            }, 3000);
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                return Promise.all(all);
-            }
-        ).then(
-            function()
-            {
-                out.write("testing serialization... ");
-
-                condition.value = true;
-                value = 0;
-                return holdSerialized.set(value, 0);
-            }
-        ).then(
-            function()
-            {
-                all = [];
-                return loop(
-                    function()
-                    {
-                        // Create a new proxy for each request
-                        var result = holdSerialized.ice_oneway().setOneway(value + 1, value);
-                        all.push(result);
-                        ++value;
-                        if((value % 100) === 0)
-                        {
-                            return result.then(
-                                function()
-                                {
-                                    return holdSerialized.ice_ping(); // Make sure everything's dispatched.
-                                }
-                            ).then(
-                                function()
-                                {
-                                    return holdSerialized.ice_getConnection();
-                                }
-                            ).then(
-                                function(con)
-                                {
-                                    return con.close(false);
-                                }
-                            );
-                        }
-                        return null;
-                    }, 1000);
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                return Promise.all(all);
-            }
-        ).then(
-            function()
-            {
-                all = [];
-                out.write("testing waitForHold... ");
-
-                return hold.waitForHold().then(
-                    function()
-                    {
-                        return hold.waitForHold();
-                    }
-                ).then(
-                    function()
-                    {
-                        return loop(function(i)
-                                    {
-                                        var r = hold.ice_oneway().ice_ping();
-                                        all.push(r);
-                                        if((i % 20) === 0)
-                                        {
-                                            r = r.then(function() { return hold.putOnHold(0); });
-                                        }
-                                        return r;
-                                    }, 100);
-                    }
-                ).then(
-                    function()
-                    {
-                        Promise.all(all);
-                    }
-                ).then(
-                    function()
-                    {
-                        return hold.putOnHold(-1);
-                    }
-                ).then(
-                    function()
-                    {
-                        return hold.ice_ping();
-                    }
-                ).then(
-                    function()
-                    {
-                        return hold.putOnHold(-1);
-                    }
-                ).then(
-                    function()
-                    {
-                        return hold.ice_ping();
-                    }
-                );
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-
-                out.write("changing state to hold and shutting down server... ");
-                return hold.shutdown();
-            }
-        ).then(
-            function()
-            {
-                out.writeLine("ok");
-                p.resolve();
-            },
-            function(ex)
-            {
-                console.log(ex);
-                out.writeLine("failed!");
-                p.reject(ex);
-            });
-        return p;
-    };
-
-    var run = function(out, id)
-    {
-        //
-        // For this test, we want to disable retries.
-        //
-        id.properties.setProperty("Ice.RetryIntervals", "-1");
-
-        //
-        // We don't want connection warnings because of the timeout
-        //
-        id.properties.setProperty("Ice.Warn.Connections", "0");
-
-        //
-        // We need to send messages large enough to cause the transport
-        // buffers to fill up.
-        //
-        id.properties.setProperty("Ice.MessageSizeMax", "10000");
-
-        id.properties.setProperty("Ice.RetryIntervals", "-1");
-
-        var c = Ice.initialize(id);
-        return Promise.try(
-            function()
-            {
-                return allTests(out, c);
-            }
-        ).finally(
-            function()
-            {
-                return c.destroy();
-            }
-        );
-    };
-    exports.__test__ = run;
-    exports.__runServer__ = true;
+        }
+    }
+    exports._test = run;
+    exports._runServer = true;
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

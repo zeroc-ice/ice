@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,7 +17,7 @@ namespace IceUtilInternal
     {
         public static bool SequenceEquals(ICollection seq1, ICollection seq2)
         {
-            if(object.ReferenceEquals(seq1, seq2))
+            if(ReferenceEquals(seq1, seq2))
             {
                 return true;
             }
@@ -50,12 +50,12 @@ namespace IceUtilInternal
                 return true;
             }
 
-            return false;           
+            return false;
         }
 
         public static bool SequenceEquals(IEnumerable seq1, IEnumerable seq2)
         {
-            if(object.ReferenceEquals(seq1, seq2))
+            if(ReferenceEquals(seq1, seq2))
             {
                 return true;
             }
@@ -91,7 +91,7 @@ namespace IceUtilInternal
                 return false;
             }
 
-            return true;           
+            return true;
         }
 
         public static int SequenceGetHashCode(IEnumerable seq)
@@ -102,12 +102,12 @@ namespace IceUtilInternal
             {
                 IceInternal.HashUtil.hashAdd(ref h, e.Current);
             }
-            return h;           
+            return h;
         }
 
         public static bool DictionaryEquals(IDictionary d1, IDictionary d2)
         {
-            if(object.ReferenceEquals(d1, d2))
+            if(ReferenceEquals(d1, d2))
             {
                 return true;
             }
@@ -144,7 +144,7 @@ namespace IceUtilInternal
                 return true;
             }
 
-            return false;           
+            return false;
         }
 
         public static int DictionaryGetHashCode(IDictionary d)
@@ -156,16 +156,16 @@ namespace IceUtilInternal
                 IceInternal.HashUtil.hashAdd(ref h, e.Key);
                 IceInternal.HashUtil.hashAdd(ref h, e.Value);
             }
-            return h;           
+            return h;
         }
 
         public static void Shuffle<T>(ref List<T> l)
         {
-            lock(rand_)
+            lock(_rand)
             {
                 for(int j = 0; j < l.Count - 1; ++j)
                 {
-                    int r = rand_.Next(l.Count - j) + j;
+                    int r = _rand.Next(l.Count - j) + j;
                     Debug.Assert(r >= j && r < l.Count);
                     if(r != j)
                     {
@@ -224,16 +224,16 @@ namespace IceUtilInternal
             {
                 tmp[k++] = array[i++];
             }
-            while(j < end) 
+            while(j < end)
             {
                 tmp[k++] = array[j++];
             }
-            for(i = 0; i < (end - begin); ++i) 
+            for(i = 0; i < (end - begin); ++i)
             {
                 array[begin + i] = tmp[i];
             }
         }
 
-        private static System.Random rand_ = new System.Random(unchecked((int)System.DateTime.Now.Ticks));        
+        private static System.Random _rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
     }
 }

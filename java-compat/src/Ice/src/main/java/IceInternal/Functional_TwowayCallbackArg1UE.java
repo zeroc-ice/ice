@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,17 +19,17 @@ public abstract class Functional_TwowayCallbackArg1UE<T>
         Functional_BoolCallback sentCb)
     {
         super(userExceptionCb != null, responseCb, exceptionCb, sentCb);
-        __userExceptionCb = userExceptionCb;
+        _userExceptionCb = userExceptionCb;
     }
 
     @Override
     public void exception(Ice.UserException ex)
     {
-        if(__userExceptionCb != null)
+        if(_userExceptionCb != null)
         {
-            __userExceptionCb.apply(ex);
+            _userExceptionCb.apply(ex);
         }
     }
 
-    private final Functional_GenericCallback1<Ice.UserException> __userExceptionCb;
+    private final Functional_GenericCallback1<Ice.UserException> _userExceptionCb;
 }

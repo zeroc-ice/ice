@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,8 @@
 
 package com.zeroc.IceInternal;
 
-public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin, com.zeroc.Ice.PropertiesAdminUpdateCallback
+public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin,
+                           java.util.function.Consumer<java.util.Map<String, String>>
 {
     final static private String[] suffixes =
     {
@@ -332,7 +333,7 @@ public class MetricsAdminI implements com.zeroc.IceMX.MetricsAdmin, com.zeroc.Ic
     }
 
     @Override
-    public void updated(java.util.Map<String, String> props)
+    public void accept(java.util.Map<String, String> props)
     {
         for(java.util.Map.Entry<String, String> e : props.entrySet())
         {

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,13 +12,7 @@
 
 #include <TestAMD.h>
 
-
-class InitialI :
-#ifdef ICE_CPP11_MAPPING
-    public Test::InitialDisp
-#else
-    public Test::Initial
-#endif
+class InitialI : public Test::Initial
 {
 public:
 
@@ -41,7 +35,6 @@ public:
                                          ::std::function<void()>,
                                          ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-
     virtual void opRequiredExceptionAsync(Ice::optional<int>, Ice::optional<::std::string>, Ice::optional<::std::shared_ptr<::Test::OneOptional>>,
                                           ::std::function<void()>,
                                           ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
@@ -50,16 +43,13 @@ public:
                              ::std::function<void(const Ice::optional<::Ice::Byte>&, const Ice::optional<::Ice::Byte>&)>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-
     virtual void opBoolAsync(Ice::optional<bool>,
                              ::std::function<void(const Ice::optional<bool>&, const Ice::optional<bool>&)>,
                              ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-
     virtual void opShortAsync(Ice::optional<short>,
                               ::std::function<void(const Ice::optional<short>&, const Ice::optional<short>&)>,
                               ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
 
     virtual void opIntAsync(Ice::optional<int>,
                             ::std::function<void(const Ice::optional<int>&, const Ice::optional<int>&)>,
@@ -153,7 +143,6 @@ public:
                                        ::std::function<void(const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)>,
                                        ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
 
-
     virtual void opFixedStructListAsync(Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>,
                                         ::std::function<void(const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&, const Ice::optional<::std::pair<const ::Test::FixedStruct*, const ::Test::FixedStruct*>>&)>,
                                         ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
@@ -169,7 +158,6 @@ public:
     virtual void opIntIntDictAsync(Ice::optional<::Test::IntIntDict>,
                                    ::std::function<void(const Ice::optional<::Test::IntIntDict>&, const Ice::optional<::Test::IntIntDict>&)>,
                                    ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
 
     virtual void opStringIntDictAsync(Ice::optional<::Test::StringIntDict>,
                                       ::std::function<void(const Ice::optional<::Test::StringIntDict>&, const Ice::optional<::Test::StringIntDict>&)>,
@@ -294,7 +282,6 @@ public:
 
     virtual void supportsNullOptionalAsync(::std::function<void(bool)>,
                                            ::std::function<void(::std::exception_ptr)>, const Ice::Current&) override;
-
 
 #else // C++98 mapping
 

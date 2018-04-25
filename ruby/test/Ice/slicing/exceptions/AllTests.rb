@@ -1,13 +1,11 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
-
-Ice::loadSlice('Test.ice')
 
 def test(b)
     if !b
@@ -25,8 +23,6 @@ def allTests(communicator)
         t.baseAsBase()
         test(false)
     rescue Test::Base => b
-        print(b.b)
-        print(b.ice_id())
         test(b.b == "Base.b")
         test(b.ice_id() == "::Test::Base")
     rescue

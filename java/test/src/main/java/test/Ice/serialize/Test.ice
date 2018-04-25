@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,11 +18,12 @@ enum MyEnum
     enum1,
     enum2,
     enum3
-};
+}
 
 interface Initial;
 class Base;
 
+["java:serialVersionUID:1001"]
 struct Struct1
 {
     bool bo;
@@ -35,7 +36,7 @@ struct Struct1
     string str;
     MyEnum e;
     Initial* p;
-};
+}
 
 sequence<byte> ByteS;
 sequence<int> IntS;
@@ -47,6 +48,7 @@ dictionary<short, int> ShortIntD;
 dictionary<string, MyEnum> StringMyEnumD;
 dictionary<string, Base> StringBaseD;
 
+["java:serialVersionUID:1002"]
 class Base
 {
     Base b;
@@ -60,18 +62,20 @@ class Base
     ShortIntD d2;
     StringMyEnumD d3;
     StringBaseD d4;
-};
+}
 
+["java:serialVersionUID:1003"]
 class Derived extends Base
 {
     Object* p;
-};
+}
 
+["java:serialVersionUID:1004"]
 exception Ex
 {
     Struct1 s;
     Base b;
-};
+}
 
 interface Initial
 {
@@ -79,6 +83,6 @@ interface Initial
     ByteS getBase();
     ByteS getEx();
     void shutdown();
-};
+}
 
-};
+}

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -104,19 +104,23 @@
 
 -(void) relayKnownPreservedAsBase:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
 {
-    [relay knownPreservedAsBase];
+    TestSlicingExceptionsServerRelayPrx* p =
+        [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
+    [p knownPreservedAsBase];
     test(NO);
 }
 
 -(void) relayKnownPreservedAsKnownPreserved:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
 {
-    [relay knownPreservedAsKnownPreserved];
+    TestSlicingExceptionsServerRelayPrx* p =
+        [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
+    [p knownPreservedAsKnownPreserved];
     test(NO);
 }
 
 -(void) unknownPreservedAsBase:(ICECurrent*)current
 {
-    TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 alloc];
+    TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 sPreserved2];
     ex.b = @"base";
     ex.kp = @"preserved";
     ex.kpd = @"derived";
@@ -127,7 +131,7 @@
 
 -(void) unknownPreservedAsKnownPreserved:(ICECurrent*)current
 {
-    TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 alloc];
+    TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 sPreserved2];
     ex.b = @"base";
     ex.kp = @"preserved";
     ex.kpd = @"derived";
@@ -138,16 +142,19 @@
 
 -(void) relayUnknownPreservedAsBase:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
 {
-    [relay unknownPreservedAsBase];
+    TestSlicingExceptionsServerRelayPrx* p =
+        [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
+    [p unknownPreservedAsBase];
     test(NO);
 }
 
 -(void) relayUnknownPreservedAsKnownPreserved:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
 {
-    [relay unknownPreservedAsKnownPreserved];
+    TestSlicingExceptionsServerRelayPrx* p =
+        [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
+    [p unknownPreservedAsKnownPreserved];
     test(NO);
 }
-
 
 -(void) shutdown:(ICECurrent*)current
 {

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -126,9 +126,9 @@ public final class ThrowerI implements Thrower
 
     @Override
     public void throwUndeclaredC(int a, int b, int c, com.zeroc.Ice.Current current)
+        throws com.zeroc.Ice.UserException
     {
-        // Not possible in Java.
-        throw new com.zeroc.Ice.UnknownUserException();
+        throw new C(a, b, c);
     }
 
     @Override

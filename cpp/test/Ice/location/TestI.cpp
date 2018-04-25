@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,6 +10,7 @@
 #include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <TestI.h>
+#include <TestCommon.h>
 
 using namespace Test;
 
@@ -17,10 +18,10 @@ ServerManagerI::ServerManagerI(const ServerLocatorRegistryPtr& registry,
                                const Ice::InitializationData& initData) :
     _registry(registry),
     _initData(initData),
-    _nextPort(12011)
+    _nextPort(1)
 {
     _initData.properties->setProperty("TestAdapter.AdapterId", "TestAdapter");
-    _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");    
+    _initData.properties->setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
     _initData.properties->setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     _initData.properties->setProperty("Ice.PrintAdapterReady", "0");
 }
@@ -50,31 +51,54 @@ ServerManagerI::startServer(const Ice::Current&)
     // Use fixed port to ensure that OA re-activation doesn't re-use previous port from
     // another OA (e.g.: TestAdapter2 is re-activated using port of TestAdapter).
     //
+    int nRetry = 10;
+    while(--nRetry > 0)
     {
-        std::ostringstream os;
-        os << "default -p " << _nextPort++;
-        serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints", os.str());
+        Ice::ObjectAdapterPtr adapter;
+        Ice::ObjectAdapterPtr adapter2;
+        try
+        {
+            Ice::PropertiesPtr props = _initData.properties;
+            serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints",
+                                                             getTestEndpoint(props, _nextPort++));
+            serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints",
+                                                             getTestEndpoint(props, _nextPort++));
+
+            adapter = serverCommunicator->createObjectAdapter("TestAdapter");
+            adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
+
+            Ice::ObjectPrxPtr locator = serverCommunicator->stringToProxy("locator:" + getTestEndpoint(props, 0));
+            adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
+            adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
+
+            Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI, adapter, adapter2, _registry);
+            _registry->addObject(adapter->add(object, Ice::stringToIdentity("test")));
+            _registry->addObject(adapter->add(object, Ice::stringToIdentity("test2")));
+            adapter->add(object, Ice::stringToIdentity("test3"));
+
+            adapter->activate();
+            adapter2->activate();
+            break;
+        }
+        catch(const Ice::SocketException&)
+        {
+            if(nRetry == 0)
+            {
+                throw;
+            }
+
+            // Retry, if OA creation fails with EADDRINUSE (this can occur when running with JS web
+            // browser clients if the driver uses ports in the same range as this test, ICE-8148)
+            if(adapter)
+            {
+                adapter->destroy();
+            }
+            if(adapter2)
+            {
+                adapter2->destroy();
+            }
+        }
     }
-    {
-        std::ostringstream os;
-        os << "default -p " << _nextPort++;
-        serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints", os.str());
-    }
-
-    Ice::ObjectAdapterPtr adapter = serverCommunicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectAdapterPtr adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
-
-    Ice::ObjectPrxPtr locator = serverCommunicator->stringToProxy("locator:default -p 12010");
-    adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
-    adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
-
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI, adapter, adapter2, _registry);
-    _registry->addObject(adapter->add(object, Ice::stringToIdentity("test")));
-    _registry->addObject(adapter->add(object, Ice::stringToIdentity("test2")));
-    adapter->add(object, Ice::stringToIdentity("test3"));
-
-    adapter->activate();
-    adapter2->activate();
 }
 
 void
@@ -87,9 +111,8 @@ ServerManagerI::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
-
-TestI::TestI(const Ice::ObjectAdapterPtr& adapter, 
-             const Ice::ObjectAdapterPtr& adapter2, 
+TestI::TestI(const Ice::ObjectAdapterPtr& adapter,
+             const Ice::ObjectAdapterPtr& adapter2,
              const ServerLocatorRegistryPtr& registry) :
     _adapter1(adapter), _adapter2(adapter2), _registry(registry)
 {

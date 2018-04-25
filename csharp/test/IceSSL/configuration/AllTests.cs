@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,9 +12,12 @@
 //
 
 using System;
+using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 
 public class AllTests
 {
@@ -27,62 +30,42 @@ public class AllTests
     }
 
     private static Ice.InitializationData
-    createClientProps(Ice.Properties defaultProperties, string defaultDir, string defaultHost)
+    createClientProps(Ice.Properties defaultProperties)
     {
         Ice.InitializationData result = new Ice.InitializationData();
         result.properties = Ice.Util.createProperties();
-        //
-        // TODO:
-        //
-        // When an application loads IceSSL.dll directly, as this one does, we
-        // must ensure that it uses the same DLL as the one loaded dynamically
-        // by Ice.
-        //
-        // When Mono supports .NET 2.0, we'll need to fix this.
-        //
+
         result.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
+        result.properties.setProperty("IceSSL.DefaultDir", defaultProperties.getProperty("IceSSL.DefaultDir"));
+        result.properties.setProperty("Ice.Default.Host", defaultProperties.getProperty("Ice.Default.Host"));
         if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
         {
             result.properties.setProperty("Ice.IPv6", defaultProperties.getProperty("Ice.IPv6"));
         }
         result.properties.setProperty("Ice.RetryIntervals", "-1");
-        if(defaultHost.Length > 0)
-        {
-            result.properties.setProperty("Ice.Default.Host", defaultHost);
-        }
-        if(defaultDir.Length > 0)
-        {
-            result.properties.setProperty("IceSSL.DefaultDir", defaultDir);
-        }
         //result.properties.setProperty("IceSSL.Trace.Security", "1");
         return result;
     }
 
     private static Dictionary<string, string>
-    createServerProps(Ice.Properties defaultProperties, string defaultDir, string defaultHost)
+    createServerProps(Ice.Properties defaultProperties)
     {
         Dictionary<string, string> result = new Dictionary<string, string>();
         result["Ice.Plugin.IceSSL"] = "IceSSL:IceSSL.PluginFactory";
+        result["IceSSL.DefaultDir"] = defaultProperties.getProperty("IceSSL.DefaultDir");
+        result["Ice.Default.Host"] = defaultProperties.getProperty("Ice.Default.Host");
         if(defaultProperties.getProperty("Ice.IPv6").Length > 0)
         {
             result["Ice.IPv6"] = defaultProperties.getProperty("Ice.IPv6");
-        }
-        if(defaultHost.Length > 0)
-        {
-            result["Ice.Default.Host"] = defaultHost;
-        }
-        if(defaultDir.Length > 0)
-        {
-            result["IceSSL.DefaultDir"] = defaultDir;
         }
         //result["IceSSL.Trace.Security"] = "1";
         return result;
     }
 
     private static Dictionary<string, string>
-    createServerProps(Ice.Properties defaultProperties, string defaultDir, string defaultHost, string cert, string ca)
+    createServerProps(Ice.Properties defaultProperties, string cert, string ca)
     {
-        Dictionary<string, string> d = createServerProps(defaultProperties, defaultDir, defaultHost);
+        Dictionary<string, string> d = createServerProps(defaultProperties);
         if(cert.Length > 0)
         {
             d["IceSSL.CertFile"] = cert + ".p12";
@@ -96,9 +79,9 @@ public class AllTests
     }
 
     private static Ice.InitializationData
-    createClientProps(Ice.Properties defaultProperties, string defaultDir, string defaultHost, string cert, string ca)
+    createClientProps(Ice.Properties defaultProperties, string cert, string ca)
     {
-        Ice.InitializationData initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+        Ice.InitializationData initData = createClientProps(defaultProperties);
         if(cert.Length > 0)
         {
             initData.properties.setProperty("IceSSL.CertFile", cert + ".p12");
@@ -111,9 +94,11 @@ public class AllTests
         return initData;
     }
 
-    public static Test.ServerFactoryPrx allTests(Ice.Communicator communicator, string testDir)
+    public static Test.ServerFactoryPrx allTests(TestCommon.Application app, string testDir)
     {
-        string factoryRef = "factory:tcp -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string factoryRef = "factory:" + app.getTestEndpoint(0, "tcp");
+
         Ice.ObjectPrx b = communicator.stringToProxy(factoryRef);
         test(b != null);
         Test.ServerFactoryPrx factory = Test.ServerFactoryPrxHelper.checkedCast(b);
@@ -121,6 +106,8 @@ public class AllTests
         string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
         string defaultDir = testDir + "/../certs";
         Ice.Properties defaultProperties = communicator.getProperties();
+        defaultProperties.setProperty("IceSSL.DefaultDir", defaultDir);
+        defaultProperties.setProperty("Ice.Default.Host", defaultHost);
 
         //
         // Load the CA certificates. We could use the IceSSL.ImportCert property, but
@@ -136,17 +123,24 @@ public class AllTests
         string caCert2File = defaultDir + "/cacert2.pem";
         X509Certificate2 caCert1 = new X509Certificate2(caCert1File);
         X509Certificate2 caCert2 = new X509Certificate2(caCert2File);
+
+        test(Enumerable.SequenceEqual(IceSSL.Util.createCertificate(File.ReadAllText(caCert1File)).RawData, caCert1.RawData));
+        test(Enumerable.SequenceEqual(IceSSL.Util.createCertificate(File.ReadAllText(caCert2File)).RawData, caCert2.RawData));
+
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;
-        try
+        if(IceInternal.AssemblyUtil.isWindows)
         {
-            store.Open(OpenFlags.ReadWrite);
-            isAdministrator = true;
-        }
-        catch(CryptographicException)
-        {
-            store.Open(OpenFlags.ReadOnly);
-            Console.Out.WriteLine("warning: some test requires administrator privileges, run as Administrator to run all the tests.");
+            try
+            {
+                store.Open(OpenFlags.ReadWrite);
+                isAdministrator = true;
+            }
+            catch(CryptographicException)
+            {
+                store.Open(OpenFlags.ReadOnly);
+                Console.Out.WriteLine("warning: some test requires administrator privileges, run as Administrator to run all the tests.");
+            }
         }
 
         Ice.InitializationData initData;
@@ -158,7 +152,7 @@ public class AllTests
             Console.Out.Write("testing manual initialization... ");
             Console.Out.Flush();
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("Ice.InitPlugins", "0");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Ice.ObjectPrx p = comm.stringToProxy("dummy:ssl -p 9999");
@@ -171,14 +165,15 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("Ice.InitPlugins", "0");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Ice.PluginManager pm = comm.getPluginManager();
@@ -186,14 +181,15 @@ public class AllTests
                 Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
                 test(obj != null);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -206,7 +202,7 @@ public class AllTests
                 X509Certificate2 cert = new X509Certificate2(defaultDir + "/c_rsa_ca1.p12", "password");
                 X509Certificate2Collection coll = new X509Certificate2Collection();
                 coll.Add(cert);
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData = createClientProps(defaultProperties);
                 initData.properties.setProperty("Ice.InitPlugins", "0");
                 initData.properties.setProperty("IceSSL.CAs", caCert1File);
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
@@ -218,15 +214,16 @@ public class AllTests
                 Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
                 test(obj != null);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -240,7 +237,7 @@ public class AllTests
                 X509Certificate2 cert = new X509Certificate2(defaultDir + "/cacert1.pem");
                 X509Certificate2Collection coll = new X509Certificate2Collection();
                 coll.Add(cert);
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                 initData.properties.setProperty("Ice.InitPlugins", "0");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Ice.PluginManager pm = comm.getPluginManager();
@@ -251,7 +248,7 @@ public class AllTests
                 Ice.ObjectPrx obj = comm.stringToProxy(factoryRef);
                 test(obj != null);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(obj);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -275,12 +272,12 @@ public class AllTests
                 // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
                 // and it doesn't trust the server certificate.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "");
+                initData = createClientProps(defaultProperties, "", "");
                 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                 d["IceSSL.VerifyPeer"] = "0";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -300,12 +297,12 @@ public class AllTests
                 // Test IceSSL.VerifyPeer=0. Client does not have a certificate,
                 // but it still verifies the server's.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                initData = createClientProps(defaultProperties, "", "cacert1");
                 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                 d["IceSSL.VerifyPeer"] = "0";
                 server = fact.createServer(d);
                 try
@@ -324,19 +321,20 @@ public class AllTests
                 //
                 // Test IceSSL.VerifyPeer=1. Client does not have a certificate.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                initData = createClientProps(defaultProperties, "", "cacert1");
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                 d["IceSSL.VerifyPeer"] = "1";
                 server = fact.createServer(d);
                 try
                 {
                     server.noCert();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -345,7 +343,7 @@ public class AllTests
                 // Test IceSSL.VerifyPeer=2. This should fail because the client
                 // does not supply a certificate.
                 //
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                 d["IceSSL.VerifyPeer"] = "2";
                 server = fact.createServer(d);
                 try
@@ -373,11 +371,11 @@ public class AllTests
                 // certificate (without this the client connection wouln't be
                 // able to provide the certificate chain).
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "1";
                 server = fact.createServer(d);
                 try
@@ -390,12 +388,12 @@ public class AllTests
                         new X509Certificate2(defaultDir + "/s_rsa_ca1.p12", "password");
                     X509Certificate2 caCert = new X509Certificate2(defaultDir + "/cacert1.pem");
 
-                    IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.Length == 2);
+                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.Length == 2);
                     test(info.verified);
 
-                    test(caCert.Equals(info.nativeCerts[1]));
-                    test(serverCert.Equals(info.nativeCerts[0]));
+                    test(caCert.Equals(info.certs[1]));
+                    test(serverCert.Equals(info.certs[0]));
                 }
                 catch(Exception ex)
                 {
@@ -407,7 +405,7 @@ public class AllTests
                 //
                 // Test IceSSL.VerifyPeer=2. Client has a certificate.
                 //
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
                 server = fact.createServer(d);
                 try
@@ -428,11 +426,11 @@ public class AllTests
                 // Test IceSSL.VerifyPeer=1. This should fail because the
                 // client doesn't trust the server's CA.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "");
+                initData = createClientProps(defaultProperties, "", "");
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                 d["IceSSL.VerifyPeer"] = "0";
                 server = fact.createServer(d);
                 try
@@ -456,12 +454,12 @@ public class AllTests
                 // Test IceSSL.VerifyPeer=1. This should fail because the
                 // server doesn't trust the client's CA.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca2", "");
+                initData = createClientProps(defaultProperties, "c_rsa_ca2", "");
                 initData.properties.setProperty("IceSSL.VerifyPeer", "0");
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                 d["IceSSL.VerifyPeer"] = "1";
                 server = fact.createServer(d);
                 try
@@ -477,8 +475,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -488,11 +487,11 @@ public class AllTests
                 // This should succeed because the self signed certificate used by the server is
                 // trusted.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert2");
+                initData = createClientProps(defaultProperties, "", "cacert2");
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "cacert2", "");
+                d = createServerProps(defaultProperties, "cacert2", "");
                 d["IceSSL.VerifyPeer"] = "0";
                 server = fact.createServer(d);
                 try
@@ -511,11 +510,11 @@ public class AllTests
                 // This should l because the self signed certificate used by the server is not
                 // trusted.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                initData = createClientProps(defaultProperties);
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "cacert2", "");
+                d = createServerProps(defaultProperties, "cacert2", "");
                 d["IceSSL.VerifyPeer"] = "0";
                 server = fact.createServer(d);
                 try
@@ -535,15 +534,14 @@ public class AllTests
                 fact.destroyServer(server);
                 comm.destroy();
 
-
                 //
                 // Verify that IceSSL.CheckCertName has no effect in a server.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.CheckCertName"] = "1";
                 server = fact.createServer(d);
                 try
@@ -559,29 +557,165 @@ public class AllTests
                 comm.destroy();
 
                 //
-                // NOTE: We can't test IceSSL.CheckCertName here because the common name (CN) field of
-                // the server's certificate has the value "Server" and we can't use "Server" as a host
-                // name in an endpoint (it almost certainly wouldn't resolve correctly).
-                //
-
-                //
-                // Test IceSSL.CheckCertName. The test certificates for the server contain "127.0.0.1"
-                // as the common name or as a subject alternative name, so we only perform this test when
-                // the default host is "127.0.0.1".
+                // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
+                // as that is the IP address used in the test certificates.
                 //
                 if(defaultHost.Equals("127.0.0.1"))
                 {
                     //
-                    // Test subject alternative name.
+                    // Test using localhost as target host
+                    //
+                    Ice.Properties props = defaultProperties.ice_clone_();
+                    props.setProperty("Ice.Default.Host", "localhost");
+
+                    //
+                    // Target host matches the certificate DNS altName
                     //
                     {
-                        initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
                         comm = Ice.Util.initialize(ref args, initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                        d = createServerProps(props, "s_rsa_ca1_cn1", "cacert1");
+                        d["IceSSL.CheckCertName"] = "1";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }
+                    //
+                    // Target host does not match the certificate DNS altName
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
+                        d["IceSSL.CheckCertName"] = "1";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                            test(false);
+                        }
+                        catch(Ice.SecurityException)
+                        {
+                            // Expected
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }
+                    //
+                    // Target host matches the certificate Common Name and the certificate does not
+                    // include a DNS altName
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(props, "s_rsa_ca1_cn3", "cacert1");
+                        d["IceSSL.CheckCertName"] = "1";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                        }
+                        catch(Ice.LocalException ex)
+                        {
+                            Console.WriteLine(ex.ToString());
+                            test(false);
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }
+                    //
+                    // Target host does not match the certificate Common Name and the certificate does not
+                    // include a DNS altName
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(props, "s_rsa_ca1_cn4", "cacert1");
+                        d["IceSSL.CheckCertName"] = "1";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                            test(false);
+                        }
+                        catch(Ice.SecurityException)
+                        {
+                            // Expected
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }
+                    //
+                    // Target host matches the certificate Common Name and the certificate has
+                    // a DNS altName that does not matches the target host
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(props, "s_rsa_ca1_cn5", "cacert1");
+                        d["IceSSL.CheckCertName"] = "1";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                            test(false);
+                        }
+                        catch(Ice.SecurityException)
+                        {
+                            // Expected
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }
+
+                    //
+                    // Test using 127.0.0.1 as target host
+                    //
+
+                    //
+                    // Disabled for compatibility with older Windows
+                    // versions.
+                    //
+                    /* //
+                    // Target host matches the certificate IP altName
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(defaultProperties, "s_rsa_ca1_cn6", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
                         server = fact.createServer(d);
                         try
@@ -596,51 +730,79 @@ public class AllTests
                         comm.destroy();
                     }
                     //
-                    // Test common name.
+                    // Target host does not match the certificate IP altName
                     //
                     {
-                        initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                         initData.properties.setProperty("IceSSL.CheckCertName", "1");
                         comm = Ice.Util.initialize(ref args, initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1_cn1", "cacert1");
+                        d = createServerProps(defaultProperties, "s_rsa_ca1_cn7", "cacert1");
+                        d["IceSSL.CheckCertName"] = "1";
+                        server = fact.createServer(d);
+                        try
+                        {
+                            server.ice_ping();
+                            test(false);
+                        }
+                        catch(Ice.SecurityException)
+                        {
+                            // Expected
+                        }
+                        fact.destroyServer(server);
+                        comm.destroy();
+                    }*/
+                    //
+                    // Target host is an IP addres that matches the CN and the certificate doesn't
+                    // include an IP altName.
+                    //
+                    {
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        comm = Ice.Util.initialize(ref args, initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+                        d = createServerProps(defaultProperties, "s_rsa_ca1_cn8", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
                         server = fact.createServer(d);
                         try
                         {
                             server.ice_ping();
                         }
-                        catch(Ice.LocalException)
+                        catch(Ice.SecurityException ex)
                         {
+                            Console.WriteLine(ex.ToString());
                             test(false);
                         }
                         fact.destroyServer(server);
                         comm.destroy();
                     }
+
                     //
-                    // Test common name again. The certificate used in this test has "127.0.0.11" as its
-                    // common name, therefore the address "127.0.0.1" must NOT match.
+                    // Target host does not match the certificate DNS altName, connection should succeed
+                    // because IceSSL.CheckCertName is set to 0.
                     //
                     {
-                        initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
-                        initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                        initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                        initData.properties.setProperty("IceSSL.CheckCertName", "0");
                         comm = Ice.Util.initialize(ref args, initData);
 
                         fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                         test(fact != null);
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1_cn2", "cacert1");
+                        d = createServerProps(props, "s_rsa_ca1_cn2", "cacert1");
                         d["IceSSL.CheckCertName"] = "1";
                         server = fact.createServer(d);
                         try
                         {
                             server.ice_ping();
-                            test(false);
                         }
-                        catch(Ice.LocalException)
+                        catch(Ice.LocalException ex)
                         {
-                            // Expected.
+                            Console.WriteLine(ex.ToString());
+                            test(false);
                         }
                         fact.destroyServer(server);
                         comm.destroy();
@@ -662,9 +824,9 @@ public class AllTests
                 }
                 try
                 {
-                    IceSSL.NativeConnectionInfo info;
+                    IceSSL.ConnectionInfo info;
 
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "");
+                    initData = createClientProps(defaultProperties, "", "");
                     initData.properties.setProperty("IceSSL.VerifyPeer", "0");
                     Ice.Communicator comm = Ice.Util.initialize(initData);
 
@@ -676,17 +838,18 @@ public class AllTests
                     // still provide it. "s_rsa_ca1" doesn't include the root so the
                     // cert size should be 1.
                     //
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                    d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                     d["IceSSL.VerifyPeer"] = "0";
                     Test.ServerPrx server = fact.createServer(d);
                     try
                     {
-                        info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                        test(info.nativeCerts.Length == 1);
+                        info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                        test(info.certs.Length == 1);
                         test(!info.verified);
                     }
-                    catch(Ice.LocalException)
+                    catch(Ice.LocalException ex)
                     {
+                        Console.WriteLine(ex.ToString());
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -695,17 +858,18 @@ public class AllTests
                     // Setting the CA for the server shouldn't change anything, it
                     // shouldn't modify the cert chain sent to the client.
                     //
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                    d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                     d["IceSSL.VerifyPeer"] = "0";
                     server = fact.createServer(d);
                     try
                     {
-                        info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                        test(info.nativeCerts.Length == 1);
+                        info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                        test(info.certs.Length == 1);
                         test(!info.verified);
                     }
-                    catch(Ice.LocalException)
+                    catch(Ice.LocalException ex)
                     {
+                        Console.WriteLine(ex.ToString());
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -715,16 +879,17 @@ public class AllTests
                     // still provide it. "s_rsa_wroot_ca1" includes the root so
                     // the cert size should be 2.
                     //
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_wroot_ca1", "");
+                    d = createServerProps(defaultProperties, "s_rsa_wroot_ca1", "");
                     d["IceSSL.VerifyPeer"] = "0";;
                     server = fact.createServer(d);
                     try
                     {
-                        info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                        test(info.nativeCerts.Length == 1); // Like the SChannel transport, .NET never sends the root.
+                        info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                        test(info.certs.Length == 1); // Like the SChannel transport, .NET never sends the root.
                     }
-                    catch(Ice.LocalException)
+                    catch(Ice.LocalException ex)
                     {
+                        Console.WriteLine(ex.ToString());
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -733,7 +898,7 @@ public class AllTests
                     //
                     // Now the client verifies the server certificate
                     //
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                    initData = createClientProps(defaultProperties, "", "cacert1");
                     initData.properties.setProperty("IceSSL.VerifyPeer", "1");
                     comm = Ice.Util.initialize(initData);
 
@@ -741,17 +906,18 @@ public class AllTests
                     test(fact != null);
 
                     {
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                        d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                         d["IceSSL.VerifyPeer"] = "0";;
                         server = fact.createServer(d);
                         try
                         {
-                            info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                            test(info.nativeCerts.Length == 2);
+                            info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                            test(info.certs.Length == 2);
                             test(info.verified);
                         }
-                        catch(Ice.LocalException)
+                        catch(Ice.LocalException ex)
                         {
+                            Console.WriteLine(ex.ToString());
                             test(false);
                         }
                         fact.destroyServer(server);
@@ -760,7 +926,7 @@ public class AllTests
                     //
                     // Try certificate with one intermediate and VerifyDepthMax=2
                     //
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                    initData = createClientProps(defaultProperties, "", "cacert1");
                     initData.properties.setProperty("IceSSL.VerifyPeer", "1");
                     initData.properties.setProperty("IceSSL.VerifyDepthMax", "2");
                     comm = Ice.Util.initialize(initData);
@@ -769,7 +935,7 @@ public class AllTests
                     test(fact != null);
 
                     {
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai1", "");
+                        d = createServerProps(defaultProperties, "s_rsa_cai1", "");
                         d["IceSSL.VerifyPeer"] = "0";;
                         server = fact.createServer(d);
                         try
@@ -781,141 +947,154 @@ public class AllTests
                         {
                             // Chain length too long
                         }
-                        catch(Ice.LocalException)
+                        catch(Ice.LocalException ex)
                         {
+                            Console.WriteLine(ex.ToString());
                             test(false);
                         }
                         fact.destroyServer(server);
                     }
                     comm.destroy();
 
-                    //
-                    // Set VerifyDepthMax to 3 (the default)
-                    //
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
-                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                    //initData.properties.setProperty("IceSSL.VerifyDepthMax", "3");
-                    comm = Ice.Util.initialize(initData);
-
-                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                    test(fact != null);
-
+                    if(IceInternal.AssemblyUtil.isWindows)
                     {
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai1", "");
-                        d["IceSSL.VerifyPeer"] = "0";;
-                        server = fact.createServer(d);
-                        try
+                        //
+                        // The certificate chain on Linux doesn't include the intermeidate
+                        // certificates see ICE-8576
+                        //
+
+                        //
+                        // Set VerifyDepthMax to 3 (the default)
+                        //
+                        initData = createClientProps(defaultProperties, "", "cacert1");
+                        initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                        //initData.properties.setProperty("IceSSL.VerifyDepthMax", "3");
+                        comm = Ice.Util.initialize(initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+
                         {
-                            info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                            test(info.nativeCerts.Length == 3);
-                            test(info.verified);
+                            d = createServerProps(defaultProperties, "s_rsa_cai1", "");
+                            d["IceSSL.VerifyPeer"] = "0";
+                            server = fact.createServer(d);
+                            try
+                            {
+                                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                                test(info.certs.Length == 3);
+                                test(info.verified);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
+                            fact.destroyServer(server);
                         }
-                        catch(Ice.LocalException)
+
                         {
-                            test(false);
+                            d = createServerProps(defaultProperties, "s_rsa_cai2", "");
+                            d["IceSSL.VerifyPeer"] = "0";;
+                            server = fact.createServer(d);
+                            try
+                            {
+                                server.ice_getConnection().getInfo();
+                                test(false);
+                            }
+                            catch(Ice.SecurityException)
+                            {
+                                // Chain length too long
+                            }
+                            fact.destroyServer(server);
                         }
-                        fact.destroyServer(server);
+                        comm.destroy();
+
+                        //
+                        // Increase VerifyDepthMax to 4
+                        //
+                        initData = createClientProps(defaultProperties, "", "cacert1");
+                        initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                        initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                        comm = Ice.Util.initialize(initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+
+                        {
+                            d = createServerProps(defaultProperties, "s_rsa_cai2", "");
+                            d["IceSSL.VerifyPeer"] = "0";;
+                            server = fact.createServer(d);
+                            try
+                            {
+                                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                                test(info.certs.Length == 4);
+                                test(info.verified);
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
+                            fact.destroyServer(server);
+                        }
+
+                        comm.destroy();
+
+                        //
+                        // Increase VerifyDepthMax to 4
+                        //
+                        initData = createClientProps(defaultProperties, "c_rsa_cai2", "cacert1");
+                        initData.properties.setProperty("IceSSL.VerifyPeer", "1");
+                        initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
+                        comm = Ice.Util.initialize(initData);
+
+                        fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                        test(fact != null);
+
+                        {
+                            d = createServerProps(defaultProperties, "s_rsa_cai2", "cacert1");
+                            d["IceSSL.VerifyPeer"] = "2";
+                            server = fact.createServer(d);
+                            try
+                            {
+                                server.ice_getConnection();
+                                test(false);
+                            }
+                            catch(Ice.ProtocolException)
+                            {
+                                // Expected
+                            }
+                            catch(Ice.ConnectionLostException)
+                            {
+                                // Expected
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
+                            fact.destroyServer(server);
+                        }
+
+                        {
+                            d = createServerProps(defaultProperties, "s_rsa_cai2", "cacert1");
+                            d["IceSSL.VerifyPeer"] = "2";
+                            d["IceSSL.VerifyDepthMax"] = "4";
+                            server = fact.createServer(d);
+                            try
+                            {
+                                server.ice_getConnection();
+                            }
+                            catch(Ice.LocalException ex)
+                            {
+                                Console.WriteLine(ex.ToString());
+                                test(false);
+                            }
+                            fact.destroyServer(server);
+                        }
+
+                        comm.destroy();
                     }
-
-                    {
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "");
-                        d["IceSSL.VerifyPeer"] = "0";;
-                        server = fact.createServer(d);
-                        try
-                        {
-                            server.ice_getConnection().getInfo();
-                            test(false);
-                        }
-                        catch(Ice.SecurityException)
-                        {
-                            // Chain length too long
-                        }
-                        fact.destroyServer(server);
-                    }
-                    comm.destroy();
-
-                    //
-                    // Increase VerifyDepthMax to 4
-                    //
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
-                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                    initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
-                    comm = Ice.Util.initialize(initData);
-
-                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                    test(fact != null);
-
-                    {
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "");
-                        d["IceSSL.VerifyPeer"] = "0";;
-                        server = fact.createServer(d);
-                        try
-                        {
-                            info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                            test(info.nativeCerts.Length == 4);
-                            test(info.verified);
-                        }
-                        catch(Ice.LocalException)
-                        {
-                            test(false);
-                        }
-                        fact.destroyServer(server);
-                    }
-
-                    comm.destroy();
-
-                    //
-                    // Increase VerifyDepthMax to 4
-                    //
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_cai2", "cacert1");
-                    initData.properties.setProperty("IceSSL.VerifyPeer", "1");
-                    initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
-                    comm = Ice.Util.initialize(initData);
-
-                    fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                    test(fact != null);
-
-                    {
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "cacert1");
-                        d["IceSSL.VerifyPeer"] = "2";
-                        server = fact.createServer(d);
-                        try
-                        {
-                            server.ice_getConnection();
-                            test(false);
-                        }
-                        catch(Ice.ProtocolException)
-                        {
-                            // Expected
-                        }
-                        catch(Ice.ConnectionLostException)
-                        {
-                            // Expected
-                        }
-                        catch(Ice.LocalException)
-                        {
-                            test(false);
-                        }
-                        fact.destroyServer(server);
-                    }
-
-                    {
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_cai2", "cacert1");
-                        d["IceSSL.VerifyPeer"] = "2";
-                        d["IceSSL.VerifyDepthMax"] = "4";
-                        server = fact.createServer(d);
-                        try
-                        {
-                            server.ice_getConnection();
-                        }
-                        catch(Ice.LocalException)
-                        {
-                            test(false);
-                        }
-                        fact.destroyServer(server);
-                    }
-
-                    comm.destroy();
                 }
                 finally
                 {
@@ -933,7 +1112,7 @@ public class AllTests
                 //
                 // Verify that a server certificate is present.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
                 test(plugin != null);
@@ -942,17 +1121,17 @@ public class AllTests
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
-                    IceSSL.NativeConnectionInfo info =
-                        (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                    IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
                     server.checkCipher(info.cipher);
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 test(verifier.invoked());
@@ -964,7 +1143,7 @@ public class AllTests
                 //
                 verifier.reset();
                 verifier.returnValue(false);
-                server.ice_getConnection().close(false);
+                server.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 try
                 {
                     server.ice_ping();
@@ -974,8 +1153,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 test(verifier.invoked());
@@ -988,7 +1168,7 @@ public class AllTests
                 //
                 // Verify that verifier is installed via property.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                 initData.properties.setProperty("IceSSL.CertVerifier", "CertificateVerifierI");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 IceSSL.Plugin plugin = (IceSSL.Plugin)comm.getPluginManager().getPlugin("IceSSL");
@@ -1005,26 +1185,27 @@ public class AllTests
                 // This should fail because the client and server have no protocol
                 // in common.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
-                initData.properties.setProperty("IceSSL.Protocols", "ssl3");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
+                initData.properties.setProperty("IceSSL.Protocols", "tls1_1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
-                d["IceSSL.Protocols"] = "tls1";
+                d["IceSSL.Protocols"] = "tls1_2";
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
-                    test(false);
+                    //test(false);
                 }
                 catch(Ice.ConnectionLostException)
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1036,42 +1217,30 @@ public class AllTests
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
-                d["IceSSL.Protocols"] = "tls1, ssl3";
+                d["IceSSL.Protocols"] = "tls1_1, tls1_2";
                 server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
 
-                //
-                // This should succeed with .NET 4.5 or greater and fails otherwise
-                //
-                bool is45OrGreater = false;
                 try
                 {
-                    Enum.Parse(typeof(System.Security.Authentication.SslProtocols), "Tls12");
-                    is45OrGreater = true;
-                }
-                catch(Exception)
-                {
-                }
-
-                try
-                {
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.Protocols", "tls1_2");
                     comm = Ice.Util.initialize(ref args, initData);
                     fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                    d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                     d["IceSSL.VerifyPeer"] = "2";
                     d["IceSSL.Protocols"] = "tls1_2";
                     server = fact.createServer(d);
@@ -1080,27 +1249,24 @@ public class AllTests
                     fact.destroyServer(server);
                     comm.destroy();
                 }
-                catch(Ice.PluginInitializationException)
+                catch(Ice.LocalException ex)
                 {
-                    // Expected with .NET < 4.5
-                    test(!is45OrGreater);
-                }
-                catch(Ice.LocalException)
-                {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
             }
+#if NET45
             {
                 //
                 // This should fail because the client ony enables SSLv3 and the server
                 // uses the default protocol set that disables SSLv3
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.Protocols", "ssl3");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -1112,8 +1278,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1125,7 +1292,7 @@ public class AllTests
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
                 d["IceSSL.Protocols"] = "ssl3, tls1_0, tls1_1, tls1_2";
                 server = fact.createServer(d);
@@ -1133,13 +1300,15 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
+#endif
             Console.Out.WriteLine("ok");
 
             Console.Out.Write("testing expired certificates... ");
@@ -1148,11 +1317,11 @@ public class AllTests
                 //
                 // This should fail because the server's certificate is expired.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1_exp", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1_exp", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -1164,8 +1333,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.Out.Write(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1178,7 +1348,7 @@ public class AllTests
                 comm = Ice.Util.initialize(ref args, initData);
                 fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.VerifyPeer"] = "2";
                 server = fact.createServer(d);
                 try
@@ -1190,8 +1360,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.Out.Write(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1199,17 +1370,21 @@ public class AllTests
             }
             Console.Out.WriteLine("ok");
 
-            if(isAdministrator)
+            if(IceInternal.AssemblyUtil.isWindows && isAdministrator)
             {
+                //
+                // LocalMachine certificate store is not supported on non
+                // Windows platforms.
+                //
                 Console.Out.Write("testing multiple CA certificates... ");
                 Console.Out.Flush();
                 {
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                    initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                     initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
                     Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                     Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca2", "");
+                    d = createServerProps(defaultProperties, "s_rsa_ca2", "");
                     d["IceSSL.VerifyPeer"] = "2";
                     d["IceSSL.UsePlatformCAs"] = "1";
                     store.Add(caCert1);
@@ -1219,8 +1394,9 @@ public class AllTests
                     {
                         server.ice_ping();
                     }
-                    catch(Ice.LocalException)
+                    catch(Ice.LocalException ex)
                     {
+                        Console.WriteLine(ex.ToString());
                         test(false);
                     }
                     fact.destroyServer(server);
@@ -1234,19 +1410,20 @@ public class AllTests
             Console.Out.Write("testing multiple CA certificates... ");
             Console.Out.Flush();
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacerts");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacerts");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca2", "cacerts");
+                d = createServerProps(defaultProperties, "s_rsa_ca2", "cacerts");
                 d["IceSSL.VerifyPeer"] = "2";
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1257,12 +1434,12 @@ public class AllTests
             Console.Out.Write("testing DER CA certificate... ");
             Console.Out.Flush();
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                 initData.properties.setProperty("IceSSL.CAs", "cacert1.der");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                 test(fact != null);
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "");
                 d["IceSSL.VerifyPeer"] = "2";
                 d["IceSSL.CAs"] = "cacert1.der";
                 Test.ServerPrx server = fact.createServer(d);
@@ -1270,8 +1447,9 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1285,7 +1463,7 @@ public class AllTests
                 //
                 // Test password failure.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                 // Don't specify the password.
                 initData.properties.setProperty("IceSSL.Password", "");
                 try
@@ -1297,8 +1475,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
             }
@@ -1306,7 +1485,7 @@ public class AllTests
                 //
                 // Test password failure with callback.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                 initData.properties.setProperty("Ice.InitPlugins", "0");
                 // Don't specify the password.
                 initData.properties.setProperty("IceSSL.Password", "");
@@ -1325,8 +1504,9 @@ public class AllTests
                 {
                     // Expected.
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 comm.destroy();
@@ -1335,7 +1515,7 @@ public class AllTests
                 //
                 // Test installation of password callback.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                 initData.properties.setProperty("Ice.InitPlugins", "0");
                 // Don't specify the password.
                 initData.properties.setProperty("IceSSL.Password", "");
@@ -1350,8 +1530,9 @@ public class AllTests
                 {
                     pm.initializePlugins();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 comm.destroy();
@@ -1360,7 +1541,7 @@ public class AllTests
                 //
                 // Test password callback property.
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "");
                 initData.properties.setProperty("IceSSL.PasswordCallback", "PasswordCallbackI");
                 // Don't specify the password.
                 initData.properties.setProperty("IceSSL.Password", "");
@@ -1376,33 +1557,34 @@ public class AllTests
             Console.Out.Write("testing IceSSL.TrustOnly... ");
             Console.Out.Flush();
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly",
                     "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly",
                     "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
@@ -1416,31 +1598,32 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly",
                     "C=US, ST=Florida, O=\"ZeroC, Inc.\",OU=Ice, emailAddress=info@zeroc.com, CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly"] =
                     "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
@@ -1448,19 +1631,20 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly"] =
                     "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
@@ -1476,31 +1660,32 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "!CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
@@ -1514,30 +1699,31 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly"] = "CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly"] = "!CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -1552,12 +1738,12 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "CN=Client");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
@@ -1571,11 +1757,11 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly"] = "CN=Server";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -1590,12 +1776,12 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada,CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
@@ -1609,50 +1795,52 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "!C=Canada,CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "C=Canada;CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "!C=Canada;!CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
@@ -1666,38 +1854,40 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "!CN=Server1"); // Should not match "Server"
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly"] = "!CN=Client1"; // Should not match "Client"
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1707,12 +1897,12 @@ public class AllTests
                 //
                 // Rejection takes precedence (client).
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly", "ST=Florida;!CN=Server;C=US");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
@@ -1729,11 +1919,11 @@ public class AllTests
                 //
                 // Rejection takes precedence (server).
                 //
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly"] = "C=US;!CN=Client;ST=Florida";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -1752,13 +1942,13 @@ public class AllTests
             Console.Out.Write("testing IceSSL.TrustOnly.Client... ");
             Console.Out.Flush();
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly.Client",
                     "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 // Should have no effect.
                 d["IceSSL.TrustOnly.Client"] =
                     "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server";
@@ -1767,21 +1957,22 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly.Client",
                     "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
@@ -1795,11 +1986,11 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 // Should have no effect.
                 d["IceSSL.TrustOnly.Client"] = "!CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
@@ -1807,20 +1998,21 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly.Client", "CN=Client");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
@@ -1834,19 +2026,20 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 initData.properties.setProperty("IceSSL.TrustOnly.Client", "!CN=Client");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -1857,14 +2050,14 @@ public class AllTests
             Console.Out.Write("testing IceSSL.TrustOnly.Server... ");
             Console.Out.Flush();
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 // Should have no effect.
                 initData.properties.setProperty("IceSSL.TrustOnly.Server",
                     "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly.Server"] =
                     "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
@@ -1872,19 +2065,20 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly.Server"] =
                     "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
@@ -1900,31 +2094,32 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 // Should have no effect.
                 initData.properties.setProperty("IceSSL.TrustOnly.Server", "!CN=Server");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly.Server"] = "CN=Server";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -1939,11 +2134,11 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly.Server"] = "!CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -1962,11 +2157,11 @@ public class AllTests
             Console.Out.Write("testing IceSSL.TrustOnly.Server.<AdapterName>... ");
             Console.Out.Flush();
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly.Server"] = "CN=bogus";
                 d["IceSSL.TrustOnly.Server.ServerAdapter"] =
                     "C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
@@ -1975,19 +2170,20 @@ public class AllTests
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly.Server.ServerAdapter"] =
                     "!C=US, ST=Florida, O=ZeroC\\, Inc.,OU=Ice, emailAddress=info@zeroc.com, CN=Client";
                 Test.ServerPrx server = fact.createServer(d);
@@ -2003,11 +2199,11 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly.Server.ServerAdapter"] = "CN=bogus";
                 Test.ServerPrx server = fact.createServer(d);
                 try
@@ -2022,19 +2218,20 @@ public class AllTests
                 comm.destroy();
             }
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                initData = createClientProps(defaultProperties, "c_rsa_ca1", "cacert1");
                 Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                 Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                d = createServerProps(defaultProperties, "s_rsa_ca1", "cacert1");
                 d["IceSSL.TrustOnly.Server.ServerAdapter"] = "!CN=bogus";
                 Test.ServerPrx server = fact.createServer(d);
                 try
                 {
                     server.ice_ping();
                 }
-                catch(Ice.LocalException)
+                catch(Ice.LocalException ex)
                 {
+                    Console.WriteLine(ex.ToString());
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -2088,7 +2285,7 @@ public class AllTests
                     }
                     for(int i = 0; i < clientFindCertProperties.Length; ++i)
                     {
-                        initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                        initData = createClientProps(defaultProperties, "", "cacert1");
                         initData.properties.setProperty("IceSSL.CertStore", "My");
                         initData.properties.setProperty("IceSSL.CertStoreLocation", "CurrentUser");
                         initData.properties.setProperty("IceSSL.FindCert", clientFindCertProperties[i]);
@@ -2099,7 +2296,7 @@ public class AllTests
                         Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
 
                         Test.ServerFactoryPrx fact = Test.ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
-                        d = createServerProps(defaultProperties, defaultDir, defaultHost, "", "cacert1");
+                        d = createServerProps(defaultProperties, "", "cacert1");
                         // Use deprecated property here to test it
                         d["IceSSL.FindCert.CurrentUser.My"] = serverFindCertProperties[i];
                         //
@@ -2112,8 +2309,9 @@ public class AllTests
                         {
                             server.ice_ping();
                         }
-                        catch(Ice.LocalException)
+                        catch(Ice.LocalException ex)
                         {
+                            Console.WriteLine(ex.ToString());
                             test(false);
                         }
                         fact.destroyServer(server);
@@ -2127,7 +2325,7 @@ public class AllTests
                     {
                         try
                         {
-                            initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                            initData = createClientProps(defaultProperties);
                             initData.properties.setProperty("IceSSL.FindCert", s);
                             Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                             test(false);
@@ -2136,8 +2334,9 @@ public class AllTests
                         {
                             // Expected
                         }
-                        catch(Ice.LocalException)
+                        catch(Ice.LocalException ex)
                         {
+                            Console.WriteLine(ex.ToString());
                             test(false);
                         }
                     }
@@ -2159,7 +2358,7 @@ public class AllTests
                 {
                     try
                     {
-                        initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                        initData = createClientProps(defaultProperties);
                         initData.properties.setProperty("IceSSL.FindCert.CurrentUser.My", s);
                         Ice.Communicator comm = Ice.Util.initialize(ref args, initData);
                         test(false);
@@ -2168,8 +2367,9 @@ public class AllTests
                     {
                         // Expected
                     }
-                    catch(Ice.LocalException)
+                    catch(Ice.LocalException ex)
                     {
+                        Console.WriteLine(ex.ToString());
                         test(false);
                     }
                 }
@@ -2179,40 +2379,98 @@ public class AllTests
             Console.Out.Write("testing system CAs... ");
             Console.Out.Flush();
             {
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                //
+                // Retry a few times in case there are connectivity problems with demo.zeroc.com.
+                //
+                const int retryMax = 5;
+                const int retryDelay = 1000;
+                int retryCount = 0;
+
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.DefaultDir", "");
                 initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
+                //
+                // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
+                // can cause SSL handshake errors when connecting to the remote zeroc server.
+                //
+                initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
                 Ice.Communicator comm = Ice.Util.initialize(initData);
                 Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-                try
+                while(true)
                 {
-                    p.ice_ping();
-                    test(false);
-                }
-                catch(Ice.SecurityException)
-                {
-                    // Expected, by default we don't check for system CAs.
-                }
-                catch(Ice.LocalException)
-                {
-                    test(false);
-                }
+                    try
+                    {
+                        p.ice_ping();
+                        test(false);
+                    }
+                    catch(Ice.SecurityException)
+                    {
+                        // Expected, by default we don't check for system CAs.
+                        break;
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        if((ex is Ice.ConnectTimeoutException) ||
+                           (ex is Ice.SocketException) ||
+                           (ex is Ice.DNSException))
+                        {
+                            if(++retryCount < retryMax)
+                            {
+                                Console.Out.Write("retrying... ");
+                                Console.Out.Flush();
+                                Thread.Sleep(retryDelay);
+                                continue;
+                            }
+                        }
 
-                initData = createClientProps(defaultProperties, defaultDir, defaultHost);
+                        Console.Out.WriteLine("warning: unable to connect to demo.zeroc.com to check system CA");
+                        Console.WriteLine(ex.ToString());
+                        break;
+                    }
+                }
+                comm.destroy();
+
+                retryCount = 0;
+                initData = createClientProps(defaultProperties);
+                initData.properties.setProperty("IceSSL.DefaultDir", "");
                 initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
                 initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
                 initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
+                //
+                // BUGFIX: SChannel TLS 1.2 bug that affects Windows versions prior to Windows 10
+                // can cause SSL handshake errors when connecting to the remote zeroc server.
+                //
+                initData.properties.setProperty("IceSSL.Protocols", "TLS1_0,TLS1_1");
                 comm = Ice.Util.initialize(initData);
                 p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-                IceSSL.ConnectionInfo info;
-                try
+                while(true)
                 {
-                    info = (IceSSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
-                    test(info.verified);
-                }
-                catch(Ice.LocalException)
-                {
-                    test(false);
+                    try
+                    {
+                        IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)p.ice_getConnection().getInfo().underlying;
+                        test(info.verified);
+                        break;
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        if((ex is Ice.ConnectTimeoutException) ||
+                           (ex is Ice.SocketException) ||
+                           (ex is Ice.DNSException))
+                        {
+                            if(++retryCount < retryMax)
+                            {
+                                Console.Out.Write("retrying... ");
+                                Console.Out.Flush();
+                                Thread.Sleep(retryDelay);
+                                continue;
+                            }
+                        }
+
+                        Console.Out.WriteLine("warning: unable to connect to demo.zeroc.com to check system CA");
+                        Console.WriteLine(ex.ToString());
+                        break;
+                    }
                 }
                 comm.destroy();
             }
@@ -2220,7 +2478,7 @@ public class AllTests
         }
         finally
         {
-            if(isAdministrator)
+            if(IceInternal.AssemblyUtil.isWindows && isAdministrator)
             {
                 store.Remove(caCert1);
                 store.Remove(caCert2);

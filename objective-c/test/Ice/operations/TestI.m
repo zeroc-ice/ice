@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -682,7 +682,6 @@
     return p;
 }
 
-
 -(ICEFloat) opFloat1:(ICEFloat)p current:(ICECurrent*)current
 {
     return p;
@@ -856,5 +855,10 @@
 -(void) shutdown:(ICECurrent*)current
 {
     [[current.adapter getCommunicator] shutdown];
+}
+
+-(BOOL) supportsCompress:(ICECurrent*)current
+{
+    return YES;
 }
 @end

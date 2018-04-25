@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,7 +24,6 @@ IceRuby_ImplicitContext_free(Ice::ImplicitContextPtr* p)
     assert(p);
     delete p;
 }
-
 
 extern "C"
 VALUE
@@ -78,7 +77,6 @@ IceRuby_ImplicitContext_containsKey(VALUE self, VALUE key)
     return Qnil;
 }
 
-
 extern "C"
 VALUE
 IceRuby_ImplicitContext_get(VALUE self, VALUE key)
@@ -93,7 +91,6 @@ IceRuby_ImplicitContext_get(VALUE self, VALUE key)
     ICE_RUBY_CATCH
     return Qnil;
 }
-
 
 extern "C"
 VALUE
@@ -123,7 +120,6 @@ IceRuby_ImplicitContext_remove(VALUE self, VALUE key)
     ICE_RUBY_CATCH
     return Qnil;
 }
-
 
 void
 IceRuby::initImplicitContext(VALUE iceModule)

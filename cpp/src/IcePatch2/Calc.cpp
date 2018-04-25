@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,11 +10,13 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
+#include <Ice/ConsoleUtil.h>
 #include <IcePatch2Lib/Util.h>
 #include <iterator>
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IcePatch2;
 using namespace IcePatch2Internal;
 
@@ -60,7 +62,7 @@ struct IFileInfoPathLess: public binary_function<const LargeFileInfo&, const Lar
             {
                 return true;
             }
-            else if(::tolower(static_cast<unsigned char>(lhs.path[i])) > 
+            else if(::tolower(static_cast<unsigned char>(lhs.path[i])) >
                     ::tolower(static_cast<unsigned char>(rhs.path[i])))
             {
                 return false;
@@ -77,21 +79,21 @@ public:
     virtual bool
     remove(const string& path)
     {
-        cout << "removing: " << path << endl;
+        consoleOut << "removing: " << path << endl;
         return true;
     }
 
     virtual bool
     checksum(const string& path)
     {
-        cout << "checksum: " << path << endl;
+        consoleOut << "checksum: " << path << endl;
         return true;
     }
 
     virtual bool
     compress(const string& path)
     {
-        cout << "compress: " << path << endl;
+        consoleOut << "compress: " << path << endl;
         return true;
     }
 };
@@ -99,8 +101,8 @@ public:
 void
 usage(const string& appName)
 {
-    cerr << "Usage: " << appName << " [options] DIR [FILES...]\n";
-    cerr <<     
+    consoleErr << "Usage: " << appName << " [options] DIR [FILES...]\n";
+    consoleErr <<
         "Options:\n"
         "-h, --help              Show this message.\n"
         "-v, --version           Display the Ice version.\n"
@@ -139,7 +141,7 @@ main(int argc, char* argv[])
     opts.addOpt("Z", "no-compress");
     opts.addOpt("V", "verbose");
     opts.addOpt("i", "case-insensitive");
-    
+
     vector<string> args;
     try
     {
@@ -147,7 +149,7 @@ main(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << e.reason << endl;
+        consoleErr << e.reason << endl;
         usage(appName);
         return EXIT_FAILURE;
     }
@@ -159,14 +161,14 @@ main(int argc, char* argv[])
     }
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
     bool doCompress = opts.isSet("compress");
     bool dontCompress = opts.isSet("no-compress");
     if(doCompress && dontCompress)
     {
-        cerr << appName << ": only one of -z and -Z are mutually exclusive" << endl;
+        consoleErr << appName << ": only one of -z and -Z are mutually exclusive" << endl;
         usage(appName);
         return EXIT_FAILURE;
     }
@@ -183,7 +185,7 @@ main(int argc, char* argv[])
 
     if(args.empty())
     {
-        cerr << appName << ": no data directory specified" << endl;
+        consoleErr << appName << ": no data directory specified" << endl;
         usage(appName);
         return EXIT_FAILURE;
     }
@@ -197,18 +199,18 @@ main(int argc, char* argv[])
     try
     {
         string absDataDir = dataDir;
-    
+
         string cwd;
         if(IceUtilInternal::getcwd(cwd) != 0)
         {
-            throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
+            throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
         }
 
         if(!IceUtilInternal::isAbsolutePath(absDataDir))
         {
             absDataDir = simplify(cwd + '/' + absDataDir);
         }
-        
+
         for(StringSeq::iterator p = fileSeq.begin(); p != fileSeq.end(); ++p)
         {
             if(!IceUtilInternal::isAbsolutePath(*p))
@@ -228,14 +230,14 @@ main(int argc, char* argv[])
         {
             if(p->compare(0, absDataDirWithSlash.size(), absDataDirWithSlash) != 0)
             {
-                throw "`" + *p + "' is not a path in `" + dataDir + "'";
+                throw runtime_error("`" + *p + "' is not a path in `" + dataDir + "'");
             }
-            
+
             p->erase(0, absDataDirWithSlash.size());
         }
-    
+
         LargeFileInfoSeq infoSeq;
-            
+
         if(fileSeq.empty())
         {
             CalcCB calcCB;
@@ -288,36 +290,34 @@ main(int argc, char* argv[])
         {
             LargeFileInfoSeq newInfoSeq = infoSeq;
             sort(newInfoSeq.begin(), newInfoSeq.end(), IFileInfoPathLess());
-
-            string ex;
+            string reason;
             LargeFileInfoSeq::iterator p = newInfoSeq.begin();
             while((p = adjacent_find(p, newInfoSeq.end(), IFileInfoPathEqual())) != newInfoSeq.end())
             {
                 do
                 {
-                    ex += '\n' + dataDir + '/' + p->path;
+                    reason += '\n' + dataDir + '/' + p->path;
                     ++p;
                 }
                 while(p < newInfoSeq.end() && IFileInfoPathEqual()(*(p - 1), *p));
             }
 
-            if(!ex.empty())
+            if(!reason.empty())
             {
-                ex = "duplicate files:" + ex;
-                throw ex;
+                throw runtime_error("duplicate files:" + reason);
             }
         }
 
         saveFileInfoSeq(absDataDir, infoSeq);
     }
-    catch(const string& ex)
+    catch(const exception& ex)
     {
-        cerr << appName << ": " << ex << endl;
+        consoleErr << appName << ": " << ex.what() << endl;
         return EXIT_FAILURE;
     }
     catch(const char* ex)
     {
-        cerr << appName << ": " << ex << endl;
+        consoleErr << appName << ": " << ex << endl;
         return EXIT_FAILURE;
     }
 

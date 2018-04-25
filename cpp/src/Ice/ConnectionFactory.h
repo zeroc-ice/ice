@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -66,7 +66,7 @@ public:
     void create(const std::vector<EndpointIPtr>&, bool, Ice::EndpointSelectionType, const CreateConnectionCallbackPtr&);
     void setRouterInfo(const RouterInfoPtr&);
     void removeAdapter(const Ice::ObjectAdapterPtr&);
-    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&);
+    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
 
     OutgoingConnectionFactory(const Ice::CommunicatorPtr&, const InstancePtr&);
     virtual ~OutgoingConnectionFactory();
@@ -181,25 +181,24 @@ public:
     void hold();
     void destroy();
 
-#if TARGET_OS_IPHONE != 0
     void startAcceptor();
     void stopAcceptor();
-#endif
 
     void updateConnectionObservers();
 
     void waitUntilHolding() const;
     void waitUntilFinished();
 
+    bool isLocal(const EndpointIPtr&) const;
     EndpointIPtr endpoint() const;
     std::list<Ice::ConnectionIPtr> connections() const;
-    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&);
+    void flushAsyncBatchRequests(const CommunicatorFlushBatchAsyncPtr&, Ice::CompressBatch);
 
     //
     // Operations from EventHandler
     //
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual bool startAsync(SocketOperation);
     virtual bool finishAsync(SocketOperation);
 #endif
@@ -212,7 +211,8 @@ public:
     virtual void connectionStartCompleted(const Ice::ConnectionIPtr&);
     virtual void connectionStartFailed(const Ice::ConnectionIPtr&, const Ice::LocalException&);
 
-    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const Ice::ObjectAdapterIPtr&);
+    IncomingConnectionFactory(const InstancePtr&, const EndpointIPtr&, const EndpointIPtr&,
+                              const Ice::ObjectAdapterIPtr&);
     void initialize();
     virtual ~IncomingConnectionFactory();
 
@@ -246,15 +246,19 @@ private:
     AcceptorPtr _acceptor;
     const TransceiverPtr _transceiver;
     EndpointIPtr _endpoint;
+    EndpointIPtr _publishedEndpoint;
 
-#if TARGET_OS_IPHONE != 0
     bool _acceptorStarted;
-#endif
+    bool _acceptorStopped;
 
     Ice::ObjectAdapterIPtr _adapter;
     const bool _warn;
     std::set<Ice::ConnectionIPtr> _connections;
     State _state;
+
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
+    IceInternal::UniquePtr<Ice::LocalException> _acceptorException;
+#endif
 };
 
 }

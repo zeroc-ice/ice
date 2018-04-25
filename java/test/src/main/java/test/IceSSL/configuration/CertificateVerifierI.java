@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,14 +17,14 @@ public class CertificateVerifierI implements com.zeroc.IceSSL.CertificateVerifie
     }
 
     @Override
-    public boolean verify(com.zeroc.IceSSL.NativeConnectionInfo info)
+    public boolean verify(com.zeroc.IceSSL.ConnectionInfo info)
     {
-        if(info.nativeCerts != null)
+        if(info.certs != null)
         {
             try
             {
                 java.util.Collection<java.util.List<?> > subjectAltNames =
-                    ((java.security.cert.X509Certificate)info.nativeCerts[0]).getSubjectAlternativeNames();
+                    ((java.security.cert.X509Certificate)info.certs[0]).getSubjectAlternativeNames();
                 test(subjectAltNames != null);
                 java.util.List<String> ipAddresses = new java.util.ArrayList<>();
                 java.util.List<String> dnsNames = new java.util.ArrayList<>();
@@ -51,7 +51,7 @@ public class CertificateVerifierI implements com.zeroc.IceSSL.CertificateVerifie
             }
         }
 
-        _hadCert = info.nativeCerts != null;
+        _hadCert = info.certs != null;
         _invoked = true;
         return _returnValue;
     }

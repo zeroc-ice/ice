@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,7 @@
 #include <IceUtil/Shared.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/Monitor.h>
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 #include <Ice/BatchRequestInterceptor.h>
 #include <Ice/BatchRequestQueueF.h>
@@ -33,12 +33,12 @@ public:
     void finishBatchRequest(Ice::OutputStream*, const Ice::ObjectPrxPtr&, const std::string&);
     void abortBatchRequest(Ice::OutputStream*);
 
-    int swap(Ice::OutputStream*);
+    int swap(Ice::OutputStream*, bool&);
 
     void destroy(const Ice::LocalException&);
     bool isEmpty();
 
-    void enqueueBatchRequest();
+    void enqueueBatchRequest(const Ice::ObjectPrxPtr&);
 
 private:
 
@@ -52,9 +52,10 @@ private:
     Ice::OutputStream _batchStream;
     bool _batchStreamInUse;
     bool _batchStreamCanFlush;
+    bool _batchCompress;
     int _batchRequestNum;
     size_t _batchMarker;
-    IceUtil::UniquePtr<Ice::LocalException> _exception;
+    IceInternal::UniquePtr<Ice::LocalException> _exception;
     size_t _maxSize;
 };
 

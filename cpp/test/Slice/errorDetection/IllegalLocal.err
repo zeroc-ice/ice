@@ -1,6 +1,8 @@
 IllegalLocal.ice:17: local interface `i2' cannot have non-local base interface `i1'
 IllegalLocal.ice:19: non-local interface `i3' cannot have local base interface `i2'
+IllegalLocal.ice:23: warning: classes implementing interfaces are deprecated
 IllegalLocal.ice:25: non-local class `c2' cannot have local base interface `i2'
+IllegalLocal.ice:25: warning: classes implementing interfaces are deprecated
 IllegalLocal.ice:31: non-local interface `i' cannot have operation `op' throwing local exception `le'
 IllegalLocal.ice:34: non-local exception `le2' cannot have local base exception `le'
 IllegalLocal.ice:40: non-local class`c3' cannot contain local member `lo1'

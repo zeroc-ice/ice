@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,12 +8,14 @@
 // **********************************************************************
 
 #include <Glacier2/ProxyVerifier.h>
+#include <Ice/ConsoleUtil.h>
 
 #include <vector>
 #include <string>
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 
 //
 // TODO: Some of the address matching helper classes can probably be
@@ -47,7 +49,7 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
         int value;
         if(!(istr >> value))
         {
-            throw string("expected number");
+            throw invalid_argument("expected number");
         }
         ws(istr);
         if(!istr.eof())
@@ -66,11 +68,11 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
                     ws(istr);
                     if(istr.eof())
                     {
-                        throw string("Unterminated range");
+                        throw invalid_argument("Unterminated range");
                     }
                     if(!(istr >> value))
                     {
-                        throw string("expected number");
+                        throw invalid_argument("expected number");
                     }
                     r.end = value;
                     ws(istr);
@@ -79,14 +81,14 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
                         istr >> c;
                         if(c != ',')
                         {
-                            throw string("expected comma separator");
+                            throw invalid_argument("expected comma separator");
                         }
                     }
                     ranges.push_back(r);
                 }
                 else if(!istr.eof())
                 {
-                    throw string("unexpected trailing character");
+                    throw invalid_argument("unexpected trailing character");
                 }
             }
         }
@@ -103,7 +105,7 @@ parseGroup(const string& parameter, vector<int>& validPorts, vector<Range>& rang
 class AddressMatcher
 {
 public:
-    virtual ~AddressMatcher() {} 
+    virtual ~AddressMatcher() {}
     virtual bool match(const string&, string::size_type& pos) = 0;
 
     virtual const char* toString() const = 0;
@@ -114,7 +116,7 @@ protected:
 class MatchesAny : public AddressMatcher
 {
 public:
-    MatchesAny() 
+    MatchesAny()
     {
     }
 
@@ -134,7 +136,7 @@ public:
 //
 // Match the start of a string (i.e. position == 0). Occurs when filter
 // string starts with a set of characters followed by a wildcard or
-// numeric range. 
+// numeric range.
 //
 class StartsWithString : public AddressMatcher
 {
@@ -145,7 +147,7 @@ public:
     {
     }
 
-    bool 
+    bool
     match(const string& space, string::size_type& pos)
     {
         assert(pos == 0);
@@ -181,7 +183,7 @@ public:
     {
     }
 
-    bool 
+    bool
     match(const string& space, string::size_type& pos)
     {
         if(space.size() - pos < _criteria.size())
@@ -214,7 +216,7 @@ private:
 
 class MatchesString : public AddressMatcher
 {
-public: 
+public:
     MatchesString(const string& criteria):
         _criteria(criteria),
         _description("matches " + criteria)
@@ -287,7 +289,7 @@ private:
 class MatchesNumber : public AddressMatcher
 {
 public:
-    MatchesNumber(const vector<int>& values, const vector<Range>& ranges, 
+    MatchesNumber(const vector<int>& values, const vector<Range>& ranges,
                   const char* descriptionPrefix = "matches "):
         _values(values),
         _ranges(ranges)
@@ -391,10 +393,10 @@ public:
     {
     }
 
-    bool 
+    bool
     match(const string& space, string::size_type& pos)
     {
-        while(true) 
+        while(true)
         {
             pos = space.find_first_of("0123456789", pos);
             if(pos == string::npos)
@@ -419,7 +421,7 @@ public:
     {
     }
 
-    bool 
+    bool
     match(const string& space, string::size_type& pos)
     {
         pos = space.find_last_not_of("0123456789", pos);
@@ -432,7 +434,6 @@ public:
     }
 };
 
-
 //
 // AddressMatcher factories abstract away the logic of which matching
 // objects need to be created depending on the state of the filter
@@ -444,25 +445,25 @@ public:
 class AddressMatcherFactory
 {
 public:
-    virtual ~AddressMatcherFactory() {} 
+    virtual ~AddressMatcherFactory() {}
 
-    virtual AddressMatcher* 
+    virtual AddressMatcher*
     create(const string& criteria) = 0;
 
-    virtual AddressMatcher* 
+    virtual AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges) = 0;
 };
 
 class StartFactory : public AddressMatcherFactory
 {
 public:
-    AddressMatcher* 
+    AddressMatcher*
     create(const string& criteria)
     {
         return new StartsWithString(criteria);
     }
 
-    AddressMatcher* 
+    AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
         return new MatchesNumber(ports, ranges);
@@ -472,13 +473,13 @@ public:
 class WildCardFactory : public AddressMatcherFactory
 {
 public:
-    AddressMatcher* 
+    AddressMatcher*
     create(const string& criteria)
     {
         return new ContainsString(criteria);
     }
 
-    AddressMatcher* 
+    AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
         return new ContainsNumberMatch(ports, ranges);
@@ -488,13 +489,13 @@ public:
 class FollowingFactory : public AddressMatcherFactory
 {
 public:
-    AddressMatcher* 
+    AddressMatcher*
     create(const string& criteria)
     {
         return new MatchesString(criteria);
     }
 
-    AddressMatcher* 
+    AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
         return new MatchesNumber(ports, ranges);
@@ -510,7 +511,7 @@ public:
         return new EndsWithString(criteria);
     }
 
-    AddressMatcher* 
+    AddressMatcher*
     create(const vector<int>& ports, const vector<Range>& ranges)
     {
         return new EndsWithNumber(ports, ranges);
@@ -541,7 +542,7 @@ public:
         delete _portMatcher;
     }
 
-    virtual bool 
+    virtual bool
     check(const ObjectPrx& prx) const
     {
         EndpointSeq endpoints = prx->ice_getEndpoints();
@@ -597,24 +598,24 @@ public:
         return true;
     }
 
-    void 
+    void
     dump() const
     {
-        cerr << "address(";
+        consoleErr << "address(";
         for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
         {
-            cerr << (*i)->toString() << " ";
+            consoleErr << (*i)->toString() << " ";
         }
         if(_portMatcher != 0)
         {
-            cerr << "):port(" << _portMatcher->toString() << " ";
+            consoleErr << "):port(" << _portMatcher->toString() << " ";
         }
-        cerr << ")" << endl;
+        consoleErr << ")" << endl;
     }
 
 private:
 
-    bool 
+    bool
     extractPart(const char* opt, const string& source, string& result) const
     {
         string::size_type start = source.find(opt);
@@ -642,7 +643,7 @@ private:
 };
 
 static void
-parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, vector<ProxyRule*>& rules, 
+parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, vector<ProxyRule*>& rules,
               const int traceLevel)
 {
     StartFactory startsWithFactory;
@@ -678,7 +679,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     string::size_type closeBracket = port.find(']', openBracket);
                     if(closeBracket == string::npos)
                     {
-                        throw string("unclosed group");
+                        throw invalid_argument("unclosed group");
                     }
                     port = port.substr(openBracket, closeBracket-openBracket);
                 }
@@ -700,7 +701,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 
             if(current == addr.size())
             {
-                throw string("expected address information before ':'");
+                throw invalid_argument("expected address information before ':'");
             }
 
             //
@@ -734,7 +735,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     {
                         if(inGroup)
                         {
-                            throw string("wildcards not permitted in groups");
+                            throw invalid_argument("wildcards not permitted in groups");
                         }
                         //
                         // current == mark when the wildcard is at the head of a
@@ -762,12 +763,12 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
                     {
                         if(!inGroup)
                         {
-                            throw string("group close without group start");
+                            throw invalid_argument("group close without group start");
                         }
                         inGroup = false;
                         if(mark == current)
                         {
-                            throw string("empty group");
+                            throw invalid_argument("empty group");
                         }
                         string group = addr.substr(mark, current - mark);
                         vector<int> numbers;
@@ -782,7 +783,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 
                 if(inGroup)
                 {
-                    throw string("unclosed group");
+                    throw invalid_argument("unclosed group");
                 }
                 if(mark != current)
                 {
@@ -804,7 +805,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 }
 
 //
-// Helper function for checking a rule set. 
+// Helper function for checking a rule set.
 //
 static bool
 match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
@@ -821,7 +822,7 @@ match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
 
 //
 // ProxyLengthRule returns 'true' if the string form of the proxy exceeds the configured
-// length. 
+// length.
 //
 class ProxyLengthRule : public ProxyRule
 {
@@ -833,11 +834,11 @@ public:
         istringstream s(count);
         if(!(s >> _count) || !s.eof())
         {
-            throw string("Error parsing ProxySizeMax property");
+            throw invalid_argument("Error parsing ProxySizeMax property");
         }
         if(_count <= 0)
         {
-            throw string("ProxySizeMax must be greater than 1");
+            throw invalid_argument("ProxySizeMax must be greater than 1");
         }
     }
 
@@ -849,7 +850,7 @@ public:
         if(_traceLevel >= 1)
         {
             Trace out(_communicator->getLogger(), "Glacier2");
-            out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ") 
+            out << _communicator->proxyToString(p) << (result ? " exceeds " : " meets ")
                 << "proxy size restriction\n";
         }
         return result;
@@ -869,7 +870,7 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
 {
     //
     // Evaluation order is dependant on how the rules are stored to the
-    // rules vectors. 
+    // rules vectors.
     //
     string s = communicator->getProperties()->getProperty("Glacier2.Filter.Address.Accept");
     if(s != "")
@@ -878,11 +879,11 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
         {
             Glacier2::parseProperty(communicator, s, _acceptRules, _traceLevel);
         }
-        catch(const string& msg)
+        catch(const exception& ex)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "invalid `Glacier2.Filter.Address.Accept' property:\n" + msg;
-            throw ex;
+            ostringstream os;
+            os << "invalid `Glacier2.Filter.Address.Accept' property:\n" << ex.what();
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }
 
@@ -893,11 +894,11 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
         {
             Glacier2::parseProperty(communicator, s, _rejectRules, _traceLevel);
         }
-        catch(const string& msg)
+        catch(const exception& ex)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "invalid `Glacier2.Filter.Address.Reject' property:\n" + msg;
-            throw ex;
+            ostringstream os;
+            os << "invalid `Glacier2.Filter.Address.Reject' property:\n" << ex.what();
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }
 
@@ -909,11 +910,11 @@ Glacier2::ProxyVerifier::ProxyVerifier(const CommunicatorPtr& communicator):
             _rejectRules.push_back(new ProxyLengthRule(communicator, s, _traceLevel));
 
         }
-        catch(const string& msg)
+        catch(const exception& ex)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "invalid `Glacier2.Filter.ProxySizeMax' property:\n" + msg;
-            throw ex;
+            ostringstream os;
+            os << "invalid `Glacier2.Filter.ProxySizeMax' property:\n" << ex.what();
+            throw InitializationException(__FILE__, __LINE__, os.str());
         }
     }
 }

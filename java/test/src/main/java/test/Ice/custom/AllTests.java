@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -39,11 +39,13 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
+    public static TestIntfPrx allTests(test.Util.Application app)
     {
+        com.zeroc.Ice.Communicator communicator=app.communicator();
+        PrintWriter out = app.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:default -p 12010";
+        String ref = "test:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
         out.println("ok");
@@ -115,7 +117,8 @@ public class AllTests
         }
 
         {
-            final Byte[] seq = { new Byte((byte)0), new Byte((byte)1), new Byte((byte)2), new Byte((byte)3) };
+            final Byte[] seq = { Byte.valueOf((byte)0), Byte.valueOf((byte)1), Byte.valueOf((byte)2),
+                                 Byte.valueOf((byte)3) };
             ArrayList<Byte> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpByteSeqResult listR = t.opByteSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -123,7 +126,8 @@ public class AllTests
         }
 
         {
-            final Short[] seq = { new Short((short)0), new Short((short)1), new Short((short)2), new Short((short)3) };
+            final Short[] seq = { Short.valueOf((short)0), Short.valueOf((short)1), Short.valueOf((short)2),
+                                  Short.valueOf((short)3) };
             ArrayList<Short> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpShortSeqResult listR = t.opShortSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -131,7 +135,7 @@ public class AllTests
         }
 
         {
-            final Integer[] seq = { new Integer(0), new Integer(1), new Integer(2), new Integer(3) };
+            final Integer[] seq = { Integer.valueOf(0), Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3) };
             ArrayList<Integer> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpIntSeqResult listR = t.opIntSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -139,7 +143,7 @@ public class AllTests
         }
 
         {
-            final Long[] seq = { new Long(0), new Long(1), new Long(2), new Long(3) };
+            final Long[] seq = { Long.valueOf(0), Long.valueOf(1), Long.valueOf(2), Long.valueOf(3) };
             ArrayList<Long> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpLongSeqResult listR = t.opLongSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -147,7 +151,7 @@ public class AllTests
         }
 
         {
-            final Float[] seq = { new Float(0), new Float(1), new Float(2), new Float(3) };
+            final Float[] seq = { Float.valueOf(0), Float.valueOf(1), Float.valueOf(2), Float.valueOf(3) };
             ArrayList<Float> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpFloatSeqResult listR = t.opFloatSeq(list);
             test(listR.outSeq.equals(listR.returnValue));
@@ -155,7 +159,7 @@ public class AllTests
         }
 
         {
-            final Double[] seq = { new Double(0), new Double(1), new Double(2), new Double(3) };
+            final Double[] seq = { Double.valueOf(0), Double.valueOf(1), Double.valueOf(2), Double.valueOf(3) };
             ArrayList<Double> list = new ArrayList<>(Arrays.asList(seq));
             TestIntf.OpDoubleSeqResult listR = t.opDoubleSeq(list);
             test(listR.outSeq.equals(listR.returnValue));

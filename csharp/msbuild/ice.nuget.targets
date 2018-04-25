@@ -1,0 +1,36 @@
+<Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
+    </PropertyGroup>
+
+    <!-- For CSharp we use Slice compiler from x64 Release builds -->
+    <ItemGroup>
+        <SliceCompilers Include="$(IceSrcRootDir)..\cpp\bin\x64\Release\slice2cs.exe;
+                                 $(IceSrcRootDir)..\cpp\bin\x64\Release\slice2html.exe" />
+
+        <!-- With .Net Core we have to pack the dependencies next iceboxnet.dll  -->
+        <IceBoxNet45 Include="$(IceSrcRootDir)bin\net45\iceboxnet.exe;
+                              $(IceSrcRootDir)bin\net45\iceboxnet.pdb"/>
+
+        <IceBoxNetStandard Include="$(IceSrcRootDir)bin\netcoreapp2.0\publish\*"
+                           Condition="'$(BuildNetStandardTargets)' == 'true'"/>
+
+        <Assemblies Include="$(IceSrcRootDir)lib\**\*.dll;
+                             $(IceSrcRootDir)lib\**\*.pdb;
+                             $(IceSrcRootDir)lib\**\*.xml"/>
+
+        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
+                Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
+                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice"/>
+    </ItemGroup>
+
+    <!-- Copy required files to the package specific directories -->
+    <Target Name="NugetPack">
+        <Copy SourceFiles="@(Assemblies)" DestinationFolder="$(PackageDirectory)\lib\%(Assemblies.RecursiveDir)"/>
+        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
+        <Copy SourceFiles="@(SliceCompilers)" DestinationFolder="$(PackageDirectory)\tools"/>
+        <Copy SourceFiles="@(IceBoxNet45)" DestinationFolder="$(PackageDirectory)\tools\net45"/>
+        <Copy SourceFiles="@(IceBoxNetStandard)" DestinationFolder="$(PackageDirectory)\tools\netcoreapp2.0"
+              Condition="'$(BuildNetStandardTargets)' == 'true'"/>
+    </Target>
+</Project>

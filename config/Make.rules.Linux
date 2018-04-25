@@ -1,33 +1,70 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-linux_id		= $(shell . /etc/os-release && echo $${ID})
+linux_id                        = $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID}),)
+is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
-is-bin-program		= $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
+ifneq ($(OECORE_SDK_VERSION),)
 
-ifneq ($(filter centos rhel fedora,$(linux_id)),)
+build-platform                  = $(shell uname -m)-build
+target-platform                 = $(shell echo $(CXX) | sed -r 's/^([a-z0-9_]+)-.*/\1/')
+supported-platforms             = $(target-platform) $(build-platform)
+linux_id                        = yocto
+
+$(build-platform)_cxx           := g++
+$(build-platform)_ld            := g++
+$(build-platform)_ar            := ar
+$(build-platform)_ldflags       := $($(build-platform)_cppflags)
+$(build-platform)_targetdir     = /$(build-platform)
+$(build-platform)_installdir    = /$(build-platform)
+
+$(target-platform)_cc           = $(CC)
+$(target-platform)_cxx          = $(CXX)
+$(target-platform)_libtool      = $(AR)
+$(target-platform)_targetdir    = $(if $(filter %/build,$5),/$(target-platform))
+$(target-platform)_installdir   =
+$(target-platform)_objdir       = /$(target-platform)
+
+# system install directory
+system-install-dir              := $(OECORE_TARGET_SYSROOT)/usr
+
+# The Slice translators are under OECORE_NATIVE_SYSTEM tree when building against an Ice
+# distribution from $(OECORE_TARGET_SYSROOT) on the build platform.
+ice_bindir[$(build-platform)]   = $(if $(ice_system_install),$(OECORE_NATIVE_SYSROOT)/usr/bin)
+
+else ifneq ($(filter centos rhel fedora,$(linux_id)),)
 
 #
 # MultiLib Linux (x64 libraries go in the lib64 directory, x86 executable names are suffixed with 32)
 #
 supported-platforms     = x64 x86
-multilib-platform	= yes
+multilib-platform       = yes
 
-x64_cppflags            = -m64
-x64_ldflags             = $(x64_cppflags)
-x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
-x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$5)),64)
+ifeq ($(OPTIMIZE),yes)
+# Use default system packaging flags if building with OPTIMIZE and CXXFLAGS/LDFLAGS aren't defined.
+# NOTE: We remove the -m32/-m64 flags since we'll add them below.
+opt-cppflags = $(if $(CXXFLAGS),,$(filter-out -m32 -m64,$(shell setarch $1 rpm --eval %optflags)))
+opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags))
+endif
 
-x86_cppflags            = -m32
-x86_ldflags             = $(x86_cppflags)
-x86_targetdir  		= $(if $(filter %/build,$5),/x86)
-x86_targetname		= $(if $(is-bin-program),32)
+x64_cppflags            := $(call opt-cppflags,x86_64) -m64
+x64_ldflags             := $(call opt-ldflags,x86_64) -m64
+x64_targetdir           = $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
+x64_installdir          = $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$5)),64)
+
+x86_cppflags            := $(call opt-cppflags,i386) -m32
+x86_ldflags             := $(call opt-ldflags,i386) -m32
+x86_targetdir           = $(if $(filter %/build,$5),/x86)
+x86_targetname          = $(if $(is-bin-program),32)
+
+# No Slice translators for x86
+x86_excludes            = slice2%
 
 else ifneq ($(filter debian ubuntu,$(linux_id)),)
 
@@ -35,69 +72,86 @@ else ifneq ($(filter debian ubuntu,$(linux_id)),)
 # MultiArch Linux (libraries are installed in lib/<arch>, executables are installed in bin/<arch>
 # except for the build architecture where executables are installed in bin/).
 #
-build-platform		?= $(shell dpkg --print-architecture)
-foreign-platforms	?= $(shell dpkg --print-foreign-architectures)
+build-platform          ?= $(shell dpkg --print-architecture)
+foreign-platforms       ?= $(shell dpkg --print-foreign-architectures)
 
 supported-platforms     = $(build-platform) $(foreign-platforms)
 
-dpkg-arch 		= $(shell dpkg-architecture -f -a$1 -q$2 2> /dev/null)
+dpkg-arch               = $(shell dpkg-architecture -f -a$1 -q$2 2> /dev/null)
+
+ifeq ($(OPTIMIZE),yes)
+# Use default system packaging flags if building with OPTIMIZE and CXXFLAGS/LDFLAGS aren't defined.
+opt-cppflags    = $(if $(CXXFLAGS),,$(shell dpkg-buildflags --get CXXFLAGS))
+opt-ldflags     = $(if $(LDFLAGS),,$(shell DEB_BUILD_MAINT_OPTIONS=hardening=+bindnow dpkg-buildflags --get LDFLAGS))
+endif
 
 # $(call make-platform-config,$1=platform)
 define make-platform-config
-$1_gnu_type	= $(call dpkg-arch,$1,DEB_HOST_GNU_TYPE)
-$1_multiarch	= $(call dpkg-arch,$1,DEB_HOST_MULTIARCH)
+$1_gnu_type     = $(call dpkg-arch,$1,DEB_HOST_GNU_TYPE)
+$1_multiarch    = $(call dpkg-arch,$1,DEB_HOST_MULTIARCH)
 
-$1_cc		= $$($1_gnu_type)-$(CC)
-$1_cxx		= $$($1_gnu_type)-$(CXX)
-$1_libtool	= $$($1_gnu_type)-$(AR)
-$1_targetdir 	= /$$($1_multiarch)
-$1_installdir 	= $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_multiarch))
+$1_cc           = $$($1_gnu_type)-$(CC)
+$1_cxx          = $$($1_gnu_type)-$(CXX)
+$1_libtool      = $$($1_gnu_type)-$(AR)
+$1_targetdir    = /$$($1_multiarch)
+$1_objdir       = /$$($1_multiarch)
+$1_installdir   = $$(if $$(and $(is-bin-program),$(usr_dir_install)),,/$$($1_multiarch))
 
-$1_excludes	= $(if $(filter-out $1,$(build-platform)),Slice)
+#
+# Disable ABI compatibility warnings for armhf using -Wno-psabi
+#
+$1_cppflags     = $(opt-cppflags) $(if $(filter $1,armhf),-Wno-psabi)
+$1_ldflags      = $(opt-ldflags)
 endef
 
 $(foreach p,$(supported-platforms),$(eval $(call make-platform-config,$p)))
 
 # For the build platform architecture, build and install executables in bin, libraries in lib/<arch>
-$(build-platform)_targetdir 	= $(if $(or $(filter %/build,$5),$(filter-out $($1_target),program)),/$($2_multiarch))
-$(build-platform)_installdir 	= $(if $(is-bin-program),,/$($2_multiarch))
+$(build-platform)_targetdir     = $(if $(or $(filter %/build,$5),$(filter-out $($1_target),program)),/$($2_multiarch))
+$(build-platform)_installdir    = $(if $(is-bin-program),,/$($2_multiarch))
 
 else
 
 #
 # Single architecture Linux
 #
-supported-platforms     = $(if $(filter x86_64,$(shell uname -m)),x64,x86)
+ifeq ($(OPTIMIZE),yes)
+    # Use default system packaging flags if building with OPTIMIZE and CXXFLAGS/LDFLAGS aren't defined.
+    ifneq ($(filter amzn sles,$(linux_id)),)
+        opt-cppflags = $(if $(CXXFLAGS),,$(shell setarch $1 rpm --eval %optflags))
+        opt-ldflags  = $(if $(LDFLAGS),,$(shell setarch $1 rpm --eval %?__global_ldflags))
+    else
+        opt-cppflags = $(if $(CXXFLAGS),,-O2)
+    endif
+endif
 
-x64_targetdir  		= $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
-x64_installdir 		= $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$($1_installdir))),64)
+build-platform                  = $(if $(filter arm%,$(shell uname -m)),arm,$(shell uname -m))
+supported-platforms             = $(build-platform)
+lib-suffix                      = $(if $(filter x86_64,$(build-platform)),64,)
 
-x86_targetdir  		= $(if $(filter %/build,$5),/x86)
+$(build-platform)_cppflags      := $(call opt-cppflags,$(build-platform))
+$(build-platform)_ldflags       := $(call opt-ldflags,$(build-platform))
+$(build-platform)_targetdir     = $(if $(filter %/build,$5),/$(build-platform),$(if $(filter-out $($1_target),program),$(lib-suffix)))
+$(build-platform)_installdir    = $(if $(and $(filter-out $($1_target),program),$(filter-out %$(lib-suffix),$($1_installdir))),$(lib-suffix))
 
 endif
 
-rpath-link-ldflag 	= -Wl,-rpath-link,$1
+rpath-link-ldflag       = -Wl,-rpath-link,$1
 make-rpath-link-ldflags = $(foreach d,$(filter-out $2,$(call get-all-deps,$1)),$(call rpath-link-ldflag,$($d_targetdir)))
 
-# If building objects for a shared library, enable fPIC
-shared_cppflags	= $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
+# If building objects for a shared library build, enable PIC or PIE:
+shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC,-fPIE) -fvisibility=hidden
 
 # If we are linking a program, add -rpath-link to locate secondary libraries that aren't linked with the executable.
-shared_ldflags	    = $(if $(filter-out program,$($1_target)),\
+shared_ldflags      = $(if $(filter-out program,$($1_target)),\
         $(if $(filter yes,$(allow-undefined-symbols)),,-Wl$(comma)--no-undefined),\
-	$$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
+        -pie $(if $(filter yes,$(new_dtags)),-Wl$(comma)--enable-new-dtags,-Wl$(comma)--disable-new-dtags) \
+        $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
-CXXFLAGS        += -Wall -Werror -pthread
-LDFLAGS         += -pthread
-
+cppflags        = -Wall -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
+ldflags         = -pthread
 ifeq ($(MAXWARN),yes)
-    CXXFLAGS    += -Wextra -Wshadow -Wredundant-decls
-endif
-
-ifeq ($(OPTIMIZE),yes)
-    CXXFLAGS    += -O2 -DNDEBUG
-else
-    CXXFLAGS    += -g
+    cppflags    += -Wextra -Wshadow -Wredundant-decls
 endif
 
 nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
@@ -120,12 +174,30 @@ mkshlibname     = lib$(1).so
 # Clear the iconv ldflags, iconv is part of libc on Linux
 iconv_ldflags   :=
 
+#
+# With GCC < 6.1, libbacktrace crash with a SEGV for -pie exes linked with debug-stripped libs
+# See https://gcc.gnu.org/ml/gcc-patches/2016-03/msg00132.html
+# Here we assume only release builds occasionally get -g and later get stripped
+# TODO: enable libbacktrace for release builds with GCC >= 6.1
+ifneq ($(OPTIMIZE),yes)
 libbacktrace_fullpath := $(shell $(CXX) --print-file-name=libbacktrace.a)
 ifneq ($(libbacktrace_fullpath),libbacktrace.a)
    libbacktrace = yes
 endif
+endif
 
-IceUtil_system_libs     			= -lrt -lcrypto $(if $(filter yes,$(libbacktrace)),-lbacktrace)
-Ice_system_libs         			= -ldl $(IceUtil_system_libs)
-IceSSL_system_libs				= -lssl -lcrypto
-Glacier2CryptPermissionsVerifier_system_libs 	= -lcrypt
+IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libbacktrace)),-lbacktrace)
+Ice_system_libs                                 = -ldl -lcrypto $(IceUtil_system_libs)
+IceSSL_system_libs                              = -lssl -lcrypto
+Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
+
+#
+# On supported platforms and if Bluez and DBus are installed, we set the IceBT
+# system libraries. The build system checks for this variable to build or not
+# the IceBT plugin, demos, ...
+#
+ifneq ($(filter debian ubuntu yocto poky,$(linux_id)),)
+ifeq ($(shell pkg-config --exists bluez dbus-1 2> /dev/null && echo yes),yes)
+IceBT_system_libs                               = $(IceSSL_system_libs) $(shell pkg-config --libs dbus-1)
+endif
+endif

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,6 +10,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/ConsoleUtil.h>
 #include <Ice/DynamicLibrary.h>
 #include <Ice/SliceChecksums.h>
 #include <Ice/Initialize.h>
@@ -17,11 +18,18 @@
 #include <IceBox/ServiceManagerI.h>
 
 using namespace Ice;
+using namespace IceUtilInternal;
 using namespace IceBox;
 using namespace std;
 
-typedef IceBox::Service* (*SERVICE_FACTORY)(CommunicatorPtr);
-
+#ifdef ICE_CPP11_MAPPING
+typedef IceBox::Service* (*ServiceFactory)(const shared_ptr<Communicator>&);
+#else
+//
+// We copy the CommunicatorPtr to maintain compatibility with earlier releases
+//
+typedef IceBox::Service* (*ServiceFactory)(CommunicatorPtr);
+#endif
 
 namespace
 {
@@ -42,9 +50,8 @@ struct StartServiceInfo
         }
         catch(const IceUtilInternal::BadOptException& ex)
         {
-            FailureException e(__FILE__, __LINE__);
-            e.reason = "ServiceManager: invalid arguments for service `" + name + "':\n" + ex.reason;
-            throw e;
+            throw FailureException(__FILE__, __LINE__, "ServiceManager: invalid arguments for service `" + name +
+                                   "':\n" + ex.reason);
         }
 
         assert(!args.empty());
@@ -349,6 +356,11 @@ IceBox::ServiceManagerI::start()
         //
         const string prefix = "IceBox.Service.";
         PropertyDict services = properties->getPropertiesForPrefix(prefix);
+        if(services.empty())
+        {
+            throw FailureException(__FILE__, __LINE__, "ServiceManager: configuration must include at least one IceBox service");
+        }
+
         PropertyDict::iterator p;
         StringSeq loadOrder = properties->getPropertyAsList("IceBox.LoadOrder");
         vector<StartServiceInfo> servicesInfo;
@@ -357,9 +369,8 @@ IceBox::ServiceManagerI::start()
             p = services.find(prefix + *q);
             if(p == services.end())
             {
-                FailureException ex(__FILE__, __LINE__);
-                ex.reason = "ServiceManager: no service definition for `" + *q + "'";
-                throw ex;
+                throw FailureException(__FILE__, __LINE__, "ServiceManager: no service definition for `" +
+                                       *q + "'");
             }
             servicesInfo.push_back(StartServiceInfo(*q, p->second, _argv));
             services.erase(p);
@@ -467,7 +478,7 @@ IceBox::ServiceManagerI::start()
         string bundleName = properties->getProperty("IceBox.PrintServicesReady");
         if(!bundleName.empty())
         {
-            cout << bundleName << " ready" << endl;
+            consoleOut << bundleName << " ready" << endl;
         }
 
         //
@@ -550,14 +561,14 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
     IceInternal::DynamicLibrary::symbol_type sym = library->loadEntryPoint(entryPoint, false);
     if(sym == 0)
     {
-        string msg = library->getErrorMessage();
-        FailureException ex(__FILE__, __LINE__);
-        ex.reason = "ServiceManager: unable to load entry point `" + entryPoint + "'";
+        ostringstream os;
+        os << "ServiceManager: unable to load entry point `" << entryPoint << "'";
+        const string msg = library->getErrorMessage();
         if(!msg.empty())
         {
-            ex.reason += ": " + msg;
+            os << ": " + msg;
         }
-        throw ex;
+        throw FailureException(__FILE__, __LINE__, os.str());
     }
 
     ServiceInfo info;
@@ -659,9 +670,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             s << "ServiceManager: exception while starting service " << service << ":\n";
             s << ex;
 
-            FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw FailureException(__FILE__, __LINE__, s.str());
         }
     }
 
@@ -674,8 +683,8 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
       // xlC warns when casting a void* to function pointer
 #   pragma report(disable, "1540-0216")
 #endif
-      
-        SERVICE_FACTORY factory = reinterpret_cast<SERVICE_FACTORY>(sym);
+
+        ServiceFactory factory = reinterpret_cast<ServiceFactory>(sym);
         try
         {
             info.service = ServicePtr(factory(_communicator));
@@ -690,18 +699,14 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             s << "ServiceManager: exception in entry point `" + entryPoint + "' for service " << info.name << ":\n";
             s << ex;
 
-            FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw FailureException(__FILE__, __LINE__, s.str());
         }
         catch(...)
         {
             ostringstream s;
             s << "ServiceManager: unknown exception in entry point `" + entryPoint + "' for service " << info.name;
 
-            FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw FailureException(__FILE__, __LINE__, s.str());
         }
 
         //
@@ -728,18 +733,14 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             s << "ServiceManager: exception while starting service " << info.name << ":\n";
             s << ex;
 
-            FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw FailureException(__FILE__, __LINE__, s.str());
         }
         catch(...)
         {
             ostringstream s;
             s << "ServiceManager: unknown exception while starting service " << info.name;
 
-            FailureException e(__FILE__, __LINE__);
-            e.reason = s.str();
-            throw e;
+            throw FailureException(__FILE__, __LINE__, s.str());
         }
 
         info.library = library;
@@ -858,17 +859,8 @@ IceBox::ServiceManagerI::stopAll()
         {
             removeAdminFacets("IceBox.Service." + info.name + ".");
 
-            try
-            {
-                info.communicator->destroy();
-                info.communicator = 0;
-            }
-            catch(const Exception& ex)
-            {
-                Warning out(_logger);
-                out << "ServiceManager: exception while stopping service " << info.name << ":\n";
-                out << ex;
-            }
+            info.communicator->destroy();
+            info.communicator = 0;
         }
 
         try
@@ -1124,17 +1116,7 @@ IceBox::ServiceManagerI::destroyServiceCommunicator(const string& service, const
     }
 
     removeAdminFacets("IceBox.Service." + service + ".");
-
-    try
-    {
-        communicator->destroy();
-    }
-    catch(const Exception& ex)
-    {
-        Warning out(_logger);
-        out << "ServiceManager: exception in shutting down communicator for service " << service << ":\n";
-        out << ex;
-    }
+    communicator->destroy();
 }
 
 bool
@@ -1190,4 +1172,3 @@ IceBox::ServiceManagerI::removeAdminFacets(const string& prefix)
         // Ignored
     }
 }
-

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -120,7 +120,18 @@ abstract public class EndpointI implements Ice.Endpoint, java.lang.Comparable<En
     // Expand endpoint out in to separate endpoints for each local
     // host if listening on INADDR_ANY.
     //
-    public abstract java.util.List<EndpointI> expand();
+    public abstract java.util.List<EndpointI> expandIfWildcard();
+
+    //
+    // Expand endpoint out into separate endpoints for each IP
+    // address returned by the DNS resolver. Also returns the
+    // endpoint which can be used to connect to the returned
+    // endpoints or null if no specific endpoint can be used to
+    // connect to these endpoints (e.g.: with the IP endpoint,
+    // it returns this endpoint if it uses a fixed port, null
+    // otherwise).
+    //
+    public abstract java.util.List<EndpointI> expandHost(Ice.Holder<EndpointI> publishedEndpoint);
 
     //
     // Check whether the endpoint is equivalent to another one.

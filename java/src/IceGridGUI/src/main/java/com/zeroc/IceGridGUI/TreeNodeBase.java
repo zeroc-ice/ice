@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,9 +30,9 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
     }
 
     @Override
-    public Enumeration<Object> children()
+    public Enumeration<javax.swing.tree.TreeNode> children()
     {
-        return new Enumeration<Object>()
+        return new Enumeration<javax.swing.tree.TreeNode>()
             {
                 @Override
                 public boolean hasMoreElements()
@@ -41,7 +41,7 @@ public class TreeNodeBase implements javax.swing.tree.TreeNode, TreeCellRenderer
                 }
 
                 @Override
-                public Object nextElement()
+                public javax.swing.tree.TreeNode nextElement()
                 {
                     throw new java.util.NoSuchElementException();
                 }

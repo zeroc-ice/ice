@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,14 +12,18 @@ namespace IceDiscovery
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
+    using System.Text;
+    using System.Diagnostics;
+    using System.Linq;
 
-    class Request<T>
+    abstract class Request<T>
     {
         protected Request(LookupI lookup, T id, int retryCount)
         {
             lookup_ = lookup;
-            nRetry_ = retryCount;
+            retryCount_ = retryCount;
             _id = id;
+            _requestId = Guid.NewGuid().ToString();
         }
 
         public T getId()
@@ -35,14 +39,50 @@ namespace IceDiscovery
 
         public virtual bool retry()
         {
-            return --nRetry_ >= 0;
+            return --retryCount_ >= 0;
         }
 
+        public void invoke(String domainId, Dictionary<LookupPrx, LookupReplyPrx> lookups)
+        {
+            _lookupCount = lookups.Count;
+            _failureCount = 0;
+            Ice.Identity id = new Ice.Identity(_requestId, "");
+            foreach(var entry in lookups)
+            {
+                invokeWithLookup(domainId,
+                                 entry.Key,
+                                 LookupReplyPrxHelper.uncheckedCast(entry.Value.ice_identity(id)));
+            }
+        }
+
+        public bool exception()
+        {
+            if(++_failureCount == _lookupCount)
+            {
+                finished(null);
+                return true;
+            }
+            return false;
+        }
+
+        public string getRequestId()
+        {
+            return _requestId;
+        }
+
+        abstract public void finished(Ice.ObjectPrx proxy);
+
+        abstract protected void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
+
+        private string _requestId;
+
         protected LookupI lookup_;
-        protected int nRetry_;
+        protected int retryCount_;
+        protected int _lookupCount;
+        protected int _failureCount;
         protected List<TaskCompletionSource<Ice.ObjectPrx>> callbacks_ = new List<TaskCompletionSource<Ice.ObjectPrx>>();
 
-        private T _id;
+        protected T _id;
     };
 
     class AdapterRequest : Request<string>, IceInternal.TimerTask
@@ -54,7 +94,7 @@ namespace IceDiscovery
 
         public override bool retry()
         {
-            return _proxies.Count == 0 && --nRetry_ >= 0;
+            return _proxies.Count == 0 && --retryCount_ >= 0;
         }
 
         public bool response(Ice.ObjectPrx proxy, bool isReplicaGroup)
@@ -78,35 +118,49 @@ namespace IceDiscovery
             return true;
         }
 
-        public void finished(Ice.ObjectPrx proxy)
+        public override void finished(Ice.ObjectPrx proxy)
         {
             if(proxy != null || _proxies.Count == 0)
             {
                 sendResponse(proxy);
-                return;
             }
             else if(_proxies.Count == 1)
             {
-                sendResponse(_proxies[0]);
-                return;
+                sendResponse(_proxies.First());
             }
-
-            List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
-            Ice.ObjectPrx result = null;
-            foreach(Ice.ObjectPrx prx in _proxies)
+            else
             {
-                if(result == null)
+                List<Ice.Endpoint> endpoints = new List<Ice.Endpoint>();
+                Ice.ObjectPrx result = null;
+                foreach(Ice.ObjectPrx prx in _proxies)
                 {
-                    result = prx;
+                    if(result == null)
+                    {
+                        result = prx;
+                    }
+                    endpoints.AddRange(prx.ice_getEndpoints());
                 }
-                endpoints.AddRange(prx.ice_getEndpoints());
+                sendResponse(result.ice_endpoints(endpoints.ToArray()));
             }
-            sendResponse(result.ice_endpoints(endpoints.ToArray()));
         }
 
         public void runTimerTask()
         {
             lookup_.adapterRequestTimedOut(this);
+        }
+
+        protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
+        {
+            lookup.findAdapterByIdAsync(domainId, _id, lookupReply).ContinueWith(task => {
+                try
+                {
+                    task.Wait();
+                }
+                catch(AggregateException ex)
+                {
+                    lookup_.adapterRequestException(this, ex.InnerException);
+                }
+            }, lookup.ice_scheduler());
         }
 
         private void sendResponse(Ice.ObjectPrx proxy)
@@ -118,7 +172,12 @@ namespace IceDiscovery
             callbacks_.Clear();
         }
 
-        private List<Ice.ObjectPrx> _proxies = new List<Ice.ObjectPrx>();
+        //
+        // We use a HashSet because the same IceDiscovery plugin might return multiple times
+        // the same proxy if it's accessible through multiple network interfaces and if we
+        // also sent the request to multiple interfaces.
+        //
+        private HashSet<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
         private long _start;
         private long _latency;
     };
@@ -134,7 +193,7 @@ namespace IceDiscovery
             finished(proxy);
         }
 
-        public void finished(Ice.ObjectPrx proxy)
+        public override void finished(Ice.ObjectPrx proxy)
         {
             foreach(var cb in callbacks_)
             {
@@ -146,6 +205,20 @@ namespace IceDiscovery
         public void runTimerTask()
         {
             lookup_.objectRequestTimedOut(this);
+        }
+
+        protected override void invokeWithLookup(string domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
+        {
+            lookup.findObjectByIdAsync(domainId, _id, lookupReply).ContinueWith(task => {
+                try
+                {
+                    task.Wait();
+                }
+                catch(AggregateException ex)
+                {
+                    lookup_.objectRequestException(this, ex.InnerException);
+                }
+            }, lookup.ice_scheduler());
         }
     };
 
@@ -160,11 +233,48 @@ namespace IceDiscovery
             _latencyMultiplier = properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
             _domainId = properties.getProperty("IceDiscovery.DomainId");
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+
+            //
+            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
+            // datagram on each endpoint.
+            //
+            var single = new Ice.Endpoint[1];
+            foreach(var endpt in lookup.ice_getEndpoints())
+            {
+                single[0] = endpt;
+                _lookups[(LookupPrx)lookup.ice_endpoints(single)] = null;
+            }
+            Debug.Assert(_lookups.Count > 0);
         }
 
         public void setLookupReply(LookupReplyPrx lookupReply)
         {
-            _lookupReply = lookupReply;
+            //
+            // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+            //
+            var single = new Ice.Endpoint[1];
+            foreach(var key in new List<LookupPrx>(_lookups.Keys))
+            {
+                var info = (Ice.UDPEndpointInfo)key.ice_getEndpoints()[0].getInfo();
+                if(info.mcastInterface.Length > 0)
+                {
+                    foreach(var q in lookupReply.ice_getEndpoints())
+                    {
+                        var r = q.getInfo();
+                        if(r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface))
+                        {
+                            single[0] = q;
+                            _lookups[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
+                        }
+                    }
+                }
+
+                if(_lookups[key] == null)
+                {
+                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                    _lookups[key] = lookupReply;
+                }
+            }
         }
 
         public override void findObjectById(string domainId, Ice.Identity id, LookupReplyPrx reply,
@@ -234,7 +344,7 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.findObjectByIdAsync(_domainId, id, _lookupReply);
+                        request.invoke(_domainId, _lookups);
                         _timer.schedule(request, _timeout);
                     }
                     catch(Ice.LocalException)
@@ -263,7 +373,7 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.findAdapterByIdAsync(_domainId, adapterId, _lookupReply);
+                        request.invoke(_domainId, _lookups);
                         _timer.schedule(request, _timeout);
                     }
                     catch(Ice.LocalException)
@@ -276,36 +386,35 @@ namespace IceDiscovery
             }
         }
 
-        internal void foundObject(Ice.Identity id, Ice.ObjectPrx proxy)
+        internal void foundObject(Ice.Identity id, string requestId, Ice.ObjectPrx proxy)
         {
             lock(this)
             {
                 ObjectRequest request;
-                if(!_objectRequests.TryGetValue(id, out request))
+                if(_objectRequests.TryGetValue(id, out request) && request.getRequestId() == requestId)
                 {
-                    return;
+                    request.response(proxy);
+                    _timer.cancel(request);
+                    _objectRequests.Remove(id);
                 }
-                request.response(proxy);
-                _timer.cancel(request);
-                _objectRequests.Remove(id);
+                // else ignore responses from old requests
             }
         }
 
-        internal void foundAdapter(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup)
+        internal void foundAdapter(string adapterId, string requestId, Ice.ObjectPrx proxy, bool isReplicaGroup)
         {
             lock(this)
             {
                 AdapterRequest request;
-                if(!_adapterRequests.TryGetValue(adapterId, out request))
+                if(_adapterRequests.TryGetValue(adapterId, out request) && request.getRequestId() == requestId)
                 {
-                    return;
+                    if(request.response(proxy, isReplicaGroup))
+                    {
+                        _timer.cancel(request);
+                        _adapterRequests.Remove(request.getId());
+                    }
                 }
-
-                if(request.response(proxy, isReplicaGroup))
-                {
-                    _timer.cancel(request);
-                    _adapterRequests.Remove(request.getId());
-                }
+                // else ignore responses from old requests
             }
         }
 
@@ -323,7 +432,7 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.findObjectByIdAsync(_domainId, request.getId(), _lookupReply);
+                        request.invoke(_domainId, _lookups);
                         _timer.schedule(request, _timeout);
                         return;
                     }
@@ -335,6 +444,36 @@ namespace IceDiscovery
                 request.finished(null);
                 _objectRequests.Remove(request.getId());
                 _timer.cancel(request);
+            }
+        }
+
+        internal void objectRequestException(ObjectRequest request, Exception ex)
+        {
+            lock(this)
+            {
+                ObjectRequest r;
+                if(!_objectRequests.TryGetValue(request.getId(), out r) || r != request)
+                {
+                    return;
+                }
+
+                if(request.exception())
+                {
+                    if(_warnOnce)
+                    {
+                        StringBuilder s = new StringBuilder();
+                        s.Append("failed to lookup object `");
+                        s.Append(_lookup.ice_getCommunicator().identityToString(request.getId()));
+                        s.Append("' with lookup proxy `");
+                        s.Append(_lookup);
+                        s.Append("':\n");
+                        s.Append(ex.ToString());
+                        _lookup.ice_getCommunicator().getLogger().warning(s.ToString());
+                        _warnOnce = false;
+                    }
+                    _timer.cancel(request);
+                    _objectRequests.Remove(request.getId());
+                }
             }
         }
 
@@ -352,7 +491,7 @@ namespace IceDiscovery
                 {
                     try
                     {
-                        _lookup.findAdapterByIdAsync(_domainId, request.getId(), _lookupReply);
+                        request.invoke(_domainId, _lookups);
                         _timer.schedule(request, _timeout);
                         return;
                     }
@@ -367,6 +506,36 @@ namespace IceDiscovery
             }
         }
 
+        internal void adapterRequestException(AdapterRequest request, Exception ex)
+        {
+            lock(this)
+            {
+                AdapterRequest r;
+                if(!_adapterRequests.TryGetValue(request.getId(), out r) || r != request)
+                {
+                    return;
+                }
+
+                if(request.exception())
+                {
+                    if(_warnOnce)
+                    {
+                        StringBuilder s = new StringBuilder();
+                        s.Append("failed to lookup adapter `");
+                        s.Append(request.getId());
+                        s.Append("' with lookup proxy `");
+                        s.Append(_lookup);
+                        s.Append("':\n");
+                        s.Append(ex.ToString());
+                        _lookup.ice_getCommunicator().getLogger().warning(s.ToString());
+                        _warnOnce = false;
+                    }
+                    _timer.cancel(request);
+                    _adapterRequests.Remove(request.getId());
+                }
+            }
+        }
+
         internal IceInternal.Timer timer()
         {
             return _timer;
@@ -378,15 +547,15 @@ namespace IceDiscovery
         }
 
         private LocatorRegistryI _registry;
-        private readonly LookupPrx _lookup;
-        private LookupReplyPrx _lookupReply;
+        private LookupPrx _lookup;
+        private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
         private readonly int _timeout;
         private readonly int _retryCount;
         private readonly int _latencyMultiplier;
         private readonly string _domainId;
 
         private IceInternal.Timer _timer;
-
+        private bool _warnOnce = true;
         private Dictionary<Ice.Identity, ObjectRequest> _objectRequests = new Dictionary<Ice.Identity, ObjectRequest>();
         private Dictionary<string, AdapterRequest> _adapterRequests = new Dictionary<string, AdapterRequest>();
     };
@@ -400,16 +569,15 @@ namespace IceDiscovery
 
         public override void foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current c)
         {
-            _lookup.foundObject(id, proxy);
+            _lookup.foundObject(id, c.id.name, proxy);
         }
 
         public override void foundAdapterById(string adapterId, Ice.ObjectPrx proxy, bool isReplicaGroup, Ice.Current c)
         {
-            _lookup.foundAdapter(adapterId, proxy, isReplicaGroup);
+            _lookup.foundAdapter(adapterId, c.id.name, proxy, isReplicaGroup);
         }
 
         private LookupI _lookup;
     };
 
 }
-

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -21,9 +21,11 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{ACAF39D3-B4BD-426B-98DE-D95944B0D3F6}</ProjectGuid>
     <RootNamespace>slice2py</RootNamespace>
-    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -66,6 +68,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -74,6 +77,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -82,6 +86,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -90,6 +95,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>ICE_STATIC_LIBS;ICE_BUILDING_SLICE_COMPILERS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <AdditionalDependencies>rpcrt4.lib;advapi32.lib;DbgHelp.lib;Shlwapi.lib</AdditionalDependencies>
@@ -102,9 +108,6 @@
     <ResourceCompile Include="..\Slice2Py.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\..\IceUtil\msbuild\iceutil\iceutil.vcxproj">
       <Project>{4d1a5110-3176-44ba-8bbb-57bf56519b9f}</Project>
     </ProjectReference>
@@ -112,16 +115,24 @@
       <Project>{57cd6ac2-0c9d-4648-9e9d-5df60c90f18a}</Project>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets')" />
-    <Import Project="..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets')" />
+    <Import Project="..\..\..\msbuild\packages\mcpp.v100.2.7.2.17\build\native\mcpp.v100.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v100.2.7.2.17\build\native\mcpp.v100.targets')" />
+    <Import Project="..\..\..\msbuild\packages\mcpp.v120.2.7.2.17\build\native\mcpp.v120.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.17\build\native\mcpp.v120.targets')" />
+    <Import Project="..\..\..\msbuild\packages\mcpp.v140.2.7.2.17\build\native\mcpp.v140.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.17\build\native\mcpp.v140.targets')" />
+    <Import Project="..\..\..\msbuild\packages\mcpp.v141.2.7.2.17\build\native\mcpp.v141.targets" Condition="Exists('..\..\..\msbuild\packages\mcpp.v141.2.7.2.17\build\native\mcpp.v141.targets')" />
   </ImportGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v140.2.7.2.9\build\native\mcpp.v140.targets'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v120.2.7.2.9\build\native\mcpp.v120.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v100.2.7.2.17\build\native\mcpp.v100.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v100.2.7.2.17\build\native\mcpp.v100.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v120.2.7.2.17\build\native\mcpp.v120.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v120.2.7.2.17\build\native\mcpp.v120.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v140.2.7.2.17\build\native\mcpp.v140.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v140.2.7.2.17\build\native\mcpp.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\mcpp.v141.2.7.2.17\build\native\mcpp.v141.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\mcpp.v141.2.7.2.17\build\native\mcpp.v141.targets'))" />
   </Target>
 </Project>

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 import com.zeroc.IceInternal.IncomingConnectionFactory;
+import com.zeroc.IceInternal.EndpointI;
 
 public final class ObjectAdapterI implements ObjectAdapter
 {
@@ -155,11 +156,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
             catch(InterruptedException ex)
             {
-                throw new OperationInterruptedException();
+                throw new OperationInterruptedException(ex);
             }
         }
     }
-
 
     @Override
     public void
@@ -184,7 +184,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                 }
                 catch(InterruptedException ex)
                 {
-                    throw new OperationInterruptedException();
+                    throw new OperationInterruptedException(ex);
                 }
             }
             if(_state > StateDeactivating)
@@ -196,24 +196,24 @@ public final class ObjectAdapterI implements ObjectAdapter
 
         //
         // NOTE: the router/locator infos and incoming connection
-        // facatory list are immutable at this point.
+        // factory list are immutable at this point.
         //
-
-        if(_routerInfo != null)
-        {
-            //
-            // Remove entry from the router manager.
-            //
-            _instance.routerManager().erase(_routerInfo.getRouter());
-
-            //
-            //  Clear this object adapter with the router.
-            //
-            _routerInfo.setAdapter(null);
-        }
 
         try
         {
+            if(_routerInfo != null)
+            {
+                //
+                // Remove entry from the router manager.
+                //
+                _instance.routerManager().erase(_routerInfo.getRouter());
+
+                //
+                //  Clear this object adapter with the router.
+                //
+                _routerInfo.setAdapter(null);
+            }
+
             updateLocatorRegistry(_locatorInfo, null);
         }
         catch(LocalException ex)
@@ -224,21 +224,11 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
         }
 
-        //
-        // Must be called outside the thread synchronization, because
-        // Connection::destroy() might block when sending a
-        // CloseConnection message.
-        //
         for(IncomingConnectionFactory factory : _incomingConnectionFactories)
         {
             factory.destroy();
         }
 
-        //
-        // Must be called outside the thread synchronization, because
-        // changing the object adapter might block if there are still
-        // requests being dispatched.
-        //
         _instance.outgoingConnectionFactory().removeAdapter(this);
 
         synchronized(this)
@@ -333,7 +323,7 @@ public final class ObjectAdapterI implements ObjectAdapter
                 }
                 catch(InterruptedException ex)
                 {
-                    throw new OperationInterruptedException();
+                    throw new OperationInterruptedException(ex);
                 }
             }
             if(_state == StateDestroyed)
@@ -377,9 +367,8 @@ public final class ObjectAdapterI implements ObjectAdapter
             //
             _instance = null;
             _threadPool = null;
-            _routerEndpoints = null;
             _routerInfo = null;
-            _publishedEndpoints = null;
+            _publishedEndpoints = new EndpointI[0];
             _locatorInfo = null;
             _reference = null;
             _objectAdapterFactory = null;
@@ -517,7 +506,7 @@ public final class ObjectAdapterI implements ObjectAdapter
     {
         checkForDeactivation();
 
-        com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy).__reference();
+        com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy)._getReference();
         return findFacet(ref.getIdentity(), ref.getFacet());
     }
 
@@ -611,18 +600,30 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     @Override
+    public synchronized Endpoint[]
+    getEndpoints()
+    {
+        List<Endpoint> endpoints = new ArrayList<>();
+        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+        {
+            endpoints.add(factory.endpoint());
+        }
+        return endpoints.toArray(new Endpoint[0]);
+    }
+
+    @Override
     public void
     refreshPublishedEndpoints()
     {
         com.zeroc.IceInternal.LocatorInfo locatorInfo = null;
-        List<com.zeroc.IceInternal.EndpointI> oldPublishedEndpoints;
+        EndpointI[] oldPublishedEndpoints;
 
         synchronized(this)
         {
             checkForDeactivation();
 
             oldPublishedEndpoints = _publishedEndpoints;
-            _publishedEndpoints = parsePublishedEndpoints();
+            _publishedEndpoints = computePublishedEndpoints();
 
             locatorInfo = _locatorInfo;
         }
@@ -648,21 +649,49 @@ public final class ObjectAdapterI implements ObjectAdapter
 
     @Override
     public synchronized Endpoint[]
-    getEndpoints()
+    getPublishedEndpoints()
     {
-        List<Endpoint> endpoints = new ArrayList<>();
-        for(IncomingConnectionFactory factory : _incomingConnectionFactories)
-        {
-            endpoints.add(factory.endpoint());
-        }
-        return endpoints.toArray(new Endpoint[0]);
+        return java.util.Arrays.copyOf(_publishedEndpoints, _publishedEndpoints.length, Endpoint[].class);
     }
 
     @Override
-    public synchronized Endpoint[]
-    getPublishedEndpoints()
+    public void
+    setPublishedEndpoints(Endpoint[] newEndpoints)
     {
-        return _publishedEndpoints.toArray(new Endpoint[0]);
+        com.zeroc.IceInternal.LocatorInfo locatorInfo = null;
+        EndpointI[] oldPublishedEndpoints;
+
+        synchronized(this)
+        {
+            checkForDeactivation();
+            if(_routerInfo != null)
+            {
+                throw new IllegalArgumentException(
+                                   "can't set published endpoints on object adapter associated with a router");
+            }
+
+            oldPublishedEndpoints = _publishedEndpoints;
+            _publishedEndpoints = java.util.Arrays.copyOf(newEndpoints, newEndpoints.length, EndpointI[].class);
+            locatorInfo = _locatorInfo;
+        }
+
+        try
+        {
+            Identity dummy = new Identity();
+            dummy.name = "dummy";
+            updateLocatorRegistry(locatorInfo, createDirectProxy(dummy));
+        }
+        catch(LocalException ex)
+        {
+            synchronized(this)
+            {
+                //
+                // Restore the old published endpoints.
+                //
+                _publishedEndpoints = oldPublishedEndpoints;
+                throw ex;
+            }
+        }
     }
 
     public boolean
@@ -673,7 +702,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         // it can be called for AMI invocations if the proxy has no delegate set yet.
         //
 
-        com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy).__reference();
+        com.zeroc.IceInternal.Reference ref = ((_ObjectPrxI)proxy)._getReference();
         if(ref.isWellKnown())
         {
             //
@@ -714,28 +743,9 @@ public final class ObjectAdapterI implements ObjectAdapter
                     }
                     for(IncomingConnectionFactory p : _incomingConnectionFactories)
                     {
-                        if(endpoint.equivalent(p.endpoint()))
+                        if(p.isLocal(endpoint))
                         {
                             return true;
-                        }
-                    }
-                }
-
-                //
-                // Proxies which have at least one endpoint in common with the
-                // router's server proxy endpoints (if any), are also considered
-                // local.
-                //
-                if(_routerInfo != null && _routerInfo.getRouter().equals(proxy.ice_getRouter()))
-                {
-                    for(com.zeroc.IceInternal.EndpointI endpoint : endpoints)
-                    {
-                        for(com.zeroc.IceInternal.EndpointI p : _routerEndpoints)
-                        {
-                            if(endpoint.equivalent(p))
-                            {
-                                return true;
-                            }
                         }
                     }
                 }
@@ -746,7 +756,8 @@ public final class ObjectAdapterI implements ObjectAdapter
     }
 
     public void
-    flushAsyncBatchRequests(com.zeroc.IceInternal.CommunicatorFlushBatch outAsync)
+    flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch,
+                            com.zeroc.IceInternal.CommunicatorFlushBatch outAsync)
     {
         List<IncomingConnectionFactory> f;
         synchronized(this)
@@ -755,7 +766,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
         for(IncomingConnectionFactory p : f)
         {
-            p.flushAsyncBatchRequests(outAsync);
+            p.flushAsyncBatchRequests(compressBatch, outAsync);
         }
     }
 
@@ -846,6 +857,13 @@ public final class ObjectAdapterI implements ObjectAdapter
         // No check for deactivation here!
         assert(_instance != null); // Must not be called after destroy().
         return _acm;
+    }
+
+    public synchronized void
+    setAdapterOnConnection(com.zeroc.Ice.ConnectionI connection)
+    {
+        checkForDeactivation();
+        connection.setAdapterAndServantManager(this, _servantManager);
     }
 
     public int
@@ -973,60 +991,30 @@ public final class ObjectAdapterI implements ObjectAdapter
             if(router != null)
             {
                 _routerInfo = _instance.routerManager().get(router);
-                if(_routerInfo != null)
+                assert(_routerInfo != null);
+
+                //
+                // Make sure this router is not already registered with another adapter.
+                //
+                if(_routerInfo.getAdapter() != null)
                 {
-                    //
-                    // Make sure this router is not already registered with another adapter.
-                    //
-                    if(_routerInfo.getAdapter() != null)
-                    {
-                        throw new AlreadyRegisteredException("object adapter with router",
-                                                             Util.identityToString(router.ice_getIdentity()));
-                    }
-
-                    //
-                    // Add the router's server proxy endpoints to this object
-                    // adapter.
-                    //
-                    com.zeroc.IceInternal.EndpointI[] endpoints = _routerInfo.getServerEndpoints();
-                    for(com.zeroc.IceInternal.EndpointI endpoint : endpoints)
-                    {
-                        _routerEndpoints.add(endpoint);
-                    }
-                    java.util.Collections.sort(_routerEndpoints); // Must be sorted.
-
-                    //
-                    // Remove duplicate endpoints, so we have a list of unique
-                    // endpoints.
-                    //
-                    for(int i = 0; i < _routerEndpoints.size() - 1;)
-                    {
-                        com.zeroc.IceInternal.EndpointI e1 = _routerEndpoints.get(i);
-                        com.zeroc.IceInternal.EndpointI e2 = _routerEndpoints.get(i + 1);
-                        if(e1.equals(e2))
-                        {
-                            _routerEndpoints.remove(i);
-                        }
-                        else
-                        {
-                            ++i;
-                        }
-                    }
-
-                    //
-                    // Associate this object adapter with the router. This way,
-                    // new outgoing connections to the router's client proxy will
-                    // use this object adapter for callbacks.
-                    //
-                    _routerInfo.setAdapter(this);
-
-                    //
-                    // Also modify all existing outgoing connections to the
-                    // router's client proxy to use this object adapter for
-                    // callbacks.
-                    //
-                    _instance.outgoingConnectionFactory().setRouterInfo(_routerInfo);
+                    throw new AlreadyRegisteredException("object adapter with router",
+                                                         _communicator.identityToString(router.ice_getIdentity()));
                 }
+
+                //
+                // Associate this object adapter with the router. This way,
+                // new outgoing connections to the router's client proxy will
+                // use this object adapter for callbacks.
+                //
+                _routerInfo.setAdapter(this);
+
+                //
+                // Also modify all existing outgoing connections to the
+                // router's client proxy to use this object adapter for
+                // callbacks.
+                //
+                _instance.outgoingConnectionFactory().setRouterInfo(_routerInfo);
             }
             else
             {
@@ -1034,14 +1022,21 @@ public final class ObjectAdapterI implements ObjectAdapter
                 // Parse the endpoints, but don't store them in the adapter. The connection
                 // factory might change it, for example, to fill in the real port number.
                 //
-                List<com.zeroc.IceInternal.EndpointI> endpoints =
-                    parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
-                for(com.zeroc.IceInternal.EndpointI endp : endpoints)
+                List<EndpointI> endpoints = parseEndpoints(properties.getProperty(_name + ".Endpoints"), true);
+                for(EndpointI endp : endpoints)
                 {
-                    IncomingConnectionFactory factory = new IncomingConnectionFactory(instance, endp, this);
-                    _incomingConnectionFactories.add(factory);
+                    EndpointI.ExpandHostResult result = endp.expandHost();
+                    for(EndpointI expanded : result.endpoints)
+                    {
+
+                        IncomingConnectionFactory factory = new IncomingConnectionFactory(instance,
+                                                                                          expanded,
+                                                                                          result.publish,
+                                                                                          this);
+                        _incomingConnectionFactories.add(factory);
+                    }
                 }
-                if(endpoints.size() == 0)
+                if(endpoints.isEmpty())
                 {
                     com.zeroc.IceInternal.TraceLevels tl = _instance.traceLevels();
                     if(tl.network >= 2)
@@ -1050,12 +1045,12 @@ public final class ObjectAdapterI implements ObjectAdapter
                                                                     "created adapter `" + name + "' without endpoints");
                     }
                 }
-
-                //
-                // Parse the publsihed endpoints.
-                //
-                _publishedEndpoints = parsePublishedEndpoints();
             }
+
+            //
+            // Compute the publsihed endpoints.
+            //
+            _publishedEndpoints = computePublishedEndpoints();
 
             if(properties.getProperty(_name + ".Locator").length() > 0)
             {
@@ -1073,6 +1068,7 @@ public final class ObjectAdapterI implements ObjectAdapter
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()
@@ -1128,26 +1124,11 @@ public final class ObjectAdapterI implements ObjectAdapter
     private ObjectPrx
     newDirectProxy(Identity ident, String facet)
     {
-        com.zeroc.IceInternal.EndpointI[] endpoints;
-
-        int sz = _publishedEndpoints.size();
-        endpoints = new com.zeroc.IceInternal.EndpointI[sz + _routerEndpoints.size()];
-        _publishedEndpoints.toArray(endpoints);
-
-        //
-        // Now we also add the endpoints of the router's server proxy, if
-        // any. This way, object references created by this object adapter
-        // will also point to the router's server proxy endpoints.
-        //
-        for(int i = 0; i < _routerEndpoints.size(); ++i)
-        {
-            endpoints[sz + i] = _routerEndpoints.get(i);
-        }
-
         //
         // Create a reference and return a proxy for this reference.
         //
-        com.zeroc.IceInternal.Reference ref = _instance.referenceFactory().create(ident, facet, _reference, endpoints);
+        com.zeroc.IceInternal.Reference ref = _instance.referenceFactory().create(ident, facet, _reference,
+                                                                                  _publishedEndpoints);
         return _instance.proxyFactory().referenceToProxy(ref);
     }
 
@@ -1210,6 +1191,10 @@ public final class ObjectAdapterI implements ObjectAdapter
             beg = com.zeroc.IceUtilInternal.StringUtil.findFirstNotOf(endpts, delim, end);
             if(beg == -1)
             {
+                if(!endpoints.isEmpty())
+                {
+                    throw new EndpointParseException("invalid empty object adapter endpoint");
+                }
                 break;
             }
 
@@ -1258,17 +1243,14 @@ public final class ObjectAdapterI implements ObjectAdapter
 
             if(end == beg)
             {
-                ++end;
-                continue;
+                throw new EndpointParseException("invalid empty object adapter endpoint");
             }
 
             String s = endpts.substring(beg, end);
             com.zeroc.IceInternal.EndpointI endp = _instance.endpointFactoryManager().create(s, oaEndpoints);
             if(endp == null)
             {
-                EndpointParseException e = new EndpointParseException();
-                e.str = "invalid object adapter endpoint `" + s + "'";
-                throw e;
+                throw new EndpointParseException("invalid object adapter endpoint `" + s + "'");
             }
             endpoints.add(endp);
 
@@ -1278,25 +1260,54 @@ public final class ObjectAdapterI implements ObjectAdapter
         return endpoints;
     }
 
-    private List<com.zeroc.IceInternal.EndpointI>
-    parsePublishedEndpoints()
+    private EndpointI[]
+    computePublishedEndpoints()
     {
-        //
-        // Parse published endpoints. If set, these are used in proxies
-        // instead of the connection factory Endpoints.
-        //
-        String endpts = _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
-        List<com.zeroc.IceInternal.EndpointI> endpoints = parseEndpoints(endpts, false);
-        if(endpoints.isEmpty())
+        List<EndpointI> endpoints;
+        if(_routerInfo != null)
         {
             //
-            // If the PublishedEndpoints property isn't set, we compute the published enpdoints
-            // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
-            // to include actual addresses in the published endpoints.
+            // Get the router's server proxy endpoints and use them as the published endpoints.
             //
-            for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+            endpoints = new ArrayList<>();
+            for(EndpointI endpt : _routerInfo.getServerEndpoints())
             {
-                endpoints.addAll(factory.endpoint().expand());
+                if(!endpoints.contains(endpt))
+                {
+                    endpoints.add(endpt);
+                }
+            }
+        }
+        else
+        {
+            //
+            // Parse published endpoints. If set, these are used in proxies
+            // instead of the connection factory Endpoints.
+            //
+            String endpts = _instance.initializationData().properties.getProperty(_name + ".PublishedEndpoints");
+            endpoints = parseEndpoints(endpts, false);
+            if(endpoints.isEmpty())
+            {
+                //
+                // If the PublishedEndpoints property isn't set, we compute the published enpdoints
+                // from the OA endpoints, expanding any endpoints that may be listening on INADDR_ANY
+                // to include actual addresses in the published endpoints.
+                //
+                for(IncomingConnectionFactory factory : _incomingConnectionFactories)
+                {
+                    for(EndpointI endpt : factory.endpoint().expandIfWildcard())
+                    {
+                        //
+                        // Check for duplicate endpoints, this might occur if an endpoint with a DNS name
+                        // expands to multiple addresses. In this case, multiple incoming connection
+                        // factories can point to the same published endpoint.
+                        //
+                        if(!endpoints.contains(endpt))
+                        {
+                            endpoints.add(endpt);
+                        }
+                    }
+                }
             }
         }
 
@@ -1317,7 +1328,7 @@ public final class ObjectAdapterI implements ObjectAdapter
             }
             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
-        return endpoints;
+        return endpoints.toArray(new EndpointI[endpoints.size()]);
     }
 
     private void
@@ -1549,9 +1560,8 @@ public final class ObjectAdapterI implements ObjectAdapter
     final private String _replicaGroupId;
     private com.zeroc.IceInternal.Reference _reference;
     private List<IncomingConnectionFactory> _incomingConnectionFactories = new ArrayList<>();
-    private List<com.zeroc.IceInternal.EndpointI> _routerEndpoints = new ArrayList<>();
     private com.zeroc.IceInternal.RouterInfo _routerInfo = null;
-    private List<com.zeroc.IceInternal.EndpointI> _publishedEndpoints = new ArrayList<>();
+    private EndpointI[] _publishedEndpoints = new EndpointI[0];
     private com.zeroc.IceInternal.LocatorInfo _locatorInfo;
     private int _directCount; // The number of direct proxies dispatching on this object adapter.
     private boolean _noConfig;

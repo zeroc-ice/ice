@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -145,7 +145,7 @@ public:
         Ice::InitializationData initData;
         initData.properties = _com->ice_getCommunicator()->getProperties()->clone();
         initData.logger = _logger;
-        initData.properties->setProperty("Ice.ACM.Timeout", "1");
+        initData.properties->setProperty("Ice.ACM.Timeout", "2");
         if(_clientACMTimeout >= 0)
         {
             initData.properties->setProperty("Ice.ACM.Client.Timeout", toString(_clientACMTimeout));
@@ -251,10 +251,10 @@ public:
         IceUtil::Time now = IceUtil::Time::now(IceUtil::Time::Monotonic);
         while(!_closed)
         {
-            timedWait(IceUtil::Time::seconds(1));
+            timedWait(IceUtil::Time::seconds(2));
             if(IceUtil::Time::now(IceUtil::Time::Monotonic) - now > IceUtil::Time::seconds(1))
             {
-                test(false); // Waited for more than 1s for close, something's wrong.
+                test(false); // Waited for more than 2s for close, something's wrong.
             }
         }
     }
@@ -306,14 +306,15 @@ public:
     InvocationHeartbeatTest(const RemoteCommunicatorPrxPtr& com) :
         TestCase("invocation heartbeat", com)
     {
+        setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
-        proxy->sleep(2);
+        proxy->sleep(4);
 
         Lock sync(*this);
-        test(_heartbeat >= 2);
+        test(_heartbeat >= 4);
     }
 };
 
@@ -354,7 +355,7 @@ public:
     InvocationNoHeartbeatTest(const RemoteCommunicatorPrxPtr& com) :
         TestCase("invocation with no heartbeat", com)
     {
-        setServerACM(1, 2, 0); // Disable heartbeat on invocations
+        setServerACM(2, 2, 0); // Disable heartbeat on invocations
     }
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
@@ -392,9 +393,8 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
-        // No close on invocation, the call should succeed this
-        // time.
-        proxy->sleep(2);
+        // No close on invocation, the call should succeed this time.
+        proxy->sleep(3);
 
         Lock sync(*this);
         test(_heartbeat == 0);
@@ -413,7 +413,7 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
 
         waitForClosed();
 
@@ -433,7 +433,7 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
 
         Lock sync(*this);
         test(_heartbeat == 0);
@@ -458,7 +458,7 @@ public:
         // the close is graceful or forceful.
         //
         adapter->hold();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
 
         {
             Lock sync(*this);
@@ -467,7 +467,7 @@ public:
         }
 
         adapter->activate();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(500));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1000));
 
         waitForClosed();
     }
@@ -486,7 +486,7 @@ public:
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
         adapter->hold();
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1500)); // Idle for 1.5 seconds
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
 
         waitForClosed();
 
@@ -506,7 +506,7 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
-        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(2000));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000));
 
         Lock sync(*this);
         test(_heartbeat >= 3);
@@ -524,10 +524,10 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
-        for(int i = 0; i < 12; ++i)
+        for(int i = 0; i < 10; ++i)
         {
             proxy->ice_ping();
-            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(300));
         }
 
         Lock sync(*this);
@@ -535,9 +535,79 @@ public:
     }
 };
 
+class HeartbeatManualTest : public TestCase
+{
+public:
+
+    HeartbeatManualTest(const RemoteCommunicatorPrxPtr& com) : TestCase("manual heartbeats", com)
+    {
+        //
+        // Disable heartbeats.
+        //
+        setClientACM(10, -1, 0);
+        setServerACM(10, -1, 0);
+    }
+
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    {
+        proxy->startHeartbeatCount();
+        Ice::ConnectionPtr con = proxy->ice_getConnection();
+        con->heartbeat();
+        con->heartbeat();
+        con->heartbeat();
+        con->heartbeat();
+        con->heartbeat();
+        proxy->waitForHeartbeatCount(5);
+    }
+};
+
 class SetACMTest : public TestCase
 {
 public:
+
+#ifndef ICE_CPP11_MAPPING
+    class CloseCallback : public Ice::CloseCallback, private IceUtil::Monitor<IceUtil::Mutex>
+    {
+    public:
+
+        CloseCallback() : _called(false)
+        {
+        }
+
+        virtual void
+        closed(const Ice::ConnectionPtr&)
+        {
+            Lock sync(*this);
+            _called = true;
+            notify();
+        }
+
+        void
+        waitCallback()
+        {
+            Lock sync(*this);
+            while(!_called)
+            {
+                wait();
+            }
+        }
+
+    private:
+
+        bool _called;
+    };
+    typedef IceUtil::Handle<CloseCallback> CloseCallbackPtr;
+
+    class HeartbeatCallback : public Ice::HeartbeatCallback
+    {
+    public:
+
+        virtual void
+        heartbeat(const Ice::ConnectionPtr&)
+        {
+        }
+    };
+#endif
 
     SetACMTest(const RemoteCommunicatorPrxPtr& com) : TestCase("setACM/getACM", com)
     {
@@ -546,26 +616,95 @@ public:
 
     virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
     {
+        Ice::ConnectionPtr con = proxy->ice_getConnection();
+
+        try
+        {
+            con->setACM(-19, IceUtil::None, IceUtil::None);
+            test(false);
+        }
+#ifndef ICE_CPP11_MAPPING
+        catch(const IceUtil::IllegalArgumentException&)
+        {
+        }
+#else
+        catch(const invalid_argument&)
+        {
+        }
+#endif
+
         Ice::ACM acm;
-        acm = proxy->ice_getCachedConnection()->getACM();
+        acm = con->getACM();
         test(acm.timeout == 15);
-        test(acm.close == Ice::CloseOnIdleForceful);
-        test(acm.heartbeat == Ice::HeartbeatOff);
+        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnIdleForceful));
+        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatOff));
 
-        proxy->ice_getCachedConnection()->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
-        acm = proxy->ice_getCachedConnection()->getACM();
+        con->setACM(IceUtil::None, IceUtil::None, IceUtil::None);
+        acm = con->getACM();
         test(acm.timeout == 15);
-        test(acm.close == Ice::CloseOnIdleForceful);
-        test(acm.heartbeat == Ice::HeartbeatOff);
+        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnIdleForceful));
+        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatOff));
 
-        proxy->ice_getCachedConnection()->setACM(1, Ice::CloseOnInvocationAndIdle, Ice::HeartbeatAlways);
-        acm = proxy->ice_getCachedConnection()->getACM();
+        con->setACM(1, Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle),
+                                                 Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+        acm = con->getACM();
         test(acm.timeout == 1);
-        test(acm.close == Ice::CloseOnInvocationAndIdle);
-        test(acm.heartbeat == Ice::HeartbeatAlways);
+        test(acm.close == Ice::ICE_ENUM(ACMClose, CloseOnInvocationAndIdle));
+        test(acm.heartbeat == Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
-        // Make sure the client sends few heartbeats to the server
-        proxy->waitForHeartbeat(2);
+        // Make sure the client sends a few heartbeats to the server.
+        proxy->startHeartbeatCount();
+        proxy->waitForHeartbeatCount(2);
+
+#ifdef ICE_CPP11_MAPPING
+        auto p1 = promise<void>();
+        con->setCloseCallback([&p1](shared_ptr<Ice::Connection>)
+                              {
+                                  p1.set_value();
+                              });
+
+        con->close(Ice::ConnectionClose::Gracefully);
+        p1.get_future().wait();
+
+        try
+        {
+            con->throwException();
+            test(false);
+        }
+        catch(const Ice::ConnectionManuallyClosedException&)
+        {
+        }
+
+        auto p2 = promise<void>();
+        con->setCloseCallback([&p2](shared_ptr<Ice::Connection>)
+                              {
+                                  p2.set_value();
+                              });
+        p2.get_future().wait();
+
+        con->setHeartbeatCallback([](shared_ptr<Ice::Connection>) {});
+#else
+        CloseCallbackPtr callback = new CloseCallback();
+        con->setCloseCallback(callback);
+
+        con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Gracefully));
+        callback->waitCallback();
+
+        try
+        {
+            con->throwException();
+            test(false);
+        }
+        catch(const Ice::ConnectionManuallyClosedException&)
+        {
+        }
+
+        CloseCallbackPtr callback2 = new CloseCallback();
+        con->setCloseCallback(callback2);
+        callback2->waitCallback();
+
+        con->setHeartbeatCallback(new HeartbeatCallback());
+#endif
     }
 };
 
@@ -591,6 +730,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     tests.push_back(ICE_MAKE_SHARED(HeartbeatOnIdleTest, com));
     tests.push_back(ICE_MAKE_SHARED(HeartbeatAlwaysTest, com));
+    tests.push_back(ICE_MAKE_SHARED(HeartbeatManualTest, com));
     tests.push_back(ICE_MAKE_SHARED(SetACMTest, com));
 
     for(vector<TestCasePtr>::const_iterator p = tests.begin(); p != tests.end(); ++p)

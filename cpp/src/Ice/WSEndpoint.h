@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,7 +33,7 @@ public:
 
     virtual void streamWriteImpl(Ice::OutputStream*) const;
 
-    virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
 
@@ -49,8 +49,8 @@ public:
     virtual TransceiverPtr transceiver() const;
     virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const;
     virtual AcceptorPtr acceptor(const std::string&) const;
-
-    virtual std::vector<EndpointIPtr> expand() const;
+    virtual std::vector<EndpointIPtr> expandIfWildcard() const;
+    virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
     virtual bool equivalent(const EndpointIPtr&) const;
     virtual ::Ice::Int hash() const;
     virtual std::string options() const;
@@ -79,25 +79,18 @@ private:
     const std::string _resource;
 };
 
-class ICE_API WSEndpointFactory : public EndpointFactory
+class ICE_API WSEndpointFactory : public EndpointFactoryWithUnderlying
 {
 public:
 
-    WSEndpointFactory(const ProtocolInstancePtr&, const EndpointFactoryPtr&);
-    virtual ~WSEndpointFactory();
+    WSEndpointFactory(const ProtocolInstancePtr&, Ice::Short);
 
-    virtual Ice::Short type() const;
-    virtual std::string protocol() const;
-    virtual EndpointIPtr create(std::vector<std::string>&, bool) const;
-    virtual EndpointIPtr read(Ice::InputStream*) const;
-    virtual void destroy();
+    virtual EndpointFactoryPtr cloneWithUnderlying(const ProtocolInstancePtr&, Ice::Short) const;
 
-    virtual EndpointFactoryPtr clone(const ProtocolInstancePtr&, const EndpointFactoryPtr&) const;
+protected:
 
-private:
-
-    ProtocolInstancePtr _instance;
-    const EndpointFactoryPtr _delegate;
+    virtual EndpointIPtr createWithUnderlying(const EndpointIPtr&, std::vector<std::string>&, bool) const;
+    virtual EndpointIPtr readWithUnderlying(const EndpointIPtr&, Ice::InputStream*) const;
 };
 
 }

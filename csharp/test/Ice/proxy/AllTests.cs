@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,13 +10,14 @@
 using System;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator)
+    public static Test.MyClassPrx allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        string rf = "test:default -p 12010";
+        string rf = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 
@@ -225,7 +226,7 @@ public class AllTests : TestCommon.TestApp
 
         try
         {
-            b1 = communicator.stringToProxy("test:tcp@adapterId");
+            communicator.stringToProxy("test:tcp@adapterId");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -243,7 +244,37 @@ public class AllTests : TestCommon.TestApp
         //}
         try
         {
-            b1 = communicator.stringToProxy("test::tcp");
+            communicator.stringToProxy("test: :tcp");
+            test(false);
+        }
+        catch(Ice.EndpointParseException)
+        {
+        }
+
+        //
+        // Test invalid endpoint syntax
+        //
+        try
+        {
+            communicator.createObjectAdapterWithEndpoints("BadAdapter", " : ");
+            test(false);
+        }
+        catch(Ice.EndpointParseException)
+        {
+        }
+
+        try
+        {
+            communicator.createObjectAdapterWithEndpoints("BadAdapter", "tcp: ");
+            test(false);
+        }
+        catch(Ice.EndpointParseException)
+        {
+        }
+
+        try
+        {
+            communicator.createObjectAdapterWithEndpoints("BadAdapter", ":tcp");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -254,20 +285,110 @@ public class AllTests : TestCommon.TestApp
         // Test for bug ICE-5543: escaped escapes in stringToIdentity
         //
         Ice.Identity id = new Ice.Identity("test", ",X2QNUAzSBcJ_e$AV;E\\");
-        Ice.Identity id2 = Ice.Util.stringToIdentity(Ice.Util.identityToString(id));
+        Ice.Identity id2 = Ice.Util.stringToIdentity(communicator.identityToString(id));
         test(id.Equals(id2));
 
         id = new Ice.Identity("test", ",X2QNUAz\\SB\\/cJ_e$AV;E\\\\");
-        id2 = Ice.Util.stringToIdentity(Ice.Util.identityToString(id));
+        id2 = Ice.Util.stringToIdentity(communicator.identityToString(id));
         test(id.Equals(id2));
 
+        id = new Ice.Identity("/test", "cat/");
+        string idStr = communicator.identityToString(id);
+        test(idStr == "cat\\//\\/test");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        // Input string with various pitfalls
+        id = Ice.Util.stringToIdentity("\\342\\x82\\254\\60\\x9\\60\\");
+        test(id.name == "€0\t0\\" && id.category == "");
+
+        try
+        {
+            // Illegal character < 32
+            id = Ice.Util.stringToIdentity("xx\01FooBar");
+            test(false);
+        }
+        catch(Ice.IdentityParseException)
+        {
+        }
+
+        try
+        {
+            // Illegal surrogate
+            id = Ice.Util.stringToIdentity("xx\\ud911");
+            test(false);
+        }
+        catch(Ice.IdentityParseException)
+        {
+        }
+
+        // Testing bytes 127 (\x7F, \177) and €
+        id = new Ice.Identity("test", "\x7f€");
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Unicode);
+        test(idStr == "\\u007f€/test");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+        test(Ice.Util.identityToString(id) == idStr);
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.ASCII);
+        test(idStr == "\\u007f\\u20ac/test");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Compat);
+        test(idStr == "\\177\\342\\202\\254/test");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        id2 = Ice.Util.stringToIdentity(communicator.identityToString(id));
+        test(id.Equals(id2));
+
+        // More unicode character
+        id = new Ice.Identity("banana \x0E-\ud83c\udf4c\u20ac\u00a2\u0024", "greek \ud800\udd6a");
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Unicode);
+        test(idStr == "greek \ud800\udd6a/banana \\u000e-\ud83c\udf4c\u20ac\u00a2$");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.ASCII);
+        test(idStr == "greek \\U0001016a/banana \\u000e-\\U0001f34c\\u20ac\\u00a2$");
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(id.Equals(id2));
+
+        idStr = Ice.Util.identityToString(id, Ice.ToStringMode.Compat);
+        id2 = Ice.Util.stringToIdentity(idStr);
+        test(idStr == "greek \\360\\220\\205\\252/banana \\016-\\360\\237\\215\\214\\342\\202\\254\\302\\242$");
+        test(id.Equals(id2));
+
+        WriteLine("ok");
+
+        Write("testing proxyToString... ");
+        Flush();
+        b1 = communicator.stringToProxy(rf);
+        Ice.ObjectPrx b2 = communicator.stringToProxy(communicator.proxyToString(b1));
+        test(b1.Equals(b2));
+
+        if(b1.ice_getConnection() != null) // not colloc-optimized target
+        {
+            b2 = b1.ice_getConnection().createProxy(Ice.Util.stringToIdentity("fixed"));
+            String str = communicator.proxyToString(b2);
+            test(b2.ToString() == str);
+            String str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).ToString();
+
+            // Verify that the stringified fixed proxy is the same as a regular stringified proxy
+            // but without endpoints
+            test(str2.StartsWith(str));
+            test(str2[str.Length] == ':');
+        }
         WriteLine("ok");
 
         Write("testing propertyToProxy... ");
         Flush();
         Ice.Properties prop = communicator.getProperties();
         String propertyPrefix = "Foo.Proxy";
-        prop.setProperty(propertyPrefix, "test:default -p 12010");
+        prop.setProperty(propertyPrefix, "test:" + app.getTestEndpoint(0));
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
              b1.ice_getAdapterId().Length == 0 && b1.ice_getFacet().Length == 0);
@@ -317,7 +438,7 @@ public class AllTests : TestCommon.TestApp
         //test(b1.ice_getLocatorCacheTimeout() == 60);
         //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-        prop.setProperty(propertyPrefix, "test:default -p 12010");
+        prop.setProperty(propertyPrefix, "test:" + app.getTestEndpoint(0));
 
         property = propertyPrefix + ".Router";
         test(b1.ice_getRouter() == null);
@@ -456,8 +577,6 @@ public class AllTests : TestCommon.TestApp
         test(communicator.identityToString(
                  baseProxy.ice_identity(communicator.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
 #pragma warning restore 612, 618
-        test(Ice.Util.identityToString(
-                 baseProxy.ice_identity(Ice.Util.stringToIdentity("other")).ice_getIdentity()).Equals("other"));
         test(baseProxy.ice_facet("facet").ice_getFacet().Equals("facet"));
         test(baseProxy.ice_adapterId("id").ice_getAdapterId().Equals("id"));
         test(baseProxy.ice_twoway().ice_isTwoway());
@@ -554,7 +673,6 @@ public class AllTests : TestCommon.TestApp
         {
         }
 
-
         WriteLine("ok");
 
         Write("testing proxy comparison... ");
@@ -593,8 +711,16 @@ public class AllTests : TestCommon.TestApp
         test(compObj.ice_compress(true).Equals(compObj.ice_compress(true)));
         test(!compObj.ice_compress(false).Equals(compObj.ice_compress(true)));
 
+        test(!compObj.ice_getCompress().HasValue);
+        test(compObj.ice_compress(true).ice_getCompress().Value == true);
+        test(compObj.ice_compress(false).ice_getCompress().Value == false);
+
         test(compObj.ice_timeout(20).Equals(compObj.ice_timeout(20)));
         test(!compObj.ice_timeout(10).Equals(compObj.ice_timeout(20)));
+
+        test(!compObj.ice_getTimeout().HasValue);
+        test(compObj.ice_timeout(10).ice_getTimeout().Value == 10);
+        test(compObj.ice_timeout(20).ice_getTimeout().Value == 20);
 
         Ice.LocatorPrx loc1 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
         Ice.LocatorPrx loc2 = Ice.LocatorPrxHelper.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
@@ -648,9 +774,14 @@ public class AllTests : TestCommon.TestApp
         test(!endpts1[0].Equals(endpts2[0]));
         test(endpts1[0].Equals(communicator.stringToProxy("foo:tcp -h 127.0.0.1 -p 10000").ice_getEndpoints()[0]));
 
-        //
-        // TODO: Ideally we should also test comparison of fixed proxies.
-        //
+        Ice.Connection baseConnection = baseProxy.ice_getConnection();
+        if(baseConnection != null)
+        {
+            Ice.Connection baseConnection2 = baseProxy.ice_connectionId("base2").ice_getConnection();
+            compObj1 = compObj1.ice_fixed(baseConnection);
+            compObj2 = compObj2.ice_fixed(baseConnection2);
+            test(!compObj1.Equals(compObj2));
+        }
         WriteLine("ok");
 
         Write("testing checked cast... ");
@@ -678,9 +809,63 @@ public class AllTests : TestCommon.TestApp
         test(Ice.CollectionComparer.Equals(c, c2));
         WriteLine("ok");
 
+        Write("testing ice_fixed... ");
+        Flush();
+        {
+            Ice.Connection connection = cl.ice_getConnection();
+            if(connection != null)
+            {
+                Test.MyClassPrx prx = (Test.MyClassPrx)cl.ice_fixed(connection);
+                prx.ice_ping();
+                test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
+                test(cl.ice_facet("facet").ice_fixed(connection).ice_getFacet().Equals("facet"));
+                test(cl.ice_oneway().ice_fixed(connection).ice_isOneway());
+                Dictionary<string, string> ctx = new Dictionary<string, string>();
+                ctx["one"] = "hello";
+                ctx["two"] = "world";
+                test(cl.ice_fixed(connection).ice_getContext().Count == 0);
+                test(cl.ice_context(ctx).ice_fixed(connection).ice_getContext().Count == 2);
+                test(cl.ice_fixed(connection).ice_getInvocationTimeout() == -1);
+                test(cl.ice_invocationTimeout(10).ice_fixed(connection).ice_getInvocationTimeout() == 10);
+                test(cl.ice_fixed(connection).ice_getConnection() == connection);
+                test(cl.ice_fixed(connection).ice_fixed(connection).ice_getConnection() == connection);
+                test(!cl.ice_fixed(connection).ice_getTimeout().HasValue);
+                test(cl.ice_compress(true).ice_fixed(connection).ice_getCompress().Value);
+                Ice.Connection fixedConnection = cl.ice_connectionId("ice_fixed").ice_getConnection();
+                test(cl.ice_fixed(connection).ice_fixed(fixedConnection).ice_getConnection() == fixedConnection);
+                try
+                {
+                    cl.ice_secure(!connection.getEndpoint().getInfo().secure()).ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException)
+                {
+                }
+                try
+                {
+                    cl.ice_datagram().ice_fixed(connection).ice_ping();
+                }
+                catch(Ice.NoEndpointException)
+                {
+                }
+            }
+            else
+            {
+                try
+                {
+                    cl.ice_fixed(connection);
+                    test(false);
+                }
+                catch(ArgumentException)
+                {
+                    // Expected with null connection.
+                }
+            }
+        }
+        WriteLine("ok");
+
         Write("testing encoding versioning... ");
         Flush();
-        string ref20 = "test -e 2.0:default -p 12010";
+        string ref20 = "test -e 2.0:" + app.getTestEndpoint(0);
         Test.MyClassPrx cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
@@ -692,7 +877,7 @@ public class AllTests : TestCommon.TestApp
             // Server 2.0 endpoint doesn't support 1.1 version.
         }
 
-        string ref10 = "test -e 1.0:default -p 12010";
+        string ref10 = "test -e 1.0:" + app.getTestEndpoint(0);
         Test.MyClassPrx cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
         cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
@@ -700,7 +885,7 @@ public class AllTests : TestCommon.TestApp
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
-        string ref13 = "test -e 1.3:default -p 12010";
+        string ref13 = "test -e 1.3:" + app.getTestEndpoint(0);
         Test.MyClassPrx cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());
@@ -751,7 +936,7 @@ public class AllTests : TestCommon.TestApp
 
         Write("testing protocol versioning... ");
         Flush();
-        ref20 = "test -p 2.0:default -p 12010";
+        ref20 = "test -p 2.0:" + app.getTestEndpoint(0);
         cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
@@ -763,13 +948,13 @@ public class AllTests : TestCommon.TestApp
             // Server 2.0 proxy doesn't support 1.0 version.
         }
 
-        ref10 = "test -p 1.0:default -p 12010";
+        ref10 = "test -p 1.0:" + app.getTestEndpoint(0);
         cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
-        ref13 = "test -p 1.3:default -p 12010";
+        ref13 = "test -p 1.3:" + app.getTestEndpoint(0);
         cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());
@@ -781,7 +966,7 @@ public class AllTests : TestCommon.TestApp
         try
         {
             // Invalid -x option
-            communicator.stringToProxy("id:opaque -t 99 -v abc -x abc");
+            communicator.stringToProxy("id:opaque -t 99 -v abcd -x abc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -801,7 +986,7 @@ public class AllTests : TestCommon.TestApp
         try
         {
             // Repeated -t
-            communicator.stringToProxy("id:opaque -t 1 -t 1 -v abc");
+            communicator.stringToProxy("id:opaque -t 1 -t 1 -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -811,7 +996,7 @@ public class AllTests : TestCommon.TestApp
         try
         {
             // Repeated -v
-            communicator.stringToProxy("id:opaque -t 1 -v abc -v abc");
+            communicator.stringToProxy("id:opaque -t 1 -v abcd -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -821,7 +1006,7 @@ public class AllTests : TestCommon.TestApp
         try
         {
             // Missing -t
-            communicator.stringToProxy("id:opaque -v abc");
+            communicator.stringToProxy("id:opaque -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -841,7 +1026,7 @@ public class AllTests : TestCommon.TestApp
         try
         {
             // Missing arg for -t
-            communicator.stringToProxy("id:opaque -t -v abc");
+            communicator.stringToProxy("id:opaque -t -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -861,7 +1046,7 @@ public class AllTests : TestCommon.TestApp
         try
         {
             // Not a number for -t
-            communicator.stringToProxy("id:opaque -t x -v abc");
+            communicator.stringToProxy("id:opaque -t x -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -871,7 +1056,7 @@ public class AllTests : TestCommon.TestApp
         try
         {
             // < 0 for -t
-            communicator.stringToProxy("id:opaque -t -1 -v abc");
+            communicator.stringToProxy("id:opaque -t -1 -v abcd");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -882,6 +1067,16 @@ public class AllTests : TestCommon.TestApp
         {
             // Invalid char for -v
             communicator.stringToProxy("id:opaque -t 99 -v x?c");
+            test(false);
+        }
+        catch(Ice.EndpointParseException)
+        {
+        }
+
+        try
+        {
+            // Invalid lenght for base64 input
+            communicator.stringToProxy("id:opaque -t 99 -v xc");
             test(false);
         }
         catch(Ice.EndpointParseException)
@@ -902,10 +1097,6 @@ public class AllTests : TestCommon.TestApp
             // Working?
             bool ssl = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("ssl");
             bool tcp = communicator.getProperties().getProperty("Ice.Default.Protocol").Equals("tcp");
-            if(tcp)
-            {
-                p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-            }
 
             // Two legal TCP endpoints expressed as opaque endpoints
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -927,6 +1118,22 @@ public class AllTests : TestCommon.TestApp
         }
 
         WriteLine("ok");
+
+        Write("testing communicator shutdown/destroy... ");
+        Flush();
+        {
+            Ice.Communicator com = Ice.Util.initialize();
+            com.shutdown();
+            test(com.isShutdown());
+            com.waitForShutdown();
+            com.destroy();
+            com.shutdown();
+            test(com.isShutdown());
+            com.waitForShutdown();
+            com.destroy();
+        }
+        WriteLine("ok");
+
         return cl;
     }
 }

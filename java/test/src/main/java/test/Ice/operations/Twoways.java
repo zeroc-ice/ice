@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -52,6 +52,7 @@ class Twoways
     static void twoways(Application app, MyClassPrx p)
     {
         Communicator communicator = app.communicator();
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
 
         String[] literals = p.opStringLiterals();
 
@@ -110,7 +111,7 @@ class Twoways
              s10.value.equals(literals[10]) &&
              s10.value.equals(literals[21]));
 
-        test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b") &&
+        test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6") &&
              ss0.value.equals(ss1.value) &&
              ss0.value.equals(ss2.value) &&
              ss0.value.equals(literals[22]) &&
@@ -139,8 +140,8 @@ class Twoways
         test(p.ice_id().equals(MyDerivedClass.ice_staticId()));
 
         test(MyDerivedClassPrx.ice_staticId().equals(MyDerivedClass.ice_staticId()));
-        test(ObjectPrx.ice_staticId().equals(com.zeroc.Ice.Object.ice_staticId));
-        test(LocatorPrx.ice_staticId().equals(Locator.ice_staticId));
+        test(ObjectPrx.ice_staticId().equals(com.zeroc.Ice.Object.ice_staticId()));
+        test(LocatorPrx.ice_staticId().equals(Locator.ice_staticId()));
 
         {
             String[] ids = p.ice_ids();
@@ -875,14 +876,14 @@ class Twoways
             List<Map<Long, Float>> dsi2 = new ArrayList<>();
 
             Map<Long, Float> di1 = new HashMap<>();
-            di1.put(999999110L, new Float(-1.1));
-            di1.put(999999111L, new Float(123123.2));
+            di1.put(999999110L, Float.valueOf((float)-1.1));
+            di1.put(999999111L, Float.valueOf((float)123123.2));
             Map<Long, Float> di2 = new HashMap<>();
-            di2.put(999999110L, new Float(-1.1));
-            di2.put(999999120L, new Float(-100.4));
-            di2.put(999999130L, new Float(0.5));
+            di2.put(999999110L, Float.valueOf((float)-1.1));
+            di2.put(999999120L, Float.valueOf((float)-100.4));
+            di2.put(999999130L, Float.valueOf((float)0.5));
             Map<Long, Float> di3 = new HashMap<>();
-            di3.put(999999140L, new Float(3.14));
+            di3.put(999999140L, Float.valueOf((float)3.14));
 
             dsi1.add(di1);
             dsi1.add(di2);
@@ -1392,7 +1393,7 @@ class Twoways
             }
         }
 
-        if(p.ice_getConnection() != null)
+        if(p.ice_getConnection() != null && !bluetooth)
         {
             //
             // Test implicit context propagation
@@ -1412,7 +1413,7 @@ class Twoways
                 ctx.put("two", "TWO");
                 ctx.put("three", "THREE");
 
-                MyClassPrx p3 = MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"));
+                MyClassPrx p3 = MyClassPrx.uncheckedCast(ic.stringToProxy("test:" + app.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(ic.getImplicitContext().getContext().equals(ctx));

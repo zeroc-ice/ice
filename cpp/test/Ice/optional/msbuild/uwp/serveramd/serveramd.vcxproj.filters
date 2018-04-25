@@ -1,14 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\..\..\ServerAMD.cpp">
+    <ClCompile Include="..\..\..\TestAMDI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\TestAMDI.cpp">
+    <ClCompile Include="..\..\..\ServerAMD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Win32\Debug\TestAMD.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="ARM\Debug\TestAMD.cpp">
+      <Filter>Source Files\ARM\Debug</Filter>
     </ClCompile>
     <ClCompile Include="x64\Debug\TestAMD.cpp">
       <Filter>Source Files\x64\Debug</Filter>
@@ -16,61 +19,78 @@
     <ClCompile Include="Win32\Release\TestAMD.cpp">
       <Filter>Source Files\Win32\Release</Filter>
     </ClCompile>
+    <ClCompile Include="ARM\Release\TestAMD.cpp">
+      <Filter>Source Files\ARM\Release</Filter>
+    </ClCompile>
     <ClCompile Include="x64\Release\TestAMD.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{1ab3bce8-05cc-43cc-a0c5-f002257b38da}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{d31c9d33-a1cb-40c5-b0be-fc064db45788}</UniqueIdentifier>
+      <UniqueIdentifier>{1128a9d0-e0e1-4e3d-a780-d4afb13cd283}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{1f0611f1-d6de-43dd-bc2a-251b8c680655}</UniqueIdentifier>
     </Filter>
     <Filter Include="Slice Files">
-      <UniqueIdentifier>{4ef46419-a79c-4634-b765-9b3251536943}</UniqueIdentifier>
+      <UniqueIdentifier>{303b5de6-d154-499b-b7e4-3a15b31a0cd9}</UniqueIdentifier>
+      <Extensions>ice</Extensions>
     </Filter>
     <Filter Include="Source Files\Win32">
-      <UniqueIdentifier>{28dddc32-34f4-43ab-9152-34f8dabab54e}</UniqueIdentifier>
+      <UniqueIdentifier>{68e8664e-5cac-4060-93dc-636fd94010cb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Debug">
-      <UniqueIdentifier>{51947e05-e3dd-488d-bfc2-a800d474c765}</UniqueIdentifier>
+      <UniqueIdentifier>{a8141327-43f1-453c-92e9-b56c94bb0487}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32">
-      <UniqueIdentifier>{284c6048-4341-4b94-ac3e-183d1df98f06}</UniqueIdentifier>
+      <UniqueIdentifier>{8bbc1769-4416-478a-9952-b92c12adb71c}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Debug">
-      <UniqueIdentifier>{02987b42-8946-4f03-909a-655d490cc1f1}</UniqueIdentifier>
+      <UniqueIdentifier>{1c79ba76-2de6-4023-8716-06b2fea8faea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM">
+      <UniqueIdentifier>{ca7e018d-8315-4af2-9bd4-8dbc6c8f79a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Debug">
+      <UniqueIdentifier>{e6f653f6-cf8f-4845-9315-fdccdae86893}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM">
+      <UniqueIdentifier>{cccaba76-5b65-404a-b3f3-3ab1f6c3ae30}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Debug">
+      <UniqueIdentifier>{90dbafbd-3964-4df0-841d-8016b5405456}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64">
-      <UniqueIdentifier>{5f20ff69-923a-4675-aaf4-12af5e6fcb5f}</UniqueIdentifier>
+      <UniqueIdentifier>{67c5d7a3-421d-44ed-b4ef-299bc7a87f08}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Debug">
-      <UniqueIdentifier>{4f358b3b-d7a7-4cdc-83c8-9db584bab24e}</UniqueIdentifier>
+      <UniqueIdentifier>{ce793cca-4d7d-40c4-b291-7ea38a6af66f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64">
-      <UniqueIdentifier>{34209499-2010-4712-a693-5118c412ec5a}</UniqueIdentifier>
+      <UniqueIdentifier>{4518d3f4-e762-49ab-a2c2-dc694152cd1f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Debug">
-      <UniqueIdentifier>{0510c448-3a43-4830-9785-b00ed1e86fd2}</UniqueIdentifier>
+      <UniqueIdentifier>{5a8eb03c-3719-4c00-a941-e2a471d17d51}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\Win32\Release">
-      <UniqueIdentifier>{d11d6525-6508-404f-92e3-5deb24af27f4}</UniqueIdentifier>
+      <UniqueIdentifier>{ddd1b629-607f-4cba-991c-ef6fd52664e6}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Win32\Release">
-      <UniqueIdentifier>{a0ff13f0-05d0-4f90-a54e-11544e69d773}</UniqueIdentifier>
+      <UniqueIdentifier>{8642c18d-1be1-4861-8bbc-6819bd8c910b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ARM\Release">
+      <UniqueIdentifier>{aa86f05e-49c3-4f27-be30-4df03b635b5a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ARM\Release">
+      <UniqueIdentifier>{e1abdea3-3ff9-41ed-87aa-1bcae056ba9f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\x64\Release">
-      <UniqueIdentifier>{45d416f3-5e80-4f01-bccd-9889356630a7}</UniqueIdentifier>
+      <UniqueIdentifier>{62d59894-4af5-4865-8311-136459fd8a50}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\x64\Release">
-      <UniqueIdentifier>{08c08f7c-f86c-4d4d-925a-3e619dd5a0ff}</UniqueIdentifier>
+      <UniqueIdentifier>{0a3ee5d7-2966-48b9-9b86-4b8b94993e37}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <IceBuilder Include="..\..\..\TestAMD.ice">
-      <Filter>Slice Files</Filter>
-    </IceBuilder>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\TestAMDI.h">
@@ -79,14 +99,28 @@
     <ClInclude Include="Win32\Debug\TestAMD.h">
       <Filter>Header Files\Win32\Debug</Filter>
     </ClInclude>
+    <ClInclude Include="ARM\Debug\TestAMD.h">
+      <Filter>Header Files\ARM\Debug</Filter>
+    </ClInclude>
     <ClInclude Include="x64\Debug\TestAMD.h">
       <Filter>Header Files\x64\Debug</Filter>
     </ClInclude>
     <ClInclude Include="Win32\Release\TestAMD.h">
       <Filter>Header Files\Win32\Release</Filter>
     </ClInclude>
+    <ClInclude Include="ARM\Release\TestAMD.h">
+      <Filter>Header Files\ARM\Release</Filter>
+    </ClInclude>
     <ClInclude Include="x64\Release\TestAMD.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\TestAMD.ice">
+      <Filter>Slice Files</Filter>
+    </SliceCompile>
   </ItemGroup>
 </Project>

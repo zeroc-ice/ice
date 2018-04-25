@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,6 +12,7 @@
 #include <TestI.h>
 #include <TestCommon.h>
 #include <IceSSL/Plugin.h>
+#include <IceSSL/ConnectionInfo.h>
 
 using namespace std;
 using namespace Ice;
@@ -26,8 +27,8 @@ ServerI::noCert(const Ice::Current& c)
 {
     try
     {
-        IceSSL::NativeConnectionInfoPtr info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, c.con->getInfo());
-        test(info->nativeCerts.size() == 0);
+        IceSSL::ConnectionInfoPtr info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, c.con->getInfo());
+        test(info->certs.size() == 0);
     }
     catch(const Ice::LocalException& ex)
     {
@@ -41,12 +42,24 @@ ServerI::checkCert(ICE_IN(string) subjectDN, ICE_IN(string) issuerDN, const Ice:
 {
     try
     {
-        IceSSL::NativeConnectionInfoPtr info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, c.con->getInfo());
+        IceSSL::ConnectionInfoPtr info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, c.con->getInfo());
         test(info->verified);
-        test(info->nativeCerts.size() == 2 &&
-             info->nativeCerts[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN) &&
-             info->nativeCerts[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN)
-        );
+        test(info->certs.size() == 2);
+        if(c.ctx.find("uwp") != c.ctx.end())
+        {
+            //
+            // UWP client just provide the subject and issuer CN, and not the full Subject and Issuer DN
+            //
+            string subject(info->certs[0]->getSubjectDN());
+            test(subject.find(subjectDN) != string::npos);
+            string issuer(info->certs[0]->getIssuerDN());
+            test(issuer.find(issuerDN) != string::npos);
+        }
+        else
+        {
+            test(info->certs[0]->getSubjectDN() == IceSSL::DistinguishedName(subjectDN));
+            test(info->certs[0]->getIssuerDN() == IceSSL::DistinguishedName(issuerDN));
+        }
     }
     catch(const Ice::LocalException&)
     {
@@ -59,7 +72,7 @@ ServerI::checkCipher(ICE_IN(string) cipher, const Ice::Current& c)
 {
     try
     {
-        IceSSL::NativeConnectionInfoPtr info = ICE_DYNAMIC_CAST(IceSSL::NativeConnectionInfo, c.con->getInfo());
+        IceSSL::ConnectionInfoPtr info = ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, c.con->getInfo());
         test(info->cipher.compare(0, cipher.size(), cipher) == 0);
     }
     catch(const Ice::LocalException&)
@@ -71,8 +84,11 @@ ServerI::checkCipher(ICE_IN(string) cipher, const Ice::Current& c)
 void
 ServerI::destroy()
 {
-    string defaultDir = _communicator->getProperties()->getProperty("IceSSL.DefaultDir");
     _communicator->destroy();
+}
+
+ServerFactoryI::ServerFactoryI(const string& defaultDir) : _defaultDir(defaultDir)
+{
 }
 
 Test::ServerPrxPtr
@@ -84,6 +100,7 @@ ServerFactoryI::createServer(ICE_IN(Test::Properties) props, const Current&)
     {
         initData.properties->setProperty(p->first, p->second);
     }
+    initData.properties->setProperty("IceSSL.DefaultDir", _defaultDir);
 
     CommunicatorPtr communicator = initialize(initData);
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("ServerAdapter", "ssl");

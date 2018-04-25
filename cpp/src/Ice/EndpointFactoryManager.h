@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,6 +31,7 @@ class EndpointFactoryManager : public ::IceUtil::Shared, public ::IceUtil::Mutex
 {
 public:
 
+    void initialize() const;
     void add(const EndpointFactoryPtr&);
     EndpointFactoryPtr get(::Ice::Short) const;
     EndpointIPtr create(const std::string&, bool) const;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -143,7 +143,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         cout << "Testing IceGrid stub... " << flush;
 
-        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:default -p 12010");
+        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0));
         IceGrid::RegistryPrxPtr registry = ICE_UNCHECKED_CAST(IceGrid::RegistryPrx, base);
         IceGrid::AdminSessionPrxPtr session;
         IceGrid::AdminPrxPtr admin;

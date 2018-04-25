@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,12 +26,12 @@ public:
 
     ValueFactoryManagerI();
 
-    virtual void add(ICE_IN(ICE_VALUE_FACTORY), const std::string&);
-    virtual ICE_VALUE_FACTORY find(const std::string&) const;
+    virtual void add(ICE_IN(ICE_DELEGATE(::Ice::ValueFactory)), const std::string&);
+    virtual ICE_DELEGATE(::Ice::ValueFactory) find(const std::string&) const ICE_NOEXCEPT;
 
 private:
 
-    typedef std::map<std::string, ICE_VALUE_FACTORY> FactoryMap;
+    typedef std::map<std::string, ICE_DELEGATE(::Ice::ValueFactory)> FactoryMap;
 
     FactoryMap _factoryMap;
     mutable FactoryMap::iterator _factoryMapHint;

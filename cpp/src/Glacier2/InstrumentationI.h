@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@
 namespace Glacier2
 {
 
-class SessionObserverI : public Glacier2::Instrumentation::SessionObserver, 
+class SessionObserverI : public Glacier2::Instrumentation::SessionObserver,
                          public IceMX::ObserverT<IceMX::SessionMetrics>
 {
 public:
@@ -36,7 +36,7 @@ public:
     RouterObserverI(const IceInternal::MetricsAdminIPtr&, const std::string&);
 
     virtual void setObserverUpdater(const Glacier2::Instrumentation::ObserverUpdaterPtr&);
- 
+
     virtual Glacier2::Instrumentation::SessionObserverPtr getSessionObserver(
         const std::string&, const Ice::ConnectionPtr&, int, const Glacier2::Instrumentation::SessionObserverPtr&);
 

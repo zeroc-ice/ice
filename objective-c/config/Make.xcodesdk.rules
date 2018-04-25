@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -9,19 +9,19 @@
 
 include $(top_srcdir)/config/Make.xcodesdk.rules
 
-supported-configs	+= xcodesdk
+supported-configs       += xcodesdk arc-xcodesdk
 
 #
-# Xcode configuration to build Xcode IceSDK.
+# Xcode configuration to build Xcode sdks for Ice.
 #
-xcodesdk_targetdir	= $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
-xcodesdk_installdir	= $(if $(filter %/build,$5),xcodesdk,IceSDK/$2.sdk/usr/lib)
-xcodesdk_targetrule	= $(if $(filter-out program,$($1_target)),static)
+xcodesdk_targetdir      = $(if $(filter %/build,$5),xcodesdk,$(if $(filter all cpp obj%c,$(ICE_BIN_DIST)),,../)../sdk/$2.sdk/usr/lib)
+xcodesdk_installdir     = $(if $(filter %/build,$5),xcodesdk,../sdk/$2.sdk/usr/lib)
+xcodesdk_targetrule     = $(if $(filter-out program,$($1_target)),static)
 
-xcodesdk_components	= Ice IceSSL IceObjC IceSSLObjC Glacier2ObjC IceStormObjC IceGridObjC TestCommonObjC
-xcodesdk_projects	= test/Ice/%
+xcodesdk_components     = Ice IceSSL IceIAP IceObjC IceSSLObjC IceIAPObjC Glacier2ObjC IceStormObjC IceGridObjC TestCommonObjC
+xcodesdk_projects       = test/Ice/%
 
-iphoneos_excludes	 = test/%
+iphoneos_excludes        = test/%
 iphonesimulator_excludes = test/%
 
 ifneq ($(findstring xcodesdk,$(configs)),)
@@ -37,19 +37,18 @@ ifneq ($(filter src/%,$1),)
 
 $(make-xcodesdk-component-with-config)
 
-$(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/%.h: include/objc/%.h
-	$(Q)$(call install-data,objc/$$(*).h,include,$(top_srcdir)/IceSDK/$3.sdk/usr/include)
+ifneq ($(filter-out $(sdk_includefiles),$3-$2),)
+sdk_includefiles += $3-$2
+$$(eval $$(call install-data-files,include/objc/$(subst ObjC,,$2).h,include,\
+        $(top_srcdir)/sdk/$3.sdk/usr/include,$5))
 
-$(install_libdir)/IceSDK/$3.sdk/usr/include/objc/%.h: include/objc/%.h
-	$(Q)$(call install-data,objc/$$(*).h,include,$(install_libdir)/IceSDK/$3.sdk/usr/include)
-
-$5:: $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
-
-$5_install:: $(install_libdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
+$$(eval $$(call install-data-files,include/objc/$(subst ObjC,,$2).h,include,\
+        $(install_sdkdir)/$3.sdk/usr/include,$5_install))
 
 $5_clean::
-	$(Q)$(RM) $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
-	$(Q)$(RM) -r $(top_srcdir)/IceSDK/$3.sdk/usr/include/objc/$(subst ObjC,,$2)
+	$(Q)$(RM) $(top_srcdir)/sdk/$3.sdk/usr/include/objc/$(subst ObjC,,$2).h
+	$(Q)$(RM) -r $(top_srcdir)/sdk/$3.sdk/usr/include/objc/$(subst ObjC,,$2)
+endif
 
 endif
 endef

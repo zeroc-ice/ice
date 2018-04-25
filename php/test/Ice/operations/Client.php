@@ -1,7 +1,7 @@
-<?
+<?php
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,8 +17,8 @@ if(!extension_loaded("ice"))
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
-require_once 'Test.php';
+require_once('Ice.php');
+require_once('Test.php');
 
 function test($b)
 {
@@ -38,11 +38,9 @@ function twoways($communicator, $p)
     $enum2 = $NS ? constant("Test\\MyEnum::enum2") : constant("Test_MyEnum::enum2");
     $enum3 = $NS ? constant("Test\\MyEnum::enum3") : constant("Test_MyEnum::enum3");
 
+    $myClassPrxHelper = $NS ? "Test\\MyClassPrxHelper" : "Test_MyClassPrxHelper";
     $myDerivedClassPrxHelper = $NS ? "Test\\MyDerivedClassPrxHelper" : "Test_MyDerivedClassPrxHelper";
-    $myDerivedClass = $NS ? "Test\\MyDerivedClass" : "Test_MyDerivedClass";
-    $myClass = $NS ? "Test\\MyClass" : "Test_MyClass";
     $objectPrxHelper = $NS ? "Ice\\ObjectPrxHelper" : "Ice_ObjectPrxHelper";
-
 
     $s0 = $NS ? constant("Test\\s0") : constant("Test_s0");
     $s1 = $NS ? constant("Test\\s1") : constant("Test_s1");
@@ -137,7 +135,7 @@ function twoways($communicator, $p)
              $s10 == $literals[10] &&
              $s10 == $literals[21]);
 
-        test($ss0 == "'\"?\\\007\010\f\n\r\t\v" &&
+        test($ss0 == "'\"?\\\007\010\f\n\r\t\v\6" &&
              $ss0 == $ss1 &&
              $ss1 == $ss2 &&
              $ss0 == $literals[22] &&
@@ -165,16 +163,15 @@ function twoways($communicator, $p)
     }
 
     {
-        test($myDerivedClassPrxHelper::ice_staticId() == $myDerivedClass::ice_staticId());
         test($objectPrxHelper::ice_staticId() == "::Ice::Object");
     }
 
     {
-        test($p->ice_isA($myClass::ice_staticId()));
+        test($p->ice_isA($myClassPrxHelper::ice_staticId()));
     }
 
     {
-        test($p->ice_id() == $myDerivedClass::ice_staticId());
+        test($p->ice_id() == $myDerivedClassPrxHelper::ice_staticId());
     }
 
     {
@@ -1090,6 +1087,8 @@ function twoways($communicator, $p)
 
 function allTests($communicator)
 {
+    global $NS;
+
     $ref = "test:default -p 12010";
     $base = $communicator->stringToProxy($ref);
     $cl = $base->ice_checkedCast("::Test::MyClass");
@@ -1102,10 +1101,18 @@ function allTests($communicator)
     $derived->opDerived();
     echo "ok\n";
 
+    # Test flush batch requests methods
+    $BasedOnProxy = $NS ? constant("Ice\\CompressBatch::BasedOnProxy") : constant("Ice_CompressBatch::BasedOnProxy");
+
+    $derived->ice_flushBatchRequests();
+    $derived->ice_getConnection()->flushBatchRequests($BasedOnProxy);
+    $derived->ice_getCommunicator()->flushBatchRequests($BasedOnProxy);
+
     return $cl;
 }
 
-$communicator = Ice_initialize($argv);
+$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
+                      eval("return Ice_initialize(\$argv);");
 
 $myClass = allTests($communicator);
 
@@ -1126,6 +1133,10 @@ catch(Exception $ex)
     }
     echo "ok\n";
 }
+
+# Test multiple destroy calls
+$communicator->destroy();
+$communicator->destroy();
 
 $communicator->destroy();
 

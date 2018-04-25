@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -74,7 +74,6 @@ TestIntfI::opVariableRange(Test::VariableList inSeq, Test::VariableList& outSeq,
     return outSeq;
 }
 
-
 Test::ByteList
 TestIntfI::opByteRangeType(Test::ByteList inSeq, Test::ByteList& outSeq, const Ice::Current&)
 {
@@ -118,7 +117,6 @@ TestIntfI::opVariableRange(
     Test::VariableList(inSeq.first, inSeq.second).swap(outSeq);
     return outSeq;
 }
-
 
 Test::ByteList
 TestIntfI::opByteRangeType(const std::pair<Test::ByteList::const_iterator, Test::ByteList::const_iterator>& inSeq,
@@ -239,8 +237,6 @@ TestIntfI::opString(ICE_IN(Util::string_view) inString,
     return outString;
 }
 
-
-
 std::deque< ::std::string>
 TestIntfI::opStringSeq(ICE_IN(std::deque< ::std::string>) inSeq,
                        std::deque< ::std::string>& outSeq,
@@ -331,18 +327,18 @@ TestIntfI::opEList(ICE_IN(std::list< ::Test::E>) inSeq,
     return inSeq;
 }
 
-std::deque< ::Test::CPrxPtr>
-TestIntfI::opCPrxSeq(ICE_IN(std::deque< ::Test::CPrxPtr>) inSeq,
-                           std::deque< ::Test::CPrxPtr>& outSeq,
+std::deque< ::Test::DPrxPtr>
+TestIntfI::opDPrxSeq(ICE_IN(std::deque< ::Test::DPrxPtr>) inSeq,
+                           std::deque< ::Test::DPrxPtr>& outSeq,
                            const Ice::Current&)
 {
     outSeq = inSeq;
     return inSeq;
 }
 
-std::list< ::Test::CPrxPtr>
-TestIntfI::opCPrxList(ICE_IN(std::list< ::Test::CPrxPtr>) inSeq,
-                            std::list< ::Test::CPrxPtr>& outSeq,
+std::list< ::Test::DPrxPtr>
+TestIntfI::opDPrxList(ICE_IN(std::list< ::Test::DPrxPtr>) inSeq,
+                            std::list< ::Test::DPrxPtr>& outSeq,
                             const Ice::Current&)
 {
     outSeq = inSeq;
@@ -443,8 +439,6 @@ TestIntfI::opCustomIntStringDict(
 
     return copy;
 }
-
-
 
 Test::ShortBuffer
 TestIntfI::opShortBuffer(ICE_IN(Test::ShortBuffer) inS, Test::ShortBuffer& outS, const Ice::Current&)

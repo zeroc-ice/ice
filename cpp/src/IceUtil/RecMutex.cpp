@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,7 +33,7 @@ IceUtil::RecMutex::RecMutex(const IceUtil::MutexProtocol protocol) :
 void
 IceUtil::RecMutex::init(const MutexProtocol)
 {
-#   ifdef ICE_OS_WINRT
+#   ifdef ICE_OS_UWP
     InitializeCriticalSectionEx(&_mutex, 0, 0);
 #   else
     InitializeCriticalSection(&_mutex);
@@ -125,11 +125,7 @@ IceUtil::RecMutex::init(const MutexProtocol protocol)
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
 
-#if defined(__linux) && !defined(__USE_UNIX98)
-    rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE_NP);
-#else
     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
-#endif
     assert(rc == 0);
     if(rc != 0)
     {
@@ -202,7 +198,7 @@ IceUtil::RecMutex::tryLock() const
         {
             throw ThreadSyscallException(__FILE__, __LINE__, rc);
         }
-    } 
+    }
     else if(++_count > 1)
     {
         rc = pthread_mutex_unlock(&_mutex);

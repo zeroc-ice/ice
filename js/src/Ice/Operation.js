@@ -1,16 +1,15 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-
 const Ice = require("../Ice/ModuleRegistry").Ice;
-const __M = Ice.__M;
-__M.require(module,
+const _ModuleRegistry = Ice._ModuleRegistry;
+_ModuleRegistry.require(module,
     [
         "../Ice/Current",
         "../Ice/Exception",
@@ -31,7 +30,7 @@ const builtinHelpers =
     Ice.FloatHelper,
     Ice.DoubleHelper,
     Ice.StringHelper,
-    Ice.Object,
+    Ice.Value,
     Ice.ObjectPrx
 ];
 
@@ -45,7 +44,7 @@ function parseParam(p)
     }
     else if(t === 'string')
     {
-        type = __M.type(type);
+        type = _ModuleRegistry.type(type);
     }
 
     return {
@@ -95,7 +94,7 @@ function parseOperation(name, arr)
     {
         for(let i = 0; i < arr[5].length; ++i)
         {
-            let p = parseParam(arr[5][i]);
+            const p = parseParam(arr[5][i]);
             p.pos = i;
             inParams.push(p);
             if(p.tag)
@@ -104,7 +103,7 @@ function parseOperation(name, arr)
             }
         }
     }
-    inParamsOpt.sort(function(p1, p2) { return p1.tag - p2.tag; }); // Sort by tag.
+    inParamsOpt.sort((p1, p2) => p1.tag - p2.tag); // Sort by tag.
     r.inParams = inParams;
     r.inParamsOpt = inParamsOpt;
 
@@ -115,7 +114,7 @@ function parseOperation(name, arr)
         const offs = ret ? 1 : 0;
         for(let i = 0; i < arr[6].length; ++i)
         {
-            let p = parseParam(arr[6][i]);
+            const p = parseParam(arr[6][i]);
             p.pos = i + offs;
             outParams.push(p);
             if(p.tag)
@@ -128,7 +127,7 @@ function parseOperation(name, arr)
     {
         outParamsOpt.push(ret);
     }
-    outParamsOpt.sort(function(p1, p2) { return p1.tag - p2.tag; }); // Sort by tag.
+    outParamsOpt.sort((p1, p2) => p1.tag - p2.tag); // Sort by tag.
     r.outParams = outParams;
     r.outParamsOpt = outParamsOpt;
 
@@ -242,7 +241,7 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     //
     for(let i = 0; i < paramInfo.length; ++i)
     {
-        let p = paramInfo[i];
+        const p = paramInfo[i];
         if(!p.tag)
         {
             p.type.write(os, params[p.pos]);
@@ -262,7 +261,7 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     //
     for(let i = 0; i < optParamInfo.length; ++i)
     {
-        let p = optParamInfo[i];
+        const p = optParamInfo[i];
         p.type.writeOptional(os, p.tag, params[p.pos]);
     }
 
@@ -272,7 +271,7 @@ function marshalParams(os, params, retvalInfo, paramInfo, optParamInfo, usesClas
     }
 }
 
-function __dispatchImpl(servant, op, incomingAsync, current)
+function dispatchImpl(servant, op, incomingAsync, current)
 {
     //
     // Check to make sure the servant implements the operation.
@@ -280,7 +279,7 @@ function __dispatchImpl(servant, op, incomingAsync, current)
     const method = servant[op.servantMethod];
     if(method === undefined || typeof(method) !== "function")
     {
-        throw new Ice.UnknownException("servant for identity " + Ice.identityToString(current.id) +
+        throw new Ice.UnknownException("servant for identity " + current.adapter.getCommunicator().identityToString(current.id) +
                                        " does not define operation `" + op.servantMethod + "'");
     }
 
@@ -303,9 +302,9 @@ function __dispatchImpl(servant, op, incomingAsync, current)
 
     incomingAsync.setFormat(op.format);
 
-    let marshalFn = function(params)
+    const marshalFn = function(params)
     {
-        let numExpectedResults = op.outParams.length + (op.returns ? 1 : 0);
+        const numExpectedResults = op.outParams.length + (op.returns ? 1 : 0);
         if(numExpectedResults > 1 && !(params instanceof Array))
         {
             throw new Ice.MarshalException("operation `" + op.servantMethod + "' should return an array");
@@ -340,7 +339,7 @@ function __dispatchImpl(servant, op, incomingAsync, current)
         }
     };
 
-    let results = method.apply(servant, params);
+    const results = method.apply(servant, params);
     if(results instanceof Promise)
     {
         return results.then(marshalFn);
@@ -357,7 +356,7 @@ function getServantMethodFromInterfaces(interfaces, methodName, all)
     let method;
     for(let i = 0; method === undefined && i < interfaces.length; ++i)
     {
-        let intf = interfaces[i];
+        const intf = interfaces[i];
         method = intf[methodName];
         if(method === undefined)
         {
@@ -365,21 +364,21 @@ function getServantMethodFromInterfaces(interfaces, methodName, all)
             {
                 all.push(intf);
             }
-            if(intf.__implements)
+            if(intf._iceImplements)
             {
-                method = getServantMethodFromInterfaces(intf.__implements, methodName, all);
+                method = getServantMethodFromInterfaces(intf._iceImplements, methodName, all);
             }
         }
     }
     return method;
 }
 
-const dispatchPrefix = "__op_";
+const dispatchPrefix = "_iceD_";
 
 function getServantMethod(servantType, name)
 {
     //
-    // The dispatch method is named __op_<Slice name> and is stored in the type (not the prototype).
+    // The dispatch method is named _iceD_<Slice name> and is stored in the type (not the prototype).
     //
     const methodName = dispatchPrefix + name;
 
@@ -400,11 +399,11 @@ function getServantMethod(servantType, name)
         let curr = servantType;
         while(curr && method === undefined)
         {
-            if(curr.__implements)
+            if(curr._iceImplements)
             {
-                method = getServantMethodFromInterfaces(curr.__implements, methodName, allInterfaces);
+                method = getServantMethodFromInterfaces(curr._iceImplements, methodName, allInterfaces);
             }
-            curr = curr.__parent;
+            curr = Object.getPrototypeOf(curr);
         }
 
         if(method !== undefined)
@@ -422,9 +421,9 @@ function getServantMethod(servantType, name)
         // Next check the op table for the servant's type.
         //
         let op;
-        if(servantType.__ops)
+        if(servantType._iceOps)
         {
-            op = servantType.__ops.find(name);
+            op = servantType._iceOps.find(name);
         }
 
         let source;
@@ -433,17 +432,17 @@ function getServantMethod(servantType, name)
             //
             // Now check the op tables of the base types.
             //
-            let parent = servantType.__parent;
+            let parent = Object.getPrototypeOf(servantType);
             while(op === undefined && parent)
             {
-                if(parent.__ops)
+                if(parent._iceOps)
                 {
-                    if((op = parent.__ops.find(name)) !== undefined)
+                    if((op = parent._iceOps.find(name)) !== undefined)
                     {
                         source = parent;
                     }
                 }
-                parent = parent.__parent;
+                parent = Object.getPrototypeOf(parent);
             }
 
             //
@@ -451,10 +450,10 @@ function getServantMethod(servantType, name)
             //
             for(let i = 0; op === undefined && i < allInterfaces.length; ++i)
             {
-                let intf = allInterfaces[i];
-                if(intf.__ops)
+                const intf = allInterfaces[i];
+                if(intf._iceOps)
                 {
-                    if((op = intf.__ops.find(name)) !== undefined)
+                    if((op = intf._iceOps.find(name)) !== undefined)
                     {
                         source = intf;
                     }
@@ -466,7 +465,7 @@ function getServantMethod(servantType, name)
         {
             method = function(servant, incomingAsync, current)
             {
-                return __dispatchImpl(servant, op, incomingAsync, current);
+                return dispatchImpl(servant, op, incomingAsync, current);
             };
 
             //
@@ -489,13 +488,13 @@ function getServantMethod(servantType, name)
 
 function addProxyOperation(proxyType, name, data)
 {
-    let method = data[0] ? data[0] : name;
+    const method = data[0] ? data[0] : name;
 
     let op = null;
 
     proxyType.prototype[method] = function()
     {
-        let args = arguments;
+        const args = arguments;
 
         //
         // Parse the operation data on the first invocation of a proxy method.
@@ -505,7 +504,7 @@ function addProxyOperation(proxyType, name, data)
             op = parseOperation(name, data);
         }
 
-        let ctx = args[op.inParams.length]; // The request context is the last argument (if present).
+        const ctx = args[op.inParams.length]; // The request context is the last argument (if present).
 
         let marshalFn = null;
         if(op.inParams.length > 0)
@@ -517,8 +516,8 @@ function addProxyOperation(proxyType, name, data)
                 //
                 for(let i = 0; i < op.inParams.length; ++i)
                 {
-                    let p = op.inParams[i];
-                    let v = params[p.pos];
+                    const p = op.inParams[i];
+                    const v = params[p.pos];
                     if(!p.tag || v !== undefined)
                     {
                         if(typeof p.type.validate === "function")
@@ -546,33 +545,33 @@ function addProxyOperation(proxyType, name, data)
                 //
                 // [retval, out1, out2, ..., asyncResult]
                 //
-                let results = [];
+                const results = [];
 
-                let is = asyncResult.__startReadParams();
+                const is = asyncResult.startReadParams();
                 let retvalInfo;
                 if(op.returns && !op.returns.tag)
                 {
                     retvalInfo = op.returns;
                 }
                 unmarshalParams(is, retvalInfo, op.outParams, op.outParamsOpt, op.returnsClasses, results, 0);
-                asyncResult.__endReadParams();
+                asyncResult.endReadParams();
                 return results.length == 1 ? results[0] : results;
             };
         }
-        return  Ice.ObjectPrx.__invoke(this, op.name, op.sendMode, op.format, ctx, marshalFn, unmarshalFn,
+        return  Ice.ObjectPrx._invoke(this, op.name, op.sendMode, op.format, ctx, marshalFn, unmarshalFn,
                                        op.exceptions, Array.prototype.slice.call(args));
     };
 }
 
 const Slice = Ice.Slice;
-Slice.defineOperations = function(classType, proxyType, ops)
+Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
 {
     if(ops)
     {
-        classType.__ops = new OpTable(ops);
+        classType._iceOps = new OpTable(ops);
     }
 
-    classType.prototype.__dispatch = function(incomingAsync, current)
+    classType.prototype._iceDispatch = function(incomingAsync, current)
     {
         //
         // Retrieve the dispatch method for this operation.
@@ -587,37 +586,62 @@ Slice.defineOperations = function(classType, proxyType, ops)
         return method.call(method, this, incomingAsync, current);
     };
 
-    if(ops)
+    classType.prototype._iceMostDerivedType = function()
     {
-        for(let name in ops)
-        {
-            addProxyOperation(proxyType, name, ops[name]);
-        }
-    }
+        return classType;
+    };
 
-    //
-    // Copy proxy methods from super-interfaces.
-    //
-    if(proxyType.__implements)
+    Object.defineProperty(classType, "_iceIds", {
+        get: () => ids
+    });
+
+    Object.defineProperty(classType, "_iceId", {
+        get: () => ids[pos]
+    });
+
+    classType.ice_staticId = function()
     {
-        for(let intf in proxyType.__implements)
+        return classType._iceId;
+    };
+
+    if(proxyType !== undefined)
+    {
+        if(ops)
         {
-            let proto = proxyType.__implements[intf].prototype;
-            for(let f in proto)
+            for(const name in ops)
             {
-                if(typeof proto[f] == "function" && proxyType.prototype[f] === undefined)
+                addProxyOperation(proxyType, name, ops[name]);
+            }
+        }
+
+        //
+        // Copy proxy methods from super-interfaces.
+        //
+        if(proxyType._implements)
+        {
+            for(const intf in proxyType._implements)
+            {
+                const proto = proxyType._implements[intf].prototype;
+                for(const f in proto)
                 {
-                    proxyType.prototype[f] = proto[f];
+                    if(typeof proto[f] == "function" && proxyType.prototype[f] === undefined)
+                    {
+                        proxyType.prototype[f] = proto[f];
+                    }
                 }
             }
         }
+
+        Object.defineProperty(proxyType, "_id", {
+            get: function(){ return ids[pos]; }
+        });
     }
 };
 
 //
 // Define the "built-in" operations for all Ice objects.
 //
-Slice.defineOperations(Ice.Object, Ice.ObjectPrx,
+Slice.defineOperations(Ice.Object, Ice.ObjectPrx, ["::Ice::Object"], 0,
 {
     "ice_ping": [, 1, 1, , , , , ],
     "ice_isA": [, 1, 1, , [1], [[7]], , ],

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,6 +14,7 @@
 #include <IceUtil/StringUtil.h>
 
 #include <Ice/Instance.h>
+#include <Ice/UniqueRef.h>
 #include <Ice/Network.h>
 #include <Ice/Exception.h>
 #include <Ice/Properties.h>
@@ -68,27 +69,19 @@ IceObjC::StreamAcceptor::accept()
     //
     // Create the read/write streams
     //
-    CFReadStreamRef readStream = nil;
-    CFWriteStreamRef writeStream = nil;
+    UniqueRef<CFReadStreamRef> readStream;
+    UniqueRef<CFWriteStreamRef> writeStream;
     try
     {
-        CFStreamCreatePairWithSocket(NULL, fd, &readStream, &writeStream);
-        _instance->setupStreams(readStream, writeStream, true, "");
-        return new StreamTransceiver(_instance, readStream, writeStream, fd);
+        CFStreamCreatePairWithSocket(ICE_NULLPTR, fd, &readStream.get(), &writeStream.get());
+        _instance->setupStreams(readStream.get(), writeStream.get(), true, "");
+        return new StreamTransceiver(_instance, readStream.release(), writeStream.release(), fd);
     }
     catch(const Ice::LocalException& ex)
     {
         if(fd != INVALID_SOCKET)
         {
             closeSocketNoThrow(fd);
-        }
-        if(readStream)
-        {
-            CFRelease(readStream);
-        }
-        if(writeStream)
-        {
-            CFRelease(writeStream);
         }
         throw;
     }
@@ -132,7 +125,7 @@ IceObjC::StreamAcceptor::StreamAcceptor(const StreamEndpointIPtr& endpoint,
                                         int port) :
     _endpoint(endpoint),
     _instance(instance),
-    _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6()))
+    _addr(getAddressForServer(host, port, instance->protocolSupport(), instance->preferIPv6(), true))
 {
 #ifdef SOMAXCONN
     _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);

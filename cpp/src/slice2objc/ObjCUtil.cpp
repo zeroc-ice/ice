@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -208,6 +208,19 @@ Slice::ObjCGenerator::getParamId(const ContainedPtr& param)
 }
 
 string
+Slice::ObjCGenerator::getParamName(const ContainedPtr& param, bool internal)
+{
+    if(internal)
+    {
+        return "iceP_" + param->name();
+    }
+    else
+    {
+        return fixId(param->name());
+    }
+}
+
+string
 Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
 {
     ClassDefPtr def = ClassDefPtr::dynamicCast(p);
@@ -393,7 +406,7 @@ Slice::ObjCGenerator::outTypeToString(const TypePtr& type, bool optional, bool a
             s += "*";
         }
     }
-    if(autoreleasing && !isValueType(type))
+    if(autoreleasing && (!isValueType(type) || optional))
     {
         s += " ICE_AUTORELEASING_QUALIFIER";
     }
@@ -692,7 +705,7 @@ void
 Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param,
                                                 bool marshal, bool autoreleased) const
 {
-    string stream = marshal ? "os_" : "is_";
+    string stream = marshal ? "ostr" : "istr";
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
 
     if(builtin)
@@ -858,11 +871,11 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
         {
             if(autoreleased)
             {
-                out << nl << param << " = [" << name << " read:" << stream << " value:" << param << "];";
+                out << nl << "[" << name << " read:" << stream << " value:&" << param << "];";
             }
             else
             {
-                out << nl << param << " = [" << name << " readRetained:" << stream << " value:" << param << "];";
+                out << nl << "[" << name << " readRetained:" << stream << " value:&" << param << "];";
             }
         }
         else
@@ -883,7 +896,7 @@ void
 Slice::ObjCGenerator::writeOptMemberMarshalUnmarshalCode(Output &out, const TypePtr& type, const string& param,
                                                          bool marshal) const
 {
-    string stream = marshal ? "os_" : "is_";
+    string stream = marshal ? "ostr" : "istr";
     string optionalHelper;
     string helper;
 
@@ -1009,11 +1022,11 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
         out << nl;
         if(marshal)
         {
-            out << "[" << helper << " writeOptional:" << param << " stream:os_ tag:" << tag << "];";
+            out << "[" << helper << " writeOptional:" << param << " stream:ostr tag:" << tag << "];";
         }
         else
         {
-            out << "[" << helper << " readOptional:&" << param << " stream:is_ tag:" << tag << "];";
+            out << "[" << helper << " readOptional:&" << param << " stream:istr tag:" << tag << "];";
         }
         return;
     }
@@ -1021,11 +1034,11 @@ Slice::ObjCGenerator::writeOptParamMarshalUnmarshalCode(Output &out, const TypeP
     out << nl;
     if(marshal)
     {
-        out << "[" << helper << " writeOptional:" << param << " stream:os_ tag:" << tag << "];";
+        out << "[" << helper << " writeOptional:" << param << " stream:ostr tag:" << tag << "];";
     }
     else
     {
-        out << param << " = [" << helper << " readOptional:is_ tag:" << tag << "];";
+        out << param << " = [" << helper << " readOptional:istr tag:" << tag << "];";
     }
 }
 
@@ -1038,10 +1051,6 @@ Slice::ObjCGenerator::validateMetaData(const UnitPtr& u)
 
 const string Slice::ObjCGenerator::MetaDataVisitor::_objcPrefix = "objc:";
 const string Slice::ObjCGenerator::MetaDataVisitor::_msg = "ignoring invalid metadata";
-
-Slice::ObjCGenerator::MetaDataVisitor::MetaDataVisitor()
-{
-}
 
 bool
 Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
@@ -1058,34 +1067,50 @@ Slice::ObjCGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
         assert(dc);
         StringList globalMetaData = dc->getMetaData();
         int headerDir = 0;
-        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end(); ++r)
+        int dllExport = 0;
+        for(StringList::const_iterator r = globalMetaData.begin(); r != globalMetaData.end();)
         {
-            string s = *r;
-            if(_history.count(s) == 0)
+            string s = *r++;
+
+            if(s.find(_objcPrefix) == 0)
             {
-                if(s.find(_objcPrefix) == 0)
+                static const string objcHeaderDirPrefix = "objc:header-dir:";
+                static const string objcDllExportPrefix = "objc:dll-export:";
+                if(s.find(objcHeaderDirPrefix) == 0 && s.size() > objcHeaderDirPrefix.size())
                 {
-                    static const string objcHeaderDirPrefix = "objc:header-dir:";
-                    if(s.find(objcHeaderDirPrefix) == 0 && s.size() > objcHeaderDirPrefix.size())
+                    headerDir++;
+                    if(headerDir > 1)
                     {
-                        headerDir++;
-                        if(headerDir > 1)
-                        {
-                            ostringstream ostr;
-                            ostr << "ignoring invalid global metadata `" << s
-                                 << "': directive can appear only once per file";
-                            emitWarning(file, -1, ostr.str());
-                            _history.insert(s);
-                        }
-                        continue;
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        dc->warning(InvalidMetaData, file, -1, ostr.str());
+                        globalMetaData.remove(s);
                     }
-                    ostringstream ostr;
-                    ostr << "ignoring invalid global metadata `" << s << "'";
-                    emitWarning(file, -1, ostr.str());
+                    continue;
                 }
-                _history.insert(s);
+                else if(s.find(objcDllExportPrefix) == 0 && s.size() > objcDllExportPrefix.size())
+                {
+                    dllExport++;
+                    if(dllExport > 1)
+                    {
+                        ostringstream ostr;
+                        ostr << "ignoring invalid global metadata `" << s
+                             << "': directive can appear only once per file";
+                        dc->warning(InvalidMetaData, file, -1, ostr.str());
+                        globalMetaData.remove(s);
+                    }
+                    continue;
+                }
+
+                ostringstream ostr;
+                ostr << "ignoring invalid global metadata `" << s << "'";
+                dc->warning(InvalidMetaData, file, -1, ostr.str());
+
+                globalMetaData.remove(s);
             }
         }
+        dc->setMetaData(globalMetaData);
     }
 
     return true;
@@ -1148,19 +1173,6 @@ Slice::ObjCGenerator::MetaDataVisitor::visitStructEnd(const StructPtr&)
 void
 Slice::ObjCGenerator::MetaDataVisitor::visitOperation(const OperationPtr& p)
 {
-    if(p->hasMetaData("UserException"))
-    {
-        ClassDefPtr cl = ClassDefPtr::dynamicCast(p->container());
-        if(!cl->isLocal())
-        {
-            ostringstream os;
-            os << "ignoring invalid metadata `UserException': directive applies only to local operations "
-               << ": warning: metadata directive `UserException' applies only to local operations "
-               << "but enclosing " << (cl->isInterface() ? "interface" : "class") << "`" << cl->name()
-               << "' is not local";
-            emitWarning(p->file(), p->line(), os.str());
-        }
-    }
     validate(p);
 }
 
@@ -1210,49 +1222,39 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
         bool foundPrefix = false;
 
         StringList meta = getMetaData(m);
-        StringList::const_iterator p;
-
-        for(p = meta.begin(); p != meta.end(); ++p)
+        for(StringList::iterator p = meta.begin(); p != meta.end();)
         {
-            const string prefix = "prefix:";
+            string s = *p++;
+            const string prefix = "objc:prefix:";
             string name;
-            if(p->substr(_objcPrefix.size(), prefix.size()) == prefix)
+            if(s.find(prefix) == 0)
             {
                 foundPrefix = true;
-                name = trim(p->substr(_objcPrefix.size() + prefix.size()));
+                name = trim(s.substr(prefix.size()));
                 if(name.empty())
                 {
-                    if(_history.count(*p) == 0)
-                    {
-                        string file = m->definitionContext()->filename();
-                        ostringstream os;
-                        os << _msg << " `" << *p << "'" << endl;
-                        emitWarning(file, m->line(), os.str());
-                        _history.insert(*p);
-                    }
+                    m->definitionContext()->warning(InvalidMetaData, m->definitionContext()->filename(),
+                                                    m->line(), _msg + " `" + s + "'");
+                    meta.remove(s);
                     error = true;
                 }
                 else
                 {
                     if(!addModule(m, name))
                     {
-                        modulePrefixError(m, *p);
+                        modulePrefixError(m, s);
                     }
                 }
             }
             else
             {
-                if(_history.count(*p) == 0)
-                {
-                    string file = m->definitionContext()->filename();
-                    ostringstream os;
-                    os << _msg << " `" << *p << "'" << endl;
-                    emitWarning(file, m->line(), os.str());
-                    _history.insert(*p);
-                }
+                m->definitionContext()->warning(InvalidMetaData, m->definitionContext()->filename(),
+                                                m->line(), _msg + " `" + s + "'");
+                meta.remove(s);
                 error = true;
             }
         }
+        setMetaData(m, meta);
 
         if(!error && !foundPrefix)
         {
@@ -1268,24 +1270,58 @@ Slice::ObjCGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
             }
         }
     }
+
+    EnumPtr en = EnumPtr::dynamicCast(cont);
+    if(en)
+    {
+        StringList meta = getMetaData(en);
+        for(StringList::iterator p = meta.begin(); p != meta.end();)
+        {
+            string s = *p;
+            if(s != "objc:scoped")
+            {
+                en->definitionContext()->warning(InvalidMetaData, en->definitionContext()->filename(),
+                                                en->line(), _msg + " `" + s + "'");
+                meta.erase(p++);
+            }
+            else
+            {
+                ++p;
+            }
+        }
+        setMetaData(en, meta);
+    }
 }
 
 StringList
 Slice::ObjCGenerator::MetaDataVisitor::getMetaData(const ContainedPtr& cont)
 {
-    StringList ret;
     StringList localMetaData = cont->getMetaData();
-    StringList::const_iterator p;
-
-    for(p = localMetaData.begin(); p != localMetaData.end(); ++p)
+    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
     {
-        if(p->find(_objcPrefix) != string::npos)
+        string s = *p++;
+        if(s.find(_objcPrefix) != 0)
         {
-            ret.push_back(*p);
+            localMetaData.remove(s);
         }
     }
+    return localMetaData;
+}
 
-    return ret;
+void
+Slice::ObjCGenerator::MetaDataVisitor::setMetaData(const ContainedPtr& cont, const StringList& metadata)
+{
+    StringList localMetaData = cont->getMetaData();
+    for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)
+    {
+        string s = *p++;
+        if(s.find(_objcPrefix) == 0)
+        {
+            localMetaData.remove(s);
+        }
+    }
+    localMetaData.insert(localMetaData.end(), metadata.begin(), metadata.end());
+    cont->setMetaData(localMetaData);
 }
 
 void
@@ -1312,5 +1348,5 @@ Slice::ObjCGenerator::MetaDataVisitor::modulePrefixError(const ModulePtr& m, con
     }
     os << line;
     os << " as `" << mp.name << "'" << endl;
-    emitWarning(file, line, os.str());
+    m->definitionContext()->warning(All, file, line, os.str());
 }

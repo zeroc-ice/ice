@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@ public class AMDServer extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         adapter.add(new AMDMyDerivedClassI(), com.zeroc.Ice.Util.stringToIdentity("test"));
         adapter.activate();
@@ -22,18 +22,18 @@ public class AMDServer extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
         //
         // It's possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
         // scheduling so we suppress this warning.
         //
-        r.initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations.AMD");
+        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations.AMD");
 
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)

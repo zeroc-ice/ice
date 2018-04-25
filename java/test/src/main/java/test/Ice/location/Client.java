@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,12 +38,12 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
-        r.initData.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010");
-        return r;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
+        initData.properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(initData.properties, 0));
+        return initData;
     }
 
     public static void main(String[] args)

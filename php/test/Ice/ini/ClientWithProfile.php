@@ -1,7 +1,7 @@
 <?php
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,12 +27,11 @@ function test($b)
 }
 
 $NS = function_exists("Ice\\initialize");
-require_once ($NS ? 'Ice_ns.php' : 'Ice.php');
+require_once ('Ice.php');
 
 //
 // Load the Demo profile.
 //
-
 
 $communicator = null;
 

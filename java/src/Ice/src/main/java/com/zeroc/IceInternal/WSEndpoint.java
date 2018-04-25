@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -205,19 +205,43 @@ final class WSEndpoint extends EndpointI
 
     public WSEndpoint endpoint(EndpointI delEndp)
     {
-        return new WSEndpoint(_instance, delEndp, _resource);
+        if(delEndp == _delegate)
+        {
+            return this;
+        }
+        else
+        {
+            return new WSEndpoint(_instance, delEndp, _resource);
+        }
     }
 
     @Override
-    public java.util.List<EndpointI> expand()
+    public java.util.List<EndpointI> expandIfWildcard()
     {
-        java.util.List<EndpointI> endps = _delegate.expand();
+        java.util.List<EndpointI> endps = _delegate.expandIfWildcard();
         java.util.List<EndpointI> l = new java.util.ArrayList<>();
         for(EndpointI e : endps)
         {
             l.add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
         }
         return l;
+    }
+
+    @Override
+    public EndpointI.ExpandHostResult expandHost()
+    {
+        EndpointI.ExpandHostResult result = _delegate.expandHost();
+        java.util.List<EndpointI> l = new java.util.ArrayList<>();
+        for(EndpointI e : result.endpoints)
+        {
+            l.add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
+        }
+        result.endpoints = l;
+        if(result.publish != null)
+        {
+            result.publish = result.publish == _delegate ? this : new WSEndpoint(_instance, result.publish, _resource);
+        }
+        return result;
     }
 
     @Override

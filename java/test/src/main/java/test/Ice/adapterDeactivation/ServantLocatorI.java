@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,11 +14,35 @@ import com.zeroc.Ice.ServantLocator;
 
 public final class ServantLocatorI implements ServantLocator
 {
+    final static class RouterI implements com.zeroc.Ice.Router
+    {
+        public com.zeroc.Ice.Router.GetClientProxyResult getClientProxy(com.zeroc.Ice.Current current)
+        {
+            return new com.zeroc.Ice.Router.GetClientProxyResult();
+        }
+
+        public com.zeroc.Ice.ObjectPrx getServerProxy(com.zeroc.Ice.Current current)
+        {
+            StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
+            s.append(_nextPort++);
+            s.append(" -t 30000");
+            return current.adapter.getCommunicator().stringToProxy(s.toString());
+        }
+
+        public com.zeroc.Ice.ObjectPrx[] addProxies(com.zeroc.Ice.ObjectPrx[] proxies, com.zeroc.Ice.Current current)
+        {
+            return null;
+        }
+
+        private int _nextPort = 23456;
+    }
+
     public ServantLocatorI()
     {
         _deactivated = false;
     }
 
+    @SuppressWarnings( "deprecation" )
     protected synchronized void finalize()
         throws Throwable
     {
@@ -40,6 +64,11 @@ public final class ServantLocatorI implements ServantLocator
             test(!_deactivated);
         }
 
+        if(current.id.name.equals("router"))
+        {
+            return new ServantLocator.LocateResult(_router, null);
+        }
+
         test(current.id.category.length() == 0);
         test(current.id.name.equals("test"));
 
@@ -51,6 +80,11 @@ public final class ServantLocatorI implements ServantLocator
         synchronized(this)
         {
             test(!_deactivated);
+        }
+
+        if(current.id.name.equals("router"))
+        {
+            return;
         }
 
         Cookie co = (Cookie)cookie;
@@ -68,4 +102,5 @@ public final class ServantLocatorI implements ServantLocator
     }
 
     private boolean _deactivated;
+    private com.zeroc.Ice.Object _router = new RouterI();
 }

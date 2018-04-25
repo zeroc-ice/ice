@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,7 +31,7 @@ getClassInfo(const string& id)
         // When the ID is that of Ice::Object, it indicates that the stream has not
         // found a factory and is providing us an opportunity to preserve the object.
         //
-        info = lookupClassInfo("::Ice::UnknownSlicedObject");
+        info = lookupClassInfo("::Ice::UnknownSlicedValue");
     }
     else
     {
@@ -102,7 +102,7 @@ IceRuby::ValueFactoryManager::add(const Ice::ValueFactoryPtr& f, const string& i
 }
 
 Ice::ValueFactoryPtr
-IceRuby::ValueFactoryManager::find(const string& id) const
+IceRuby::ValueFactoryManager::find(const string& id) const ICE_NOEXCEPT
 {
     Lock lock(*this);
 
@@ -219,6 +219,13 @@ IceRuby::ValueFactoryManager::destroy()
 
     {
         Lock lock(*this);
+        if(_self == Qnil)
+        {
+            //
+            // Nothing to do if already destroyed (this can occur if communicator destroy is called multiple times)
+            //
+            return;
+        }
 
         factories.swap(_factories);
 

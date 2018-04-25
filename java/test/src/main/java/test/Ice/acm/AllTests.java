@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,6 +10,7 @@
 package test.Ice.acm;
 
 import java.io.PrintWriter;
+import java.util.concurrent.CompletableFuture;
 
 import test.Ice.acm.Test.RemoteCommunicatorPrx;
 import test.Ice.acm.Test.RemoteObjectAdapterPrx;
@@ -147,7 +148,7 @@ public class AllTests
             com.zeroc.Ice.InitializationData initData = _app.createInitializationData();
             initData.properties = _app.communicator().getProperties()._clone();
             initData.logger = _logger;
-            initData.properties.setProperty("Ice.ACM.Timeout", "1");
+            initData.properties.setProperty("Ice.ACM.Timeout", "2");
             if(_clientACMTimeout >= 0)
             {
                 initData.properties.setProperty("Ice.ACM.Client.Timeout", Integer.toString(_clientACMTimeout));
@@ -164,15 +165,7 @@ public class AllTests
             //initData.properties.setProperty("Ice.Trace.Network", "2");
             _communicator = _app.initialize(initData);
 
-            _thread = new Thread(
-                new Runnable()
-                {
-                    public void
-                    run()
-                    {
-                        TestCase.this.run();
-                    }
-                });
+            _thread = new Thread(() -> { TestCase.this.run(); });
         }
 
         public void start()
@@ -214,6 +207,7 @@ public class AllTests
         {
             TestIntfPrx proxy = TestIntfPrx.uncheckedCast(_communicator.stringToProxy(
                 _adapter.getTestIntf().toString()));
+
             try
             {
                 proxy.ice_getConnection().setCloseCallback(con ->
@@ -248,10 +242,10 @@ public class AllTests
                 long now = com.zeroc.IceInternal.Time.currentMonotonicTimeMillis();
                 try
                 {
-                    wait(1000);
-                    if(com.zeroc.IceInternal.Time.currentMonotonicTimeMillis() - now > 1000)
+                    wait(2000);
+                    if(com.zeroc.IceInternal.Time.currentMonotonicTimeMillis() - now > 2000)
                     {
-                        test(false); // Waited for more than 1s for close, something's wrong.
+                        test(false); // Waited for more than 2s for close, something's wrong.
                     }
                 }
                 catch(java.lang.InterruptedException ex)
@@ -302,12 +296,13 @@ public class AllTests
         public InvocationHeartbeatTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
             super(app, "invocation heartbeat", com, out);
+            setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
         }
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            proxy.sleep(2);
-            test(_heartbeat >= 2);
+            proxy.sleep(4);
+            test(_heartbeat >= 4);
         }
     }
 
@@ -343,7 +338,7 @@ public class AllTests
         public InvocationNoHeartbeatTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
         {
             super(app, "invocation with no heartbeat", com, out);
-            setServerACM(1, 2, 0); // Disable heartbeat on invocations
+            setServerACM(2, 2, 0); // Disable heartbeat on invocations
         }
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
@@ -382,7 +377,7 @@ public class AllTests
         {
             // No close on invocation, the call should succeed this
             // time.
-            proxy.sleep(2);
+            proxy.sleep(3);
 
             synchronized(this)
             {
@@ -404,7 +399,7 @@ public class AllTests
         {
             try
             {
-                Thread.sleep(1500); // Idle for 1.5 second
+                Thread.sleep(3000); // Idle for 3 seconds
             }
             catch(java.lang.InterruptedException ex)
             {
@@ -431,7 +426,7 @@ public class AllTests
         {
             try
             {
-                Thread.sleep(1500); // Idle for 1.5 second
+                Thread.sleep(3000); // Idle for 3 seconds
             }
             catch(java.lang.InterruptedException ex)
             {
@@ -463,7 +458,7 @@ public class AllTests
             adapter.hold();
             try
             {
-                Thread.sleep(1500); // Idle for 1.5 second
+                Thread.sleep(3000); // Idle for 3 seconds
             }
             catch(java.lang.InterruptedException ex)
             {
@@ -478,7 +473,7 @@ public class AllTests
             adapter.activate();
             try
             {
-                Thread.sleep(500);
+                Thread.sleep(1000);
             }
             catch(java.lang.InterruptedException ex)
             {
@@ -501,7 +496,7 @@ public class AllTests
             adapter.hold();
             try
             {
-                Thread.sleep(1500); // Idle for 1.5 second
+                Thread.sleep(3000); // Idle for 3 seconds
             }
             catch(java.lang.InterruptedException ex)
             {
@@ -526,7 +521,7 @@ public class AllTests
         {
             try
             {
-                Thread.sleep(2000);
+                Thread.sleep(3000);
             }
             catch(java.lang.InterruptedException ex)
             {
@@ -549,12 +544,12 @@ public class AllTests
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
-            for(int i = 0; i < 12; i++)
+            for(int i = 0; i < 10; i++)
             {
                 proxy.ice_ping();
                 try
                 {
-                    Thread.sleep(200);
+                    Thread.sleep(300);
                 }
                 catch(java.lang.InterruptedException ex)
                 {
@@ -568,6 +563,31 @@ public class AllTests
         }
     }
 
+    static class HeartbeatManualTest extends TestCase
+    {
+        public HeartbeatManualTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
+        {
+            super(app, "manual heartbeats", com, out);
+            //
+            // Disable heartbeats.
+            //
+            setClientACM(10, -1, 0);
+            setServerACM(10, -1, 0);
+        }
+
+        public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
+        {
+            proxy.startHeartbeatCount();
+            com.zeroc.Ice.Connection con = proxy.ice_getConnection();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            con.heartbeat();
+            proxy.waitForHeartbeatCount(5);
+        }
+    }
+
     static class SetACMTest extends TestCase
     {
         public SetACMTest(Application app, RemoteCommunicatorPrx com, java.io.PrintWriter out)
@@ -578,37 +598,94 @@ public class AllTests
 
         public void runTestCase(RemoteObjectAdapterPrx adapter, TestIntfPrx proxy)
         {
+            com.zeroc.Ice.Connection con = proxy.ice_getConnection();
+
+            try
+            {
+                con.setACM(java.util.OptionalInt.of(-19), null, null);
+                test(false);
+            }
+            catch(IllegalArgumentException ex)
+            {
+            }
+
             com.zeroc.Ice.ACM acm = new com.zeroc.Ice.ACM();
-            acm = proxy.ice_getCachedConnection().getACM();
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(null, null, null);
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(null, null, null);
+            acm = con.getACM();
             test(acm.timeout == 15);
             test(acm.close == ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == ACMHeartbeat.HeartbeatOff);
 
-            proxy.ice_getCachedConnection().setACM(
-                java.util.OptionalInt.of(1),
-                java.util.Optional.of(ACMClose.CloseOnInvocationAndIdle),
-                java.util.Optional.of(ACMHeartbeat.HeartbeatAlways));
-            acm = proxy.ice_getCachedConnection().getACM();
+            con.setACM(java.util.OptionalInt.of(1),
+                       java.util.Optional.of(ACMClose.CloseOnInvocationAndIdle),
+                       java.util.Optional.of(ACMHeartbeat.HeartbeatAlways));
+            acm = con.getACM();
             test(acm.timeout == 1);
             test(acm.close == ACMClose.CloseOnInvocationAndIdle);
             test(acm.heartbeat == ACMHeartbeat.HeartbeatAlways);
 
             // Make sure the client sends few heartbeats to the server
-            proxy.waitForHeartbeat(2);
+            proxy.startHeartbeatCount();
+            proxy.waitForHeartbeatCount(2);
+
+            final CompletableFuture<Void> f1 = new CompletableFuture<>();
+            con.setCloseCallback(c ->
+                    {
+                        f1.complete(null);
+                    });
+
+            con.close(com.zeroc.Ice.ConnectionClose.Gracefully);
+            try
+            {
+                f1.get();
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            try
+            {
+                con.throwException();
+                test(false);
+            }
+            catch(com.zeroc.Ice.ConnectionManuallyClosedException ex)
+            {
+            }
+
+            final CompletableFuture<Void> f2 = new CompletableFuture<>();
+            con.setCloseCallback(c ->
+                    {
+                        f2.complete(null);
+                    });
+            try
+            {
+                f2.get();
+            }
+            catch(Exception ex)
+            {
+                test(false);
+            }
+
+            con.setHeartbeatCallback(c ->
+                    {
+                        test(false);
+                    });
         }
     }
 
     public static void
-    allTests(test.Util.Application app, PrintWriter out)
+    allTests(test.Util.Application app)
     {
         com.zeroc.Ice.Communicator communicator = app.communicator();
-        String ref = "communicator:default -p 12010";
+        PrintWriter out = app.getWriter();
+
+        String ref = "communicator:" + app.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
         java.util.List<TestCase> tests = new java.util.ArrayList<>();
@@ -625,6 +702,7 @@ public class AllTests
 
         tests.add(new HeartbeatOnIdleTest(app, com, out));
         tests.add(new HeartbeatAlwaysTest(app, com, out));
+        tests.add(new HeartbeatManualTest(app, com, out));
         tests.add(new SetACMTest(app, com, out));
 
         for(TestCase test : tests)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,98 +9,81 @@
 
 (function(module, require, exports)
 {
-    var Ice = require("ice").Ice;
-    var Test = require("Test").Test;
+    const Ice = require("ice").Ice;
+    const Test = require("Test").Test;
 
-    var run = function(communicator, prx, Test, bidir)
+    async function run(communicator, prx, Test, bidir)
     {
-        var Promise = Ice.Promise;
-        var bs1, bs2, batch, batch2, batch3;
-        var p = new Promise();
-        var test = function(b)
+        function test(value)
         {
-            if(!b)
+            if(!value)
             {
-                try
-                {
-                    throw new Error("test failed");
-                }
-                catch(err)
-                {
-                    p.fail(err);
-                    throw err;
-                }
+                throw new Error("test failed");
             }
-        };
+        }
 
-        Promise.try(() =>
-            {
-                var i;
-                bs1 = Ice.Buffer.createNative(new Array(10 * 1024));
-                for(i = 0; i < bs1.length; ++i)
-                {
-                    bs1[i] = 0;
-                }
-                return prx.opByteSOnewayCallCount();
-            }
-        ).then(count =>
-            {
-                batch = prx.ice_batchOneway();
-                return batch.ice_getConnection();
-            }
-        ).then(() =>
-            {
-                test(batch.ice_flushBatchRequests().isCompleted()); // Empty flush
-                test(batch.ice_flushBatchRequests().isSent()); // Empty flush
-                test(batch.ice_flushBatchRequests().sentSynchronously()); // Empty flush
+        let bs1 = new Uint8Array(10 * 1024);
+        for(let i = 0; i < bs1.length; ++i)
+        {
+            bs1[i] = 0;
+        }
 
-                var all = [];
-                for(var i = 0; i < 30; ++i)
-                {
-                    all[i] = batch.opByteSOneway(bs1);
-                }
+        let batch = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
+        await batch.ice_flushBatchRequests();
 
-                return Promise.all(all).then(() =>
-                    {
-                        var wait = function(count)
-                        {
-                            if(count < 27) // 3 * 9 requests auto-flushed.
-                            {
-                                return Promise.delay(10)
-                                              .then(() => prx.opByteSOnewayCallCount())
-                                              .then(n => wait(n + count));
-                            }
-                        };
-                        return wait(0);
-                    });
-            }
-        ).then(() =>
-            {
-                batch2 = prx.ice_batchOneway();
-                return Promise.all([batch.ice_ping(), batch2.ice_ping()]);
-            }
-        ).then(count => batch.ice_flushBatchRequests()
-        ).then(() => prx.opByteSOnewayCallCount()
-        ).then(() => batch.ice_getConnection()
-        ).then(con => bidir ? undefined : con.close(false)
-        ).then(() => Promise.all([batch.ice_ping(), batch2.ice_ping()])
-        ).then(() =>
-            {
-                var identity = Ice.stringToIdentity("invalid");
-                batch3 = batch.ice_identity(identity);
-                return batch3.ice_ping();
-            }
-        ).then(() => batch3.ice_flushBatchRequests()
+        test(batch.ice_flushBatchRequests().isCompleted()); // Empty flush
+        test(batch.ice_flushBatchRequests().isSent()); // Empty flush
+        test(batch.ice_flushBatchRequests().sentSynchronously()); // Empty flush
+
+        for(let i = 0; i < 30; ++i)
+        {
+            await batch.opByteSOneway(bs1);
+        }
+
+        let count = 0;
+        while(count < 27) // 3 * 9 requests auto-flushed.
+        {
+            count += await prx.opByteSOnewayCallCount();
+            await Ice.Promise.delay(10);
+        }
+
+        if(batch.ice_getConnection() != null)
+        {
+            let batch1 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
+            let batch2 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
+
+            batch1.ice_ping();
+            batch2.ice_ping();
+            await batch1.ice_flushBatchRequests();
+            await batch1.ice_getConnection().then(c => c.close(Ice.ConnectionClose.GracefullyWithWait));
+            batch1.ice_ping();
+            batch2.ice_ping();
+
+            await batch1.ice_getConnection();
+            await batch2.ice_getConnection();
+
+            batch1.ice_ping();
+            await batch1.ice_getConnection().then(c => c.close(Ice.ConnectionClose.GracefullyWithWait));
+
+            batch1.ice_ping();
+            batch2.ice_ping();
+        }
+
+        let identity = new Ice.Identity();
+        identity.name = "invalid";
+        let batch3 = batch.ice_identity(identity);
+        batch3.ice_ping();
+        await batch3.ice_flushBatchRequests();
+
         // Make sure that a bogus batch request doesn't cause troubles to other ones.
-        ).then(() => Promise.all([batch3.ice_ping(), batch.ice_ping()])
-        ).then(() => batch.ice_flushBatchRequests()
-        ).then(() => prx.opByteSOnewayCallCount()
-        ).then(p.resolve, p.reject);
-        return p;
+        batch3.ice_ping();
+        batch.ice_ping();
+        await batch.ice_flushBatchRequests();
+        await batch.ice_ping();
     };
 
     exports.BatchOneways = { run: run };
 }
 (typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice.__require,
+ typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
  typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));

@@ -1,6 +1,6 @@
 ﻿// **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,13 +8,14 @@
 // **********************************************************************
 
 using System;
+using System.ComponentModel;
 
 namespace Ice
 {
     [Serializable]
     public abstract class Value : ICloneable
     {
-        public static readonly string static_id__ = "::Ice::Object";
+        private const string _id = "::Ice::Object";
 
         /// <summary>
         /// Returns the Slice type ID of the interface supported by this object.
@@ -22,7 +23,7 @@ namespace Ice
         /// <returns>The return value is always ::Ice::Object.</returns>
         public static string ice_staticId()
         {
-            return static_id__;
+            return _id;
         }
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace Ice
         /// <returns>The return value is always ::Ice::Object.</returns>
         public virtual string ice_id()
         {
-            return static_id__;
+            return _id;
         }
 
         /// <summary>
@@ -50,25 +51,39 @@ namespace Ice
         {
         }
 
-        public virtual void write__(OutputStream os__)
+        /// <summary>
+        /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+        /// un-marshaling of the value, null is returned otherwise.
+        /// </summary>
+        /// <returns>The sliced data or null.</returns>
+        public virtual SlicedData ice_getSlicedData()
         {
-            os__.startValue(null);
-            writeImpl__(os__);
-            os__.endValue();
+            return null;
         }
 
-        public virtual void read__(InputStream is__)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void iceWrite(OutputStream ostr)
         {
-            is__.startValue();
-            readImpl__(is__);
-            is__.endValue(false);
+            ostr.startValue(null);
+            iceWriteImpl(ostr);
+            ostr.endValue();
         }
 
-        protected virtual void writeImpl__(OutputStream os__)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public virtual void iceRead(InputStream istr)
+        {
+            istr.startValue();
+            iceReadImpl(istr);
+            istr.endValue(false);
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected virtual void iceWriteImpl(OutputStream ostr)
         {
         }
 
-        protected virtual void readImpl__(InputStream is__)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected virtual void iceReadImpl(InputStream istr)
         {
         }
 
@@ -87,26 +102,28 @@ namespace Ice
     {
         public InterfaceByValue(string id)
         {
-            id_ = id;
+            _id = id;
         }
 
         public override string ice_id()
         {
-            return id_;
+            return _id;
         }
 
-        protected override void writeImpl__(OutputStream os__)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected override void iceWriteImpl(OutputStream ostr)
         {
-            os__.startSlice(ice_id(), -1, true);
-            os__.endSlice();
+            ostr.startSlice(ice_id(), -1, true);
+            ostr.endSlice();
         }
 
-        protected override void readImpl__(InputStream is__)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        protected override void iceReadImpl(InputStream istr)
         {
-            is__.startSlice();
-            is__.endSlice();
+            istr.startSlice();
+            istr.endSlice();
         }
 
-        private string id_;
-    } 
+        private string _id;
+    }
 }

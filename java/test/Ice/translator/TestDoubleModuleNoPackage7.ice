@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,13 +28,13 @@ struct dmnpTest7Struct
     dmnpStringStructDict dict;
     dmnpClass c;
     dmnpInterface i;
-};
+}
 
 sequence<dmnpStruct> dmnpTest7StructSeq;
 
 dictionary<dmnpStruct, dmnpBaseClass> dmnpTest7StructClassSeq;
 
-interface dmnpTest7Interface extends dmnpInterface {};
+interface dmnpTest7Interface extends dmnpInterface {}
 
 exception dmnpTest7Exception extends dmnpException
 {
@@ -44,7 +44,7 @@ exception dmnpTest7Exception extends dmnpException
     dmnpStringStructDict dict1;
     dmnpClass c1;
     dmnpInterface i1;
-};
+}
 
 class dmnpTest7Class extends dmnpBaseClass implements dmnpBaseInterface
 {
@@ -78,7 +78,7 @@ class dmnpTest7Class extends dmnpBaseClass implements dmnpBaseInterface
                  out dmnpInterface o5,
                  out dmnpClass o6)
         throws dmnpException;
-};
+}
 
-};
-};
+}
+}

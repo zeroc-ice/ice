@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,16 +14,8 @@ package Glacier2;
  */
 public class SessionHelper
 {
-    /**
-     * Creates a Glacier2 session.
-     *
-     * @param callback The callback for notifications about session establishment.
-     * @param initData The {@link Ice.InitializationData} for initializing the communicator.
-     * @param finderStr The stringified Ice.RouterFinder proxy.
-     * @param useCallbacks True if the session should create an object adapter for receiving callbacks.
-     */
-    public SessionHelper(SessionCallback callback, Ice.InitializationData initData, String finderStr,
-                         boolean useCallbacks)
+    SessionHelper(SessionCallback callback, Ice.InitializationData initData, String finderStr,
+                  boolean useCallbacks)
     {
         _callback = callback;
         _initData = initData;
@@ -34,7 +26,7 @@ public class SessionHelper
     /**
      * Destroys the Glacier2 session.
      *
-     * Once the session has been destroyed, {@link SessionCallback.disconnected} is called on
+     * Once the session has been destroyed, {@link SessionCallback#disconnected} is called on
      * the associated callback object.
      */
     public void
@@ -142,20 +134,13 @@ public class SessionHelper
     }
 
     /**
-     * Returns the Glacier2 session proxy. If the session hasn't been established yet,
-     * or the session has already been destroyed, throws SessionNotExistException.
-     * @return The session proxy, or throws SessionNotExistException if no session exists.
-     * @throws SessionNotExistException No session exists.
+     * Returns the Glacier2 session proxy, or null if the session hasn't been established yet
+     * or the session has already been destroyed.
+     * @return The session proxy, or null if no session exists.
      */
-    synchronized public Glacier2.SessionPrx
+    synchronized public SessionPrx
     session()
-        throws SessionNotExistException
     {
-        if(_session == null)
-        {
-            throw new SessionNotExistException();
-        }
-
         return _session;
     }
 
@@ -202,19 +187,11 @@ public class SessionHelper
 
     private interface ConnectStrategy
     {
-        Glacier2.SessionPrx
-        connect(Glacier2.RouterPrx router)
+        SessionPrx
+        connect(RouterPrx router)
             throws CannotCreateSessionException, PermissionDeniedException;
     }
 
-    /**
-     * Connects to the Glacier2 router using the associated SSL credentials.
-     *
-     * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure, {@link SessionCallback#exception} is called with the exception.
-     *
-     * @param context The request context to use when creating the session.
-     */
     synchronized protected void
     connect(final java.util.Map<String, String> context)
     {
@@ -229,16 +206,6 @@ public class SessionHelper
                             });
     }
 
-    /**
-     * Connects a Glacier2 session using user name and password credentials.
-     *
-     * Once the connection is established, {@link SessionCallback#connected} is called on the callback object;
-     * upon failure {@link SessionCallback.exception} is called with the exception.
-     *
-     * @param username The user name.
-     * @param password The password.
-     * @param context The request context to use when creating the session.
-     */
     synchronized protected void
     connect(final String username, final String password, final java.util.Map<String, String> context)
     {
@@ -385,7 +352,7 @@ public class SessionHelper
     destroyInternal()
     {
         assert _destroy;
-        Glacier2.RouterPrx router = null;
+        RouterPrx router = null;
         Ice.Communicator communicator = null;
         synchronized(this)
         {
@@ -426,13 +393,7 @@ public class SessionHelper
             communicator.getLogger().warning("SessionHelper: unexpected exception when destroying the session:\n" + e);
         }
 
-        try
-        {
-            communicator.destroy();
-        }
-        catch(Throwable ex)
-        {
-        }
+        communicator.destroy();
 
         //
         // Notify the callback that the session is gone.
@@ -458,13 +419,7 @@ public class SessionHelper
 
         if(communicator != null)
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(Throwable ex)
-            {
-            }
+            communicator.destroy();
         }
     }
 
@@ -472,20 +427,25 @@ public class SessionHelper
     connectImpl(final ConnectStrategy factory)
     {
         assert !_destroy;
-
-        try
+        new Thread(new Runnable()
         {
-            _communicator = Ice.Util.initialize(_initData);
-        }
-        catch(final Ice.LocalException ex)
-        {
-            _destroy = true;
-            new Thread(new Runnable()
+            @Override
+            public void run()
+            {
+                try
                 {
-                    @Override
-                    public void run()
+                    synchronized(SessionHelper.this)
                     {
-                        dispatchCallback(new Runnable()
+                        _communicator = Ice.Util.initialize(_initData);
+                    }
+                }
+                catch(final Ice.LocalException ex)
+                {
+                    synchronized(SessionHelper.this)
+                    {
+                        _destroy = true;
+                    }
+                    dispatchCallback(new Runnable()
                         {
                             @Override
                             public void run()
@@ -493,20 +453,13 @@ public class SessionHelper
                                 _callback.connectFailed(SessionHelper.this, ex);
                             }
                         }, null);
-                    }
-                }).start();
-            return;
-        }
+                    return;
+                }
 
-        final Ice.RouterFinderPrx finder =
-            Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
-        new Thread(new Runnable()
-        {
-            @Override
-            public void run()
-            {
                 if(_communicator.getDefaultRouter() == null)
                 {
+                    final Ice.RouterFinderPrx finder =
+                        Ice.RouterFinderPrxHelper.uncheckedCast(_communicator.stringToProxy(_finderStr));
                     try
                     {
                         _communicator.setDefaultRouter(finder.getRouter());
@@ -545,20 +498,13 @@ public class SessionHelper
                         }
                     });
 
-                    Glacier2.RouterPrx routerPrx = Glacier2.RouterPrxHelper.uncheckedCast(
-                        _communicator.getDefaultRouter());
-                    Glacier2.SessionPrx session = factory.connect(routerPrx);
+                    RouterPrx routerPrx = RouterPrxHelper.uncheckedCast(_communicator.getDefaultRouter());
+                    SessionPrx session = factory.connect(routerPrx);
                     connected(routerPrx, session);
                 }
                 catch(final Exception ex)
                 {
-                    try
-                    {
-                        _communicator.destroy();
-                    }
-                    catch(Throwable ex1)
-                    {
-                    }
+                    _communicator.destroy();
 
                     dispatchCallback(new Runnable()
                     {
@@ -614,8 +560,8 @@ public class SessionHelper
     private final Ice.InitializationData _initData;
     private Ice.Communicator _communicator;
     private Ice.ObjectAdapter _adapter;
-    private Glacier2.RouterPrx _router;
-    private Glacier2.SessionPrx _session;
+    private RouterPrx _router;
+    private SessionPrx _session;
     private String _category;
     private String _finderStr;
     private boolean _useCallbacks;

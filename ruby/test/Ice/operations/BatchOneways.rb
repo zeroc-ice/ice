@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -13,6 +13,8 @@ def batchOneways(p)
     batch = Test::MyClassPrx::uncheckedCast(p.ice_batchOneway())
 
     batch.ice_flushBatchRequests() # Empty flush
+    batch.ice_getConnection().flushBatchRequests(Ice::CompressBatch::BasedOnProxy)
+    batch.ice_getCommunicator().flushBatchRequests(Ice::CompressBatch::BasedOnProxy)
 
     p.opByteSOnewayCallCount() # Reset the call count
 
@@ -26,14 +28,14 @@ def batchOneways(p)
         sleep(0.01)
     end
 
-    batch.ice_getConnection().flushBatchRequests()
+    batch.ice_getConnection().flushBatchRequests(Ice::CompressBatch::BasedOnProxy)
 
     batch2 = Test::MyClassPrx::uncheckedCast(p.ice_batchOneway())
 
     batch.ice_ping()
     batch2.ice_ping()
     batch.ice_flushBatchRequests()
-    batch.ice_getConnection().close(false)
+    batch.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
     batch.ice_ping()
     batch2.ice_ping()
 
@@ -41,7 +43,7 @@ def batchOneways(p)
     batch2.ice_getConnection()
 
     batch.ice_ping()
-    batch.ice_getConnection().close(false)
+    batch.ice_getConnection().close(Ice::ConnectionClose::GracefullyWithWait)
 
     batch.ice_ping()
     batch2.ice_ping()

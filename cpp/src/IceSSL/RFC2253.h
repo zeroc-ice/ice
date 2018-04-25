@@ -1,14 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_RFC_2253_H
-#define ICE_SSL_RFC_2253_H
+#ifndef ICESSL_RFC_2253_H
+#define ICESSL_RFC_2253_H
 
 #include <IceUtil/Config.h>
 #include <list>
@@ -33,7 +33,7 @@ namespace RFC2253
 
 typedef std::list< std::pair<std::string, std::string> > RDNSeq;
 
-struct RDNEntry
+struct ICESSL_API RDNEntry
 {
     RDNSeq rdn;
     bool negate;
@@ -46,7 +46,7 @@ typedef std::list<RDNEntry> RDNEntrySeq;
 // The function returns a list of RDNEntry structures. Any failure in
 // parsing results in a ParseException being thrown.
 //
-RDNEntrySeq parse(const std::string&);
+ICESSL_API RDNEntrySeq parse(const std::string&);
 
 //
 // RDNs are separated with ',' and ';'.
@@ -54,12 +54,12 @@ RDNEntrySeq parse(const std::string&);
 // This function returns a list of RDN pairs. Any failure in parsing
 // results in a ParseException being thrown.
 //
-RDNSeq parseStrict(const std::string&);
+ICESSL_API RDNSeq parseStrict(const std::string&);
 
 //
 // Unescape the string.
 //
-std::string unescape(const std::string&);
+ICESSL_API std::string unescape(const std::string&);
 
 }
 }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -231,7 +231,7 @@ public:
     {
         try
         {
-            _observer->begin_updateServer(_node->getName(),
+            _observer->begin_updateServer(_node->getName(Ice::emptyCurrent),
                                           _info,
                                           newCallback(static_cast<NodeI::Update*>(this), &NodeI::Update::completed));
         }
@@ -261,7 +261,7 @@ public:
     {
         try
         {
-            _observer->begin_updateAdapter(_node->getName(),
+            _observer->begin_updateAdapter(_node->getName(Ice::emptyCurrent),
                                            _info,
                                            newCallback(static_cast<NodeI::Update*>(this), &NodeI::Update::completed));
         }
@@ -431,7 +431,6 @@ NodeI::destroyServer_async(const AMD_Node_destroyServerPtr& amdCB,
     destroyServer(amdCB, serverId, uuid, revision, replicaName, false, current);
 }
 
-
 void
 NodeI::destroyServerWithoutRestart_async(const AMD_Node_destroyServerWithoutRestartPtr& amdCB,
                                          const string& serverId,
@@ -492,7 +491,6 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
         }
         _patchInProgress.insert(application);
     }
-
 
     set<ServerIPtr> servers;
     bool patchApplication = !appDistrib->icepatch.empty();
@@ -588,11 +586,11 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
             {
                 if(running.size() == 1)
                 {
-                    throw "server `" + toString(running) + "' is active";
+                    throw runtime_error("server `" + toString(running) + "' is active");
                 }
                 else
                 {
-                    throw "servers `" + toString(running, ", ") + "' are active";
+                    throw runtime_error("servers `" + toString(running, ", ") + "' are active");
                 }
             }
 
@@ -611,7 +609,7 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
                 icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(appDistrib->icepatch));
                 if(!icepatch)
                 {
-                    throw "proxy `" + appDistrib->icepatch + "' is not a file server.";
+                    throw runtime_error("proxy `" + appDistrib->icepatch + "' is not a file server.");
                 }
                 patch(icepatch, "distrib/" + application, appDistrib->directories);
             }
@@ -627,7 +625,7 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
                     icepatch = FileServerPrx::checkedCast(_communicator->stringToProxy(dist->icepatch));
                     if(!icepatch)
                     {
-                        throw "proxy `" + dist->icepatch + "' is not a file server.";
+                        throw runtime_error("proxy `" + dist->icepatch + "' is not a file server.");
                     }
                     patch(icepatch, "servers/" + (*s)->getId() + "/distrib", dist->directories);
 
@@ -638,19 +636,9 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
                 }
             }
         }
-        catch(const Ice::LocalException& e)
+        catch(const exception& ex)
         {
-            ostringstream os;
-            os << e;
-            failure = os.str();
-        }
-        catch(const string& e)
-        {
-            failure = e;
-        }
-        catch(const char* e)
-        {
-            failure = e;
+            failure = ex.what();
         }
 
         for(set<ServerIPtr>::const_iterator s = servers.begin(); s != servers.end(); ++s)
@@ -971,6 +959,7 @@ NodeI::observerUpdateServer(const ServerDynamicInfo& info)
         if(sent.find(p->second) == sent.end())
         {
             queueUpdate(p->second, new UpdateServer(this, p->second, info));
+            sent.insert(p->second);
         }
     }
 }
@@ -1001,6 +990,7 @@ NodeI::observerUpdateAdapter(const AdapterDynamicInfo& info)
         if(sent.find(p->second) == sent.end())
         {
             queueUpdate(p->second, new UpdateAdapter(this, p->second, info));
+            sent.insert(p->second);
         }
     }
 }
@@ -1078,10 +1068,10 @@ NodeI::removeServer(const ServerIPtr& server, const std::string& application)
                 {
                     IcePatch2Internal::removeRecursive(appDir);
                 }
-                catch(const string& msg)
+                catch(const exception& ex)
                 {
                     Ice::Warning out(_traceLevels->logger);
-                    out << "removing application directory `" << appDir << "' failed:\n" << msg;
+                    out << "removing application directory `" << appDir << "' failed:\n" << ex.what();
                 }
             }
         }
@@ -1117,10 +1107,10 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
     {
         contents = readDirectory(_serversDir);
     }
-    catch(const string& msg)
+    catch(const exception& ex)
     {
         Ice::Error out(_traceLevels->logger);
-        out << "couldn't read directory `" << _serversDir << "':\n" << msg;
+        out << "couldn't read directory `" << _serversDir << "':\n" << ex.what();
         return commands;
     }
 
@@ -1156,7 +1146,7 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
                     Ice::Error out(_traceLevels->logger);
                     out << "server `" << *p << "' destroy failed:\n" << ex;
                 }
-                catch(const string&)
+                catch(const exception&)
                 {
                     assert(false);
                 }
@@ -1175,10 +1165,10 @@ NodeI::checkConsistencyNoSync(const Ice::StringSeq& servers)
                     continue;
                 }
             }
-            catch(const string& msg)
+            catch(const exception& ex)
             {
                 Ice::Warning out(_traceLevels->logger);
-                out << "removing server directory `" << _serversDir << "/" << *p << "' failed:\n" << msg;
+                out << "removing server directory `" << _serversDir << "/" << *p << "' failed:\n" << ex.what();
             }
 
             *p = _serversDir + "/" + *p;
@@ -1260,7 +1250,7 @@ NodeI::canRemoveServerDirectory(const string& name)
                     return false;
                 }
             }
-            catch(const string&)
+            catch(const exception&)
             {
                 return false;
             }
@@ -1284,7 +1274,7 @@ NodeI::canRemoveServerDirectory(const string& name)
                 return false;
             }
         }
-        catch(const string&)
+        catch(const exception&)
         {
             return false;
         }
@@ -1342,8 +1332,6 @@ NodeI::getApplicationServers(const string& application) const
     }
     return servers;
 }
-
-
 
 string
 NodeI::getFilePath(const string& filename) const
@@ -1507,4 +1495,3 @@ NodeI::destroyServer(const AMD_Node_destroyServerPtr& amdCB,
         command->execute();
     }
 }
-

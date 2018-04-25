@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,7 +38,7 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
     test(proxy);
 
     proxy->op(false);
-    servant->op(false, Ice::noExplicitCurrent);
+    servant->op(false, Ice::emptyCurrent);
 
     cout << "ok" << endl;
 
@@ -59,7 +59,7 @@ consume(const Ice::ObjectPtr& o, const Ice::ObjectPrxPtr& p)
 
     try
     {
-        servant->op(true);
+        servant->op(true, Ice::emptyCurrent);
     }
     catch(const Test::UserError&)
     {

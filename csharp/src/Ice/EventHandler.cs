@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,8 +9,6 @@
 
 namespace IceInternal
 {
-
-using System;
 
 public abstract class EventHandler
 {
@@ -35,7 +33,7 @@ public abstract class EventHandler
     internal int _pending = 0;
     internal int _started = 0;
     internal bool _finish = false;
-    
+
     internal bool _hasMoreData = false;
     internal int _registered = 0;
 }

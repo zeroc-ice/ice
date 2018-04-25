@@ -1,15 +1,14 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <IceLanguageMapping>python</IceLanguageMapping>
+  </PropertyGroup>
   <Import Project="..\..\cpp\msbuild\Ice.Cpp98.props" />
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='Win32'">
-    <PythonHome>C:\Python35</PythonHome>
+    <PythonHome>C:\Program Files (x86)\Python36</PythonHome>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='x64'">
-    <PythonHome>C:\Python35-amd64</PythonHome>
-  </PropertyGroup>
-  <PropertyGroup>
-    <IceBuilderPythonProps Condition="!Exists('$(IceBuilderPythonProps)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Python.props', SearchOption.AllDirectories))</IceBuilderPythonProps>
-    <IceBuilderPythonTargets Condition="!Exists('$(IceBuilderPythonTargets)')">$([System.IO.Directory]::GetFiles('$(LocalAppData)\Microsoft\VisualStudio\$(VisualStudioVersion)\Extensions', 'IceBuilder.Python.targets', SearchOption.AllDirectories))</IceBuilderPythonTargets>
+    <PythonHome>C:\Program Files\Python36</PythonHome>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PythonHome">

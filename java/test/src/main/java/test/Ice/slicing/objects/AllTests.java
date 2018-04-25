@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -109,11 +109,14 @@ public class AllTests
         public T v;
     }
 
-    public static TestIntfPrx allTests(com.zeroc.Ice.Communicator communicator, boolean collocated, PrintWriter out)
+    public static TestIntfPrx allTests(test.Util.Application app, boolean collocated)
     {
+        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = app.communicator();
+
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "Test:default -p 12010 -t 10000";
+        String ref = "Test:" + app.getTestEndpoint(0) + " -t 10000";
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -374,7 +377,8 @@ public class AllTests
                 o = test.SUnknownAsObject();
                 test(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0));
                 test(o instanceof com.zeroc.Ice.UnknownSlicedValue);
-                test(((com.zeroc.Ice.UnknownSlicedValue)o).getUnknownTypeId().equals("::Test::SUnknown"));
+                test(((com.zeroc.Ice.UnknownSlicedValue)o).ice_id().equals("::Test::SUnknown"));
+                test(((com.zeroc.Ice.UnknownSlicedValue)o).ice_getSlicedData() != null);
                 test.checkSUnknown(o);
             }
             catch(com.zeroc.Ice.NoValueFactoryException ex)
@@ -409,7 +413,7 @@ public class AllTests
                     {
                         test(ex == null);
                         test(result instanceof com.zeroc.Ice.UnknownSlicedValue);
-                        test(((com.zeroc.Ice.UnknownSlicedValue)result).getUnknownTypeId().equals("::Test::SUnknown"));
+                        test(((com.zeroc.Ice.UnknownSlicedValue)result).ice_id().equals("::Test::SUnknown"));
                         cb.called();
                     });
                 cb.check();
@@ -1483,7 +1487,7 @@ public class AllTests
                 int i;
                 for(i = 0; i < 10; ++i)
                 {
-                    String s = "D1." + new Integer(i).toString();
+                    String s = "D1." + Integer.valueOf(i).toString();
                     D1 d1 = new D1();
                     d1.sb = s;
                     d1.pb = d1;
@@ -1498,7 +1502,7 @@ public class AllTests
                 {
                     B b = r.bout.get(i * 10);
                     test(b != null);
-                    String s = "D1." + new Integer(i).toString();
+                    String s = "D1." + Integer.valueOf(i).toString();
                     test(b.sb.equals(s));
                     test(b.pb != null);
                     test(b.pb != b);
@@ -1511,7 +1515,7 @@ public class AllTests
                 {
                     B b = r.returnValue.get(i * 20);
                     test(b != null);
-                    String s = "D1." + new Integer(i * 20).toString();
+                    String s = "D1." + Integer.valueOf(i * 20).toString();
                     test(b.sb.equals(s));
                     test(b.pb == (i == 0 ? null : r.returnValue.get((i - 1) * 20)));
                     D1 d1 = (D1)b;
@@ -1534,7 +1538,7 @@ public class AllTests
             int i;
             for(i = 0; i < 10; ++i)
             {
-                String s = "D1." + new Integer(i).toString();
+                String s = "D1." + Integer.valueOf(i).toString();
                 D1 d1 = new D1();
                 d1.sb = s;
                 d1.pb = d1;
@@ -1561,7 +1565,7 @@ public class AllTests
             {
                 B b = bout.get(i * 10);
                 test(b != null);
-                String s = "D1." + new Integer(i).toString();
+                String s = "D1." + Integer.valueOf(i).toString();
                 test(b.sb.equals(s));
                 test(b.pb != null);
                 test(b.pb != b);
@@ -1574,7 +1578,7 @@ public class AllTests
             {
                 B b = r.get(i * 20);
                 test(b != null);
-                String s = "D1." + new Integer(i * 20).toString();
+                String s = "D1." + Integer.valueOf(i * 20).toString();
                 test(b.sb.equals(s));
                 test(b.pb == (i == 0 ? null : r.get((i - 1) * 20)));
                 D1 d1 = (D1)b;
@@ -2000,7 +2004,15 @@ public class AllTests
             test.checkPBSUnknown(p);
             if(!test.ice_getEncodingVersion().equals(Util.Encoding_1_0))
             {
+                com.zeroc.Ice.SlicedData slicedData = p.ice_getSlicedData();
+                test(slicedData != null);
+                test(slicedData.slices.length == 1);
+                test(slicedData.slices[0].typeId.equals("::Test::PSUnknown"));
                 test.ice_encodingVersion(Util.Encoding_1_0).checkPBSUnknown(p);
+            }
+            else
+            {
+                test(p.ice_getSlicedData() == null);
             }
         }
         catch(com.zeroc.Ice.OperationNotExistException ex)

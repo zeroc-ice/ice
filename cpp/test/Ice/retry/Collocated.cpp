@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -42,12 +42,14 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
 #endif
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        initCounts();
+
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.observer = getObserver();
 
         initData.properties->setProperty("Ice.RetryIntervals", "0 1 10 1");
@@ -58,7 +60,7 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Connections", "0");
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
 
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
 
         //
         // Configure a second communicator for the invocation timeout
@@ -70,7 +72,7 @@ main(int argc, char* argv[])
         initData2.properties->setProperty("Ice.RetryIntervals", "0 1 10000");
         initData2.observer = getObserver();
 
-        Ice::CommunicatorHolder ich2 = Ice::initialize(initData2);
+        Ice::CommunicatorHolder ich2(initData2);
 
         return run(argc, argv, ich.communicator(), ich2.communicator());
     }

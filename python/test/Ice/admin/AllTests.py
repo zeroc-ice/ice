@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -14,13 +14,13 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 def testFacets(com, builtInFacets = True):
-    
+
     if builtInFacets:
         test(com.findAdminFacet("Properties") != None)
         test(com.findAdminFacet("Process") != None)
         test(com.findAdminFacet("Logger") != None)
         test(com.findAdminFacet("Metrics") != None)
-        
+
     f1 = TestI.TestFacetI()
     f2 = TestI.TestFacetI()
     f3 = TestI.TestFacetI()
@@ -38,13 +38,13 @@ def testFacets(com, builtInFacets = True):
     if builtInFacets:
         test(len(facetMap) == 7)
         test("Properties" in facetMap)
-        test(isinstance(facetMap["Properties"], Ice.NativePropertiesAdmin)) 
+        test(isinstance(facetMap["Properties"], Ice.NativePropertiesAdmin))
         test("Process" in facetMap)
         test("Logger" in facetMap)
         test("Metrics" in facetMap)
 
     test(len(facetMap) >=3)
-     
+
     test("Facet1" in facetMap)
     test("Facet2" in facetMap)
     test("Facet3" in facetMap)
@@ -70,7 +70,6 @@ def testFacets(com, builtInFacets = True):
         test(False)
     except Ice.NotRegisteredException:
         pass # Expected
-
 
 def allTests(communicator):
     sys.stdout.write("testing communicator operations... ")
@@ -100,7 +99,7 @@ def allTests(communicator):
     com = Ice.initialize(init)
     testFacets(com, False)
     com.destroy()
-    
+
     #
     # Test: Verify that the operations work correctly with the Admin object disabled.
     #
@@ -122,14 +121,14 @@ def allTests(communicator):
         test(False)
     except Ice.InitializationException:
         pass
-    
+
     adapter = com.createObjectAdapter("")
     test(com.createAdmin(adapter, identity) != None)
     test(com.getAdmin() != None)
 
     testFacets(com)
     com.destroy()
-    
+
     #
     # Test: Verify that the operations work correctly when creation of the Admin object is delayed.
     #
@@ -144,13 +143,13 @@ def allTests(communicator):
     testFacets(com)
     com.destroy()
     print("ok")
-    
+
     ref = "factory:default -p 12010 -t 10000"
     factory = Test.RemoteCommunicatorFactoryPrx.uncheckedCast(communicator.stringToProxy(ref))
-    
+
     sys.stdout.write("testing process facet... ")
     sys.stdout.flush()
-    
+
     #
     # Test: Verify that Process::shutdown() operation shuts down the communicator.
     #
@@ -163,7 +162,7 @@ def allTests(communicator):
     proc.shutdown()
     com.waitForShutdown()
     com.destroy()
-    
+
     print("ok")
 
     sys.stdout.write("testing properties facet... ")
@@ -258,7 +257,7 @@ def allTests(communicator):
     props["Ice.Admin.Facets"] = "Properties"
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
-   
+
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")
     test(proc == None)
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
@@ -275,12 +274,12 @@ def allTests(communicator):
     props["Ice.Admin.Facets"] = "Process"
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
-   
+
     pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
     test(pa == None)
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
     test(tf == None)
-   
+
     com.destroy()
 
     #
@@ -293,13 +292,13 @@ def allTests(communicator):
     props["Ice.Admin.Facets"] = "TestFacet"
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
-    
+
     pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
     test(pa == None)
-    
+
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")
     test(proc == None)
-    
+
     com.destroy()
 
     #
@@ -316,7 +315,7 @@ def allTests(communicator):
     test(pa.getProperty("Ice.Admin.InstanceName") == "Test")
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
     tf.op()
-    
+
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")
     test(proc == None)
     com.destroy()
@@ -331,10 +330,10 @@ def allTests(communicator):
     props["Ice.Admin.Facets"] = "TestFacet, Process"
     com = factory.createCommunicator(props)
     obj = com.getAdmin()
-   
+
     pa = Ice.PropertiesAdminPrx.checkedCast(obj, "Properties")
     test(pa == None)
-   
+
     tf = Test.TestFacetPrx.checkedCast(obj, "TestFacet")
     tf.op()
     proc = Ice.ProcessPrx.checkedCast(obj, "Process")

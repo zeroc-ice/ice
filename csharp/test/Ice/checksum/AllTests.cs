@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,21 +10,13 @@
 using System;
 using System.Collections.Generic;
 
-public class AllTests
+public class AllTests : TestCommon.AllTests
 {
-    private static void
-    test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
     public static Test.ChecksumPrx
-    allTests(Ice.Communicator communicator, bool collocated)
+    allTests(TestCommon.Application app, bool collocated)
     {
-        string rf = "test:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string rf = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 
@@ -61,13 +53,13 @@ public class AllTests
             if(start != -1)
             {
                 int end = start;
-                while(end < key.Length && Char.IsDigit(key[end]))
+                while(end < key.Length && char.IsDigit(key[end]))
                 {
                     end++;
                 }
-                int n = Int32.Parse(key.Substring(start, end - start));
+                int n = int.Parse(key.Substring(start, end - start));
 
-                string value = (string)Ice.SliceChecksums.checksums[key];
+                string value = Ice.SliceChecksums.checksums[key];
                 test(value != null);
 
                 if(n <= 1)

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,25 +29,25 @@ Ice::Value::ice_postUnmarshal()
 }
 
 void
-Ice::Value::__write(Ice::OutputStream* os) const
+Ice::Value::_iceWrite(Ice::OutputStream* os) const
 {
     os->startValue(0);
-    __writeImpl(os);
+    _iceWriteImpl(os);
     os->endValue();
 }
 
 void
-Ice::Value::__read(Ice::InputStream* is)
+Ice::Value::_iceRead(Ice::InputStream* is)
 {
    is->startValue();
-   __readImpl(is);
+   _iceReadImpl(is);
    is->endValue(false);
 }
 
 namespace
 {
 
-const string __Ice__Object_ids[] =
+const string object_ids[] =
 {
     "::Ice::Object"
 };
@@ -57,19 +57,25 @@ const string __Ice__Object_ids[] =
 string
 Ice::Value::ice_id() const
 {
-    return __Ice__Object_ids[0];
+    return object_ids[0];
 }
 
 const string&
 Ice::Value::ice_staticId()
 {
-    return __Ice__Object_ids[0];
+    return object_ids[0];
 }
 
-ValuePtr
+shared_ptr<Value>
 Ice::Value::ice_clone() const
 {
-    return cloneImpl();
+    return _iceCloneImpl();
+}
+
+shared_ptr<SlicedData>
+Ice::Value::ice_getSlicedData() const
+{
+    return nullptr;
 }
 
 #endif

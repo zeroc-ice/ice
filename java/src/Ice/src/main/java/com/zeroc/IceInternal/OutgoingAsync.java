@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ import com.zeroc.Ice.UserException;
 import com.zeroc.Ice.UnknownException;
 import com.zeroc.Ice.UnknownUserException;
 
-public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
+public class OutgoingAsync<T> extends ProxyOutgoingAsyncBaseI<T>
 {
     @FunctionalInterface
     static public interface Unmarshaler<V>
@@ -34,11 +34,11 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
         _mode = mode == null ? OperationMode.Normal : mode;
         _synchronous = synchronous;
         _userExceptions = userExceptions;
-        _encoding = Protocol.getCompatibleEncoding(_proxy.__reference().getEncoding());
+        _encoding = Protocol.getCompatibleEncoding(_proxy._getReference().getEncoding());
 
         if(_instance.cacheMessageBuffers() > 0)
         {
-            _ObjectPrxI.StreamPair p = _proxy.__getCachedMessageBuffers();
+            _ObjectPrxI.StreamPair p = _proxy._getCachedMessageBuffers();
             if(p != null)
             {
                 _is = p.is;
@@ -58,8 +58,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
 
         if(twowayOnly && !_proxy.ice_isTwoway())
         {
-            throw new java.lang.IllegalArgumentException("`" + _operation +
-                                                         "' can only be called with a twoway proxy");
+            throw new com.zeroc.Ice.TwowayOnlyException(_operation);
         }
 
         if(format == null)
@@ -87,8 +86,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
                 // NOTE: we don't call sent/completed callbacks for batch AMI requests
                 //
                 _sentSynchronously = true;
-                _proxy.__getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
-                finished(true);
+                _proxy._getBatchRequestQueue().finishBatchRequest(_os, _proxy, _operation);
+                finished(true, false);
             }
             else
             {
@@ -106,7 +105,8 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
         }
     }
 
-    public T __wait()
+    @Override
+    public T waitForResponse()
     {
         if(isBatch())
         {
@@ -115,7 +115,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
 
         try
         {
-            return __waitUserEx();
+            return waitForResponseOrUserEx();
         }
         catch(UserException ex)
         {
@@ -123,10 +123,10 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
         }
     }
 
-    public T __waitUserEx()
+    public T waitForResponseOrUserEx()
         throws UserException
     {
-        if(Thread.currentThread().interrupted())
+        if(Thread.interrupted())
         {
             throw new OperationInterruptedException();
         }
@@ -137,13 +137,13 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
         }
         catch(InterruptedException ex)
         {
-            throw new OperationInterruptedException();
+            throw new OperationInterruptedException(ex);
         }
         catch(java.util.concurrent.ExecutionException ee)
         {
             try
             {
-                throw ee.getCause();
+                throw ee.getCause().fillInStackTrace();
             }
             catch(RuntimeException ex) // Includes LocalException
             {
@@ -157,20 +157,6 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
             {
                 throw new UnknownException(ex);
             }
-        }
-    }
-
-    @Override
-    protected void __sent()
-    {
-        super.__sent();
-
-        if(!_proxy.ice_isTwoway())
-        {
-            //
-            // For a non-twoway proxy, the invocation is completed after it is sent.
-            //
-            complete(null);
         }
     }
 
@@ -192,7 +178,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
     public int invokeCollocated(CollocatedRequestHandler handler)
     {
         // The stream cannot be cached if the proxy is not a twoway or there is an invocation timeout set.
-        if(!_proxy.ice_isTwoway() || _proxy.__reference().getInvocationTimeout() > 0)
+        if(!_proxy.ice_isTwoway() || _proxy._getReference().getInvocationTimeout() > 0)
         {
             // Disable caching by marking the streams as cached!
             _state |= StateCachedBuffers;
@@ -210,22 +196,23 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
             // must notify the connection about that we give up ownership
             // of the batch stream.
             //
-            _proxy.__getBatchRequestQueue().abortBatchRequest(_os);
+            _proxy._getBatchRequestQueue().abortBatchRequest(_os);
         }
 
         super.abort(ex);
     }
 
     @Override
-    protected void __completed()
+    protected void markCompleted()
     {
-        super.__completed();
-
         try
         {
-            if(_exception != null)
+            if(!_proxy.ice_isTwoway())
             {
-                completeExceptionally(_exception);
+                //
+                // For a non-twoway proxy, the invocation is completed after it is sent.
+                //
+                complete(null);
             }
             else if((_state & StateOK) > 0)
             {
@@ -374,7 +361,7 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
             }
             _os.reset();
 
-            _proxy.__cacheMessageBuffers(_is, _os);
+            _proxy._cacheMessageBuffers(_is, _os);
 
             _is = null;
             _os = null;
@@ -384,7 +371,6 @@ public class OutgoingAsync<T> extends ProxyOutgoingAsyncBase<T>
     final private com.zeroc.Ice.EncodingVersion _encoding;
     private com.zeroc.Ice.InputStream _is;
 
-    private boolean _synchronous; // True if this AMI request is being used for a generated synchronous invocation.
     private Class<?>[] _userExceptions; // Valid user exceptions.
     private Unmarshaler<T> _unmarshal;
 }

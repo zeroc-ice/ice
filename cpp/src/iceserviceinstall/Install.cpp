@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,11 +8,13 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <Ice/ConsoleUtil.h>
 #include <IceUtil/Options.h>
 #include <ServiceInstaller.h>
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 
 class Install : public Application
 {
@@ -74,7 +76,7 @@ Install::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << "Error:" << e.reason << endl;
+        consoleErr << "Error:" << e.reason << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -89,7 +91,7 @@ Install::run(int argc, char* argv[])
     }
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         _pause = true;
         return EXIT_SUCCESS;
     }
@@ -112,7 +114,7 @@ Install::run(int argc, char* argv[])
 
     if(serviceType == -1)
     {
-        cerr << "Invalid service " << commands[0] << endl;
+        consoleErr << "Invalid service " << commands[0] << endl;
         return EXIT_FAILURE;
     }
 
@@ -143,14 +145,9 @@ Install::run(int argc, char* argv[])
             installer.install(properties);
         }
     }
-    catch(const string& msg)
+    catch(const exception& ex)
     {
-        cerr << "Error: " << msg << endl;
-        return EXIT_FAILURE;
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << "Error: " << ex << endl;
+        consoleErr << "Error: " << ex.what() << endl;
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -195,9 +192,9 @@ Install::usage() const
 #endif
     defaultImagePath += ".exe";
 
-    cerr << "Usage: " << appName()
+    consoleErr << "Usage: " << appName()
          << " [options] service config-file [property] [property]\n";
-    cerr <<
+    consoleErr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-n, --nopause        Do not call pause after displaying a message.\n"
@@ -212,19 +209,20 @@ Install::usage() const
         "                     HKEY_LOCAL_MACHINE.\n"
         "\n"
         "Valid properties:\n"
-        "ImagePath            Full path to <service>.exe. The default value is\n"
-        "                     " << defaultImagePath << "\n" <<
-        "DisplayName          Display name of the service.\n"
-        "Description          Description of the service.\n"
-        "AutoStart            If non-zero, the service is started automatically when\n"
-        "                     the computer starts up. The default value is 1.\n"
-        "ObjectName           Account used to run the service. Defaults to\n"
-        "                     NT Authority\\LocalService.\n"
-        "Password             Password for ObjectName.\n"
+        "AutoStart            0 = Manual, 1 = Automatic, 2 = Automatic (Delayed Start)\n"
+        "                     The default value is 1.\n"
+        "Debug                Show diagnostics when installing/uninstalling a service.\n"
         "DependOnRegistry     If non-zero, the service depends on the IceGrid registry\n"
         "                     service (the IceGrid registry service name is computed\n"
         "                     using Ice.Default.Locator in <config-file>).\n"
+        "Description          Description of the service.\n"
+        "DisplayName          Display name of the service.\n"
         "EventLog             The name of the EventLog used by this service;\n"
         "                     the default is Application.\n"
+        "ImagePath            Full path to <service>.exe. The default value is\n"
+        "                     " << defaultImagePath << "\n" <<
+        "ObjectName           Account used to run the service. Defaults to\n"
+        "                     NT Authority\\LocalService.\n"
+        "Password             Password for ObjectName.\n"
         ;
 }

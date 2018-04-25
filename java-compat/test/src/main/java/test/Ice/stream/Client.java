@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -43,7 +43,7 @@ public class Client extends test.Util.Application
         public void
         write(Ice.OutputStream out)
         {
-            obj.__write(out);
+            obj._iceWrite(out);
             called = true;
         }
 
@@ -58,7 +58,7 @@ public class Client extends test.Util.Application
         read(Ice.InputStream in)
         {
             obj = new MyClass();
-            obj.__read(in);
+            obj._iceRead(in);
             called = true;
         }
 
@@ -251,10 +251,10 @@ public class Client extends test.Util.Application
 
         {
             out = new Ice.OutputStream(comm);
-            MyEnum.write(out, MyEnum.enum3);
+            MyEnum.ice_write(out, MyEnum.enum3);
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
-            test(MyEnum.read(in) == MyEnum.enum3);
+            test(MyEnum.ice_read(in) == MyEnum.enum3);
         }
 
         {
@@ -269,11 +269,11 @@ public class Client extends test.Util.Application
             s.d = 6.0;
             s.str = "7";
             s.e = MyEnum.enum2;
-            s.p = MyClassPrxHelper.uncheckedCast(comm.stringToProxy("test:default"));
-            SmallStruct.write(out, s);
+            s.p = MyInterfacePrxHelper.uncheckedCast(comm.stringToProxy("test:default"));
+            SmallStruct.ice_write(out, s);
             byte[] data = out.finished();
             in = new Ice.InputStream(comm, data);
-            SmallStruct s2 = SmallStruct.read(in, null);
+            SmallStruct s2 = SmallStruct.ice_read(in);
             test(s2.equals(s));
         }
 
@@ -789,7 +789,6 @@ public class Client extends test.Util.Application
             test(dict2.equals(dict));
         }
 
-
         {
             java.util.Map<Long, Float> dict = new java.util.HashMap<Long, Float>();
             dict.put((long)123809828, 0.51f);
@@ -845,8 +844,7 @@ public class Client extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.stream");
         return initData;
     }

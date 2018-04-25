@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,14 @@ final class UdpConnector implements Connector
     @Override
     public Transceiver connect()
     {
-        return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
+        if(Util.isAndroid() && _addr.getAddress().isMulticastAddress())
+        {
+            return new UdpMulticastClientTransceiver(_instance, _addr, _mcastInterface, _mcastTtl);
+        }
+        else
+        {
+            return new UdpTransceiver(_instance, _addr, _sourceAddr, _mcastInterface, _mcastTtl);
+        }
     }
 
     public java.nio.channels.SelectableChannel fd()

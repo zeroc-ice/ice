@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,16 +15,20 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 
 import com.zeroc.IceGrid.*;
 
-class SlaveEditor extends Editor
+class SlaveEditor extends CommunicatorEditor
 {
     SlaveEditor()
     {
         _hostname.setEditable(false);
     }
 
-    void show(RegistryInfo info)
+    void show(Slave slave)
     {
-        _hostname.setText(info.hostname);
+        Slave previous = (Slave)_target;
+        _target = slave;
+
+        _hostname.setText(slave.getInfo().hostname);
+        showRuntimeProperties(previous);
     }
 
     @Override
@@ -33,6 +37,7 @@ class SlaveEditor extends Editor
         builder.append("Hostname" );
         builder.append(_hostname, 3);
         builder.nextLine();
+        appendRuntimeProperties(builder);
     }
 
     @Override

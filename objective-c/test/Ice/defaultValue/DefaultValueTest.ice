@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,7 @@
 module Test
 {
 
-enum Color { red, green, blue };
+enum Color { red, green, blue }
 
 struct Struct1
 {
@@ -28,7 +28,7 @@ struct Struct1
     string str = "foo bar";
     Color c = red;
     string noDefault;
-};
+}
 
 ["cpp:class"]
 struct Struct2
@@ -44,7 +44,7 @@ struct Struct2
     string str = "foo bar";
     Color c = blue;
     string noDefault;
-};
+}
 
 class Base
 {
@@ -58,12 +58,12 @@ class Base
     double d = 6.0;
     string str = "foo bar";
     string noDefault;
-};
+}
 
 class Derived extends Base
 {
     Color c = green;
-};
+}
 
 exception BaseEx
 {
@@ -77,12 +77,12 @@ exception BaseEx
     double d = 6.0;
     string str = "foo bar";
     string noDefault;
-};
+}
 
 exception DerivedEx extends BaseEx
 {
     Color c = green;
-};
+}
 
 sequence<byte> ByteSeq;
 sequence<int> IntSeq;
@@ -91,7 +91,7 @@ dictionary<int, string> IntStringDict;
 struct InnerStruct
 {
     int a;
-};
+}
 
 struct StructNoDefaults
 {
@@ -108,32 +108,32 @@ struct StructNoDefaults
     IntSeq is;
     InnerStruct st;
     IntStringDict dict;
-};
+}
 
 exception ExceptionNoDefaultsBase
 {
     string str;
     Color c1;
     ByteSeq bs;
-};
+}
 
 exception ExceptionNoDefaults extends ExceptionNoDefaultsBase
 {
     InnerStruct st;
     IntStringDict dict;
-};
+}
 
 class ClassNoDefaultsBase
 {
     string str;
     Color c1;
     ByteSeq bs;
-};
+}
 
 class ClassNoDefaults extends ClassNoDefaultsBase
 {
     InnerStruct st;
     IntStringDict dict;
-};
+}
 
-};
+}

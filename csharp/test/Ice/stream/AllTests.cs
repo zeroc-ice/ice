@@ -1,6 +1,6 @@
 ﻿// **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     //
     // There does not appear to be any way to compare collections
@@ -69,7 +69,7 @@ public class AllTests : TestCommon.TestApp
 
         public override void write(Ice.OutputStream outS)
         {
-            obj.write__(outS);
+            obj.iceWrite(outS);
             called = true;
         }
 
@@ -82,7 +82,7 @@ public class AllTests : TestCommon.TestApp
         public override void read(Ice.InputStream inS)
         {
             obj = new MyClass();
-            obj.read__(inS);
+            obj.iceRead(inS);
             called = true;
         }
 
@@ -130,11 +130,17 @@ public class AllTests : TestCommon.TestApp
         private Ice.ValueFactory _factory;
     }
 
-    static public int run(Ice.Communicator communicator)
+    static public int allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
 
         communicator.getValueFactoryManager().add(factoryWrapper.create, MyClass.ice_staticId());
+        communicator.getValueFactoryManager().add((id) =>
+            {
+                return new Ice.InterfaceByValue("::Test::MyInterface");
+            },
+            "::Test::MyInterface");
 
         Ice.InputStream inS;
         Ice.OutputStream outS;
@@ -268,10 +274,10 @@ public class AllTests : TestCommon.TestApp
             s.d = 6.0;
             s.str = "7";
             s.e = MyEnum.enum2;
-            s.p = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
-            SmallStruct.write(outS, s);
+            s.p = MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+            SmallStruct.ice_write(outS, s);
             var data = outS.finished();
-            var s2 = SmallStruct.read(new Ice.InputStream(communicator, data));
+            var s2 = SmallStruct.ice_read(new Ice.InputStream(communicator, data));
             test(s2.Equals(s));
         }
 
@@ -505,7 +511,7 @@ public class AllTests : TestCommon.TestApp
         }
 
         var smallStructArray = new SmallStruct[3];
-        for (int i = 0; i < smallStructArray.Length; ++i)
+        for(int i = 0; i < smallStructArray.Length; ++i)
         {
             smallStructArray[i] = new SmallStruct();
             smallStructArray[i].bo = true;
@@ -517,11 +523,11 @@ public class AllTests : TestCommon.TestApp
             smallStructArray[i].d = 6.0;
             smallStructArray[i].str = "7";
             smallStructArray[i].e = MyEnum.enum2;
-            smallStructArray[i].p = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
+            smallStructArray[i].p = MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("test:default"));
         }
 
         var myClassArray = new MyClass[4];
-        for (int i = 0; i < myClassArray.Length; ++i)
+        for(int i = 0; i < myClassArray.Length; ++i)
         {
             myClassArray[i] = new MyClass();
             myClassArray[i].c = myClassArray[i];
@@ -542,6 +548,12 @@ public class AllTests : TestCommon.TestApp
             myClassArray[i].d["hi"] = myClassArray[i];
         }
 
+        var myInterfaceArray = new Ice.Value[4];
+        for(int i = 0; i < myInterfaceArray.Length; ++i)
+        {
+            myInterfaceArray[i] = new Ice.InterfaceByValue("::Test::MyInterface");
+        }
+
         {
             outS = new Ice.OutputStream(communicator);
             MyClassSHelper.write(outS, myClassArray);
@@ -551,7 +563,7 @@ public class AllTests : TestCommon.TestApp
             var arr2 = MyClassSHelper.read(inS);
             inS.readPendingValues();
             test(arr2.Length == myClassArray.Length);
-            for (int i = 0; i < arr2.Length; ++i)
+            for(int i = 0; i < arr2.Length; ++i)
             {
                 test(arr2[i] != null);
                 test(arr2[i].c == arr2[i]);
@@ -575,6 +587,27 @@ public class AllTests : TestCommon.TestApp
             data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
             var arr2S = MyClassSSHelper.read(inS);
+            test(arr2S.Length == arrS.Length);
+            test(arr2S[0].Length == arrS[0].Length);
+            test(arr2S[1].Length == arrS[1].Length);
+            test(arr2S[2].Length == arrS[2].Length);
+        }
+
+        {
+            outS = new Ice.OutputStream(communicator);
+            MyInterfaceSHelper.write(outS, myInterfaceArray);
+            outS.writePendingValues();
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2 = MyInterfaceSHelper.read(inS);
+            inS.readPendingValues();
+            test(arr2.Length == myInterfaceArray.Length);
+            Ice.Value[][] arrS = { myInterfaceArray, new Ice.Value[0], myInterfaceArray };
+            outS = new Ice.OutputStream(communicator);
+            MyInterfaceSSHelper.write(outS, arrS);
+            data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var arr2S = MyInterfaceSSHelper.read(inS);
             test(arr2S.Length == arrS.Length);
             test(arr2S[0].Length == arrS[0].Length);
             test(arr2S[1].Length == arrS[1].Length);
@@ -768,7 +801,7 @@ public class AllTests : TestCommon.TestApp
             inS = new Ice.InputStream(communicator, data);
             var l2 = SmallStructListHelper.read(inS);
             test(l2.Count == l.Count);
-            for (int i = 0; i < l2.Count; ++i)
+            for(int i = 0; i < l2.Count; ++i)
             {
                 test(l2[i].Equals(smallStructArray[i]));
             }
@@ -784,7 +817,7 @@ public class AllTests : TestCommon.TestApp
             var l2 = MyClassListHelper.read(inS);
             inS.readPendingValues();
             test(l2.Count == l.Count);
-            for (int i = 0; i < l2.Count; ++i)
+            for(int i = 0; i < l2.Count; ++i)
             {
                 test(l2[i] != null);
                 test(l2[i].c == l2[i]);
@@ -804,15 +837,28 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            var arr = new MyClassPrx[2];
-            arr[0] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
-            arr[1] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+            var arr = new Ice.ObjectPrx[2];
+            arr[0] = communicator.stringToProxy("zero");
+            arr[1] = communicator.stringToProxy("one");
             outS = new Ice.OutputStream(communicator);
-            var l = new List<MyClassPrx>(arr);
+            var l = new List<Ice.ObjectPrx>(arr);
             MyClassProxyListHelper.write(outS, l);
             byte[] data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
             var l2 = MyClassProxyListHelper.read(inS);
+            test(Compare(l2, l));
+        }
+
+        {
+            var arr = new MyInterfacePrx[2];
+            arr[0] = MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
+            arr[1] = MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+            outS = new Ice.OutputStream(communicator);
+            var l = new List<MyInterfacePrx>(arr);
+            MyInterfaceProxyListHelper.write(outS, l);
+            byte[] data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = MyInterfaceProxyListHelper.read(inS);
             test(Compare(l2, l));
         }
 
@@ -904,15 +950,28 @@ public class AllTests : TestCommon.TestApp
         }
 
         {
-            var arr = new MyClassPrx[2];
-            arr[0] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
-            arr[1] = MyClassPrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+            var arr = new Ice.ObjectPrx[2];
+            arr[0] = communicator.stringToProxy("zero");
+            arr[1] = communicator.stringToProxy("one");
             outS = new Ice.OutputStream(communicator);
-            var l = new Stack<MyClassPrx>(arr);
+            var l = new Stack<Ice.ObjectPrx>(arr);
             MyClassProxyStackHelper.write(outS, l);
             var data = outS.finished();
             inS = new Ice.InputStream(communicator, data);
             var l2 = MyClassProxyStackHelper.read(inS);
+            test(Compare(l2, l));
+        }
+
+        {
+            var arr = new MyInterfacePrx[2];
+            arr[0] = MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("zero"));
+            arr[1] = MyInterfacePrxHelper.uncheckedCast(communicator.stringToProxy("one"));
+            outS = new Ice.OutputStream(communicator);
+            var l = new Stack<MyInterfacePrx>(arr);
+            MyInterfaceProxyStackHelper.write(outS, l);
+            var data = outS.finished();
+            inS = new Ice.InputStream(communicator, data);
+            var l2 = MyInterfaceProxyStackHelper.read(inS);
             test(Compare(l2, l));
         }
 

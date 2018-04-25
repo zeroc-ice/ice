@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,8 +24,8 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/EndpointTypes.h>
 
-#if defined(ICE_OS_WINRT)
-// Nothing to include
+#if defined(ICE_OS_UWP)
+#   include <ppltasks.h>
 #elif defined(_WIN32)
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
@@ -50,7 +50,7 @@ typedef int ssize_t;
 #elif defined(__APPLE__) && !defined(ICE_NO_CFSTREAM)
 #   define ICE_USE_CFSTREAM 1
 #elif defined(_WIN32)
-#  if defined(ICE_OS_WINRT)
+#  if defined(ICE_OS_UWP)
 #  elif !defined(ICE_NO_IOCP)
 #     define ICE_USE_IOCP 1
 #  else
@@ -68,7 +68,7 @@ typedef int socklen_t;
 #   define SOCKET int
 #   define INVALID_SOCKET -1
 #   define SOCKET_ERROR -1
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     typedef Platform::Object^ SOCKET;
 #   define INVALID_SOCKET nullptr
 #   define SOCKET_ERROR -1
@@ -115,7 +115,7 @@ namespace IceInternal
 //
 // Use Address struct or union depending on the platform
 //
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 struct ICE_API Address
 {
     Windows::Networking::HostName^ host;
@@ -152,17 +152,7 @@ enum SocketOperation
 };
 
 //
-// On WinRT, wait only for read to return, on IOCP/Win32 wait for
-// both pending read and write operations to complete (#ICE-6695).
-//
-#if defined(ICE_OS_WINRT)
-const int SocketOperationWaitForClose = 1;
-#elif defined(ICE_USE_IOCP)
-const int SocketOperationWaitForClose = 3;
-#endif
-
-//
-// AsyncInfo struct for Windows IOCP or WinRT holds the result of
+// AsyncInfo struct for Windows IOCP or UWP holds the result of
 // asynchronous operations after it completed.
 //
 #if defined(ICE_USE_IOCP)
@@ -176,10 +166,11 @@ struct ICE_API AsyncInfo : WSAOVERLAPPED
     DWORD count;
     int error;
 };
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 struct ICE_API AsyncInfo
 {
     Windows::Foundation::AsyncOperationCompletedHandler<unsigned int>^ completedHandler;
+    Windows::Foundation::IAsyncInfo^ operation;
     int count;
     int error;
 };
@@ -193,7 +184,6 @@ public:
 
     virtual ~ReadyCallback();
 
-
     virtual void ready(SocketOperation, bool) = 0;
 };
 typedef IceUtil::Handle<ReadyCallback> ReadyCallbackPtr;
@@ -205,6 +195,9 @@ public:
     virtual ~NativeInfo();
 
     NativeInfo(SOCKET socketFd = INVALID_SOCKET) : _fd(socketFd)
+#if !defined(ICE_USE_IOCP) && !defined(ICE_OS_UWP)
+        , _newFd(INVALID_SOCKET)
+#endif
     {
     }
 
@@ -228,12 +221,15 @@ public:
     virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
     void initialize(HANDLE, ULONG_PTR);
     void completed(SocketOperation);
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation) = 0;
     void queueAction(SocketOperation, Windows::Foundation::IAsyncAction^, bool = false);
     void queueOperation(SocketOperation, Windows::Foundation::IAsyncOperation<unsigned int>^);
     void setCompletedHandler(SocketOperationCompletedHandler^);
     void completed(SocketOperation);
+#else
+    bool newFd();
+    void setNewFd(SOCKET);
 #endif
 
 protected:
@@ -244,9 +240,21 @@ protected:
 #if defined(ICE_USE_IOCP)
     HANDLE _handle;
     ULONG_PTR _key;
-#elif defined(ICE_OS_WINRT)
-    bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, bool = false);
+#elif defined(ICE_OS_UWP)
+    bool checkIfErrorOrCompleted(SocketOperation, Windows::Foundation::IAsyncInfo^, Windows::Foundation::AsyncStatus, bool = false);
     SocketOperationCompletedHandler^ _completedHandler;
+#else
+    SOCKET _newFd;
+#endif
+
+private:
+
+#if defined(ICE_OS_UWP)
+    void queueActionCompleted(SocketOperation, AsyncInfo* asyncInfo, Windows::Foundation::IAsyncAction^,
+                              Windows::Foundation::AsyncStatus);
+    void queueOperationCompleted(SocketOperation, AsyncInfo* asyncInfo,
+                                 Windows::Foundation::IAsyncOperation<unsigned int>^,
+                                 Windows::Foundation::AsyncStatus);
 #endif
 };
 typedef IceUtil::Handle<NativeInfo> NativeInfoPtr;
@@ -256,7 +264,7 @@ ICE_API std::string errorToStringDNS(int);
 ICE_API std::vector<Address> getAddresses(const std::string&, int, ProtocolSupport, Ice::EndpointSelectionType, bool,
                                           bool);
 ICE_API ProtocolSupport getProtocolSupport(const Address&);
-ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool);
+ICE_API Address getAddressForServer(const std::string&, int, ProtocolSupport, bool, bool);
 ICE_API int compareAddress(const Address&, const Address&);
 
 ICE_API bool isIPv6Supported();
@@ -276,6 +284,7 @@ ICE_API std::string addressesToString(const Address&, const Address&, bool);
 ICE_API bool isAddressValid(const Address&);
 
 ICE_API std::vector<std::string> getHostsForEndpointExpand(const std::string&, ProtocolSupport, bool);
+ICE_API std::vector<std::string> getInterfacesForMulticast(const std::string&, ProtocolSupport);
 
 ICE_API std::string inetAddrToString(const Address&);
 ICE_API int getPort(const Address&);
@@ -295,11 +304,10 @@ ICE_API void setMcastGroup(SOCKET, const Address&, const std::string&);
 ICE_API void setMcastInterface(SOCKET, const std::string&, const Address&);
 ICE_API void setMcastTtl(SOCKET, int, const Address&);
 ICE_API void setReuseAddress(SOCKET, bool);
-
-ICE_API Address doBind(SOCKET, const Address&);
+ICE_API Address doBind(SOCKET, const Address&, const std::string& intf = "");
 ICE_API void doListen(SOCKET, int);
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 ICE_API bool interrupted();
 ICE_API bool acceptInterrupted();
 ICE_API bool noBuffers();
@@ -324,12 +332,45 @@ ICE_API Address getNumericAddress(const std::string&);
 #else
 ICE_API void checkConnectErrorCode(const char*, int, HRESULT);
 ICE_API void checkErrorCode(const char*, int, HRESULT);
+
+//
+// UWP impose some restriction on operations that block when run from
+// STA thread and throws concurrency::invalid_operation. We cannot
+// directly call task::get or task::way, this helper method is used to
+// workaround this limitation.
+//
+template<typename T>
+T runSync(Windows::Foundation::IAsyncOperation<T>^ operation)
+{
+    std::promise<T> p;
+    concurrency::create_task(operation).then(
+        [&p](concurrency::task<T> t)
+        {
+            try
+            {
+                p.set_value(t.get());
+            }
+            catch(...)
+            {
+                p.set_exception(std::current_exception());
+            }
+        },
+        concurrency::task_continuation_context::use_arbitrary());
+
+    return p.get_future().get();
+}
+
+ICE_API void runSync(Windows::Foundation::IAsyncAction^ action);
+
 #endif
 
 #if defined(ICE_USE_IOCP)
 ICE_API void doConnectAsync(SOCKET, const Address&, const Address&, AsyncInfo&);
 ICE_API void doFinishConnectAsync(SOCKET, AsyncInfo&);
 #endif
+
+ICE_API bool isIpAddress(const std::string&);
+
 }
 
 #endif

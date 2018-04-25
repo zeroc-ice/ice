@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,11 +16,11 @@ module Test
 exception InvalidInputException
 {
     string reason;
-};
+}
 
 local exception RetryException
 {
-};
+}
 
 interface MyObject
 {
@@ -45,9 +45,9 @@ interface MyObject
     int notExistAdd(int x, int y);
 
     //
-    // Raise system exception
+    // Raise Ice local exception
     //
     int badSystemAdd(int x, int y);
-};
+}
 
-};
+}

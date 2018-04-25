@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,19 +10,11 @@
 using System;
 using Test;
 
-public class AllTests
+public class AllTests : TestCommon.AllTests
 {
-    private static void
-    test(bool b)
+    public static void allTests(TestCommon.Application app)
     {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
-    public static void allTests(Ice.Communicator communicator)
-    {
+        Ice.Communicator communicator = app.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
         String rf = "test @ TestAdapter";
@@ -62,7 +54,7 @@ public class AllTests
             IceGrid.RegistryPrx registry = IceGrid.RegistryPrxHelper.checkedCast(
                 communicator.stringToProxy(communicator.getDefaultLocator().ice_getIdentity().category + "/Registry"));
             test(registry != null);
-            
+
             try
             {
                 IceGrid.AdminSessionPrx session = registry.createAdminSession("foo", "bar");
@@ -81,16 +73,12 @@ public class AllTests
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().ice_clone_();
             initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery", 
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
-            if(IceInternal.AssemblyUtil.osx_ && 
-               initData.properties.getPropertyAsInt("Ice.PreferIPv6Address") > 0)
-            {
-                initData.properties.setProperty("IceLocatorDiscovery.Interface", "::1");
-            }
+            initData.properties.setProperty("IceLocatorDiscovery.Port", app.getTestPort(99).ToString());
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
-        
+
             Ice.Communicator com =  Ice.Util.initialize(initData);
             test(com.getDefaultLocator() != null);
             com.stringToProxy("test @ TestAdapter").ice_ping();
@@ -108,7 +96,7 @@ public class AllTests
             //
             // Now, ensure that the IceGrid discovery locator correctly
             // handles failure to find a locator.
-            // 
+            //
             initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
             initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
             initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");
@@ -143,6 +131,64 @@ public class AllTests
             adapter.deactivate();
 
             com.destroy();
+
+            string multicast;
+            if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
+            {
+                multicast = "\"ff15::1\"";
+            }
+            else
+            {
+                multicast = "239.255.0.1";
+            }
+
+            //
+            // Test invalid lookup endpoints
+            //
+            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
+            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                             "udp -h " + multicast + " --interface unknown");
+            com = Ice.Util.initialize(initData);
+            test(com.getDefaultLocator() != null);
+            try
+            {
+                com.stringToProxy("test @ TestAdapter").ice_ping();
+                test(false);
+            }
+            catch(Ice.NoEndpointException)
+            {
+            }
+            com.destroy();
+
+            initData.properties = communicator.getProperties().ice_clone_();
+            initData.properties.setProperty("Ice.Default.Locator", "");
+            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                            "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
+            {
+                string intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
+                if(!intf.Equals(""))
+                {
+                    intf = " --interface \"" + intf + "\"";
+                }
+                string port = app.getTestPort(99).ToString();
+                initData.properties.setProperty("IceLocatorDiscovery.Lookup",
+                                                 "udp -h " + multicast + " --interface unknown:" +
+                                                 "udp -h " + multicast + " -p " + port + intf);
+            }
+            com = Ice.Util.initialize(initData);
+            test(com.getDefaultLocator() != null);
+            try
+            {
+                com.stringToProxy("test @ TestAdapter").ice_ping();
+            }
+            catch(Ice.NoEndpointException)
+            {
+                test(false);
+            }
+            com.destroy();
         }
         Console.Out.WriteLine("ok");
 
@@ -153,8 +199,9 @@ public class AllTests
     }
 
     public static void
-    allTestsWithDeploy(Ice.Communicator communicator)
+    allTestsWithDeploy(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
         Ice.ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,8 +10,8 @@
 #include <IceUtil/UUID.h>
 
 // On Windows, we use Windows's RPC UUID generator.
-// On other platforms, we use a high quality random number generator 
-// (/dev/random) to generate "version 4" UUIDs, as described in 
+// On other platforms, we use a high quality random number generator
+// (/dev/random) to generate "version 4" UUIDs, as described in
 // http://www.ietf.org/internet-drafts/draft-mealling-uuid-urn-00.txt
 
 #include <IceUtil/Random.h>
@@ -25,7 +25,7 @@
 
 using namespace std;
 
-#if defined(ICE_OS_WINRT) || !defined(_WIN32)
+#if defined(ICE_OS_UWP) || !defined(_WIN32)
 
 namespace
 {
@@ -43,7 +43,7 @@ namespace IceUtilInternal
 class PidInitializer
 {
 public:
-    
+
     PidInitializer()
     {
 #ifndef _WIN32
@@ -75,7 +75,7 @@ inline void halfByteToHex(unsigned char hb, char*& hexBuffer)
     else
     {
         *hexBuffer++ = 'A' + (hb - 10);
-    } 
+    }
 }
 
 inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
@@ -92,13 +92,13 @@ inline void bytesToHex(unsigned char* bytes, size_t len, char*& hexBuffer)
 string
 IceUtil::generateUUID()
 {
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
 
     UUID uuid;
     RPC_STATUS ret = UuidCreate(&uuid);
     if(ret != RPC_S_OK && ret != RPC_S_UUID_LOCAL_ONLY && ret != RPC_S_UUID_NO_ADDRESS)
     {
-        throw new SyscallException(__FILE__, __LINE__, GetLastError());
+        throw SyscallException(__FILE__, __LINE__, GetLastError());
     }
 
     unsigned char* str;
@@ -106,13 +106,13 @@ IceUtil::generateUUID()
     ret = UuidToString(&uuid, &str);
     if(ret != RPC_S_OK)
     {
-        throw new SyscallException(__FILE__, __LINE__, GetLastError());
+        throw SyscallException(__FILE__, __LINE__, GetLastError());
     }
     string result = reinterpret_cast<char*>(str);
 
     RpcStringFree(&str);
     return result;
-    
+
 #else
     struct UUID
     {
@@ -127,7 +127,7 @@ IceUtil::generateUUID()
 
     assert(sizeof(UUID) == 16);
 
-    // 
+    //
     // Get a random sequence of bytes. Instead of using 122 random
     // bits that could be duplicated (because of a bug with some Linux
     // kernels and potentially other Unix platforms -- see comment in
@@ -146,7 +146,7 @@ IceUtil::generateUUID()
     uuid.clockSeqHiAndReserved |= 0x80;
 
     //
-    // Replace the end of the node by myPid (15 bits) 
+    // Replace the end of the node by myPid (15 bits)
     //
     uuid.node[4] = (uuid.node[4] & 0x80) | myPid[0];
     uuid.node[5] = myPid[1];

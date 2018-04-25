@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,12 +22,11 @@
 #include <vector>
 #include <map>
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 #   if defined(_WIN32)
 #      include <process.h>
 #   else
 #      include <sys/types.h>
-#      include <unistd.h>
 #      include <cstddef>
 #   endif
 #endif
@@ -50,15 +49,22 @@ namespace IceInternal
 namespace Ice
 {
 
+/** The mapping for the Slice byte type. */
 typedef unsigned char Byte;
+/** The mapping for the Slice short type. */
 typedef short Short;
+/** The mapping for the Slice int type. */
 typedef int Int;
 #ifdef ICE_CPP11_MAPPING
+/** The mapping for the Slice long type. */
 typedef long long int Long;
 #else
+/** The mapping for the Slice long type. */
 typedef IceUtil::Int64 Long;
 #endif
+/** The mapping for the Slice float type. */
 typedef float Float;
+/** The mapping for the Slice double type. */
 typedef double Double;
 
 }

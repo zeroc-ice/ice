@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -327,9 +327,7 @@ NodeCache::get(const string& name, bool create) const
     }
     if(!entry)
     {
-        NodeNotExistException ex;
-        ex.name = name;
-        throw ex;
+        throw NodeNotExistException(name);
     }
     return entry;
 }
@@ -402,7 +400,7 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
                 {
                     try
                     {
-                        session->destroy();
+                        session->destroy(Ice::emptyCurrent);
                     }
                     catch(const Ice::ObjectNotExistException&)
                     {
@@ -569,7 +567,7 @@ NodeEntry::loadServer(const ServerEntryPtr& entry, const ServerInfo& server, con
             Lock sync(*this);
             checkSession();
             node = _session->getNode();
-            sessionTimeout = _session->getTimeout();
+            sessionTimeout = _session->getTimeout(Ice::emptyCurrent);
 
             //
             // Check if we should use a specific timeout (the load

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,7 +24,6 @@ LocatorRegistryI::LocatorRegistryI(const Ice::CommunicatorPtr& com) :
     _wellKnownProxy(com->stringToProxy("p")->ice_locator(0)->ice_router(0)->ice_collocationOptimized(true))
 {
 }
-
 
 #ifdef ICE_CPP11_MAPPING
 void
@@ -229,20 +228,20 @@ LocatorI::LocatorI(const LookupIPtr& lookup, const LocatorRegistryPrxPtr& regist
 #ifdef ICE_CPP11_MAPPING
 void
 LocatorI::findObjectByIdAsync(Ice::Identity id,
-                               function<void(const shared_ptr<ObjectPrx>&)> response,
-                               function<void(exception_ptr)>,
-                               const Ice::Current&) const
+                              function<void(const shared_ptr<ObjectPrx>&)> response,
+                              function<void(exception_ptr)> ex,
+                              const Ice::Current&) const
 {
-    _lookup->findObject(response, id);
+    _lookup->findObject(make_pair(response, ex), id);
 }
 
 void
 LocatorI::findAdapterByIdAsync(string adapterId,
-                                function<void(const shared_ptr<ObjectPrx>&)> response,
-                                function<void(exception_ptr)>,
-                                const Ice::Current&) const
+                               function<void(const shared_ptr<ObjectPrx>&)> response,
+                               function<void(exception_ptr)> ex,
+                               const Ice::Current&) const
 {
-    _lookup->findAdapter(response, adapterId);
+    _lookup->findAdapter(make_pair(response, ex), adapterId);
 }
 #else
 void

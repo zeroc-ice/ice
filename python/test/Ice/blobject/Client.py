@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -52,45 +52,31 @@ try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(argv)
     initData.properties.setProperty('Ice.Warn.Dispatch', '0')
-    communicator = Ice.initialize(argv, initData)
-    router = RouterI.RouterI(communicator, False)
-    sys.stdout.write("testing async blobject... ")
-    sys.stdout.flush()
-    status = run(sys.argv, communicator, False)
-    print("ok")
-    router.destroy()
+    with Ice.initialize(argv, initData) as communicator:
+        router = RouterI.RouterI(communicator, False)
+        sys.stdout.write("testing async blobject... ")
+        sys.stdout.flush()
+        status = run(sys.argv, communicator, False)
+        print("ok")
+        router.destroy()
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 if status:
     try:
         initData = Ice.InitializationData()
         initData.properties = Ice.createProperties(sys.argv)
         initData.properties.setProperty('Ice.Warn.Dispatch', '0')
-        communicator = Ice.initialize(sys.argv, initData)
-        router = RouterI.RouterI(communicator, True)
-        sys.stdout.write("testing sync blobject... ")
-        sys.stdout.flush()
-        status = run(sys.argv, communicator, True)
-        print("ok")
-        router.destroy()
+        with Ice.initialize(sys.argv, initData) as communicator:
+            router = RouterI.RouterI(communicator, True)
+            sys.stdout.write("testing sync blobject... ")
+            sys.stdout.flush()
+            status = run(sys.argv, communicator, True)
+            print("ok")
+            router.destroy()
     except:
         traceback.print_exc()
         status = False
-
-    if communicator:
-        try:
-            communicator.destroy()
-        except:
-            traceback.print_exc()
-            status = False
 
 sys.exit(not status)

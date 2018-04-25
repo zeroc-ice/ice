@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,10 +25,10 @@ class TestPluginI : public PluginI
 public:
 
     TestPluginI(const Ice::CommunicatorPtr&);
-    
+
     virtual void initialize();
     virtual void destroy();
-    
+
     virtual ConfigurationPtr getConfiguration();
 
 private:
@@ -36,7 +36,6 @@ private:
     const Ice::CommunicatorPtr _communicator;
     const ConfigurationPtr _configuration;
 };
-
 
 //
 // Plugin factory function.
@@ -52,12 +51,12 @@ createTestTransport(const Ice::CommunicatorPtr& communicator, const string&, con
 
 }
 
-TestPluginI::TestPluginI(const Ice::CommunicatorPtr& communicator) : 
+TestPluginI::TestPluginI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
     _configuration(new Configuration())
 {
 }
-        
+
 void
 TestPluginI::initialize()
 {

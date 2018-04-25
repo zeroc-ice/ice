@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,75 +20,96 @@ namespace Ice
     {
         public void destroy()
         {
-            instance_.destroy();
+            _instance.destroy();
         }
 
         public void shutdown()
         {
-            instance_.objectAdapterFactory().shutdown();
+            try
+            {
+                _instance.objectAdapterFactory().shutdown();
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                // Ignore
+            }
         }
 
         public void waitForShutdown()
         {
-            instance_.objectAdapterFactory().waitForShutdown();
+            try
+            {
+                _instance.objectAdapterFactory().waitForShutdown();
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                // Ignore
+            }
         }
 
         public bool isShutdown()
         {
-            return instance_.objectAdapterFactory().isShutdown();
+            try
+            {
+                return _instance.objectAdapterFactory().isShutdown();
+            }
+            catch(Ice.CommunicatorDestroyedException)
+            {
+                return true;
+            }
         }
 
-        public Ice.ObjectPrx stringToProxy(string s)
+        public ObjectPrx stringToProxy(string s)
         {
-            return instance_.proxyFactory().stringToProxy(s);
+            return _instance.proxyFactory().stringToProxy(s);
         }
 
-        public string proxyToString(Ice.ObjectPrx proxy)
+        public string proxyToString(ObjectPrx proxy)
         {
-            return instance_.proxyFactory().proxyToString(proxy);
+            return _instance.proxyFactory().proxyToString(proxy);
         }
 
-        public Ice.ObjectPrx propertyToProxy(string s)
+        public ObjectPrx propertyToProxy(string s)
         {
-            return instance_.proxyFactory().propertyToProxy(s);
+            return _instance.proxyFactory().propertyToProxy(s);
         }
 
-        public Dictionary<string, string> proxyToProperty(Ice.ObjectPrx proxy, string prefix)
+        public Dictionary<string, string> proxyToProperty(ObjectPrx proxy, string prefix)
         {
-            return instance_.proxyFactory().proxyToProperty(proxy, prefix);
+            return _instance.proxyFactory().proxyToProperty(proxy, prefix);
         }
 
-        public Ice.Identity stringToIdentity(string s)
+        public Identity stringToIdentity(string s)
         {
-            return Ice.Util.stringToIdentity(s);
+            return Util.stringToIdentity(s);
         }
 
-        public string identityToString(Ice.Identity ident)
+        public string identityToString(Identity ident)
         {
-            return Ice.Util.identityToString(ident);
+            return Util.identityToString(ident, _instance.toStringMode());
         }
 
         public ObjectAdapter createObjectAdapter(string name)
         {
-            return instance_.objectAdapterFactory().createObjectAdapter(name, null);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, null);
         }
 
         public ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints)
         {
             if(name.Length == 0)
             {
-                name = System.Guid.NewGuid().ToString();
+                name = Guid.NewGuid().ToString();
             }
 
             getProperties().setProperty(name + ".Endpoints", endpoints);
-            return instance_.objectAdapterFactory().createObjectAdapter(name, null);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, null);
         }
 
         public ObjectAdapter createObjectAdapterWithRouter(string name, RouterPrx router)
         {
             if(name.Length == 0)
             {
-                name = System.Guid.NewGuid().ToString();
+                name = Guid.NewGuid().ToString();
             }
 
             //
@@ -100,110 +121,121 @@ namespace Ice
                 getProperties().setProperty(entry.Key, entry.Value);
             }
 
-            return instance_.objectAdapterFactory().createObjectAdapter(name, router);
+            return _instance.objectAdapterFactory().createObjectAdapter(name, router);
         }
 
         public void addObjectFactory(ObjectFactory factory, string id)
         {
-            instance_.addObjectFactory(factory, id);
+            _instance.addObjectFactory(factory, id);
         }
 
         public ObjectFactory findObjectFactory(string id)
         {
-            return instance_.findObjectFactory(id);
+            return _instance.findObjectFactory(id);
         }
 
         public ValueFactoryManager getValueFactoryManager()
         {
-            return instance_.initializationData().valueFactoryManager;
+            return _instance.initializationData().valueFactoryManager;
         }
 
         public Properties getProperties()
         {
-            return instance_.initializationData().properties;
+            return _instance.initializationData().properties;
         }
 
         public Logger getLogger()
         {
-            return instance_.initializationData().logger;
+            return _instance.initializationData().logger;
         }
 
-        public Ice.Instrumentation.CommunicatorObserver getObserver()
+        public Instrumentation.CommunicatorObserver getObserver()
         {
-            return instance_.initializationData().observer;
+            return _instance.initializationData().observer;
         }
 
         public RouterPrx getDefaultRouter()
         {
-            return instance_.referenceFactory().getDefaultRouter();
+            return _instance.referenceFactory().getDefaultRouter();
         }
 
         public void setDefaultRouter(RouterPrx router)
         {
-            instance_.setDefaultRouter(router);
+            _instance.setDefaultRouter(router);
         }
 
         public LocatorPrx getDefaultLocator()
         {
-            return instance_.referenceFactory().getDefaultLocator();
+            return _instance.referenceFactory().getDefaultLocator();
         }
 
         public void setDefaultLocator(LocatorPrx locator)
         {
-            instance_.setDefaultLocator(locator);
+            _instance.setDefaultLocator(locator);
         }
 
         public ImplicitContext getImplicitContext()
         {
-            return instance_.getImplicitContext();
+            return _instance.getImplicitContext();
         }
 
         public PluginManager getPluginManager()
         {
-            return instance_.pluginManager();
+            return _instance.pluginManager();
         }
 
-        public void flushBatchRequests()
+        public void flushBatchRequests(Ice.CompressBatch compressBatch)
         {
-            flushBatchRequestsAsync().Wait();
+            try
+            {
+                var completed = new FlushBatchTaskCompletionCallback();
+                var outgoing = new CommunicatorFlushBatchAsync(_instance, completed);
+                outgoing.invoke(_flushBatchRequests_name, compressBatch, true);
+                completed.Task.Wait();
+            }
+            catch(AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
-        public Task flushBatchRequestsAsync(IProgress<bool> progress = null,
+        public Task flushBatchRequestsAsync(Ice.CompressBatch compressBatch,
+                                            IProgress<bool> progress = null,
                                             CancellationToken cancel = new CancellationToken())
         {
             var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
-            var outgoing = new CommunicatorFlushBatchAsync(instance_, completed);
-            outgoing.invoke(__flushBatchRequests_name);
+            var outgoing = new CommunicatorFlushBatchAsync(_instance, completed);
+            outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
             return completed.Task;
         }
 
-        public AsyncResult begin_flushBatchRequests()
+        public AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch)
         {
-            return begin_flushBatchRequests(null, null);
+            return begin_flushBatchRequests(compressBatch, null, null);
         }
 
-        private const string __flushBatchRequests_name = "flushBatchRequests";
+        private const string _flushBatchRequests_name = "flushBatchRequests";
 
         private class CommunicatorFlushBatchCompletionCallback : AsyncResultCompletionCallback
         {
-            public CommunicatorFlushBatchCompletionCallback(Ice.Communicator communicator,
+            public CommunicatorFlushBatchCompletionCallback(Communicator communicator,
                                                             Instance instance,
                                                             string op,
                                                             object cookie,
-                                                            Ice.AsyncCallback callback)
+                                                            AsyncCallback callback)
                 : base(communicator, instance, op, cookie, callback)
             {
             }
 
-            protected override Ice.AsyncCallback getCompletedCallback()
+            protected override AsyncCallback getCompletedCallback()
             {
-                return (Ice.AsyncResult result) =>
+                return (AsyncResult result) =>
                 {
                     try
                     {
                         result.throwLocalException();
                     }
-                    catch(Ice.Exception ex)
+                    catch(Exception ex)
                     {
                         if(exceptionCallback_ != null)
                         {
@@ -214,11 +246,15 @@ namespace Ice
             }
         };
 
-        public AsyncResult begin_flushBatchRequests(AsyncCallback cb, object cookie)
+        public AsyncResult begin_flushBatchRequests(Ice.CompressBatch compressBatch, AsyncCallback cb, object cookie)
         {
-            var result = new CommunicatorFlushBatchCompletionCallback(this, instance_, __flushBatchRequests_name, cookie, cb);
-            var outgoing = new CommunicatorFlushBatchAsync(instance_, result);
-            outgoing.invoke(__flushBatchRequests_name);
+            var result = new CommunicatorFlushBatchCompletionCallback(this,
+                                                                      _instance,
+                                                                      _flushBatchRequests_name,
+                                                                      cookie,
+                                                                      cb);
+            var outgoing = new CommunicatorFlushBatchAsync(_instance, result);
+            outgoing.invoke(_flushBatchRequests_name, compressBatch, false);
             return result;
         }
 
@@ -226,42 +262,42 @@ namespace Ice
         {
             if(result != null && result.getCommunicator() != this)
             {
-                const string msg = "Communicator for call to end_" + __flushBatchRequests_name +
+                const string msg = "Communicator for call to end_" + _flushBatchRequests_name +
                                    " does not match communicator that was used to call corresponding begin_" +
-                                   __flushBatchRequests_name + " method";
+                                   _flushBatchRequests_name + " method";
                 throw new ArgumentException(msg);
             }
-            AsyncResultI.check(result, __flushBatchRequests_name).wait();
+            AsyncResultI.check(result, _flushBatchRequests_name).wait();
         }
 
         public ObjectPrx createAdmin(ObjectAdapter adminAdapter, Identity adminIdentity)
         {
-            return instance_.createAdmin(adminAdapter, adminIdentity);
+            return _instance.createAdmin(adminAdapter, adminIdentity);
         }
 
         public ObjectPrx getAdmin()
         {
-            return instance_.getAdmin();
+            return _instance.getAdmin();
         }
 
-        public void addAdminFacet(Ice.Object servant, string facet)
+        public void addAdminFacet(Object servant, string facet)
         {
-            instance_.addAdminFacet(servant, facet);
+            _instance.addAdminFacet(servant, facet);
         }
 
-        public Ice.Object removeAdminFacet(string facet)
+        public Object removeAdminFacet(string facet)
         {
-            return instance_.removeAdminFacet(facet);
+            return _instance.removeAdminFacet(facet);
         }
 
-        public Ice.Object findAdminFacet(string facet)
+        public Object findAdminFacet(string facet)
         {
-            return instance_.findAdminFacet(facet);
+            return _instance.findAdminFacet(facet);
         }
 
-        public Dictionary<string, Ice.Object> findAllAdminFacets()
+        public Dictionary<string, Object> findAllAdminFacets()
         {
-            return instance_.findAllAdminFacets();
+            return _instance.findAllAdminFacets();
         }
 
         public void Dispose()
@@ -271,7 +307,7 @@ namespace Ice
 
         internal CommunicatorI(InitializationData initData)
         {
-            instance_ = new IceInternal.Instance(this, initData);
+            _instance = new Instance(this, initData);
         }
 
         /*
@@ -281,7 +317,7 @@ namespace Ice
             {
                 if(!System.Environment.HasShutdownStarted)
                 {
-                    instance_.initializationData().logger.warning(
+                    _instance.initializationData().logger.warning(
                             "Ice::Communicator::destroy() has not been called");
                 }
                 else
@@ -300,11 +336,11 @@ namespace Ice
         {
             try
             {
-                instance_.finishSetup(ref args, this);
+                _instance.finishSetup(ref args, this);
             }
             catch(System.Exception)
             {
-                instance_.destroy();
+                _instance.destroy();
                 throw;
             }
         }
@@ -312,11 +348,11 @@ namespace Ice
         //
         // For use by Util.getInstance()
         //
-        internal IceInternal.Instance getInstance()
+        internal Instance getInstance()
         {
-            return instance_;
+            return _instance;
         }
 
-        private IceInternal.Instance instance_;
+        private Instance _instance;
     }
 }

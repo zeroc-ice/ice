@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -1040,132 +1040,183 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "preserved exceptions... " << flush;
-    string localOAEndpoint;
+    try
     {
-        ostringstream ostr;
-        if(communicator->getProperties()->getProperty("Ice.Default.Protocol") == "bt")
+        test->unknownPreservedAsBase();
+        test(false);
+    }
+    catch(const Base& ex)
+    {
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
         {
-            ostr << "default -a *";
+            test(!ex.ice_getSlicedData());
         }
         else
         {
-            ostr << "default -h *";
+            Ice::SlicedDataPtr slicedData = ex.ice_getSlicedData();
+            test(slicedData);
+            test(slicedData->slices.size() == 2);
+            test(slicedData->slices[1]->typeId == "::Test::SPreserved1");
+            test(slicedData->slices[0]->typeId == "::Test::SPreserved2");
         }
-        localOAEndpoint = ostr.str();
     }
+    catch(const Ice::LocalException& ex)
     {
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("Relay", localOAEndpoint);
-        RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(ICE_MAKE_SHARED(RelayI)));
-        adapter->activate();
-
-        try
-        {
-            test->relayKnownPreservedAsBase(relay);
-            test(false);
-        }
-        catch(const KnownPreservedDerived& ex)
-        {
-            test(ex.b == "base");
-            test(ex.kp == "preserved");
-            test(ex.kpd == "derived");
-        }
-        catch(const Ice::OperationNotExistException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
-
-        try
-        {
-            test->relayKnownPreservedAsKnownPreserved(relay);
-            test(false);
-        }
-        catch(const KnownPreservedDerived& ex)
-        {
-            test(ex.b == "base");
-            test(ex.kp == "preserved");
-            test(ex.kpd == "derived");
-        }
-        catch(const Ice::OperationNotExistException&)
-        {
-        }
-        catch(...)
-        {
-            test(false);
-        }
-
-        try
-        {
-            test->relayUnknownPreservedAsBase(relay);
-            test(false);
-        }
-        catch(const Preserved2& ex)
-        {
-            test(ex.b == "base");
-            test(ex.kp == "preserved");
-            test(ex.kpd == "derived");
-            test(ex.p1->ice_id() == PreservedClass::ice_staticId());
-            PreservedClassPtr pc = ICE_DYNAMIC_CAST(PreservedClass, ex.p1);
-            test(pc->bc == "bc");
-            test(pc->pc == "pc");
-            test(ex.p2 == ex.p1);
-        }
-        catch(const Ice::OperationNotExistException&)
-        {
-        }
-        catch(const KnownPreservedDerived& ex)
-        {
-            //
-            // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-            //
-            test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
-            test(ex.b == "base");
-            test(ex.kp == "preserved");
-            test(ex.kpd == "derived");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-
-        try
-        {
-            test->relayUnknownPreservedAsKnownPreserved(relay);
-            test(false);
-        }
-        catch(const Ice::OperationNotExistException&)
-        {
-        }
-        catch(const Preserved2& ex)
-        {
-            test(ex.b == "base");
-            test(ex.kp == "preserved");
-            test(ex.kpd == "derived");
-            test(ex.p1->ice_id() == PreservedClass::ice_staticId());
-            PreservedClassPtr pc = ICE_DYNAMIC_CAST(PreservedClass, ex.p1);
-            test(pc->bc == "bc");
-            test(pc->pc == "pc");
-            test(ex.p2 == ex.p1);
-        }
-        catch(const KnownPreservedDerived& ex)
-        {
-            //
-            // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
-            //
-            test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
-            test(ex.b == "base");
-            test(ex.kp == "preserved");
-            test(ex.kpd == "derived");
-        }
-        catch(...)
-        {
-            test(false);
-        }
-
-        adapter->destroy();
+        cerr << ex << endl;
+        test(false);
     }
+    catch(...)
+    {
+        test(false);
+    }
+
+    try
+    {
+        test->unknownPreservedAsKnownPreserved();
+        test(false);
+    }
+    catch(const KnownPreserved& ex)
+    {
+        test(ex.kp == "preserved");
+        if(test->ice_getEncodingVersion() == Ice::Encoding_1_0)
+        {
+            test(!ex.ice_getSlicedData());
+        }
+        else
+        {
+            Ice::SlicedDataPtr slicedData = ex.ice_getSlicedData();
+            test(slicedData);
+            test(slicedData->slices.size() == 2);
+            test(slicedData->slices[1]->typeId == "::Test::SPreserved1");
+            test(slicedData->slices[0]->typeId == "::Test::SPreserved2");
+        }
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
+    RelayPrxPtr relay = ICE_UNCHECKED_CAST(RelayPrx, adapter->addWithUUID(ICE_MAKE_SHARED(RelayI)));
+    adapter->activate();
+    test->ice_getConnection()->setAdapter(adapter);
+    try
+    {
+        test->relayKnownPreservedAsBase(relay);
+        test(false);
+    }
+    catch(const KnownPreservedDerived& ex)
+    {
+        test(ex.b == "base");
+        test(ex.kp == "preserved");
+        test(ex.kpd == "derived");
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+    catch(const Ice::LocalException& ex)
+    {
+        cerr << ex << endl;
+        test(false);
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    try
+    {
+        test->relayKnownPreservedAsKnownPreserved(relay);
+        test(false);
+    }
+    catch(const KnownPreservedDerived& ex)
+    {
+        test(ex.b == "base");
+        test(ex.kp == "preserved");
+        test(ex.kpd == "derived");
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    try
+    {
+        test->relayUnknownPreservedAsBase(relay);
+        test(false);
+    }
+    catch(const Preserved2& ex)
+    {
+        test(ex.b == "base");
+        test(ex.kp == "preserved");
+        test(ex.kpd == "derived");
+        test(ex.p1->ice_id() == PreservedClass::ice_staticId());
+        PreservedClassPtr pc = ICE_DYNAMIC_CAST(PreservedClass, ex.p1);
+        test(pc->bc == "bc");
+        test(pc->pc == "pc");
+        test(ex.p2 == ex.p1);
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+    catch(const KnownPreservedDerived& ex)
+    {
+        //
+        // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+        //
+        test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
+        test(ex.b == "base");
+        test(ex.kp == "preserved");
+        test(ex.kpd == "derived");
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    try
+    {
+        test->relayUnknownPreservedAsKnownPreserved(relay);
+        test(false);
+    }
+    catch(const Ice::OperationNotExistException&)
+    {
+    }
+    catch(const Preserved2& ex)
+    {
+        test(ex.b == "base");
+        test(ex.kp == "preserved");
+        test(ex.kpd == "derived");
+        test(ex.p1->ice_id() == PreservedClass::ice_staticId());
+        PreservedClassPtr pc = ICE_DYNAMIC_CAST(PreservedClass, ex.p1);
+        test(pc->bc == "bc");
+        test(pc->pc == "pc");
+        test(ex.p2 == ex.p1);
+    }
+    catch(const KnownPreservedDerived& ex)
+    {
+        //
+        // For the 1.0 encoding, the unknown exception is sliced to KnownPreserved.
+        //
+        test(test->ice_getEncodingVersion() == Ice::Encoding_1_0);
+        test(ex.b == "base");
+        test(ex.kp == "preserved");
+        test(ex.kpd == "derived");
+    }
+    catch(...)
+    {
+        test(false);
+    }
+
+    adapter->destroy();
     cout << "ok" << endl;
 
     return test;

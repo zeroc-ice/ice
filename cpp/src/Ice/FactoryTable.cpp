@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ Ice::UserExceptionFactory::~UserExceptionFactory()
 // If the factory is present already, increment its reference count.
 //
 void
-IceInternal::FactoryTable::addExceptionFactory(const string& t, ICE_IN(ICE_USER_EXCEPTION_FACTORY) f)
+IceInternal::FactoryTable::addExceptionFactory(const string& t, ICE_IN(ICE_DELEGATE(::Ice::UserExceptionFactory)) f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -44,12 +44,12 @@ IceInternal::FactoryTable::addExceptionFactory(const string& t, ICE_IN(ICE_USER_
 //
 // Return the exception factory for a given type ID
 //
-ICE_USER_EXCEPTION_FACTORY
+ICE_DELEGATE(::Ice::UserExceptionFactory)
 IceInternal::FactoryTable::getExceptionFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     EFTable::const_iterator i = _eft.find(t);
-    return i != _eft.end() ? i->second.first : ICE_USER_EXCEPTION_FACTORY();
+    return i != _eft.end() ? i->second.first : ICE_DELEGATE(::Ice::UserExceptionFactory)();
 }
 
 //
@@ -76,7 +76,7 @@ IceInternal::FactoryTable::removeExceptionFactory(const string& t)
 // Add a factory to the value factory table.
 //
 void
-IceInternal::FactoryTable::addValueFactory(const string& t, ICE_IN(ICE_VALUE_FACTORY) f)
+IceInternal::FactoryTable::addValueFactory(const string& t, ICE_IN(ICE_DELEGATE(::Ice::ValueFactory)) f)
 {
     IceUtil::Mutex::Lock lock(_m);
     assert(f);
@@ -94,12 +94,12 @@ IceInternal::FactoryTable::addValueFactory(const string& t, ICE_IN(ICE_VALUE_FAC
 //
 // Return the value factory for a given type ID
 //
-ICE_VALUE_FACTORY
+ICE_DELEGATE(::Ice::ValueFactory)
 IceInternal::FactoryTable::getValueFactory(const string& t) const
 {
     IceUtil::Mutex::Lock lock(_m);
     VFTable::const_iterator i = _vft.find(t);
-    return i != _vft.end() ? i->second.first : ICE_VALUE_FACTORY();
+    return i != _vft.end() ? i->second.first : ICE_DELEGATE(::Ice::ValueFactory)();
 }
 
 //
@@ -165,5 +165,3 @@ IceInternal::FactoryTable::removeTypeId(int compactId)
         }
     }
 }
-
-

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -77,6 +77,51 @@
     [current.adapter hold];
     ActivateAdapterThread* thread = [ActivateAdapterThread activateAdapterThread:current.adapter timeout:to];
     [thread start];
+}
+
+-(void) shutdown:(ICECurrent*)current
+{
+    [[current.adapter getCommunicator] shutdown];
+}
+@end
+
+@implementation TimeoutControllerI
+-(id) init:(id<ICEObjectAdapter>)adapter
+{
+    self = [super init];
+    if(!self)
+    {
+        return nil;
+    }
+    adapter_ = ICE_RETAIN(adapter);
+    return self;
+}
++(id) controller:(id<ICEObjectAdapter>)adapter
+{
+    return ICE_AUTORELEASE([[self alloc] init:adapter]);
+}
+
+#if defined(__clang__) && !__has_feature(objc_arc)
+-(void) dealloc
+{
+    [adapter_ release];
+    [super dealloc];
+}
+#endif
+
+-(void) holdAdapter:(ICEInt)to current:(ICECurrent*)current
+{
+    [adapter_ hold];
+    if(to >= 0)
+    {
+        ActivateAdapterThread* thread = [ActivateAdapterThread activateAdapterThread:adapter_ timeout:to];
+        [thread start];
+    }
+}
+
+-(void) resumeAdapter:(ICECurrent*)current
+{
+    [adapter_ activate];
 }
 
 -(void) shutdown:(ICECurrent*)current

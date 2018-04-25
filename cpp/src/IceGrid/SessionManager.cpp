@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -58,7 +58,7 @@ SessionManager::findAllQueryObjects(bool cached)
             {
                 try
                 {
-                    connection->close(false);
+                    connection->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
                 }
                 catch(const Ice::LocalException&)
                 {
@@ -90,7 +90,7 @@ SessionManager::findAllQueryObjects(bool cached)
                 // Ignore.
             }
         }
-        
+
         for(Ice::EndpointSeq::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
         {
             Ice::EndpointSeq singleEndpoint;
@@ -117,7 +117,7 @@ SessionManager::findAllQueryObjects(bool cached)
             {
                 break;
             }
-            
+
             try
             {
                 Ice::ObjectProxySeq prxs = query->end_findAllObjectsByType(*p);
@@ -141,7 +141,7 @@ SessionManager::findAllQueryObjects(bool cached)
         }
     }
     while(proxies.size() != previousSize);
-    
+
     Lock sync(*this);
     _queryObjects.swap(queryObjects);
     return _queryObjects;

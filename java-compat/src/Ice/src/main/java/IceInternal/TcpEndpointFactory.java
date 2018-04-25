@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,6 +14,12 @@ final class TcpEndpointFactory implements EndpointFactory
     TcpEndpointFactory(ProtocolInstance instance)
     {
         _instance = instance;
+    }
+
+    @Override
+    public void initialize()
+    {
+        // Nothing to do.
     }
 
     @Override
@@ -49,7 +55,7 @@ final class TcpEndpointFactory implements EndpointFactory
     }
 
     @Override
-    public EndpointFactory clone(ProtocolInstance instance, EndpointFactory delegate)
+    public EndpointFactory clone(ProtocolInstance instance)
     {
         return new TcpEndpointFactory(instance);
     }

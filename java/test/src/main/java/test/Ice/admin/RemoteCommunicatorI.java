@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,7 +11,7 @@ package test.Ice.admin;
 
 import test.Ice.admin.Test.*;
 
-public class RemoteCommunicatorI implements RemoteCommunicator, com.zeroc.Ice.PropertiesAdminUpdateCallback
+public class RemoteCommunicatorI implements RemoteCommunicator, java.util.function.Consumer<java.util.Map<String, String>>
 {
     RemoteCommunicatorI(com.zeroc.Ice.Communicator communicator)
     {
@@ -77,7 +77,7 @@ public class RemoteCommunicatorI implements RemoteCommunicator, com.zeroc.Ice.Pr
     }
 
     @Override
-    public synchronized void updated(java.util.Map<String, String> changes)
+    public synchronized void accept(java.util.Map<String, String> changes)
     {
         _changes = changes;
     }

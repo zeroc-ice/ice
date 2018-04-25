@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -37,8 +37,6 @@ ICE_API @protocol ICEObject <NSObject>
 -(void) ice_ping:(ICECurrent*)current;
 -(NSString*) ice_id:(ICECurrent*)current;
 -(NSArray*) ice_ids:(ICECurrent*)current;
--(void) ice_preMarshal;
--(void) ice_postUnmarshal;
 -(void) ice_dispatch:(id<ICERequest>)request;
 @end
 
@@ -47,28 +45,30 @@ ICE_API @interface ICEObject : NSObject<ICEObject, NSCopying>
 -(void) ice_ping;
 -(NSString*) ice_id;
 -(NSArray*) ice_ids;
--(void) ice_dispatch:(id<ICERequest>)request;
 +(NSString*) ice_staticId;
-+(NSString*const*) staticIds__:(int*)count idIndex:(int*)idx;
--(void) write__:(id<ICEOutputStream>)os;
--(void) read__:(id<ICEInputStream>)is;
+-(void) ice_preMarshal;
+-(void) ice_postUnmarshal;
+-(id<ICESlicedData>) ice_getSlicedData;
++(NSString*const*) iceStaticIds:(int*)count idIndex:(int*)idx;
+-(void) iceWrite:(id<ICEOutputStream>)os;
+-(void) iceRead:(id<ICEInputStream>)is;
 @end
 
 ICE_API @interface ICEServant : ICEObject
 {
-    void* object__;
-    id delegate__;
+    void* iceObject_;
+    id iceDelegate_;
 }
 -(id) initWithDelegate:(id)delegate;
 +(id) objectWithDelegate:(id)delegate;
-+(void) ice_isA___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
-+(void) ice_ping___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
-+(void) ice_id___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
-+(void) ice_ids___:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
--(void) dispatch__:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
--(void) writeImpl__:(id<ICEOutputStream>)os;
--(void) readImpl__:(id<ICEInputStream>)is;
--(id) target__;
++(void) iceD_ice_isA:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
++(void) iceD_ice_ping:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
++(void) iceD_ice_id:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
++(void) iceD_ice_ids:(id)servant current:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
+-(void) iceDispatch:(ICECurrent*)current is:(id<ICEInputStream>)is os:(id<ICEOutputStream>)os;
+-(void) iceWriteImpl:(id<ICEOutputStream>)os;
+-(void) iceReadImpl:(id<ICEInputStream>)is;
+-(id) iceTarget;
 @end
 
 ICE_API @protocol ICEBlobject<ICEObject>

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -33,8 +33,8 @@ public class Client extends test.Util.Application
 
         try
         {
-            RetryPrx retry = AllTests.allTests(communicator, communicator2, getWriter(), instrumentation, 
-                                               "retry:default -p 12010");
+            RetryPrx retry = AllTests.allTests(this, communicator, communicator2, instrumentation,
+                                               "retry:" + getTestEndpoint(0));
             retry.shutdown();
             return 0;
         }
@@ -45,21 +45,21 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.observer = instrumentation.getObserver();
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.observer = instrumentation.getObserver();
 
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
 
-        r.initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1 400 1");
 
         //
         // We don't want connection warnings because of the timeout
         //
-        r.initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        return r;
+        return initData;
     }
 
     public static void main(String[] args)

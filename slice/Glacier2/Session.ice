@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "cpp:doxygen:include:Glacier2/Glacier2.h", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API", "js:ice-build", "python:pkgdir:Glacier2"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -26,13 +26,7 @@ module Glacier2
 
 /**
  *
- * This exception is raised if an attempt to create a new session
- * failed.
- *
- * @see Router#createSession
- * @see Router#createSessionFromSecureConnection
- * @see SessionManager#create
- * @see SSLSessionManager#create
+ * This exception is raised if an attempt to create a new session failed.
  *
  **/
 ["preserve-slice"]
@@ -44,12 +38,11 @@ exception CannotCreateSessionException
      *
      **/
     string reason;
-};
+}
 
 /**
  *
- * A client-visible session object, which is tied to the lifecycle of
- * a {@link Router}.
+ * A client-visible session object, which is tied to the lifecycle of a {@link Router}.
  *
  * @see Router
  * @see SessionManager
@@ -59,12 +52,11 @@ interface Session
 {
     /**
      *
-     * Destroy the session. This is called automatically when the
-     * {@link Router} is destroyed.
+     * Destroy the session. This is called automatically when the router is destroyed.
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -107,7 +99,7 @@ interface StringSet
      *
      **/
     idempotent Ice::StringSeq get();
-};
+}
 
 /**
  *
@@ -149,7 +141,7 @@ interface IdentitySet
      *
      **/
     idempotent Ice::IdentitySeq get();
-};
+}
 
 /**
  *
@@ -206,7 +198,7 @@ interface SessionControl
      *
      **/
     void destroy();
-};
+}
 
 /**
  *
@@ -239,7 +231,7 @@ interface SessionManager
     ["format:sliced"]
     Session* create(string userId, SessionControl* control)
         throws CannotCreateSessionException;
-};
+}
 
 /**
  *
@@ -272,6 +264,6 @@ interface SSLSessionManager
     ["format:sliced"]
     Session* create(SSLInfo info, SessionControl* control)
         throws CannotCreateSessionException;
-};
+}
 
-};
+}

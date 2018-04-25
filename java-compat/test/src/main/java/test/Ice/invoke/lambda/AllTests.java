@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ public class AllTests
             throw new RuntimeException();
         }
     }
-    
+
     private static class Callback
     {
         Callback()
@@ -156,9 +156,11 @@ public class AllTests
     }
 
     public static MyClassPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
-        String ref = "test:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+        String ref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
         MyClassPrx oneway = MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
@@ -172,7 +174,7 @@ public class AllTests
             outS.writeString(testString);
             outS.endEncapsulation();
             byte[] inEncaps = outS.finished();
-            
+
             // begin_ice_invoke with Callback_Object_ice_invoke
             Callback_Object_opStringI cb2 = new Callback_Object_opStringI(communicator);
             cl.begin_ice_invoke("opString", Ice.OperationMode.Normal, inEncaps,

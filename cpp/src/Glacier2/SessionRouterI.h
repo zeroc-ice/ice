@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,7 +20,6 @@
 #include <Glacier2/Instrumentation.h>
 
 #include <set>
-
 
 namespace Glacier2
 {
@@ -100,7 +99,7 @@ public:
     virtual ~SessionRouterI();
     void destroy();
 
-    virtual Ice::ObjectPrx getClientProxy(const Ice::Current&) const;
+    virtual Ice::ObjectPrx getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const;
     virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;

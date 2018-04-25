@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -109,7 +109,7 @@ IcePatch2::FileServerI::getLargeFileCompressed_async(const AMD_FileServer_getLar
         {
             cb->ice_response(make_pair<const Byte*, const Byte*>(&buffer[0], &buffer[0] + buffer.size()));
         }
-        
+
     }
     catch(const std::exception& ex)
     {
@@ -118,7 +118,7 @@ IcePatch2::FileServerI::getLargeFileCompressed_async(const AMD_FileServer_getLar
 }
 
 void
-IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Long pos, Ice::Int num, 
+IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Long pos, Ice::Int num,
                                                   vector<Byte>& buffer, bool largeFile) const
 {
     if(IceUtilInternal::isAbsolutePath(pa))
@@ -127,26 +127,26 @@ IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Lo
     }
 
     string path = simplify(pa);
-    
+
     if(path == ".." ||
        path.find("/../") != string::npos ||
        (path.size() >= 3 && (path.substr(0, 3) == "../" || path.substr(path.size() - 3, 3) == "/..")))
     {
         throw FileAccessException(string("illegal `..' component in path `") + path + "'");
     }
-    
+
     if(num <= 0 || pos < 0)
-    {   
+    {
         return;
     }
-    
+
     string absolutePath = _dataDir + '/' + path + ".bz2";
     int fd = IceUtilInternal::open(absolutePath, O_RDONLY|O_BINARY);
     if(fd == -1)
     {
         throw FileAccessException(string("cannot open `") + path + "' for reading: " + strerror(errno));
     }
-    
+
     if(!largeFile)
     {
         IceUtilInternal::structstat buf;
@@ -154,7 +154,7 @@ IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Lo
         {
             throw FileAccessException(string("cannot stat `") + path + "':\n" + IceUtilInternal::lastErrorToString());
         }
-        
+
         if(buf.st_size > 0x7FFFFFFF)
         {
             ostringstream os;

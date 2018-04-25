@@ -8,7 +8,7 @@
     <parameter name="name"/>
     <parameter name="AppVarOverridedByParam"/>
 
-    <icebox id="${name}" exe="${icebox.exe}" activation="on-demand" pwd=".">  
+    <icebox id="${name}" exe="${icebox.exe}" activation="on-demand" pwd=".">
       <service-instance template="ServiceTemplate" name="Service1" NodeVarOverridedByParam="Overrided"/>
       <service-instance template="SecondServiceTemplate" name="Service2">
         <properties>
@@ -18,17 +18,17 @@
       <target name="moreservices">
         <service-instance template="ServiceTemplate" name="Service3" NodeVarOverridedByParam="Overrided"/>
       </target>
-      
+
       <service name="Service4" entry="TestService:create">
         <adapter name="${service}" endpoints="default">
-	  <object identity="${server}-${service}" type="::Test"/>
+          <object identity="${server}-${service}" type="::Test"/>
         </adapter>
         <properties>
           <property name="Ice.Warn.UnknownProperties" value="0"/>
           <property name="${service}.Identity" value="${server}-${service}"/>
         </properties>
       </service>
-     
+
       <properties>
         <properties refid="AppProperties"/>
         <properties refid="NodeProperties"/>

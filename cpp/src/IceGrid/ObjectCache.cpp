@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -74,7 +74,7 @@ ObjectCache::ObjectCache(const Ice::CommunicatorPtr& communicator) : _communicat
 }
 
 void
-ObjectCache::add(const ObjectInfo& info, const string& application)
+ObjectCache::add(const ObjectInfo& info, const string& application, const string& server)
 {
     const Ice::Identity& id = info.proxy->ice_getIdentity();
 
@@ -82,11 +82,11 @@ ObjectCache::add(const ObjectInfo& info, const string& application)
     if(getImpl(id))
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't add duplicate object `" << identityToString(id) << "'";
+        out << "can't add duplicate object `" << _communicator->identityToString(id) << "'";
         return;
     }
 
-    ObjectEntryPtr entry = new ObjectEntry(info, application);
+    ObjectEntryPtr entry = new ObjectEntry(info, application, server);
     addImpl(id, entry);
 
     map<string, TypeEntry>::iterator p = _types.find(entry->getType());
@@ -99,7 +99,7 @@ ObjectCache::add(const ObjectInfo& info, const string& application)
     if(_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "added object `" << identityToString(id) << "'";
+        out << "added object `" << _communicator->identityToString(id) << "'";
     }
 }
 
@@ -123,7 +123,7 @@ ObjectCache::remove(const Ice::Identity& id)
     if(!entry)
     {
         Ice::Error out(_communicator->getLogger());
-        out << "can't remove unknown object `" << identityToString(id) << "'";
+        out << "can't remove unknown object `" << _communicator->identityToString(id) << "'";
         return;
     }
     removeImpl(id);
@@ -138,26 +138,20 @@ ObjectCache::remove(const Ice::Identity& id)
     if(_traceLevels && _traceLevels->object > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-        out << "removed object `" << identityToString(id) << "'";
+        out << "removed object `" << _communicator->identityToString(id) << "'";
     }
 }
 
-Ice::ObjectProxySeq
+vector<ObjectEntryPtr>
 ObjectCache::getObjectsByType(const string& type)
 {
     Lock sync(*this);
-    Ice::ObjectProxySeq proxies;
     map<string, TypeEntry>::const_iterator p = _types.find(type);
     if(p == _types.end())
     {
-        return proxies;
+        return vector<ObjectEntryPtr>();
     }
-    const vector<ObjectEntryPtr>& objects = p->second.getObjects();
-    for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
-    {
-        proxies.push_back((*q)->getProxy());
-    }
-    return proxies;
+    return p->second.getObjects();
 }
 
 ObjectInfoSeq
@@ -167,7 +161,7 @@ ObjectCache::getAll(const string& expression)
     ObjectInfoSeq infos;
     for(map<Ice::Identity, ObjectEntryPtr>::const_iterator p = _entries.begin(); p != _entries.end(); ++p)
     {
-        if(expression.empty() || IceUtilInternal::match(identityToString(p->first), expression, true))
+        if(expression.empty() || IceUtilInternal::match(_communicator->identityToString(p->first), expression, true))
         {
             infos.push_back(p->second->getObjectInfo());
         }
@@ -194,9 +188,10 @@ ObjectCache::getAllByType(const string& type)
     return infos;
 }
 
-ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application) :
+ObjectEntry::ObjectEntry(const ObjectInfo& info, const string& application, const string& server) :
     _info(info),
-    _application(application)
+    _application(application),
+    _server(server)
 {
 }
 
@@ -216,6 +211,12 @@ string
 ObjectEntry::getApplication() const
 {
     return _application;
+}
+
+string
+ObjectEntry::getServer() const
+{
+    return _server;
 }
 
 const ObjectInfo&

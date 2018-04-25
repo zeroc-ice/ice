@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -52,17 +52,31 @@ TimeoutI::sleep(Ice::Int to, const Ice::Current& c)
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(to));
 }
 
-void
-TimeoutI::holdAdapter(Ice::Int to, const Ice::Current& current)
+ControllerI::ControllerI(const Ice::ObjectAdapterPtr& adapter) : _adapter(adapter)
 {
-    current.adapter->hold();
-    IceUtil::ThreadPtr thread = new ActivateAdapterThread(current.adapter, to);
-    IceUtil::ThreadControl threadControl = thread->start();
-    threadControl.detach();
 }
 
 void
-TimeoutI::shutdown(const Ice::Current& current)
+ControllerI::holdAdapter(Ice::Int to, const Ice::Current&)
 {
-    current.adapter->getCommunicator()->shutdown();
+    _adapter->hold();
+
+    if(to >= 0)
+    {
+        IceUtil::ThreadPtr thread = new ActivateAdapterThread(_adapter, to);
+        IceUtil::ThreadControl threadControl = thread->start();
+        threadControl.detach();
+    }
+}
+
+void
+ControllerI::resumeAdapter(const Ice::Current&)
+{
+    _adapter->activate();
+}
+
+void
+ControllerI::shutdown(const Ice::Current&)
+{
+    _adapter->getCommunicator()->shutdown();
 }

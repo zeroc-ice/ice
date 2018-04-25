@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -190,7 +190,7 @@ namespace IceInternal
                     _sendAsyncRequests.Add(outAsync, requestId);
                 }
             }
-            catch(System.Exception)
+            catch(Exception)
             {
                 _adapter.decDirectCount();
                 throw;
@@ -222,7 +222,7 @@ namespace IceInternal
             }
             else // Optimization: directly call invokeAll if there's no dispatcher.
             {
-                if (sentAsync(outAsync))
+                if(sentAsync(outAsync))
                 {
                     invokeAll(outAsync.getOs(), requestId, batchRequestNum);
                 }

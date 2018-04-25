@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -20,48 +20,33 @@ class LoggerI(Ice.Logger):
         self.m = threading.Lock()
 
     def start(self):
-        self.m.acquire()
-        try:
+        with self.m:
             self._started = True
             self.dump()
-        finally:
-            self.m.release()
 
     def _print(self, msg):
-        self.m.acquire()
-        try:
+        with self.m:
             self._messages.append(msg)
             if self._started:
                 self.dump()
-        finally:
-            self.m.release()
 
     def trace(self, category, msg):
-        self.m.acquire()
-        try:
+        with self.m:
             self._messages.append("[" + category + "] " + msg)
             if self._started:
                 self.dump()
-        finally:
-            self.m.release()
 
     def warning(self, msg):
-        self.m.acquire()
-        try:
+        with self.m:
             self._messages.append("warning: " + msg)
             if self._started:
                 self.dump()
-        finally:
-            self.m.release()
 
     def error(self, msg):
-        self.m.acquire()
-        try:
+        with self.m:
             self._messages.append("error: " + msg)
             if self._started:
                 self.dump()
-        finally:
-            self.m.release()
 
     def getPrefix(self):
         return ""
@@ -89,7 +74,7 @@ class TestCase(threading.Thread):
         self._heartbeat = 0
         self._closed = False
         self._msg = ""
-        self.m = threading.Lock()
+        self.m = threading.Condition()
 
     def init(self):
         self._adapter = \
@@ -98,7 +83,7 @@ class TestCase(threading.Thread):
         initData = Ice.InitializationData()
         initData.properties = self._com.ice_getCommunicator().getProperties().clone()
         initData.logger = self._logger
-        initData.properties.setProperty("Ice.ACM.Timeout", "1")
+        initData.properties.setProperty("Ice.ACM.Timeout", "2")
         if self._clientACMTimeout >= 0:
             initData.properties.setProperty("Ice.ACM.Client.Timeout", str(self._clientACMTimeout))
         if self._clientACMClose >= 0:
@@ -136,18 +121,21 @@ class TestCase(threading.Thread):
             self._msg = "unexpected exception:\n" + traceback.format_exc()
 
     def heartbeat(self, con):
-        self.m.acquire()
-        try:
+        with self.m:
             self._heartbeat = self._heartbeat + 1
-        finally:
-            self.m.release()
 
     def closed(self, con):
-        self.m.acquire()
-        try:
+        with self.m:
             self._closed = True
-        finally:
-            self.m.release()
+            self.m.notify()
+
+    def waitForClosed(self):
+        with self.m:
+            while not self._closed:
+                now = time.time()
+                self.m.wait(2.0) # Wait 2s
+                if time.time() - now > 2:
+                    test(False)
 
     def runTestCase(self, adapter, proxy):
         test(False)
@@ -171,15 +159,13 @@ def allTests(communicator):
     class InvocationHeartbeatTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation heartbeat", com)
+            self.setServerACM(1, -1, -1) # Faster ACM to make sure we receive enough ACM heartbeats
 
         def runTestCase(self, adapter, proxy):
-            proxy.sleep(2)
+            proxy.sleep(4)
 
-            self.m.acquire()
-            try:
-                test(self._heartbeat >= 2)
-            finally:
-                self.m.release()
+            with self.m:
+                test(self._heartbeat >= 4)
 
     class InvocationHeartbeatOnHoldTest(TestCase):
         def __init__(self, com):
@@ -196,17 +182,12 @@ def allTests(communicator):
             except Ice.ConnectionTimeoutException:
                 adapter.activate()
                 proxy.interruptSleep()
-
-                self.m.acquire()
-                try:
-                    test(self._closed)
-                finally:
-                    self.m.release()
+                self.waitForClosed()
 
     class InvocationNoHeartbeatTest(TestCase):
         def __init__(self, com):
             TestCase.__init__(self, "invocation with no heartbeat", com)
-            self.setServerACM(1, 2, 0) # Disable heartbeat on invocations
+            self.setServerACM(2, 2, 0) # Disable heartbeat on invocations
 
         def runTestCase(self, adapter, proxy):
             try:
@@ -217,13 +198,10 @@ def allTests(communicator):
                 test(False)
             except Ice.ConnectionTimeoutException:
                 proxy.interruptSleep()
+                self.waitForClosed()
 
-                self.m.acquire()
-                try:
+                with self.m:
                     test(self._heartbeat == 0)
-                    test(self._closed)
-                finally:
-                    self.m.release()
 
     class InvocationHeartbeatCloseOnIdleTest(TestCase):
         def __init__(self, com):
@@ -233,14 +211,11 @@ def allTests(communicator):
 
         def runTestCase(self, adapter, proxy):
             # No close on invocation, the call should succeed this time.
-            proxy.sleep(2)
+            proxy.sleep(3)
 
-            self.m.acquire()
-            try:
+            with self.m:
                 test(self._heartbeat == 0)
                 test(not self._closed)
-            finally:
-                self.m.release()
 
     class CloseOnIdleTest(TestCase):
         def __init__(self, com):
@@ -248,14 +223,12 @@ def allTests(communicator):
             self.setClientACM(1, 1, 0) # Only close on idle.
 
         def runTestCase(self, adapter, proxy):
-            time.sleep(1.6) # Idle for 1.6 seconds
+            time.sleep(3) # Idle for 3 seconds
 
-            self.m.acquire()
-            try:
+            self.waitForClosed()
+
+            with self.m:
                 test(self._heartbeat == 0)
-                test(self._closed)
-            finally:
-                self.m.release()
 
     class CloseOnInvocationTest(TestCase):
         def __init__(self, com):
@@ -263,14 +236,11 @@ def allTests(communicator):
             self.setClientACM(1, 2, 0) # Only close on invocation.
 
         def runTestCase(self, adapter, proxy):
-            time.sleep(1.5) # Idle for 1.5 seconds
+            time.sleep(3) # Idle for 3 seconds
 
-            self.m.acquire()
-            try:
+            with self.m:
                 test(self._heartbeat == 0)
                 test(not self._closed)
-            finally:
-                self.m.release()
 
     class CloseOnIdleAndInvocationTest(TestCase):
         def __init__(self, com):
@@ -284,23 +254,16 @@ def allTests(communicator):
             # the close is graceful or forceful.
             #
             adapter.hold()
-            time.sleep(1.6) # Idle for 1.6 seconds
+            time.sleep(3) # Idle for 3 seconds
 
-            self.m.acquire()
-            try:
+            with self.m:
                 test(self._heartbeat == 0)
                 test(not self._closed) # Not closed yet because of graceful close.
-            finally:
-                self.m.release()
 
             adapter.activate()
-            time.sleep(0.5)
+            time.sleep(1)
 
-            self.m.acquire()
-            try:
-                test(self._closed) # Connection should be closed this time.
-            finally:
-                self.m.release()
+            self.waitForClosed()
 
     class ForcefulCloseOnIdleAndInvocationTest(TestCase):
         def __init__(self, com):
@@ -309,14 +272,12 @@ def allTests(communicator):
 
         def runTestCase(self, adapter, proxy):
             adapter.hold()
-            time.sleep(1.6) # Idle for 1.6 seconds
+            time.sleep(3) # Idle for 3 seconds
 
-            self.m.acquire()
-            try:
+            self.waitForClosed()
+
+            with self.m:
                 test(self._heartbeat == 0)
-                test(self._closed) # Connection closed forcefully by ACM.
-            finally:
-                self.m.release()
 
     class HeartbeatOnIdleTest(TestCase):
         def __init__(self, com):
@@ -324,13 +285,10 @@ def allTests(communicator):
             self.setServerACM(1, -1, 2) # Enable server heartbeats.
 
         def runTestCase(self, adapter, proxy):
-            time.sleep(2)
+            time.sleep(3)
 
-            self.m.acquire()
-            try:
+            with self.m:
                 test(self._heartbeat >= 3)
-            finally:
-                self.m.release()
 
     class HeartbeatAlwaysTest(TestCase):
         def __init__(self, com):
@@ -338,15 +296,31 @@ def allTests(communicator):
             self.setServerACM(1, -1, 3) # Enable server heartbeats.
 
         def runTestCase(self, adapter, proxy):
-            for i in range(0, 20):
+            for i in range(0, 10):
                 proxy.ice_ping()
-                time.sleep(0.1)
+                time.sleep(0.3)
 
-            self.m.acquire()
-            try:
+            with self.m:
                 test(self._heartbeat >= 3)
-            finally:
-                self.m.release()
+
+    class HeartbeatManualTest(TestCase):
+        def __init__(self, com):
+            TestCase.__init__(self, "manual heartbeats", com)
+            #
+            # Disable heartbeats.
+            #
+            self.setClientACM(10, -1, 0)
+            self.setServerACM(10, -1, 0)
+
+        def runTestCase(self, adapter, proxy):
+            proxy.startHeartbeatCount()
+            con = proxy.ice_getConnection()
+            con.heartbeat()
+            con.heartbeat()
+            con.heartbeat()
+            con.heartbeat()
+            con.heartbeat()
+            proxy.waitForHeartbeatCount(5)
 
     class SetACMTest(TestCase):
         def __init__(self, com):
@@ -354,6 +328,12 @@ def allTests(communicator):
             self.setClientACM(15, 4, 0)
 
         def runTestCase(self, adapter, proxy):
+            try:
+                proxy.ice_getCachedConnection().setACM(-19, Ice.Unset, Ice.Unset)
+                test(False)
+            except RuntimeError:
+                pass
+
             acm = proxy.ice_getCachedConnection().getACM()
             test(acm.timeout == 15)
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful)
@@ -372,7 +352,8 @@ def allTests(communicator):
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle)
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways)
 
-            proxy.waitForHeartbeat(2)
+            proxy.startHeartbeatCount()
+            proxy.waitForHeartbeatCount(2)
 
     tests.append(InvocationHeartbeatTest(com))
     tests.append(InvocationHeartbeatOnHoldTest(com))
@@ -386,6 +367,7 @@ def allTests(communicator):
 
     tests.append(HeartbeatOnIdleTest(com))
     tests.append(HeartbeatAlwaysTest(com))
+    tests.append(HeartbeatManualTest(com))
     tests.append(SetACMTest(com))
 
     for p in tests:

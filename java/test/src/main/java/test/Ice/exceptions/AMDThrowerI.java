@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -161,14 +161,16 @@ public final class AMDThrowerI implements Thrower
 
     @Override
     public CompletionStage<Void> throwUndeclaredCAsync(int a, int b, int c, com.zeroc.Ice.Current current)
+        throws com.zeroc.Ice.UserException
     {
         CompletableFuture<Void> r = new CompletableFuture<>();
         C ex = new C();
         ex.aMem = a;
         ex.bMem = b;
         ex.cMem = c;
-        r.completeExceptionally(ex);
-        return r;
+        throw ex;
+        // r.completeExceptionally(ex);
+        // return r;
     }
 
     @Override

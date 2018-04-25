@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,7 +27,6 @@ public:
 static FactoryTableInit factoryTableInitializer;    // Dummy variable to force initialization of factoryTable
 
 extern ICE_API FactoryTable* factoryTable;
-
 
 class ICE_API CompactIdInit
 {

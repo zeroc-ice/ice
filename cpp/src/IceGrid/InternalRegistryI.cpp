@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,10 +27,10 @@ using namespace std;
 using namespace IceGrid;
 
 InternalRegistryI::InternalRegistryI(const RegistryIPtr& registry,
-                                     const DatabasePtr& database, 
+                                     const DatabasePtr& database,
                                      const ReapThreadPtr& reaper,
                                      const WellKnownObjectsManagerPtr& wellKnownObjects,
-                                     ReplicaSessionManager& session) : 
+                                     ReplicaSessionManager& session) :
     _registry(registry),
     _database(database),
     _reaper(reaper),
@@ -50,9 +50,9 @@ InternalRegistryI::~InternalRegistryI()
 }
 
 NodeSessionPrx
-InternalRegistryI::registerNode(const InternalNodeInfoPtr& info, 
-                                const NodePrx& node, 
-                                const LoadInfo& load, 
+InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
+                                const NodePrx& node,
+                                const LoadInfo& load,
                                 const Ice::Current& current)
 {
     const TraceLevelsPtr traceLevels = _database->getTraceLevels();
@@ -70,7 +70,7 @@ InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
             if(sslConnInfo)
             {
                 if (sslConnInfo->certs.empty() ||
-                    !IceSSL::Certificate::decode(sslConnInfo->certs[0])->getSubjectDN().match("CN=" + info->name))
+                    !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
                 {
                     if(traceLevels->node > 0)
                     {
@@ -90,9 +90,9 @@ InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
                 throw PermissionDeniedException("node certificate is required to connect to this registry");
             }
         }
-        catch(const PermissionDeniedException& ex)
+        catch(const PermissionDeniedException&)
         {
-            throw ex;
+            throw;
         }
         catch(const IceUtil::Exception&)
         {
@@ -104,7 +104,7 @@ InternalRegistryI::registerNode(const InternalNodeInfoPtr& info,
             throw PermissionDeniedException("unable to verify certificate for node `" + info->name + "'");
         }
     }
- 
+
     try
     {
         NodeSessionIPtr session = new NodeSessionI(_database, node, info, _nodeSessionTimeout, load);
@@ -137,7 +137,7 @@ InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
             if(sslConnInfo)
             {
                 if (sslConnInfo->certs.empty() ||
-                    !IceSSL::Certificate::decode(sslConnInfo->certs[0])->getSubjectDN().match("CN=" + info->name))
+                    !sslConnInfo->certs[0]->getSubjectDN().match("CN=" + info->name))
                 {
                     if(traceLevels->replica > 0)
                     {
@@ -157,9 +157,9 @@ InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
                 throw PermissionDeniedException("replica certificate is required to connect to this registry");
             }
         }
-        catch(const PermissionDeniedException& ex)
+        catch(const PermissionDeniedException&)
         {
-            throw ex;
+            throw;
         }
         catch(const IceUtil::Exception&)
         {
@@ -171,7 +171,7 @@ InternalRegistryI::registerReplica(const InternalReplicaInfoPtr& info,
             throw PermissionDeniedException("unable to verify certificate for replica `" + info->name + "'");
         }
     }
-    
+
     try
     {
         ReplicaSessionIPtr s = new ReplicaSessionI(_database, _wellKnownObjects, info, prx, _replicaSessionTimeout);
@@ -214,19 +214,19 @@ InternalRegistryI::getReplicas(const Ice::Current&) const
     return replicas;
 }
 
-ApplicationInfoSeq 
+ApplicationInfoSeq
 InternalRegistryI::getApplications(Ice::Long& serial, const Ice::Current&) const
 {
     return _database->getApplications(serial);
 }
 
-AdapterInfoSeq 
+AdapterInfoSeq
 InternalRegistryI::getAdapters(Ice::Long& serial, const Ice::Current&) const
 {
     return _database->getAdapters(serial);
 }
 
-ObjectInfoSeq 
+ObjectInfoSeq
 InternalRegistryI::getObjects(Ice::Long& serial, const Ice::Current&) const
 {
     return _database->getObjects(serial);
@@ -245,7 +245,7 @@ InternalRegistryI::getOffsetFromEnd(const string& filename, int count, const Ice
 }
 
 bool
-InternalRegistryI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, Ice::StringSeq& lines, 
+InternalRegistryI::read(const string& filename, Ice::Long pos, int size, Ice::Long& newPos, Ice::StringSeq& lines,
                         const Ice::Current&) const
 {
     return _fileCache->read(getFilePath(filename), pos, size, newPos, lines);

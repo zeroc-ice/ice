@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -49,10 +49,6 @@ private:
     // after which rename could be attempted again. Otherwise is set to zero.
     //
     IceUtil::Time _nextRetry;
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
-    const StringConverterPtr _consoleConverter;
-#endif
-
 };
 ICE_DEFINE_PTR(LoggerIPtr, LoggerI);
 

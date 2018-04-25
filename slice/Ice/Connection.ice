@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
@@ -24,9 +24,34 @@ module Ice
 {
 
 /**
+ * The batch compression option when flushing queued batch requests.
+ *
+ **/
+["cpp:scoped", "objc:scoped"]
+local enum CompressBatch
+{
+    /**
+     * Compress the batch requests.
+     **/
+    Yes,
+
+    /**
+     * Don't compress the batch requests.
+     **/
+    No,
+
+    /**
+     * Compress the batch requests if at least one request was
+     * made on a compressed proxy.
+     **/
+    BasedOnProxy
+}
+
+/**
  *
  * Base class providing access to the connection details. *
  **/
+["php:internal", "matlab:internal"]
 local class ConnectionInfo
 {
     /**
@@ -58,7 +83,7 @@ local class ConnectionInfo
      *
      **/
     string connectionId;
-};
+}
 
 local interface Connection;
 
@@ -76,11 +101,13 @@ local interface CloseCallback
     /**
      *
      * This method is called by the the connection when the connection
-     * is closed.
+     * is closed. If the callback needs more information about the closure,
+     * it can call {@link Connection#throwException}.
      *
+     * @param con The connection that closed.
      **/
     void closed(Connection con);
-};
+}
 
 /**
  *
@@ -98,56 +125,101 @@ local interface HeartbeatCallback
      * This method is called by the the connection when a heartbeat is
      * received from the peer.
      *
+     * @param con The connection on which a heartbeat was received.
      **/
     void heartbeat(Connection con);
-};
+}
 
-["cpp:unscoped"]
+/**
+ * Specifies the close semantics for Active Connection Management.
+ */
 local enum ACMClose
 {
+    /** Disables automatic connection closure. */
     CloseOff,
+    /** Gracefully closes a connection that has been idle for the configured timeout period. */
     CloseOnIdle,
+    /**
+     * Forcefully closes a connection that has been idle for the configured timeout period,
+     * but only if the connection has pending invocations.
+     */
     CloseOnInvocation,
+    /** Combines the behaviors of CloseOnIdle and CloseOnInvocation. */
     CloseOnInvocationAndIdle,
+    /**
+     * Forcefully closes a connection that has been idle for the configured timeout period,
+     * regardless of whether the connection has pending invocations or dispatch.
+     */
     CloseOnIdleForceful
-};
+}
 
-["cpp:unscoped"]
+/**
+ * Specifies the heartbeat semantics for Active Connection Management.
+ */
 local enum ACMHeartbeat
 {
+    /** Disables heartbeats. */
     HeartbeatOff,
-    HeartbeatOnInvocation,
+    /** Send a heartbeat at regular intervals if the connection is idle and only if there are pending dispatch. */
+    HeartbeatOnDispatch,
+    /** Send a heartbeat at regular intervals when the connection is idle. */
     HeartbeatOnIdle,
+    /** Send a heartbeat at regular intervals until the connection is closed. */
     HeartbeatAlways
-};
+}
 
+/**
+ * A collection of Active Connection Management configuration settings.
+ */
 local struct ACM
 {
+    /** A timeout value in seconds. */
     int timeout;
+    /** The close semantics. */
     ACMClose close;
+    /** The heartbeat semantics. */
     ACMHeartbeat heartbeat;
-};
+}
+
+/**
+ * Determines the behavior when manually closing a connection.
+ **/
+["cpp:scoped", "objc:scoped"]
+local enum ConnectionClose
+{
+    /**
+     * Close the connection immediately without sending a close connection protocol message to the peer
+     * and waiting for the peer to acknowledge it.
+     **/
+    Forcefully,
+    /**
+     * Close the connection by notifying the peer but do not wait for pending outgoing invocations to complete.
+     * On the server side, the connection will not be closed until all incoming invocations have completed.
+     **/
+    Gracefully,
+    /**
+     * Wait for all pending invocations to complete before closing the connection.
+     **/
+    GracefullyWithWait
+}
 
 /**
  *
  * The user-level interface to a connection.
  *
  **/
+["php:internal", "matlab:internal"]
 local interface Connection
 {
     /**
      *
-     * Close a connection, either gracefully or forcefully. If a
-     * connection is closed forcefully, it closes immediately, without
-     * sending the relevant close connection protocol messages to the
-     * peer and waiting for the peer to acknowledge these protocol
-     * messages.
+     * Manually close the connection using the specified closure mode.
      *
-     * @param force If true, close forcefully. Otherwise the
-     * connection is closed gracefully.
+     * @param mode Determines how the connection will be closed.
      *
+     * @see ConnectionClose
      **/
-    void close(bool force);
+    ["cpp:noexcept"] void close(ConnectionClose mode);
 
     /**
      *
@@ -180,10 +252,11 @@ local interface Connection
      * @param adapter The object adapter that should be used by this
      * connection to dispatch requests. The object adapter must be
      * activated. When the object adapter is deactivated, it is
-     * automatically removed from the connection.
+     * automatically removed from the connection. Attempts to use a
+     * deactivated object adapter raise {@link ObjectAdapterDeactivatedException}
      *
      * @see #createProxy
-     * @see #setAdapter
+     * @see #getAdapter
      *
      **/
     void setAdapter(ObjectAdapter adapter);
@@ -199,7 +272,7 @@ local interface Connection
      * @see #setAdapter
      *
      **/
-    ["cpp:const"] ObjectAdapter getAdapter();
+    ["cpp:const", "cpp:noexcept"] ObjectAdapter getAdapter();
 
     /**
      *
@@ -208,7 +281,7 @@ local interface Connection
      * @return The endpoint from which the connection was created.
      *
      **/
-    ["cpp:const"] Endpoint getEndpoint();
+    ["cpp:const", "cpp:noexcept"] Endpoint getEndpoint();
 
     /**
      *
@@ -216,23 +289,27 @@ local interface Connection
      * This means all batch requests invoked on fixed proxies
      * associated with the connection.
      *
+     * @param compress Specifies whether or not the queued batch requests
+     * should be compressed before being sent over the wire.
+     *
      **/
-    ["async-oneway"] void flushBatchRequests();
+    ["async-oneway"] void flushBatchRequests(CompressBatch compress);
 
     /**
      *
-     * Set callback on the connection. The callback is called by the
+     * Set a close callback on the connection. The callback is called by the
      * connection when it's closed. The callback is called from the
-     * Ice thread pool associated with the connection.
+     * Ice thread pool associated with the connection. If the callback needs
+     * more information about the closure, it can call {@link Connection#throwException}.
      *
-     * @param callback The closed callback object.
+     * @param callback The close callback object.
      *
      **/
     void setCloseCallback(CloseCallback callback);
 
     /**
      *
-     * Set callback on the connection. The callback is called by the
+     * Set a heartbeat callback on the connection. The callback is called by the
      * connection when a heartbeat is received. The callback is called
      * from the Ice thread pool associated with the connection.
      *
@@ -243,9 +320,17 @@ local interface Connection
 
     /**
      *
+     * Send a heartbeat message.
+     *
+     **/
+    ["async-oneway"] void heartbeat();
+
+    /**
+     *
      * Set the active connection management parameters.
      *
-     * @param timeout The timeout value in milliseconds.
+     * @param timeout The timeout value in seconds. It must be positive or 0, if a negative
+     * value is given, an invalid argument exception will be raised.
      *
      * @param close The close condition
      *
@@ -262,7 +347,7 @@ local interface Connection
      * @return The ACM parameters.
      *
      **/
-    ACM getACM();
+    ["cpp:noexcept"] ACM getACM();
 
     /**
      *
@@ -272,7 +357,7 @@ local interface Connection
      * @return The type of the connection.
      *
      **/
-    ["cpp:const"] string type();
+    ["cpp:const", "cpp:noexcept"] string type();
 
     /**
      *
@@ -281,7 +366,7 @@ local interface Connection
      * @return The connection's timeout.
      *
      **/
-    ["cpp:const"] int timeout();
+    ["cpp:const", "cpp:noexcept"] int timeout();
 
     /**
      *
@@ -292,7 +377,7 @@ local interface Connection
      * text.
      *
      **/
-    ["cpp:const"] string toString();
+    ["cpp:const", "cpp:noexcept"] string toString();
 
     /**
      *
@@ -303,7 +388,6 @@ local interface Connection
      **/
     ["cpp:const"] ConnectionInfo getInfo();
 
-
     /**
      *
      * Set the connection buffer receive/send size.
@@ -313,13 +397,25 @@ local interface Connection
      *
      **/
     void setBufferSize(int rcvSize, int sndSize);
-};
+
+    /**
+     *
+     * Throw an exception indicating the reason for connection closure. For example,
+     * {@link CloseConnectionException} is raised if the connection was closed gracefully,
+     * whereas {@link ConnectionManuallyClosedException} is raised if the connection was
+     * manually closed by the application. This operation does nothing if the connection is
+     * not yet closed.
+     *
+     **/
+    ["cpp:const"] void throwException();
+}
 
 /**
  *
  * Provides access to the connection details of an IP connection
  *
  **/
+["php:internal", "matlab:internal"]
 local class IPConnectionInfo extends ConnectionInfo
 {
     /** The local address. */
@@ -333,13 +429,14 @@ local class IPConnectionInfo extends ConnectionInfo
 
     /** The remote port. */
     int remotePort = -1;
-};
+}
 
 /**
  *
  * Provides access to the connection details of a TCP connection
  *
  **/
+["php:internal", "matlab:internal"]
 local class TCPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -355,13 +452,14 @@ local class TCPConnectionInfo extends IPConnectionInfo
      *
      **/
     int sndSize = 0;
-};
+}
 
 /**
  *
  * Provides access to the connection details of a UDP connection
  *
  **/
+["php:internal", "matlab:internal"]
 local class UDPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -391,8 +489,9 @@ local class UDPConnectionInfo extends IPConnectionInfo
      *
      **/
     int sndSize = 0;
-};
+}
 
+/** A collection of HTTP headers. */
 dictionary<string, string> HeaderDict;
 
 /**
@@ -400,10 +499,11 @@ dictionary<string, string> HeaderDict;
  * Provides access to the connection details of a WebSocket connection
  *
  **/
+["php:internal", "matlab:internal"]
 local class WSConnectionInfo extends ConnectionInfo
 {
     /** The headers from the HTTP upgrade request. */
     HeaderDict headers;
-};
+}
 
-};
+}

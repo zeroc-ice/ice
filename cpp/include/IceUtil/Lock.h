@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,13 +21,12 @@ namespace IceUtil
 //
 class Cond;
 
-
 // LockT and TryLockT are the preferred construct to lock/tryLock/unlock
 // simple and recursive mutexes. You typically allocate them on the
 // stack to hold a lock on a mutex.
-// LockT and TryLockT are not recursive: you cannot acquire several times 
+// LockT and TryLockT are not recursive: you cannot acquire several times
 // in a row a lock with the same Lock or TryLock object.
-// 
+//
 // We must name this LockT instead of Lock, because otherwise some
 // compilers (such as Sun C++ 5.4) have problems with constructs
 // such as:
@@ -42,7 +41,7 @@ template <typename T>
 class LockT
 {
 public:
-    
+
     LockT(const T& mutex) :
         _mutex(mutex)
     {
@@ -57,7 +56,7 @@ public:
             _mutex.unlock();
         }
     }
-    
+
     void acquire() const
     {
         if (_acquired)
@@ -67,7 +66,6 @@ public:
         _mutex.lock();
         _acquired = true;
     }
-
 
     bool tryAcquire() const
     {
@@ -93,9 +91,9 @@ public:
     {
         return _acquired;
     }
-   
+
 protected:
-    
+
     // TryLockT's contructor
     LockT(const T& mutex, bool) :
         _mutex(mutex)
@@ -104,7 +102,7 @@ protected:
     }
 
 private:
-    
+
     // Not implemented; prevents accidental use.
     //
     LockT(const LockT&);

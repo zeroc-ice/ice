@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,14 +17,25 @@
 namespace Ice
 {
 
+/**
+ * Base class for generated AMD callback classes.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API AMDCallback : public Ice::LocalObject
 {
 public:
 
     virtual ~AMDCallback();
 
+    /**
+     * Completes the asynchronous request with the given exception.
+     * @param ex The exception that completed the request.
+     */
+    virtual void ice_exception(const ::std::exception& ex) = 0;
 
-    virtual void ice_exception(const ::std::exception&) = 0;
+    /**
+     * Completes the asynchronous request with an UnknownException.
+     */
     virtual void ice_exception() = 0;
 };
 
@@ -113,18 +124,38 @@ private:
 namespace Ice
 {
 
+/**
+ * Base class for the AMD callback for BlobjectAsync::ice_invoke_async.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API AMD_Object_ice_invoke : public virtual Ice::AMDCallback
 {
 public:
 
     virtual ~AMD_Object_ice_invoke();
 
-    virtual void ice_response(bool, const std::vector<Ice::Byte>&) = 0;
-    virtual void ice_response(bool, const std::pair<const Ice::Byte*, const Ice::Byte*>&) = 0;
+    /**
+     * Completes the request.
+     * @param ok True if the request completed successfully, in which case bytes contains an encapsulation
+     * of the marshaled results. False if the request completed with a user exception, in which case bytes
+     * contains an encapsulation of the marshaled user exception.
+     * @param bytes An encapsulation of the results or user exception.
+     */
+    virtual void ice_response(bool ok, const std::vector<Ice::Byte>& bytes) = 0;
+
+    /**
+     * Completes the request.
+     * @param ok True if the request completed successfully, in which case bytes contains an encapsulation
+     * of the marshaled results. False if the request completed with a user exception, in which case bytes
+     * contains an encapsulation of the marshaled user exception.
+     * @param bytes An encapsulation of the results or user exception.
+     */
+    virtual void ice_response(bool ok, const std::pair<const Ice::Byte*, const Ice::Byte*>& bytes) = 0;
 };
 
 }
 
+/// \cond INTERNAL
 namespace IceAsync
 {
 
@@ -144,6 +175,7 @@ public:
 }
 
 }
+/// \endcond
 #endif
 
 #endif

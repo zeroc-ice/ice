@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -59,9 +59,11 @@ import java.security.MessageDigest;
 import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
-import com.zeroc.IceLocatorDiscovery.LookupPrx;
-import com.zeroc.IceLocatorDiscovery.LookupReplyPrx;
-import com.zeroc.IceLocatorDiscovery.LookupReply;
+import java.net.NetworkInterface;
+import java.net.InetAddress;
+
+import com.zeroc.IceLocatorDiscovery.Plugin;
+import com.zeroc.IceLocatorDiscovery.PluginFactory;
 
 import com.zeroc.IceGrid.*;
 
@@ -156,7 +158,7 @@ public class SessionKeeper
                                 logout(true);
                                 JOptionPane.showMessageDialog(
                                     parent,
-                                    "This version of IceGrid Admin requires an IceGrid Registry version 3.3",
+                                    "This version of IceGrid GUI requires a newer IceGrid Registry",
                                     "Login failed: Version Mismatch",
                                     JOptionPane.ERROR_MESSAGE);
                             });
@@ -228,7 +230,7 @@ public class SessionKeeper
             }
             else
             {
-                _keepAliveFuture = _coordinator.getExecutor().scheduleAtFixedRate(() ->
+                _keepAliveFuture = _coordinator.getScheduledExecutor().scheduleAtFixedRate(() ->
                     {
                         _session.keepAliveAsync().whenComplete((result, ex) ->
                             {
@@ -241,36 +243,6 @@ public class SessionKeeper
                                 }
                             });
                     }, sessionTimeout / 2, sessionTimeout / 2, java.util.concurrent.TimeUnit.SECONDS);
-            }
-
-            try
-            {
-                registerObservers();
-            }
-            catch(final com.zeroc.Ice.LocalException e)
-            {
-                while(true)
-                {
-                    try
-                    {
-                        SwingUtilities.invokeAndWait(() ->
-                            {
-                                logout(true);
-                                JOptionPane.showMessageDialog(parent, "Could not register observers: " + e.toString(),
-                                                              "Login failed", JOptionPane.ERROR_MESSAGE);
-                            });
-                        break;
-                    }
-                    catch(java.lang.InterruptedException ex)
-                    {
-                        // Ignore and retry
-                    }
-                    catch(java.lang.reflect.InvocationTargetException ex)
-                    {
-                        break;
-                    }
-                }
-                throw e;
             }
         }
 
@@ -387,7 +359,7 @@ public class SessionKeeper
             _coordinator.setConnected(false);
         }
 
-        private void registerObservers() throws java.lang.Throwable
+        public void registerObservers() throws java.lang.Throwable
         {
             //
             // Create the object adapter for the observers
@@ -576,7 +548,7 @@ public class SessionKeeper
         {
             if(_prefs == null)
             {
-                Preferences prefs = _coordinator.getPrefs().node("Configurations");
+                Preferences prefs = Coordinator.getPreferences().node("Configurations");
                 if(_uuid == null)
                 {
                     _uuid = java.util.UUID.randomUUID().toString();
@@ -587,7 +559,7 @@ public class SessionKeeper
             //
             // Set the first stored connection as default.
             //
-            if(_coordinator.getPrefs().node("Configurations").childrenNames().length == 1)
+            if(Coordinator.getPreferences().node("Configurations").childrenNames().length == 1)
             {
                 setIsDefault(true);
             }
@@ -1026,7 +998,6 @@ public class SessionKeeper
         private boolean _isDefault;
     }
 
-
     //
     // FocusListener implementation that unselect the text
     // of a text component after focus gained.
@@ -1058,7 +1029,7 @@ public class SessionKeeper
         {
             super(parent, true);
             _x509CertificateDefault = true;
-            initialize("New Connection - IceGrid Admin", parent);
+            initialize("New Connection - IceGrid GUI", parent);
             _connectNow = true;
         }
 
@@ -1067,194 +1038,72 @@ public class SessionKeeper
             super(parent, true);
             _conf = inf;
             _x509CertificateDefault = false;
-            initialize("Edit Connection - IceGrid Admin", parent);
+            initialize("Edit Connection - IceGrid GUI", parent);
             _connectNow = false;
             _nextButton.requestFocusInWindow();
         }
 
-        public void destroyDisconveryAdapter()
-        {
-            synchronized(SessionKeeper.this)
-            {
-                if(_discoveryAdapter != null)
-                {
-                    SwingUtilities.invokeLater(() ->
-                        {
-                            if(_directDiscoveryEndpointModel.size() > 0)
-                            {
-                                _discoveryStatus.setText("");
-                            }
-                            else
-                            {
-                                _discoveryStatus.setText("No registries found");
-                            }
-                        });
-                    _discoveryAdapter.destroy();
-                    _discoveryAdapter = null;
-                }
-            }
-        }
-
-        public void refreshDiscoveryEndpoints()
+        public void refreshDiscoveryLocators()
         {
             final com.zeroc.Ice.Communicator communicator = _coordinator.getCommunicator();
-            if(_discoveryLookupReply == null)
-            {
-                _discoveryLookupReply = new LookupReply()
-                    {
-                        @Override
-                        public void foundLocator(final com.zeroc.Ice.LocatorPrx locator, com.zeroc.Ice.Current curr)
-                        {
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    try
-                                    {
-                                        com.zeroc.Ice.Endpoint[] endps = locator.ice_getEndpoints();
-                                        for(com.zeroc.Ice.Endpoint e : endps)
-                                        {
-                                            com.zeroc.Ice.LocatorPrx prx = com.zeroc.Ice.LocatorPrx.uncheckedCast(
-                                                communicator.stringToProxy(
-                                                    com.zeroc.Ice.Util.identityToString(locator.ice_getIdentity()) +
-                                                        ":" + e.toString()));
-
-                                            if(_directDiscoveryEndpointModel.indexOf(prx) == -1)
-                                            {
-                                                _directDiscoveryEndpointModel.addElement(prx);
-                                            }
-                                        }
-
-                                        if(_directDiscoveryEndpointModel.size() > 0 &&
-                                            _directDiscoveryEndpointList.getSelectedIndex() == -1)
-                                        {
-                                            _directDiscoveryEndpointList.setSelectedIndex(0);
-                                        }
-                                    }
-                                    catch(com.zeroc.Ice.LocalException ex)
-                                    {
-                                    }
-                                });
-                        }
-                    };
-            }
-
             _discoveryStatus.setText("Searching for registries...");
-
-            //
-            // If there isn't any search in progress clear the endpoint list.
-            //
-            synchronized(SessionKeeper.this)
-            {
-                if(_discoveryAdapter == null)
-                {
-                    _directDiscoveryEndpointModel.clear();
-                }
-            }
-
-            final com.zeroc.Ice.Properties properties = communicator.getProperties();
-            final String intf = properties.getProperty("IceGridAdmin.Discovery.Interface");
-            String lookupEndpoints = properties.getProperty("IceGridAdmin.Discovery.Lookup");
-            String address;
-            if(properties.getPropertyAsIntWithDefault("Ice.IPv4", 1) > 0 &&
-               properties.getPropertyAsInt("Ice.PreferIPv6Address") <= 0)
-            {
-                address = "239.255.0.1";
-            }
-            else
-            {
-                address = "ff15::1";
-            }
-            if(lookupEndpoints.isEmpty())
-            {
-                StringBuilder s = new StringBuilder();
-                s.append("udp -h \"");
-                s.append(properties.getPropertyWithDefault("IceGridAdmin.Discovery.Address", address));
-                s.append("\" -p ");
-                s.append(4061);
-                if(!intf.isEmpty())
-                {
-                    s.append(" --interface \"").append(intf).append("\"");
-                }
-                lookupEndpoints = s.toString();
-            }
-
             try
             {
-                final LookupPrx lookupPrx = LookupPrx.uncheckedCast(
-                    communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" +
-                                               lookupEndpoints).ice_collocationOptimized(false).ice_router(null));
-
-                new Thread(() ->
+                _coordinator.getExecutor().submit(() ->
                     {
                         synchronized(SessionKeeper.this)
                         {
-                            //
-                            // If search is in progress when refresh is hit, cancel the
-                            // finish task we will schedule a new one with this new
-                            // search.
-                            //
-                            if(_discoveryFinishTask != null)
-                            {
-                                _discoveryFinishTask.cancel();
-                            }
-
-                            if(properties.getProperty("IceGridAdmin.Discovery.Reply.Endpoints").isEmpty())
-                            {
-                                StringBuilder s = new StringBuilder();
-                                s.append("udp");
-                                if(!intf.isEmpty())
-                                {
-                                    s.append(" -h \"").append(intf).append("\"");
-                                }
-                                properties.setProperty("IceGridAdmin.Discovery.Reply.Endpoints", s.toString());
-                            }
-
                             try
                             {
-                                if(_discoveryAdapter == null)
+                                if(_discoveryPlugin == null)
                                 {
-                                    _discoveryAdapter = communicator.createObjectAdapter(
-                                        "IceGridAdmin.Discovery.Reply");
-                                    _discoveryAdapter.activate();
-                                    _discoveryReplyPrx = LookupReplyPrx.uncheckedCast(
-                                        _discoveryAdapter.addWithUUID(_discoveryLookupReply).ice_datagram());
+                                    PluginFactory f = new PluginFactory();
+                                    _discoveryPlugin = (Plugin)f.create(communicator, "IceGridAdmin.Discovery", null);
+                                    _discoveryPlugin.initialize();
                                 }
 
-                                lookupPrx.findLocator("", _discoveryReplyPrx);
+                                final List<com.zeroc.Ice.LocatorPrx> locators = _discoveryPlugin.getLocators("", 1000);
+                                SwingUtilities.invokeLater(() ->
+                                {
+                                    _directDiscoveryLocatorModel.clear();
+                                    for(com.zeroc.Ice.LocatorPrx locator : locators)
+                                    {
+                                        _directDiscoveryLocatorModel.addElement(locator);
+                                    }
+                                    if(_directDiscoveryLocatorModel.size() > 0 &&
+                                       _directDiscoveryLocatorList.getSelectedIndex() == -1)
+                                    {
+                                        _directDiscoveryLocatorList.setSelectedIndex(0);
+                                    }
+
+                                    if(_directDiscoveryLocatorModel.size() > 0)
+                                    {
+                                        _discoveryStatus.setText("");
+                                    }
+                                    else
+                                    {
+                                        _discoveryStatus.setText("No registries found");
+                                    }
+                                });
                             }
                             catch(final com.zeroc.Ice.LocalException ex)
                             {
-                                ex.printStackTrace();
-                                destroyDisconveryAdapter();
                                 SwingUtilities.invokeLater(() ->
                                     {
+                                        _discoveryStatus.setText("No registries found");
                                         JOptionPane.showMessageDialog(ConnectionWizardDialog.this,
                                                                       ex.toString(),
-                                                                      "Error while looking up locator endpoints",
+                                                                      "Error while looking up registries",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     });
                             }
-
-                            //
-                            // We schedule a timer task to destroy the discovery adapter after 2
-                            // seconds, the user doesn't need to wait, discovered proxies are
-                            // added as they are found.
-                            //
-                            _discoveryFinishTask = new java.util.TimerTask()
-                            {
-                                @Override
-                                public void run()
-                                {
-                                    destroyDisconveryAdapter();
-                                }
-                            };
-                            new java.util.Timer().schedule(_discoveryFinishTask, 2000);
                         }
-                    }).start();
+                    });
             }
             catch(com.zeroc.Ice.LocalException ex)
             {
                 JOptionPane.showMessageDialog(ConnectionWizardDialog.this, ex.toString(),
-                                              "Error while looking up locator endpoints", JOptionPane.ERROR_MESSAGE);
+                                              "Error while looking up registries", JOptionPane.ERROR_MESSAGE);
             }
         }
 
@@ -1310,12 +1159,30 @@ public class SessionKeeper
                 _cardPanel.add(builder.getPanel(), WizardStep.ConnectionTypeStep.toString());
             }
 
-            // Direct Discovery Endpoint List
+            // Direct Discovery Locator List
             {
-                _directDiscoveryEndpointModel = new DefaultListModel<>();
-                _directDiscoveryEndpointList = new JList<>(_directDiscoveryEndpointModel);
-                _directDiscoveryEndpointList.setVisibleRowCount(7);
-                _directDiscoveryEndpointList.addMouseListener(
+                _directDiscoveryLocatorModel = new DefaultListModel<>();
+                _directDiscoveryLocatorList = new JList(_directDiscoveryLocatorModel)
+                    {
+                        @Override
+                        public String getToolTipText(MouseEvent evt)
+                        {
+                            int index = locationToIndex(evt.getPoint());
+                            if(index < 0)
+                            {
+                                return null;
+                            }
+                            Object obj = getModel().getElementAt(index);
+                            if(obj != null && obj instanceof com.zeroc.Ice.LocatorPrx)
+                            {
+                                return obj.toString();
+                            }
+                            return null;
+                        }
+                    };
+                _directDiscoveryLocatorList.setVisibleRowCount(7);
+                _directDiscoveryLocatorList.setFixedCellWidth(500);
+                _directDiscoveryLocatorList.addMouseListener(
                     new MouseAdapter()
                         {
                             @Override
@@ -1323,17 +1190,20 @@ public class SessionKeeper
                             {
                                 if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
                                 {
-                                    Object obj = _directDiscoveryEndpointModel.getElementAt(
-                                                            _directDiscoveryEndpointList.locationToIndex(e.getPoint()));
-                                    if(obj != null && obj instanceof com.zeroc.Ice.LocatorPrx)
+                                    int index = _directDiscoveryLocatorList.locationToIndex(e.getPoint());
+                                    if(index != -1)
                                     {
-                                        _nextButton.doClick(0);
+                                        Object obj = _directDiscoveryLocatorModel.getElementAt(index);
+                                        if(obj != null && obj instanceof com.zeroc.Ice.LocatorPrx)
+                                        {
+                                            _nextButton.doClick(0);
+                                        }
                                     }
                                 }
                             }
                         });
 
-                _directDiscoveryEndpointList.addListSelectionListener(new ListSelectionListener()
+                _directDiscoveryLocatorList.addListSelectionListener(new ListSelectionListener()
                 {
                     @Override
                     public void valueChanged(ListSelectionEvent event)
@@ -1343,20 +1213,20 @@ public class SessionKeeper
                 });
 
                 ButtonGroup group = new ButtonGroup();
-                _directDiscoveryDiscoveredEndpoint = new JRadioButton(new AbstractAction("Discovered Endpoints")
+                _directDiscoveryDiscoveredLocators = new JRadioButton(new AbstractAction("Discovered Registries")
                 {
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        _directDiscoveryEndpointList.setEnabled(true);
+                        _directDiscoveryLocatorList.setEnabled(true);
                         _discoveryStatus.setEnabled(true);
                         _discoveryRefresh.setEnabled(true);
                         validatePanel();
-                        refreshDiscoveryEndpoints();
+                        refreshDiscoveryLocators();
                     }
                 });
-                _directDiscoveryDiscoveredEndpoint.setSelected(true);
-                group.add(_directDiscoveryDiscoveredEndpoint);
+                _directDiscoveryDiscoveredLocators.setSelected(true);
+                group.add(_directDiscoveryDiscoveredLocators);
 
                 JPanel discoveryStatus;
                 {
@@ -1369,7 +1239,7 @@ public class SessionKeeper
                         @Override
                         public void actionPerformed(ActionEvent e)
                         {
-                            refreshDiscoveryEndpoints();
+                            refreshDiscoveryLocators();
                         }
                     });
 
@@ -1383,8 +1253,7 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDisconveryAdapter();
-                        _directDiscoveryEndpointList.setEnabled(false);
+                        _directDiscoveryLocatorList.setEnabled(false);
                         _discoveryStatus.setEnabled(false);
                         _discoveryRefresh.setEnabled(false);
                         validatePanel();
@@ -1397,8 +1266,8 @@ public class SessionKeeper
                     DefaultFormBuilder builder = new DefaultFormBuilder(layout);
                     builder.border(Borders.DIALOG);
                     builder.rowGroupingEnabled(false);
-                    builder.append(_directDiscoveryDiscoveredEndpoint);
-                    builder.append(createStrippedScrollPane(_directDiscoveryEndpointList));
+                    builder.append(_directDiscoveryDiscoveredLocators);
+                    builder.append(createStrippedScrollPane(_directDiscoveryLocatorList));
                     builder.append(discoveryStatus);
                     builder.append(_directDiscoveryManualEndpoint);
                     _cardPanel.add(builder.getPanel(), WizardStep.DirectDiscoveryChooseStep.toString());
@@ -2088,7 +1957,7 @@ public class SessionKeeper
                             {
                                 if(_directConnection.isSelected())
                                 {
-                                	_cardLayout.show(_cardPanel, WizardStep.DirectMasterStep.toString());
+                                    _cardLayout.show(_cardPanel, WizardStep.DirectMasterStep.toString());
                                     _wizardSteps.push(WizardStep.DirectMasterStep);
                                 }
                                 else
@@ -2103,9 +1972,9 @@ public class SessionKeeper
                             {
                                 _cardLayout.show(_cardPanel, WizardStep.DirectDiscoveryChooseStep.toString());
                                 _wizardSteps.push(WizardStep.DirectDiscoveryChooseStep);
-                                if(_directDiscoveryDiscoveredEndpoint.isSelected())
+                                if(_directDiscoveryDiscoveredLocators.isSelected())
                                 {
-                                    refreshDiscoveryEndpoints();
+                                    refreshDiscoveryLocators();
                                 }
                                 break;
                             }
@@ -2119,9 +1988,22 @@ public class SessionKeeper
                                 }
                                 else
                                 {
-                                    com.zeroc.Ice.LocatorPrx locator = _directDiscoveryEndpointList.getSelectedValue();
+                                    com.zeroc.Ice.LocatorPrx locator = _directDiscoveryLocatorList.getSelectedValue();
                                     _directInstanceName.setText(locator.ice_getIdentity().category);
-                                    _directCustomEndpointValue.setText(locator.ice_getEndpoints()[0].toString());
+
+                                    String endpoints = null;
+                                    for(com.zeroc.Ice.Endpoint endpoint : locator.ice_getEndpoints())
+                                    {
+                                        if(endpoints == null)
+                                        {
+                                            endpoints = endpoint.toString();
+                                        }
+                                        else
+                                        {
+                                            endpoints += ":" + endpoint.toString();
+                                        }
+                                    }
+                                    _directCustomEndpointValue.setText(endpoints);
                                     _directCustomEndpoints.setSelected(true);
 
                                     _cardLayout.show(_cardPanel, WizardStep.DirectCustomEnpointStep.toString());
@@ -2170,7 +2052,7 @@ public class SessionKeeper
                                 else
                                 {
                                     _cardLayout.show(_cardPanel,
-                                    		WizardStep.DirectUsernamePasswordCredentialsStep.toString());
+                                    WizardStep.DirectUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.DirectUsernamePasswordCredentialsStep);
                                 }
                                 if(_x509CertificateDefault)
@@ -2199,7 +2081,7 @@ public class SessionKeeper
                                 else
                                 {
                                     _cardLayout.show(_cardPanel,
-                                    		WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                    WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                     _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                 }
                                 if(_x509CertificateDefault)
@@ -2226,7 +2108,7 @@ public class SessionKeeper
                                     id.name = "Locator";
                                     id.category = _directInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_directCustomEndpointValue.getText());
                                     _coordinator.getCommunicator().stringToProxy(endpoint.toString());
@@ -2283,7 +2165,7 @@ public class SessionKeeper
                                     id.name = "router";
                                     id.category = _routedInstanceName.getText();
                                     StringBuilder endpoint = new StringBuilder();
-                                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                                     endpoint.append(":");
                                     endpoint.append(_routedCustomEndpointValue.getText());
                                     _coordinator.getCommunicator().stringToProxy(endpoint.toString());
@@ -2295,7 +2177,7 @@ public class SessionKeeper
                                     else
                                     {
                                         _cardLayout.show(_cardPanel,
-                                        		WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
+                                        WizardStep.RoutedUsernamePasswordCredentialsStep.toString());
                                         _wizardSteps.push(WizardStep.RoutedUsernamePasswordCredentialsStep);
                                     }
                                 }
@@ -2416,7 +2298,14 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDisconveryAdapter();
+                        synchronized(SessionKeeper.this)
+                        {
+                            if(_discoveryPlugin != null)
+                            {
+                                _discoveryPlugin.destroy();
+                                _discoveryPlugin = null;
+                            }
+                        }
 
                         ConnectionInfo inf = getConfiguration();
                         if(inf == null)
@@ -2560,24 +2449,13 @@ public class SessionKeeper
                             inf.setUseX509Certificate(true);
                         }
 
-                        try
-                        {
-                            inf.save();
-                        }
-                        catch(java.util.prefs.BackingStoreException ex)
-                        {
-                            JOptionPane.showMessageDialog(
-                                    ConnectionWizardDialog.this,
-                                    ex.toString(),
-                                    "Error saving connection",
-                                    JOptionPane.ERROR_MESSAGE);
-                        }
-                        _connectionManagerDialog.load();
-
-                        ConnectionWizardDialog.this.dispose();
                         if(_connectNow)
                         {
                             login(parent, inf);
+                        }
+                        else
+                        {
+                            ConnectionWizardDialog.this.dispose();
                         }
                     }
                 };
@@ -2590,7 +2468,14 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        destroyDisconveryAdapter();
+                        synchronized(SessionKeeper.this)
+                        {
+                            if(_discoveryPlugin != null)
+                            {
+                                _discoveryPlugin.destroy();
+                                _discoveryPlugin = null;
+                            }
+                        }
                         dispose();
                     }
                 };
@@ -2627,7 +2512,7 @@ public class SessionKeeper
                     }
                     else
                     {
-                        _directDiscoveryEndpointList.requestFocusInWindow();
+                        _directDiscoveryLocatorList.requestFocusInWindow();
                     }
                     break;
                 }
@@ -2706,7 +2591,7 @@ public class SessionKeeper
                     }
                     else
                     {
-                    	lastStep = true;
+                        lastStep = true;
                         _certificateAuthButton.requestFocusInWindow();
                     }
                     break;
@@ -2771,7 +2656,7 @@ public class SessionKeeper
                     }
                     else
                     {
-                        validated = _directDiscoveryEndpointList.getSelectedValue() != null;
+                        validated = _directDiscoveryLocatorList.getSelectedValue() != null;
                     }
                     break;
                 }
@@ -3125,7 +3010,7 @@ public class SessionKeeper
                     id.name = "Locator";
                     id.category = _directInstanceName.getText();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(_directCustomEndpointValue.getText());
                     return containsSecureEndpoints(endpoint.toString());
@@ -3143,7 +3028,7 @@ public class SessionKeeper
                     id.name = "router";
                     id.category = _routedInstanceName.getText();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(_routedCustomEndpointValue.getText());
                     return containsSecureEndpoints(endpoint.toString());
@@ -3167,16 +3052,12 @@ public class SessionKeeper
         private JCheckBox _directConnectToMaster;
 
         // Direct Discovery Endpoints
-        private JList<com.zeroc.Ice.LocatorPrx> _directDiscoveryEndpointList;
-        private DefaultListModel<com.zeroc.Ice.LocatorPrx> _directDiscoveryEndpointModel;
-        private JRadioButton _directDiscoveryDiscoveredEndpoint;
+        private JList<com.zeroc.Ice.LocatorPrx> _directDiscoveryLocatorList;
+        private DefaultListModel<com.zeroc.Ice.LocatorPrx> _directDiscoveryLocatorModel;
+        private JRadioButton _directDiscoveryDiscoveredLocators;
         private JLabel _discoveryStatus;
         private JButton _discoveryRefresh;
 
-        private java.util.TimerTask _discoveryFinishTask;
-        private com.zeroc.Ice.ObjectAdapter _discoveryAdapter;
-        private LookupReplyPrx _discoveryReplyPrx;
-        private LookupReply _discoveryLookupReply;
         private JRadioButton _directDiscoveryManualEndpoint;
 
         // Direct Endpoints panel components
@@ -3282,7 +3163,7 @@ public class SessionKeeper
     {
         ConnectionDetailDialog(ConnectionInfo inf)
         {
-            super(_coordinator.getMainFrame(), "Connection Details - IceGrid Admin", true);
+            super(_coordinator.getMainFrame(), "Connection Details - IceGrid GUI", true);
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
             JPanel detailsPane = null;
             {
@@ -3335,7 +3216,7 @@ public class SessionKeeper
                     id.name = inf.getDirect() ? "Locator" : "router";
                     id.category = inf.getInstanceName();
                     StringBuilder endpoint = new StringBuilder();
-                    endpoint.append(com.zeroc.Ice.Util.identityToString(id));
+                    endpoint.append(_coordinator.getCommunicator().identityToString(id));
                     endpoint.append(":");
                     endpoint.append(inf.getEndpoint());
                     ssl = containsSecureEndpoints(endpoint.toString());
@@ -3394,7 +3275,7 @@ public class SessionKeeper
     {
         ConnectionManagerDialog()
         {
-            super(_coordinator.getMainFrame(), "Saved Connections - IceGrid Admin", true);
+            super(_coordinator.getMainFrame(), "Saved Connections - IceGrid GUI", true);
             setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
             JPanel connectionActionPanel = null;
@@ -3411,6 +3292,7 @@ public class SessionKeeper
                         public void actionPerformed(ActionEvent e)
                         {
                             JDialog dialog = new ConnectionWizardDialog(ConnectionManagerDialog.this);
+                            setConnectionWizard(dialog);
                             Utils.addEscapeListener(dialog);
                             dialog.setLocationRelativeTo(ConnectionManagerDialog.this);
                             dialog.setVisible(true);
@@ -3495,13 +3377,13 @@ public class SessionKeeper
 
                                 if(JOptionPane.showConfirmDialog(ConnectionManagerDialog.this,
                                         "Do you want to remove the selected configuration?",
-                                        "Remove Configuration - IceGrid admin",
+                                        "Remove Configuration - IceGrid GUI",
                                         JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                                 {
                                     try
                                     {
                                         String uuid = inf.getUUID();
-                                        Preferences prefs = _coordinator.getPrefs().node("Configurations");
+                                        Preferences prefs = Coordinator.getPreferences().node("Configurations");
                                         prefs = prefs == null ? null : prefs.node(uuid);
                                         if(prefs != null)
                                         {
@@ -3625,12 +3507,15 @@ public class SessionKeeper
                             {
                                 if(e.getClickCount() == 2 && e.getButton() == MouseEvent.BUTTON1)
                                 {
-                                    Object obj = _connectionListModel.getElementAt(
-                                        _connectionList.locationToIndex(e.getPoint()));
-                                    if(obj != null && obj instanceof ConnectionInfo)
+                                    int index = _connectionList.locationToIndex(e.getPoint());
+                                    if(index != -1)
                                     {
-                                        ConnectionInfo inf = (ConnectionInfo)obj;
-                                        login(ConnectionManagerDialog.this, inf);
+                                        Object obj = _connectionListModel.getElementAt(index);
+                                        if(obj != null && obj instanceof ConnectionInfo)
+                                        {
+                                            ConnectionInfo inf = (ConnectionInfo)obj;
+                                            login(ConnectionManagerDialog.this, inf);
+                                        }
                                     }
                                 }
                             }
@@ -3694,7 +3579,7 @@ public class SessionKeeper
         {
             int selected = _connectionList.getSelectedIndex();
             int defaultIndex = -1;
-            Preferences prefs = _coordinator.getPrefs().node("Configurations");
+            Preferences prefs = Coordinator.getPreferences().node("Configurations");
             _connectionListModel.clear();
             try
             {
@@ -3746,6 +3631,15 @@ public class SessionKeeper
             }
         }
 
+        public void setConnectionWizard(JDialog dialog)
+        {
+            if(_connectionWizard != null)
+            {
+                _connectionWizard.dispose();
+            }
+            _connectionWizard = dialog;
+        }
+
         class ConnectionListModel extends DefaultListModel
         {
             public void setDefault()
@@ -3794,6 +3688,8 @@ public class SessionKeeper
         private JButton _editConnectionButton;
         private JButton _setDefaultConnectionButton;
         private JButton _removeConnectionButton;
+
+        private JDialog _connectionWizard;
 
         private JButton _connectButton;
     }
@@ -3973,7 +3869,7 @@ public class SessionKeeper
                     @Override
                     public void actionPerformed(ActionEvent e)
                     {
-                        String defaultPath = _coordinator.getPrefs().node("Configurations").get("importDirectory", "");
+                        String defaultPath = Coordinator.getPreferences().node("Configurations").get("importDirectory", "");
                         JFileChooser chooser = new JFileChooser(defaultPath.equals("") ? null : new File(defaultPath));
                         chooser.setFileFilter(new FileFilter()
                             {
@@ -4069,7 +3965,7 @@ public class SessionKeeper
                                     try
                                     {
                                         keyStore = KeyStore.getInstance("pkcs12");
-                                        RequestPasswordResult r = requestPassword("KeyStore Password - IceGrid Admin",
+                                        RequestPasswordResult r = requestPassword("KeyStore Password - IceGrid GUI",
                                                                                   "KeyStore password:");
                                         if(r.accepted)
                                         {
@@ -4137,7 +4033,7 @@ public class SessionKeeper
                                                     "<html>Your KeyStore already contains a certificate with alias `" +
                                                     newAlias + "'<br/>" +
                                                     "Do you want to update the certificate?</html>",
-                                                    "Confirm Certificate Update - IceGrid Admin",
+                                                    "Confirm Certificate Update - IceGrid GUI",
                                                     JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                                             {
                                                 continue;
@@ -4175,7 +4071,7 @@ public class SessionKeeper
                         }
                         if(keyFile != null)
                         {
-                            _coordinator.getPrefs().node("Configurations").put("importDirectory", keyFile.getParent());
+                            Coordinator.getPreferences().node("Configurations").put("importDirectory", keyFile.getParent());
                         }
                     }
                 };
@@ -4223,7 +4119,7 @@ public class SessionKeeper
                         {
                             if(JOptionPane.showConfirmDialog(KeyStorePanel.this,
                                     "Do you want to remove the certficate with alias `" + _aliases.get(index) + "'?",
-                                    "Remove Certificate - IceGrid admin",
+                                    "Remove Certificate - IceGrid GUI",
                                     JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
                             try
                             {
@@ -4272,7 +4168,7 @@ public class SessionKeeper
                     {
                         try
                         {
-                            r = requestPassword("Certificate Password For <" + alias + "> - IceGrid Admin",
+                            r = requestPassword("Certificate Password For <" + alias + "> - IceGrid GUI",
                                                 "Certificate password for <" + alias + ">:");
                             if(r.accepted)
                             {
@@ -4313,7 +4209,7 @@ public class SessionKeeper
                             KeyStorePanel.this,
                             "<html>Your KeyStore already contains a certificate with alias `" + newAlias + "'<br/>" +
                             "Do you want to update the certificate?</html>",
-                            "Confirm Certificate Update - IceGrid Admin",
+                            "Confirm Certificate Update - IceGrid GUI",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                         {
                             continue;
@@ -4338,7 +4234,7 @@ public class SessionKeeper
                             KeyStorePanel.this,
                             "<html>Your KeyStore already contains a certificate with alias `" + newAlias + "'<br/>" +
                             "Do you want to update the certificate?</html>",
-                            "Confirm Certificate Update - IceGrid Admin",
+                            "Confirm Certificate Update - IceGrid GUI",
                             JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION)
                         {
                             continue;
@@ -4631,7 +4527,7 @@ public class SessionKeeper
         CertificateDetailDialog(X509Certificate cert)
             throws java.security.GeneralSecurityException, java.io.IOException, javax.naming.InvalidNameException
         {
-            super(_coordinator.getMainFrame(), "Certificate Details - IceGrid Admin", true);
+            super(_coordinator.getMainFrame(), "Certificate Details - IceGrid GUI", true);
             setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 
             Container contentPane = getContentPane();
@@ -4673,7 +4569,7 @@ public class SessionKeeper
     {
         CertificateManagerDialog() throws java.security.KeyStoreException
         {
-            super(_coordinator.getMainFrame(), "Certificate Manager - IceGrid Admin", true);
+            super(_coordinator.getMainFrame(), "Certificate Manager - IceGrid GUI", true);
             _tabs = new JTabbedPane();
 
             _identityCertificatesPanel = new KeyStorePanel();
@@ -4805,6 +4701,25 @@ public class SessionKeeper
         }
     }
 
+    class StoredPasswordAuthDialog extends AuthDialog
+    {
+        StoredPasswordAuthDialog(JDialog parent)
+        {
+            super(parent, "Login - IceGrid GUI");
+
+            Container contentPane = getContentPane();
+            contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
+
+            FormLayout layout = new FormLayout("pref:grow", "");
+            DefaultFormBuilder builder = new DefaultFormBuilder(layout);
+            builder.border(Borders.DIALOG);
+            builder.append(new JLabel("Connecting please wait"));
+            contentPane.add(builder.getPanel());
+            pack();
+            setResizable(false);
+        }
+    }
+
     private void login(final JDialog parent, final ConnectionInfo info)
     {
         if(_authDialog != null)
@@ -4819,7 +4734,7 @@ public class SessionKeeper
             {
                 UsernamePasswordAuthDialog()
                 {
-                    super(parent, "Login - IceGrid Admin");
+                    super(parent, "Login - IceGrid GUI");
 
                     Container contentPane = getContentPane();
                     contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -4915,6 +4830,8 @@ public class SessionKeeper
                     }
 
                     JButton okButton = new JButton();
+                    JButton cancelButton = new JButton();
+
                     AbstractAction okAction = new AbstractAction("OK")
                         {
                             @Override
@@ -4944,16 +4861,17 @@ public class SessionKeeper
                                 }
                                 else
                                 {
-                                    Cursor oldCursor = parent.getCursor();
-                                    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                    dispose();
-                                    _coordinator.login(SessionKeeper.this, info,parent, oldCursor);
+                                    _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                    _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                                    Utils.removeEscapeListener(_authDialog);
+                                    okButton.setEnabled(false);
+                                    cancelButton.setEnabled(false);
+                                    _coordinator.login(SessionKeeper.this, info,parent);
                                 }
                             }
                         };
                     okButton.setAction(okAction);
 
-                    JButton cancelButton = new JButton();
                     AbstractAction cancelAction = new AbstractAction("Cancel")
                         {
                             @Override
@@ -5009,19 +4927,21 @@ public class SessionKeeper
                 }
                 else
                 {
-                    Cursor oldCursor = parent.getCursor();
-                    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor);
+                    _authDialog = new StoredPasswordAuthDialog(parent);
+                    _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                    _coordinator.login(SessionKeeper.this, info, parent);
+                    _authDialog.showDialog();
                 }
             }
         }
-        else // Auth dialog
+        else // X509CertificateAuthDialog dialog
         {
             class X509CertificateAuthDialog extends AuthDialog
             {
                 X509CertificateAuthDialog()
                 {
-                    super(parent, "Login - IceGrid Admin");
+                    super(parent, "Login - IceGrid GUI");
 
                     Container contentPane = getContentPane();
                     contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -5065,6 +4985,8 @@ public class SessionKeeper
                     }
 
                     JButton okButton = new JButton();
+                    JButton cancelButton = new JButton();
+
                     AbstractAction okAction = new AbstractAction("OK")
                         {
                             @Override
@@ -5086,16 +5008,17 @@ public class SessionKeeper
                                 }
                                 else
                                 {
-                                    Cursor oldCursor = parent.getCursor();
-                                    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                    dispose();
-                                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor);
+                                    _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                    _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                                    Utils.removeEscapeListener(_authDialog);
+                                    okButton.setEnabled(false);
+                                    cancelButton.setEnabled(false);
+                                    _coordinator.login(SessionKeeper.this, info, parent);
                                 }
                             }
                         };
                     okButton.setAction(okAction);
 
-                    JButton cancelButton = new JButton();
                     AbstractAction cancelAction = new AbstractAction("Cancel")
                         {
                             @Override
@@ -5146,21 +5069,45 @@ public class SessionKeeper
                 }
                 else
                 {
-                    Cursor oldCursor = parent.getCursor();
-                    parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                    _coordinator.login(SessionKeeper.this, info, parent, oldCursor);
+                    _authDialog = new StoredPasswordAuthDialog(parent);
+                    _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                    _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                    _coordinator.login(SessionKeeper.this, info, parent);
+                    _authDialog.showDialog();
                 }
             }
         }
     }
 
-    public void loginSuccess(final JDialog parent, final Cursor oldCursor, final long sessionTimeout,
-                             final int acmTimeout, final AdminSessionPrx session, final ConnectionInfo info)
+    public void loginSuccess(final JDialog parent, final long sessionTimeout, final int acmTimeout,
+                             final AdminSessionPrx adminSession, final ConnectionInfo info)
     {
-        assert session != null;
         try
         {
-            _replicaName = session.getReplicaName();
+            if(!info.getStorePassword())
+            {
+                info.setPassword(null);
+            }
+            if(!info.getStoreKeyPassword())
+            {
+                info.setKeyPassword(null);
+            }
+            info.save();
+            _connectionManagerDialog.load();
+        }
+        catch(java.util.prefs.BackingStoreException ex)
+        {
+            JOptionPane.showMessageDialog(
+                    parent,
+                    ex.toString(),
+                    "Error saving connection",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+
+        assert adminSession != null;
+        try
+        {
+            _replicaName = adminSession.getReplicaName();
         }
         catch(com.zeroc.Ice.LocalException e)
         {
@@ -5186,51 +5133,71 @@ public class SessionKeeper
         }
 
         //
-        // Create the session in is own thread as it made remote calls
+        // Create the session in its own thread as it made remote calls
         //
-        new Thread(() ->
+        _coordinator.getExecutor().submit(() ->
             {
                 try
                 {
-                    setSession(new Session(session, sessionTimeout, acmTimeout, !info.getDirect(), parent));
+                    final Session session = new Session(adminSession, sessionTimeout, acmTimeout, !info.getDirect(), parent);
+                    SwingUtilities.invokeAndWait(() ->
+                                                 {
+                                                     _session = session;
+                                                 });
+                    try
+                    {
+                        session.registerObservers();
+                    }
+                    catch(final com.zeroc.Ice.LocalException e)
+                    {
+                        while(true)
+                        {
+                            try
+                            {
+                                SwingUtilities.invokeAndWait(() ->
+                                                             {
+                                                                 logout(true);
+                                                                 JOptionPane.showMessageDialog(parent, "Could not register observers: " + e.toString(),
+                                                                                               "Login failed", JOptionPane.ERROR_MESSAGE);
+                                                             });
+                                break;
+                            }
+                            catch(java.lang.InterruptedException ex)
+                            {
+                                // Ignore and retry
+                            }
+                            catch(java.lang.reflect.InvocationTargetException ex)
+                            {
+                                break;
+                            }
+                        }
+                    }
                 }
                 catch(java.lang.Throwable e)
                 {
-                    SwingUtilities.invokeLater(() -> _connectionManagerDialog.setCursor(oldCursor));
                     return;
                 }
 
                 SwingUtilities.invokeLater(() ->
                     {
-                        _connectionManagerDialog.setCursor(oldCursor);
+                        if(_authDialog != null)
+                        {
+                            _authDialog.dispose();
+                            _authDialog = null;
+                        }
+                        _connectionManagerDialog.setConnectionWizard(null);
                         _connectionManagerDialog.setVisible(false);
-                        if(!info.getStorePassword())
-                        {
-                            info.setPassword(null);
-                        }
-                        if(!info.getStoreKeyPassword())
-                        {
-                            info.setKeyPassword(null);
-                        }
-
-                        if(info.getStorePassword() || info.getStoreKeyPassword())
-                        {
-                            try
-                            {
-                                info.save();
-                            }
-                            catch(java.util.prefs.BackingStoreException ex)
-                            {
-                                JOptionPane.showMessageDialog(
-                                        _coordinator.getMainFrame(),
-                                        ex.toString(),
-                                        "Error saving connection",
-                                        JOptionPane.ERROR_MESSAGE);
-                            }
-                            _connectionManagerDialog.load();
-                        }
                     });
-            }).start();
+            });
+    }
+
+    public void loginFailed()
+    {
+        if(_authDialog != null)
+        {
+            _authDialog.dispose();
+            _authDialog = null;
+        }
     }
 
     public void permissionDenied(final JDialog parent, final ConnectionInfo info, final String msg)
@@ -5239,7 +5206,7 @@ public class SessionKeeper
         {
             PermissionDeniedAuthDialog()
             {
-                super(parent, "Login - IceGrid Admin");
+                super(parent, "Login - IceGrid GUI");
 
                 Container contentPane = getContentPane();
                 contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
@@ -5342,7 +5309,11 @@ public class SessionKeeper
                     contentPane.add(builder.getPanel());
                 }
 
-                JButton okButton = new JButton(new AbstractAction("OK")
+                JButton okButton = new JButton();
+                JButton editConnectionButton = new JButton();
+                JButton cancelButton = new JButton();
+
+                AbstractAction okAction = new AbstractAction("OK")
                     {
                         @Override
                         public void actionPerformed(ActionEvent e)
@@ -5374,15 +5345,18 @@ public class SessionKeeper
                             }
                             else
                             {
-                                Cursor oldCursor = parent.getCursor();
-                                parent.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-                                dispose();
-                                _coordinator.login(SessionKeeper.this, info, parent, oldCursor);
+                                _authDialog.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                                okButton.setEnabled(false);
+                                editConnectionButton.setEnabled(false);
+                                cancelButton.setEnabled(false);
+                                Utils.removeEscapeListener(_authDialog);
+                                _authDialog.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+                                _coordinator.login(SessionKeeper.this, info, parent);
                             }
                         }
-                    });
+                    };
 
-                JButton editConnectionButton = new JButton(new AbstractAction("Edit Connection")
+                AbstractAction editAction = new AbstractAction("Edit Connection")
                     {
                         @Override
                         public void actionPerformed(ActionEvent e)
@@ -5395,9 +5369,9 @@ public class SessionKeeper
                             dialog.setLocationRelativeTo(parent);
                             dialog.setVisible(true);
                         }
-                    });
+                    };
 
-                JButton cancelButton = new JButton(new AbstractAction("Cancel")
+                AbstractAction cancelAction = new AbstractAction("Cancel")
                     {
                         @Override
                         public void actionPerformed(ActionEvent e)
@@ -5406,7 +5380,7 @@ public class SessionKeeper
                             dispose();
                             _authDialog = null;
                         }
-                    });
+                    };
 
                 JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton,
                     cancelButton).addGlue().build();
@@ -5452,11 +5426,6 @@ public class SessionKeeper
             _session.logout(destroySession);
             _session = null;
         }
-    }
-
-    synchronized void setSession(Session session)
-    {
-        _session = session;
     }
 
     AdminSessionPrx getSession()
@@ -5509,6 +5478,7 @@ public class SessionKeeper
     private static AuthDialog _authDialog;
 
     private final Coordinator _coordinator;
+    private Plugin _discoveryPlugin;
 
     private Session _session;
     private boolean _connectedToMaster = false;

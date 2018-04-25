@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -43,8 +43,9 @@ public:
 
     EI();
 
-    virtual bool checkValues(const Ice::Current&);
+    bool checkValues();
 };
+ICE_DEFINE_PTR(EIPtr, EI);
 
 class FI : public Test::F
 {
@@ -53,8 +54,9 @@ public:
     FI();
     FI(const Test::EPtr&);
 
-    virtual bool checkValues(const Ice::Current&);
+    bool checkValues();
 };
+ICE_DEFINE_PTR(FIPtr, FI);
 
 #ifdef ICE_CPP11_MAPPING
 class II : public ::Ice::InterfaceByValue<Test::I>
@@ -78,16 +80,12 @@ class HI : public Test::H
 {
 };
 
-class InitialI :
-#ifdef ICE_CPP11_MAPPING
-    public Test::InitialDisp
-#else
-    public Test::Initial
-#endif
+class InitialI : public Test::Initial
 {
 public:
 
     InitialI(const Ice::ObjectAdapterPtr&);
+    virtual ~InitialI();
 
     virtual void shutdown(const Ice::Current&);
     virtual Test::BPtr getB1(const Ice::Current&);
@@ -96,6 +94,9 @@ public:
     virtual Test::DPtr getD(const Ice::Current&);
     virtual Test::EPtr getE(const Ice::Current&);
     virtual Test::FPtr getF(const Ice::Current&);
+
+    virtual void setRecursive(ICE_IN(Test::RecursivePtr), const Ice::Current&);
+    virtual bool supportsClassGraphDepthMax(const Ice::Current&);
 
 #ifdef ICE_CPP11_MAPPING
     virtual GetMBMarshaledResult getMB(const Ice::Current&);
@@ -121,6 +122,8 @@ public:
 
     virtual Test::D1Ptr getD1(ICE_IN(Test::D1Ptr), const Ice::Current&);
     virtual void throwEDerived(const Ice::Current&);
+
+    virtual void setG(ICE_IN(Test::GPtr), const Ice::Current&);
 
 #ifdef ICE_CPP11_MAPPING
     virtual void setI(::std::shared_ptr<::Ice::Value>, const Ice::Current&);
@@ -152,7 +155,7 @@ class UnexpectedObjectExceptionTestI : public Ice::Blobject
 {
 public:
 
-    virtual bool ice_invoke(const std::vector<Ice::Byte>&, std::vector<Ice::Byte>&, const Ice::Current&);
+    virtual bool ice_invoke(ICE_IN(std::vector<Ice::Byte>), std::vector<Ice::Byte>&, const Ice::Current&);
 };
 ICE_DEFINE_PTR(UnexpectedObjectExceptionTestIPtr, UnexpectedObjectExceptionTestI);
 

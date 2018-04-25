@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,7 +21,12 @@ ZEND_EXTERN_MODULE_GLOBALS(ice)
 //
 // Class entries represent the PHP class implementations we have registered.
 //
-static zend_class_entry* connectionClassEntry = 0;
+namespace IcePHP
+{
+
+zend_class_entry* connectionClassEntry = 0;
+
+}
 
 static zend_class_entry* connectionInfoClassEntry = 0;
 static zend_class_entry* ipConnectionInfoClassEntry = 0;
@@ -78,15 +83,22 @@ ZEND_METHOD(Ice_Connection, close)
     Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
     assert(_this);
 
-    zend_bool b;
-    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("b"), &b) != SUCCESS)
+    zval* mode;
+    if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("z"), &mode) != SUCCESS)
     {
         RETURN_NULL();
     }
 
+    if(Z_TYPE_P(mode) != IS_LONG)
+    {
+        invalidArgument("value for 'mode' argument must be an enumerator of ConnectionClose");
+        RETURN_NULL();
+    }
+    Ice::ConnectionClose cc = static_cast<Ice::ConnectionClose>(Z_LVAL_P(mode));
+
     try
     {
-        _this->close(b ? true : false);
+        _this->close(cc);
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -121,6 +133,35 @@ ZEND_METHOD(Ice_Connection, getEndpoint)
 
 ZEND_METHOD(Ice_Connection, flushBatchRequests)
 {
+    zval* compress;
+    if(zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, const_cast<char*>("z"), &compress TSRMLS_CC) != SUCCESS)
+    {
+        RETURN_NULL();
+    }
+
+    if(Z_TYPE_P(compress) != IS_LONG)
+    {
+        invalidArgument("value for 'compress' argument must be an enumerator of CompressBatch" TSRMLS_CC);
+        RETURN_NULL();
+    }
+    Ice::CompressBatch cb = static_cast<Ice::CompressBatch>(Z_LVAL_P(compress));
+
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis() TSRMLS_CC);
+    assert(_this);
+
+    try
+    {
+        _this->flushBatchRequests(cb);
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex TSRMLS_CC);
+        RETURN_NULL();
+    }
+}
+
+ZEND_METHOD(Ice_Connection, heartbeat)
+{
     if(ZEND_NUM_ARGS() > 0)
     {
         WRONG_PARAM_COUNT;
@@ -131,7 +172,7 @@ ZEND_METHOD(Ice_Connection, flushBatchRequests)
 
     try
     {
-        _this->flushBatchRequests();
+        _this->heartbeat();
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -331,6 +372,27 @@ ZEND_METHOD(Ice_Connection, setBufferSize)
     }
 }
 
+ZEND_METHOD(Ice_Connection, throwException)
+{
+    if(ZEND_NUM_ARGS() > 0)
+    {
+        WRONG_PARAM_COUNT;
+    }
+
+    Ice::ConnectionPtr _this = Wrapper<Ice::ConnectionPtr>::value(getThis());
+    assert(_this);
+
+    try
+    {
+        _this->throwException();
+    }
+    catch(const IceUtil::Exception& ex)
+    {
+        throwException(ex);
+        RETURN_NULL();
+    }
+}
+
 #ifdef _WIN32
 extern "C"
 #endif
@@ -401,18 +463,20 @@ static zend_function_entry _interfaceMethods[] =
 };
 static zend_function_entry _connectionClassMethods[] =
 {
-    ZEND_ME(Ice_Connection, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
-    ZEND_ME(Ice_Connection, __toString, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, close, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getEndpoint, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, flushBatchRequests, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, setACM, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getACM, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, type, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, timeout, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, toString, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, getInfo, NULL, ZEND_ACC_PUBLIC)
-    ZEND_ME(Ice_Connection, setBufferSize, NULL, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_Connection, __toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, close, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, getEndpoint, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, flushBatchRequests, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, heartbeat, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, setACM, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, getACM, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, type, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, timeout, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, toString, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, getInfo, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, setBufferSize, ICE_NULLPTR, ZEND_ACC_PUBLIC)
+    ZEND_ME(Ice_Connection, throwException, ICE_NULLPTR, ZEND_ACC_PUBLIC)
     {0, 0, 0}
 };
 
@@ -426,7 +490,7 @@ ZEND_METHOD(Ice_ConnectionInfo, __construct)
 //
 static zend_function_entry _connectionInfoClassMethods[] =
 {
-    ZEND_ME(Ice_ConnectionInfo, __construct, NULL, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
+    ZEND_ME(Ice_ConnectionInfo, __construct, ICE_NULLPTR, ZEND_ACC_PRIVATE|ZEND_ACC_CTOR)
     {0, 0, 0}
 };
 //
@@ -514,9 +578,9 @@ IcePHP::connectionInit(void)
     // Register the IPConnectionInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", NULL);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "IPConnectionInfo", ICE_NULLPTR);
 #else
-    INIT_CLASS_ENTRY(ce, "Ice_IPConnectionInfo", NULL);
+    INIT_CLASS_ENTRY(ce, "Ice_IPConnectionInfo", ICE_NULLPTR);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
     ipConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
@@ -533,9 +597,9 @@ IcePHP::connectionInit(void)
     // Register the TCPConnectionInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPConnectionInfo", NULL);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "TCPConnectionInfo", ICE_NULLPTR);
 #else
-    INIT_CLASS_ENTRY(ce, "Ice_TCPConnectionInfo", NULL);
+    INIT_CLASS_ENTRY(ce, "Ice_TCPConnectionInfo", ICE_NULLPTR);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
     tcpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
@@ -544,9 +608,9 @@ IcePHP::connectionInit(void)
     // Register the UDPConnectionInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", NULL);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "UDPConnectionInfo", ICE_NULLPTR);
 #else
-    INIT_CLASS_ENTRY(ce, "Ice_UDPConnectionInfo", NULL);
+    INIT_CLASS_ENTRY(ce, "Ice_UDPConnectionInfo", ICE_NULLPTR);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
     udpConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, ipConnectionInfoClassEntry);
@@ -559,9 +623,9 @@ IcePHP::connectionInit(void)
     // Register the WSConnectionInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", NULL);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "WSConnectionInfo", ICE_NULLPTR);
 #else
-    INIT_CLASS_ENTRY(ce, "Ice_WSConnectionInfo", NULL);
+    INIT_CLASS_ENTRY(ce, "Ice_WSConnectionInfo", ICE_NULLPTR);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
     wsConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
@@ -572,9 +636,9 @@ IcePHP::connectionInit(void)
     // Register the SSLConnectionInfo class.
     //
 #ifdef ICEPHP_USE_NAMESPACES
-    INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", NULL);
+    INIT_NS_CLASS_ENTRY(ce, "Ice", "SSLConnectionInfo", ICE_NULLPTR);
 #else
-    INIT_CLASS_ENTRY(ce, "Ice_SSLConnectionInfo", NULL);
+    INIT_CLASS_ENTRY(ce, "Ice_SSLConnectionInfo", ICE_NULLPTR);
 #endif
     ce.create_object = handleConnectionInfoAlloc;
     sslConnectionInfoClassEntry = zend_register_internal_class_ex(&ce, connectionInfoClassEntry);
@@ -584,7 +648,6 @@ IcePHP::connectionInit(void)
                                  STRCAST(""), ZEND_ACC_PUBLIC);
     zend_declare_property_bool(sslConnectionInfoClassEntry, STRCAST("verified"), sizeof("verified") - 1, 0,
                                ZEND_ACC_PUBLIC);
-
 
     return true;
 }
@@ -704,7 +767,14 @@ IcePHP::createConnectionInfo(zval* zv, const Ice::ConnectionInfoPtr& p)
 
         zval zarr;
         AutoDestroy listDestroyer(&zarr);
-        if(createStringArray(&zarr, info->certs))
+
+        Ice::StringSeq encoded;
+        for(vector<IceSSL::CertificatePtr>::const_iterator i = info->certs.begin(); i != info->certs.end(); ++i)
+        {
+            encoded.push_back((*i)->encode());
+        }
+
+        if(createStringArray(&zarr, encoded))
         {
             add_property_zval(zv, STRCAST("certs"), &zarr);
         }

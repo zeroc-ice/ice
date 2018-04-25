@@ -1,0 +1,1 @@
+# Dumy file to run slice2cpp --impl

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -150,8 +150,15 @@ final class TcpEndpointI extends IPEndpointI
 
     public TcpEndpointI endpoint(TcpAcceptor acceptor)
     {
-        return new TcpEndpointI(_instance, _host, acceptor.effectivePort(), _sourceAddr, _timeout,
-                                _connectionId, _compress);
+        int port = acceptor.effectivePort();
+        if(port == _port)
+        {
+            return this;
+        }
+        else
+        {
+            return new TcpEndpointI(_instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+        }
     }
 
     @Override

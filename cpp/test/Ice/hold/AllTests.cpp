@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -290,7 +290,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 completed->get_future().get();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(false);
+                holdSerialized->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
             }
         }
         completed->get_future().get();
@@ -305,7 +305,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
                 result->waitForSent();
                 holdSerialized->ice_ping(); // Ensure everything's dispatched
-                holdSerialized->ice_getConnection()->close(false);
+                holdSerialized->ice_getConnection()->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
             }
         }
         result->waitForCompleted();

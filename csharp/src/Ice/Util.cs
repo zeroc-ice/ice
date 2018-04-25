@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,6 @@
 using System;
 using System.Threading;
 using System.Collections;
-using System.Text;
 using System.Globalization;
 
 namespace Ice
@@ -38,21 +37,6 @@ namespace Ice
     }
 
     /// <summary>
-    /// A delegate for the dispatcher. The dispatcher is called by the Ice
-    /// runtime to dispatch servant calls and AMI callbacks.
-    /// </summary>
-    public delegate void Dispatcher(System.Action call, Connection con);
-
-    /// <summary>
-    /// Applications that make use of compact type IDs to conserve space
-    /// when marshaling class instances, and also use the streaming API to
-    /// extract such classes, can intercept the translation between compact
-    /// type IDs and their corresponding string type IDs by installing an
-    /// instance of CompactIdResolver in InitializationData.
-    /// </summary>
-    public delegate string CompactIdResolver(int id);
-
-    /// <summary>
     /// A class that encpasulates data to initialize a communicator.
     /// </summary>
     public class InitializationData : ICloneable
@@ -60,7 +44,7 @@ namespace Ice
         /// <summary>
         /// Creates and returns a copy of this object.
         /// </summary>
-        public System.Object Clone()
+        public object Clone()
         {
             //
             // A member-wise copy is safe because the members are immutable.
@@ -81,27 +65,42 @@ namespace Ice
         /// <summary>
         /// The communicator observer used by the Ice run-time.
         /// </summary>
-        public Ice.Instrumentation.CommunicatorObserver observer;
+        public Instrumentation.CommunicatorObserver observer;
 
         /// <summary>
         /// The thread hook for the communicator.
         /// </summary>
+        [Obsolete("This data member is deprecated. Use threadStart or threadStop instead.")]
         public ThreadNotification threadHook;
+
+        /// <summary>
+        /// The thread start hook for the communicator. The Ice run time
+        /// calls this hook for each new thread it creates. The call is
+        /// made by the newly-started thread.
+        /// </summary>
+        public System.Action threadStart;
+
+        /// <summary>
+        /// The thread stop hook for the communicator. The Ice run time
+        /// calls stop before it destroys a thread. The call is made by
+        /// thread that is about to be destroyed.
+        /// </summary>
+        public System.Action threadStop;
 
         /// <summary>
         /// The dispatcher for the communicator.
         /// </summary>
-        public Dispatcher dispatcher;
+        public System.Action<System.Action, Connection> dispatcher;
 
         /// <summary>
         /// The compact type ID resolver.
         /// </summary>
-        public CompactIdResolver compactIdResolver;
+        public System.Func<int, string> compactIdResolver;
 
         /// <summary>
         /// The batch request interceptor.
         /// </summary>
-        public BatchRequestInterceptor batchRequestInterceptor;
+        public System.Action<BatchRequest, int, int> batchRequestInterceptor;
 
         /// <summary>
         /// The value factory manager.
@@ -166,14 +165,14 @@ namespace Ice
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(ref string[] args)
         {
-            return initialize(ref args, null);
+            return initialize(ref args, (InitializationData)null);
         }
 
         /// <summary>
         /// Creates a communicator.
         /// </summary>
         /// <param name="args">A command-line argument vector. Any Ice-related options
-        /// in this vector are used to intialize the communicator.
+        /// in this vector are used to initialize the communicator.
         /// This method modifies the argument vector by removing any Ice-related options.</param>
         /// <param name="initData">Additional intialization data. Property settings in args
         /// override property settings in initData.</param>
@@ -199,6 +198,27 @@ namespace Ice
         /// <summary>
         /// Creates a communicator.
         /// </summary>
+        /// <param name="args">A command-line argument vector. Any Ice-related options
+        /// in this vector are used to initialize the communicator.
+        /// This method modifies the argument vector by removing any Ice-related options.</param>
+        /// <param name="configFile">Path to a config file that sets the new communicator's default
+        /// properties.</param>
+        /// <returns>The initialized communicator.</returns>
+        public static Communicator initialize(ref string[] args, string configFile)
+        {
+            InitializationData initData = null;
+            if(configFile != null)
+            {
+                initData = new InitializationData();
+                initData.properties = Util.createProperties();
+                initData.properties.load(configFile);
+            }
+            return initialize(ref args, initData);
+        }
+
+        /// <summary>
+        /// Creates a communicator.
+        /// </summary>
         /// <param name="initData">Additional intialization data.</param>
         /// <returns>The initialized communicator.</returns>
         public static Communicator initialize(InitializationData initData)
@@ -219,11 +239,29 @@ namespace Ice
         }
 
         /// <summary>
+        /// Creates a communicator.
+        /// </summary>
+        /// <param name="configFile">Path to a config file that sets the new communicator's default
+        /// properties.</param>
+        /// <returns>The initialized communicator.</returns>
+        public static Communicator initialize(string configFile)
+        {
+            InitializationData initData = null;
+            if(configFile != null)
+            {
+                initData = new InitializationData();
+                initData.properties = Util.createProperties();
+                initData.properties.load(configFile);
+            }
+            return initialize(initData);
+        }
+
+        /// <summary>
         /// Creates a communicator using a default configuration.
         /// </summary>
         public static Communicator initialize()
         {
-            return initialize(null);
+            return initialize((InitializationData)null);
         }
 
         /// <summary>
@@ -275,9 +313,9 @@ namespace Ice
                 ident.category = "";
                 try
                 {
-                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length);
+                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.Length, "/");
                 }
-                catch(System.ArgumentException e)
+                catch(ArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = "invalid identity name `" + s + "': " + e.Message;
@@ -288,9 +326,9 @@ namespace Ice
             {
                 try
                 {
-                    ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash);
+                    ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
                 }
-                catch(System.ArgumentException e)
+                catch(ArgumentException e)
                 {
                     IdentityParseException ex = new IdentityParseException();
                     ex.str = "invalid category in identity `" + s + "': " + e.Message;
@@ -300,9 +338,9 @@ namespace Ice
                 {
                     try
                     {
-                        ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length);
+                        ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.Length, "/");
                     }
-                    catch(System.ArgumentException e)
+                    catch(ArgumentException e)
                     {
                         IdentityParseException ex = new IdentityParseException();
                         ex.str = "invalid name in identity `" + s + "': " + e.Message;
@@ -322,17 +360,18 @@ namespace Ice
         /// Converts an object identity to a string.
         /// </summary>
         /// <param name="ident">The object identity to convert.</param>
+        /// <param name="toStringMode">Specifies if and how non-printable ASCII characters are escaped in the result.</param>
         /// <returns>The string representation of the object identity.</returns>
-        public static string identityToString(Identity ident)
+        public static string identityToString(Identity ident, ToStringMode toStringMode = ToStringMode.Unicode)
         {
             if(ident.category == null || ident.category.Length == 0)
             {
-                return IceUtilInternal.StringUtil.escapeString(ident.name, "/");
+                return IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
             }
             else
             {
-                return IceUtilInternal.StringUtil.escapeString(ident.category, "/") + '/' +
-                    IceUtilInternal.StringUtil.escapeString(ident.name, "/");
+                return IceUtilInternal.StringUtil.escapeString(ident.category, "/", toStringMode) + '/' +
+                    IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
             }
         }
 
@@ -450,7 +489,7 @@ namespace Ice
             {
                 if(_processLogger == null)
                 {
-                    _processLogger = new ConsoleLoggerI(System.AppDomain.CurrentDomain.FriendlyName);
+                    _processLogger = new ConsoleLoggerI(AppDomain.CurrentDomain.FriendlyName);
                 }
                 return _processLogger;
             }
@@ -476,7 +515,7 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static string stringVersion()
         {
-            return "3.7a3"; // "A.B.C", with A=major, B=minor, C=patch
+            return "3.7.1"; // "A.B.C", with A=major, B=minor, C=patch
         }
 
         /// <summary>
@@ -487,7 +526,7 @@ namespace Ice
         /// <returns>The Ice version.</returns>
         public static int intVersion()
         {
-            return 30753; // AABBCC, with AA=major, BB=minor, CC=patch
+            return 30701; // AABBCC, with AA=major, BB=minor, CC=patch
         }
 
         /// <summary>
@@ -495,11 +534,11 @@ namespace Ice
         /// </summary>
         /// <param name="version">The string to convert.</param>
         /// <returns>The converted protocol version.</returns>
-        public static Ice.ProtocolVersion stringToProtocolVersion(string version)
+        public static ProtocolVersion stringToProtocolVersion(string version)
         {
             byte major, minor;
             stringToMajorMinor(version, out major, out minor);
-            return new Ice.ProtocolVersion(major, minor);
+            return new ProtocolVersion(major, minor);
         }
 
         /// <summary>
@@ -507,11 +546,11 @@ namespace Ice
         /// </summary>
         /// <param name="version">The string to convert.</param>
         /// <returns>The converted object identity.</returns>
-        public static Ice.EncodingVersion stringToEncodingVersion(string version)
+        public static EncodingVersion stringToEncodingVersion(string version)
         {
             byte major, minor;
             stringToMajorMinor(version, out major, out minor);
-            return new Ice.EncodingVersion(major, minor);
+            return new EncodingVersion(major, minor);
         }
 
         /// <summary>
@@ -536,10 +575,10 @@ namespace Ice
 
         static private void stringToMajorMinor(string str, out byte major, out byte minor)
         {
-            int pos = str.IndexOf((System.Char) '.');
+            int pos = str.IndexOf('.');
             if(pos == -1)
             {
-                throw new Ice.VersionParseException("malformed version value `" + str + "'");
+                throw new VersionParseException("malformed version value `" + str + "'");
             }
 
             string majStr = str.Substring(0, (pos) - (0));
@@ -548,30 +587,26 @@ namespace Ice
             int minVersion;
             try
             {
-                majVersion = System.Int32.Parse(majStr, CultureInfo.InvariantCulture);
-                minVersion = System.Int32.Parse(minStr, CultureInfo.InvariantCulture);
+                majVersion = int.Parse(majStr, CultureInfo.InvariantCulture);
+                minVersion = int.Parse(minStr, CultureInfo.InvariantCulture);
             }
-            catch(System.FormatException)
+            catch(FormatException)
             {
-                throw new Ice.VersionParseException("invalid version value `" + str + "'");
+                throw new VersionParseException("invalid version value `" + str + "'");
             }
 
             if(majVersion < 1 || majVersion > 255 || minVersion < 0 || minVersion > 255)
             {
-                throw new Ice.VersionParseException("range error in version `" + str + "'");
+                throw new VersionParseException("range error in version `" + str + "'");
             }
 
             major = (byte)majVersion;
             minor = (byte)minVersion;
         }
 
-        static private String majorMinorToString(byte major, byte minor)
+        static private string majorMinorToString(byte major, byte minor)
         {
-            StringBuilder str = new StringBuilder();
-            str.Append(major < 0 ? (int)major + 255 : (int)major);
-            str.Append(".");
-            str.Append(minor < 0 ? (int)minor + 255 : (int)minor);
-            return str.ToString();
+            return string.Format("{0}.{1}", major, minor);
         }
 
         public static readonly ProtocolVersion currentProtocol =
@@ -689,9 +724,9 @@ namespace IceInternal
             return new ProtocolPluginFacadeI(communicator);
         }
 
-        public static System.Threading.ThreadPriority stringToThreadPriority(string s)
+        public static ThreadPriority stringToThreadPriority(string s)
         {
-            if(String.IsNullOrEmpty(s))
+            if(string.IsNullOrEmpty(s))
             {
                 return ThreadPriority.Normal;
             }

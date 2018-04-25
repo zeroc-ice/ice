@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@ using namespace std;
 using namespace Ice;
 using namespace IceGrid;
 
-string 
+string
 IceGrid::toString(const vector<string>& v, const string& sep)
 {
     ostringstream os;
@@ -61,7 +61,7 @@ IceGrid::toString(const Ice::Exception& exception)
 
 string
 IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name, const string& def)
-{    
+{
     string result;
     for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
@@ -79,7 +79,7 @@ IceGrid::getProperty(const PropertyDescriptorSeq& properties, const string& name
 
 int
 IceGrid::getPropertyAsInt(const PropertyDescriptorSeq& properties, const string& name, int def)
-{    
+{
     string strVal;
     for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
@@ -88,7 +88,7 @@ IceGrid::getPropertyAsInt(const PropertyDescriptorSeq& properties, const string&
             strVal = q->value;
         }
     }
-    
+
     int result = def;
 
     if(!strVal.empty())
@@ -104,7 +104,7 @@ IceGrid::getPropertyAsInt(const PropertyDescriptorSeq& properties, const string&
 
 bool
 IceGrid::hasProperty(const PropertyDescriptorSeq& properties, const string& name)
-{    
+{
     for(PropertyDescriptorSeq::const_iterator q = properties.begin(); q != properties.end(); ++q)
     {
         if(q->name == name)
@@ -156,7 +156,7 @@ IceGrid::escapeProperty(const string& s, bool escapeEqual)
               previousCharIsEscape = false;
               break;
           }
-  
+
           case '\\':
           case '#':
           case '=':
@@ -207,12 +207,12 @@ IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDesc
     ObjectInfo info;
     info.type = obj.type;
     ostringstream proxyStr;
-    proxyStr << "\"" << identityToString(obj.id) << "\"";
+    proxyStr << "\"" << communicator->identityToString(obj.id) << "\"";
     if(!obj.proxyOptions.empty())
     {
         proxyStr << ' ' << obj.proxyOptions;
     }
-    proxyStr << " @ " << adapterId;
+    proxyStr << " @ \"" << adapterId << "\"";
     try
     {
         info.proxy = communicator->stringToProxy(proxyStr.str());
@@ -220,7 +220,7 @@ IceGrid::toObjectInfo(const Ice::CommunicatorPtr& communicator, const ObjectDesc
     catch(const Ice::ProxyParseException&)
     {
         ostringstream fallbackProxyStr;
-        fallbackProxyStr << "\"" << identityToString(obj.id) << "\"" << " @ " << adapterId;
+        fallbackProxyStr << "\"" << communicator->identityToString(obj.id) << "\"" << " @ \"" << adapterId << "\"";
         info.proxy = communicator->stringToProxy(fallbackProxyStr.str());
     }
     return info;
@@ -246,7 +246,7 @@ IceGrid::setupThreadPool(const PropertiesPtr& properties, const string& name, in
         {
             sizeMax = size * 10;
         }
-        
+
         ostringstream os;
         os << sizeMax;
         properties->setProperty(name + ".SizeMax", os.str());
@@ -277,7 +277,7 @@ IceGrid::getMMVersion(const string& o)
     }
 
     if(patchPos != string::npos)
-    { 
+    {
         if((minorPos == 1 && patchPos != 3 && patchPos != 4) || (minorPos == 2 && patchPos != 4 && patchPos != 5))
         {
             return -1;
@@ -326,6 +326,6 @@ IceGrid::getMMVersion(const string& o)
     //      }
     //      ver += v;
     //     }
-    
+
     return ver;
 }

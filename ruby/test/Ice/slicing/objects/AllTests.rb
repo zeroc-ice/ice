@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -110,9 +110,9 @@ def allTests(communicator)
     begin
         o = t.SUnknownAsObject()
         test(t.ice_getEncodingVersion() != Ice::Encoding_1_0)
-        test(o.is_a?(Ice::UnknownSlicedObject))
-        test(o.unknownTypeId == "::Test::SUnknown")
-        test(o._ice_slicedData != nil)
+        test(o.is_a?(Ice::UnknownSlicedValue))
+        test(o.ice_id() == "::Test::SUnknown")
+        test(o.ice_getSlicedData() != nil)
         t.checkSUnknown(o)
     rescue Ice::NoValueFactoryException
         test(t.ice_getEncodingVersion() == Ice::Encoding_1_0)
@@ -796,7 +796,12 @@ def allTests(communicator)
     p = t.PBSUnknownAsPreserved()
     t.checkPBSUnknown(p)
     if t.ice_getEncodingVersion() != Ice::Encoding_1_0
+        slicedData = p.ice_getSlicedData()
+        test(slicedData.slices.length == 1)
+        test(slicedData.slices[0].typeId == "::Test::PSUnknown")
         t.ice_encodingVersion(Ice::Encoding_1_0).checkPBSUnknown(p)
+    else
+        test(!p.ice_getSlicedData())
     end
 
     #

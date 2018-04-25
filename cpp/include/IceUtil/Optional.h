@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,7 +17,7 @@
 namespace IceUtilInternal
 {
 
-struct NoneType 
+struct NoneType
 {
 };
 
@@ -26,8 +26,10 @@ struct NoneType
 namespace IceUtil
 {
 
+/** A sentinel value used to indicate that no optional value was provided. */
 const IceUtilInternal::NoneType None = {};
 
+/** Encapsulates an optional value, which may or may not be present. */
 template<typename T>
 class Optional
 {
@@ -35,28 +37,45 @@ public:
 
     typedef T element_type;
 
+    /**
+     * Constructs an empty optional with no value.
+     */
     Optional() : _isSet(false)
     {
     }
 
+    /**
+     * Constructs an empty optional with no value.
+     */
     Optional(IceUtilInternal::NoneType) : _isSet(false)
     {
     }
 
+    /**
+     * Constructs an optional with the given value.
+     * @param p The initial value.
+     */
     template<typename Y>
     Optional(Y p) : _value(p), _isSet(true)
     {
     }
 
+    /**
+     * Constructs an optional as a copy of the given optional.
+     * @param r The source optional.
+     */
     template<typename Y>
     Optional(const Optional<Y>& r) : _value(r._value), _isSet(r._isSet)
     {
     }
-    
+
     ~Optional()
     {
     }
-    
+
+    /**
+     * Resets this optional to have no value.
+     */
     Optional& operator=(IceUtilInternal::NoneType)
     {
         _value = T();
@@ -64,6 +83,10 @@ public:
         return *this;
     }
 
+    /**
+     * Resets this optional to have the given value.
+     * @param p The new value.
+     */
     template<typename Y>
     Optional& operator=(Y p)
     {
@@ -71,7 +94,11 @@ public:
         _isSet = true;
         return *this;
     }
-        
+
+    /**
+     * Resets this optional to be a copy of the given optional.
+     * @param r The source optional.
+     */
     template<typename Y>
     Optional& operator=(const Optional<Y>& r)
     {
@@ -80,6 +107,10 @@ public:
         return *this;
     }
 
+    /**
+     * Resets this optional to be a copy of the given optional.
+     * @param r The source optional.
+     */
     Optional& operator=(const Optional& r)
     {
         _value = r._value;
@@ -87,66 +118,122 @@ public:
         return *this;
     }
 
+    /**
+     * Obtains the current value.
+     * @return The current value.
+     * @throws OptionalNotSetException if this optional has no value.
+     */
     const T& value() const
     {
         checkIsSet();
         return _value;
     }
 
+    /**
+     * Obtains the current value.
+     * @return The current value.
+     * @throws OptionalNotSetException if this optional has no value.
+     */
     T& value()
     {
         checkIsSet();
         return _value;
     }
 
+    /**
+     * Obtains the current value.
+     * @return The current value.
+     * @throws OptionalNotSetException if this optional has no value.
+     */
     const T& get() const
     {
         return value();
     }
 
+    /**
+     * Obtains the current value.
+     * @return The current value.
+     * @throws OptionalNotSetException if this optional has no value.
+     */
     T& get()
     {
         return value();
     }
 
+    /**
+     * Obtains a pointer to the current value.
+     * @return A pointer to the current value.
+     * @throws OptionalNotSetException if this optional has no value.
+     */
     const T* operator->() const
     {
         return &value();
     }
+
+    /**
+     * Obtains a pointer to the current value.
+     * @return A pointer to the current value.
+     * @throws OptionalNotSetException if this optional has no value.
+     */
     T* operator->()
     {
         return &value();
     }
 
+    /**
+     * Obtains the current value.
+     * @return The current value.
+     * @throws OptionalNotSetException if this optional has no value.
+     */
     const T& operator*() const
     {
         return value();
     }
+
+    /**
+     * Obtains the current value.
+     * @return The current value.
+     * @throws OptionalNotSetException if this optional has no value.
+     */
     T& operator*()
     {
         return value();
     }
 
+    /**
+     * Determines whether this optional has a value.
+     * @return True if the optional has a value, false otherwise.
+     */
     operator bool() const
     {
         return _isSet;
     }
 
-    bool operator!() const 
-    { 
+    /**
+     * Determines whether this optional has a value.
+     * @return True if the optional does not have a value, false otherwise.
+     */
+    bool operator!() const
+    {
         return !_isSet;
     }
 
+    /**
+     * Exchanges the state of this optional with another one.
+     * @param other The optional value with which to swap.
+     */
     void swap(Optional& other)
     {
         std::swap(_isSet, other._isSet);
         std::swap(_value, other._value);
     }
 
+    /// \cond INTERNAL
     void __setIsSet()
     {
         _isSet = true;
     }
+    /// \endcond
 
 private:
 
@@ -157,24 +244,31 @@ private:
             throwOptionalNotSetException(__FILE__, __LINE__);
         }
     }
-    
+
     void throwOptionalNotSetException(const char *, int) const;
 
     T _value;
     bool _isSet;
 };
 
-template<class T> inline Optional<T> 
+/**
+ * Constructs an optional from the given value.
+ * @param v The optional's initial value.
+ * @return A new optional object.
+ */
+template<class T> inline Optional<T>
 makeOptional(const T& v)
 {
     return Optional<T>(v);
 }
 
-template<typename T> inline void 
+/// \cond INTERNAL
+template<typename T> inline void
 Optional<T>::throwOptionalNotSetException(const char* file, int line) const
 {
     throw OptionalNotSetException(file, line);
 }
+/// \endcond
 
 template<typename T, typename U>
 inline bool operator==(const Optional<T>& lhs, const Optional<U>& rhs)
@@ -235,7 +329,7 @@ inline bool operator==(const Optional<T>& lhs, const Y& rhs)
     {
         return false;
     }
-    else 
+    else
     {
         return *lhs == rhs;
     }
@@ -287,7 +381,7 @@ inline bool operator==(const Y& lhs, const Optional<T>& rhs)
     {
         return false;
     }
-    else 
+    else
     {
         return lhs == *rhs;
     }

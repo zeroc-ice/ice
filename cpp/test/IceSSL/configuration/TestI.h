@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,12 +34,15 @@ class ServerFactoryI : public Test::ServerFactory
 {
 public:
 
+    ServerFactoryI(const std::string&);
+
     virtual Test::ServerPrxPtr createServer(ICE_IN(Test::Properties), const Ice::Current&);
     virtual void destroyServer(ICE_IN(Test::ServerPrxPtr), const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
 private:
 
+    std::string _defaultDir;
     std::map<Ice::Identity, ServerIPtr> _servers;
 };
 

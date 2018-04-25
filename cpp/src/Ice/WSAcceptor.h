@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,13 +26,13 @@ class WSAcceptor : public Acceptor, public NativeInfo
 public:
 
     virtual NativeInfoPtr getNativeInfo();
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual AsyncInfo* getAsyncInfo(SocketOperation);
 #endif
 
     virtual void close();
     virtual EndpointIPtr listen();
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
     virtual void startAccept();
     virtual void finishAccept();
 #endif

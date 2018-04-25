@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -593,7 +593,7 @@ run(id<ICECommunicator> communicator)
     }
 
     {
-        TestStreamMyInterface ICE_AUTORELEASING_QUALIFIER * i = [TestStreamMyInterface new];
+        TestStreamMyInterface ICE_AUTORELEASING_QUALIFIER * i = ICE_AUTORELEASE([TestStreamMyInterface new]);
         out = [ICEUtil createOutputStream:communicator];
         [TestStreamMyInterfaceHelper write:i stream:out];
         [out writePendingValues];
@@ -922,7 +922,8 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+    ICEregisterIceWS(YES);
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif
@@ -937,7 +938,7 @@ main(int argc, char* argv[])
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultClientProperties(&argc, argv);
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestStream", @"::Test",
                                       @"TestStreamSub", @"::Test::Sub",
                                       @"TestStream2", @"::Test2",
@@ -959,15 +960,7 @@ main(int argc, char* argv[])
 
         if(communicator)
         {
-            @try
-            {
-                [communicator destroy];
-            }
-            @catch(ICEException* ex)
-            {
-            tprintf("%@\n", ex);
-                status = EXIT_FAILURE;
-            }
+            [communicator destroy];
         }
     }
     return status;

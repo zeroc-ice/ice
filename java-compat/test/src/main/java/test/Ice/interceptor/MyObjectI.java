@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,53 +22,52 @@ class MyObjectI extends _MyObjectDisp
 {
 
     @Override
-    public int 
+    public int
     add(int x, int y, Ice.Current current)
     {
         return x + y;
-    } 
-    
+    }
+
     @Override
-    public int 
+    public int
     addWithRetry(int x, int y, Ice.Current current)
     {
         String val = current.ctx.get("retry");
-        
+
         if(val == null || !val.equals("no"))
         {
             throw new RetryException();
         }
         return x + y;
-    } 
+    }
 
     @Override
-    public int 
+    public int
     badAdd(int x, int y, Ice.Current current) throws InvalidInputException
     {
         throw new InvalidInputException();
-    } 
+    }
 
     @Override
-    public int 
+    public int
     notExistAdd(int x, int y, Ice.Current current)
     {
         throw new Ice.ObjectNotExistException();
-    } 
-    
+    }
+
     @Override
-    public int 
+    public int
     badSystemAdd(int x, int y, Ice.Current current)
     {
         throw new MySystemException();
-    } 
-
+    }
 
     //
     // AMD
     //
 
     @Override
-    public void 
+    public void
     amdAdd_async(final AMD_MyObject_amdAdd cb, final int x, final int y, Ice.Current current)
     {
         Thread thread = new Thread()
@@ -87,13 +86,13 @@ class MyObjectI extends _MyObjectDisp
                     cb.ice_response(x + y);
                 }
             };
-        
+
         thread.setDaemon(true);
         thread.start();
     }
 
     @Override
-    public void 
+    public void
     amdAddWithRetry_async(final AMD_MyObject_amdAddWithRetry cb, final int x, final int y, Ice.Current current)
     {
         Thread thread = new Thread()
@@ -112,20 +111,20 @@ class MyObjectI extends _MyObjectDisp
                     cb.ice_response(x + y);
                 }
             };
-        
+
         thread.setDaemon(true);
         thread.start();
-        
+
         String val = current.ctx.get("retry");
-        
+
         if(val == null || !val.equals("no"))
         {
-            throw new RetryException();
+            cb.ice_exception(new RetryException());
         }
-    } 
-    
+    }
+
     @Override
-    public void 
+    public void
     amdBadAdd_async(final AMD_MyObject_amdBadAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
@@ -144,13 +143,13 @@ class MyObjectI extends _MyObjectDisp
                     cb.ice_exception(new InvalidInputException());
                 }
             };
-        
+
         thread.setDaemon(true);
         thread.start();
-    } 
+    }
 
     @Override
-    public void 
+    public void
     amdNotExistAdd_async(final AMD_MyObject_amdNotExistAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
@@ -169,13 +168,13 @@ class MyObjectI extends _MyObjectDisp
                     cb.ice_exception(new Ice.ObjectNotExistException());
                 }
             };
-        
+
         thread.setDaemon(true);
         thread.start();
-    } 
-    
+    }
+
     @Override
-    public void 
+    public void
     amdBadSystemAdd_async(final AMD_MyObject_amdBadSystemAdd cb, int x, int y, Ice.Current current)
     {
         Thread thread = new Thread()
@@ -194,8 +193,8 @@ class MyObjectI extends _MyObjectDisp
                     cb.ice_exception(new MySystemException());
                 }
             };
-        
+
         thread.setDaemon(true);
         thread.start();
-    } 
+    }
 }

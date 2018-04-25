@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -56,7 +56,7 @@
 #   endif
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_WINRT) && !defined(__MINGW32__)
+#if defined(_WIN32) && !defined(ICE_OS_UWP) && !defined(__MINGW32__)
 #   define ICE_DBGHELP
 #   if defined(_MSC_VER) && (_MSC_VER >= 1700)
 #       define DBGHELP_TRANSLATE_TCHAR
@@ -119,6 +119,13 @@ ignoreErrorCallback(void*, const char* msg, int errnum)
     // cerr << "Error callback: " << msg << ", errnum = " << errnum << endl;
 }
 
+int
+ignoreFrame(void*, uintptr_t pc, const char*, int, const char*)
+{
+    assert(pc == 0);
+    return 0;
+}
+
 #endif
 
 class Init
@@ -129,9 +136,15 @@ public:
     {
         globalMutex = new IceUtil::Mutex;
 #ifdef ICE_LIBBACKTRACE
-        // Leaked, as libbacktrace does not provide an API to free
-        // this state
+        // Leaked, as libbacktrace does not provide an API to free this state.
+        //
         bstate = backtrace_create_state(0, 1, ignoreErrorCallback, 0);
+
+        // The first call to backtrace_pcinfo does not initialize bstate->fileline_fn
+        // in a thread-safe manner, see https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81098.
+        // So we make a "dummy" call to backtrace_pcinfo to initialize it here.
+        //
+        backtrace_pcinfo(bstate, 0, ignoreFrame, ignoreErrorCallback, 0);
 #endif
     }
 
@@ -290,13 +303,10 @@ printFrame(void* data, uintptr_t pc, const char* filename, int lineno, const cha
 void
 handlePcInfoError(void* data, const char* msg, int errnum)
 {
-    // cerr << "pcinfo error callback: " << msg << ", " << errnum << endl;
-
     FrameInfo& frameInfo = *reinterpret_cast<FrameInfo*>(data);
     printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
     frameInfo.setByErrorCb = true;
 }
-
 
 int
 addFrame(void* sf, uintptr_t pc)
@@ -353,7 +363,6 @@ getStackFrames()
     return stackFrames;
 }
 
-
 string
 getStackTrace(const vector<void*>& stackFrames)
 {
@@ -372,64 +381,10 @@ getStackTrace(const vector<void*>& stackFrames)
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
     if(process == 0)
     {
-        //
-        // Compute Search path (best effort)
-        // consists of the current working directory, this DLL (or exe) directory and %_NT_SYMBOL_PATH%
-        //
-        basic_string<TCHAR> searchPath;
-        const TCHAR pathSeparator = _T('\\');
-        const TCHAR searchPathSeparator = _T(';');
-
-        TCHAR cwd[MAX_PATH];
-        if(GetCurrentDirectory(MAX_PATH, cwd) != 0)
-        {
-            searchPath = cwd;
-        }
-
-        HMODULE myModule = 0;
-        GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-                           "startHook",
-                           &myModule);
-        //
-        // If GetModuleHandleEx fails, myModule is NULL, i.e. we'll locate the current exe's directory.
-        //
-
-        TCHAR myFilename[MAX_PATH];
-        DWORD len = GetModuleFileName(myModule, myFilename, MAX_PATH);
-        if(len != 0 && len < MAX_PATH)
-        {
-            assert(myFilename[len] == 0);
-
-            basic_string<TCHAR> myPath = myFilename;
-            size_t pos = myPath.find_last_of(pathSeparator);
-            if(pos != basic_string<TCHAR>::npos)
-            {
-                myPath = myPath.substr(0, pos);
-
-                if(!searchPath.empty())
-                {
-                    searchPath += searchPathSeparator;
-                }
-                searchPath += myPath;
-            }
-        }
-
-        const DWORD size = 1024;
-        TCHAR symbolPath[size];
-        len = GetEnvironmentVariable(_T("_NT_SYMBOL_PATH"), symbolPath, size);
-        if(len > 0 && len < size)
-        {
-            if(!searchPath.empty())
-            {
-                searchPath += searchPathSeparator;
-            }
-            searchPath += symbolPath;
-        }
-
         process = GetCurrentProcess();
 
         SymSetOptions(SYMOPT_LOAD_LINES | SYMOPT_DEFERRED_LOADS | SYMOPT_EXACT_SYMBOLS | SYMOPT_UNDNAME);
-        if(SymInitialize(process, searchPath.c_str(), TRUE) == 0)
+        if(SymInitialize(process, 0, TRUE) == 0)
         {
             process = 0;
             return "No stack trace: SymInitialize failed with " + IceUtilInternal::errorToString(GetLastError());
@@ -680,7 +635,6 @@ IceUtil::NullHandleException::ice_clone() const
 }
 #endif
 
-
 IceUtil::IllegalArgumentException::IllegalArgumentException(const char* file, int line) :
     ExceptionHelper<IllegalArgumentException>(file, line)
 {
@@ -774,8 +728,6 @@ IceUtil::IllegalConversionException::reason() const
     return _reason;
 }
 
-
-
 IceUtil::SyscallException::SyscallException(const char* file, int line, int err ):
     ExceptionHelper<SyscallException>(file, line),
     _error(err)
@@ -817,7 +769,6 @@ IceUtil::SyscallException::error() const
 {
     return _error;
 }
-
 
 IceUtil::FileLockException::FileLockException(const char* file, int line, int err, const string& path):
     ExceptionHelper<FileLockException>(file, line),

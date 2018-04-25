@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,7 @@
 package com.zeroc.IceInternal;
 
 import com.zeroc.Ice.EndpointParseException;
-import java.util.Base64;
+import com.zeroc.IceUtilInternal.Base64;
 
 final class OpaqueEndpointI extends EndpointI
 {
@@ -218,11 +218,20 @@ final class OpaqueEndpointI extends EndpointI
     // was specified on client side.
     //
     @Override
-    public java.util.List<EndpointI> expand()
+    public java.util.List<EndpointI> expandIfWildcard()
     {
         java.util.List<EndpointI> endps = new java.util.ArrayList<>();
         endps.add(this);
         return endps;
+    }
+
+    @Override
+    public EndpointI.ExpandHostResult expandHost()
+    {
+        EndpointI.ExpandHostResult result = new EndpointI.ExpandHostResult();
+        result.endpoints = new java.util.ArrayList<>();
+        result.endpoints.add(this);
+        return result;
     }
 
     //
@@ -251,7 +260,7 @@ final class OpaqueEndpointI extends EndpointI
         s += " -e " + com.zeroc.Ice.Util.encodingVersionToString(_rawEncoding);
         if(_rawBytes.length > 0)
         {
-            s += " -v " + Base64.getEncoder().encodeToString(_rawBytes);
+            s += " -v " + Base64.encode(_rawBytes);
         }
         return s;
     }
@@ -371,7 +380,7 @@ final class OpaqueEndpointI extends EndpointI
 
             try
             {
-                _rawBytes = Base64.getDecoder().decode(argument);
+                _rawBytes = Base64.decode(argument);
             }
             catch(IllegalArgumentException ex)
             {

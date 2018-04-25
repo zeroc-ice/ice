@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,12 +18,11 @@ public class PluginFactory implements Ice.PluginFactory
         {
             _communicator = communicator;
         }
-        
+
         @Override
         public void
         initialize()
         {
-            assert _configuration != null;
             IceInternal.ProtocolPluginFacade facade = IceInternal.Util.getProtocolPluginFacade(_communicator);
             for(short s = 0; s < 100; ++s)
             {
@@ -40,15 +39,15 @@ public class PluginFactory implements Ice.PluginFactory
         destroy()
         {
         }
-        
-        public void
-        setConfiguration(Configuration configuration)
+
+        public Configuration
+        getConfiguration()
         {
-            _configuration = configuration;
+            return _configuration;
         }
 
         private final Ice.Communicator _communicator;
-        private Configuration _configuration;
+        private Configuration _configuration = new Configuration();
     }
 
     @Override

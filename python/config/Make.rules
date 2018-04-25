@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -20,31 +20,42 @@ PYTHON              ?= python
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
-python-call		= $(shell $(PYTHON) -c "import sys; import distutils.sysconfig as ds; sys.stdout.write($1)")
+# Use pythonM.m-config rather than pythonMm-config because some platforms don't provide pythonMm-config
+python-version := $(shell $(PYTHON) -c "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))")
+python-config := python$(python-version)-config
 
-PYTHON_VERSION 		?= python$(PYTHON_BASE_VERSION)
-PYTHON_BASE_VERSION 	?= $(call python-call,ds.get_python_version())
-PYTHON_INCLUDE_DIR  	?= $(call python-call,ds.get_python_inc())
-PYTHON_LIB_DIR	    	?= $(call python-call,ds.get_config_var('LIBPL'))
-PYTHON_LIB_SUFFIX   	?= $(call python-call,sys.__dict__['abiflags'] if 'abiflags' in sys.__dict__ else '')
-PYTHON_LIB_NAME	    	?= $(PYTHON_VERSION)$(PYTHON_LIB_SUFFIX)
+python_cppflags         := $(shell $(python-config) --cflags)
+python_ldflags          := $(shell $(python-config) --ldflags)
+# Use .so as default value --extension-suffix is not supported by python-config in all platforms
+python_extsuffix        := $(or $(shell $(python-config) --extension-suffix 2> /dev/null),.so)
 
-python_cppflags		:= -I$(PYTHON_INCLUDE_DIR)
-python_ldflags		:= -L$(PYTHON_LIB_DIR) -l$(PYTHON_LIB_NAME)
+ifneq ($(filter debian ubuntu,$(linux_id)),)
+allow-undefined-symbols := yes
+python_ldflags          := $(filter-out -lpython% -ldl -lutil,$(python_ldflags))
+endif
+
+ifneq ($(OPTIMIZE),yes)
+# Remove optimization options if building debug build
+python_cppflags         := $(filter-out -O% -DNDEBUG -Wp$(comma)-D_FORTIFY_SOURCE=%,$(python_cppflags))
+endif
+
+# Remove the -Wstrict-prototypes option which is not valid with C++ and
+# -Wunreachable-code which is causing a compilation error with Slice/Parser.cpp
+python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$(python_cppflags))
 
 #
 # Python installation directory
 #
-install_pythondir  = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python)
+install_pythondir       = $(if $(usr_dir_install),$(shell $(PYTHON) $(lang_srcdir)/config/install_dir),$(prefix)/python)
 
 #
 # Rules to build a python module. We just compute the name of the python module
 # and delegate to make-shared-module.
 #
-mkpymodulename			 ?= $(patsubst lib%,%,$(call mkshlibname,$(1)))
-make-shared-python-module 	 = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
+mkpymodulename                   ?= $(patsubst lib%.so,%$(python_extsuffix),$(call mkshlibname,$(1)))
+make-shared-python-module        = $(call make-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5,$6,$7,$8,$9)
 get-shared-python-module-targets = $(call get-shared-module-targets,$(call mkpymodulename,$1),$2,$3,$4)
-install-shared-python-module	 = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5)
+install-shared-python-module     = $(call install-shared-module,$(call mkpymodulename,$1),$2,$3,$4,$5)
 
 $(DESTDIR)$(install_pythondir):
 	$(Q)$(MKDIR) -p $@
@@ -74,12 +85,17 @@ $$(eval $$(call make-python-slice,$1,$2,$3,,$4))
 distclean clean::
 	$(E) "Cleaning package $3"
 	$(Q)$(RM) -r $2/$3/.depend
-	$(Q)$(if $(findstring --no-package,$4),,$(RM) $2/$3/.__init__.py)
-	$(Q)$(RM) $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
+	$(Q)$(if $(findstring --no-package,$4),,$(RM) $2/$3/__init__.py)
+	$(Q)$(RM) $(patsubst $1/$3/%.ice,$2/$3/%_ice.py,$(wildcard $1/$3/*.ice))
 
-generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice))
+generate-srcs srcs all:: $(patsubst $1/$3/%.ice,$2/$3/%_ice.py,$(wildcard $1/$3/*.ice))
 
-$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3_%_ice.py,$(wildcard $1/$3/*.ice)),$2,$(install_pythondir),install))
+$$(eval $$(call install-data-files,$(patsubst $1/$3/%.ice,$2/$3/%_ice.py,$(wildcard $1/$3/*.ice)),$2,$(install_pythondir),install))
+
+# If we also generate a package directory with an __init__.py, install it.
+ifeq ($(findstring --no-package,$4),)
+    $$(eval $$(call install-data-files,$2/$3/__init__.py,$2,$(install_pythondir),install))
+endif
 
 endef
 
@@ -88,9 +104,9 @@ endef
 #
 define make-python-slice
 
-$2/$3_$(or $4,%)_ice.py: $1/$3/$(or $4,%).ice $2/$3/.depend/$(or $4,%).ice.d $(slice2py_path)
+$2/$3/$(or $4,%)_ice.py: $1/$3/$(or $4,%).ice $2/$3/.depend/$(or $4,%).ice.d $(slice2py_path)
 	$(E) "Compiling $$<"
-	$(Q)$(slice2py_path) -I$1 --ice --output-dir $2 $5 --depend $$< > $2/$3/.depend/$(or $4,$$(*F)).ice.d
-	$(Q)$(slice2py_path) -I$1 --ice --output-dir $2 --prefix $3_ --checksum $5 $$<
+	$(Q)$(slice2py_path) -I$1 --output-dir $2 $5 --depend $$< > $2/$3/.depend/$(or $4,$$(*F)).ice.d
+	$(Q)$(slice2py_path) -I$1 --output-dir $2 --checksum $5 $$<
 
 endef

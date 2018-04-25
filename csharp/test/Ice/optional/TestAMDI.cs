@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -134,7 +134,7 @@ public class InitialI : Test.InitialDisp_
     }
 
     public override Task<Initial_OpOneOptionalProxyResult>
-    opOneOptionalProxyAsync(Ice.Optional<OneOptionalPrx> p1, Ice.Current current)
+    opOneOptionalProxyAsync(Ice.Optional<Ice.ObjectPrx> p1, Ice.Current current)
     {
         return Task.FromResult<Initial_OpOneOptionalProxyResult>(new Initial_OpOneOptionalProxyResult(p1, p1));
     }
@@ -272,56 +272,56 @@ public class InitialI : Test.InitialDisp_
     }
 
     public async override Task<Test.Initial_OpMStruct1MarshaledResult>
-	opMStruct1Async(Ice.Current current)
+    opMStruct1Async(Ice.Current current)
     {
         await Task.Delay(0);
         return new Test.Initial_OpMStruct1MarshaledResult(new Test.SmallStruct(), current);
     }
 
     public async override Task<Test.Initial_OpMStruct2MarshaledResult>
-	opMStruct2Async(Ice.Optional<Test.SmallStruct> p1, Ice.Current current)
+    opMStruct2Async(Ice.Optional<Test.SmallStruct> p1, Ice.Current current)
     {
         await Task.Delay(0);
         return new Test.Initial_OpMStruct2MarshaledResult(p1, p1, current);
     }
 
     public async override Task<Test.Initial_OpMSeq1MarshaledResult>
-	opMSeq1Async(Ice.Current current)
+    opMSeq1Async(Ice.Current current)
     {
         await Task.Delay(0);
         return new Test.Initial_OpMSeq1MarshaledResult(new string[0], current);
     }
 
     public async override Task<Test.Initial_OpMSeq2MarshaledResult>
-	opMSeq2Async(Ice.Optional<string[]> p1, Ice.Current current)
+    opMSeq2Async(Ice.Optional<string[]> p1, Ice.Current current)
     {
         await Task.Delay(0);
         return new Test.Initial_OpMSeq2MarshaledResult(p1, p1, current);
     }
 
     public async override Task<Test.Initial_OpMDict1MarshaledResult>
-	opMDict1Async(Ice.Current current)
+    opMDict1Async(Ice.Current current)
     {
         await Task.Delay(0);
         return new Test.Initial_OpMDict1MarshaledResult(new Dictionary<string, int>(), current);
     }
 
     public async override Task<Test.Initial_OpMDict2MarshaledResult>
-	opMDict2Async(Ice.Optional<Dictionary<string, int>> p1, Ice.Current current)
+    opMDict2Async(Ice.Optional<Dictionary<string, int>> p1, Ice.Current current)
     {
         await Task.Delay(0);
         return new Test.Initial_OpMDict2MarshaledResult(p1, p1, current);
     }
 
     public async override Task<Test.Initial_OpMG1MarshaledResult>
-	opMG1Async(Ice.Current current)
+    opMG1Async(Ice.Current current)
     {
         await Task.Delay(0);
         return new Test.Initial_OpMG1MarshaledResult(new Test.G(), current);
     }
 
     public async override Task<Test.Initial_OpMG2MarshaledResult>
-	opMG2Async(Ice.Optional<Test.G> p1, Ice.Current current)
+    opMG2Async(Ice.Optional<Test.G> p1, Ice.Current current)
     {
         await Task.Delay(0);
         return new Test.Initial_OpMG2MarshaledResult(p1, p1, current);

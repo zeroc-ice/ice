@@ -1,18 +1,19 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static Test.MyClassPrx allTests(TestCommon.Application app, bool collocated)
     {
+        Ice.Communicator communicator = app.communicator();
         Flush();
-        string rf = "test:default -p 12010";
+        string rf = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
 

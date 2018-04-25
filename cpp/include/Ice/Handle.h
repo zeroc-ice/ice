@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -46,7 +46,7 @@ public:
             upCast(this->_ptr)->__incRef();
         }
     }
-    
+
     template<typename Y>
     Handle(const Handle<Y>& r)
     {
@@ -78,7 +78,7 @@ public:
             upCast(this->_ptr)->__incRef();
         }
     }
-    
+
     ~Handle()
     {
         if(this->_ptr)
@@ -86,7 +86,7 @@ public:
             upCast(this->_ptr)->__decRef();
         }
     }
-    
+
     Handle& operator=(T* p)
     {
         if(this->_ptr != p)
@@ -106,7 +106,7 @@ public:
         }
         return *this;
     }
-        
+
     template<typename Y>
     Handle& operator=(const Handle<Y>& r)
     {
@@ -168,7 +168,7 @@ public:
         }
         return *this;
     }
-        
+
     template<class Y>
     static Handle dynamicCast(const ::IceUtil::HandleBase<Y>& r)
     {
@@ -179,11 +179,6 @@ public:
     static Handle dynamicCast(Y* p)
     {
         return Handle(dynamic_cast<T*>(p));
-    }
-
-    void __clearHandleUnsafe()
-    {
-        this->_ptr = 0;
     }
 };
 

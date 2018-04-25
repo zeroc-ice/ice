@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,8 +17,9 @@ class Oneways
         }
     }
 
-    internal static void oneways(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static void oneways(TestCommon.Application app, Test.MyClassPrx p)
     {
+        Ice.Communicator communicator = app.communicator();
         p = Test.MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 
         {
@@ -44,7 +45,7 @@ class Oneways
                 p.opByte((byte)0xff, (byte)0x0f, out b);
                 test(false);
             }
-            catch(System.ArgumentException)
+            catch(Ice.TwowayOnlyException)
             {
             }
         }

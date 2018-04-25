@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,6 +28,8 @@ public abstract class DispatchInterceptor implements com.zeroc.Ice.Object
      *
      * @param request The details of the incoming request.
      * @return A completion stage if dispatched asynchronously, null otherwise.
+     * @throws UserException A user exception that propagates out of this method will be
+     * marshaled as the result.
      *
      * @see Request
      **/
@@ -35,7 +37,7 @@ public abstract class DispatchInterceptor implements com.zeroc.Ice.Object
         throws UserException;
 
     @Override
-    public CompletionStage<OutputStream> __dispatch(com.zeroc.IceInternal.Incoming in, Current current)
+    public CompletionStage<OutputStream> _iceDispatch(com.zeroc.IceInternal.Incoming in, Current current)
         throws UserException
     {
         return dispatch(in);

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -79,6 +79,13 @@ public class RoutableReference extends Reference
     getConnectionId()
     {
         return _connectionId;
+    }
+
+    @Override
+    public Ice.IntOptional
+    getTimeout()
+    {
+        return _overrideTimeout ? Ice.Optional.O(_timeout) : new Ice.IntOptional();
     }
 
     @Override
@@ -283,6 +290,24 @@ public class RoutableReference extends Reference
     }
 
     @Override
+    public Reference
+    changeConnection(Ice.ConnectionI connection)
+    {
+        return new FixedReference(getInstance(),
+                                  getCommunicator(),
+                                  getIdentity(),
+                                  getFacet(),
+                                  getMode(),
+                                  getSecure(),
+                                  getProtocol(),
+                                  getEncoding(),
+                                  connection,
+                                  getInvocationTimeout(),
+                                  getContext(),
+                                  getCompress());
+    }
+
+    @Override
     public boolean
     isIndirect()
     {
@@ -353,7 +378,7 @@ public class RoutableReference extends Reference
             // the reference parser uses as separators, then we enclose
             // the adapter id string in quotes.
             //
-            String a = IceUtilInternal.StringUtil.escapeString(_adapterId, null);
+            String a = IceUtilInternal.StringUtil.escapeString(_adapterId, null, getInstance().toStringMode());
             if(IceUtilInternal.StringUtil.findFirstOf(a, " :@") != -1)
             {
                 s.append('"');
@@ -394,7 +419,7 @@ public class RoutableReference extends Reference
         if(_routerInfo != null)
         {
             Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_routerInfo.getRouter();
-            java.util.Map<String, String> routerProperties = h.__reference().toProperty(prefix + ".Router");
+            java.util.Map<String, String> routerProperties = h._getReference().toProperty(prefix + ".Router");
             for(java.util.Map.Entry<String, String> p : routerProperties.entrySet())
             {
                 properties.put(p.getKey(), p.getValue());
@@ -404,7 +429,7 @@ public class RoutableReference extends Reference
         if(_locatorInfo != null)
         {
             Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)_locatorInfo.getLocator();
-            java.util.Map<String, String> locatorProperties = h.__reference().toProperty(prefix + ".Locator");
+            java.util.Map<String, String> locatorProperties = h._getReference().toProperty(prefix + ".Locator");
             for(java.util.Map.Entry<String, String> p : locatorProperties.entrySet())
             {
                 properties.put(p.getKey(), p.getValue());
@@ -605,7 +630,7 @@ public class RoutableReference extends Reference
                                     if(traceLvls.retry >= 2)
                                     {
                                         String s = "connection to cached endpoints failed\n" +
-                                            "removing endpoints from cache and trying one more time\n" + ex;
+                                            "removing endpoints from cache and trying again\n" + ex;
                                         getInstance().initializationData().logger.trace(traceLvls.retryCat, s);
                                     }
                                     getConnectionNoRouterInfo(callback); // Retry.

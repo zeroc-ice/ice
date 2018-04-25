@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -54,6 +54,14 @@ BlobjectI::BlobjectI() :
 }
 
 void
+BlobjectI::setConnection(const Ice::ConnectionPtr& connection)
+{
+    Lock sync(*this);
+    _connection = connection;
+    notifyAll();
+}
+
+void
 BlobjectI::startBatch()
 {
     assert(!_batchProxy);
@@ -71,12 +79,13 @@ BlobjectI::flushBatch()
 #ifdef ICE_CPP11_MAPPING
 void
 BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
-                           std::function<void(bool, std::vector<Ice::Byte>)> response,
+                           std::function<void(bool, const std::vector<Ice::Byte>&)> response,
                            std::function<void(std::exception_ptr)> ex,
                            const Ice::Current& current)
 {
+    auto connection = getConnection(current);
     const bool twoway = current.requestId > 0;
-    auto obj = current.con->createProxy(current.id);
+    auto obj = connection->createProxy(current.id);
     if(!twoway)
     {
         if(_startBatch)
@@ -103,7 +112,7 @@ BlobjectI::ice_invokeAsync(std::vector<Ice::Byte> inEncaps,
         else
         {
             obj->ice_oneway()->ice_invokeAsync(current.operation, current.mode, inEncaps,
-                                               [](bool, std::vector<Ice::Byte>) { assert(0); },
+                                               [](bool, const std::vector<Ice::Byte>&) { assert(0); },
                                                ex,
                                                [&](bool) { response(true, vector<Ice::Byte>()); },
                                                current.ctx);
@@ -124,8 +133,9 @@ void
 BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCb, const vector<Ice::Byte>& inEncaps,
                             const Ice::Current& current)
 {
+    Ice::ConnectionPtr connection = getConnection(current);
     const bool twoway = current.requestId > 0;
-    Ice::ObjectPrx obj = current.con->createProxy(current.id);
+    Ice::ObjectPrx obj = connection->createProxy(current.id);
     if(!twoway)
     {
         if(_startBatch)
@@ -171,3 +181,30 @@ BlobjectI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& amdCb, const ve
     }
 }
 #endif
+
+Ice::ConnectionPtr
+BlobjectI::getConnection(const Ice::Current& current)
+{
+    Lock sync(*this);
+    if(!_connection)
+    {
+        return current.con;
+    }
+
+    try
+    {
+        _connection->throwException();
+    }
+    catch(const Ice::ConnectionLostException&)
+    {
+        // If we lost the connection, wait 5 seconds for the server to re-establish it. Some tests,
+        // involve connection closure (e.g.: exceptions MemoryLimitException test) and the server
+        // automatically re-establishes the connection with the echo server.
+        timedWait(IceUtil::Time::seconds(5));
+        if(!_connection)
+        {
+            throw;
+        }
+    }
+    return _connection;
+}

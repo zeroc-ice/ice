@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,6 +29,7 @@ class FactoryACMMonitor implements ACMMonitor
         _config = config;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()
@@ -55,11 +56,58 @@ class FactoryACMMonitor implements ACMMonitor
     {
         if(_instance == null)
         {
+            //
+            // Ensure all the connections have been cleared, it's important to wait here
+            // to prevent the timer destruction in IceInternal::Instance::destroy.
+            //
+            while(!_connections.isEmpty())
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
             return;
         }
+
+        if(!_connections.isEmpty())
+        {
+            //
+            // Cancel the scheduled timer task and schedule it again now to clear the
+            // connection set from the timer thread.
+            //
+            assert(_future != null);
+            _future.cancel(false);
+            _future = null;
+
+            _instance.timer().schedule(new Runnable() {
+                    @Override
+                    public void run()
+                    {
+                        monitorConnections();
+                    }
+                }, 0, java.util.concurrent.TimeUnit.MILLISECONDS);
+        }
+
         _instance = null;
-        _connections.clear();
         _changes.clear();
+
+        //
+        // Wait for the connection set to be cleared by the timer thread.
+        //
+        while(!_connections.isEmpty())
+        {
+            try
+            {
+                wait();
+            }
+            catch(InterruptedException ex)
+            {
+            }
+        }
     }
 
     @Override
@@ -73,6 +121,7 @@ class FactoryACMMonitor implements ACMMonitor
 
         synchronized(this)
         {
+            assert(_instance != null);
             if(_connections.isEmpty())
             {
                 _connections.add(connection);
@@ -168,6 +217,8 @@ class FactoryACMMonitor implements ACMMonitor
         {
             if(_instance == null)
             {
+                _connections.clear();
+                notifyAll();
                 return;
             }
 
@@ -191,7 +242,6 @@ class FactoryACMMonitor implements ACMMonitor
                 return;
             }
         }
-
 
         //
         // Monitor connections outside the thread synchronization, so
@@ -229,4 +279,3 @@ class FactoryACMMonitor implements ACMMonitor
     private java.util.List<Ice.ConnectionI> _reapedConnections = new java.util.ArrayList<Ice.ConnectionI>();
     private java.util.concurrent.Future<?> _future;
 }
-

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -46,13 +46,13 @@ class BackgroundControllerI implements BackgroundController
     {
         _adapter.hold();
     }
-    
+
     @Override
     public void resumeAdapter(com.zeroc.Ice.Current current)
     {
         _adapter.activate();
     }
-    
+
     @Override
     public void initializeSocketStatus(int status, com.zeroc.Ice.Current current)
     {
@@ -76,7 +76,7 @@ class BackgroundControllerI implements BackgroundController
     {
         _configuration.readException(enable ? new com.zeroc.Ice.SocketException() : null);
     }
-    
+
     @Override
     public void writeReady(boolean enable, com.zeroc.Ice.Current current)
     {
@@ -94,7 +94,7 @@ class BackgroundControllerI implements BackgroundController
     {
         _configuration.buffered(enable);
     }
-    
+
     public BackgroundControllerI(Configuration configuration, com.zeroc.Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;

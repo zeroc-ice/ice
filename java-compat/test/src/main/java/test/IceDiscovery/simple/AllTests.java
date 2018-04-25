@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -66,6 +66,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.NoEndpointException ex)
             {
@@ -76,6 +77,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.ObjectNotExistException ex)
             {
@@ -86,13 +88,14 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(Ice.NoEndpointException ex)
             {
             }
         }
         System.out.println("ok");
-    
+
         System.out.print("testing object adapter migration...");
         System.out.flush();
         {
@@ -206,6 +209,56 @@ public class AllTests
             test(TestIntfPrxHelper.uncheckedCast(
                      communicator.stringToProxy("object @ rg")).getAdapterId().equals("oa1"));
             proxies.get(0).deactivateObjectAdapter("oa");
+        }
+        System.out.println("ok");
+
+        System.out.print("testing invalid lookup endpoints... ");
+        System.out.flush();
+        {
+            String multicast;
+            if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+            {
+                multicast = "\"ff15::1\"";
+            }
+            else
+            {
+                multicast = "239.255.0.1";
+            }
+
+            {
+
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties()._clone();
+                initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+                Ice.Communicator com = Ice.Util.initialize(initData);
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("controller0@control0").ice_ping();
+                    test(false);
+                }
+                catch(Ice.LocalException ex)
+                {
+                }
+                com.destroy();
+            }
+            {
+                Ice.InitializationData initData = new Ice.InitializationData();
+                initData.properties = communicator.getProperties()._clone();
+                String intf = initData.properties.getProperty("IceDiscovery.Interface");
+                if(!intf.isEmpty())
+                {
+                    intf = " --interface \"" + intf + "\"";
+                }
+                String port = initData.properties.getProperty("IceDiscovery.Port");
+                initData.properties.setProperty("IceDiscovery.Lookup",
+                                                 "udp -h " + multicast + " --interface unknown:" +
+                                                 "udp -h " + multicast + " -p " + port + intf);
+                Ice.Communicator com = Ice.Util.initialize(initData);
+                test(com.getDefaultLocator() != null);
+                com.stringToProxy("controller0@control0").ice_ping();
+                com.destroy();
+            }
         }
         System.out.println("ok");
 

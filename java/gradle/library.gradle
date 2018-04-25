@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -51,8 +51,10 @@ ext.projectPom = {
 
 task writeNewPom {
     outputs.file file(pomName)
-} << {
-    projectPom().writeTo(pomName)
+
+    doLast {
+        projectPom().writeTo(pomName)
+    }
 }
 
 jar.dependsOn(writeNewPom)
@@ -71,12 +73,13 @@ assemble.dependsOn(jarSources)
 
 javadoc {
     failOnError = false
-    options.header = project.displayName
-    classpath =project.sourceSets.main.compileClasspath
-    if (JavaVersion.current().isJava8Compatible()) {
-        options.addStringOption('Xdoclint:none', '-quiet')
+    options.header = project.ext.displayName
+    if(JavaVersion.current() > JavaVersion.VERSION_1_8) {
+        // Add -quiet to workaround Gradle bug https://github.com/gradle/gradle/issues/2354
+        options.addStringOption("html4", "-quiet")
     }
-}.onlyIf{gradle.taskGraph.hasTask("signArchives") || gradle.taskGraph.hasTask("uploadArchives")}
+    classpath = project.sourceSets.main.compileClasspath
+}
 
 task javadocJar(type: Jar, dependsOn: javadoc) {
     classifier = 'javadoc'
@@ -89,7 +92,13 @@ artifacts {
 }
 
 signing {
-    required { gradle.taskGraph.hasTask("signArchives") || gradle.taskGraph.hasTask("uploadArchives") }
+    required {
+        gradle.taskGraph.hasTask("signArchives") ||
+        gradle.taskGraph.hasTask("uploadArchives") ||
+        ( project.hasProperty('signing.keyId') &&
+          project.hasProperty('signing.password') &&
+          project.hasProperty('signing.secretKeyRingFile') )
+    }
     sign configurations.archives
 }
 
@@ -118,6 +127,28 @@ uploadArchives {
     }
 }
 
+jar {
+    manifest {
+        attributes("Class-Path": configurations.runtime.resolve().collect{ "${it.name}" }.join(' '))
+    }
+}
+
+if(project.name == "icebox") {
+    jar {
+        manifest {
+            attributes("Main-Class": "com.zeroc.IceBox.Server")
+        }
+    }
+}
+
+if(project.name == "icebox-compat") {
+    jar {
+        manifest {
+            attributes("Main-Class": "IceBox.Server")
+        }
+    }
+}
+
 clean {
     delete("${libDir}/${jar.archiveName}")
     delete("${libDir}/${project.name}-${project.version}-javadoc.jar")
@@ -128,29 +159,10 @@ clean {
 //
 // Check if we need to update the JARs class-path
 //
-if(jarsClassPath.toBoolean()){
-    task copyJars(type: Copy, dependsOn: [jarSources, javadocJar], overwrite: true) {
-        from "${pomName}"
-        from "${libDir}/${jar.archiveName}"
-        from "${libDir}/${project.name}-${project.version}-sources.jar"
-        into "${DESTDIR}${jarDir}"
-    }
 
-    task updateInstallManifest(dependsOn: copyJars) << {
-        ant.jar(update: true, destfile: "${DESTDIR}${jarDir}/${jar.archiveName}") {
-            delegate.manifest {
-                attribute(name: "Built-By", value: "ZeroC, Inc.")
-                attribute(name: "Class-Path", value: configurations.runtime.resolve().collect { "file://${it.absolutePath}" }.join(' ').replaceAll("${libDir}", "${jarDir}"))
-            }
-        }
-    }
-
-    install.dependsOn(updateInstallManifest)
-} else {
-    task install(type: Copy, dependsOn: jarSources, overwrite: true) {
-        from "${pomName}"
-        from "${libDir}/${jar.archiveName}"
-        from "${libDir}/${project.name}-${project.version}-sources.jar"
-        into "${DESTDIR}${jarDir}"
-    }
+task install(type: Copy, dependsOn: jarSources, overwrite: true) {
+    from "${pomName}"
+    from "${libDir}/${jar.archiveName}"
+    from "${libDir}/${project.name}-${project.version}-sources.jar"
+    into "${DESTDIR}${jarDir}"
 }

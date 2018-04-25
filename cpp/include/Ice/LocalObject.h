@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,6 +22,10 @@
 namespace Ice
 {
 
+/**
+ * Base class for local Slice classes and interfaces.
+ * \headerfile Ice/Ice.h
+ */
 class ICE_API LocalObject : public virtual ::IceUtil::Shared
 {
 public:

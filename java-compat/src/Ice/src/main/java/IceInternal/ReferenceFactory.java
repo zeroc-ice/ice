@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -53,8 +53,12 @@ public final class ReferenceFactory
             "", // Facet
             fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
             fixedConnection.endpoint().secure(),
+            Ice.Util.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
-            fixedConnection);
+            fixedConnection,
+            -1,
+            null,
+            new Ice.BooleanOptional());
     }
 
     public Reference
@@ -65,7 +69,7 @@ public final class ReferenceFactory
         {
             return null;
         }
-	return r.clone();
+        return r.clone();
     }
 
     public Reference
@@ -253,7 +257,7 @@ public final class ReferenceFactory
 
                     try
                     {
-                        facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.length());
+                        facet = IceUtilInternal.StringUtil.unescapeString(argument, 0, argument.length(), "");
                     }
                     catch(IllegalArgumentException ex)
                     {
@@ -521,7 +525,7 @@ public final class ReferenceFactory
 
             try
             {
-                adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.length());
+                adapter = IceUtilInternal.StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), "");
             }
             catch(IllegalArgumentException ex)
             {
@@ -587,9 +591,9 @@ public final class ReferenceFactory
         if(!s.getEncoding().equals(Ice.Util.Encoding_1_0))
         {
             protocol = new Ice.ProtocolVersion();
-            protocol.__read(s);
+            protocol.ice_readMembers(s);
             encoding = new Ice.EncodingVersion();
-            encoding.__read(s);
+            encoding.ice_readMembers(s);
         }
         else
         {
@@ -743,7 +747,7 @@ public final class ReferenceFactory
         LocatorInfo locatorInfo = null;
         if(_defaultLocator != null)
         {
-            if(!((Ice.ObjectPrxHelperBase)_defaultLocator).__reference().getEncoding().equals(encoding))
+            if(!((Ice.ObjectPrxHelperBase)_defaultLocator)._getReference().getEncoding().equals(encoding))
             {
                 locatorInfo = _instance.locatorManager().get(
                     (Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
@@ -783,7 +787,7 @@ public final class ReferenceFactory
             Ice.LocatorPrx locator = Ice.LocatorPrxHelper.uncheckedCast(_communicator.propertyToProxy(property));
             if(locator != null)
             {
-                if(!((Ice.ObjectPrxHelperBase)locator).__reference().getEncoding().equals(encoding))
+                if(!((Ice.ObjectPrxHelperBase)locator)._getReference().getEncoding().equals(encoding))
                 {
                     locatorInfo = _instance.locatorManager().get((Ice.LocatorPrx)locator.ice_encodingVersion(encoding));
                 }

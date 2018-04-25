@@ -10,10 +10,12 @@ slice2py [options] [files]
 
 .SH DESCRIPTION
 
-slice2py compiles Slice files to Python.
+slice2py compiles Slice files to Python. The macro __SLICE2PY__
+is defined during this compilation.
 
-Full documentation for slice2py is available online at: 
-"https://doc.zeroc.com/display/Ice37/Code+Generation+in+Python".
+Full documentation for slice2py is available online at:
+.br
+https://doc.zeroc.com/display/Ice37/Code+Generation+in+Python
 
 .SH OPTIONS
 
@@ -33,7 +35,7 @@ Defines the preprocessor symbol NAME.
 
 .TP
 .BR \-DNAME=DEF\fR
-.br 
+.br
 Defines the preprocessor symbol NAME with the value DEF.
 
 .TP
@@ -62,15 +64,24 @@ Place the generated files into directory DIR.
 Print debug information showing the operation of the Slice parser.
 
 .TP
-.BR \-\-ice\fR
+.BR \-\-depend\fR
 .br
-Permit use of the normally reserved prefix Ice for identifiers. Use this
-option only when compiling the source code for the Ice run time.
+Print dependency information to standard output by default, or to the
+file specified by the --depend-file option. No code is generated when
+this option is specified.
 
 .TP
-.BR \-\-underscore\fR
+.BR \-\-depend\-xml\fR
 .br
-Permit use of underscores in Slice identifiers.
+Print dependency information in XML format to standard output by default,
+or to the file specified by the --depend-file option. No code is generated
+when this option is specified.
+
+.TP
+.BR \-\-depend\-file " " FILE\fR
+.br
+Directs dependency information to the specified file. The output
+format depends on whether --depend or --depend-xml is also specified.
 
 .TP
 .BR \-\-all\fR
@@ -91,9 +102,9 @@ Use PREFIX as the prefix for generated file names.
 
 .BR slice2cpp (1),
 .BR slice2cs (1),
-.BR slice2freeze (1),
-.BR slice2freezej (1),
-.BR slice2html (1),
-.BR slice2java (1), 
+.BR slice2java (1),
+.BR slice2js (1),
+.BR slice2matlab (1),
+.BR slice2objc (1),
 .BR slice2php (1),
 .BR slice2rb (1)

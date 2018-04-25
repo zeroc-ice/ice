@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,16 +8,14 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
-        "../Ice/AsyncResultBase",
         "../Ice/LocalException",
         "../Ice/ObjectAdapterI",
         "../Ice/Promise",
         "../Ice/UUID"
     ]);
 
-const AsyncResultBase = Ice.AsyncResultBase;
 const ObjectAdapterI = Ice.ObjectAdapterI;
 const _Promise = Ice.Promise;
 
@@ -48,7 +46,7 @@ class ObjectAdapterFactory
 
         this._instance = null;
         this._communicator = null;
-        this._shutdownPromise = _Promise.all(this._adapters.map(adapter => adapter.deactivate()));
+        _Promise.all(this._adapters.map(adapter => adapter.deactivate())).then(() => this._shutdownPromise.resolve());
         return this._shutdownPromise;
     }
 

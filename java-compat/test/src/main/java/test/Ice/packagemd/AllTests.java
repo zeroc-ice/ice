@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,11 +31,13 @@ public class AllTests
     }
 
     public static InitialPrx
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
                 out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:default -p 12010";
+        String ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -162,27 +164,27 @@ public class AllTests
                 // the Test2.* types again (with this communicator) because factories
                 // have already been cached for them, so now we use the Test3.* types.
                 //
-                communicator.getProperties().setProperty("Ice.Default.Package", "test.Ice.packagemd.testpkg");
-                test.Ice.packagemd.testpkg.Test3.C1 c1 = initial.getTest3C2AsC1();
+                communicator.getProperties().setProperty("Ice.Default.Package", "test.Ice.packagemd.modpkg");
+                test.Ice.packagemd.modpkg.Test3.C1 c1 = initial.getTest3C2AsC1();
                 test(c1 != null);
-                test(c1 instanceof test.Ice.packagemd.testpkg.Test3.C2);
-                test.Ice.packagemd.testpkg.Test3.C2 c2 = initial.getTest3C2AsC2();
+                test(c1 instanceof test.Ice.packagemd.modpkg.Test3.C2);
+                test.Ice.packagemd.modpkg.Test3.C2 c2 = initial.getTest3C2AsC2();
                 test(c2 != null);
                 try
                 {
                     initial.throwTest3E2AsE1();
                     test(false);
                 }
-                catch(test.Ice.packagemd.testpkg.Test3.E1 ex)
+                catch(test.Ice.packagemd.modpkg.Test3.E1 ex)
                 {
-                    test(ex instanceof test.Ice.packagemd.testpkg.Test3.E2);
+                    test(ex instanceof test.Ice.packagemd.modpkg.Test3.E2);
                 }
                 try
                 {
                     initial.throwTest3E2AsE2();
                     test(false);
                 }
-                catch(test.Ice.packagemd.testpkg.Test3.E2 ex)
+                catch(test.Ice.packagemd.modpkg.Test3.E2 ex)
                 {
                     // Expected
                 }

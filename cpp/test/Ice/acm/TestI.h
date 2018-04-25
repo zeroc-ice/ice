@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -44,7 +44,51 @@ public:
     virtual void sleep(int, const Ice::Current&);
     virtual void sleepAndHold(int, const Ice::Current&);
     virtual void interruptSleep(const Ice::Current&);
-    virtual void waitForHeartbeat(int, const Ice::Current&);
+    virtual void startHeartbeatCount(const Ice::Current&);
+    virtual void waitForHeartbeatCount(int, const Ice::Current&);
+
+private:
+
+    class HeartbeatCallbackI :
+#ifdef ICE_CPP11_MAPPING
+                                public std::enable_shared_from_this<HeartbeatCallbackI>,
+#else
+                                public Ice::HeartbeatCallback,
+#endif
+                                private IceUtil::Monitor<IceUtil::Mutex>
+    {
+    public:
+
+        HeartbeatCallbackI() :
+            _count(0)
+        {
+        }
+
+        void
+        waitForCount(int count)
+        {
+            Lock sync(*this);
+            while(_count < count)
+            {
+                wait();
+            }
+        }
+
+        virtual void
+        heartbeat(const Ice::ConnectionPtr&)
+        {
+            Lock sync(*this);
+            ++_count;
+            notifyAll();
+        }
+
+    private:
+
+        int _count;
+    };
+    ICE_DEFINE_PTR(HeartbeatCallbackIPtr, HeartbeatCallbackI);
+
+    HeartbeatCallbackIPtr _callback;
 };
 
 #endif

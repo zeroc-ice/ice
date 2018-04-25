@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,7 +15,7 @@
 #include <IceUtil/Handle.h>
 #include <IceUtil/Mutex.h>
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
 #   include <memory>
 #   include <thread>
 #endif
@@ -35,7 +35,7 @@ public:
     //
     ThreadControl();
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     ThreadControl(const std::shared_ptr<std::thread>&);
 #elif defined(_WIN32)
     ThreadControl(HANDLE, DWORD);
@@ -80,13 +80,13 @@ public:
     // id() returns the Thread ID on Windows and the underlying pthread_t
     // on POSIX platforms.
     //
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     typedef std::thread::id ID;
 #elif defined(_WIN32)
     typedef DWORD ID;
 #else
     typedef pthread_t ID;
-#endif 
+#endif
     ID id() const;
 
     static void sleep(const Time&);
@@ -94,7 +94,7 @@ public:
 
 private:
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     std::shared_ptr<std::thread> _thread;
     std::thread::id _id;
 #elif defined(_WIN32)
@@ -152,7 +152,7 @@ protected:
     bool _started;
     bool _running;
 
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     std::shared_ptr<std::thread> _thread;
 #elif defined(_WIN32)
     HANDLE _handle;
@@ -173,8 +173,7 @@ private:
 };
 
 typedef Handle<Thread> ThreadPtr;
-    
+
 }
 
 #endif
-

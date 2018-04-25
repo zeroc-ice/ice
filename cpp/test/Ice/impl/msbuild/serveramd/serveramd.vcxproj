@@ -1,5 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props')" />
+  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.1\build\native\zeroc.ice.v100.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.1\build\native\zeroc.ice.v100.props') and '$(ICE_BIN_DIST)' == 'all'" />
+  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.1\build\native\zeroc.ice.v141.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.1\build\native\zeroc.ice.v141.props') and '$(ICE_BIN_DIST)' == 'all'" />
+  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.1\build\native\zeroc.ice.v120.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.1\build\native\zeroc.ice.v120.props') and '$(ICE_BIN_DIST)' == 'all'" />
+  <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.props" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.props') and '$(ICE_BIN_DIST)' == 'all'" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Cpp11-Debug|Win32">
       <Configuration>Cpp11-Debug</Configuration>
@@ -35,10 +40,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5A62972C-F61E-4F3A-AC85-3DA9B7402449}</ProjectGuid>
+    <ProjectGuid>{806A4720-1E5E-4479-A92B-07D3253E72ED}</ProjectGuid>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <IceBuilderImpl Condition="'$(Configuration)' == 'Debug' or '$(Configuration)' == 'Release'">--impl-c++98</IceBuilderImpl>
+    <IceBuilderImpl Condition="'$(Configuration)' == 'Cpp11-Debug' or '$(Configuration)' == 'Cpp11-Release'">--impl-c++11</IceBuilderImpl>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup>
+    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
@@ -81,10 +91,12 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <Import Project="$(MSBuildThisFileDirectory)\..\..\..\..\..\msbuild\ice.test.props" />
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.1\build\native\zeroc.ice.v120.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.1\build\native\zeroc.ice.v120.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.1\build\native\zeroc.ice.v141.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.1\build\native\zeroc.ice.v141.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.1\build\native\zeroc.ice.v100.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.1\build\native\zeroc.ice.v100.targets') and '$(ICE_BIN_DIST)' == 'all'" />
+    <Import Project="..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets" Condition="Exists('..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets')" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -112,58 +124,68 @@
   </ImportGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;ICE_AMD_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;ICE_AMD_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;ICE_AMD_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;ICE_AMD_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;ICE_AMD_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;ICE_AMD_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;ICE_AMD_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\..\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;ICE_AMD_TEST;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DisableSpecificWarnings>4250;4251;4275;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Label="IceBuilder">
+    <SliceCompile />
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\MyByteSeq.cpp" />
+    <SliceCompile Include="..\..\TestAMD.ice" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\..\ServerAMD.cpp" />
-    <ClCompile Include="..\..\StringConverterI.cpp" />
-    <ClCompile Include="..\..\TestAMDI.cpp" />
-    <ClCompile Include="..\..\WstringAMDI.cpp" />
     <ClCompile Include="Win32\Cpp11-Debug\TestAMD.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -172,15 +194,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Debug\WstringAMD.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Cpp11-Release\TestAMD.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -190,15 +204,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="Win32\Cpp11-Release\WstringAMD.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="Win32\Debug\TestAMD.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -208,15 +214,25 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="Win32\Debug\WstringAMD.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+    <ClCompile Include="Win32\Debug\TestAMDI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Win32\Cpp11-Debug\TestAMDI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Win32\Release\TestAMD.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -226,15 +242,25 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="Win32\Release\WstringAMD.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+    <ClCompile Include="Win32\Release\TestAMDI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Win32\Cpp11-Release\TestAMDI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="x64\Cpp11-Debug\TestAMD.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
@@ -244,15 +270,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="x64\Cpp11-Debug\WstringAMD.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Cpp11-Release\TestAMD.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -262,15 +280,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="x64\Cpp11-Release\WstringAMD.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClCompile>
     <ClCompile Include="x64\Debug\TestAMD.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -280,15 +290,25 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Debug\WstringAMD.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+    <ClCompile Include="x64\Debug\TestAMDI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="x64\Cpp11-Debug\TestAMDI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="x64\Release\TestAMD.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -298,22 +318,26 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClCompile>
-    <ClCompile Include="x64\Release\WstringAMD.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+    <ClCompile Include="x64\Release\TestAMDI.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\MyByteSeq.h" />
-    <ClInclude Include="..\..\StringConverterI.h" />
-    <ClInclude Include="..\..\TestAMDI.h" />
-    <ClInclude Include="..\..\WstringAMDI.h" />
+    <ClCompile Include="x64\Cpp11-Release\TestAMDI.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClInclude Include="Win32\Cpp11-Debug\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -322,16 +346,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Debug\WstringAMD.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="Win32\Cpp11-Debug\TestAMDI.h" />
     <ClInclude Include="Win32\Cpp11-Release\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
@@ -340,15 +357,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="Win32\Cpp11-Release\WstringAMD.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="Win32\Debug\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -358,15 +367,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="Win32\Debug\WstringAMD.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="Win32\Release\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -376,16 +377,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="Win32\Release\WstringAMD.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="Win32\Release\TestAMDI.h" />
+    <ClInclude Include="Win32\Cpp11-Release\TestAMDI.h" />
     <ClInclude Include="x64\Cpp11-Debug\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -394,15 +389,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="x64\Cpp11-Debug\WstringAMD.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="x64\Cpp11-Release\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -412,15 +399,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="x64\Cpp11-Release\WstringAMD.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClInclude>
     <ClInclude Include="x64\Debug\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
@@ -430,16 +409,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Debug\WstringAMD.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="x64\Debug\TestAMDI.h" />
+    <ClInclude Include="x64\Cpp11-Debug\TestAMDI.h" />
     <ClInclude Include="x64\Release\TestAMD.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
@@ -448,22 +421,73 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
+      <SliceCompileSource>..\..\TestAMD.ice</SliceCompileSource>
     </ClInclude>
-    <ClInclude Include="x64\Release\WstringAMD.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="x64\Release\TestAMDI.h" />
+    <ClInclude Include="x64\Cpp11-Release\TestAMDI.h" />
   </ItemGroup>
   <ItemGroup>
-    <IceBuilder Include="..\..\TestAMD.ice" />
-    <IceBuilder Include="..\..\WstringAMD.ice" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="dummy.txt">
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">if exist $(Platform)\$(Configuration)\TestAMDI.cpp del /q $(Platform)\$(Configuration)\TestAMDI.cpp
+if exist $(Platform)\$(Configuration)\TestAMDI.h del /q $(Platform)\$(Configuration)\TestAMDI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\TestAMD.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">if exist $(Platform)\$(Configuration)\TestAMDI.cpp del /q $(Platform)\$(Configuration)\TestAMDI.cpp
+if exist $(Platform)\$(Configuration)\TestAMDI.h del /q $(Platform)\$(Configuration)\TestAMDI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\TestAMD.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">if exist $(Platform)\$(Configuration)\TestAMDI.cpp del /q $(Platform)\$(Configuration)\TestAMDI.cpp
+if exist $(Platform)\$(Configuration)\TestAMDI.h del /q $(Platform)\$(Configuration)\TestAMDI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\TestAMD.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">if exist $(Platform)\$(Configuration)\TestAMDI.cpp del /q $(Platform)\$(Configuration)\TestAMDI.cpp
+if exist $(Platform)\$(Configuration)\TestAMDI.h del /q $(Platform)\$(Configuration)\TestAMDI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\TestAMD.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">if exist $(Platform)\$(Configuration)\TestAMDI.cpp del /q $(Platform)\$(Configuration)\TestAMDI.cpp
+if exist $(Platform)\$(Configuration)\TestAMDI.h del /q $(Platform)\$(Configuration)\TestAMDI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\TestAMD.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">if exist $(Platform)\$(Configuration)\TestAMDI.cpp del /q $(Platform)\$(Configuration)\TestAMDI.cpp
+if exist $(Platform)\$(Configuration)\TestAMDI.h del /q $(Platform)\$(Configuration)\TestAMDI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\TestAMD.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">if exist $(Platform)\$(Configuration)\TestAMDI.cpp del /q $(Platform)\$(Configuration)\TestAMDI.cpp
+if exist $(Platform)\$(Configuration)\TestAMDI.h del /q $(Platform)\$(Configuration)\TestAMDI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\TestAMD.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">if exist $(Platform)\$(Configuration)\TestAMDI.cpp del /q $(Platform)\$(Configuration)\TestAMDI.cpp
+if exist $(Platform)\$(Configuration)\TestAMDI.h del /q $(Platform)\$(Configuration)\TestAMDI.h
+$(IceToolsPath)\slice2cpp.exe -I$(IceHome)\slice $(IceBuilderImpl) ..\..\TestAMD.ice --output-dir $(Platform)\$(Configuration)</Command>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Platform)\$(Configuration)\TestAMDI.cpp;$(Platform)\$(Configuration)\TestAMDI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\TestAMD.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">$(Platform)\$(Configuration)\TestAMDI.cpp;$(Platform)\$(Configuration)\TestAMDI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">..\..\TestAMD.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Platform)\$(Configuration)\TestAMDI.cpp;$(Platform)\$(Configuration)\TestAMDI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\TestAMD.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">$(Platform)\$(Configuration)\TestAMDI.cpp;$(Platform)\$(Configuration)\TestAMDI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">..\..\TestAMD.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\TestAMDI.cpp;$(Platform)\$(Configuration)\TestAMDI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\TestAMD.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">$(Platform)\$(Configuration)\TestAMDI.cpp;$(Platform)\$(Configuration)\TestAMDI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">..\..\TestAMD.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\TestAMDI.cpp;$(Platform)\$(Configuration)\TestAMDI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\TestAMD.ice</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">$(Platform)\$(Configuration)\TestAMDI.cpp;$(Platform)\$(Configuration)\TestAMDI.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">..\..\TestAMD.ice</AdditionalInputs>
+    </CustomBuild>
   </ItemGroup>
   <PropertyGroup Label="UserMacros" />
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <Import Project="$(LOCALAPPDATA)\ZeroC\IceBuilder\IceBuilder.Cpp.targets" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.props'))" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.1\build\native\zeroc.ice.v120.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.1\build\native\zeroc.ice.v120.props'))" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.1\build\native\zeroc.ice.v120.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.v120.3.7.1\build\native\zeroc.ice.v120.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.1\build\native\zeroc.ice.v141.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.1\build\native\zeroc.ice.v141.props'))" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.1\build\native\zeroc.ice.v141.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.v141.3.7.1\build\native\zeroc.ice.v141.targets'))" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.1\build\native\zeroc.ice.v100.props') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.1\build\native\zeroc.ice.v100.props') )" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.1\build\native\zeroc.ice.v100.targets') and '$(ICE_BIN_DIST)' == 'all'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.ice.v100.3.7.1\build\native\zeroc.ice.v100.targets') )" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props'))" />
+    <Error Condition="!Exists('..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.targets'))" />
+  </Target>
 </Project>

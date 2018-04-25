@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -76,7 +76,9 @@ public class InputStreamWrapper extends java.io.InputStream
     public void reset()
         throws java.io.IOException
     {
-        _buf.position(_markPos);
+        // Cast to java.nio.Buffer to avoid incompatible covariant
+        // return type used in Java 9 java.nio.ByteBuffer
+        ((java.nio.Buffer)_buf).position(_markPos);
     }
 
     @Override

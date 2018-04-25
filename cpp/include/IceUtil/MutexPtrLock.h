@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,7 +20,7 @@ template<class T>
 class MutexPtrLock
 {
 public:
-    
+
     MutexPtrLock<T>(const T* mutex) :
         _mutex(mutex),
         _acquired(false)
@@ -66,9 +66,9 @@ public:
     {
         return _acquired;
     }
-   
+
 private:
-    
+
     // Not implemented; prevents accidental use.
     //
     MutexPtrLock<T>(const MutexPtrLock<T>&);

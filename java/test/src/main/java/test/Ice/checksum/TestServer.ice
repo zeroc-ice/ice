@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,15 +11,16 @@
 
 #include <Ice/SliceChecksumDict.ice>
 
-[["java:package:test.Ice.checksum.server"]]
+[["java:package:test.Ice.checksum.server"]] // For classes with operations
+
 module Test
 {
 
 interface Checksum
 {
     idempotent Ice::SliceChecksumDict getSliceChecksums();
-    
-    void shutdown();
-};
 
-};
+    void shutdown();
+}
+
+}

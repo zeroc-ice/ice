@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -144,15 +144,14 @@ public class ParametersField extends JTable
             getCellEditor().stopCellEditing();
         }
         @SuppressWarnings("unchecked")
-        java.util.Vector<java.util.Vector<String>> vector =
-            _model.getDataVector();
+        java.util.Vector<java.util.Vector> vector = _model.getDataVector();
 
-        for(java.util.Vector<String> row : vector)
+        for(java.util.Vector row : vector)
         {
             //
             // Eliminate rows with null or empty names
             //
-            String name = row.elementAt(0);
+            String name = row.elementAt(0).toString();
             if(name != null)
             {
                 name = name.trim();
@@ -161,7 +160,7 @@ public class ParametersField extends JTable
                 {
                     names.add(name);
 
-                    String val = row.elementAt(1);
+                    String val = row.elementAt(1).toString();
 
                     //
                     // Eliminate entries with "default" value

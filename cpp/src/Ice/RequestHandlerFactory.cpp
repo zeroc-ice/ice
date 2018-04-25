@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -30,7 +30,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
         Ice::ObjectAdapterPtr adapter = _instance->objectAdapterFactory()->findObjectAdapter(proxy);
         if(adapter)
         {
-            return proxy->__setRequestHandler(ICE_MAKE_SHARED(CollocatedRequestHandler, ref, adapter));
+            return proxy->_setRequestHandler(ICE_MAKE_SHARED(CollocatedRequestHandler, ref, adapter));
         }
     }
 
@@ -64,7 +64,7 @@ IceInternal::RequestHandlerFactory::getRequestHandler(const RoutableReferencePtr
         ref->getConnection(handler.get());
 #endif
     }
-    return proxy->__setRequestHandler(handler->connect(proxy));
+    return proxy->_setRequestHandler(handler->connect(proxy));
 }
 
 void

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -49,7 +49,7 @@ namespace
 inline CFStringRef
 toCFString(const string& s)
 {
-    return CFStringCreateWithCString(NULL, s.c_str(), kCFStringEncodingUTF8);
+    return CFStringCreateWithCString(ICE_NULLPTR, s.c_str(), kCFStringEncodingUTF8);
 }
 
 }
@@ -71,29 +71,23 @@ IceObjC::Instance::Instance(const Ice::CommunicatorPtr& com, Short type, const s
 #if TARGET_IPHONE_SIMULATOR != 0
         throw Ice::FeatureNotSupportedException(__FILE__, __LINE__, "SOCKS proxy not supported");
 #endif
-        _proxySettings = CFDictionaryCreateMutable(0, 3, &kCFTypeDictionaryKeyCallBacks,
-                                                   &kCFTypeDictionaryValueCallBacks);
+        _proxySettings.reset(CFDictionaryCreateMutable(0, 3, &kCFTypeDictionaryKeyCallBacks,
+                                                       &kCFTypeDictionaryValueCallBacks));
 
         _proxyPort = properties->getPropertyAsIntWithDefault("Ice.SOCKSProxyPort", 1080);
 
-        CFStringRef host = toCFString(_proxyHost);
-        CFDictionarySetValue(_proxySettings, kCFStreamPropertySOCKSProxyHost, host);
-        CFRelease(host);
+        UniqueRef<CFStringRef> host(toCFString(_proxyHost));
+        CFDictionarySetValue(_proxySettings.get(), kCFStreamPropertySOCKSProxyHost, host.get());
 
-        CFNumberRef port = CFNumberCreate(0, kCFNumberSInt32Type, &_proxyPort);
-        CFDictionarySetValue(_proxySettings, kCFStreamPropertySOCKSProxyPort, port);
-        CFRelease(port);
+        UniqueRef<CFNumberRef> port(CFNumberCreate(0, kCFNumberSInt32Type, &_proxyPort));
+        CFDictionarySetValue(_proxySettings.get(), kCFStreamPropertySOCKSProxyPort, port.get());
 
-        CFDictionarySetValue(_proxySettings, kCFStreamPropertySOCKSVersion, kCFStreamSocketSOCKSVersion4);
+        CFDictionarySetValue(_proxySettings.get(), kCFStreamPropertySOCKSVersion, kCFStreamSocketSOCKSVersion4);
     }
 }
 
 IceObjC::Instance::~Instance()
 {
-    if(_proxySettings)
-    {
-        CFRelease(_proxySettings);
-    }
 }
 
 void
@@ -115,8 +109,8 @@ IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
 
     if(!server && _proxySettings)
     {
-        if(!CFReadStreamSetProperty(readStream, kCFStreamPropertySOCKSProxy, _proxySettings) ||
-           !CFWriteStreamSetProperty(writeStream, kCFStreamPropertySOCKSProxy, _proxySettings))
+        if(!CFReadStreamSetProperty(readStream, kCFStreamPropertySOCKSProxy, _proxySettings.get()) ||
+           !CFWriteStreamSetProperty(writeStream, kCFStreamPropertySOCKSProxy, _proxySettings.get()))
         {
             throw Ice::SyscallException(__FILE__, __LINE__);
         }
@@ -157,7 +151,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::Inpu
 }
 
 EndpointInfoPtr
-IceObjC::StreamEndpointI::getInfo() const
+IceObjC::StreamEndpointI::getInfo() const ICE_NOEXCEPT
 {
     TCPEndpointInfoPtr info = ICE_MAKE_SHARED(InfoI<Ice::TCPEndpointInfo>, ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
     IPEndpointI::fillEndpointInfo(info.get());
@@ -239,8 +233,15 @@ IceObjC::StreamEndpointI::acceptor(const string&) const
 IceObjC::StreamEndpointIPtr
 IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
 {
-    return ICE_MAKE_SHARED(StreamEndpointI, _instance, _host, a->effectivePort(), _sourceAddr, _timeout, _connectionId,
-                           _compress);
+    int port = a->effectivePort();
+    if(port == _port)
+    {
+        return ICE_DYNAMIC_CAST(StreamEndpointI, ICE_SHARED_FROM_CONST_THIS(StreamEndpointI));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(StreamEndpointI, _instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+    }
 }
 
 string
@@ -384,9 +385,8 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
     {
         if(argument.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "no argument provided for -t option in endpoint " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "no argument provided for -t option in endpoint " +
+                                         endpoint);
         }
 
         if(argument == "infinite")
@@ -398,9 +398,8 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
             istringstream t(argument);
             if(!(t >> const_cast<Int&>(_timeout)) || !t.eof() || _timeout < 1)
             {
-                EndpointParseException ex(__FILE__, __LINE__);
-                ex.str = "invalid timeout value `" + argument + "' in endpoint " + endpoint;
-                throw ex;
+                throw EndpointParseException(__FILE__, __LINE__, "invalid timeout value `" + argument +
+                                             "' in endpoint " + endpoint);
             }
         }
         return true;
@@ -410,9 +409,8 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
     {
         if(!argument.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "unexpected argument `" + argument + "' provided for -z option in " + endpoint;
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "unexpected argument `" + argument +
+                                         "' provided for -z option in " + endpoint);
         }
         const_cast<bool&>(_compress) = true;
         return true;
@@ -479,7 +477,7 @@ IceObjC::StreamEndpointFactory::destroy()
 }
 
 EndpointFactoryPtr
-IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance, const EndpointFactoryPtr&) const
+IceObjC::StreamEndpointFactory::clone(const ProtocolInstancePtr& instance) const
 {
     return new StreamEndpointFactory(_instance->clone(instance));
 }

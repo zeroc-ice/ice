@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -145,14 +145,12 @@ class SequenceHelper
     {
         return (v === null || v === undefined) ? 0 : v.length;
     }
-    
+
     get minWireSize()
     {
         return 1;
     }
 }
-
-
 
 // Speacialization optimized for ByteSeq
 const byteSeqHelper = new SequenceHelper();
@@ -237,7 +235,7 @@ class DictionaryHelper
             const keyHelper = this.keyHelper;
             const valueHelper = this.valueHelper;
             os.writeSize(v.size);
-            for(let [key, value] of v)
+            for(const [key, value] of v)
             {
                 keyHelper.write(os, key);
                 valueHelper.write(os, value);
@@ -263,7 +261,7 @@ class DictionaryHelper
     {
         return (v === null || v === undefined) ? 0 : v.size;
     }
-    
+
     get minWireSize()
     {
         return 1;
@@ -280,7 +278,7 @@ const valueDictionaryHelperRead = function(is)
 
     const readValueForKey = function(key)
     {
-        is.readValue(function(obj) { v.set(key, obj); }, valueType);
+        is.readValue(obj => v.set(key, obj), valueType);
     };
 
     const keyHelper = this.keyHelper;

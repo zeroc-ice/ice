@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -116,10 +116,12 @@ public class AllTests
     }
 
     public static ServerFactoryPrx
-    allTests(test.Util.Application app, String testDir, PrintWriter out)
+    allTests(test.Util.Application app, String testDir)
     {
         Ice.Communicator communicator = app.communicator();
-        final String factoryRef = "factory:tcp -p 12010";
+        PrintWriter out = app.getWriter();
+
+        final String factoryRef = "factory:" + app.getTestEndpoint(0, "tcp");
         Ice.ObjectPrx b = communicator.stringToProxy(factoryRef);
         test(b != null);
         ServerFactoryPrx factory = ServerFactoryPrxHelper.checkedCast(b);
@@ -147,6 +149,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             comm.destroy();
@@ -172,6 +175,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -228,6 +232,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -248,6 +253,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -274,6 +280,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -302,13 +309,13 @@ public class AllTests
                 java.security.cert.X509Certificate serverCert = loadCertificate(defaultDir + "/s_rsa_ca1.jks", "cert");
                 java.security.cert.X509Certificate caCert = loadCertificate(defaultDir + "/cacert1.jks", "ca");
 
-                IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
 
-                test(info.nativeCerts.length == 2);
+                test(info.certs.length == 2);
                 test(info.verified);
 
-                test(caCert.equals(info.nativeCerts[1]));
-                test(serverCert.equals(info.nativeCerts[0]));
+                test(caCert.equals(info.certs[1]));
+                test(serverCert.equals(info.certs[0]));
             }
             catch(Exception ex)
             {
@@ -330,6 +337,7 @@ public class AllTests
             }
             catch(Exception ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -359,6 +367,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -392,6 +401,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -422,6 +432,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -474,6 +485,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -496,29 +508,33 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
             comm.destroy();
 
             //
-            // Test IceSSL.CheckCertName. The test certificates for the server contain "127.0.0.1"
-            // as the common name or as a subject alternative name, so we only perform this test when
-            // the default host is "127.0.0.1".
+            // Test Hostname verification only when Ice.DefaultHost is 127.0.0.1
+            // as that is the IP address used in the test certificates.
             //
             if(defaultHost.equals("127.0.0.1"))
             {
                 //
-                // Test subject alternative name.
+                // Test using localhost as target host
+                //
+
+                //
+                // Target host matches the certificate DNS altName
                 //
                 {
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, defaultDir, "localhost", "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Ice.Util.initialize(args, initData);
 
                     fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1", "cacert1");
+                    d = createServerProps(defaultProperties, defaultDir, "localhost", "s_rsa_ca1_cn1", "cacert1");
                     server = fact.createServer(d);
                     try
                     {
@@ -526,22 +542,50 @@ public class AllTests
                     }
                     catch(Ice.LocalException ex)
                     {
+                        ex.printStackTrace();
                         test(false);
                     }
                     fact.destroyServer(server);
                     comm.destroy();
                 }
+
                 //
-                // Test common name.
+                // Target host does not match the certificate DNS altName
                 //
                 {
-                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                    initData = createClientProps(defaultProperties, defaultDir, "localhost", "c_rsa_ca1", "cacert1");
                     initData.properties.setProperty("IceSSL.CheckCertName", "1");
                     comm = Ice.Util.initialize(args, initData);
 
                     fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1_cn1", "cacert1");
+                    d = createServerProps(defaultProperties, defaultDir, "localhost", "s_rsa_ca1_cn2", "cacert1");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                        test(false);
+                    }
+                    catch(Ice.SecurityException ex)
+                    {
+                        // Expected
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
+
+                //
+                // Target host matches the certificate Common Name and the certificate does not
+                // include a DNS altName
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, "localhost", "c_rsa_ca1", "cacert1");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, "localhost", "s_rsa_ca1_cn3", "cacert1");
                     server = fact.createServer(d);
                     try
                     {
@@ -549,14 +593,71 @@ public class AllTests
                     }
                     catch(Ice.LocalException ex)
                     {
+                        ex.printStackTrace();
                         test(false);
                     }
                     fact.destroyServer(server);
                     comm.destroy();
                 }
+
                 //
-                // Test common name again. The certificate used in this test has "127.0.0.11" as its
-                // common name, therefore the address "127.0.0.1" must NOT match.
+                // Target host does not match the certificate Common Name and the certificate does not
+                // include a DNS altName
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, "localhost", "c_rsa_ca1", "cacert1");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, "localhost", "s_rsa_ca1_cn4", "cacert1");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                        test(false);
+                    }
+                    catch(Ice.SecurityException ex)
+                    {
+                        // Expected
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
+
+                //
+                // Target host matches the certificate Common Name and the certificate has
+                // a DNS altName that does not matches the target host
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, "localhost", "c_rsa_ca1", "cacert1");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, "localhost", "s_rsa_ca1_cn5", "cacert1");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                        test(false);
+                    }
+                    catch(Ice.SecurityException ex)
+                    {
+                        // Expected
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
+
+                //
+                // Test using 127.0.0.1 as target host
+                //
+
+                //
+                // Target host matches the certificate IP altName
                 //
                 {
                     initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
@@ -565,16 +666,120 @@ public class AllTests
 
                     fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
                     test(fact != null);
-                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1_cn2", "cacert1");
+                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1_cn6", "cacert1");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        ex.printStackTrace();
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
+
+                //
+                // Target host does not match the certificate IP altName
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1_cn7", "cacert1");
                     server = fact.createServer(d);
                     try
                     {
                         server.ice_ping();
                         test(false);
                     }
+                    catch(Ice.SecurityException ex)
+                    {
+                        // Expected
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
+
+                //
+                // Target host is an IP addres that matches the CN and the certificate doesn't
+                // include an IP altName
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, defaultHost, "c_rsa_ca1", "cacert1");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, defaultHost, "s_rsa_ca1_cn8", "cacert1");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                        test(false);
+                    }
+                    catch(Ice.SecurityException ex)
+                    {
+                        // Expected
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
+
+                //
+                // Target host does not match the certificate DNS altName, connection should succeed
+                // because IceSSL.VerifyPeer is set to 0.
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, "localhost", "c_rsa_ca1", "cacert1");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "1");
+                    initData.properties.setProperty("IceSSL.VerifyPeer", "0");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, "localhost", "s_rsa_ca1_cn2", "cacert1");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                    }
                     catch(Ice.LocalException ex)
                     {
-                        // Expected.
+                        ex.printStackTrace();
+                        test(false);
+                    }
+                    fact.destroyServer(server);
+                    comm.destroy();
+                }
+
+                //
+                // Target host does not match the certificate DNS altName, connection should succeed
+                // because IceSSL.CheckCertName is set to 0.
+                //
+                {
+                    initData = createClientProps(defaultProperties, defaultDir, "localhost", "c_rsa_ca1", "cacert1");
+                    initData.properties.setProperty("IceSSL.CheckCertName", "0");
+                    comm = Ice.Util.initialize(args, initData);
+
+                    fact = ServerFactoryPrxHelper.checkedCast(comm.stringToProxy(factoryRef));
+                    test(fact != null);
+                    d = createServerProps(defaultProperties, defaultDir, "localhost", "s_rsa_ca1_cn2", "cacert1");
+                    server = fact.createServer(d);
+                    try
+                    {
+                        server.ice_ping();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        ex.printStackTrace();
+                        test(false);
                     }
                     fact.destroyServer(server);
                     comm.destroy();
@@ -589,7 +794,7 @@ public class AllTests
         out.print("testing certificate chains... ");
         out.flush();
         {
-            IceSSL.NativeConnectionInfo info;
+            IceSSL.ConnectionInfo info;
 
             initData = createClientProps(defaultProperties, defaultDir, defaultHost, "", "");
             initData.properties.setProperty("IceSSL.VerifyPeer", "0");
@@ -608,12 +813,13 @@ public class AllTests
             ServerPrx server = fact.createServer(d);
             try
             {
-                info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 1);
+                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 1);
                 test(!info.verified);
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -627,12 +833,13 @@ public class AllTests
             server = fact.createServer(d);
             try
             {
-                info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 1);
+                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 1);
                 test(!info.verified);
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -647,11 +854,12 @@ public class AllTests
             server = fact.createServer(d);
             try
             {
-                info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                test(info.nativeCerts.length == 2);
+                info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                test(info.certs.length == 2);
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -673,12 +881,13 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 2);
+                    info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 2);
                     test(info.verified);
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -712,6 +921,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -735,12 +945,13 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 3);
+                    info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 3);
                     test(info.verified);
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -780,12 +991,13 @@ public class AllTests
                 server = fact.createServer(d);
                 try
                 {
-                    info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
-                    test(info.nativeCerts.length == 4);
+                    info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
+                    test(info.certs.length == 4);
                     test(info.verified);
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -823,6 +1035,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -839,6 +1052,7 @@ public class AllTests
                 }
                 catch(Ice.LocalException ex)
                 {
+                    ex.printStackTrace();
                     test(false);
                 }
                 fact.destroyServer(server);
@@ -873,11 +1087,12 @@ public class AllTests
             {
                 String cipherSub = "DH_anon";
                 server.checkCipher(cipherSub);
-                IceSSL.NativeConnectionInfo info = (IceSSL.NativeConnectionInfo)server.ice_getConnection().getInfo();
+                IceSSL.ConnectionInfo info = (IceSSL.ConnectionInfo)server.ice_getConnection().getInfo();
                 test(info.cipher.indexOf(cipherSub) >= 0);
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             test(verifier.invoked());
@@ -889,7 +1104,7 @@ public class AllTests
             //
             verifier.reset();
             verifier.returnValue(false);
-            server.ice_getConnection().close(false);
+            server.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             try
             {
                 server.ice_ping();
@@ -901,6 +1116,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             test(verifier.invoked());
@@ -932,6 +1148,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             test(verifier.invoked());
@@ -984,6 +1201,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1049,6 +1267,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1082,6 +1301,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1114,6 +1334,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1145,6 +1366,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1168,6 +1390,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1195,6 +1418,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
         }
@@ -1222,6 +1446,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             comm.destroy();
@@ -1246,6 +1471,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             comm.destroy();
@@ -1289,6 +1515,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1313,6 +1540,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1334,6 +1562,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1365,6 +1594,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1397,6 +1627,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1431,6 +1662,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1461,6 +1693,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1486,6 +1719,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1528,6 +1762,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1549,6 +1784,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1590,6 +1826,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1630,6 +1867,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1730,6 +1968,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1750,6 +1989,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1790,6 +2030,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1810,6 +2051,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1940,6 +2182,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -1982,6 +2225,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2022,6 +2266,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2050,6 +2295,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2092,6 +2338,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2158,6 +2405,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2218,6 +2466,7 @@ public class AllTests
             }
             catch(Ice.LocalException ex)
             {
+                ex.printStackTrace();
                 test(false);
             }
             fact.destroyServer(server);
@@ -2228,24 +2477,58 @@ public class AllTests
         out.print("testing system CAs... ");
         out.flush();
         {
+            //
+            // Retry a few times in case there are connectivity problems with demo.zeroc.com.
+            //
+            final int retryMax = 5;
+            final int retryDelay = 1000;
+            int retryCount = 0;
+
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
             initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
             initData.properties.setProperty("Ice.Override.Timeout", "5000"); // 5s timeout
             Ice.Communicator comm = Ice.Util.initialize(initData);
             Ice.ObjectPrx p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-            try
+            while(true)
             {
-                p.ice_ping();
-                test(false);
+                try
+                {
+                    p.ice_ping();
+                    test(false);
+                }
+                catch(Ice.SecurityException ex)
+                {
+                    // Expected, by default we don't check for system CAs.
+                    break;
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if((ex instanceof Ice.ConnectTimeoutException) ||
+                       (ex instanceof Ice.SocketException) ||
+                       (ex instanceof Ice.DNSException))
+                    {
+                        if(++retryCount < retryMax)
+                        {
+                            out.print("retrying... ");
+                            out.flush();
+                            try
+                            {
+                                Thread.sleep(retryDelay);
+                            }
+                            catch(InterruptedException e)
+                            {
+                                break;
+                            }
+                            continue;
+                        }
+                    }
+
+                    out.print("warning: unable to connect to demo.zeroc.com to check system CA\n");
+                    ex.printStackTrace();
+                    break;
+                }
             }
-            catch(Ice.SecurityException ex)
-            {
-                // Expected, by default we don't check for system CAs.
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
-            }
+            comm.destroy();
 
             initData = createClientProps(defaultProperties, defaultDir, defaultHost);
             initData.properties.setProperty("IceSSL.VerifyDepthMax", "4");
@@ -2253,15 +2536,41 @@ public class AllTests
             initData.properties.setProperty("IceSSL.UsePlatformCAs", "1");
             comm = Ice.Util.initialize(initData);
             p = comm.stringToProxy("dummy:wss -h demo.zeroc.com -p 5064");
-            try
+            while(true)
             {
-                Ice.WSConnectionInfo info  = (Ice.WSConnectionInfo)p.ice_getConnection().getInfo();
-                IceSSL.ConnectionInfo sslinfo = (IceSSL.ConnectionInfo)info.underlying;
-                test(sslinfo.verified);
-            }
-            catch(Ice.LocalException ex)
-            {
-                test(false);
+                try
+                {
+                    Ice.WSConnectionInfo info  = (Ice.WSConnectionInfo)p.ice_getConnection().getInfo();
+                    IceSSL.ConnectionInfo sslinfo = (IceSSL.ConnectionInfo)info.underlying;
+                    test(sslinfo.verified);
+                    break;
+                }
+                catch(Ice.LocalException ex)
+                {
+                    if((ex instanceof Ice.ConnectTimeoutException) ||
+                       (ex instanceof Ice.SocketException) ||
+                       (ex instanceof Ice.DNSException))
+                    {
+                        if(++retryCount < retryMax)
+                        {
+                            out.print("retrying... ");
+                            out.flush();
+                            try
+                            {
+                                Thread.sleep(retryDelay);
+                            }
+                            catch(InterruptedException e)
+                            {
+                                break;
+                            }
+                            continue;
+                        }
+                    }
+
+                    out.print("warning: unable to connect to demo.zeroc.com to check system CA\n");
+                    ex.printStackTrace();
+                    break;
+                }
             }
             comm.destroy();
         }

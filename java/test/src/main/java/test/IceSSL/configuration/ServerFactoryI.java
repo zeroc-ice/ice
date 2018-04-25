@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,6 +21,11 @@ class ServerFactoryI implements ServerFactory
         }
     }
 
+    public ServerFactoryI(String defaultDir)
+    {
+        _defaultDir = defaultDir;
+    }
+
     @Override
     public ServerPrx createServer(java.util.Map<String, String> props, com.zeroc.Ice.Current current)
     {
@@ -30,11 +35,10 @@ class ServerFactoryI implements ServerFactory
         {
             initData.properties.setProperty(i.getKey(), i.getValue());
         }
-
-        String[] args = new String[0];
-        com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(args, initData);
-        com.zeroc.Ice.ObjectAdapter adapter = ir.communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
-        ServerI server = new ServerI(ir.communicator);
+        initData.properties.setProperty("IceSSL.DefaultDir", _defaultDir);
+        com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(initData);
+        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("ServerAdapter", "ssl");
+        ServerI server = new ServerI(communicator);
         com.zeroc.Ice.ObjectPrx obj = adapter.addWithUUID(server);
         _servers.put(obj.ice_getIdentity(), server);
         adapter.activate();
@@ -61,6 +65,7 @@ class ServerFactoryI implements ServerFactory
         current.adapter.getCommunicator().shutdown();
     }
 
+    private String _defaultDir;
     private java.util.Map<com.zeroc.Ice.Identity, ServerI> _servers =
         new java.util.HashMap<com.zeroc.Ice.Identity, ServerI>();
 }

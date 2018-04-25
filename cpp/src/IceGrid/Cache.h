@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -40,12 +40,12 @@ public:
     {
     }
 
-    virtual 
+    virtual
     ~Cache()
     {
     }
 
-    bool 
+    bool
     has(const Key& key) const
     {
         Lock sync(*this);
@@ -59,9 +59,9 @@ public:
         removeImpl(key);
     }
 
-    void 
+    void
     setTraceLevels(const TraceLevelsPtr& traceLevels)
-    { 
+    {
         _traceLevels = traceLevels;
     }
 
@@ -69,7 +69,7 @@ public:
 
 protected:
 
-    virtual ValuePtr 
+    virtual ValuePtr
     getImpl(const Key& key) const
     {
         typename ValueMap::iterator p = const_cast<ValueMap&>(_entries).end();
@@ -80,12 +80,12 @@ protected:
                 p = _entriesHint;
             }
         }
-        
+
         if(p == const_cast<ValueMap&>(_entries).end())
         {
             p = const_cast<ValueMap&>(_entries).find(key);
         }
-        
+
         if(p != const_cast<ValueMap&>(_entries).end())
         {
             const_cast<typename ValueMap::iterator&>(_entriesHint) = p;
@@ -116,12 +116,12 @@ protected:
                 p = _entriesHint;
             }
         }
-        
+
         if(p == _entries.end())
         {
             p = _entries.find(key);
         }
-        
+
         assert(p != _entries.end());
         if(p->second->canRemove())
         {
@@ -136,7 +136,7 @@ protected:
 
     TraceLevelsPtr _traceLevels;
     ValueMap _entries;
-    typename ValueMap::iterator _entriesHint;    
+    typename ValueMap::iterator _entriesHint;
 };
 
 template<typename T>

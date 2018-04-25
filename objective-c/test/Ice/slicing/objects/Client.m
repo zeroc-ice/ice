@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,7 +29,8 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+    ICEregisterIceWS(YES);
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif
@@ -43,7 +44,7 @@ main(int argc, char* argv[])
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultClientProperties(&argc, argv);
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestSlicingObjectsClient", @"::Test",
                                       @"TestSlicingObjectsShared", @"::TestShared",
                                       nil];
@@ -63,15 +64,7 @@ main(int argc, char* argv[])
 
         if(communicator)
         {
-            @try
-            {
-                [communicator destroy];
-            }
-            @catch(ICEException* ex)
-            {
-                tprintf("%@\n", ex);
-                status = EXIT_FAILURE;
-            }
+            [communicator destroy];
         }
     }
     return status;

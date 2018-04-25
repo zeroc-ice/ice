@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -54,8 +54,6 @@ public:
 };
 
 }
-
-
 
 RemoteCommunicatorI::RemoteCommunicatorI(const Ice::CommunicatorPtr& communicator) :
     _communicator(communicator),
@@ -220,7 +218,7 @@ RemoteCommunicatorFactoryI::createCommunicator(ICE_IN(Ice::PropertyDict) props, 
     // Set the callback on the admin facet.
     //
     RemoteCommunicatorIPtr servant = ICE_MAKE_SHARED(RemoteCommunicatorI, communicator);
-    servant->addUpdateCallback(Ice::noExplicitCurrent);
+    servant->addUpdateCallback(Ice::emptyCurrent);
 
     Ice::ObjectPrxPtr proxy = current.adapter->addWithUUID(servant);
     return ICE_UNCHECKED_CAST(Test::RemoteCommunicatorPrx, proxy);

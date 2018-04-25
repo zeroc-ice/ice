@@ -1,14 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#ifndef ICE_GRID_API_EXPORTS
-#   define ICE_GRID_API_EXPORTS
+#ifndef ICEGRID_API_EXPORTS
+#   define ICEGRID_API_EXPORTS
 #endif
 
 #include <IceGrid/IceGrid.h>
@@ -28,7 +28,7 @@ RegistryPluginFacade* pluginFacade = 0;
 namespace IceGrid
 {
 
-ICE_GRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
+ICEGRID_API void setRegistryPluginFacade(const RegistryPluginFacadePtr&);
 
 };
 

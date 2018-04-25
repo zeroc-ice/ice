@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -121,7 +121,10 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
          Test::s10 == literals[10] &&
          Test::s10 == literals[21]);
 
-    test(Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v" &&
+    test(Test::s11 == "\xe2\x82\xac\xe2\x82\xac\xe2\x82\xac");
+    test(Test::s12 == "\\101");
+
+    test(Test::ss0 == "\'\"\?\\\a\b\f\n\r\t\v\006" &&
          Test::ss0 == Test::ss1 &&
          Test::ss0 == Test::ss2 &&
          Test::ss0 == literals[22] &&
@@ -203,7 +206,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
          Test::ws10 == wliterals[10] &&
          Test::ws10 == wliterals[21]);
 
-    test(Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v" &&
+    test(Test::wss0 == L"\'\"\?\\\a\b\f\n\r\t\v\006" &&
          Test::wss0 == Test::wss1 &&
          Test::wss0 == Test::wss2 &&
          Test::wss0 == wliterals[22] &&
@@ -230,11 +233,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
     }
 
     {
-#ifdef ICE_CPP11_MAPPING
-        test(Test::MyClassPrx::ice_staticId() == Test::MyClassDisp::ice_staticId());
-#else
         test(Test::MyClassPrx::ice_staticId() == Test::MyClass::ice_staticId());
-#endif
         test(Ice::ObjectPrx::ice_staticId() == Ice::Object::ice_staticId());
     }
 
@@ -371,7 +370,6 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
         test(Ice::proxyIdentityAndFacetEqual(r, p));
         r->opVoid();
     }
-
 
     {
         Test::Structure si1;
@@ -1735,7 +1733,6 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
             test(r == ctx);
         }
 
-#ifndef ICE_OS_WINRT
         if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
         {
             //
@@ -1800,8 +1797,7 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
                 ic->destroy();
             }
         }
-#endif
-        }
+    }
 
     {
         Ice::Double d = 1278312346.0 / 13.0;

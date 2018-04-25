@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,10 +35,10 @@ class ReplicaCache;
 class NodeEntry : private IceUtil::Monitor<IceUtil::RecMutex>
 {
 public:
-    
+
     NodeEntry(NodeCache&, const std::string&);
     virtual ~NodeEntry();
-    
+
     void addDescriptor(const std::string&, const NodeDescriptor&);
     void removeDescriptor(const std::string&);
 
@@ -55,13 +55,13 @@ public:
     Ice::ObjectPrx getAdminProxy() const;
 
     bool canRemove();
-    
+
     void loadServer(const ServerEntryPtr&, const ServerInfo&, const SessionIPtr&, int, bool);
     void destroyServer(const ServerEntryPtr&, const ServerInfo&, int, bool);
 
     ServerInfo getServerInfo(const ServerInfo&, const SessionIPtr&);
     InternalServerDescriptorPtr getInternalServerDescriptor(const ServerInfo&, const SessionIPtr&);
-    
+
     void __incRef();
     void __decRef();
 
@@ -71,7 +71,7 @@ public:
     void finishedRegistration(const Ice::Exception&);
 
 private:
-    
+
     ServerDescriptorPtr getServerDescriptor(const ServerInfo&, const SessionIPtr&);
     InternalServerDescriptorPtr getInternalServerDescriptor(const ServerInfo&) const;
 
@@ -101,7 +101,7 @@ public:
     ReplicaCache& getReplicaCache() const { return _replicaCache; }
 
 private:
-    
+
     const Ice::CommunicatorPtr _communicator;
     const std::string _replicaName;
     ReplicaCache& _replicaCache;

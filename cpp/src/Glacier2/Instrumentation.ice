@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["ice-prefix", "cpp:header-ext:h"]]
 
 #include <Ice/Instrumentation.ice>
 
@@ -53,12 +53,12 @@ local interface SessionObserver extends Ice::Instrumentation::Observer
     /**
      *
      * Notification of a routing table size change.
-     * 
+     *
      * @param delta The size adjustement.
      *
      **/
     void routingTableSize(int delta);
-};
+}
 
 /**
  *
@@ -81,10 +81,10 @@ local interface ObserverUpdater
      * each sesssion RouterObserver::getSessionObserver is
      * called. The implementation of getSessionObserver has the
      * possibility to return an updated observer if necessary.
-     * 
+     *
      **/
     void updateSessionObservers();
-};
+}
 
 /**
  *
@@ -123,9 +123,8 @@ local interface RouterObserver
      *
      **/
     void setObserverUpdater(ObserverUpdater updater);
-};
+}
 
-};
-    
-};
+}
 
+}

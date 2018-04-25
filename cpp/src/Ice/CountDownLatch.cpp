@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ IceUtilInternal::CountDownLatch::CountDownLatch(int count) :
     }
 
 #ifdef _WIN32
-#   ifndef ICE_OS_WINRT
+#   ifndef ICE_OS_UWP
     _event = CreateEvent(0, TRUE, FALSE, 0);
 #   else
     _event = CreateEventExW(0, 0,  CREATE_EVENT_MANUAL_RESET, SEMAPHORE_ALL_ACCESS);
@@ -66,7 +66,7 @@ IceUtilInternal::CountDownLatch::await() const
 #ifdef _WIN32
     while(InterlockedExchangeAdd(&_count, 0) > 0)
     {
-#   ifndef ICE_OS_WINRT
+#   ifndef ICE_OS_UWP
         DWORD rc = WaitForSingleObject(_event, INFINITE);
 #   else
         DWORD rc = WaitForSingleObjectEx(_event, INFINITE, false);
@@ -115,7 +115,7 @@ IceUtilInternal::CountDownLatch::countDown()
     }
 #if defined(__APPLE__)
     //
-    // On OS X we do the broadcast with the mutex held. This seems to
+    // On macOS we do the broadcast with the mutex held. This seems to
     // be necessary to prevent the broadcast call to hang (spinning in
     // an infinite loop).
     //

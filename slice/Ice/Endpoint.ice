@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
 
 #include <Ice/Version.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -91,6 +91,7 @@ const short iAPSEndpointType = 9;
  * Base class providing access to the endpoint details.
  *
  **/
+["php:internal", "matlab:internal"]
 local class EndpointInfo
 {
     /**
@@ -121,30 +122,36 @@ local class EndpointInfo
      *
      * Returns the type of the endpoint.
      *
+     * @return The endpoint type.
+     *
      **/
-    ["cpp:const"] short type();
+    ["cpp:const", "cpp:noexcept"] short type();
 
     /**
      *
      * Returns true if this endpoint is a datagram endpoint.
      *
+     * @return True for a datagram endpoint.
+     *
      **/
-    ["cpp:const"] bool datagram();
+    ["cpp:const", "cpp:noexcept"] bool datagram();
 
     /**
      *
      * Returns true if this endpoint is a secure endpoint.
      *
+     * @return True for a secure endpoint.
+     *
      **/
-    ["cpp:const"] bool secure();
-};
+    ["cpp:const", "cpp:noexcept"] bool secure();
+}
 
 /**
  *
  * The user-level interface to an endpoint.
  *
  **/
-["cpp:comparable"]
+["cpp:comparable", "php:internal", "matlab:internal"]
 local interface Endpoint
 {
     /**
@@ -154,7 +161,7 @@ local interface Endpoint
      * @return The string representation of the endpoint.
      *
      **/
-    ["cpp:const"] string toString();
+    ["cpp:const", "cpp:noexcept"] string toString();
 
     /**
      *
@@ -163,8 +170,8 @@ local interface Endpoint
      * @return The endpoint information class.
      *
      **/
-    ["cpp:const"] EndpointInfo getInfo();
-};
+    ["cpp:const", "cpp:noexcept"] EndpointInfo getInfo();
+}
 
 /**
  *
@@ -173,6 +180,7 @@ local interface Endpoint
  * @see Endpoint
  *
  **/
+["php:internal", "matlab:internal"]
 local class IPEndpointInfo extends EndpointInfo
 {
     /**
@@ -195,7 +203,7 @@ local class IPEndpointInfo extends EndpointInfo
      *
      */
     string sourceAddress;
-};
+}
 
 /**
  *
@@ -204,9 +212,10 @@ local class IPEndpointInfo extends EndpointInfo
  * @see Endpoint
  *
  **/
+["php:internal", "matlab:internal"]
 local class TCPEndpointInfo extends IPEndpointInfo
 {
-};
+}
 
 /**
  *
@@ -215,6 +224,7 @@ local class TCPEndpointInfo extends IPEndpointInfo
  * @see Endpoint
  *
  **/
+["php:internal", "matlab:internal"]
 local class UDPEndpointInfo extends IPEndpointInfo
 {
     /**
@@ -230,13 +240,14 @@ local class UDPEndpointInfo extends IPEndpointInfo
      *
      **/
      int mcastTtl;
-};
+}
 
 /**
  *
  * Provides access to a WebSocket endpoint information.
  *
  **/
+["php:internal", "matlab:internal"]
 local class WSEndpointInfo extends EndpointInfo
 {
     /**
@@ -245,7 +256,7 @@ local class WSEndpointInfo extends EndpointInfo
      *
      **/
     string resource;
-};
+}
 
 /**
  *
@@ -254,6 +265,7 @@ local class WSEndpointInfo extends EndpointInfo
  * @see Endpoint
  *
  **/
+["php:internal", "matlab:internal"]
 local class OpaqueEndpointInfo extends EndpointInfo
 {
     /**
@@ -262,14 +274,14 @@ local class OpaqueEndpointInfo extends EndpointInfo
      * encode the rawBytes).
      *
      **/
-    Ice::EncodingVersion rawEncoding;
+    EncodingVersion rawEncoding;
 
     /**
      *
      * The raw encoding of the opaque endpoint.
      *
      **/
-    Ice::ByteSeq rawBytes;
-};
+    ByteSeq rawBytes;
+}
 
-};
+}

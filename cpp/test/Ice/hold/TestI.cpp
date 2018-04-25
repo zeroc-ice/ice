@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -52,7 +52,7 @@ HoldI::waitForHold(const Ice::Current& current)
         {
         }
 
-        void 
+        void
         runTimerTask()
         {
             try
@@ -63,7 +63,7 @@ HoldI::waitForHold(const Ice::Current& current)
             catch(const Ice::ObjectAdapterDeactivatedException&)
             {
                 //
-                // This shouldn't occur. The test ensures all the waitForHold timers are 
+                // This shouldn't occur. The test ensures all the waitForHold timers are
                 // finished before shutting down the communicator.
                 //
                 test(false);
@@ -71,7 +71,7 @@ HoldI::waitForHold(const Ice::Current& current)
         }
 
     private:
-        
+
         const Ice::ObjectAdapterPtr _adapter;
     };
 

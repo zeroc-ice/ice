@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,6 +13,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
+using System.ComponentModel;
 
 using IceUtilInternal;
 using IceInternal;
@@ -21,21 +22,21 @@ namespace Ice
 {
     /// <summary>
     /// Delegate for a successful <code>ice_isA</code> invocation.
-    /// <param name="ret__">True if the remote object supports the type, false otherwise.</param>
+    /// <param name="ret">True if the remote object supports the type, false otherwise.</param>
     /// </summary>
-    public delegate void Callback_Object_ice_isA(bool ret__);
+    public delegate void Callback_Object_ice_isA(bool ret);
 
     /// <summary>
     /// Delegate for a successful <code>ice_ids</code> invocation.
-    /// <param name="ret__">The array of Slice type ids supported by the remote object.</param>
+    /// <param name="ret">The array of Slice type ids supported by the remote object.</param>
     /// </summary>
-    public delegate void Callback_Object_ice_ids(string[] ret__);
+    public delegate void Callback_Object_ice_ids(string[] ret);
 
     /// <summary>
     /// Delegate for a successful <code>ice_id</code> invocation.
-    /// <param name="ret__">The Slice type id of the most-derived interface supported by the remote object.</param>
+    /// <param name="ret">The Slice type id of the most-derived interface supported by the remote object.</param>
     /// </summary>
-    public delegate void Callback_Object_ice_id(string ret__);
+    public delegate void Callback_Object_ice_id(string ret);
 
     /// <summary>
     /// Delegate for a successful <code>ice_ping</code> invocation.
@@ -44,17 +45,17 @@ namespace Ice
 
     /// <summary>
     /// Delegate for a successful <code>ice_invoke</code> invocation.
-    /// <param name="ret__">True if the invocation succeeded, or false if the invocation
+    /// <param name="ret">True if the invocation succeeded, or false if the invocation
     /// raised a user exception.</param>
     /// <param name="outEncaps">The encoded out-parameters or user exception.</param>
     /// </summary>
-    public delegate void Callback_Object_ice_invoke(bool ret__, byte[] outEncaps);
+    public delegate void Callback_Object_ice_invoke(bool ret, byte[] outEncaps);
 
     /// <summary>
     /// Delegate for a successful <code>ice_getConnection</code> invocation.
-    /// <param name="ret__">The connection used by the proxy.</param>
+    /// <param name="ret">The connection used by the proxy.</param>
     /// </summary>
-    public delegate void Callback_Object_ice_getConnection(Connection ret__);
+    public delegate void Callback_Object_ice_getConnection(Connection ret);
 
     /// <summary>
     /// Value type to allow differenciate between a context that is explicity set to
@@ -667,11 +668,25 @@ namespace Ice
         ObjectPrx ice_compress(bool co);
 
         /// <summary>
+        /// Obtains the compression override setting of this proxy.
+        /// </summary>
+        /// <returns>The compression override setting. If no optional value is present, no override is
+        /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
+        Ice.Optional<bool> ice_getCompress();
+
+        /// <summary>
         /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
         /// </summary>
         /// <param name="t">The timeout for the new proxy in milliseconds.</param>
         /// <returns>A new proxy with the specified timeout.</returns>
         ObjectPrx ice_timeout(int t);
+
+        /// <summary>
+        /// Obtains the timeout override of this proxy.
+        /// </summary>
+        /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
+        /// returns the timeout override value.</returns>
+        Ice.Optional<int> ice_getTimeout();
 
         /// <summary>
         /// Creates a new proxy that is identical to this proxy, except for its connection ID.
@@ -686,6 +701,14 @@ namespace Ice
         /// </summary>
         /// <returns>The connection id.</returns>
         string ice_getConnectionId();
+
+        /// <summary>
+        /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+        /// the given connection.
+        /// </summary>
+        /// <param name="connection">The fixed proxy connection.</param>
+        /// <returns>A fixed proxy bound to the given connection.</returns>
+        ObjectPrx ice_fixed(Ice.Connection connection);
 
         /// <summary>
         /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
@@ -767,7 +790,14 @@ namespace Ice
         /// Write a proxy to the output stream.
         /// </summary>
         /// <param name="os">Output stream object to write the proxy.</param>
-        void write__(OutputStream os);
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        void iceWrite(OutputStream os);
+
+        /// <summary>
+        /// Returns a scheduler object that uses the Ice thread pool.
+        /// </summary>
+        /// <returns>The task scheduler object.</returns>
+        System.Threading.Tasks.TaskScheduler ice_scheduler();
     }
 
     /// <summary>
@@ -872,7 +902,7 @@ namespace Ice
         {
             try
             {
-                return ice_isAAsync(id, context, null, CancellationToken.None, true).Result;
+                return iceI_ice_isAAsync(id, context, null, CancellationToken.None, true).Result;
             }
             catch(AggregateException ex)
             {
@@ -893,15 +923,16 @@ namespace Ice
                                        IProgress<bool> progress = null,
                                        CancellationToken cancel = new CancellationToken())
         {
-            return ice_isAAsync(id, context, progress, cancel, false);
+            return iceI_ice_isAAsync(id, context, progress, cancel, false);
         }
 
         private Task<bool>
-        ice_isAAsync(string id, OptionalContext context, IProgress<bool> progress, CancellationToken cancel,
-                     bool synchronous)
+        iceI_ice_isAAsync(string id, OptionalContext context, IProgress<bool> progress, CancellationToken cancel,
+                          bool synchronous)
         {
+            iceCheckTwowayOnly(_ice_isA_name);
             var completed = new OperationTaskCompletionCallback<bool>(progress, cancel);
-            ice_isA_invoke__(id, context, completed, synchronous);
+            iceI_ice_isA(id, context, completed, synchronous);
             return completed.Task;
         }
 
@@ -914,7 +945,7 @@ namespace Ice
         /// <returns>An asynchronous result object.</returns>
         public AsyncResult begin_ice_isA(string id, AsyncCallback callback, object cookie)
         {
-            return begin_ice_isA(id, new OptionalContext(), callback, cookie, false);
+            return iceI_begin_ice_isA(id, new OptionalContext(), callback, cookie, false);
         }
 
         /// <summary>
@@ -927,7 +958,7 @@ namespace Ice
         /// <returns>An asynchronous result object.</returns>
         public AsyncResult begin_ice_isA(string id, OptionalContext context, AsyncCallback callback, object cookie)
         {
-            return begin_ice_isA(id, context, callback, cookie, false);
+            return iceI_begin_ice_isA(id, context, callback, cookie, false);
         }
 
         /// <summary>
@@ -939,10 +970,10 @@ namespace Ice
         public AsyncResult<Callback_Object_ice_isA>
         begin_ice_isA(string id, OptionalContext context = new OptionalContext())
         {
-            return begin_ice_isA(id, context, null, null, false);
+            return iceI_begin_ice_isA(id, context, null, null, false);
         }
 
-        internal const string __ice_isA_name = "ice_isA";
+        private const string _ice_isA_name = "ice_isA";
 
         /// <summary>
         /// Tests whether this object supports a specific Slice interface.
@@ -951,14 +982,15 @@ namespace Ice
         /// <returns>True if the object supports the Slice interface, false otherwise.</returns>
         public bool end_ice_isA(AsyncResult result)
         {
-            var resultI = AsyncResultI.check(result, this, __ice_isA_name);
-            return ((OutgoingAsyncT<bool>)resultI.OutgoingAsync).result__(resultI.wait());
+            var resultI = AsyncResultI.check(result, this, _ice_isA_name);
+            return ((OutgoingAsyncT<bool>)resultI.OutgoingAsync).getResult(resultI.wait());
         }
 
         private AsyncResult<Callback_Object_ice_isA>
-        begin_ice_isA(string id, Dictionary<string, string> context, AsyncCallback callback, object cookie,
-                      bool synchronous)
+        iceI_begin_ice_isA(string id, Dictionary<string, string> context, AsyncCallback callback, object cookie,
+                           bool synchronous)
         {
+            iceCheckAsyncTwowayOnly(_ice_isA_name);
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_isA, bool>(
                 (Callback_Object_ice_isA cb, bool result) =>
                 {
@@ -966,18 +998,18 @@ namespace Ice
                     {
                         cb.Invoke(result);
                     }
-                }, this, __ice_isA_name, cookie, callback);
-            ice_isA_invoke__(id, context, completed, synchronous);
+                }, this, _ice_isA_name, cookie, callback);
+            iceI_ice_isA(id, context, completed, synchronous);
             return completed;
         }
 
-        private void ice_isA_invoke__(string id,
-                                      Dictionary<string, string> context,
-                                      OutgoingAsyncCompletionCallback completed,
-                                      bool synchronous)
+        private void iceI_ice_isA(string id,
+                                  Dictionary<string, string> context,
+                                  OutgoingAsyncCompletionCallback completed,
+                                  bool synchronous)
         {
-            checkAsyncTwowayOnly__(__ice_isA_name);
-            getOutgoingAsync<bool>(completed).invoke(__ice_isA_name,
+            iceCheckAsyncTwowayOnly(_ice_isA_name);
+            getOutgoingAsync<bool>(completed).invoke(_ice_isA_name,
                                                      OperationMode.Nonmutating,
                                                      FormatType.DefaultFormat,
                                                      context,
@@ -995,7 +1027,7 @@ namespace Ice
         {
             try
             {
-                ice_pingAsync(context, null, CancellationToken.None, true).Wait();
+                iceI_ice_pingAsync(context, null, CancellationToken.None, true).Wait();
             }
             catch(AggregateException ex)
             {
@@ -1014,14 +1046,14 @@ namespace Ice
                                   IProgress<bool> progress = null,
                                   CancellationToken cancel = new CancellationToken())
         {
-            return ice_pingAsync(context, progress, cancel, false);
+            return iceI_ice_pingAsync(context, progress, cancel, false);
         }
 
         private Task
-        ice_pingAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
+        iceI_ice_pingAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
         {
             var completed = new OperationTaskCompletionCallback<object>(progress, cancel);
-            ice_ping_invoke__(context, completed, synchronous);
+            iceI_ice_ping(context, completed, synchronous);
             return completed.Task;
         }
 
@@ -1033,7 +1065,7 @@ namespace Ice
         /// <returns>An asynchronous result object.</returns>
         public AsyncResult begin_ice_ping(AsyncCallback callback, object cookie)
         {
-            return begin_ice_ping(new OptionalContext(), callback, cookie, false);
+            return iceI_begin_ice_ping(new OptionalContext(), callback, cookie, false);
         }
 
         /// <summary>
@@ -1045,7 +1077,7 @@ namespace Ice
         /// <returns>An asynchronous result object.</returns>
         public AsyncResult begin_ice_ping(OptionalContext context, AsyncCallback callback, object cookie)
         {
-            return begin_ice_ping(context, callback, cookie, false);
+            return iceI_begin_ice_ping(context, callback, cookie, false);
         }
 
         /// <summary>
@@ -1056,10 +1088,10 @@ namespace Ice
         public AsyncResult<Callback_Object_ice_ping>
         begin_ice_ping(OptionalContext context = new OptionalContext())
         {
-            return begin_ice_ping(context, null, null, false);
+            return iceI_begin_ice_ping(context, null, null, false);
         }
 
-        internal const string __ice_ping_name = "ice_ping";
+        private const string _ice_ping_name = "ice_ping";
 
         /// <summary>
         /// Tests whether the target object of this proxy can be reached.
@@ -1067,14 +1099,14 @@ namespace Ice
         /// <param name="result">The asynchronous result object returned by <code>begin_ice_ping</code>.</param>
         public void end_ice_ping(AsyncResult result)
         {
-            var resultI = AsyncResultI.check(result, this, __ice_ping_name);
-            ((OutgoingAsyncT<object>)resultI.OutgoingAsync).result__(resultI.wait());
+            var resultI = AsyncResultI.check(result, this, _ice_ping_name);
+            ((OutgoingAsyncT<object>)resultI.OutgoingAsync).getResult(resultI.wait());
         }
 
-        private AsyncResult<Callback_Object_ice_ping> begin_ice_ping(Dictionary<string, string> context,
-                                                                     AsyncCallback callback,
-                                                                     object cookie,
-                                                                     bool synchronous)
+        private AsyncResult<Callback_Object_ice_ping> iceI_begin_ice_ping(Dictionary<string, string> context,
+                                                                          AsyncCallback callback,
+                                                                          object cookie,
+                                                                          bool synchronous)
         {
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_ping, object>(
                 (Callback_Object_ice_ping cb, object result) =>
@@ -1083,15 +1115,15 @@ namespace Ice
                     {
                         cb.Invoke();
                     }
-                }, this, __ice_ping_name, cookie, callback);
-            ice_ping_invoke__(context, completed, synchronous);
+                }, this, _ice_ping_name, cookie, callback);
+            iceI_ice_ping(context, completed, synchronous);
             return completed;
         }
 
-        private void ice_ping_invoke__(Dictionary<string, string> context, OutgoingAsyncCompletionCallback completed,
+        private void iceI_ice_ping(Dictionary<string, string> context, OutgoingAsyncCompletionCallback completed,
                                        bool synchronous)
         {
-            getOutgoingAsync<object>(completed).invoke(__ice_ping_name,
+            getOutgoingAsync<object>(completed).invoke(_ice_ping_name,
                                                        OperationMode.Nonmutating,
                                                        FormatType.DefaultFormat,
                                                        context,
@@ -1108,7 +1140,7 @@ namespace Ice
         {
             try
             {
-                return ice_idsAsync(context, null, CancellationToken.None, true).Result;
+                return iceI_ice_idsAsync(context, null, CancellationToken.None, true).Result;
             }
             catch(AggregateException ex)
             {
@@ -1128,14 +1160,15 @@ namespace Ice
                      IProgress<bool> progress = null,
                      CancellationToken cancel = new CancellationToken())
         {
-            return ice_idsAsync(context, progress, cancel, false);
+            return iceI_ice_idsAsync(context, progress, cancel, false);
         }
 
-        private Task<string[]> ice_idsAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel,
-                                            bool synchronous)
+        private Task<string[]> iceI_ice_idsAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel,
+                                                 bool synchronous)
         {
+            iceCheckTwowayOnly(_ice_ids_name);
             var completed = new OperationTaskCompletionCallback<string[]>(progress, cancel);
-            ice_ids_invoke__(context, completed, false);
+            iceI_ice_ids(context, completed, false);
             return completed.Task;
         }
 
@@ -1147,7 +1180,7 @@ namespace Ice
         /// <returns>An asynchronous result object.</returns>
         public AsyncResult begin_ice_ids(AsyncCallback callback, object cookie)
         {
-            return begin_ice_ids(new OptionalContext(), callback, cookie, false);
+            return iceI_begin_ice_ids(new OptionalContext(), callback, cookie, false);
         }
 
         /// <summary>
@@ -1160,20 +1193,21 @@ namespace Ice
         public AsyncResult
         begin_ice_ids(OptionalContext context, AsyncCallback callback, object cookie)
         {
-            return begin_ice_ids(context, callback, cookie, false);
+            return iceI_begin_ice_ids(context, callback, cookie, false);
         }
 
         public AsyncResult<Callback_Object_ice_ids>
         begin_ice_ids(OptionalContext context = new OptionalContext())
         {
-            return begin_ice_ids(context, null, null, false);
+            return iceI_begin_ice_ids(context, null, null, false);
         }
 
-        internal const string __ice_ids_name = "ice_ids";
+        private const string _ice_ids_name = "ice_ids";
 
         private AsyncResult<Callback_Object_ice_ids>
-        begin_ice_ids(Dictionary<string, string> context, AsyncCallback callback, object cookie, bool synchronous)
+        iceI_begin_ice_ids(Dictionary<string, string> context, AsyncCallback callback, object cookie, bool synchronous)
         {
+            iceCheckAsyncTwowayOnly(_ice_ids_name);
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_ids, string[]>(
                 (Callback_Object_ice_ids cb, string[] result) =>
                 {
@@ -1181,8 +1215,8 @@ namespace Ice
                     {
                         cb.Invoke(result);
                     }
-                }, this, __ice_ids_name, cookie, callback);
-            ice_ids_invoke__(context, completed, synchronous);
+                }, this, _ice_ids_name, cookie, callback);
+            iceI_ice_ids(context, completed, synchronous);
             return completed;
         }
 
@@ -1194,15 +1228,15 @@ namespace Ice
         /// order. The first element of the returned array is always ::Ice::Object.</returns>
         public string[] end_ice_ids(AsyncResult result)
         {
-            var resultI = AsyncResultI.check(result, this, __ice_ids_name);
-            return ((OutgoingAsyncT<string[]>)resultI.OutgoingAsync).result__(resultI.wait());
+            var resultI = AsyncResultI.check(result, this, _ice_ids_name);
+            return ((OutgoingAsyncT<string[]>)resultI.OutgoingAsync).getResult(resultI.wait());
         }
 
-        private void ice_ids_invoke__(Dictionary<string, string> context, OutgoingAsyncCompletionCallback completed,
-                                      bool synchronous)
+        private void iceI_ice_ids(Dictionary<string, string> context, OutgoingAsyncCompletionCallback completed,
+                                  bool synchronous)
         {
-            checkAsyncTwowayOnly__(__ice_ids_name);
-            getOutgoingAsync<string[]>(completed).invoke(__ice_ids_name,
+            iceCheckAsyncTwowayOnly(_ice_ids_name);
+            getOutgoingAsync<string[]>(completed).invoke(_ice_ids_name,
                                                          OperationMode.Nonmutating,
                                                          FormatType.DefaultFormat,
                                                          context,
@@ -1218,7 +1252,7 @@ namespace Ice
         {
             try
             {
-                return ice_idAsync(context, null, CancellationToken.None, true).Result;
+                return iceI_ice_idAsync(context, null, CancellationToken.None, true).Result;
             }
             catch(AggregateException ex)
             {
@@ -1237,14 +1271,15 @@ namespace Ice
                                         IProgress<bool> progress = null,
                                         CancellationToken cancel = new CancellationToken())
         {
-            return ice_idAsync(context, progress, cancel, false);
+            return iceI_ice_idAsync(context, progress, cancel, false);
         }
 
         private Task<string>
-        ice_idAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
+        iceI_ice_idAsync(OptionalContext context, IProgress<bool> progress, CancellationToken cancel, bool synchronous)
         {
+            iceCheckTwowayOnly(_ice_id_name);
             var completed = new OperationTaskCompletionCallback<string>(progress, cancel);
-            ice_id_invoke__(context, completed, synchronous);
+            iceI_ice_id(context, completed, synchronous);
             return completed.Task;
         }
 
@@ -1256,7 +1291,7 @@ namespace Ice
         /// <returns>An asynchronous result object.</returns>
         public AsyncResult begin_ice_id(AsyncCallback callback, object cookie)
         {
-            return begin_ice_id(new OptionalContext(), callback, cookie, false);
+            return iceI_begin_ice_id(new OptionalContext(), callback, cookie, false);
         }
 
         /// <summary>
@@ -1269,7 +1304,7 @@ namespace Ice
         public AsyncResult
         begin_ice_id(OptionalContext context, AsyncCallback callback, object cookie)
         {
-            return begin_ice_id(context, callback, cookie, false);
+            return iceI_begin_ice_id(context, callback, cookie, false);
         }
 
         /// <summary>
@@ -1280,14 +1315,15 @@ namespace Ice
         public AsyncResult<Callback_Object_ice_id>
         begin_ice_id(OptionalContext context = new OptionalContext())
         {
-            return begin_ice_id(context, null, null, false);
+            return iceI_begin_ice_id(context, null, null, false);
         }
 
-        internal const string __ice_id_name = "ice_id";
+        private const string _ice_id_name = "ice_id";
 
         private AsyncResult<Callback_Object_ice_id>
-        begin_ice_id(Dictionary<string, string> context, AsyncCallback callback, object cookie, bool synchronous)
+        iceI_begin_ice_id(Dictionary<string, string> context, AsyncCallback callback, object cookie, bool synchronous)
         {
+            iceCheckAsyncTwowayOnly(_ice_id_name);
             var completed = new OperationAsyncResultCompletionCallback<Callback_Object_ice_id, string>(
                 (Callback_Object_ice_id cb, string result) =>
                 {
@@ -1295,8 +1331,8 @@ namespace Ice
                     {
                         cb.Invoke(result);
                     }
-                }, this, __ice_id_name, cookie, callback);
-            ice_id_invoke__(context, completed, synchronous);
+                }, this, _ice_id_name, cookie, callback);
+            iceI_ice_id(context, completed, synchronous);
             return completed;
         }
 
@@ -1307,16 +1343,15 @@ namespace Ice
         /// <returns>The Slice type ID of the most-derived interface.</returns>
         public string end_ice_id(AsyncResult result)
         {
-            var resultI = AsyncResultI.check(result, this, __ice_id_name);
-            return ((OutgoingAsyncT<string>)resultI.OutgoingAsync).result__(resultI.wait());
+            var resultI = AsyncResultI.check(result, this, _ice_id_name);
+            return ((OutgoingAsyncT<string>)resultI.OutgoingAsync).getResult(resultI.wait());
         }
 
-        private void ice_id_invoke__(Dictionary<string, string> context,
-                                     OutgoingAsyncCompletionCallback completed,
-                                     bool synchronous)
+        private void iceI_ice_id(Dictionary<string, string> context,
+                                 OutgoingAsyncCompletionCallback completed,
+                                 bool synchronous)
         {
-            checkAsyncTwowayOnly__(__ice_id_name);
-            getOutgoingAsync<string>(completed).invoke(__ice_id_name,
+            getOutgoingAsync<string>(completed).invoke(_ice_id_name,
                                                        OperationMode.Nonmutating,
                                                        FormatType.DefaultFormat,
                                                        context,
@@ -1346,7 +1381,7 @@ namespace Ice
         {
             try
             {
-                var result = ice_invokeAsync(operation, mode, inEncaps, context, null, CancellationToken.None, true).Result;
+                var result = iceI_ice_invokeAsync(operation, mode, inEncaps, context, null, CancellationToken.None, true).Result;
                 outEncaps = result.outEncaps;
                 return result.returnValue;
             }
@@ -1374,20 +1409,20 @@ namespace Ice
                         IProgress<bool> progress = null,
                         CancellationToken cancel = new CancellationToken())
         {
-            return ice_invokeAsync(operation, mode, inEncaps, context, progress, cancel, false);
+            return iceI_ice_invokeAsync(operation, mode, inEncaps, context, progress, cancel, false);
         }
 
         private Task<Object_Ice_invokeResult>
-        ice_invokeAsync(string operation,
-                        OperationMode mode,
-                        byte[] inEncaps,
-                        OptionalContext context,
-                        IProgress<bool> progress,
-                        CancellationToken cancel,
-                        bool synchronous)
+        iceI_ice_invokeAsync(string operation,
+                             OperationMode mode,
+                             byte[] inEncaps,
+                             OptionalContext context,
+                             IProgress<bool> progress,
+                             CancellationToken cancel,
+                             bool synchronous)
         {
             var completed = new InvokeTaskCompletionCallback(progress, cancel);
-            ice_invoke_invoke__(operation, mode, inEncaps, context, completed, synchronous);
+            iceI_ice_invoke(operation, mode, inEncaps, context, completed, synchronous);
             return completed.Task;
         }
 
@@ -1407,7 +1442,7 @@ namespace Ice
                          AsyncCallback callback,
                          object cookie)
         {
-            return begin_ice_invoke(operation, mode, inEncaps, new OptionalContext(), callback, cookie, false);
+            return iceI_begin_ice_invoke(operation, mode, inEncaps, new OptionalContext(), callback, cookie, false);
         }
 
         /// <summary>
@@ -1428,7 +1463,7 @@ namespace Ice
                          AsyncCallback callback,
                          object cookie)
         {
-            return begin_ice_invoke(operation, mode, inEncaps, context, callback, cookie, false);
+            return iceI_begin_ice_invoke(operation, mode, inEncaps, context, callback, cookie, false);
         }
 
         /// <summary>
@@ -1445,10 +1480,10 @@ namespace Ice
                          byte[] inEncaps,
                          OptionalContext context = new OptionalContext())
         {
-            return begin_ice_invoke(operation, mode, inEncaps, context, null, null, false);
+            return iceI_begin_ice_invoke(operation, mode, inEncaps, context, null, null, false);
         }
 
-        internal const string __ice_invoke_name = "ice_invoke";
+        private const string _ice_invoke_name = "ice_invoke";
 
         /// <summary>
         /// Completes a dynamic invocation.
@@ -1462,32 +1497,32 @@ namespace Ice
         /// it throws it directly.</returns>
         public bool end_ice_invoke(out byte[] outEncaps, AsyncResult result)
         {
-            var resultI = AsyncResultI.check(result, this, __ice_invoke_name);
-            var r = ((InvokeOutgoingAsyncT)resultI.OutgoingAsync).result__(resultI.wait());
+            var resultI = AsyncResultI.check(result, this, _ice_invoke_name);
+            var r = ((InvokeOutgoingAsyncT)resultI.OutgoingAsync).getResult(resultI.wait());
             outEncaps = r.outEncaps;
             return r.returnValue;
         }
 
         private AsyncResult<Callback_Object_ice_invoke>
-        begin_ice_invoke(string operation,
-                         OperationMode mode,
-                         byte[] inEncaps,
-                         Dictionary<string, string> context,
-                         AsyncCallback callback,
-                         object cookie,
-                         bool synchronous)
+        iceI_begin_ice_invoke(string operation,
+                              OperationMode mode,
+                              byte[] inEncaps,
+                              Dictionary<string, string> context,
+                              AsyncCallback callback,
+                              object cookie,
+                              bool synchronous)
         {
-            var completed = new InvokeAsyncResultCompletionCallback(this, __ice_invoke_name, cookie, callback);
-            ice_invoke_invoke__(operation, mode, inEncaps, context, completed, synchronous);
+            var completed = new InvokeAsyncResultCompletionCallback(this, _ice_invoke_name, cookie, callback);
+            iceI_ice_invoke(operation, mode, inEncaps, context, completed, synchronous);
             return completed;
         }
 
-        private void ice_invoke_invoke__(string operation,
-                                         OperationMode mode,
-                                         byte[] inEncaps,
-                                         Dictionary<string, string> context,
-                                         OutgoingAsyncCompletionCallback completed,
-                                         bool synchronous)
+        private void iceI_ice_invoke(string operation,
+                                     OperationMode mode,
+                                     byte[] inEncaps,
+                                     Dictionary<string, string> context,
+                                     OutgoingAsyncCompletionCallback completed,
+                                     bool synchronous)
         {
             getInvokeOutgoingAsync(completed).invoke(operation, mode, inEncaps, context, synchronous);
         }
@@ -2060,6 +2095,16 @@ namespace Ice
         }
 
         /// <summary>
+        /// Obtains the compression override setting of this proxy.
+        /// </summary>
+        /// <returns>The compression override setting. If no optional value is present, no override is
+        /// set. Otherwise, true if compression is enabled, false otherwise.</returns>
+        public Ice.Optional<bool> ice_getCompress()
+        {
+            return _reference.getCompress();
+        }
+
+        /// <summary>
         /// Creates a new proxy that is identical to this proxy, except for its timeout setting.
         /// </summary>
         /// <param name="t">The timeout for the new proxy in milliseconds.</param>
@@ -2079,6 +2124,16 @@ namespace Ice
             {
                 return newInstance(@ref);
             }
+        }
+
+        /// <summary>
+        /// Obtains the timeout override of this proxy.
+        /// </summary>
+        /// <returns>The timeout override. If no optional value is present, no override is set. Otherwise,
+        /// returns the timeout override value.</returns>
+        public Ice.Optional<int> ice_getTimeout()
+        {
+            return _reference.getTimeout();
         }
 
         /// <summary>
@@ -2110,21 +2165,29 @@ namespace Ice
         }
 
         /// <summary>
-        /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
-        /// it first attempts to create a connection.
+        /// Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+        /// the given connection.
         /// </summary>
-        /// <returns>The Connection for this proxy.</returns>
-        /// <exception name="CollocationOptimizationException">If the proxy uses collocation optimization and denotes a
-        /// collocated object.</exception>
-        public Connection ice_getConnection()
+        /// <param name="connection">The fixed proxy connection.</param>
+        /// <returns>A fixed proxy bound to the given connection.</returns>
+        public ObjectPrx ice_fixed(Ice.Connection connection)
         {
-            try
+            if(connection == null)
             {
-                return ice_getConnectionAsync().Result;
+                throw new ArgumentException("invalid null connection passed to ice_fixed");
             }
-            catch(AggregateException ex)
+            if(!(connection is Ice.ConnectionI))
             {
-                throw ex.InnerException;
+                throw new ArgumentException("invalid connection passed to ice_fixed");
+            }
+            var @ref = _reference.changeConnection((Ice.ConnectionI)connection);
+            if(@ref.Equals(_reference))
+            {
+                return this;
+            }
+            else
+            {
+                return newInstance(@ref);
             }
         }
 
@@ -2163,71 +2226,84 @@ namespace Ice
         public class GetConnectionTaskCompletionCallback : TaskCompletionCallback<Connection>
         {
             public GetConnectionTaskCompletionCallback(ObjectPrx proxy,
-                                                       IProgress<bool> progress,
-                                                       CancellationToken cancellationToken) :
+                                                       IProgress<bool> progress = null,
+                                                       CancellationToken cancellationToken = new CancellationToken()) :
                 base(progress, cancellationToken)
             {
                 _proxy = proxy;
             }
 
-            public override bool handleResponse(bool ok, OutgoingAsyncBase og)
+            public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
             {
                 SetResult(((ProxyGetConnection)og).getConnection());
-                return false;
             }
 
             private ObjectPrx _proxy;
+        }
+
+        /// <summary>
+        /// Returns the Connection for this proxy. If the proxy does not yet have an established connection,
+        /// it first attempts to create a connection.
+        /// </summary>
+        /// <returns>The Connection for this proxy.</returns>
+        /// <exception name="CollocationOptimizationException">If the proxy uses collocation optimization and denotes a
+        /// collocated object.</exception>
+        public Connection ice_getConnection()
+        {
+            try
+            {
+                var completed = new GetConnectionTaskCompletionCallback(this);
+                iceI_ice_getConnection(completed, true);
+                return completed.Task.Result;
+            }
+            catch(AggregateException ex)
+            {
+                throw ex.InnerException;
+            }
         }
 
         public Task<Connection> ice_getConnectionAsync(IProgress<bool> progress = null,
                                                        CancellationToken cancel = new CancellationToken())
         {
             var completed = new GetConnectionTaskCompletionCallback(this, progress, cancel);
-            var outgoing = new ProxyGetConnection(this, completed);
-            try
-            {
-                outgoing.invoke(__ice_getConnection_name);
-            }
-            catch(Exception ex)
-            {
-                outgoing.abort(ex);
-            }
+            iceI_ice_getConnection(completed, false);
             return completed.Task;
         }
 
         public AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnection()
         {
-            return begin_ice_getConnectionInternal(null, null);
+            var completed = new ProxyGetConnectionAsyncCallback(this, _ice_getConnection_name, null, null);
+            iceI_ice_getConnection(completed, false);
+            return completed;
         }
 
-        internal const string __ice_getConnection_name = "ice_getConnection";
+        private const string _ice_getConnection_name = "ice_getConnection";
 
         public AsyncResult begin_ice_getConnection(AsyncCallback cb, object cookie)
         {
-            return begin_ice_getConnectionInternal(cb, cookie);
+            var completed = new ProxyGetConnectionAsyncCallback(this, _ice_getConnection_name, cookie, cb);
+            iceI_ice_getConnection(completed, false);
+            return completed;
         }
 
         public Connection end_ice_getConnection(AsyncResult r)
         {
-            var resultI = AsyncResultI.check(r, this, __ice_getConnection_name);
+            var resultI = AsyncResultI.check(r, this, _ice_getConnection_name);
             resultI.wait();
             return ((ProxyGetConnection)resultI.OutgoingAsync).getConnection();
         }
 
-        private AsyncResult<Callback_Object_ice_getConnection> begin_ice_getConnectionInternal(AsyncCallback callback,
-                                                                                               object cookie)
+        private void iceI_ice_getConnection(OutgoingAsyncCompletionCallback completed, bool synchronous)
         {
-            var completed = new ProxyGetConnectionAsyncCallback(this, __ice_getConnection_name, cookie, callback);
             var outgoing = new ProxyGetConnection(this, completed);
             try
             {
-                outgoing.invoke(__ice_getConnection_name);
+                outgoing.invoke(_ice_getConnection_name, synchronous);
             }
             catch(Exception ex)
             {
                 outgoing.abort(ex);
             }
-            return completed;
         }
 
         /// <summary>
@@ -2259,46 +2335,13 @@ namespace Ice
             return null;
         }
 
-        /// <summary>
-        /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
-        /// </summary>
-        public void ice_flushBatchRequests()
-        {
-            try
-            {
-                ice_flushBatchRequestsAsync().Wait();
-            }
-            catch(AggregateException ex)
-            {
-                throw ex.InnerException;
-            }
-        }
-
-        internal const string __ice_flushBatchRequests_name = "ice_flushBatchRequests";
-
-        public Task ice_flushBatchRequestsAsync(IProgress<bool> progress = null,
-                                                CancellationToken cancel = new CancellationToken())
-        {
-            var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
-            var outgoing = new ProxyFlushBatchAsync(this, completed);
-            try
-            {
-                outgoing.invoke(__ice_flushBatchRequests_name);
-            }
-            catch(Exception ex)
-            {
-                outgoing.abort(ex);
-            }
-            return completed.Task;
-        }
-
         private class ProxyFlushBatchRequestsAsyncCallback : AsyncResultCompletionCallback
         {
             public ProxyFlushBatchRequestsAsyncCallback(ObjectPrx proxy,
                                                         string operation,
                                                         object cookie,
                                                         AsyncCallback callback) :
-                base(proxy.ice_getCommunicator(), ((ObjectPrxHelperBase)proxy).reference__().getInstance(),
+                base(proxy.ice_getCommunicator(), ((ObjectPrxHelperBase)proxy).iceReference().getInstance(),
                      operation, cookie, callback)
             {
                 _proxy = proxy;
@@ -2330,25 +2373,62 @@ namespace Ice
             private ObjectPrx _proxy;
         }
 
-        public AsyncResult begin_ice_flushBatchRequests(AsyncCallback cb = null, object cookie = null)
+        /// <summary>
+        /// Flushes any pending batched requests for this communicator. The call blocks until the flush is complete.
+        /// </summary>
+        public void ice_flushBatchRequests()
         {
-            var completed = new ProxyFlushBatchRequestsAsyncCallback(this, __ice_flushBatchRequests_name, cookie, cb);
-            var outgoing = new ProxyFlushBatchAsync(this, completed);
             try
             {
-                outgoing.invoke(__ice_flushBatchRequests_name);
+                var completed = new FlushBatchTaskCompletionCallback();
+                iceI_ice_flushBatchRequests(completed, true);
+                completed.Task.Wait();
             }
-            catch(Exception ex)
+            catch(AggregateException ex)
             {
-                outgoing.abort(ex);
+                throw ex.InnerException;
             }
+        }
+
+        internal const string _ice_flushBatchRequests_name = "ice_flushBatchRequests";
+
+        public Task ice_flushBatchRequestsAsync(IProgress<bool> progress = null,
+                                                CancellationToken cancel = new CancellationToken())
+        {
+            var completed = new FlushBatchTaskCompletionCallback(progress, cancel);
+            iceI_ice_flushBatchRequests(completed, false);
+            return completed.Task;
+        }
+
+        public AsyncResult begin_ice_flushBatchRequests(AsyncCallback cb = null, object cookie = null)
+        {
+            var completed = new ProxyFlushBatchRequestsAsyncCallback(this, _ice_flushBatchRequests_name, cookie, cb);
+            iceI_ice_flushBatchRequests(completed, false);
             return completed;
         }
 
         public void end_ice_flushBatchRequests(AsyncResult r)
         {
-            var resultI = AsyncResultI.check(r, this, __ice_flushBatchRequests_name);
+            var resultI = AsyncResultI.check(r, this, _ice_flushBatchRequests_name);
             resultI.wait();
+        }
+
+        private void iceI_ice_flushBatchRequests(OutgoingAsyncCompletionCallback completed, bool synchronous)
+        {
+            var outgoing = new ProxyFlushBatchAsync(this, completed);
+            try
+            {
+                outgoing.invoke(_ice_flushBatchRequests_name, synchronous);
+            }
+            catch(Exception ex)
+            {
+                outgoing.abort(ex);
+            }
+        }
+
+        public System.Threading.Tasks.TaskScheduler ice_scheduler()
+        {
+            return _reference.getThreadPool();
         }
 
         /// <summary>
@@ -2399,18 +2479,21 @@ namespace Ice
             return !Equals(lhs, rhs);
         }
 
-        public void write__(OutputStream os)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void iceWrite(OutputStream os)
         {
-            _reference.getIdentity().write__(os);
+            _reference.getIdentity().ice_writeMembers(os);
             _reference.streamWrite(os);
         }
 
-        public Reference reference__()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public Reference iceReference()
         {
             return _reference;
         }
 
-        public void copyFrom__(ObjectPrx from)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void iceCopyFrom(ObjectPrx from)
         {
             lock(from)
             {
@@ -2420,10 +2503,11 @@ namespace Ice
             }
         }
 
-        public int handleException__(Exception ex, RequestHandler handler, OperationMode mode, bool sent,
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int iceHandleException(Exception ex, RequestHandler handler, OperationMode mode, bool sent,
                                      ref int cnt)
         {
-            updateRequestHandler__(handler, null); // Clear the request handler
+            iceUpdateRequestHandler(handler, null); // Clear the request handler
 
             //
             // We only retry local exception, system exceptions aren't retried.
@@ -2465,7 +2549,22 @@ namespace Ice
             }
         }
 
-        public void checkAsyncTwowayOnly__(string name)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void iceCheckTwowayOnly(string name)
+        {
+            //
+            // No mutex lock necessary, there is nothing mutable in this
+            // operation.
+            //
+
+            if(!ice_isTwoway())
+            {
+                throw new TwowayOnlyException(name);
+            }
+        }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void iceCheckAsyncTwowayOnly(string name)
         {
             //
             // No mutex lock necessary, there is nothing mutable in this
@@ -2478,7 +2577,8 @@ namespace Ice
             }
         }
 
-        public RequestHandler getRequestHandler__()
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public RequestHandler iceGetRequestHandler()
         {
             if(_reference.getCacheConnection())
             {
@@ -2493,8 +2593,9 @@ namespace Ice
             return _reference.getRequestHandler(this);
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public BatchRequestQueue
-        getBatchRequestQueue__()
+        iceGetBatchRequestQueue()
         {
             lock(this)
             {
@@ -2506,8 +2607,9 @@ namespace Ice
             }
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public RequestHandler
-        setRequestHandler__(RequestHandler handler)
+        iceSetRequestHandler(RequestHandler handler)
         {
             if(_reference.getCacheConnection())
             {
@@ -2523,7 +2625,8 @@ namespace Ice
             return handler;
         }
 
-        public void updateRequestHandler__(RequestHandler previous, RequestHandler handler)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public void iceUpdateRequestHandler(RequestHandler previous, RequestHandler handler)
         {
             if(_reference.getCacheConnection() && previous != null)
             {
@@ -2589,7 +2692,7 @@ namespace Ice
             {
                 try
                 {
-                    prepare(operation, mode, context, synchronous);
+                    prepare(operation, mode, context);
                     if(inParams == null || inParams.Length == 0)
                     {
                         os_.writeEmptyEncapsulation(encoding_);
@@ -2598,7 +2701,7 @@ namespace Ice
                     {
                         os_.writeEncapsulation(inParams);
                     }
-                    invoke(operation);
+                    invoke(operation, synchronous);
                 }
                 catch(Exception ex)
                 {
@@ -2607,22 +2710,22 @@ namespace Ice
             }
 
             public Object_Ice_invokeResult
-            result__(bool ok)
+            getResult(bool ok)
             {
                 try
                 {
-                    var ret__ = new Object_Ice_invokeResult();
+                    var ret = new Object_Ice_invokeResult();
                     EncodingVersion encoding;
-                    if(proxy_.reference__().getMode() == Reference.Mode.ModeTwoway)
+                    if(proxy_.iceReference().getMode() == Reference.Mode.ModeTwoway)
                     {
-                        ret__.outEncaps = is_.readEncapsulation(out encoding);
+                        ret.outEncaps = is_.readEncapsulation(out encoding);
                     }
                     else
                     {
-                        ret__.outEncaps = null;
+                        ret.outEncaps = null;
                     }
-                    ret__.returnValue = ok;
-                    return ret__;
+                    ret.returnValue = ok;
+                    return ret;
                 }
                 finally
                 {
@@ -2648,7 +2751,7 @@ namespace Ice
                     Debug.Assert(r == this);
                     try
                     {
-                        Object_Ice_invokeResult result = ((InvokeOutgoingAsyncT)outgoing_).result__(wait());
+                        Object_Ice_invokeResult result = ((InvokeOutgoingAsyncT)outgoing_).getResult(wait());
                         try
                         {
                             if(responseCallback_ != null)
@@ -2679,21 +2782,22 @@ namespace Ice
             {
             }
 
-            public override bool handleSent(bool done, bool alreadySent)
+            public override void handleInvokeSent(bool sentSynchronously, bool done, bool alreadySent,
+                                                  OutgoingAsyncBase og)
             {
+                if(progress_ != null && !alreadySent)
+                {
+                    progress_.Report(sentSynchronously);
+                }
                 if(done)
                 {
-                    var result = new Object_Ice_invokeResult();
-                    result.returnValue = true;
-                    SetResult(result);
+                    SetResult(new Object_Ice_invokeResult(true, null));
                 }
-                return base.handleSent(false, alreadySent);
             }
 
-            public override bool handleResponse(bool ok, OutgoingAsyncBase og)
+            public override void handleInvokeResponse(bool ok, OutgoingAsyncBase og)
             {
-                SetResult(((InvokeOutgoingAsyncT)og).result__(ok));
-                return false;
+                SetResult(((InvokeOutgoingAsyncT)og).getResult(ok));
             }
         }
 
@@ -2728,6 +2832,12 @@ namespace Ice
             }
         }
 
+        /// <summary>
+        /// Only for internal use by OutgoingAsync
+        /// </summary>
+        /// <param name="iss"></param>
+        /// <param name="os"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void
         cacheMessageBuffers(InputStream iss, OutputStream os)
         {
@@ -2748,6 +2858,7 @@ namespace Ice
         /// Only for internal use by ProxyFactory
         /// </summary>
         /// <param name="ref"></param>
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public void setup(Reference @ref)
         {
             //
@@ -2829,7 +2940,7 @@ namespace Ice
                     var ok = bb.ice_isA("::Ice::Object");
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
-                    h.copyFrom__(bb);
+                    h.iceCopyFrom(bb);
                     d = h;
                 }
                 catch(FacetNotExistException)
@@ -2860,7 +2971,7 @@ namespace Ice
                     var ok = bb.ice_isA("::Ice::Object", ctx);
                     Debug.Assert(ok);
                     ObjectPrxHelper h = new ObjectPrxHelper();
-                    h.copyFrom__(bb);
+                    h.iceCopyFrom(bb);
                     d = h;
                 }
                 catch(FacetNotExistException)
@@ -2895,12 +3006,11 @@ namespace Ice
             {
                 var bb = b.ice_facet(f);
                 var h = new ObjectPrxHelper();
-                h.copyFrom__(bb);
+                h.iceCopyFrom(bb);
                 d = h;
             }
             return d;
         }
-
 
         /// <summary>
         /// Returns the Slice type id of the interface or class associated

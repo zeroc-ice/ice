@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -75,97 +75,145 @@ public final class StringUtil
         return -1;
     }
 
-    //
-    // Write the byte b as an escape sequence if it isn't a printable ASCII
-    // character and append the escape sequence to sb. Additional characters
-    // that should be escaped can be passed in special. If b is any of these
-    // characters, b is preceded by a backslash in sb.
-    //
     private static void
-    encodeChar(byte b, StringBuilder sb, String special)
+    encodeChar(char c, StringBuilder sb, String special, Ice.ToStringMode toStringMode)
     {
-        switch(b)
+        switch(c)
         {
-            case (byte)'\\':
+            case '\\':
             {
                 sb.append("\\\\");
                 break;
             }
-            case (byte)'\'':
+            case '\'':
             {
                 sb.append("\\'");
                 break;
             }
-            case (byte)'"':
+            case '"':
             {
                 sb.append("\\\"");
                 break;
             }
-            case (byte)'\b':
+            case '\007':
+            {
+                if(toStringMode == Ice.ToStringMode.Compat)
+                {
+                    // Octal escape for compatibility with 3.6 and earlier
+                    sb.append("\\007");
+                }
+                else
+                {
+                    sb.append("\\a");
+                }
+                break;
+            }
+            case '\b':
             {
                 sb.append("\\b");
                 break;
             }
-            case (byte)'\f':
+            case '\f':
             {
                 sb.append("\\f");
                 break;
             }
-            case (byte)'\n':
+            case '\n':
             {
                 sb.append("\\n");
                 break;
             }
-            case (byte)'\r':
+            case '\r':
             {
                 sb.append("\\r");
                 break;
             }
-            case (byte)'\t':
+            case '\t':
             {
                 sb.append("\\t");
                 break;
             }
-            default:
+            case '\013':
             {
-                if(!(b >= 32 && b <= 126))
+                if(toStringMode == Ice.ToStringMode.Compat)
                 {
-                    sb.append('\\');
-                    String octal = Integer.toOctalString(b < 0 ? b + 256 : b);
-                    //
-                    // Add leading zeroes so that we avoid problems during
-                    // decoding. For example, consider the encoded string
-                    // \0013 (i.e., a character with value 1 followed by
-                    // the character '3'). If the leading zeroes were omitted,
-                    // the result would be incorrectly interpreted by the
-                    // decoder as a single character with value 11.
-                    //
-                    for(int j = octal.length(); j < 3; j++)
-                    {
-                        sb.append('0');
-                    }
-                    sb.append(octal);
-                }
-                else if(special != null && special.indexOf((char)b) != -1)
-                {
-                    sb.append('\\');
-                    sb.append((char)b);
+                    // Octal escape for compatibility with 3.6 and earlier
+                    sb.append("\\013");
                 }
                 else
                 {
-                    sb.append((char)b);
+                    sb.append("\\v");
                 }
+                break;
+            }
+            default:
+            {
+                if(special != null && special.indexOf(c) != -1)
+                {
+                    sb.append('\\');
+                    sb.append(c);
+                }
+                else
+                {
+                    if(c < 32 || c > 126)
+                    {
+                        if(toStringMode == Ice.ToStringMode.Compat)
+                        {
+                            //
+                            // When ToStringMode=Compat, c is a UTF-8 byte
+                            //
+                            assert(c < 256);
+
+                            sb.append('\\');
+                            String octal = Integer.toOctalString(c);
+                            //
+                            // Add leading zeroes so that we avoid problems during
+                            // decoding. For example, consider the encoded string
+                            // \0013 (i.e., a character with value 1 followed by
+                            // the character '3'). If the leading zeroes were omitted,
+                            // the result would be incorrectly interpreted by the
+                            // decoder as a single character with value 11.
+                            //
+                            for(int j = octal.length(); j < 3; j++)
+                            {
+                                sb.append('0');
+                            }
+                            sb.append(octal);
+                        }
+                        else if(c < 32 || c == 127 || toStringMode == Ice.ToStringMode.ASCII)
+                        {
+                            // append \\unnnn
+                            sb.append("\\u");
+                            String hex = Integer.toHexString(c);
+                            for(int j = hex.length(); j < 4; j++)
+                            {
+                                sb.append('0');
+                            }
+                            sb.append(hex);
+                        }
+                        else
+                        {
+                            // keep as is
+                            sb.append(c);
+                        }
+                    }
+                    else
+                    {
+                        // printable ASCII character
+                        sb.append(c);
+                    }
+                }
+                break;
             }
         }
     }
 
     //
-    // Add escape sequences (such as "\n", or "\007") to make a string
-    // readable in ASCII. Any characters that appear in special are
-    // prefixed with a backlash in the returned string.
+    // Add escape sequences (like "\n" to the input string)
+    // The second parameter adds characters to escape, and can be empty.
     //
     public static String
-    escapeString(String s, String special)
+    escapeString(String s, String special, Ice.ToStringMode toStringMode)
     {
         if(special != null)
         {
@@ -178,31 +226,72 @@ public final class StringUtil
             }
         }
 
-        byte[] bytes = null;
-        try
+        if(toStringMode == Ice.ToStringMode.Compat)
         {
-            bytes = s.getBytes("UTF8");
-        }
-        catch(java.io.UnsupportedEncodingException ex)
-        {
-            assert(false);
-            return null;
-        }
+            // Encode UTF-8 bytes
 
-        StringBuilder result = new StringBuilder(bytes.length);
-        for(int i = 0; i < bytes.length; i++)
-        {
-            encodeChar(bytes[i], result, special);
-        }
+            byte[] bytes = null;
+            try
+            {
+                bytes = s.getBytes("UTF8");
+            }
+            catch(java.io.UnsupportedEncodingException ex)
+            {
+                assert(false);
+                return null;
+            }
 
-        return result.toString();
+            StringBuilder result = new StringBuilder(bytes.length);
+            for(int i = 0; i < bytes.length; i++)
+            {
+                encodeChar((char)(bytes[i] & 0xFF), result, special, toStringMode);
+            }
+
+            return result.toString();
+        }
+        else
+        {
+            StringBuilder result = new StringBuilder(s.length());
+
+            for(int i = 0; i < s.length(); i++)
+            {
+                char c = s.charAt(i);
+                if(toStringMode == Ice.ToStringMode.Unicode || !Character.isSurrogate(c))
+                {
+                    encodeChar(c, result, special, toStringMode);
+                }
+                else
+                {
+                    assert(toStringMode == Ice.ToStringMode.ASCII && Character.isSurrogate(c));
+                    if(i + 1 == s.length())
+                    {
+                        throw new IllegalArgumentException("High surrogate without low surrogate");
+                    }
+                    else
+                    {
+                        i++;
+                        int codePoint = Character.toCodePoint(c, s.charAt(i));
+                        // append \Unnnnnnnn
+                        result.append("\\U");
+                        String hex = Integer.toHexString(codePoint);
+                        for(int j = hex.length(); j < 8; j++)
+                        {
+                            result.append('0');
+                        }
+                        result.append(hex);
+                    }
+                }
+            }
+
+            return result.toString();
+        }
     }
 
     private static char
     checkChar(String s, int pos)
     {
         char c = s.charAt(pos);
-        if(!(c >= 32 && c <= 126))
+        if(c < 32 || c == 127)
         {
             String msg;
             if(pos > 0)
@@ -213,74 +302,138 @@ public final class StringUtil
             {
                 msg = "first character";
             }
-            msg += " is not a printable ASCII character (ordinal " + (int)c + ")";
+            msg += " has invalid ordinal value " + (int)c;
             throw new IllegalArgumentException(msg);
         }
         return c;
     }
 
     //
-    // Decode the character or escape sequence starting at start and return it.
-    // newStart is set to the index of the first character following the decoded character
+    // Decode the character or escape sequence starting at start and appends it to result;
+    // returns the index of the first character following the decoded character
     // or escape sequence.
     //
-    private static char decodeChar(String s, int start, int end, Ice.Holder<Integer> nextStart)
+    private static int
+    decodeChar(String s, int start, int end, String special, StringBuilder result)
     {
         assert(start >= 0);
         assert(start < end);
         assert(end <= s.length());
 
-        char c;
-
         if(s.charAt(start) != '\\')
         {
-            c = checkChar(s, start++);
+            result.append(checkChar(s, start++));
+        }
+        else if(start + 1 == end)
+        {
+            ++start;
+            result.append('\\');
         }
         else
         {
-            if(start + 1 == end)
-            {
-                throw new IllegalArgumentException("trailing backslash");
-            }
-            switch(s.charAt(++start))
+            char c = s.charAt(++start);
+
+            switch(c)
             {
                 case '\\':
                 case '\'':
                 case '"':
+                case '?':
                 {
-                    c = s.charAt(start++);
+                    ++start;
+                    result.append(c);
+                    break;
+                }
+                case 'a':
+                {
+                    ++start;
+                    result.append('\u0007');
                     break;
                 }
                 case 'b':
                 {
                     ++start;
-                    c = '\b';
+                    result.append('\b');
                     break;
                 }
                 case 'f':
                 {
                     ++start;
-                    c = '\f';
+                    result.append('\f');
                     break;
                 }
                 case 'n':
                 {
                     ++start;
-                    c = '\n';
+                    result.append('\n');
                     break;
                 }
                 case 'r':
                 {
                     ++start;
-                    c = '\r';
+                    result.append('\r');
                     break;
                 }
                 case 't':
                 {
                     ++start;
-                    c = '\t';
+                    result.append('\t');
                     break;
                 }
+                case 'v':
+                {
+                    ++start;
+                    result.append('\u000b');
+                }
+                case 'u':
+                case 'U':
+                {
+                    int codePoint = 0;
+                    boolean inBMP = (c == 'u');
+                    int size = inBMP ? 4 : 8;
+                    ++start;
+                    while(size > 0 && start < end)
+                    {
+                        c = s.charAt(start++);
+                        int charVal = 0;
+                        if(c >= '0' && c <= '9')
+                        {
+                            charVal = c - '0';
+                        }
+                        else if(c >= 'a' && c <= 'f')
+                        {
+                            charVal = 10 + (c - 'a');
+                        }
+                        else if(c >= 'A' && c <= 'F')
+                        {
+                            charVal = 10 + (c - 'A');
+                        }
+                        else
+                        {
+                            break; // while
+                        }
+                        codePoint = codePoint * 16 + charVal;
+                        --size;
+                    }
+                    if(size > 0)
+                    {
+                        throw new IllegalArgumentException("Invalid universal character name: too few hex digits");
+                    }
+                    if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
+                    {
+                        throw new IllegalArgumentException("A universal character name cannot designate a surrogate");
+                    }
+                    if(inBMP || Character.isBmpCodePoint(codePoint))
+                    {
+                        result.append((char)codePoint);
+                    }
+                    else
+                    {
+                        result.append(Character.toChars(codePoint));
+                    }
+                    break;
+                }
+
                 case '0':
                 case '1':
                 case '2':
@@ -289,50 +442,107 @@ public final class StringUtil
                 case '5':
                 case '6':
                 case '7':
+                case 'x':
                 {
-                    int val = 0;
-                    for(int j = 0; j < 3 && start < end; ++j)
+                    // UTF-8 byte sequence encoded with octal or hex escapes
+
+                    byte[] arr = new byte[end - start];
+                    int i = 0;
+                    boolean more = true;
+                    while(more)
                     {
-                        int charVal = s.charAt(start++) - '0';
-                        if(charVal < 0 || charVal > 7)
+                        int val = 0;
+                        if(c == 'x')
                         {
-                            --start;
-                            break;
+                            int size = 2;
+                            ++start;
+                            while(size > 0 && start < end)
+                            {
+                                c = s.charAt(start++);
+                                int charVal = 0;
+                                if(c >= '0' && c <= '9')
+                                {
+                                    charVal = c - '0';
+                                }
+                                else if(c >= 'a' && c <= 'f')
+                                {
+                                    charVal = 10 + (c - 'a');
+                                }
+                                else if(c >= 'A' && c <= 'F')
+                                {
+                                    charVal = 10 + (c - 'A');
+                                }
+                                else
+                                {
+                                    --start; // move back
+                                    break; // while
+                                }
+                                val = val * 16 + charVal;
+                                --size;
+                            }
+                            if(size == 2)
+                            {
+                                throw new IllegalArgumentException("Invalid \\x escape sequence: no hex digit");
+                            }
                         }
-                        val = val * 8 + charVal;
+                        else
+                        {
+                            for(int j = 0; j < 3 && start < end; ++j)
+                            {
+                                int charVal = s.charAt(start++) - '0';
+                                if(charVal < 0 || charVal > 7)
+                                {
+                                    --start; // move back
+                                    assert(j != 0); // must be at least one digit
+                                    break; // for
+                                }
+                                val = val * 8 + charVal;
+                            }
+                            if(val > 255)
+                            {
+                                String msg = "octal value \\" + Integer.toOctalString(val) + " (" + val + ") is out of range";
+                                throw new IllegalArgumentException(msg);
+                            }
+                        }
+
+                        arr[i++] = (byte)val;
+
+                        more = false;
+
+                        if((start + 1 < end) && s.charAt(start) == '\\')
+                        {
+                            c = s.charAt(start + 1);
+                            if(c == 'x' || (c >= '0' && c <= '9'))
+                            {
+                                start++;
+                                more = true;
+                            }
+                        }
                     }
-                    if(val > 255)
+
+                    try
                     {
-                        String msg = "octal value \\" + Integer.toOctalString(val) + " (" + val + ") is out of range";
-                        throw new IllegalArgumentException(msg);
+                        result.append(new String(arr, 0, i, "UTF8"));
                     }
-                    c = (char)val;
+                    catch(java.io.UnsupportedEncodingException ex)
+                    {
+                        throw new IllegalArgumentException("unsupported encoding", ex);
+                    }
                     break;
                 }
                 default:
                 {
-                    c = checkChar(s, start++);
+                    if(special == null || special.isEmpty() || special.indexOf(c) == -1)
+                    {
+                        result.append('\\'); // not in special, so we keep the backslash
+                    }
+                    result.append(checkChar(s, start++));
                     break;
                 }
             }
         }
-        nextStart.value = start;
-        return c;
-    }
 
-    //
-    // Remove escape sequences from s and append the result to sb.
-    // Return true if successful, false otherwise.
-    //
-    private static void
-    decodeString(String s, int start, int end, StringBuilder sb)
-    {
-        Ice.Holder<Integer> nextStart = new Ice.Holder<Integer>();
-        while(start < end)
-        {
-            sb.append(decodeChar(s, start, end, nextStart));
-            start = nextStart.value;
-        }
+        return start;
     }
 
     //
@@ -340,27 +550,40 @@ public final class StringUtil
     // for an invalid input string.
     //
     public static String
-    unescapeString(String s, int start, int end)
+    unescapeString(String s, int start, int end, String special)
     {
         assert(start >= 0 && start <= end && end <= s.length());
 
-        StringBuilder sb = new StringBuilder(end - start);
-        decodeString(s, start, end, sb);
-        String decodedString = sb.toString();
-
-        byte[] arr = new byte[decodedString.length()];
-        for(int i = 0; i < arr.length; ++i)
+        if(special != null)
         {
-            arr[i] = (byte)decodedString.charAt(i);
+            for(int i = 0; i < special.length(); ++i)
+            {
+                if(special.charAt(i) < 32 || special.charAt(i) > 126)
+                {
+                    throw new IllegalArgumentException("special characters must be in ASCII range 32-126");
+                }
+            }
         }
 
-        try
+        // Optimization for strings without escapes
+        int p = s.indexOf('\\', start);
+        if(p == -1 || p >= end)
         {
-            return new String(arr, 0, arr.length, "UTF8");
+            p = start;
+            while(p < end)
+            {
+                checkChar(s, p++);
+            }
+            return s.substring(start, end);
         }
-        catch(java.io.UnsupportedEncodingException ex)
+        else
         {
-            throw new IllegalArgumentException("unsupported encoding", ex);
+            StringBuilder sb = new StringBuilder(end - start);
+            while(start < end)
+            {
+                start = decodeChar(s, start, end, special, sb);
+            }
+            return sb.toString();
         }
     }
 

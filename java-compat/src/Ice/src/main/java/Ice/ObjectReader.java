@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,13 +22,13 @@ public abstract class ObjectReader extends ObjectImpl
     public abstract void read(InputStream in);
 
     @Override
-    public void __write(OutputStream os)
+    public void _iceWrite(OutputStream os)
     {
         assert(false);
     }
 
     @Override
-    public void __read(InputStream is)
+    public void _iceRead(InputStream is)
     {
         read(is);
     }

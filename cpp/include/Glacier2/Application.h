@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,6 +21,7 @@ namespace Glacier2
 /**
  *
  * This exception is raised if the session should be restarted.
+ * \headerfile Glacier2/Glacier2.h
  *
  **/
 class GLACIER2_API RestartSessionException : public IceUtil::ExceptionHelper<RestartSessionException>
@@ -34,63 +35,54 @@ public:
 };
 
 /**
- * An extension of Ice.Application that makes it easy to write
+ * An extension of Ice::Application that makes it easy to write
  * Glacier2 applications.
  *
- * <p> Applications must create a derived class that implements the
- * {@link #createSession} and {@link #runWithSession} methods.<p>
+ * Applications must create a derived class that implements the
+ * createSession and runWithSession methods.
  *
- * The base class invokes {@link #createSession} to create a new
- * Glacier2 session and then invokes {@link #runWithSession} in
+ * The base class invokes createSession to create a new
+ * Glacier2 session and then invokes runWithSession in
  * which the subclass performs its application logic. The base class
- * automatically destroys the session when {@link #runWithSession}
- * returns.
+ * automatically destroys the session when runWithSession returns.
  *
- * If {@link #runWithSession} calls {@link #restart} or raises any of
- * the exceptions Ice.ConnectionRefusedException,
- * Ice.ConnectionLostException, Ice.UnknownLocalException,
- * Ice.RequestFailedException, or Ice.TimeoutException, the base
+ * If runWithSession calls restart or raises any of
+ * the exceptions Ice::ConnectionRefusedException,
+ * Ice::ConnectionLostException, Ice::UnknownLocalException,
+ * Ice::RequestFailedException, or Ice::TimeoutException, the base
  * class destroys the current session and restarts the application
- * with another call to {@link #createSession} followed by
- * {@link #runWithSession}.
+ * with another call to createSession followed by runWithSession.
  *
- * The application can optionally override the {@link #sessionDestroyed}
+ * The application can optionally override the sessionDestroyed
  * callback method if it needs to take action when connectivity with
  * the Glacier2 router is lost.
  *
  * A program can contain only one instance of this class.
- *
- * @see Ice.Application
- * @see Glacier2.Router
- * @see Glacier2.Session
- * @see Ice.Communicator
- * @see Ice.Logger
- * @see #runWithSession
+ * \headerfile Glacier2/Glacier2.h
  **/
-
 class GLACIER2_API Application : public Ice::Application
 {
-    /**
-     * Initializes an instance that calls {@link Communicator#shutdown} if
-     * a signal is received.
-     **/
 public:
 
-    Application()
-    {
-    }
+    /**
+     * Initializes an instance that calls Ice::Communicator::shutdown if
+     * a signal is received.
+     **/
+    Application(Ice::SignalPolicy = Ice::ICE_ENUM(SignalPolicy,HandleSignals));
+
+#ifdef ICE_CPP11_MAPPING
+    Application(const Application&) = delete;
+    Application& operator=(const Application&) = delete;
+#endif
 
     /**
-     * Initializes an instance that handles signals according to the signal
-     * policy.
-     *
-     * @param signalPolicy Determines how to respond to signals.
-     *
-     * @see SignalPolicy
+     * Creates a new Glacier2 session. A call to
+     * <code>createSession</code> always precedes a call to
+     * <code>runWithSession</code>. If <code>Ice::LocalException</code>
+     * is thrown from this method, the application is terminated.
+     * @return The Glacier2 session.
      **/
-    Application(Ice::SignalPolicy signalPolicy) : Ice::Application(signalPolicy)
-    {
-    }
+    virtual Glacier2::SessionPrxPtr createSession() = 0;
 
     /**
      * Called once the communicator has been initialized and the Glacier2 session
@@ -112,14 +104,13 @@ public:
     virtual int runWithSession(int argc, char* argv[]) = 0;
 
     /**
-     * Creates a new Glacier2 session. A call to
-     * <code>createSession</code> always precedes a call to
-     * <code>runWithSession</code>. If <code>Ice.LocalException</code>
-     * is thrown from this method, the application is terminated.
-
-     * @return The Glacier2 session.
+     * Called when the session refresh thread detects that the session has been
+     * destroyed. A subclass can override this method to take action after the
+     * loss of connectivity with the Glacier2 router. This method is called
+     * according to the Ice invocation dipsatch rules (in other words, it
+     * uses the same rules as an servant upcall or AMI callback).
      **/
-    virtual Glacier2::SessionPrxPtr createSession() = 0;
+    virtual void sessionDestroyed();
 
     /**
      * Called to restart the application's Glacier2 session. This
@@ -128,40 +119,19 @@ public:
      *
      * @throws RestartSessionException This exception is always thrown.
      **/
-    void restart()
-    {
-        RestartSessionException ex;
-        throw ex;
-    }
-
-    /**
-     * Called when the session refresh thread detects that the session has been
-     * destroyed. A subclass can override this method to take action after the
-     * loss of connectivity with the Glacier2 router. This method is called
-     * according to the Ice invocation dipsatch rules (in other words, it
-     * uses the same rules as an servant upcall or AMI callback).
-     **/
-    virtual void sessionDestroyed()
-    {
-    }
+    static void restart();
 
     /**
      * Returns the Glacier2 router proxy
      * @return The router proxy.
      **/
-    static Glacier2::RouterPrxPtr router()
-    {
-        return _router;
-    }
+    static Glacier2::RouterPrxPtr router();
 
     /**
      * Returns the Glacier2 session proxy
      * @return The session proxy.
      **/
-    static Glacier2::SessionPrxPtr session()
-    {
-        return _session;
-    }
+    static Glacier2::SessionPrxPtr session();
 
     /**
      * Returns the category to be used in the identities of all of the client's
@@ -170,40 +140,43 @@ public:
      * @return The category.
      * @throws SessionNotExistException No session exists.
      **/
-    std::string categoryForClient();
+    static std::string categoryForClient();
 
     /**
      * Create a new Ice identity for callback objects with the given
      * identity name field.
      * @return The identity.
      **/
-    Ice::Identity createCallbackIdentity(const std::string&);
+    static Ice::Identity createCallbackIdentity(const std::string&);
 
     /**
      * Adds a servant to the callback object adapter's Active Servant Map with a UUID.
      * @param servant The servant to add.
      * @return The proxy for the servant.
      **/
-    Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr& servant);
+    static Ice::ObjectPrxPtr addWithUUID(const Ice::ObjectPtr& servant);
 
     /**
      * Creates an object adapter for callback objects.
      * @return The object adapter.
      */
-    Ice::ObjectAdapterPtr objectAdapter();
+    static Ice::ObjectAdapterPtr objectAdapter();
 
 protected:
 
-    virtual int doMain(int, char*[], const Ice::InitializationData& initData);
+    /**
+     * Helper function that implements the application logic.
+     */
+    virtual int doMain(int argc, char* argv[], const Ice::InitializationData& initData, int version);
 
 private:
 
-    bool doMain(Ice::StringSeq&, const Ice::InitializationData&, int&);
+    bool doMain(Ice::StringSeq&, const Ice::InitializationData&, int&, int);
 
-    /**
-     * Run should not be overridden for Glacier2.Application. Instead
-     * <code>runWithSession</code> should be used.
-     */
+    //
+    // Run should not be overridden for Glacier2::Application. Instead
+    // runWithSession should be used.
+    //
     int run(int, char*[])
     {
         // This shouldn't be called.
@@ -214,7 +187,6 @@ private:
     static Ice::ObjectAdapterPtr _adapter;
     static Glacier2::RouterPrxPtr _router;
     static Glacier2::SessionPrxPtr _session;
-    static bool _createdSession;
     static std::string _category;
 };
 

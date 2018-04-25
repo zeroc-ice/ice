@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,12 +14,7 @@
 #include <TestAMD.h>
 #include <TestCommon.h>
 
-class MyDerivedClassI :
-#ifdef ICE_CPP11_MAPPING
-    public Test::MyDerivedClassDisp
-#else
-    public Test::MyDerivedClass
-#endif
+class MyDerivedClassI : public Test::MyDerivedClass
 {
 public:
 
@@ -41,6 +36,10 @@ public:
     virtual void shutdownAsync(::std::function<void()>,
                                ::std::function<void(std::exception_ptr)>,
                                const Ice::Current&);
+
+    virtual void supportsCompressAsync(std::function<void(bool)>,
+                                       std::function<void(std::exception_ptr)>,
+                                       const Ice::Current&);
 
     virtual void opVoidAsync(::std::function<void()>,
                              ::std::function<void(std::exception_ptr)>,
@@ -413,6 +412,9 @@ public:
 #else
     virtual void shutdown_async(const Test::AMD_MyClass_shutdownPtr&,
                                 const Ice::Current&);
+
+    virtual void supportsCompress_async(const Test::AMD_MyClass_supportsCompressPtr&,
+                                        const Ice::Current&);
 
     virtual void opVoid_async(const Test::AMD_MyClass_opVoidPtr&,
                               const Ice::Current&);

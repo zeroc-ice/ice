@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ package Ice;
 /**
  * Utility base class that makes it easy to correctly initialize and finalize
  * the Ice run time, as well as handle signals. Unless the application specifies
- * a logger, <Application> installs a per-process logger that logs to the standard
+ * a logger, <code>Application</code> installs a per-process logger that logs to the standard
  * error output.
  * <p>
  * Applications must create a derived class that implements the {@link #run} method.
@@ -26,7 +26,7 @@ package Ice;
 public abstract class Application
 {
     /**
-     * Initializes an instance that calls {@link Communicator#shutdown} if
+     * Initializes an instance that calls {@link Communicator#destroy} if
      * a signal is received.
      **/
     public
@@ -83,6 +83,7 @@ public abstract class Application
      *
      * @param appName The name of the application. This parameter is used to initialize
      * the value of the <code>Ice.ProgramName</code> property.
+     * @param args The command-line arguments.
      * @param configFile The configuration file with which to initialize
      * Ice properties.
      * @return The value returned by <code>run</code>. If <code>run</code> terminates with an exception,
@@ -332,7 +333,7 @@ public abstract class Application
     /**
      * Returns the value of <code>appName</code> that is passed to <code>main</code> (which is also the
      * the value of <code>Ice.ProgramName</code>). This method is useful mainly for error messages that
-     * include the application name. Because <appName> is a static method, it is available from anywhere
+     * include the application name. Because <code>appName</code> is a static method, it is available from anywhere
      * in the program.
      *
      * @return The name of the application.
@@ -344,7 +345,7 @@ public abstract class Application
     }
 
     /**
-     * Returns the communicator for the application. Because <communicator> is a static method,
+     * Returns the communicator for the application. Because <code>communicator</code> is a static method,
      * it permits access to the communicator from anywhere in the program. Note that, as a consequence,
      * you cannot have more than one instance of <code>Application</code> in a program.
      *
@@ -438,12 +439,12 @@ public abstract class Application
      * Note that the hook must obey the rules for shutdown hooks; specifically,
      * it must not call <code>exit</code>.
      *
-     * @param newHook The thread to run on shutdown.
+     * @param newHook The Runnable to run on shutdown.
      *
      * @see java.lang.Runtime#addShutdownHook
      **/
     public static void
-    setInterruptHook(java.lang.Thread newHook) // Pun intended.
+    setInterruptHook(Runnable newHook)
     {
         if(_signalPolicy == SignalPolicy.HandleSignals)
         {
@@ -656,7 +657,7 @@ public abstract class Application
     // support code.
     static class CustomHook extends AppHook
     {
-        CustomHook(Thread hook)
+        CustomHook(Runnable hook)
         {
             _hook = hook;
         }
@@ -682,7 +683,7 @@ public abstract class Application
             }
         }
 
-        private Thread _hook;
+        private Runnable _hook;
     }
 
     protected static String _appName;

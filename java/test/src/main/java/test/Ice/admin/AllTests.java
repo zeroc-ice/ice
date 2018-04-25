@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -101,8 +101,10 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app, PrintWriter out)
+    public static void allTests(test.Util.Application app)
     {
+        PrintWriter out = app.getWriter();
+
         out.print("testing communicator operations... ");
         out.flush();
         {
@@ -181,7 +183,7 @@ public class AllTests
         }
         out.println("ok");
 
-        String ref = "factory:default -p 12010 -t 10000";
+        String ref = "factory:" + app.getTestEndpoint(0) + " -t 10000";
         RemoteCommunicatorFactoryPrx factory =
             RemoteCommunicatorFactoryPrx.uncheckedCast(app.communicator().stringToProxy(ref));
 

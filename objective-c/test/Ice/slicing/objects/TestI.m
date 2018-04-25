@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,7 +11,154 @@
 #import <slicing/objects/TestI.h>
 #import <TestCommon.h>
 
+static void breakCycles(id o)
+{
+    if([o isKindOfClass:[TestSlicingObjectsServerD1 class]])
+    {
+        TestSlicingObjectsServerD1* d1 = (TestSlicingObjectsServerD1*)o;
+        if(d1.pd1 != d1)
+        {
+            breakCycles(d1.pd1);
+        }
+        d1.pd1 = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerD2 class]])
+    {
+        TestSlicingObjectsServerD2* d2 = (TestSlicingObjectsServerD2*)o;
+        d2.pd2 = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerD4 class]])
+    {
+        TestSlicingObjectsServerD4* d4 = (TestSlicingObjectsServerD4*)o;
+        d4.p1 = nil;
+        d4.p2 = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerB class]])
+    {
+        TestSlicingObjectsServerB* b = (TestSlicingObjectsServerB*)o;
+        if(b.pb != nil)
+        {
+            b.pb.pb = nil;
+        }
+        b.pb = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerPreserved class]])
+    {
+        TestSlicingObjectsServerPreserved* p = (TestSlicingObjectsServerPreserved*)o;
+        [[p ice_getSlicedData] clear];
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerPDerived class]])
+    {
+        TestSlicingObjectsServerPDerived* p = (TestSlicingObjectsServerPDerived*)o;
+        p.pb = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerCompactPDerived class]])
+    {
+        TestSlicingObjectsServerPDerived* p = (TestSlicingObjectsServerPDerived*)o;
+        p.pb = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerPNode class]])
+    {
+        TestSlicingObjectsServerPNode* curr = o;
+        while(curr && o != curr.next)
+        {
+            curr = curr.next;
+        }
+        if(curr && o == curr.next)
+        {
+            curr.next = nil;
+        }
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerPSUnknown class]])
+    {
+        TestSlicingObjectsServerPSUnknown* p = (TestSlicingObjectsServerPSUnknown*)o;
+        breakCycles(p.graph);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerPSUnknown2 class]])
+    {
+        TestSlicingObjectsServerPSUnknown2* p = (TestSlicingObjectsServerPSUnknown2*)o;
+        p.pb = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerBaseException class]])
+    {
+        TestSlicingObjectsServerBaseException* e = (TestSlicingObjectsServerBaseException*)o;
+        breakCycles(e.pb);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerDerivedException class]])
+    {
+        TestSlicingObjectsServerDerivedException* e = (TestSlicingObjectsServerDerivedException*)o;
+        breakCycles(e.pd1);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerUnknownDerivedException class]])
+    {
+        TestSlicingObjectsServerUnknownDerivedException* e = (TestSlicingObjectsServerUnknownDerivedException*)o;
+        breakCycles(e.pd2);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerPSUnknownException class]])
+    {
+        TestSlicingObjectsServerPSUnknownException* e = (TestSlicingObjectsServerPSUnknownException*)o;
+        breakCycles(e.p);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerSS1 class]])
+    {
+        TestSlicingObjectsServerSS1* s = (TestSlicingObjectsServerSS1*)o;
+        breakCycles(s.s);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerSS2 class]])
+    {
+        TestSlicingObjectsServerSS2* s = (TestSlicingObjectsServerSS2*)o;
+        breakCycles(s.s);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerSS class]])
+    {
+        TestSlicingObjectsServerSS* s = (TestSlicingObjectsServerSS*)o;
+        breakCycles(s.c1);
+        breakCycles(s.c2);
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerForward class]])
+    {
+        TestSlicingObjectsServerForward* f = (TestSlicingObjectsServerForward*)o;
+        f.h = nil;
+    }
+    if([o isKindOfClass:[TestSlicingObjectsServerSUnknown class]])
+    {
+        TestSlicingObjectsServerSUnknown* u = (TestSlicingObjectsServerSUnknown*)o;
+        u.cycle = nil;
+    }
+    if([o isKindOfClass:[NSArray class]])
+    {
+        for(id e in o)
+        {
+            breakCycles(e);
+        }
+    }
+    if([o isKindOfClass:[NSDictionary class]])
+    {
+        for(id e in [o allValues])
+        {
+            breakCycles(e);
+        }
+    }
+}
+
 @implementation TestSlicingObjectsServerI
++(id) serverI
+{
+    TestSlicingObjectsServerI* impl = [[TestSlicingObjectsServerI alloc] init];
+    impl->objects_ = [[NSMutableArray alloc] init];
+    return ICE_AUTORELEASE(impl);
+}
+-(void) dealloc
+{
+    for(id o in objects_)
+    {
+        breakCycles(o);
+    }
+#if !__has_feature(objc_arc)
+    [objects_ release];
+    [super dealloc];
+#endif
+}
 -(ICEObject*) SBaseAsObject:(ICECurrent*)current
 {
     return [TestSlicingObjectsServerSBase sBase:@"SBase.sb"];
@@ -48,10 +195,13 @@
 
 -(ICEObject*) SUnknownAsObject:(ICECurrent*)current
 {
-    return [TestSlicingObjectsServerSUnknown sUnknown:@"SUnknown.su"];
+    TestSlicingObjectsServerSUnknown* s = [TestSlicingObjectsServerSUnknown sUnknown:@"SUnknown.su" cycle:nil];
+    s.cycle = s;
+    [objects_ addObject:s];
+    return s;
 }
 
--(void) checkSUnknown:(ICEObject*) object current:(ICECurrent*)current
+-(void) checkSUnknown:(ICEObject*)object current:(ICECurrent*)current
 {
     if([current encoding] == ICEEncoding_1_0)
     {
@@ -63,6 +213,7 @@
         TestSlicingObjectsServerSUnknown* su = (TestSlicingObjectsServerSUnknown*)object;
         test([[su su] isEqual:@"SUnknown.su"]);
     }
+    [objects_ addObject:object];
 }
 
 -(TestSlicingObjectsServerB*) oneElementCycle:(ICECurrent*)current
@@ -70,6 +221,7 @@
     TestSlicingObjectsServerB* b1 = [TestSlicingObjectsServerB b];
     b1.sb = @"B1.sb";
     b1.pb = b1;
+    [objects_ addObject:b1];
     return b1;
 }
 -(TestSlicingObjectsServerB*) twoElementCycle:(ICECurrent*)current
@@ -80,6 +232,7 @@
     b2.sb = @"B2.sb";
     b2.pb = b1;
     b1.pb = b2;
+    [objects_ addObject:b1];
     return b1;
 }
 -(TestSlicingObjectsServerB*) D1AsB:(ICECurrent*)current
@@ -95,6 +248,8 @@
     d2.pd2 = d1;
     d1.pb = d2;
     d1.pd1 = d2;
+
+    [objects_ addObject:d1];
     return d1;
 }
 -(TestSlicingObjectsServerD1*) D1AsD1:(ICECurrent*)current
@@ -109,6 +264,8 @@
     d2.pd2 = d1;
     d1.pb = d2;
     d1.pd1 = d2;
+
+    [objects_ addObject:d1];
     return d1;
 }
 -(TestSlicingObjectsServerB*) D2AsB:(ICECurrent*)current
@@ -123,6 +280,8 @@
     d1.pd1 = d2;
     d2.pb = d1;
     d2.pd2 = d1;
+
+    [objects_ addObject:d2];
     return d2;
 }
 -(void) paramTest1:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
@@ -139,6 +298,9 @@
     d1.pd1 = d2;
     *p1 = d1;
     *p2 = d2;
+
+    [objects_ addObject:d1];
+    [objects_ addObject:d2];
 }
 -(void) paramTest2:(TestSlicingObjectsServerB**)p1 p1:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
 {
@@ -172,6 +334,9 @@
     d3.pd1 = 0;
     d4.pd2 = d3;
 
+    [objects_ addObject:d2];
+    [objects_ addObject:d3];
+    [objects_ addObject:d4];
     return d3;
 }
 -(TestSlicingObjectsServerB*) paramTest4:(TestSlicingObjectsServerB**)p1 current:(ICECurrent*)current
@@ -184,6 +349,7 @@
     d4.p2 = [TestSlicingObjectsServerB b];
     d4.p2.sb = @"B.sb (2)";
     *p1 = d4;
+    [objects_ addObject:d4];
     return d4.p2;
 }
 -(TestSlicingObjectsServerB*) returnTest1:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
@@ -198,6 +364,8 @@
 }
 -(TestSlicingObjectsServerB*) returnTest3:(TestSlicingObjectsServerB*)p1 p2:(TestSlicingObjectsServerB*)p2 current:(ICECurrent*)current
 {
+    [objects_ addObject:p1];
+    [objects_ addObject:p2];
     return p1;
 }
 -(TestSlicingObjectsServerSS*) sequenceTest:(TestSlicingObjectsServerSS1*)p1 p2:(TestSlicingObjectsServerSS2*)p2 current:(ICECurrent*)current
@@ -205,6 +373,9 @@
     TestSlicingObjectsServerSS* ss = [TestSlicingObjectsServerSS ss];
     ss.c1 = p1;
     ss.c2 = p2;
+    [objects_ addObject:p1];
+    [objects_ addObject:p2];
+    [objects_ addObject:ss];
     return ss;
 }
 -(TestSlicingObjectsServerBDict*) dictionaryTest:(TestSlicingObjectsServerMutableBDict*)bin
@@ -232,12 +403,15 @@
         d1.pd1 = d1;
         [r setObject:d1 forKey:[NSNumber numberWithInt:(i * 20)]];
     }
+    [objects_ addObject:*bout];
+    [objects_ addObject:r];
     return r;
 }
 
 -(TestSlicingObjectsServerPBase*) exchangePBase:(TestSlicingObjectsServerPBase*)pb
                                         current:(ICECurrent*)current
 {
+    [objects_ addObject:pb];
     return pb;
 }
 
@@ -249,19 +423,19 @@
         // 1.0 encoding doesn't support unmarshaling unknown classes even if referenced
         // from unread slice.
         //
-        return [[TestSlicingObjectsServerPSUnknown alloc] init:5
+        return ICE_AUTORELEASE([[TestSlicingObjectsServerPSUnknown alloc] init:5
                                                             ps:@"preserved"
                                                            psu:@"unknown"
                                                          graph:0
-                                                            cl:nil];
+                                                            cl:nil]);
     }
     else
     {
-        return [[TestSlicingObjectsServerPSUnknown alloc] init:5
-                                                            ps:@"preserved"
-                                                           psu:@"unknown"
-                                                         graph:0
-                                                            cl:[[TestSlicingObjectsServerMyClass alloc] init:15]];
+        return ICE_AUTORELEASE([[TestSlicingObjectsServerPSUnknown alloc] init:5
+                                            ps:@"preserved"
+                                           psu:@"unknown"
+                                         graph:0
+                                            cl:ICE_AUTORELEASE([[TestSlicingObjectsServerMyClass alloc] init:15])]);
     }
 }
 
@@ -295,6 +469,7 @@
     r.graph.next = [TestSlicingObjectsServerPNode alloc];
     r.graph.next.next = [TestSlicingObjectsServerPNode alloc];
     r.graph.next.next.next = r.graph;
+    [objects_ addObject:r];
     return r;
 }
 
@@ -318,6 +493,7 @@
         test(pu.graph.next.next.next == pu.graph);
         pu.graph.next.next.next = nil; // Break the cycle.
     }
+    [objects_ addObject:p];
 }
 
 -(TestSlicingObjectsServerPreserved*) PBSUnknown2AsPreservedWithGraph:(ICECurrent*)current
@@ -326,10 +502,11 @@
     r.pi = 5;
     r.ps = @"preserved";
     r.pb = r;
+    [objects_ addObject:r];
     return r;
 }
 
--(void) checkPBSUnknown2WithGraph:(TestSlicingObjectsServerPreserved*) p current:(ICECurrent*)current
+-(void) checkPBSUnknown2WithGraph:(TestSlicingObjectsServerPreserved*)p current:(ICECurrent*)current
 {
     if([current.encoding isEqual:ICEEncoding_1_0])
     {
@@ -344,12 +521,14 @@
         test(pu.pi == 5);
         test([pu.ps isEqual:@"preserved"]);
         test(pu.pb == pu);
-        pu.pb = 0; // Break the cycle.
+        pu.pb = nil; // Break the cycle.
     }
+    [objects_ addObject:p];
 }
 
 -(TestSlicingObjectsServerPNode*) exchangePNode:(TestSlicingObjectsServerPNode*)pn current:(ICECurrent*)current
 {
+    [objects_ addObject:pn];
     return pn;
 }
 
@@ -360,6 +539,7 @@
     be.pb = [TestSlicingObjectsServerB b];
     be.pb.sb = @"sb";
     be.pb.pb = be.pb;
+    [objects_ addObject:be];
     @throw be;
 }
 -(void) throwDerivedAsBase:(ICECurrent*)current
@@ -375,6 +555,7 @@
     de.pd1.pb = de.pd1;
     de.pd1.sd1 = @"sd2";
     de.pd1.pd1 = de.pd1;
+    [objects_ addObject:de];
     @throw de;
 }
 -(void) throwDerivedAsDerived:(ICECurrent*)current
@@ -390,6 +571,7 @@
     de.pd1.pb = de.pd1;
     de.pd1.sd1 = @"sd2";
     de.pd1.pd1 = de.pd1;
+    [objects_ addObject:de];
     @throw de;
 }
 -(void) throwUnknownDerivedAsBase:(ICECurrent*)current
@@ -405,6 +587,7 @@
     ude.pb = d2;
     ude.sude = @"sude";
     ude.pd2 = d2;
+    [objects_ addObject:ude];
     @throw ude;
 }
 -(void) throwPreservedException:(ICECurrent*)current
@@ -414,12 +597,7 @@
     ue.p.pi = 5;
     ue.p.ps = @"preserved";
     ue.p.pb = ue.p;
-    if(ex_ != nil)
-    {
-        ex_.p.pb = nil;
-        ICE_RELEASE(ex_);
-    }
-    ex_ = ICE_RETAIN(ue);
+    [objects_ addObject:ue];
     @throw ue;
 }
 -(void) useForward:(TestSlicingObjectsServerForward**)f current:(ICECurrent*)current
@@ -427,14 +605,10 @@
     *f = [TestSlicingObjectsServerForward forward];
     (*f).h = [TestSlicingObjectsServerHidden hidden];
     (*f).h.f = *f;
+    [objects_ addObject:*f];
 }
 -(void) shutdown:(ICECurrent*)current
 {
-    if(ex_ != nil)
-    {
-        ex_.p.pb = nil;
-        ICE_RELEASE(ex_);
-    }
     [[current.adapter getCommunicator] shutdown];
 }
 @end

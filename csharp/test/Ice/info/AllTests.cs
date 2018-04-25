@@ -1,17 +1,16 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-
 using System.Collections.Generic;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private static Ice.TCPEndpointInfo getTCPEndpointInfo(Ice.EndpointInfo info)
     {
@@ -37,8 +36,9 @@ public class AllTests : TestCommon.TestApp
         return null;
     }
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing proxy endpoint information... ");
         Flush();
         {
@@ -85,12 +85,13 @@ public class AllTests : TestCommon.TestApp
         }
         WriteLine("ok");
 
-        string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
         Ice.ObjectAdapter adapter;
         Write("test object adapter endpoint information... ");
         Flush();
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -t 15000:udp");
+            string host = communicator.getProperties().getPropertyAsInt("Ice.IPv6") != 0 ? "::1" : "127.0.0.1";
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h \"" + host +
+                "\" -t 15000:udp -h \"" + host + "\"");
             adapter = communicator.createObjectAdapter("TestAdapter");
 
             Ice.Endpoint[] endpoints = adapter.getEndpoints();
@@ -102,19 +103,26 @@ public class AllTests : TestCommon.TestApp
             test(tcpEndpoint.type() == Ice.TCPEndpointType.value || tcpEndpoint.type() == Ice.SSLEndpointType.value ||
                  tcpEndpoint.type() == Ice.WSEndpointType.value || tcpEndpoint.type() == Ice.WSSEndpointType.value);
 
-            test(tcpEndpoint.host.Equals(defaultHost));
+            test(tcpEndpoint.host.Equals(host));
             test(tcpEndpoint.port > 0);
             test(tcpEndpoint.timeout == 15000);
 
             Ice.UDPEndpointInfo udpEndpoint = (Ice.UDPEndpointInfo)endpoints[1].getInfo();
-            test(udpEndpoint.host.Equals(defaultHost));
+            test(udpEndpoint.host.Equals(host));
             test(udpEndpoint.datagram());
             test(udpEndpoint.port > 0);
 
+            endpoints = new Ice.Endpoint[]{endpoints[0]};
+            test(endpoints.Length == 1);
+            adapter.setPublishedEndpoints(endpoints);
+            publishedEndpoints = adapter.getPublishedEndpoints();
+            test(IceUtilInternal.Arrays.Equals(endpoints, publishedEndpoints));
+
             adapter.destroy();
 
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 12020");
-            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020");
+            int port = app.getTestPort(1);
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p " + port);
+            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", app.getTestEndpoint(1));
             adapter = communicator.createObjectAdapter("TestAdapter");
 
             endpoints = adapter.getEndpoints();
@@ -125,26 +133,32 @@ public class AllTests : TestCommon.TestApp
             foreach(Ice.Endpoint endpoint in endpoints)
             {
                 tcpEndpoint = getTCPEndpointInfo(endpoint.getInfo());
-                test(tcpEndpoint.port == 12020);
+                test(tcpEndpoint.port == port);
             }
 
             tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo());
             test(tcpEndpoint.host.Equals("127.0.0.1"));
-            test(tcpEndpoint.port == 12020);
+            test(tcpEndpoint.port == port);
 
             adapter.destroy();
         }
         WriteLine("ok");
 
-        Ice.ObjectPrx @base = communicator.stringToProxy("test:default -p 12010:udp -p 12010");
+        int endpointPort = app.getTestPort(0);
+
+        Ice.ObjectPrx @base = communicator.stringToProxy("test:" +
+                                                         app.getTestEndpoint(0) + ":" +
+                                                         app.getTestEndpoint(0, "udp"));
         TestIntfPrx testIntf = TestIntfPrxHelper.checkedCast(@base);
+
+        string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
 
         Write("test connection endpoint information... ");
         Flush();
         {
             Ice.EndpointInfo info = @base.ice_getConnection().getEndpoint().getInfo();
             Ice.TCPEndpointInfo tcpinfo = getTCPEndpointInfo(info);
-            test(tcpinfo.port == 12010);
+            test(tcpinfo.port == endpointPort);
             test(!tcpinfo.compress);
             test(tcpinfo.host.Equals(defaultHost));
 
@@ -156,7 +170,7 @@ public class AllTests : TestCommon.TestApp
 
             info = @base.ice_datagram().ice_getConnection().getEndpoint().getInfo();
             Ice.UDPEndpointInfo udp = (Ice.UDPEndpointInfo)info;
-            test(udp.port == 12010);
+            test(udp.port == endpointPort);
             test(udp.host.Equals(defaultHost));
         }
         WriteLine("ok");
@@ -171,7 +185,7 @@ public class AllTests : TestCommon.TestApp
             Ice.TCPConnectionInfo ipInfo = getTCPConnectionInfo(info);
             test(!info.incoming);
             test(info.adapterName.Length == 0);
-            test(ipInfo.remotePort == 12010);
+            test(ipInfo.remotePort == endpointPort);
             test(ipInfo.localPort > 0);
             if(defaultHost.Equals("127.0.0.1"))
             {
@@ -211,7 +225,7 @@ public class AllTests : TestCommon.TestApp
             test(!udpInfo.incoming);
             test(udpInfo.adapterName.Length == 0);
             test(udpInfo.localPort > 0);
-            test(udpInfo.remotePort == 12010);
+            test(udpInfo.remotePort == endpointPort);
 
             if(defaultHost.Equals("127.0.0.1"))
             {

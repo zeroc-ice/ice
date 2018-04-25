@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,6 +15,8 @@ import java.util.Stack;
 import java.util.HashMap;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.awt.datatransfer.DataFlavor;
@@ -208,7 +210,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         _coordinator = coordinator;
         setTitle(title);
 
-        _preferences = Preferences.userNodeForPackage(getClass());
+        _preferences = Coordinator.getPreferences().node("LiveDeployment");
 
         //
         // Don't destroy JavaFX when the frame is disposed.
@@ -315,15 +317,8 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 @Override
                 public String getToolTipText(java.awt.event.MouseEvent e)
                 {
-                    if(convertColumnIndexToModel(columnAtPoint(e.getPoint())) == 6)
-                    {
-                        return _legendModel.getRows(new int[]{rowAtPoint(e.getPoint())})[0].cell.getField().
-                            getColumnToolTip();
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return _legendModel.getRows(new int[]{rowAtPoint(e.getPoint())})[0].cell.getField().
+                        getColumnToolTip();
                 }
             };
 
@@ -385,38 +380,34 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                     //
                     // Remove series from the chart, in JavaFx thread.
                     //
-                    enqueueJFX(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                for(MetricsRow row : rows)
-                                {
-                                    for(int i = 0; i < row.series.size(); ++i)
-                                    {
-                                        XYChart.Series<Number, Number> series = row.series.get(i);
-                                        String seriesClass = getSeriesClass(series);
-                                        if(seriesClass != null)
-                                        {
-                                            _styles.remove(seriesClass);
-                                        }
-                                        //
-                                        // Don't remove the XYChart.Series object here, to avoid the series
-                                        // style classes to be reasign by JavaFX.
-                                        //
-                                        // _chart.getData().remove(row.series);
-                                        try
-                                        {
-                                            series.getData().clear();
-                                        }
-                                        catch(NullPointerException ex)
-                                        {
-                                            // JavaFX bug
-                                        }
-                                    }
-                                }
-                            }
-                        });
+                    enqueueJFX(() ->
+                               {
+                                   for(MetricsRow row : rows)
+                                   {
+                                       for(int i = 0; i < row.series.size(); ++i)
+                                       {
+                                           XYChart.Series<Number, Number> series = row.series.get(i);
+                                           String seriesClass = getSeriesClass(series);
+                                           if(seriesClass != null)
+                                           {
+                                               _styles.remove(seriesClass);
+                                           }
+                                           //
+                                           // Don't remove the XYChart.Series object here, to avoid the series
+                                           // style classes to be reasign by JavaFX.
+                                           //
+                                           // _chart.getData().remove(row.series);
+                                           try
+                                           {
+                                               series.getData().clear();
+                                           }
+                                           catch(NullPointerException ex)
+                                           {
+                                               // JavaFX bug
+                                           }
+                                       }
+                                   }
+                               });
                 }
             };
         delete.setEnabled(false);
@@ -480,7 +471,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         //
         JComboBox<Double> scales = new JComboBox<>(_scales);
         scales.setRenderer(new DecimalRenderer(scales.getRenderer()));
-        _legendTable.getColumnModel().getColumn(7).setCellEditor(new DefaultCellEditor(scales));
+        _legendTable.getColumnModel().getColumn(ScaleColumnNumber).setCellEditor(new DefaultCellEditor(scales));
 
         //
         // Set default renderer and editor for Color.class column.
@@ -688,7 +679,6 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
         stopRefresh();
         setVisible(false);
         _coordinator.removeGraphView(GraphView.this);
-        dispose();
     }
 
     @Override
@@ -1009,7 +999,7 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     {
         if(_refreshFuture == null)
         {
-            _refreshFuture = _coordinator.getExecutor().scheduleAtFixedRate(() ->
+            _refreshFuture = _coordinator.getScheduledExecutor().scheduleAtFixedRate(() ->
                 {
                     java.util.Set<MetricsViewInfo> metrics = null;
                     synchronized(GraphView.this)
@@ -1171,55 +1161,51 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
             {
             switch(columnIndex)
             {
-                case 0: // Node Name
+                case 0: // Visible
                 {
                     return Boolean.class;
                 }
-                case 1: // Node Name
+                case 1: // Component Name
                 {
                     return String.class;
                 }
-                case 2: // Server Name
+                case 2: // View Name
                 {
                     return String.class;
                 }
-                case 3: // View Name
+                case 3: // Metrics Name
                 {
                     return String.class;
                 }
-                case 4: // Metrics Name
+                case 4: // Metrics Id
                 {
                     return String.class;
                 }
-                case 5: // Metrics Id
+                case 5: // Column Name
                 {
                     return String.class;
                 }
-                case 6: // Column Name
-                {
-                    return String.class;
-                }
-                case 7: // Scale factor
+                case 6: // Scale factor
                 {
                     return Double.class;
                 }
-                case 8: // Last value
+                case 7: // Last value
                 {
                     return Double.class;
                 }
-                case 9: // Average value
+                case 8: // Average value
                 {
                     return Double.class;
                 }
-                case 10: // Min value
+                case 9: // Min value
                 {
                     return Double.class;
                 }
-                case 11: // Max value
+                case 10: // Max value
                 {
                     return Double.class;
                 }
-                case 12: // Color
+                case 11: // Color
                 {
                     return Color.class;
                 }
@@ -1246,49 +1232,45 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                 }
                 case 1:
                 {
-                    return row.info.node;
+                    return row.info.component;
                 }
                 case 2:
                 {
-                    return row.info.server;
+                    return row.info.view;
                 }
                 case 3:
                 {
-                    return row.info.view;
+                    return row.cell.getField().getMetricsName();
                 }
                 case 4:
                 {
-                    return row.cell.getField().getMetricsName();
+                    return row.cell.getId();
                 }
                 case 5:
                 {
-                    return row.cell.getId();
+                    return row.cell.getField().getColumnName();
                 }
                 case 6:
                 {
-                    return row.cell.getField().getColumnName();
+                    return row.cell.getScaleFactor();
                 }
                 case 7:
                 {
-                    return row.cell.getScaleFactor();
+                    return row.cell.getLast();
                 }
                 case 8:
                 {
-                    return row.cell.getLast();
+                    return row.cell.getAverage();
                 }
                 case 9:
                 {
-                    return row.cell.getAverage();
+                    return row.cell.getMin();
                 }
                 case 10:
                 {
-                    return row.cell.getMin();
-                }
-                case 11:
-                {
                     return row.cell.getMax();
                 }
-                case 12:
+                case 11:
                 {
                     return new Color(Integer.parseInt(row.color.substring(1), 16));
                 }
@@ -1710,10 +1692,9 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
     private NumberAxis _xAxis;
     private NumberAxis _yAxis;
 
-    private final static String[] _columnNames = new String[]{"Show", "Node", "Server", "Metrics View Name",
+    private final static String[] _columnNames = new String[]{"Show", "Component", "Metrics View Name",
                                                               "Metrics Name", "Metrics Id", "Metrics Field", "Scale",
                                                               "Last", "Average", "Minimum", "Maximum", "Color"};
-
 
     //
     // The metrics view being graph
@@ -1775,20 +1756,17 @@ public class GraphView extends JFrame implements MetricsFieldContext, Coordinato
                                                   10000000.0d,
                                                   100000000.0d,
                                                   1000000000.0d};
+    //
+    // This s
+    private static final int ScaleColumnNumber = 6;
 
     private final java.util.concurrent.Semaphore _sem = new java.util.concurrent.Semaphore(0);
-    private final java.util.concurrent.ExecutorService _queue = java.util.concurrent.Executors.newSingleThreadExecutor(
-        new java.util.concurrent.ThreadFactory()
-        {
-            @Override
-            public Thread newThread(Runnable r)
-            {
-                Thread t = new Thread(r);
-                t.setDaemon(true);
-                t.setName("GraphView-Thread");
-                return t;
-            }
-        });
+    private final ExecutorService _queue = Executors.newSingleThreadExecutor((Runnable r) ->
+                                                                             {
+                                                                                 Thread t = new Thread(r, "GraphView-Thread");
+                                                                                 t.setDaemon(true);
+                                                                                 return t;
+                                                                             });
     private final Preferences _preferences;
 
     private final static DataFormat LocalObjectMimeType = new DataFormat("application/x-java-jvm-local-objectref");

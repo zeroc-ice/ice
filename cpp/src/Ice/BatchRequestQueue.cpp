@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,6 +10,7 @@
 #include <Ice/BatchRequestQueue.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
+#include <Ice/Reference.h>
 
 using namespace std;
 using namespace Ice;
@@ -34,7 +35,7 @@ public:
     virtual void
     enqueue() const
     {
-        _queue.enqueueBatchRequest();
+        _queue.enqueueBatchRequest(_proxy);
     }
 
     virtual int
@@ -70,6 +71,7 @@ BatchRequestQueue::BatchRequestQueue(const InstancePtr& instance, bool datagram)
     _batchStream(instance.get(), Ice::currentProtocolEncoding),
     _batchStreamInUse(false),
     _batchStreamCanFlush(false),
+    _batchCompress(false),
     _batchRequestNum(0)
 {
     _batchStream.writeBlob(requestBatchHdr, sizeof(requestBatchHdr));
@@ -101,7 +103,9 @@ BatchRequestQueue::prepareBatchRequest(OutputStream* os)
 }
 
 void
-BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrxPtr& proxy, const std::string& operation)
+BatchRequestQueue::finishBatchRequest(OutputStream* os,
+                                      const Ice::ObjectPrxPtr& proxy,
+                                      const std::string& operation)
 {
     //
     // No need for synchronization, no other threads are supposed
@@ -135,6 +139,11 @@ BatchRequestQueue::finishBatchRequest(OutputStream* os, const Ice::ObjectPrxPtr&
         }
         else
         {
+            bool compress;
+            if(proxy->_getReference()->getCompressOverride(compress))
+            {
+                _batchCompress |= compress;
+            }
             _batchMarker = _batchStream.b.size();
             ++_batchRequestNum;
         }
@@ -170,7 +179,7 @@ BatchRequestQueue::abortBatchRequest(OutputStream* os)
 }
 
 int
-BatchRequestQueue::swap(OutputStream* os)
+BatchRequestQueue::swap(OutputStream* os, bool& compress)
 {
     Lock sync(*this);
     if(_batchRequestNum == 0)
@@ -189,11 +198,13 @@ BatchRequestQueue::swap(OutputStream* os)
 
     int requestNum = _batchRequestNum;
     _batchStream.swap(*os);
+    compress = _batchCompress;
 
     //
     // Reset the batch.
     //
     _batchRequestNum = 0;
+    _batchCompress = false;
     _batchStream.writeBlob(requestBatchHdr, sizeof(requestBatchHdr));
     _batchMarker = _batchStream.b.size();
     if(!lastRequest.empty())
@@ -231,9 +242,14 @@ BatchRequestQueue::waitStreamInUse(bool flush)
 }
 
 void
-BatchRequestQueue::enqueueBatchRequest()
+BatchRequestQueue::enqueueBatchRequest(const Ice::ObjectPrxPtr& proxy)
 {
     assert(_batchMarker < _batchStream.b.size());
+    bool compress;
+    if(proxy->_getReference()->getCompressOverride(compress))
+    {
+        _batchCompress |= compress;
+    }
     _batchMarker = _batchStream.b.size();
     ++_batchRequestNum;
 }

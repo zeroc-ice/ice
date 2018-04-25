@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,12 +14,12 @@ public sealed class BI : BDisp_
     public BI()
     {
     }
-    
+
     public override string callA(Ice.Current current)
     {
         return "A";
     }
-    
+
     public override string callB(Ice.Current current)
     {
         return "B";

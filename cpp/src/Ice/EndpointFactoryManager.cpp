@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,6 +27,15 @@ IceUtil::Shared* IceInternal::upCast(EndpointFactoryManager* p) { return p; }
 IceInternal::EndpointFactoryManager::EndpointFactoryManager(const InstancePtr& instance)
     : _instance(instance)
 {
+}
+
+void
+IceInternal::EndpointFactoryManager::initialize() const
+{
+    for(vector<EndpointFactoryPtr>::size_type i = 0; i < _factories.size(); i++)
+    {
+        _factories[i]->initialize();
+    }
 }
 
 void
@@ -62,7 +71,7 @@ IceInternal::EndpointFactoryManager::get(Short type) const
             return _factories[i];
         }
     }
-    return 0;
+    return ICE_NULLPTR;
 }
 
 EndpointIPtr
@@ -72,16 +81,12 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
     bool b = IceUtilInternal::splitString(str, " \t\n\r", v);
     if(!b)
     {
-        EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "mismatched quote";
-        throw ex;
+        throw EndpointParseException(__FILE__, __LINE__, "mismatched quote");
     }
 
     if(v.empty())
     {
-        EndpointParseException ex(__FILE__, __LINE__);
-        ex.str = "value has no non-whitespace characters";
-        throw ex;
+        throw EndpointParseException(__FILE__, __LINE__, "value has no non-whitespace characters");
     }
 
     string protocol = v.front();
@@ -114,9 +119,8 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         EndpointIPtr e = factory->create(v, oaEndpoint);
         if(!v.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'";
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "unrecognized argument `" + v.front() +
+                                         "' in endpoint `" + str + "'");
         }
         return e;
 #else
@@ -129,8 +133,8 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         short type;
         bs.read(type);
         EndpointIPtr ue = new IceInternal::OpaqueEndpointI(type, &bs);
-        cerr << "Normal: " << e->toString() << endl;
-        cerr << "Opaque: " << ue->toString() << endl;
+        consoleErr << "Normal: " << e->toString() << endl;
+        consoleErr << "Opaque: " << ue->toString() << endl;
         return e;
 #endif
     }
@@ -144,9 +148,8 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         EndpointIPtr ue = ICE_MAKE_SHARED(OpaqueEndpointI, v);
         if(!v.empty())
         {
-            EndpointParseException ex(__FILE__, __LINE__);
-            ex.str = "unrecognized argument `" + v.front() + "' in endpoint `" + str + "'";
-            throw ex;
+            throw EndpointParseException(__FILE__, __LINE__, "unrecognized argument `" + v.front() + "' in endpoint `" +
+                                         str + "'");
         }
         factory = get(ue->type());
         if(factory)
@@ -170,7 +173,7 @@ IceInternal::EndpointFactoryManager::create(const string& str, bool oaEndpoint) 
         return ue; // Endpoint is opaque, but we don't have a factory for its type.
     }
 
-    return 0;
+    return ICE_NULLPTR;
 }
 
 EndpointIPtr
@@ -188,7 +191,13 @@ IceInternal::EndpointFactoryManager::read(InputStream* s) const
     {
         e = factory->read(s);
     }
-    else
+    //
+    // If the factory failed to read the endpoint, return an opaque endpoint. This can
+    // occur if for example the factory delegates to another factory and this factory
+    // isn't available. In this case, the factory needs to make sure the stream position
+    // is preserved for reading the opaque endpoint.
+    //
+    if(!e)
     {
         e = ICE_MAKE_SHARED(OpaqueEndpointI, type, s);
     }

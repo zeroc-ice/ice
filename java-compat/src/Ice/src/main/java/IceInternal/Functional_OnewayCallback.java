@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,28 +17,28 @@ public class Functional_OnewayCallback extends IceInternal.Functional_CallbackBa
     {
         super(exceptionCb, sentCb);
         CallbackBase.check(responseCb != null || exceptionCb != null);
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     @Override
-    public final void __completed(Ice.AsyncResult __result)
+    public final void _iceCompleted(Ice.AsyncResult result)
     {
         try
         {
-            ((Ice.ObjectPrxHelperBase)__result.getProxy()).__end(__result, __result.getOperation());
-            if(__responseCb != null)
+            ((Ice.ObjectPrxHelperBase)result.getProxy())._end(result, result.getOperation());
+            if(_responseCb != null)
             {
-                __responseCb.apply();
+                _responseCb.apply();
             }
         }
-        catch(Ice.Exception __ex)
+        catch(Ice.Exception ex)
         {
-            if(__exceptionCb != null)
+            if(_exceptionCb != null)
             {
-                __exceptionCb.apply(__ex);
+                _exceptionCb.apply(ex);
             }
         }
     }
 
-    private final Functional_VoidCallback __responseCb;
+    private final Functional_VoidCallback _responseCb;
 }

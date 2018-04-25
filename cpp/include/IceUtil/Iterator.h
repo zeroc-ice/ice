@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,7 +20,7 @@ inline typename ForwardIterator::difference_type
 distance(ForwardIterator first, ForwardIterator last)
 {
 //
-// Work-around for a limitation in the standard library provided 
+// Work-around for a limitation in the standard library provided
 // with the Sun C++ 5.x compilers
 #if defined(__SUNPRO_CC) && defined(_RWSTD_NO_CLASS_PARTIAL_SPEC)
 

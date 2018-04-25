@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -136,10 +136,10 @@ allTests(id<ICECommunicator> communicator, NSArray* ports)
 {
     tprintf("testing stringToProxy... ");
     NSString* ref = @"test";
-    for(NSString* p in ports)
+    for(NSNumber* p in ports)
     {
         ref = [ref stringByAppendingString:@":default -p "];
-        ref = [ref stringByAppendingString:p];
+        ref = [ref stringByAppendingString:[p stringValue]];
     }
     id<ICEObjectPrx> base = [communicator stringToProxy:ref];
     test(base);

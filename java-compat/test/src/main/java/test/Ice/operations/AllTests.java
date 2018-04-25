@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,10 +18,12 @@ import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 public class AllTests
 {
     public static MyClassPrx
-    allTests(test.Util.Application app, PrintWriter out)
+    allTests(test.Util.Application app)
     {
         Ice.Communicator communicator = app.communicator();
-        String ref = "test:default -p 12010";
+        PrintWriter out = app.getWriter();
+
+        String ref = "test:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
         MyDerivedClassPrx derived = MyDerivedClassPrxHelper.checkedCast(cl);

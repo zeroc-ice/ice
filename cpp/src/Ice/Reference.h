@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -41,7 +41,7 @@ class Reference : public IceUtil::Shared
 {
 public:
 
-    class GetConnectionCallback 
+    class GetConnectionCallback
 #ifndef ICE_CPP11_MAPPING
         : public virtual IceUtil::Shared
 #endif
@@ -72,9 +72,12 @@ public:
     const InstancePtr& getInstance() const { return _instance; }
     const SharedContextPtr& getContext() const { return _context; }
     int getInvocationTimeout() const { return _invocationTimeout; }
+    IceUtil::Optional<bool> getCompress() const
+    {
+        return _overrideCompress ? IceUtil::Optional<bool>(_compress) : IceUtil::None;
+    }
 
     Ice::CommunicatorPtr getCommunicator() const;
-
 
     virtual std::vector<EndpointIPtr> getEndpoints() const = 0;
     virtual std::string getAdapterId() const = 0;
@@ -86,6 +89,7 @@ public:
     virtual Ice::EndpointSelectionType getEndpointSelection() const = 0;
     virtual int getLocatorCacheTimeout() const = 0;
     virtual std::string getConnectionId() const = 0;
+    virtual IceUtil::Optional<int> getTimeout() const = 0;
 
     //
     // The change* methods (here and in derived classes) create
@@ -113,8 +117,11 @@ public:
 
     virtual ReferencePtr changeTimeout(int) const = 0;
     virtual ReferencePtr changeConnectionId(const std::string&) const = 0;
+    virtual ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const = 0;
 
     int hash() const; // Conceptually const.
+
+    bool getCompressOverride(bool&) const;
 
     //
     // Utility methods.
@@ -184,7 +191,8 @@ class FixedReference : public Reference
 public:
 
     FixedReference(const InstancePtr&, const Ice::CommunicatorPtr&, const Ice::Identity&, const std::string&, Mode,
-                   bool, const Ice::EncodingVersion&, const Ice::ConnectionIPtr&);
+                   bool, const Ice::ProtocolVersion&, const Ice::EncodingVersion&, const Ice::ConnectionIPtr&,
+                   int, const Ice::Context&, const IceUtil::Optional<bool>&);
 
     virtual std::vector<EndpointIPtr> getEndpoints() const;
     virtual std::string getAdapterId() const;
@@ -194,6 +202,7 @@ public:
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
     virtual int getLocatorCacheTimeout() const;
     virtual std::string getConnectionId() const;
+    virtual IceUtil::Optional<int> getTimeout() const;
 
     virtual ReferencePtr changeEndpoints(const std::vector<EndpointIPtr>&) const;
     virtual ReferencePtr changeAdapterId(const std::string&) const;
@@ -207,12 +216,12 @@ public:
 
     virtual ReferencePtr changeTimeout(int) const;
     virtual ReferencePtr changeConnectionId(const std::string&) const;
+    virtual ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const;
 
     virtual bool isIndirect() const;
     virtual bool isWellKnown() const;
 
     virtual void streamWrite(Ice::OutputStream*) const;
-    virtual std::string toString() const;
     virtual Ice::PropertyDict toProperty(const std::string&) const;
 
     virtual RequestHandlerPtr getRequestHandler(const Ice::ObjectPrxPtr&) const;
@@ -249,6 +258,7 @@ public:
     virtual Ice::EndpointSelectionType getEndpointSelection() const;
     virtual int getLocatorCacheTimeout() const;
     virtual std::string getConnectionId() const;
+    virtual IceUtil::Optional<int> getTimeout() const;
 
     virtual ReferencePtr changeEncoding(const Ice::EncodingVersion&) const;
     virtual ReferencePtr changeCompress(bool) const;
@@ -264,6 +274,7 @@ public:
 
     virtual ReferencePtr changeTimeout(int) const;
     virtual ReferencePtr changeConnectionId(const std::string&) const;
+    virtual ReferencePtr changeConnection(const Ice::ConnectionIPtr&) const;
 
     virtual bool isIndirect() const;
     virtual bool isWellKnown() const;

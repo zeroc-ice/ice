@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -117,7 +117,7 @@ public final class Util
     public static Communicator
     initialize(StringSeqHolder args)
     {
-        return initialize(args, null);
+        return initialize(args, (InitializationData)null);
     }
 
     /**
@@ -167,6 +167,32 @@ public final class Util
         return result;
     }
 
+     /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to intialize the communicator.
+     * This method modifies the argument vector by removing any Ice-related options.
+     *
+     * @param configFile Path to a config file that sets the new communicator's default
+     * properties.
+     *
+     * @return The initialized communicator.
+     **/
+    public static Communicator
+    initialize(StringSeqHolder args, String configFile)
+    {
+        InitializationData initData = null;
+        if(configFile != null)
+        {
+            initData = new InitializationData();
+            initData.properties = Util.createProperties();
+            initData.properties.load(configFile);
+        }
+
+        return initialize(args, initData);
+    }
+
     /**
      * Creates a communicator.
      *
@@ -185,6 +211,26 @@ public final class Util
     {
         StringSeqHolder argsH = new StringSeqHolder(args);
         return initialize(argsH, initData);
+    }
+
+    /**
+     * Creates a communicator.
+     *
+     * @param args A command-line argument vector. Any Ice-related options
+     * in this vector are used to intialize the communicator.
+     *
+     * @param configFile Path to a config file that sets the new communicator's default
+     * properties.
+     *
+     * @return The initialized communicator.
+     *
+     * @see InitializationData
+     **/
+    public static Communicator
+    initialize(String[] args, String configFile)
+    {
+        StringSeqHolder argsH = new StringSeqHolder(args);
+        return initialize(argsH, configFile);
     }
 
     /**
@@ -213,8 +259,32 @@ public final class Util
         return result;
     }
 
+     /**
+     * Creates a communicator.
+     *
+     * @param configFile Path to a config file that sets the new communicator's default
+     * properties.
+     *
+     * @return The initialized communicator.
+     **/
+    public static Communicator
+    initialize(String configFile)
+    {
+        InitializationData initData = null;
+        if(configFile != null)
+        {
+            initData = new InitializationData();
+            initData.properties = Util.createProperties();
+            initData.properties.load(configFile);
+        }
+
+        return initialize(initData);
+    }
+
     /**
      * Creates a communicator using a default configuration.
+     *
+     * @return A new communicator instance.
      **/
     public static Communicator
     initialize()
@@ -274,7 +344,7 @@ public final class Util
             ident.category = "";
             try
             {
-                ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.length());
+                ident.name = IceUtilInternal.StringUtil.unescapeString(s, 0, s.length(), "/");
             }
             catch(IllegalArgumentException e)
             {
@@ -287,7 +357,7 @@ public final class Util
         {
             try
             {
-                ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash);
+                ident.category = IceUtilInternal.StringUtil.unescapeString(s, 0, slash, "/");
             }
             catch(IllegalArgumentException e)
             {
@@ -299,7 +369,7 @@ public final class Util
             {
                 try
                 {
-                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.length());
+                    ident.name = IceUtilInternal.StringUtil.unescapeString(s, slash + 1, s.length(), "/");
                 }
                 catch(IllegalArgumentException e)
                 {
@@ -322,20 +392,33 @@ public final class Util
      *
      * @param ident The object identity to convert.
      *
+     * @param toStringMode Specifies if and how non-printable ASCII characters are escaped in the result.
+     *
      * @return The string representation of the object identity.
      **/
-    public static String
-    identityToString(Identity ident)
+    public static String identityToString(Identity ident, ToStringMode toStringMode)
     {
         if(ident.category == null || ident.category.length() == 0)
         {
-            return IceUtilInternal.StringUtil.escapeString(ident.name, "/");
+            return IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
         }
         else
         {
-            return IceUtilInternal.StringUtil.escapeString(ident.category, "/") + '/' +
-                IceUtilInternal.StringUtil.escapeString(ident.name, "/");
+            return IceUtilInternal.StringUtil.escapeString(ident.category, "/", toStringMode) + '/' +
+                IceUtilInternal.StringUtil.escapeString(ident.name, "/", toStringMode);
         }
+    }
+
+    /**
+     * Converts an object identity to a string.
+     *
+     * @param ident The object identity to convert.
+     *
+     * @return The string representation of the object identity using the default mode (Unicode)
+     **/
+    public static String identityToString(Identity ident)
+    {
+        return identityToString(ident, ToStringMode.Unicode);
     }
 
     /**
@@ -485,7 +568,7 @@ public final class Util
     public static String
     stringVersion()
     {
-        return "3.7a3"; // "A.B.C", with A=major, B=minor, C=patch
+        return "3.7.1"; // "A.B.C", with A=major, B=minor, C=patch
     }
 
     /**
@@ -498,7 +581,7 @@ public final class Util
     public static int
     intVersion()
     {
-        return 30753; // AABBCC, with AA=major, BB=minor, CC=patch
+        return 30701; // AABBCC, with AA=major, BB=minor, CC=patch
     }
 
     /**

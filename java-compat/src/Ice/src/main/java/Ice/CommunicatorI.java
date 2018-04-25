@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,30 +13,58 @@ public final class CommunicatorI implements Communicator
 {
     @Override
     public void
+    close()
+    {
+        _instance.destroy(false); // Don't allow destroy to be interrupted if called from try with statement.
+    }
+
+    @Override
+    public void
     destroy()
     {
-        _instance.destroy();
+        _instance.destroy(true); // Destroy is interruptible when call explicitly.
     }
 
     @Override
     public void
     shutdown()
     {
-        _instance.objectAdapterFactory().shutdown();
+        try
+        {
+            _instance.objectAdapterFactory().shutdown();
+        }
+        catch(Ice.CommunicatorDestroyedException ex)
+        {
+            // Ignore
+        }
     }
 
     @Override
     public void
     waitForShutdown()
     {
-        _instance.objectAdapterFactory().waitForShutdown();
+        try
+        {
+            _instance.objectAdapterFactory().waitForShutdown();
+        }
+        catch(Ice.CommunicatorDestroyedException ex)
+        {
+            // Ignore
+        }
     }
 
     @Override
     public boolean
     isShutdown()
     {
-        return _instance.objectAdapterFactory().isShutdown();
+        try
+        {
+            return _instance.objectAdapterFactory().isShutdown();
+        }
+        catch(Ice.CommunicatorDestroyedException ex)
+        {
+            return true;
+        }
     }
 
     @Override
@@ -78,7 +106,7 @@ public final class CommunicatorI implements Communicator
     public String
     identityToString(Ice.Identity ident)
     {
-        return Ice.Util.identityToString(ident);
+        return Ice.Util.identityToString(ident, _instance.toStringMode());
     }
 
     @Override
@@ -205,60 +233,61 @@ public final class CommunicatorI implements Communicator
 
     @Override
     public void
-    flushBatchRequests()
+    flushBatchRequests(Ice.CompressBatch compressBatch)
     {
-        end_flushBatchRequests(begin_flushBatchRequests());
+        end_flushBatchRequests(begin_flushBatchRequests(compressBatch));
     }
 
     @Override
     public AsyncResult
-    begin_flushBatchRequests()
+    begin_flushBatchRequests(Ice.CompressBatch compressBatch)
     {
-        return begin_flushBatchRequestsInternal(null);
+        return begin_flushBatchRequestsInternal(compressBatch, null);
     }
 
     @Override
     public AsyncResult
-    begin_flushBatchRequests(Callback cb)
+    begin_flushBatchRequests(Ice.CompressBatch compressBatch, Callback cb)
     {
-        return begin_flushBatchRequestsInternal(cb);
+        return begin_flushBatchRequestsInternal(compressBatch, cb);
     }
 
     @Override
     public AsyncResult
-    begin_flushBatchRequests(Callback_Communicator_flushBatchRequests cb)
+    begin_flushBatchRequests(Ice.CompressBatch compressBatch, Callback_Communicator_flushBatchRequests cb)
     {
-        return begin_flushBatchRequestsInternal(cb);
+        return begin_flushBatchRequestsInternal(compressBatch, cb);
     }
 
     @Override
     public AsyncResult
-    begin_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
-                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                             IceInternal.Functional_BoolCallback __sentCb)
+    begin_flushBatchRequests(Ice.CompressBatch compressBatch,
+                             IceInternal.Functional_VoidCallback responseCb,
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                             IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_flushBatchRequestsInternal(
-            new IceInternal.Functional_CallbackBase(false, __exceptionCb, __sentCb)
+        return begin_flushBatchRequestsInternal(compressBatch,
+            new IceInternal.Functional_CallbackBase(false, exceptionCb, sentCb)
                 {
                     @Override
-                    public final void __completed(AsyncResult __result)
+                    public final void _iceCompleted(AsyncResult result)
                     {
                         try
                         {
-                            __result.getCommunicator().end_flushBatchRequests(__result);
+                            result.getCommunicator().end_flushBatchRequests(result);
                         }
-                        catch(Exception __ex)
+                        catch(Exception ex)
                         {
-                            __exceptionCb.apply(__ex);
+                            _exceptionCb.apply(ex);
                         }
                     }
                 });
     }
 
-    private static final String __flushBatchRequests_name = "flushBatchRequests";
+    private static final String _flushBatchRequests_name = "flushBatchRequests";
 
     private Ice.AsyncResult
-    begin_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
+    begin_flushBatchRequestsInternal(Ice.CompressBatch compressBatch, IceInternal.CallbackBase cb)
     {
         IceInternal.OutgoingConnectionFactory connectionFactory = _instance.outgoingConnectionFactory();
         IceInternal.ObjectAdapterFactory adapterFactory = _instance.objectAdapterFactory();
@@ -269,11 +298,11 @@ public final class CommunicatorI implements Communicator
         //
         IceInternal.CommunicatorFlushBatch result = new IceInternal.CommunicatorFlushBatch(this,
                                                                                            _instance,
-                                                                                           __flushBatchRequests_name,
+                                                                                           _flushBatchRequests_name,
                                                                                            cb);
 
-        connectionFactory.flushAsyncBatchRequests(result);
-        adapterFactory.flushAsyncBatchRequests(result);
+        connectionFactory.flushAsyncBatchRequests(compressBatch, result);
+        adapterFactory.flushAsyncBatchRequests(compressBatch, result);
 
         //
         // Inform the callback that we have finished initiating all of the
@@ -289,10 +318,9 @@ public final class CommunicatorI implements Communicator
     end_flushBatchRequests(AsyncResult r)
     {
         IceInternal.CommunicatorFlushBatch ri =
-            IceInternal.CommunicatorFlushBatch.check(r, this, __flushBatchRequests_name);
-        ri.__wait();
+            IceInternal.CommunicatorFlushBatch.check(r, this, _flushBatchRequests_name);
+        ri.waitForResponseOrUserEx();
     }
-
 
     @Override
     public ObjectPrx
@@ -371,7 +399,7 @@ public final class CommunicatorI implements Communicator
         }
         catch(RuntimeException ex)
         {
-            _instance.destroy();
+            _instance.destroy(false);
             throw ex;
         }
     }

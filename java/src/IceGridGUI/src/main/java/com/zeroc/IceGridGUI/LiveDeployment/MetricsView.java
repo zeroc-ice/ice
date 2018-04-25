@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -75,12 +75,11 @@ class MetricsView extends TreeNode
     @Override
     public void enableMetricsView(boolean enabled)
     {
-        com.zeroc.IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
-        if(metricsAdmin != null)
+        if(_admin != null)
         {
             if(enabled)
             {
-                metricsAdmin.enableMetricsViewAsync(_name).whenComplete((result, ex) ->
+                _admin.enableMetricsViewAsync(_name).whenComplete((result, ex) ->
                     {
                         if(ex == null)
                         {
@@ -92,7 +91,7 @@ class MetricsView extends TreeNode
                                     if(getRoot().getTree().getLastSelectedPathComponent() == MetricsView.this)
                                     {
                                         //
-                                        // If the metrics view is selected when enabled success, 
+                                        // If the metrics view is selected when enabled success,
                                         // we must start the refresh thread to pull updates.
                                         //
                                         MetricsViewEditor.startRefresh(MetricsView.this);
@@ -112,7 +111,7 @@ class MetricsView extends TreeNode
                                     else if(!(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException))
                                     {
                                         ex.printStackTrace();
-                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
                                                                       "Error: " + ex.toString(), "Error",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     }
@@ -122,7 +121,7 @@ class MetricsView extends TreeNode
             }
             else
             {
-                metricsAdmin.disableMetricsViewAsync(_name).whenComplete((result, ex) ->
+                _admin.disableMetricsViewAsync(_name).whenComplete((result, ex) ->
                     {
                         if(ex == null)
                         {
@@ -135,7 +134,7 @@ class MetricsView extends TreeNode
                                     if(getRoot().getTree().getLastSelectedPathComponent() == MetricsView.this)
                                     {
                                         //
-                                        // If the metrics view is selected when disabled success, 
+                                        // If the metrics view is selected when disabled success,
                                         // we stop the refresh.
                                         //
                                         MetricsViewEditor.stopRefresh();
@@ -155,7 +154,7 @@ class MetricsView extends TreeNode
                                     else if(!(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException))
                                     {
                                         ex.printStackTrace();
-                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
                                                                       "Error: " + ex.toString(), "Error",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     }
@@ -170,7 +169,7 @@ class MetricsView extends TreeNode
     {
         return _enabled;
     }
-    
+
     public String name()
     {
         return _name;
@@ -200,12 +199,11 @@ class MetricsView extends TreeNode
     public java.util.concurrent.CompletableFuture<com.zeroc.IceMX.MetricsFailures> fetchMetricsFailures(String map,
                                                                                                         String id)
     {
-        com.zeroc.IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
-        if(metricsAdmin != null)
+        if(_admin != null)
         {
             try
             {
-                return metricsAdmin.getMetricsFailuresAsync(_name, map, id);
+                return _admin.getMetricsFailuresAsync(_name, map, id);
             }
             catch(com.zeroc.Ice.LocalException e)
             {
@@ -218,12 +216,11 @@ class MetricsView extends TreeNode
 
     public void fetchMetricsView()
     {
-        com.zeroc.IceMX.MetricsAdminPrx metricsAdmin = getMetricsAdmin();
-        if(metricsAdmin != null)
+        if(_admin != null)
         {
             try
             {
-                metricsAdmin.getMetricsViewAsync(_name).whenComplete((result, ex) ->
+                _admin.getMetricsViewAsync(_name).whenComplete((result, ex) ->
                     {
                         if(ex == null)
                         {
@@ -249,7 +246,7 @@ class MetricsView extends TreeNode
                                     else if(!(ex instanceof com.zeroc.Ice.CommunicatorDestroyedException))
                                     {
                                         ex.printStackTrace();
-                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                        JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
                                                                       "Error: " + ex.toString(), "Error",
                                                                       JOptionPane.ERROR_MESSAGE);
                                     }

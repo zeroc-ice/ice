@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,7 +23,7 @@ public class BatchRequestQueue
         @Override
         public void enqueue()
         {
-            enqueueBatchRequest();
+            enqueueBatchRequest(_proxy);
         }
 
         @Override
@@ -59,6 +59,7 @@ public class BatchRequestQueue
         _batchStream = new Ice.OutputStream(instance, Protocol.currentProtocolEncoding);
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
+        _batchCompress = false;
         _request = new BatchRequestI();
 
         _maxSize = instance.batchAutoFlushSize();
@@ -112,6 +113,11 @@ public class BatchRequestQueue
             }
             else
             {
+                Boolean compress = ((Ice.ObjectPrxHelperBase)proxy)._getReference().getCompressOverride();
+                if(compress != null)
+                {
+                    _batchCompress |= compress.booleanValue();
+                }
                 _batchMarker = _batchStream.size();
                 ++_batchRequestNum;
             }
@@ -141,7 +147,7 @@ public class BatchRequestQueue
     }
 
     synchronized public int
-    swap(Ice.OutputStream os)
+    swap(Ice.OutputStream os, Ice.BooleanHolder compress)
     {
         if(_batchRequestNum == 0)
         {
@@ -155,18 +161,23 @@ public class BatchRequestQueue
         {
             lastRequest = new byte[_batchStream.size() - _batchMarker];
             Buffer buffer = _batchStream.getBuffer();
-            buffer.b.position(_batchMarker);
+            buffer.position(_batchMarker);
             buffer.b.get(lastRequest);
             _batchStream.resize(_batchMarker);
         }
 
         int requestNum = _batchRequestNum;
+        if(compress != null)
+        {
+            compress.value = _batchCompress;
+        }
         _batchStream.swap(os);
 
         //
         // Reset the batch.
         //
         _batchRequestNum = 0;
+        _batchCompress = false;
         _batchStream.writeBlob(Protocol.requestBatchHdr);
         _batchMarker = _batchStream.size();
         if(lastRequest != null)
@@ -218,9 +229,14 @@ public class BatchRequestQueue
         }
     }
 
-    private void enqueueBatchRequest()
+    private void enqueueBatchRequest(Ice.ObjectPrx proxy)
     {
         assert(_batchMarker < _batchStream.size());
+        Boolean compress = ((Ice.ObjectPrxHelperBase)proxy)._getReference().getCompressOverride();
+        if(compress != null)
+        {
+            _batchCompress |= compress.booleanValue();
+        }
         _batchMarker = _batchStream.size();
         ++_batchRequestNum;
     }
@@ -231,6 +247,7 @@ public class BatchRequestQueue
     private boolean _batchStreamCanFlush;
     private int _batchRequestNum;
     private int _batchMarker;
+    private boolean _batchCompress;
     private BatchRequestI _request;
     private Ice.LocalException _exception;
     private int _maxSize;

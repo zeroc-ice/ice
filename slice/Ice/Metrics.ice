@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -78,7 +78,7 @@ class Metrics
      *
      **/
     int failures = 0;
-};
+}
 
 /**
  *
@@ -102,7 +102,7 @@ struct MetricsFailures
      *
      **/
     StringIntDict failures;
-};
+}
 
 /**
  *
@@ -136,7 +136,7 @@ dictionary<string, MetricsMap> MetricsView;
  **/
 exception UnknownMetricsView
 {
-};
+}
 
 /**
  *
@@ -243,7 +243,7 @@ interface MetricsAdmin
      **/
     MetricsFailures getMetricsFailures(string view, string map, string id)
         throws UnknownMetricsView;
-};
+}
 
 /**
  *
@@ -273,12 +273,12 @@ class ThreadMetrics extends Metrics
      *
      * The number of threads which are currently performing other
      * activities. These are all other that are not counted with
-     * {@link inUseForUser} or {@link inUseForIO}, such as DNS
+     * {@link #inUseForUser} or {@link #inUseForIO}, such as DNS
      * lookups, garbage collection).
      *
      **/
     int inUseForOther = 0;
-};
+}
 
 /**
  *
@@ -309,7 +309,7 @@ class DispatchMetrics extends Metrics
      *
      **/
     long replySize = 0;
-};
+}
 
 /**
  *
@@ -337,7 +337,7 @@ class ChildInvocationMetrics extends Metrics
      *
      **/
     long replySize = 0;
-};
+}
 
 /**
  *
@@ -347,7 +347,7 @@ class ChildInvocationMetrics extends Metrics
  **/
 class CollocatedMetrics extends ChildInvocationMetrics
 {
-};
+}
 
 /**
  *
@@ -358,7 +358,7 @@ class CollocatedMetrics extends ChildInvocationMetrics
  **/
 class RemoteMetrics extends ChildInvocationMetrics
 {
-};
+}
 
 /**
  *
@@ -399,7 +399,7 @@ class InvocationMetrics extends Metrics
      *
      **/
     MetricsMap collocated;
-};
+}
 
 /**
  *
@@ -422,6 +422,6 @@ class ConnectionMetrics extends Metrics
      *
      **/
     long sentBytes = 0;
-};
+}
 
-};
+}

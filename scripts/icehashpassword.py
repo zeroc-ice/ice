@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -12,7 +12,6 @@ import sys, getopt, passlib.hash, passlib.hosts, getpass
 
 usePBKDF2 = any(sys.platform == p for p in ["win32", "darwin", "cygwin"])
 useCryptExt = any(sys.platform.startswith(p) for p in ["linux", "freebsd", "gnukfreebsd"])
-
 
 def usage():
     print("Usage: icehashpassword [options]")
@@ -120,7 +119,8 @@ def main():
             usage()
             return 2
 
-    encryptfn = passScheme.encrypt
+    # passlib 1.7 renamed encrypt to hash
+    encryptfn = passScheme.hash if hasattr(passScheme, "hash") else passScheme.encrypt
 
     args = []
     if sys.stdout.isatty():

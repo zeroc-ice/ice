@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/LoggerF.ice>
 #include <Ice/InstrumentationF.ice>
@@ -23,6 +23,7 @@
 #include <Ice/Current.ice>
 #include <Ice/Properties.ice>
 #include <Ice/FacetMap.ice>
+#include <Ice/Connection.ice>
 
 /**
  *
@@ -50,13 +51,25 @@ module Ice
  * @see Logger
  * @see ObjectAdapter
  * @see Properties
- * @see ObjectFactory
  * @see ValueFactory
  *
  **/
-["clr:implements:_System.IDisposable"]
+["clr:implements:_System.IDisposable", "java:implements:java.lang.AutoCloseable", "php:internal", "matlab:internal"]
 local interface Communicator
 {
+
+#ifdef __SLICE2JAVA__
+    /**
+     *
+     * Destroy the communicator. This Java-only method overrides close in
+     * java.lang.AutoCloseable and does not throw any exception.
+     *
+     * @see #destroy
+     *
+     **/
+    void close();
+#endif
+
     /**
      *
      * Destroy the communicator. This operation calls {@link #shutdown}
@@ -68,19 +81,18 @@ local interface Communicator
      * @see ObjectAdapter#destroy
      *
      **/
-    void destroy();
+    ["cpp:noexcept"] void destroy();
 
     /**
      *
      * Shuts down this communicator's server functionality, which
-     * includes the deactivation of all object adapters. (Attempts to use
-     * a deactivated object adapter raise {@link ObjectAdapterDeactivatedException}.)
-     * Subsequent calls to {@link #shutdown} are ignored.</p>
+     * includes the deactivation of all object adapters. Attempts to use a
+     * deactivated object adapter raise ObjectAdapterDeactivatedException.
+     * Subsequent calls to shutdown are ignored.
      *
-     * <p class="Note"> After {@link #shutdown} returns, no new requests are
-     * processed. However, requests that have been started before
-     * {@link #shutdown} was called might still be active. You can use
-     * {@link #waitForShutdown} to wait for the completion of all
+     * After shutdown returns, no new requests are processed. However, requests
+     * that have been started before shutdown was called might still be active.
+     * You can use {@link #waitForShutdown} to wait for the completion of all
      * requests.
      *
      * @see #destroy
@@ -88,29 +100,28 @@ local interface Communicator
      * @see ObjectAdapter#deactivate
      *
      **/
-    void shutdown();
+    ["cpp:noexcept"] void shutdown();
 
     /**
      *
      * Wait until the application has called {@link #shutdown} (or {@link #destroy}).
      * On the server side, this operation blocks the calling thread
      * until all currently-executing operations have completed.
-     * On the client side, the operation simply block until another
+     * On the client side, the operation simply blocks until another
      * thread has called {@link #shutdown} or {@link #destroy}.
      *
-     * <p>A typical use of this operation is to call it
-     * from the main thread, which then waits until some other thread
-     * calls {@link #shutdown}. After shut-down is complete, the main thread
-     * returns and can do some cleanup work before it finally calls
-     * {@link #destroy} to shut down the client functionality, and then
-     * exits the application.
+     * A typical use of this operation is to call it from the main thread,
+     * which then waits until some other thread calls {@link #shutdown}.
+     * After shut-down is complete, the main thread returns and can do some
+     * cleanup work before it finally calls {@link #destroy} to shut down
+     * the client functionality, and then exits the application.
      *
      * @see #shutdown
      * @see #destroy
      * @see ObjectAdapter#waitForDeactivate
      *
      **/
-    void waitForShutdown();
+    ["cpp:noexcept"] void waitForShutdown();
 
     /**
      *
@@ -121,7 +132,7 @@ local interface Communicator
      * @see #shutdown
      *
      **/
-    ["cpp:const"] bool isShutdown();
+    ["cpp:const", "cpp:noexcept"] bool isShutdown();
 
     /**
      *
@@ -131,10 +142,9 @@ local interface Communicator
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000. If the stringified proxy does not parse correctly, the
-     * operation throws one of {@link ProxyParseException},
-     * {@link EndpointParseException}, or {@link IdentityParseException}.
-     * An appendix in the Ice manual provides a detailed description
-     * of the syntax supported by stringified proxies.
+     * operation throws one of ProxyParseException, EndpointParseException,
+     * or IdentityParseException. Refer to the Ice manual for a detailed
+     * description of the syntax supported by stringified proxies.
      *
      * @param str The stringified proxy to convert into a proxy.
      *
@@ -193,7 +203,7 @@ local interface Communicator
     /**
      *
      * Convert a string into an identity. If the string does not parse
-     * correctly, the operation throws {@link IdentityParseException}.
+     * correctly, the operation throws IdentityParseException.
      *
      * @param str The string to convert into an identity.
      *
@@ -216,21 +226,20 @@ local interface Communicator
      * @see #stringToIdentity
      *
      **/
-    ["cpp:const", "deprecate:identityToString() is deprecated, use the static identityToString() method instead."]
-    string identityToString(Identity ident);
+    ["cpp:const"] string identityToString(Identity ident);
 
     /**
      *
      * Create a new object adapter. The endpoints for the object
-     * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.</p>
+     * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.
      *
-     * <p>It is legal to create an object adapter with the empty string as
+     * It is legal to create an object adapter with the empty string as
      * its name. Such an object adapter is accessible via bidirectional
      * connections or by collocated invocations that originate from the
-     * same communicator as is used by the adapter.</p>
+     * same communicator as is used by the adapter.
      *
-     * <p>Attempts to create a named object adapter for which no configuration
-     * can be found raise {@link InitializationException}.
+     * Attempts to create a named object adapter for which no configuration
+     * can be found raise InitializationException.
      *
      * @param name The object adapter name.
      *
@@ -246,11 +255,11 @@ local interface Communicator
     /**
      *
      * Create a new object adapter with endpoints. This operation sets
-     * the property <tt><em>name</em>.Endpoints</tt>,
-     * and then calls {@link createObjectAdapter}. It is provided as a
-     * convenience function.</p>
+     * the property <tt><em>name</em>.Endpoints</tt>, and then calls
+     * {@link #createObjectAdapter}. It is provided as a convenience
+     * function.
      *
-     * <p>Calling this operation with an empty name will result in a
+     * Calling this operation with an empty name will result in a
      * UUID being generated for the name.
      *
      * @param name The object adapter name.
@@ -269,9 +278,9 @@ local interface Communicator
     /**
      *
      * Create a new object adapter with a router. This operation
-     * creates a routed object adapter.</p>
+     * creates a routed object adapter.
      *
-     * <p>Calling this operation with an empty name will result in a
+     * Calling this operation with an empty name will result in a
      * UUID being generated for the name.
      *
      * @param name The object adapter name.
@@ -289,27 +298,26 @@ local interface Communicator
 
     /**
      *
-     * <p>Add an object factory to this communicator. Installing a
+     * Add an object factory to this communicator. Installing a
      * factory with an id for which a factory is already registered
-     * throws {@link AlreadyRegisteredException}.</p>
+     * throws AlreadyRegisteredException.
      *
-     * <p>When unmarshaling an Ice object, the Ice run time reads the
+     * When unmarshaling an Ice object, the Ice run time reads the
      * most-derived type id off the wire and attempts to create an
      * instance of the type using a factory. If no instance is created,
      * either because no factory was found, or because all factories
      * returned nil, the behavior of the Ice run time depends on the
-     * format with which the object was marshaled:</p>
+     * format with which the object was marshaled:
      *
-     * <p>If the object uses the "sliced" format, Ice ascends the class
+     * If the object uses the "sliced" format, Ice ascends the class
      * hierarchy until it finds a type that is recognized by a factory,
      * or it reaches the least-derived type. If no factory is found that
-     * can create an instance, the run time throws
-     * {@link NoValueFactoryException}.</p>
+     * can create an instance, the run time throws NoValueFactoryException.
      *
-     * <p>If the object uses the "compact" format, Ice immediately raises
-     * {@link NoValueFactoryException}.</p>
+     * If the object uses the "compact" format, Ice immediately raises
+     * NoValueFactoryException.
      *
-     * <p>The following order is used to locate a factory for a type:</p>
+     * The following order is used to locate a factory for a type:
      *
      * <ol>
      *
@@ -355,7 +363,7 @@ local interface Communicator
      * @see ValueFactoryManager#find
      *
      **/
-    ["cpp:const", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
+    ["cpp:const", "cpp:noexcept", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
     ObjectFactory findObjectFactory(string id);
 
     /**
@@ -366,7 +374,7 @@ local interface Communicator
      * or is set to None.
      *
      **/
-    ["cpp:const"] ImplicitContext getImplicitContext();
+    ["cpp:const", "cpp:noexcept"] ImplicitContext getImplicitContext();
 
     /**
      *
@@ -377,7 +385,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["cpp:const"] Properties getProperties();
+    ["cpp:const", "cpp:noexcept"] Properties getProperties();
 
     /**
      *
@@ -388,7 +396,7 @@ local interface Communicator
      * @see Logger
      *
      **/
-    ["cpp:const"] Logger getLogger();
+    ["cpp:const", "cpp:noexcept"] Logger getLogger();
 
     /**
      *
@@ -397,7 +405,7 @@ local interface Communicator
      * @return This communicator's observer resolver object.
      *
      **/
-    ["cpp:const"] Ice::Instrumentation::CommunicatorObserver getObserver();
+    ["cpp:const", "cpp:noexcept"] Instrumentation::CommunicatorObserver getObserver();
 
     /**
      *
@@ -416,9 +424,9 @@ local interface Communicator
      * Set a default router for this communicator. All newly
      * created proxies will use this default router. To disable the
      * default router, null can be used. Note that this
-     * operation has no effect on existing proxies.</p>
+     * operation has no effect on existing proxies.
      *
-     * <p class="Note">You can also set a router for an individual proxy
+     * You can also set a router for an individual proxy
      * by calling the operation <tt>ice_router</tt> on the proxy.
      *
      * @param rtr The default router to use for this communicator.
@@ -448,12 +456,11 @@ local interface Communicator
      * created proxy and object adapters will use this default
      * locator. To disable the default locator, null can be used.
      * Note that this operation has no effect on existing proxies or
-     * object adapters.</p>
+     * object adapters.
      *
-     * <p class="Note"> You can also set a locator for an individual proxy
-     * by calling the operation <tt>ice_locator</tt> on the proxy, or for an
-     * object adapter by calling the operation {@link setLocator} on the
-     * object adapter.
+     * You can also set a locator for an individual proxy by calling the
+     * operation <tt>ice_locator</tt> on the proxy, or for an object adapter
+     * by calling {@link ObjectAdapter#setLocator} on the object adapter.
      *
      * @param loc The default locator to use for this communicator.
      *
@@ -484,7 +491,7 @@ local interface Communicator
      * @see ValueFactoryManager
      *
      **/
-    ["cpp:const"] ValueFactoryManager getValueFactoryManager();
+    ["cpp:const", "cpp:noexcept"] ValueFactoryManager getValueFactoryManager();
 
     /**
      *
@@ -493,8 +500,11 @@ local interface Communicator
      * for all connections associated with the communicator.
      * Any errors that occur while flushing a connection are ignored.
      *
+     * @param compress Specifies whether or not the queued batch requests
+     * should be compressed before being sent over the wire.
+     *
      **/
-    ["async-oneway"] void flushBatchRequests();
+    ["async-oneway"] void flushBatchRequests(CompressBatch compress);
 
     /**
      *
@@ -502,7 +512,7 @@ local interface Communicator
      * If Ice.Admin.ServerId is set and the provided object adapter has a {@link Locator},
      * createAdmin registers the Admin's Process facet with the {@link Locator}'s {@link LocatorRegistry}.
      *
-     * <p>createAdmin call only be called once; subsequent calls raise {@link InitializationException}.</p>
+     * createAdmin call only be called once; subsequent calls raise InitializationException.
      *
      * @param adminAdapter The object adapter used to host the Admin object; if null and
      * Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
@@ -512,7 +522,6 @@ local interface Communicator
      * @return A proxy to the main ("") facet of the Admin object. Never returns a null proxy.
      *
      * @see #getAdmin
-     * @see LocatorRegistry#setServerProcessProxy
      *
      **/
     Object* createAdmin(ObjectAdapter adminAdapter, Identity adminId);
@@ -523,11 +532,11 @@ local interface Communicator
      *
      * getAdmin also creates the Admin object and creates and activates the Ice.Admin object
      * adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of the Admin
-     * object created by getAdmin is <value of Ice.Admin.InstanceName>/admin, or <UUID>/admin
+     * object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin
      * when Ice.Admin.InstanceName is not set.
      *
-     * <p>If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
-     * initialization, after initialization of all plugins.</p>
+     * If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
+     * initialization, after initialization of all plugins.
 
      * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no
      * Admin object is configured.
@@ -540,7 +549,7 @@ local interface Communicator
      *
      * Add a new facet to the Admin object.
      * Adding a servant with a facet that is already registered
-     * throws {@link AlreadyRegisteredException}.
+     * throws AlreadyRegisteredException.
      *
      * @param servant The servant that implements the new Admin facet.
      * @param facet The name of the new Admin facet.
@@ -552,7 +561,7 @@ local interface Communicator
      *
      * Remove the following facet to the Admin object.
      * Removing a facet that was not previously registered throws
-     * {@link NotRegisteredException}.
+     * NotRegisteredException.
      *
      * @param facet The name of the Admin facet.
      * @return The servant associated with this Admin facet.
@@ -582,6 +591,37 @@ local interface Communicator
      *
      **/
     FacetMap findAllAdminFacets();
-};
+}
 
-};
+/**
+ * The output mode for xxxToString method such as identityToString and proxyToString.
+ * The actual encoding format for the string is the same for all modes: you
+ * don't need to specify an encoding format or mode when reading such a string.
+ *
+ **/
+local enum ToStringMode
+{
+    /**
+     * Characters with ordinal values greater than 127 are kept as-is in the resulting string.
+     * Non-printable ASCII characters with ordinal values 127 and below are encoded as \\t, \\n (etc.)
+     * or \\unnnn.
+     **/
+    Unicode,
+
+    /**
+     * Characters with ordinal values greater than 127 are encoded as universal character names in
+     * the resulting string: \\unnnn for BMP characters and \\Unnnnnnnn for non-BMP characters.
+     * Non-printable ASCII characters with ordinal values 127 and below are encoded as \\t, \\n (etc.)
+     * or \\unnnn.
+     **/
+    ASCII,
+
+    /**
+     * Characters with ordinal values greater than 127 are encoded as a sequence of UTF-8 bytes using
+     * octal escapes. Characters with ordinal values 127 and below are encoded as \\t, \\n (etc.) or
+     * an octal escape. Use this mode to generate strings compatible with Ice 3.6 and earlier.
+     **/
+    Compat
+}
+
+}

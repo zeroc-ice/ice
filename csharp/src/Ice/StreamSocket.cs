@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,7 +35,7 @@ namespace IceInternal
             _state = StateConnected;
             try
             {
-                _desc = IceInternal.Network.fdToString(_fd);
+                _desc = Network.fdToString(_fd);
             }
             catch(Exception)
             {
@@ -111,12 +111,12 @@ namespace IceInternal
 
         public int getSendPacketSize(int length)
         {
-            return _maxSendPacketSize > 0 ? System.Math.Min(length, _maxSendPacketSize) : length;
+            return _maxSendPacketSize > 0 ? Math.Min(length, _maxSendPacketSize) : length;
         }
 
         public int getRecvPacketSize(int length)
         {
-            return _maxRecvPacketSize > 0 ? System.Math.Min(length, _maxRecvPacketSize) : length;
+            return _maxRecvPacketSize > 0 ? Math.Min(length, _maxRecvPacketSize) : length;
         }
 
         public void setBufferSize(int rcvSize, int sndSize)
@@ -400,7 +400,7 @@ namespace IceInternal
             Debug.Assert(_fd != null);
 
             int packetSize = buf.remaining();
-            if(AssemblyUtil.platform_ == AssemblyUtil.Platform.Windows)
+            if(AssemblyUtil.isWindows)
             {
                 //
                 // On Windows, limiting the buffer size is important to prevent
@@ -477,8 +477,8 @@ namespace IceInternal
             // connection timeout could easily be triggered when
             // receiging/sending large messages.
             //
-            _maxSendPacketSize = System.Math.Max(512, Network.getSendBufferSize(_fd));
-            _maxRecvPacketSize = System.Math.Max(512, Network.getRecvBufferSize(_fd));
+            _maxSendPacketSize = Math.Max(512, Network.getSendBufferSize(_fd));
+            _maxRecvPacketSize = Math.Max(512, Network.getRecvBufferSize(_fd));
         }
 
         private int toState(int operation)
@@ -495,7 +495,7 @@ namespace IceInternal
         }
 
         private readonly ProtocolInstance _instance;
-        private readonly IceInternal.NetworkProxy _proxy;
+        private readonly NetworkProxy _proxy;
         private readonly EndPoint _addr;
         private readonly EndPoint _sourceAddr;
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -53,6 +53,10 @@ public:
             test(false);
         }
         Lock sync(*this);
+        if(_name == "per-request load balancing")
+        {
+            _connections.insert(current.con);
+        }
         ++_last;
         if(++_count == 1000)
         {
@@ -64,9 +68,9 @@ public:
     waitForEvents()
     {
         Lock sync(*this);
-        cout << "testing " << _name << " reliability... " << flush;
+        cout << "testing " << _name << " ... " << flush;
         bool datagram = _name == "datagram" || _name == "batch datagram";
-        IceUtil::Time timeout = (datagram) ? IceUtil::Time::seconds(5) : IceUtil::Time::seconds(20);
+        IceUtil::Time timeout = (datagram) ? IceUtil::Time::seconds(5) : IceUtil::Time::seconds(30);
         while(_count < 1000)
         {
             if(!timedWait(timeout))
@@ -89,6 +93,10 @@ public:
                 }
             }
         }
+        if(_name == "per-request load balancing")
+        {
+            test(_connections.size() == 2);
+        }
         cout << "ok" << endl;
     }
 
@@ -98,6 +106,7 @@ private:
     const string _name;
     int _count;
     int _last;
+    set<Ice::ConnectionPtr> _connections;
 };
 typedef IceUtil::Handle<SingleI> SingleIPtr;
 
@@ -121,7 +130,8 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
         return EXIT_FAILURE;
     }
 
-    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:udp");
+    // Use 2 default endpoints to test per-request load balancing
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:default:udp");
 
     //
     // Test topic name that is too long
@@ -203,27 +213,39 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
         subscriberIdentities.push_back(object->ice_getIdentity());
         topic->subscribeAndGetPublisher(qos, object);
     }
+
     {
-        // Use a separate adapter to ensure a separate connection is used for the subscriber
-        // (otherwise, if multiple UDP subscribers use the same connection we might get high
-        // packet loss, see bug 1784).
-        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter3", "udp");
-        subscribers.push_back(new SingleI(communicator, "datagram"));
-        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_datagram();
+        subscribers.push_back(new SingleI(communicator, "per-request load balancing"));
+        IceStorm::QoS qos;
+        qos["locatorCacheTimeout"] = "10";
+        qos["connectionCached"] = "0";
+        Ice::ObjectPrx object = adapter->addWithUUID(subscribers.back());
         subscriberIdentities.push_back(object->ice_getIdentity());
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
-        adpt->activate();
+        topic->subscribeAndGetPublisher(qos, object);
     }
     {
         // Use a separate adapter to ensure a separate connection is used for the subscriber
         // (otherwise, if multiple UDP subscribers use the same connection we might get high
         // packet loss, see bug 1784).
+        communicator->getProperties()->setProperty("UdpAdapter3.ThreadPool.Size", "1");
+        ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter3", "udp");
+        subscribers.push_back(new SingleI(communicator, "datagram"));
+        Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_datagram();
+        subscriberIdentities.push_back(object->ice_getIdentity());
+        adpt->activate();
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
+    }
+    {
+        // Use a separate adapter to ensure a separate connection is used for the subscriber
+        // (otherwise, if multiple UDP subscribers use the same connection we might get high
+        // packet loss, see bug 1784).
+        communicator->getProperties()->setProperty("UdpAdapter4.ThreadPool.Size", "1");
         ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("UdpAdapter4", "udp");
         subscribers.push_back(new SingleI(communicator, "batch datagram"));
         Ice::ObjectPrx object = adpt->addWithUUID(subscribers.back())->ice_batchDatagram();
         subscriberIdentities.push_back(object->ice_getIdentity());
-        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
         adpt->activate();
+        topic->subscribeAndGetPublisher(IceStorm::QoS(), object);
     }
 
     adapter->activate();
@@ -251,7 +273,8 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)
@@ -262,15 +285,7 @@ main(int argc, char* argv[])
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        communicator->destroy();
     }
 
     return status;

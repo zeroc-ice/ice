@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,6 +14,8 @@
 #include <iostream>
 #include <locale.h>
 
+DEFINE_TEST("client")
+
 using namespace std;
 
 static bool useLocale = false;
@@ -23,12 +25,12 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-    Ice::registerIceStringConverter();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
+    Ice::registerIceStringConverter(false);
 #endif
 
-    Ice::InitializationData initData;
-    initData.properties = Ice::createProperties(argc, argv);
+    Ice::InitializationData initData = getTestInitData(argc, argv);
 
     string narrowEncoding;
     string wideEncoding;
@@ -127,13 +129,28 @@ main(int argc, char* argv[])
         wstring wmsg = proxy->widen(msg);
         test(proxy->narrow(wmsg) == msg);
         test(wmsg.size() == msg.size());
+
+        // Test stringToIdentity and identityToString
+
+        string identStr = "cat/" + msg;
+        Ice::Identity ident = Ice::stringToIdentity(identStr);
+        test(ident.name == msg);
+        test(ident.category == "cat");
+        test(identityToString(ident, Ice::ICE_ENUM(ToStringMode, Unicode)) == identStr);
+
+        identStr = identityToString(ident, Ice::ICE_ENUM(ToStringMode, ASCII));
+        test(identStr == "cat/tu me fends le c\\u0153ur!");
+        test(Ice::stringToIdentity(identStr) == ident);
+        identStr = identityToString(ident, Ice::ICE_ENUM(ToStringMode, Compat));
+        test(identStr == "cat/tu me fends le c\\305\\223ur!");
+        test(Ice::stringToIdentity(identStr) == ident);
+
         communicator->destroy();
         cout << "ok" << endl;
     }
 
     Ice::setProcessStringConverter(ICE_NULLPTR);
     Ice::setProcessWstringConverter(Ice::createUnicodeWstringConverter());
-
 
     string propValue = "Ice:createStringConverter";
     if(useIconv && !useLocale)

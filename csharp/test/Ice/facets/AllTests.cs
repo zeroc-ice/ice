@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,12 +11,13 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
-    public static GPrx allTests(Ice.Communicator communicator)
+    public static GPrx allTests(TestCommon.Application app)
     {
-        
+
+        Ice.Communicator communicator = app.communicator();
+
         Write("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").Length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
@@ -39,7 +40,7 @@ public class AllTests : TestCommon.TestApp
         WriteLine("ok");
 
         Write("testing facet registration exceptions... ");
-        communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default");
+        communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter");
         Ice.Object obj = new EmptyI();
         adapter.add(obj, Ice.Util.stringToIdentity("d"));
@@ -96,7 +97,7 @@ public class AllTests : TestCommon.TestApp
 
         Write("testing stringToProxy... ");
         Flush();
-        string @ref = "d:default -p 12010";
+        string @ref = "d:" + app.getTestEndpoint(0);
         Ice.ObjectPrx db = communicator.stringToProxy(@ref);
         test(db != null);
         WriteLine("ok");
@@ -151,7 +152,7 @@ public class AllTests : TestCommon.TestApp
         test(d.callC().Equals("C"));
         test(d.callD().Equals("D"));
         WriteLine("ok");
-     
+
         Write("testing facets A, B, C, and D... ");
         Flush();
         df = DPrxHelper.checkedCast(d, "facetABCD");
@@ -161,7 +162,7 @@ public class AllTests : TestCommon.TestApp
         test(df.callC().Equals("C"));
         test(df.callD().Equals("D"));
         WriteLine("ok");
-        
+
         Write("testing facets E and F... ");
         Flush();
         FPrx ff = FPrxHelper.checkedCast(d, "facetEF");
@@ -169,14 +170,14 @@ public class AllTests : TestCommon.TestApp
         test(ff.callE().Equals("E"));
         test(ff.callF().Equals("F"));
         WriteLine("ok");
-        
+
         Write("testing facet G... ");
         Flush();
         GPrx gf = GPrxHelper.checkedCast(ff, "facetGH");
         test(gf != null);
         test(gf.callG().Equals("G"));
         WriteLine("ok");
-        
+
         Write("testing whether casting preserves the facet... ");
         Flush();
         HPrx hf = HPrxHelper.checkedCast(gf);

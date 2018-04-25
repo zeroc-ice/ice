@@ -1,19 +1,17 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private static string testString = "This is a test string";
 
@@ -182,9 +180,10 @@ public class AllTests : TestCommon.TestApp
         private CallbackBase callback = new CallbackBase();
     }
 
-    public static Test.MyClassPrx allTests(Ice.Communicator communicator)
+    public static Test.MyClassPrx allTests(TestCommon.Application app)
     {
-        Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:default -p 12010");
+        Ice.Communicator communicator = app.communicator();
+        Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:" + app.getTestEndpoint(0));
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
         Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
         Test.MyClassPrx batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());
@@ -274,7 +273,6 @@ public class AllTests : TestCommon.TestApp
             {
                 test(false);
             }
-
 
             Ice.OutputStream outS = new Ice.OutputStream(communicator);
             outS.startEncapsulation();

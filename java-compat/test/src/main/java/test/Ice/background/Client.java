@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,21 +17,16 @@ public class Client extends test.Util.Application
     public int
     run(String[] args)
     {
-        Configuration configuration = new Configuration();
         PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
-        plugin.setConfiguration(configuration);
-        communicator().getPluginManager().initializePlugins();
-
-        BackgroundPrx background = AllTests.allTests(configuration, communicator(), getWriter());
+        BackgroundPrx background = AllTests.allTests(this, plugin.getConfiguration());
         background.shutdown();
         return 0;
     }
-    
+
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
 
         // For this test, we want to disable retries.
         //
@@ -41,7 +36,6 @@ public class Client extends test.Util.Application
         // This test kills connections, so we don't want warnings.
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
 
         // This test relies on filling the TCP send/recv buffer, so
         // we rely on a fixed value for these buffers.
@@ -53,11 +47,8 @@ public class Client extends test.Util.Application
         initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
         String defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
         initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
-        
+
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
-        
-        // Don't initialize the plugin until I've set the configuration.
-        initData.properties.setProperty("Ice.InitPlugins", "0");
 
         return initData;
     }

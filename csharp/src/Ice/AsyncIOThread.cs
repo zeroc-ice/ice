@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,16 +21,8 @@ namespace IceInternal
 
             _thread = new HelperThread(this);
             updateObserver();
-            if(instance.initializationData().properties.getProperty("Ice.ThreadPriority").Length > 0)
-            {
-                ThreadPriority priority = IceInternal.Util.stringToThreadPriority(
-                                           instance.initializationData().properties.getProperty("Ice.ThreadPriority"));
-                _thread.Start(priority);
-            }
-            else
-            {
-                _thread.Start(ThreadPriority.Normal);
-            }
+            _thread.Start(Util.stringToThreadPriority(
+                                        instance.initializationData().properties.getProperty("Ice.ThreadPriority")));
         }
 
         public void
@@ -41,9 +33,9 @@ namespace IceInternal
                 Ice.Instrumentation.CommunicatorObserver obsv = _instance.initializationData().observer;
                 if(obsv != null)
                 {
-                    _observer = obsv.getThreadObserver("Communicator", 
-                                                       _thread.getName(), 
-                                                       Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                    _observer = obsv.getThreadObserver("Communicator",
+                                                       _thread.getName(),
+                                                       Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                        _observer);
                     if(_observer != null)
                     {
@@ -59,7 +51,7 @@ namespace IceInternal
             {
                 Debug.Assert(!_destroyed);
                 _queue.AddLast(callback);
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -69,7 +61,7 @@ namespace IceInternal
             {
                 Debug.Assert(!_destroyed);
                 _destroyed = true;
-                System.Threading.Monitor.Pulse(this);
+                Monitor.Pulse(this);
             }
         }
 
@@ -91,7 +83,7 @@ namespace IceInternal
                 {
                     if(_observer != null && inUse)
                     {
-                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO, 
+                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateInUseForIO,
                                                Ice.Instrumentation.ThreadState.ThreadStateIdle);
                         inUse = false;
                     }
@@ -103,7 +95,7 @@ namespace IceInternal
 
                     while(!_destroyed && _queue.Count == 0)
                     {
-                        System.Threading.Monitor.Wait(this);
+                        Monitor.Wait(this);
                     }
 
                     LinkedList<ThreadPoolWorkItem> tmp = queue;
@@ -112,7 +104,7 @@ namespace IceInternal
 
                     if(_observer != null)
                     {
-                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle, 
+                        _observer.stateChanged(Ice.Instrumentation.ThreadState.ThreadStateIdle,
                                                Ice.Instrumentation.ThreadState.ThreadStateInUseForIO);
                         inUse = true;
                     }
@@ -140,7 +132,7 @@ namespace IceInternal
 
             if(_observer != null)
             {
-                    _observer.detach();
+                _observer.detach();
             }
         }
 

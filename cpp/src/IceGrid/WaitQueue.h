@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,12 +21,12 @@ namespace IceGrid
 class WaitItem : public virtual IceUtil::Shared
 {
 public:
-    
+
     WaitItem();
     virtual ~WaitItem();
 
     virtual void expired(bool) = 0;
-    
+
     const IceUtil::Time& getExpirationTime();
     void setExpirationTime(const IceUtil::Time&);
 
@@ -50,7 +50,7 @@ public:
     bool remove(const WaitItemPtr&);
 
 private:
-    
+
     std::list<WaitItemPtr> _waitQueue;
     bool _destroyed;
 };

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -535,44 +535,28 @@ Resolver::Resolver(const InternalNodeInfoPtr& info, const Ice::CommunicatorPtr& 
 string
 Resolver::operator()(const string& value, const string& name, bool allowEmpty) const
 {
+    string val;
     try
     {
-        string val;
-        try
-        {
-            val = substitute(value, true, true);
-        }
-        catch(const string& reason)
-        {
-            throw "invalid variable `" + value + "':\n " + reason;
-        }
-        catch(const char* reason)
-        {
-            throw "invalid variable `" + value + "':\n " + reason;
-        }
+        val = substitute(value, true, true);
+    }
+    catch(const std::exception& ex)
+    {
+        exception("invalid value for attribute `" + name + "':\ninvalid variable `" + value + "':\n " + ex.what());
+    }
 
-        if(!allowEmpty)
+    if(!allowEmpty)
+    {
+        if(value.empty())
         {
-            if(value.empty())
-            {
-                throw "empty string";
-            }
-            else if(val.empty())
-            {
-                throw "the value of `" + value + "' is an empty string";
-            }
+            exception("invalid value for attribute `" + name + "':\nempty string");
         }
-        return val;
+        else if(val.empty())
+        {
+            exception("invalid value for attribute `" + name + "':\nthe value of `" + value + "' is an empty string");
+        }
     }
-    catch(const string& reason)
-    {
-        exception("invalid value for attribute `" + name + "':\n" + reason);
-    }
-    catch(const char* reason)
-    {
-        exception("invalid value for attribute `" + name + "':\n" + reason);
-    }
-    return ""; // To prevent compiler warning.
+    return val;
 }
 
 Ice::StringSeq
@@ -650,11 +634,11 @@ Ice::Identity
 Resolver::operator()(const Ice::Identity& value, const string& name) const
 {
     assert(_communicator);
-    string str = asId(identityToString(value), name, false);
+    string str = asId(_communicator->identityToString(value), name, false);
     Ice::Identity id = Ice::stringToIdentity(str);
     if(id.name.empty())
     {
-        exception("invalid object identity `" + identityToString(value) + "': name empty");
+        exception("invalid object identity `" + _communicator->identityToString(value) + "': name empty");
     }
     return id;
 }
@@ -716,42 +700,26 @@ Resolver::asFloat(const string& value, const string& name) const
 string
 Resolver::asId(const string& value, const string& name, bool allowEmpty) const
 {
+    if(!allowEmpty && value.empty())
+    {
+        exception("invalid value for attribute `" + name + "':\nempty string");
+    }
+
+    string val;
     try
     {
-        if(!allowEmpty && value.empty())
-        {
-            throw "empty string";
-        }
-
-        string val;
-        try
-        {
-            val = substitute(value, true, false);
-        }
-        catch(const string& reason)
-        {
-            throw "invalid variable `" + value + "':\n" + reason;
-        }
-        catch(const char* reason)
-        {
-            throw "invalid variable `" + value + "':\n" + reason;
-        }
-
-        if(!allowEmpty && val.empty())
-        {
-            throw "the value of `" + value + "' is an empty string";
-        }
-        return val;
+        val = substitute(value, true, false);
     }
-    catch(const string& reason)
+    catch(const std::exception& ex)
     {
-        exception("invalid value for attribute `" + name + "':\n" + reason);
+        exception("invalid value for attribute `" + name + "':\ninvalid variable `" + value + "':\n" + ex.what());
     }
-    catch(const char* reason)
+
+    if(!allowEmpty && val.empty())
     {
-        exception("invalid value for attribute `" + name + "':\n" + reason);
+        exception("invalid value for attribute `" + name + "':\nthe value of `" + value + "' is an empty string");
     }
-    return ""; // To prevent compiler warning.
+    return val;
 }
 
 void
@@ -768,13 +736,9 @@ Resolver::setContext(const string& context)
     {
         _context = substitute(context, true, true);
     }
-    catch(const string& reason)
+    catch(const std::exception& ex)
     {
-        exception(reason);
-    }
-    catch(const char* reason)
-    {
-        exception(reason);
+        exception(ex.what());
     }
 }
 
@@ -943,7 +907,7 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
         end = value.find("}", beg);
         if(end == string::npos)
         {
-            throw "malformed variable name `" + value + "'";
+            throw invalid_argument("malformed variable name `" + value + "'");
         }
 
         //
@@ -965,7 +929,7 @@ Resolver::substitute(const string& v, bool useParams, bool useIgnored) const
             }
             else
             {
-                throw "use of the `" + name + "' variable is now allowed here";
+                throw invalid_argument("use of the `" + name + "' variable is now allowed here");
             }
         }
 
@@ -995,7 +959,7 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
         checkDeprecated(name);
         if(p->second.empty())
         {
-            throw "undefined variable `" + name + "'";
+            throw invalid_argument("undefined variable `" + name + "'");
         }
         return p->second;
     }
@@ -1009,13 +973,11 @@ Resolver::getVariable(const string& name, bool checkParams, bool& param) const
         }
     }
     p = _variables.find(name);
-    if(p != _variables.end())
+    if(p == _variables.end())
     {
-        return p->second;
+        throw invalid_argument("undefined variable `" + name + "'");
     }
-
-    throw "undefined variable `" + name + "'";
-    return ""; // To keep the compiler happy.
+    return p->second;
 }
 
 PropertyDescriptorSeq
@@ -1387,7 +1349,7 @@ CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
     {
         out << nl << "well-known object";
         out << sb;
-        out << nl << "identity = `" << identityToString(p->id) << "' ";
+        out << nl << "identity = `" << communicator->identityToString(p->id) << "' ";
         if(!p->type.empty())
         {
             out << nl << "type = `" << p->type << "'";
@@ -1402,7 +1364,7 @@ CommunicatorHelper::printObjectAdapter(const Ice::CommunicatorPtr& communicator,
     {
         out << nl << "allocatable";
         out << sb;
-        out << nl << "identity = `" << identityToString(p->id) << "' ";
+        out << nl << "identity = `" << communicator->identityToString(p->id) << "' ";
         if(!p->type.empty())
         {
             out << nl << "type = `" << p->type << "'";
@@ -2825,7 +2787,7 @@ ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator,
         {
             if(objectIds.count(*o) > 1)
             {
-                resolve.exception("duplicate object `" + identityToString(*o) + "'");
+                resolve.exception("duplicate object `" + _communicator->identityToString(*o) + "'");
             }
         }
     }

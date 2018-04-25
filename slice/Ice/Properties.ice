@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/PropertiesAdmin.ice>
 
@@ -29,6 +29,7 @@ module Ice
  * <em>application-name</em>\[.<em>category</em>\[.<em>sub-category</em>]].<em>name</em>.
  *
  **/
+["php:internal"]
 local interface Properties
 {
     /**
@@ -43,7 +44,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    string getProperty(string key);
+    ["cpp:noexcept"] string getProperty(string key);
 
     /**
      *
@@ -60,7 +61,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    string getPropertyWithDefault(string key, string \value);
+    ["cpp:noexcept"] string getPropertyWithDefault(string key, string \value);
 
     /**
      *
@@ -74,7 +75,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    int getPropertyAsInt(string key);
+    ["cpp:noexcept"] int getPropertyAsInt(string key);
 
     /**
      *
@@ -92,15 +93,14 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    int getPropertyAsIntWithDefault(string key, int \value);
-
+    ["cpp:noexcept"] int getPropertyAsIntWithDefault(string key, int \value);
 
      /**
      *
      * Get a property as a list of strings. The strings must be
      * separated by whitespace or comma. If the property is not set,
      * an empty list is returned. The strings in the list can contain
-     * whitespace and commas if they are enclosed in single or double 
+     * whitespace and commas if they are enclosed in single or double
      * quotes. If quotes are mismatched, an empty list is returned.
      * Within single quotes or double quotes, you can escape the
      * quote in question with \, e.g. O'Reilly can be written as
@@ -113,14 +113,14 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    StringSeq getPropertyAsList(string key);
+    ["cpp:noexcept"] StringSeq getPropertyAsList(string key);
 
     /**
      *
      * Get a property as a list of strings.  The strings must be
      * separated by whitespace or comma. If the property is not set,
      * the default list is returned. The strings in the list can contain
-     * whitespace and commas if they are enclosed in single or double 
+     * whitespace and commas if they are enclosed in single or double
      * quotes. If quotes are mismatched, the default list is returned.
      * Within single quotes or double quotes, you can escape the
      * quote in question with \, e.g. O'Reilly can be written as
@@ -136,7 +136,7 @@ local interface Properties
      * @see #setProperty
      *
      **/
-    StringSeq getPropertyAsListWithDefault(string key, StringSeq \value);
+    ["cpp:noexcept"] StringSeq getPropertyAsListWithDefault(string key, StringSeq \value);
 
     /**
      *
@@ -149,7 +149,7 @@ local interface Properties
      * @return The matching property set.
      *
      **/
-    PropertyDict getPropertiesForPrefix(string prefix);
+    ["cpp:noexcept"] PropertyDict getPropertiesForPrefix(string prefix);
 
     /**
      *
@@ -174,7 +174,7 @@ local interface Properties
      * @return The command line options for this property set.
      *
      **/
-    StringSeq getCommandLineOptions();
+    ["cpp:noexcept"] StringSeq getCommandLineOptions();
 
     /**
      *
@@ -226,7 +226,7 @@ local interface Properties
      * @return A copy of this property set.
      *
      **/
-    Properties clone();
-};
+    ["cpp:noexcept"] Properties clone();
+}
 
-};
+}

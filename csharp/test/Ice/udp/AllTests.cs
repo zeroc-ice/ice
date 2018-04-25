@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,6 +9,7 @@
 
 using Test;
 using System;
+using System.Text;
 using System.Threading;
 
 public class AllTests
@@ -64,9 +65,10 @@ public class AllTests
         private int _replies = 0;
     }
 
-    public static void allTests(Ice.Communicator communicator)
+    public static void allTests(TestCommon.Application app)
     {
-        communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp -p 12030");
+        Ice.Communicator communicator = app.communicator();
+        communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
         Test.PingReplyPrx reply =
@@ -75,7 +77,7 @@ public class AllTests
 
         Console.Out.Write("testing udp... ");
         Console.Out.Flush();
-        Ice.ObjectPrx @base = communicator.stringToProxy("test:udp -p 12010").ice_datagram();
+        Ice.ObjectPrx @base = communicator.stringToProxy("test:" + app.getTestEndpoint(0, "udp")).ice_datagram();
         Test.TestIntfPrx obj = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
         int nRetry = 5;
@@ -121,13 +123,11 @@ public class AllTests
             {
                 //
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means that DatagramLimitException
-                // will be throw when try to send a packet bigger than that. However, Mono 2.10 bug in setting Socket
-                // options could cause the RcvSize/SndSize to contain an arbitrary value so the test might fail 
-                // with smaller message sizes.
+                // will be throw when try to send a packet bigger than that.
                 //
-                test(seq.Length > 16384 || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
+                test(seq.Length > 16384);
             }
-            obj.ice_getConnection().close(false);
+            obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
             seq = new byte[50000];
             try
@@ -138,20 +138,12 @@ public class AllTests
                 bool b = replyI.waitReply(1, 500);
                 //
                 // The server's Ice.UDP.RcvSize property is set to 16384, which means this packet
-                // should not be delivered. However, Mono 2.10 bug in setting Socket options could 
-                // cause the RcvSize/SndSize to contain an arbitrary value so the packet might 
-                // be delivered successfully.
+                // should not be delivered.
                 //
-                test(!b || IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
+                test(!b);
             }
             catch(Ice.DatagramLimitException)
             {
-                //
-                // Mono 2.10 bug in setting Socket options could cause the RcvSize/SndSize to contain
-                // an arbitrary value so the message send might fail if the effetive SndSize is minor 
-                // than expected.
-                //
-                test(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono);
             }
             catch(Ice.LocalException ex)
             {
@@ -164,23 +156,17 @@ public class AllTests
 
         Console.Out.Write("testing udp multicast... ");
         Console.Out.Flush();
-        string endpoint;
+        StringBuilder endpoint = new StringBuilder();
         if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
         {
-            if(IceInternal.AssemblyUtil.osx_)
-            {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020 --interface \"::1\"";
-            }
-            else
-            {
-                endpoint = "udp -h \"ff15::1:1\" -p 12020";
-            }
+            endpoint.Append("udp -h \"ff15::1:1\" --interface \"::1\" -p "); // Use loopback to prevent other machines to answer.
         }
         else
         {
-            endpoint = "udp -h 239.255.1.1 -p 12020";
+            endpoint.Append("udp -h 239.255.1.1 --interface 127.0.0.1 -p "); // Use loopback to prevent other machines to answer.
         }
-        @base = communicator.stringToProxy("test -d:" + endpoint);
+        endpoint.Append(app.getTestPort(10));
+        @base = communicator.stringToProxy("test -d:" + endpoint.ToString());
         TestIntfPrx objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
         nRetry = 5;
@@ -229,7 +215,7 @@ public class AllTests
 
         //
         // Sending the replies back on the multicast UDP connection doesn't work for most
-        // platform (it works for OS X Leopard but not Snow Leopard, doesn't work on SLES,
+        // platform (it works for macOS Leopard but not Snow Leopard, doesn't work on SLES,
         // Windows...). For Windows, see UdpTransceiver constructor for the details. So
         // we don't run this test.
         //

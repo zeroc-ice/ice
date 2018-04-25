@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -121,11 +121,13 @@ class TestI(Test.TestIntf):
         ex.kpd = "derived"
         raise ex
 
-    def relayKnownPreservedAsBase(self, r, current=None):
-        r.knownPreservedAsBase()
+    def relayKnownPreservedAsBase(self, r, current):
+        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+        p.knownPreservedAsBase()
 
-    def relayKnownPreservedAsKnownPreserved(self, r, current=None):
-        r.knownPreservedAsKnownPreserved()
+    def relayKnownPreservedAsKnownPreserved(self, r, current):
+        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+        p.knownPreservedAsKnownPreserved()
 
     def unknownPreservedAsBase(self, current=None):
         ex = Test.SPreserved2()
@@ -145,11 +147,13 @@ class TestI(Test.TestIntf):
         ex.p2 = ex.p1
         raise ex
 
-    def relayUnknownPreservedAsBase(self, r, current=None):
-        r.unknownPreservedAsBase()
+    def relayUnknownPreservedAsBase(self, r, current):
+        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+        p.unknownPreservedAsBase()
 
-    def relayUnknownPreservedAsKnownPreserved(self, r, current=None):
-        r.unknownPreservedAsKnownPreserved()
+    def relayUnknownPreservedAsKnownPreserved(self, r, current):
+        p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
+        p.unknownPreservedAsKnownPreserved()
 
 def run(args, communicator):
     properties = communicator.getProperties()
@@ -163,17 +167,10 @@ def run(args, communicator):
     return True
 
 try:
-    communicator = Ice.initialize(sys.argv)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv) as communicator:
+         status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

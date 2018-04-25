@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,12 +32,12 @@ TEST_API void TestCommonTestInit(id, SEL, NSString*, BOOL, BOOL);
 @protocol ICECommunicator;
 @protocol ICEProperties;
 
-TEST_API id<ICEProperties> defaultServerProperties();
-TEST_API id<ICEProperties> defaultClientProperties();
+TEST_API id<ICEProperties> defaultServerProperties(int* argc, char** argv);
+TEST_API id<ICEProperties> defaultClientProperties(int* argc, char** argv);
 
 TEST_API void serverReady(id<ICECommunicator>);
 
-TEST_API void serverStop();
+TEST_API void serverStop(void);
 
 TEST_API void tprintf(const char* fmt, ...);
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,12 +18,12 @@ dictionary<string, string> StringDict;
 class C
 {
     int i;
-};
+}
 
 struct S1
 {
     string name;
-};
+}
 
 struct S2
 {
@@ -40,6 +40,6 @@ struct S2
     S1 s;
     C cls;
     Object* prx;
-};
+}
 
-};
+}

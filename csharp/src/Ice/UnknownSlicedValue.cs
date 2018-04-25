@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,24 +24,34 @@ namespace Ice
         }
 
         /// <summary>
-        /// Determine the Slice type ID associated with this object.
+        /// Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+        /// un-marshaling of the value, null is returned otherwise.
+        /// </summary>
+        /// <returns>The sliced data or null.</returns>
+        public override SlicedData ice_getSlicedData()
+        {
+            return _slicedData;
+        }
+
+        /// <summary>
+        /// Returns the Slice type ID associated with this object.
         /// </summary>
         /// <returns>The type ID.</returns>
-        public string getUnknownTypeId()
+        public override string ice_id()
         {
             return _unknownTypeId;
         }
 
-        public override void write__(OutputStream os__)
+        public override void iceWrite(OutputStream ostr)
         {
-            os__.startValue(_slicedData);
-            os__.endValue();
+            ostr.startValue(_slicedData);
+            ostr.endValue();
         }
 
-        public override void read__(InputStream is__)
+        public override void iceRead(InputStream istr)
         {
-            is__.startValue();
-            _slicedData = is__.endValue(true);
+            istr.startValue();
+            _slicedData = istr.endValue(true);
         }
 
         private string _unknownTypeId;

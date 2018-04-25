@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
@@ -48,7 +48,7 @@ local interface ObjectAdapter
      * @return This object adapter's name.
      *
      **/
-    ["cpp:const"] string getName();
+    ["cpp:const", "cpp:noexcept"] string getName();
 
     /**
      *
@@ -59,7 +59,7 @@ local interface ObjectAdapter
      * @see Communicator
      *
      **/
-    ["cpp:const"] Communicator getCommunicator();
+    ["cpp:const", "cpp:noexcept"] Communicator getCommunicator();
 
     /**
      *
@@ -110,7 +110,7 @@ local interface ObjectAdapter
      * requests through its endpoints. Object adapters that have been
      * deactivated must not be reactivated again, and cannot be used
      * otherwise. Attempts to use a deactivated object adapter raise
-     * {@link ObjectAdapterDeactivatedException}; however, attempts to
+     * {@link ObjectAdapterDeactivatedException} however, attempts to
      * {@link #deactivate} an already deactivated object adapter are
      * ignored and do nothing. Once deactivated, it is possible to
      * destroy the adapter to clean up resources and then create and
@@ -128,7 +128,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    void deactivate();
+    ["cpp:noexcept"] void deactivate();
 
     /**
      *
@@ -142,7 +142,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    void waitForDeactivate();
+    ["cpp:noexcept"] void waitForDeactivate();
 
     /**
      *
@@ -153,7 +153,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    ["cpp:const"] bool isDeactivated();
+    ["cpp:const", "cpp:noexcept"] bool isDeactivated();
 
     /**
      *
@@ -169,7 +169,7 @@ local interface ObjectAdapter
      * @see Communicator#destroy
      *
      **/
-    void destroy();
+    ["cpp:noexcept"] void destroy();
 
     /**
      *
@@ -637,7 +637,18 @@ local interface ObjectAdapter
      * @see #setLocator
      *
      **/
-    ["cpp:const"] Locator* getLocator();
+    ["cpp:const", "cpp:noexcept"] Locator* getLocator();
+
+    /**
+     *
+     * Get the set of endpoints configured with this object adapter.
+     *
+     * @return The set of endpoints.
+     *
+     * @see Endpoint
+     *
+     **/
+    ["cpp:const", "cpp:noexcept"] EndpointSeq getEndpoints();
 
     /**
      * Refresh the set of published endpoints. The run time re-reads
@@ -652,17 +663,6 @@ local interface ObjectAdapter
 
     /**
      *
-     * Get the set of endpoints configured with this object adapter.
-     *
-     * @return The set of endpoints.
-     *
-     * @see Endpoint
-     *
-     **/
-    ["cpp:const"] EndpointSeq getEndpoints();
-
-    /**
-     *
      * Get the set of endpoints that proxies created by this object
      * adapter will contain.
      *
@@ -672,7 +672,20 @@ local interface ObjectAdapter
      * @see Endpoint
      *
      **/
-    ["cpp:const"] EndpointSeq getPublishedEndpoints();
-};
+    ["cpp:const", "cpp:noexcept"] EndpointSeq getPublishedEndpoints();
 
-};
+    /**
+     *
+     * Set of the endpoints that proxies created by this object
+     * adapter will contain.
+     *
+     * @param newEndpoints The new set of endpoints that the object adapter will embed in proxies.
+     *
+     * @see #refreshPublishedEndpoints
+     * @see Endpoint
+     *
+     **/
+    void setPublishedEndpoints(EndpointSeq newEndpoints);
+}
+
+}

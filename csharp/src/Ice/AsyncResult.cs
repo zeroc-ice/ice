@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -47,9 +47,9 @@ namespace Ice
     {
         void cancel();
 
-        Ice.Communicator getCommunicator();
+        Communicator getCommunicator();
 
-        Ice.Connection getConnection();
+        Connection getConnection();
 
         ObjectPrx getProxy();
 
@@ -66,17 +66,17 @@ namespace Ice
 
         string getOperation();
 
-        AsyncResult whenSent(Ice.AsyncCallback cb);
-        AsyncResult whenSent(Ice.SentCallback cb);
-        AsyncResult whenCompleted(Ice.ExceptionCallback excb);
+        AsyncResult whenSent(AsyncCallback cb);
+        AsyncResult whenSent(SentCallback cb);
+        AsyncResult whenCompleted(ExceptionCallback excb);
     }
 
     public interface AsyncResult<T> : AsyncResult
     {
-        AsyncResult<T> whenCompleted(T cb, Ice.ExceptionCallback excb);
+        AsyncResult<T> whenCompleted(T cb, ExceptionCallback excb);
 
-        new AsyncResult<T> whenCompleted(Ice.ExceptionCallback excb);
-        new AsyncResult<T> whenSent(Ice.SentCallback cb);
+        new AsyncResult<T> whenCompleted(ExceptionCallback excb);
+        new AsyncResult<T> whenSent(SentCallback cb);
     }
 }
 
@@ -434,7 +434,6 @@ namespace IceInternal
             }
             return check(r, operation);
         }
-
 
         public static AsyncResultI check(Ice.AsyncResult r, string operation)
         {

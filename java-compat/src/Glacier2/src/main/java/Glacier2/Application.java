@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -48,12 +48,12 @@ public abstract class Application extends Ice.Application
     /**
      * This exception is raised if the session should be restarted.
      */
-    public class RestartSessionException extends Exception
+    public static class RestartSessionException extends Exception
     {
     }
 
     /**
-     * Initializes an instance that calls {@link Communicator#shutdown} if
+     * Initializes an instance that calls Communicator.shutdown() if
      * a signal is received.
      **/
     public
@@ -66,14 +66,23 @@ public abstract class Application extends Ice.Application
      * policy.
      *
      * @param signalPolicy Determines how to respond to signals.
-     *
-     * @see SignalPolicy
      **/
     public
     Application(Ice.SignalPolicy signalPolicy)
     {
         super(signalPolicy);
     }
+
+    /**
+     * Creates a new Glacier2 session. A call to
+     * <code>createSession</code> always precedes a call to
+     * <code>runWithSession</code>. If <code>Ice.LocalException</code>
+     * is thrown from this method, the application is terminated.
+     *
+     * @return The Glacier2 session.
+     **/
+    abstract public Glacier2.SessionPrx
+    createSession();
 
     /**
      * Called once the communicator has been initialized and the Glacier2 session
@@ -89,10 +98,24 @@ public abstract class Application extends Ice.Application
      * @return The <code>runWithSession</code> method should return zero for successful
      * termination, and non-zero otherwise. <code>Application.main</code> returns the
      * value returned by <code>runWithSession</code>.
+     *
+     * @throws RestartSessionException If the session should be restarted.
      **/
     public abstract int
     runWithSession(String[] args)
         throws RestartSessionException;
+
+    /**
+     * Called when the session refresh thread detects that the session has been
+     * destroyed. A subclass can override this method to take action after the
+     * loss of connectivity with the Glacier2 router. This method is called
+     * according to the Ice invocation dipsatch rules (in other words, it
+     * uses the same rules as an servant upcall or AMI callback).
+     **/
+    public void
+    sessionDestroyed()
+    {
+    }
 
     /**
      * Run should not be overridden for Glacier2.Application. Instead
@@ -114,34 +137,11 @@ public abstract class Application extends Ice.Application
      *
      * @throws RestartSessionException This exception is always thrown.
      **/
-    public void
+    public static void
     restart()
         throws RestartSessionException
     {
         throw new RestartSessionException();
-    }
-
-    /**
-     * Creates a new Glacier2 session. A call to
-     * <code>createSession</code> always precedes a call to
-     * <code>runWithSession</code>. If <code>Ice.LocalException</code>
-     * is thrown from this method, the application is terminated.
-     *
-     * @return The Glacier2 session.
-     **/
-    abstract public Glacier2.SessionPrx
-    createSession();
-
-    /**
-     * Called when the session refresh thread detects that the session has been
-     * destroyed. A subclass can override this method to take action after the
-     * loss of connectivity with the Glacier2 router. This method is called
-     * according to the Ice invocation dipsatch rules (in other words, it
-     * uses the same rules as an servant upcall or AMI callback).
-     **/
-    public void
-    sessionDestroyed()
-    {
     }
 
     /**
@@ -171,7 +171,7 @@ public abstract class Application extends Ice.Application
      * @return The category.
      * @throws SessionNotExistException No session exists.
      **/
-    public String
+    public static String
     categoryForClient()
         throws SessionNotExistException
     {
@@ -185,10 +185,11 @@ public abstract class Application extends Ice.Application
     /**
      * Create a new Ice identity for callback objects with the given
      * identity name field.
-     * @return The identity.
+     * @param name The identity name.
+     * @return The identity with the given name and a unique category.
      * @throws SessionNotExistException No session exists.
      **/
-    public Ice.Identity
+    public static Ice.Identity
     createCallbackIdentity(String name)
         throws SessionNotExistException
     {
@@ -201,7 +202,7 @@ public abstract class Application extends Ice.Application
      * @return The proxy for the servant.
      * @throws SessionNotExistException No session exists.
      **/
-    public Ice.ObjectPrx
+    public static Ice.ObjectPrx
     addWithUUID(Ice.Object servant)
         throws SessionNotExistException
     {
@@ -213,7 +214,7 @@ public abstract class Application extends Ice.Application
      * @return The object adapter.
      * @throws SessionNotExistException No session exists.
      */
-    public Ice.ObjectAdapter
+    public static Ice.ObjectAdapter
     objectAdapter()
         throws SessionNotExistException
     {
@@ -222,7 +223,7 @@ public abstract class Application extends Ice.Application
             throw new SessionNotExistException();
         }
 
-        synchronized(this)
+        synchronized(_mutex)
         {
             if(_adapter == null)
             {
@@ -284,6 +285,7 @@ public abstract class Application extends Ice.Application
 
         boolean restart = false;
         status.value = 0;
+        boolean sessionCreated = false;
 
         try
         {
@@ -311,7 +313,7 @@ public abstract class Application extends Ice.Application
                 try
                 {
                     _session = createSession();
-                    _createdSession = true;
+                    sessionCreated = true;
                 }
                 catch(Ice.LocalException ex)
                 {
@@ -319,7 +321,7 @@ public abstract class Application extends Ice.Application
                     status.value = 1;
                 }
 
-                if(_createdSession)
+                if(sessionCreated)
                 {
                     int acmTimeout = 0;
                     try
@@ -437,7 +439,7 @@ public abstract class Application extends Ice.Application
             }
         }
 
-        if(_createdSession && _router != null)
+        if(sessionCreated && _router != null)
         {
             try
             {
@@ -468,20 +470,7 @@ public abstract class Application extends Ice.Application
 
         if(_communicator != null)
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Ice.Util.getProcessLogger().error(IceInternal.Ex.toString(ex));
-                status.value = 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                Ice.Util.getProcessLogger().error("unknown exception:\n" + IceInternal.Ex.toString(ex));
-                status.value = 1;
-            }
+            _communicator.destroy();
             _communicator = null;
         }
 
@@ -501,7 +490,6 @@ public abstract class Application extends Ice.Application
         _adapter = null;
         _router = null;
         _session = null;
-        _createdSession = false;
         _category = null;
 
         return restart;
@@ -510,6 +498,5 @@ public abstract class Application extends Ice.Application
     private static Ice.ObjectAdapter _adapter;
     private static Glacier2.RouterPrx _router;
     private static Glacier2.SessionPrx _session;
-    private static boolean _createdSession = false;
     private static String _category;
 }

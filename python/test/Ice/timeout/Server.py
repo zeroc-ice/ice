@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -40,19 +40,36 @@ class TimeoutI(Test.Timeout):
         if timeout != 0:
             time.sleep(timeout / 1000.0)
 
+class ControllerI(Test.Controller):
+
+    def __init__(self, adapter):
+        self.adapter = adapter
+
     def holdAdapter(self, to, current=None):
-        current.adapter.hold()
-        t = ActivateAdapterThread(current.adapter, to)
-        t.start()
+        self.adapter.hold()
+        if to >= 0:
+            t = ActivateAdapterThread(self.adapter, to)
+            t.start()
+
+    def resumeAdapter(self, current=None):
+        self.adapter.activate()
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
 def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
+    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
+    communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
     adapter = communicator.createObjectAdapter("TestAdapter")
     adapter.add(TimeoutI(), Ice.stringToIdentity("timeout"))
     adapter.activate()
+
+    controllerAdapter = communicator.createObjectAdapter("ControllerAdapter")
+    controllerAdapter.add(ControllerI(adapter), Ice.stringToIdentity("controller"))
+    controllerAdapter.activate()
+
     communicator.waitForShutdown()
     return True
 
@@ -60,22 +77,22 @@ try:
     initData = Ice.InitializationData()
     initData.properties = Ice.createProperties(sys.argv)
     initData.properties.setProperty("Ice.Warn.Connections", "0");
+
+    #
+    # The client sends large messages to cause the transport
+    # buffers to fill up.
+    #
+    initData.properties.setProperty("Ice.MessageSizeMax", "10000");
+
     #
     # Limit the recv buffer size, this test relies on the socket
     # send() blocking after sending a given amount of data.
     #
     initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
-    communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv, initData) as communicator:
+        status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

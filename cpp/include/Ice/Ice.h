@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,7 +32,7 @@
 #include <Ice/OutgoingAsync.h>
 #include <Ice/IncomingAsync.h>
 #include <Ice/Process.h>
-#if !defined(ICE_OS_WINRT) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
 #   include <Ice/Application.h>
 #endif
 #include <Ice/Connection.h>
@@ -47,7 +47,7 @@
 #include <Ice/Instrumentation.h>
 #include <Ice/Metrics.h>
 #include <Ice/SliceChecksums.h>
-#if !defined(ICE_OS_WINRT) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
 #   include <Ice/Service.h>
 #endif
 #include <Ice/RegisterPlugins.h>

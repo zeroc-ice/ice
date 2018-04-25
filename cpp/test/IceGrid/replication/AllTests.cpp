@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,7 +24,6 @@ namespace
 
 const int sleepTime = 100; // 100ms
 const int maxRetry = 240000 / sleepTime; // 4 minutes
-
 
 void
 addProperty(const CommunicatorDescriptorPtr& communicator, const string& name, const string& value)
@@ -255,7 +254,7 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -828,6 +827,15 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
+            //
+            // On slow environments, it can take a bit for the node to
+            // re-establish the connection so we ping it twice. The
+            // second should succeed.
+            //
+            if(!slave1Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
         }
         catch(const NodeNotExistException&)
@@ -845,12 +853,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
-            //
-            // On slow environments, it can take a bit for the node to
-            // re-establish the connection so we ping it twice. The
-            // second should succeed.
-            //
-            slave2Admin->pingNode("Node1");
+            if(!slave2Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave2Admin->pingNode("Node1")); // Node should be re-connected even if the master is down.
         }
         catch(const NodeNotExistException&)
@@ -866,6 +872,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
+            if(!masterAdmin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(masterAdmin->pingNode("Node1")); // Node should be re-connected.
         }
         catch(const NodeNotExistException&)
@@ -878,6 +888,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
+            if(!slave1Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave1Admin->pingNode("Node1")); // Node should be re-connected.
         }
         catch(const NodeNotExistException&)
@@ -887,6 +901,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
+            if(!masterAdmin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(masterAdmin->pingNode("Node1"));
         }
         catch(const NodeNotExistException&)
@@ -896,6 +914,10 @@ allTests(const Ice::CommunicatorPtr& comm)
 
         try
         {
+            if(!slave2Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave2Admin->pingNode("Node1"));
         }
         catch(const NodeNotExistException&)
@@ -909,6 +931,10 @@ allTests(const Ice::CommunicatorPtr& comm)
         slave2Admin = createAdminSession(slave2Locator, "Slave2");
         try
         {
+            if(!slave2Admin->pingNode("Node1"))
+            {
+                IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(200));
+            }
             test(slave2Admin->pingNode("Node1"));
         }
         catch(const NodeNotExistException&)
@@ -965,6 +991,15 @@ allTests(const Ice::CommunicatorPtr& comm)
         catch(const Ice::LocalException& ex)
         {
             cerr << ex << endl;
+
+            ApplicationInfo app = admin->getApplicationInfo("Test");
+            cerr << "properties-override = " << app.descriptor.variables["properties-override"] << endl;
+
+            PropertyDescriptorSeq& seq = admin->getServerInfo("Node1").descriptor->propertySet.properties;
+            for(PropertyDescriptorSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+            {
+                cerr << p->name << " = " << p->value << endl;
+            }
             test(false);
         }
 
@@ -1332,7 +1367,6 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     }
     cout << "ok" << endl;
-
 
     slave1Admin->shutdownNode("Node1");
     removeServer(admin, "Node1");

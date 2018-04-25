@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["ice-prefix", "cpp:header-ext:h"]]
 
 #include <IceStorm/IceStorm.ice>
 #include <IceStorm/Election.ice>
@@ -37,7 +37,11 @@ module IceStorm
     Ice::ByteSeq data;
     /** The Ice::Current::Context data from the originating request. */
     Ice::Context context;
-};
+}
+
+local exception SendQueueSizeMaxReached
+{
+}
 
 /** A sequence of EventData. */
 ["cpp:type:std::deque< ::IceStorm::EventDataPtr>"] sequence<EventData> EventDataSeq;
@@ -60,12 +64,12 @@ interface TopicLink
      *
      **/
     void forward(EventDataSeq events);
-};
+}
 
 /** Thrown if the reap call would block. */
 exception ReapWouldBlock
 {
-};
+}
 
 /**
  *
@@ -95,7 +99,7 @@ interface TopicInternal extends Topic
      *
      **/
     void reap(Ice::IdentitySeq id) throws ReapWouldBlock;
-};
+}
 
 /**
  *
@@ -115,7 +119,6 @@ interface TopicManagerInternal extends TopicManager
      *
      **/
     ["cpp:const"] idempotent IceStormElection::Node* getReplicaNode();
-};
+}
 
-}; // End module IceStorm
-
+} // End module IceStorm

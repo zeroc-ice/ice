@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,14 +18,14 @@ import com.zeroc.ice.Test.*;
 public class ServiceBean implements Service
 {
     @PostConstruct
-    public void 
+    public void
     create()
     {
         Ice.ObjectPrx db = IceAdapter.stringToProxy("db:tcp -h localhost -p 10001");
         database = DatabasePrxHelper.uncheckedCast(db);
     }
 
-    public final Account 
+    public final Account
     getAccount(String id)
     {
         try

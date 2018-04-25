@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you  the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -77,12 +77,16 @@ registerConnectionInfoClass(Class cl)
         return [[ICETCPConnectionInfo alloc] initWithTCPConnectionInfo:tcpInfo.get()];
     }
 
-    for(std::vector<Class>::const_iterator p = connectionInfoClasses->begin(); p != connectionInfoClasses->end(); ++p)
+    if(connectionInfoClasses)
     {
-        ICEConnectionInfo* r = [*p checkedConnectionInfoWithConnectionInfo:info];
-        if(r)
+        for(std::vector<Class>::const_iterator p = connectionInfoClasses->begin(); p != connectionInfoClasses->end();
+            ++p)
         {
-            return r;
+            ICEConnectionInfo* r = [*p checkedConnectionInfoWithConnectionInfo:info];
+            if(r)
+            {
+                return r;
+            }
         }
     }
 
@@ -262,12 +266,12 @@ private:
 }
 
 @implementation ICEConnection
--(void) close:(BOOL)force
+-(void) close:(ICEConnectionClose)mode
 {
     NSException* nsex = nil;
     try
     {
-        CONNECTION->close(force);
+        CONNECTION->close((Ice::ConnectionClose)mode);
     }
     catch(const std::exception& ex)
     {
@@ -283,7 +287,7 @@ private:
     NSException* nsex = nil;
     try
     {
-        return [ICEObjectPrx objectPrxWithObjectPrx__:CONNECTION->createProxy([identity identity])];
+        return [ICEObjectPrx iceObjectPrxWithObjectPrx:CONNECTION->createProxy([identity identity])];
     }
     catch(const std::exception& ex)
     {
@@ -322,12 +326,12 @@ private:
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
--(void) flushBatchRequests
+-(void) flushBatchRequests:(ICECompressBatch)compress
 {
     NSException* nsex = nil;
     try
     {
-        CONNECTION->flushBatchRequests();
+        CONNECTION->flushBatchRequests((Ice::CompressBatch)compress);
     }
     catch(const std::exception& ex)
     {
@@ -338,22 +342,24 @@ private:
         @throw nsex;
     }
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result)
                         {
-                            result = CONNECTION->begin_flushBatchRequests();
+                            result = CONNECTION->begin_flushBatchRequests((Ice::CompressBatch)compress);
                         });
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress exception:(void(^)(ICEException*))exception
 {
-    return [self begin_flushBatchRequests:exception sent:nil];
+    return [self begin_flushBatchRequests:compress exception:exception sent:nil];
 }
--(id<ICEAsyncResult>) begin_flushBatchRequests:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
+-(id<ICEAsyncResult>) begin_flushBatchRequests:(ICECompressBatch)compress
+                                     exception:(void(^)(ICEException*))exception
+                                          sent:(void(^)(BOOL))sent
 {
     return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb)
                         {
-                            result = CONNECTION->begin_flushBatchRequests(cb);
+                            result = CONNECTION->begin_flushBatchRequests((Ice::CompressBatch)compress, cb);
                         },
                         ^(const Ice::AsyncResultPtr& result) {
                             CONNECTION->end_flushBatchRequests(result);
@@ -375,6 +381,52 @@ private:
 {
     CONNECTION->setHeartbeatCallback(new HeartbeatCallbackI(self, callback));
 }
+-(void) heartbeat
+{
+    NSException* nsex = nil;
+    try
+    {
+        CONNECTION->heartbeat();
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+}
+-(id<ICEAsyncResult>) begin_heartbeat
+{
+    return beginCppCall(^(Ice::AsyncResultPtr& result)
+                        {
+                            result = CONNECTION->begin_heartbeat();
+                        });
+}
+-(id<ICEAsyncResult>) begin_heartbeat:(void(^)(ICEException*))exception
+{
+    return [self begin_heartbeat:exception sent:nil];
+}
+-(id<ICEAsyncResult>) begin_heartbeat:(void(^)(ICEException*))exception sent:(void(^)(BOOL))sent
+{
+    return beginCppCall(^(Ice::AsyncResultPtr& result, const Ice::CallbackPtr& cb)
+                        {
+                            result = CONNECTION->begin_heartbeat(cb);
+                        },
+                        ^(const Ice::AsyncResultPtr& result)
+                        {
+                            CONNECTION->end_heartbeat(result);
+                        },
+                        exception, sent);
+}
+-(void) end_heartbeat:(id<ICEAsyncResult>)result
+{
+    endCppCall(^(const Ice::AsyncResultPtr& r)
+               {
+                   CONNECTION->end_heartbeat(r);
+               }, result);
+}
 -(void) setACM:(id)timeout close:(id)close heartbeat:(id)heartbeat
 {
     IceUtil::Optional<int> to;
@@ -394,7 +446,17 @@ private:
         hb = (Ice::ACMHeartbeat)intValue;
     }
 
-    CONNECTION->setACM(to, c, hb);
+    NSException* nsex;
+    try
+    {
+        CONNECTION->setACM(to, c, hb);
+        return;
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    @throw nsex;
 }
 -(ICEACM*) getACM
 {
@@ -443,6 +505,23 @@ private:
     try
     {
         CONNECTION->setBufferSize(rcvSize, sndSize);
+    }
+    catch(const std::exception& ex)
+    {
+        nsex = toObjCException(ex);
+    }
+    if(nsex != nil)
+    {
+        @throw nsex;
+    }
+}
+
+-(void) throwException
+{
+    NSException* nsex = nil;
+    try
+    {
+        CONNECTION->throwException();
     }
     catch(const std::exception& ex)
     {

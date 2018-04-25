@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,7 +21,7 @@
 using namespace std;
 using namespace IceGrid;
 
-FileCache::FileCache(const Ice::CommunicatorPtr& com) : 
+FileCache::FileCache(const Ice::CommunicatorPtr& com) :
     _messageSizeMax(com->getProperties()->getPropertyAsIntWithDefault("Ice.MessageSizeMax", 1024) * 1024 - 256)
 {
 }
@@ -70,7 +70,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
         {
             is.seekg(0, ios::beg); // We've reach the begining of the file.
         }
-        
+
         //
         // Read the block and count the number of lines in the block
         // If we found the "first last N lines", we start throwing out
@@ -102,7 +102,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
         else if(totalCount < originalCount)
         {
             //
-            // Otherwise, it we still didn't find the required number of lines, 
+            // Otherwise, it we still didn't find the required number of lines,
             // read another block of text before this block.
             //
             lastBlockOffset -= blockSize; // Position of the block we just read.
@@ -115,7 +115,7 @@ FileCache::getOffsetFromEnd(const string& file, int originalCount)
     {
         throw FileNotAvailableException("unrecoverable error occured while reading file `" + file + "'");
     }
- 
+
     if(lines.empty())
     {
         return 0;
@@ -162,7 +162,7 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
     //
     // Read lines from the file until we read enough or reached EOF.
-    // 
+    //
     newOffset = offset;
     lines = Ice::StringSeq();
     is.seekg(static_cast<streamoff>(offset), ios::beg);
@@ -215,4 +215,3 @@ FileCache::read(const string& file, Ice::Long offset, int size, Ice::Long& newOf
 
     return is.eof();
 }
-

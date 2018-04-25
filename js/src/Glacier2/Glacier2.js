@@ -1,15 +1,15 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-var __M = require("../Ice/ModuleRegistry").Ice.__M;
+var _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
 
-module.exports.Glacier2 = __M.require(module,
+module.exports.Glacier2 = _ModuleRegistry.require(module,
     [
         "../Glacier2/PermissionsVerifier",
         "../Glacier2/Router",

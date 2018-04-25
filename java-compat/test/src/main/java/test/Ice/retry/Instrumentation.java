@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,13 +23,13 @@ public class Instrumentation
     class InvocationObserverI implements Ice.Instrumentation.InvocationObserver
     {
         @Override
-        public void 
+        public void
         attach()
         {
         }
-        
+
         @Override
-        public void 
+        public void
         detach()
         {
             synchronized(Instrumentation.class)
@@ -39,7 +39,7 @@ public class Instrumentation
         }
 
         @Override
-        public void 
+        public void
         failed(String msg)
         {
             synchronized(Instrumentation.class)
@@ -49,7 +49,7 @@ public class Instrumentation
         }
 
         @Override
-        public void 
+        public void
         retried()
         {
             synchronized(Instrumentation.class)
@@ -59,11 +59,11 @@ public class Instrumentation
         }
 
         @Override
-        public void 
+        public void
         userException()
         {
         }
-        
+
         @Override
         public Ice.Instrumentation.RemoteObserver
         getRemoteObserver(Ice.ConnectionInfo ci, Ice.Endpoint ei, int i, int j)
@@ -72,7 +72,7 @@ public class Instrumentation
         }
 
         @Override
-        public Ice.Instrumentation.CollocatedObserver 
+        public Ice.Instrumentation.CollocatedObserver
         getCollocatedObserver(Ice.ObjectAdapter adapter, int i , int j)
         {
             return null;
@@ -84,60 +84,60 @@ public class Instrumentation
     class CommunicatorObserverI implements Ice.Instrumentation.CommunicatorObserver
     {
         @Override
-        public Ice.Instrumentation.Observer 
+        public Ice.Instrumentation.Observer
         getConnectionEstablishmentObserver(Ice.Endpoint e, String s)
         {
             return null;
         }
 
         @Override
-        public Ice.Instrumentation.Observer 
+        public Ice.Instrumentation.Observer
         getEndpointLookupObserver(Ice.Endpoint e)
         {
             return null;
         }
 
         @Override
-        public Ice.Instrumentation.ConnectionObserver 
-        getConnectionObserver(Ice.ConnectionInfo ci, 
-                              Ice.Endpoint ei, 
+        public Ice.Instrumentation.ConnectionObserver
+        getConnectionObserver(Ice.ConnectionInfo ci,
+                              Ice.Endpoint ei,
                               Ice.Instrumentation.ConnectionState s,
                               Ice.Instrumentation.ConnectionObserver o)
         {
             return null;
         }
-        
+
         @Override
-        public Ice.Instrumentation.ThreadObserver 
-        getThreadObserver(String p, 
-                          String n, 
-                          Ice.Instrumentation.ThreadState s, 
+        public Ice.Instrumentation.ThreadObserver
+        getThreadObserver(String p,
+                          String n,
+                          Ice.Instrumentation.ThreadState s,
                           Ice.Instrumentation.ThreadObserver o)
         {
             return null;
         }
 
         @Override
-        public Ice.Instrumentation.InvocationObserver 
+        public Ice.Instrumentation.InvocationObserver
         getInvocationObserver(Ice.ObjectPrx p, String o, java.util.Map<String, String> c)
         {
             return invocationObserver;
         }
-        
+
         @Override
-        public Ice.Instrumentation.DispatchObserver 
+        public Ice.Instrumentation.DispatchObserver
         getDispatchObserver(Ice.Current c, int i)
         {
             return null;
         }
-        
+
         @Override
-        public void 
+        public void
         setObserverUpdater(Ice.Instrumentation.ObserverUpdater u)
         {
         }
     };
-    
+
     private Ice.Instrumentation.CommunicatorObserver communicatorObserver = new CommunicatorObserverI();
 
     public Ice.Instrumentation.CommunicatorObserver
@@ -180,7 +180,7 @@ public class Instrumentation
         }
         value.value = 0;
     }
-    
+
     public void
     testRetryCount(int expected)
     {

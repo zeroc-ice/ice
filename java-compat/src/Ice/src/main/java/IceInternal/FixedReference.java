@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,11 +18,20 @@ public class FixedReference extends Reference
                    String facet,
                    int mode,
                    boolean secure,
+                   Ice.ProtocolVersion protocol,
                    Ice.EncodingVersion encoding,
-                   Ice.ConnectionI connection)
+                   Ice.ConnectionI connection,
+                   int invocationTimeout,
+                   java.util.Map<String, String> context,
+                   Ice.BooleanOptional compress)
     {
-        super(instance, communicator, identity, facet, mode, secure, Ice.Util.Protocol_1_0, encoding, -1, null);
+        super(instance, communicator, identity, facet, mode, secure, protocol, encoding, invocationTimeout, context);
         _fixedConnection = connection;
+        if(compress.isSet())
+        {
+            _overrideCompress = true;
+            _compress = compress.get();
+        }
     }
 
     @Override
@@ -93,6 +102,13 @@ public class FixedReference extends Reference
     getConnectionId()
     {
         return "";
+    }
+
+    @Override
+    public Ice.IntOptional
+    getTimeout()
+    {
+        return new Ice.IntOptional();
     }
 
     @Override
@@ -173,6 +189,19 @@ public class FixedReference extends Reference
     }
 
     @Override
+    public Reference
+    changeConnection(Ice.ConnectionI connection)
+    {
+        if(_fixedConnection == connection)
+        {
+            return this;
+        }
+        FixedReference r = (FixedReference)getInstance().referenceFactory().copy(this);
+        r._fixedConnection = connection;
+        return r;
+    }
+
+    @Override
     public boolean
     isIndirect()
     {
@@ -189,14 +218,6 @@ public class FixedReference extends Reference
     @Override
     public void
     streamWrite(Ice.OutputStream s)
-        throws Ice.MarshalException
-    {
-        throw new Ice.FixedProxyException();
-    }
-
-    @Override
-    public String
-    toString()
         throws Ice.MarshalException
     {
         throw new Ice.FixedProxyException();
@@ -221,7 +242,7 @@ public class FixedReference extends Reference
         {
             if(_fixedConnection.endpoint().datagram())
             {
-                throw new Ice.NoEndpointException("");
+                throw new Ice.NoEndpointException(toString());
             }
             break;
         }
@@ -231,7 +252,7 @@ public class FixedReference extends Reference
         {
             if(!_fixedConnection.endpoint().datagram())
             {
-                throw new Ice.NoEndpointException("");
+                throw new Ice.NoEndpointException(toString());
             }
             break;
         }
@@ -253,12 +274,12 @@ public class FixedReference extends Reference
         }
         if(secure && !_fixedConnection.endpoint().secure())
         {
-            throw new Ice.NoEndpointException("");
+            throw new Ice.NoEndpointException(toString());
         }
 
         _fixedConnection.throwException(); // Throw in case our connection is already destroyed.
 
-        boolean compress;
+        boolean compress = false;
         if(defaultsAndOverrides.overrideCompress)
         {
             compress = defaultsAndOverrides.overrideCompressValue;
@@ -267,17 +288,13 @@ public class FixedReference extends Reference
         {
             compress = _compress;
         }
-        else
-        {
-            compress = _fixedConnection.endpoint().compress();
-        }
 
         RequestHandler handler = new ConnectionRequestHandler(this, _fixedConnection, compress);
         if(getInstance().queueRequests())
         {
             handler = new QueueRequestHandler(getInstance(), handler);
         }
-        return proxy.__setRequestHandler(handler);
+        return proxy._setRequestHandler(handler);
     }
 
     @Override

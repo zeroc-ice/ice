@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,6 +11,7 @@
 #include <IceUtil/Options.h>
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
+#include <TestCommon.h>
 
 using namespace std;
 using namespace Ice;
@@ -23,6 +24,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     IceUtilInternal::Options opts;
     opts.addOpt("", "events", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "oneway");
+    opts.addOpt("", "maxQueueTest");
 
     try
     {
@@ -47,6 +49,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
 
     bool oneway = opts.isSet("oneway");
+    bool maxQueueTest = opts.isSet("maxQueueTest");
 
     PropertiesPtr properties = communicator->getProperties();
     const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
@@ -74,7 +77,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     {
         cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
         return EXIT_FAILURE;
-        
+
     }
 
     EventPrx twowayProxy = EventPrx::uncheckedCast(topic->getPublisher()->ice_twoway());
@@ -90,6 +93,11 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
 
     for(int i = 0; i < events; ++i)
     {
+        if(maxQueueTest && i == 10)
+        {
+            // Sleep one seconds to give some time to IceStorm to connect to the subscriber
+            IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
+        }
         proxy->pub(i);
     }
 
@@ -110,10 +118,10 @@ main(int argc, char* argv[])
 {
     int status;
     CommunicatorPtr communicator;
-
+    InitializationData initData = getTestInitData(argc, argv);
     try
     {
-        communicator = initialize(argc, argv);
+        communicator = initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Exception& ex)
@@ -124,15 +132,7 @@ main(int argc, char* argv[])
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        communicator->destroy();
     }
 
     return status;

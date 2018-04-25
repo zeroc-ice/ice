@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/HashUtil",
         "../Ice/ArrayUtil",
@@ -39,10 +39,10 @@ function equals(other)
         return false;
     }
 
-    for(let key in this)
+    for(const key in this)
     {
-        let e1 = this[key];
-        let e2 = other[key];
+        const e1 = this[key];
+        const e2 = other[key];
         if(typeof e1 == "function")
         {
             continue; // Don't need to compare functions
@@ -58,9 +58,9 @@ function equals(other)
 function clone()
 {
     const other = new this.constructor();
-    for(let key in this)
+    for(const key in this)
     {
-        let e = this[key];
+        const e = this[key];
         if(e === undefined || e === null)
         {
             other[key] = e;
@@ -115,17 +115,17 @@ function memberHashCode(h, e)
 
 function hashCode()
 {
-    let __h = 5381;
-    for(let key in this)
+    let h = 5381;
+    for(const key in this)
     {
-        let e = this[key];
+        const e = this[key];
         if(e === undefined || e === null || typeof e == "function")
         {
             continue;
         }
-        __h = memberHashCode(__h, e);
+        h = memberHashCode(h, e);
     }
-    return __h;
+    return h;
 }
 
 Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
@@ -142,7 +142,7 @@ Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
         obj.prototype.hashCode = hashCode;
     }
 
-    if(obj.prototype.__write && obj.prototype.__read)
+    if(obj.prototype._write && obj.prototype._read)
     {
         obj.write = function(os, v)
         {
@@ -154,7 +154,7 @@ Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
                 }
                 v = obj.prototype._nullMarshalValue;
             }
-            v.__write(os);
+            v._write(os);
         };
 
         obj.read = function(is, v)
@@ -163,10 +163,10 @@ Ice.Slice.defineStruct = function(obj, legalKeyType, variableLength)
             {
                 v = new this();
             }
-            v.__read(is);
+            v._read(is);
             return v;
         };
-     
+
         if(variableLength)
         {
             Ice.StreamHelpers.FSizeOptHelper.call(obj);

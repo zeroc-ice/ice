@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -43,6 +43,7 @@
 #include <Ice/RegisterPluginsInit.h>
 #include <Ice/ObserverHelper.h>
 #include <Ice/Functional.h>
+#include <Ice/ConsoleUtil.h>
 
 #include <IceUtil/DisableWarnings.h>
 #include <IceUtil/FileUtil.h>
@@ -141,16 +142,16 @@ public:
 
             if(notDestroyedCount > 0)
             {
-                cerr << "!! " << IceUtil::Time::now().toDateTime() << " error: ";
+                consoleErr << "!! " << IceUtil::Time::now().toDateTime() << " error: ";
                 if(notDestroyedCount == 1)
                 {
-                    cerr << "communicator ";
+                    consoleErr << "communicator ";
                 }
                 else
                 {
-                    cerr << notDestroyedCount << " communicators ";
+                    consoleErr << notDestroyedCount << " communicators ";
                 }
-                cerr << "not destroyed during global destruction.";
+                consoleErr << "not destroyed during global destruction.";
             }
 
             delete instanceList;
@@ -186,7 +187,6 @@ private:
 
     const InstancePtr _instance;
 };
-
 
 //
 // Timer specialization which supports the thread observer
@@ -230,7 +230,7 @@ Timer::updateObserver(const Ice::Instrumentation::CommunicatorObserverPtr& obsv)
     assert(obsv);
     _observer.attach(obsv->getThreadObserver("Communicator",
                                             "Ice.Timer",
-                                            Ice::Instrumentation::ThreadStateIdle,
+                                            Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle),
                                             _observer.get()));
     _hasObserver.exchange(_observer.get() ? 1 : 0);
 }
@@ -247,8 +247,8 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Ice::Instrumentation::ThreadStateIdle,
-                                         Ice::Instrumentation::ThreadStateInUseForOther);
+            threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle),
+                                         Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther));
         }
         try
         {
@@ -258,14 +258,14 @@ Timer::runTimerTask(const IceUtil::TimerTaskPtr& task)
         {
             if(threadObserver)
             {
-                threadObserver->stateChanged(Ice::Instrumentation::ThreadStateInUseForOther,
-                                             Ice::Instrumentation::ThreadStateIdle);
+                threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther),
+                                             Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle));
             }
         }
         if(threadObserver)
         {
-            threadObserver->stateChanged(Ice::Instrumentation::ThreadStateInUseForOther,
-                                         Ice::Instrumentation::ThreadStateIdle);
+            threadObserver->stateChanged(Instrumentation::ICE_ENUM(ThreadState, ThreadStateInUseForOther),
+                                         Instrumentation::ICE_ENUM(ThreadState, ThreadStateIdle));
         }
     }
     else
@@ -947,7 +947,9 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
     _initData(initData),
     _messageSizeMax(0),
     _batchAutoFlushSize(0),
+    _classGraphDepthMax(0),
     _collectObjects(false),
+    _toStringMode(ICE_ENUM(ToStringMode, Unicode)),
     _implicitContext(0),
     _stringConverter(Ice::getProcessStringConverter()),
     _wstringConverter(Ice::getProcessWstringConverter()),
@@ -978,10 +980,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     FILE* file = IceUtilInternal::freopen(stdOutFilename, "a", stdout);
                     if(file == 0)
                     {
-                        FileException ex(__FILE__, __LINE__);
-                        ex.path = stdOutFilename;
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw FileException(__FILE__, __LINE__, getSystemErrno(), stdOutFilename);
                     }
                 }
 
@@ -990,10 +989,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                     FILE* file = IceUtilInternal::freopen(stdErrFilename, "a", stderr);
                     if(file == 0)
                     {
-                        FileException ex(__FILE__, __LINE__);
-                        ex.path = stdErrFilename;
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw FileException(__FILE__, __LINE__, getSystemErrno(), stdErrFilename);
                     }
                 }
 
@@ -1018,42 +1014,37 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                 string newUser = _initData.properties->getProperty("Ice.ChangeUser");
                 if(!newUser.empty())
                 {
-                    errno = 0;
-                    struct passwd* pw = getpwnam(newUser.c_str());
-                    if(!pw)
+                    struct passwd pwbuf;
+                    vector<char> buffer(4096); // 4KB initial buffer
+                    struct passwd *pw;
+                    int err;
+                    while((err =  getpwnam_r(newUser.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw)) == ERANGE &&
+                          buffer.size() < 1024 * 1024) // Limit buffer to 1M
                     {
-                        if(errno)
-                        {
-                            SyscallException ex(__FILE__, __LINE__);
-                            ex.error = getSystemErrno();
-                            throw ex;
-                        }
-                        else
-                        {
-                            InitializationException ex(__FILE__, __LINE__, "Unknown user account `" + newUser + "'");
-                            throw ex;
-                        }
+                        buffer.resize(buffer.size() * 2);
+                    }
+                    if(err != 0)
+                    {
+                        throw Ice::SyscallException(__FILE__, __LINE__, err);
+                    }
+                    else if(pw == 0)
+                    {
+                        throw InitializationException(__FILE__, __LINE__, "unknown user account `" + newUser + "'");
                     }
 
                     if(setgid(pw->pw_gid) == -1)
                     {
-                        SyscallException ex(__FILE__, __LINE__);
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
 
                     if(initgroups(pw->pw_name, pw->pw_gid) == -1)
                     {
-                        SyscallException ex(__FILE__, __LINE__);
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
 
                     if(setuid(pw->pw_uid) == -1)
                     {
-                        SyscallException ex(__FILE__, __LINE__);
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
                 }
 #endif
@@ -1062,14 +1053,12 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
 
             if(instanceCount() == 1)
             {
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
                 WORD version = MAKEWORD(1, 1);
                 WSADATA data;
                 if(WSAStartup(version, &data) != 0)
                 {
-                    SocketException ex(__FILE__, __LINE__);
-                    ex.error = getSocketErrno();
-                    throw ex;
+                    throw SocketException(__FILE__, __LINE__, getSocketErrno());
                 }
 #endif
 
@@ -1096,7 +1085,6 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             }
         }
 
-
         if(!_initData.logger)
         {
             string logfile = _initData.properties->getProperty("Ice.LogFile");
@@ -1122,7 +1110,7 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             else
             {
                 _initData.logger = getProcessLogger();
-                if(ICE_DYNAMIC_CAST(Logger, _initData.logger))
+                if(ICE_DYNAMIC_CAST(LoggerI, _initData.logger))
                 {
                     _initData.logger = ICE_MAKE_SHARED(LoggerI, _initData.properties->getProperty("Ice.ProgramName"), "", logStdErrConvert);
                 }
@@ -1187,15 +1175,38 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
             }
         }
 
+        {
+            static const int defaultValue = 100;
+            Int num = _initData.properties->getPropertyAsIntWithDefault("Ice.ClassGraphDepthMax", defaultValue);
+            if(num < 1 || static_cast<size_t>(num) > static_cast<size_t>(0x7fffffff))
+            {
+                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(0x7fffffff);
+            }
+            else
+            {
+                const_cast<size_t&>(_classGraphDepthMax) = static_cast<size_t>(num);
+            }
+        }
+
         const_cast<bool&>(_collectObjects) = _initData.properties->getPropertyAsInt("Ice.CollectObjects") > 0;
 
-        //
-        // Client ACM enabled by default. Server ACM disabled by default.
-        //
-#ifndef ICE_OS_WINRT
+        string toStringModeStr = _initData.properties->getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+        if(toStringModeStr == "ASCII")
+        {
+            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, ASCII);
+        }
+        else if(toStringModeStr == "Compat")
+        {
+            const_cast<ToStringMode&>(_toStringMode) = ICE_ENUM(ToStringMode, Compat);
+        }
+        else if(toStringModeStr != "Unicode")
+        {
+            throw InitializationException(__FILE__, __LINE__, "The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+        }
+
         const_cast<ImplicitContextIPtr&>(_implicitContext) =
             ImplicitContextI::create(_initData.properties->getProperty("Ice.ImplicitContext"));
-#endif
+
         _routerManager = new RouterManager;
 
         _locatorManager = new LocatorManager(_initData.properties);
@@ -1288,7 +1299,7 @@ IceInternal::Instance::~Instance()
     }
     if(instanceCount() == 0)
     {
-#if defined(_WIN32) && !defined(ICE_OS_WINRT)
+#if defined(_WIN32) && !defined(ICE_OS_UWP)
         WSACleanup();
 #endif
 
@@ -1305,7 +1316,7 @@ IceInternal::Instance::~Instance()
 }
 
 void
-IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::CommunicatorPtr& communicator)
 {
     //
     // Load plug-ins.
@@ -1316,20 +1327,10 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     pluginManagerImpl->loadPlugins(argc, argv);
 
     //
-    // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
+    // Initialize the endpoint factories once all the plugins are loaded. This gives
+    // the opportunity for the endpoint factories to find underyling factories.
     //
-    EndpointFactoryPtr tcpFactory = _endpointFactoryManager->get(TCPEndpointType);
-    if(tcpFactory)
-    {
-        ProtocolInstancePtr instance = new ProtocolInstance(communicator, WSEndpointType, "ws", false);
-        _endpointFactoryManager->add(new WSEndpointFactory(instance, tcpFactory->clone(instance, 0)));
-    }
-    EndpointFactoryPtr sslFactory = _endpointFactoryManager->get(SSLEndpointType);
-    if(sslFactory)
-    {
-        ProtocolInstancePtr instance = new ProtocolInstance(communicator, WSSEndpointType, "wss", true);
-        _endpointFactoryManager->add(new WSEndpointFactory(instance, sslFactory->clone(instance, 0)));
-    }
+    _endpointFactoryManager->initialize();
 
     //
     // Reset _stringConverter and _wstringConverter, in case a plugin changed them
@@ -1505,9 +1506,9 @@ IceInternal::Instance::finishSetup(int& argc, char* argv[], const Ice::Communica
     if(printProcessId)
     {
 #ifdef _MSC_VER
-        cout << GetCurrentProcessId() << endl;
+        consoleOut << GetCurrentProcessId() << endl;
 #else
-        cout << getpid() << endl;
+        consoleOut << getpid() << endl;
 #endif
     }
 
@@ -1644,7 +1645,7 @@ IceInternal::Instance::destroy()
     {
         _serverThreadPool->joinWithAllThreads();
     }
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     if(_endpointHostResolver)
     {
         _endpointHostResolver->getThreadControl().join();
@@ -1764,7 +1765,6 @@ IceInternal::Instance::updateThreadObservers()
     {
     }
 }
-
 
 BufSizeWarnInfo
 IceInternal::Instance::getBufSizeWarn(Short type)
@@ -1914,12 +1914,12 @@ IceInternal::ProcessI::writeMessage(const string& message, Int fd, const Current
     {
         case 1:
         {
-            cout << message << endl;
+            consoleOut << message << endl;
             break;
         }
         case 2:
         {
-            cerr << message << endl;
+            consoleErr << message << endl;
             break;
         }
     }

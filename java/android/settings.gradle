@@ -1,0 +1,28 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+apply from: "$rootProject.projectDir/gradle/tests.gradle"
+
+// Main source
+include ':ice'
+project(':ice').projectDir = new File('src/Ice')
+include ':icessl'
+project(':icessl').projectDir = new File('src/IceSSL')
+include ':icediscovery'
+project(':icediscovery').projectDir = new File('src/IceDiscovery')
+include ':icebt'
+project(':icebt').projectDir = new File('src/IceBT')
+include ':test', ':testController'
+project(':test').projectDir = new File('test')
+project(':testController').projectDir = new File('controller')
+tests.each {
+    def name = it.replace("/", "_")
+    include ":test_${name}"
+    project(":test_${name}").projectDir = new File("test/src/test_${name}")
+}

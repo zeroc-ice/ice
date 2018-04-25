@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -127,8 +127,15 @@ namespace IceInternal
 
         public TcpEndpointI endpoint(TcpAcceptor acceptor)
         {
-            return new TcpEndpointI(instance_, host_, acceptor.effectivePort(), sourceAddr_, _timeout, connectionId_,
-                                    _compress);
+            int port = acceptor.effectivePort();
+            if(port == port_)
+            {
+                return this;
+            }
+            else
+            {
+                return new TcpEndpointI(instance_, host_, port, sourceAddr_, _timeout, connectionId_, _compress);
+            }
         }
 
         public override string options()
@@ -196,8 +203,8 @@ namespace IceInternal
         public override void hashInit(ref int h)
         {
             base.hashInit(ref h);
-            IceInternal.HashUtil.hashAdd(ref h, _timeout);
-            IceInternal.HashUtil.hashAdd(ref h, _compress);
+            HashUtil.hashAdd(ref h, _timeout);
+            HashUtil.hashAdd(ref h, _compress);
         }
 
         public override void fillEndpointInfo(Ice.IPEndpointInfo info)
@@ -232,7 +239,7 @@ namespace IceInternal
                     {
                         try
                         {
-                            _timeout = System.Int32.Parse(argument, CultureInfo.InvariantCulture);
+                            _timeout = int.Parse(argument, CultureInfo.InvariantCulture);
                             if(_timeout < 1)
                             {
                                 Ice.EndpointParseException e = new Ice.EndpointParseException();
@@ -292,6 +299,10 @@ namespace IceInternal
             _instance = instance;
         }
 
+        public void initialize()
+        {
+        }
+
         public short type()
         {
             return _instance.type();
@@ -319,7 +330,7 @@ namespace IceInternal
             _instance = null;
         }
 
-        public EndpointFactory clone(ProtocolInstance instance, EndpointFactory del)
+        public EndpointFactory clone(ProtocolInstance instance)
         {
             return new TcpEndpointFactory(instance);
         }

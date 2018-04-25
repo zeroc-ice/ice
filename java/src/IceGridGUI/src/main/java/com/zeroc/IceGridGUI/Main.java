@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,51 +29,61 @@ public class Main extends JFrame
         //
         try
         {
-            if(System.getProperty("os.name").startsWith("Mac OS")) // OS X L&F
+            if(System.getProperty("os.name").startsWith("Mac OS"))
             {
+                System.setProperty("apple.laf.useScreenMenuBar", "true");
+                System.setProperty("com.apple.mrj.application.apple.menu.about.name", "IceGrid GUI");
+
+                // To catch Command+Q
+                System.setProperty("apple.eawt.quitStrategy", "CLOSE_ALL_WINDOWS");
+
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             }
             else if(System.getProperty("os.name").startsWith("Windows"))
             {
                 UIManager.setLookAndFeel("com.jgoodies.looks.windows.WindowsLookAndFeel");
             }
-            else  // JGoodies L&F
-            {
-                UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticLookAndFeel");
-            }
+            //
+            // Setting PlasticLookAndFeel trigger a crash when creating a JFileChooser.
+            //
+            //else  // JGoodies L&F
+            //{
+            //    UIManager.setLookAndFeel("com.jgoodies.looks.plastic.PlasticLookAndFeel");
+            //}
         }
         catch(Exception e)
         {
             System.err.println(e.toString());
+            JOptionPane.showMessageDialog(null,
+                                          e.toString(),
+                                          "Initialization failed",
+                                          JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
         }
 
-        SwingUtilities.invokeLater(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    try
-                    {
-                        //
-                        // Create and set up the window.
-                        //
-                        new Main(args);
-                    }
-                    catch(com.zeroc.Ice.LocalException e)
-                    {
-                        JOptionPane.showMessageDialog(null,
-                                                      e.toString(),
-                                                      "Initialization failed",
-                                                      JOptionPane.ERROR_MESSAGE);
-                        System.exit(1);
-                    }
-                }
-            });
+        SwingUtilities.invokeLater(() ->
+                                   {
+                                       try
+                                       {
+                                           //
+                                           // Create and set up the window.
+                                           //
+                                           new Main(args);
+                                       }
+                                       catch(com.zeroc.Ice.LocalException e)
+                                       {
+                                           JOptionPane.showMessageDialog(null,
+                                                                         e.toString(),
+                                                                         "Initialization failed",
+                                                                         JOptionPane.ERROR_MESSAGE);
+                                           System.exit(1);
+                                       }
+                                   });
     }
 
     Main(String[] args)
     {
-        super("IceGrid Admin");
+        super("IceGrid GUI");
         javax.swing.ImageIcon icon = Utils.getIcon("/icons/16x16/grid.png");
         if(icon != null)
         {
@@ -88,10 +98,10 @@ public class Main extends JFrame
                 {
                     if(_coordinator != null)
                     {
-                        if(_coordinator.needsSaving()) 
+                        if(_coordinator.needsSaving())
                         {
                             if(JOptionPane.showOptionDialog(
-                                   Main.this, 
+                                   Main.this,
                                    "The application has unsaved changes, if you exit all unsaved changes " +
                                    "will be lost.\nExit and discard changes?",
                                    "Save application", JOptionPane.YES_NO_OPTION,
@@ -108,7 +118,7 @@ public class Main extends JFrame
                 }
             });
 
-        _coordinator = new Coordinator(this, args, Preferences.userNodeForPackage(getClass()));
+        _coordinator = new Coordinator(this, args, Preferences.userRoot().node("IceGridGUI"));
 
         _coordinator.showMainFrame();
     }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -175,9 +175,9 @@ class ReplicaGroup extends TreeNode
             {
                 attributes.add(createAttribute("proxy-options", _descriptor.proxyOptions));
             }
-            
+
             if(_descriptor.loadBalancing == null &&
-               _descriptor.description.length() == 0 && 
+               _descriptor.description.length() == 0 &&
                _descriptor.objects.isEmpty())
             {
                 writer.writeElement("replica-group", attributes);

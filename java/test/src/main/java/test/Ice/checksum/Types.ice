@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,42 +31,42 @@ const int IntConst3 = 100;
 //
 // TEST: Same
 //
-enum Enum1 { Enum11, Enum12, Enum13 };
+enum Enum1 { Enum11, Enum12, Enum13 }
 
 //
 // TEST: Add enumerator
 //
-enum Enum2 { Enum21, Enum22, Enum23 };
+enum Enum2 { Enum21, Enum22, Enum23 }
 
 //
 // TEST: Remove enumerator
 //
-enum Enum3 { Enum31, Enum32, Enum33 };
+enum Enum3 { Enum31, Enum32, Enum33 }
 
 //
 // TEST: Change to a different type
 //
-enum Enum4 { Enum41, Enum42, Enum43 };
+enum Enum4 { Enum41, Enum42, Enum43 }
 
 //
 // TEST: Enum with explicit values.
 //
-enum EnumExplicit0 { EnumExplicit01 = 1, EnumExplicit02 = 2, EnumExplicit03 = 3 };
+enum EnumExplicit0 { EnumExplicit01 = 1, EnumExplicit02 = 2, EnumExplicit03 = 3 }
 
 //
 // TEST: Enum with same explicit values, different order.
 //
-enum EnumExplicit1 { EnumExplicit11 = 1, EnumExplicit12 = 2, EnumExplicit13 = 3 };
+enum EnumExplicit1 { EnumExplicit11 = 1, EnumExplicit12 = 2, EnumExplicit13 = 3 }
 
 //
 // TEST: Enum with different explicit values.
 //
-enum EnumExplicit2 { EnumExplicit21 = 1, EnumExplicit22 = 2, EnumExplicit23 = 3};
+enum EnumExplicit2 { EnumExplicit21 = 1, EnumExplicit22 = 2, EnumExplicit23 = 3}
 
 //
 // TEST: Enum with explicit values, removed enumerator.
 //
-enum EnumExplicit3 { EnumExplicit31 = 1, EnumExplicit32 = 2, EnumExplicit33 = 3};
+enum EnumExplicit3 { EnumExplicit31 = 1, EnumExplicit32 = 2, EnumExplicit33 = 3}
 
 //
 // TEST: Same
@@ -110,7 +110,7 @@ struct Struct1
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Add member
@@ -119,7 +119,7 @@ struct Struct2
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Change member type
@@ -128,7 +128,7 @@ struct Struct3
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Remove member
@@ -137,7 +137,7 @@ struct Struct4
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Change to a different type
@@ -146,70 +146,70 @@ struct Struct5
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Same
 //
 interface Interface1
 {
-};
+}
 
 //
 // TEST: Change interface to class
 //
 interface Interface2
 {
-};
+}
 
 //
 // TEST: Add base interface
 //
 interface Interface3
 {
-};
+}
 
 //
 // TEST: Add operation
 //
 interface Interface4
 {
-};
+}
 
 //
 // TEST: Same
 //
 class EmptyClass1
 {
-};
+}
 
 //
 // TEST: Add data member
 //
 class EmptyClass2
 {
-};
+}
 
 //
 // TEST: Add operation
 //
 class EmptyClass3
 {
-};
+}
 
 //
 // TEST: Add base class
 //
 class EmptyClass4
 {
-};
+}
 
 //
 // TEST: Add interface
 //
 class EmptyClass5
 {
-};
+}
 
 //
 // TEST: Same
@@ -218,7 +218,7 @@ class SimpleClass1
 {
     string str;
     float f;
-};
+}
 
 //
 // TEST: Add operation
@@ -227,7 +227,7 @@ class SimpleClass2
 {
     string str;
     float f;
-};
+}
 
 //
 // TEST: Rename member
@@ -236,7 +236,7 @@ class SimpleClass3
 {
     string str;
     float f;
-};
+}
 
 //
 // TEST: Add member
@@ -245,7 +245,7 @@ class SimpleClass4
 {
     string str;
     float f;
-};
+}
 
 //
 // TEST: Remove member
@@ -254,7 +254,7 @@ class SimpleClass5
 {
     string str;
     float f;
-};
+}
 
 //
 // TEST: Reorder members
@@ -263,7 +263,7 @@ class SimpleClass6
 {
     string str;
     float f;
-};
+}
 
 //
 // TEST: Change member type
@@ -272,7 +272,7 @@ class SimpleClass7
 {
     string str;
     float f;
-};
+}
 
 //
 // TEST: Same
@@ -281,7 +281,7 @@ exception Exception1
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Add member
@@ -290,7 +290,7 @@ exception Exception2
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Change member type
@@ -299,7 +299,7 @@ exception Exception3
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Remove member
@@ -308,14 +308,14 @@ exception Exception4
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Add base exception
 //
 exception Exception5
 {
-};
+}
 
 //
 // TEST: Change to a different type
@@ -324,7 +324,7 @@ exception Exception6
 {
     string str;
     bool b;
-};
+}
 
 //
 // TEST: Exception with optional members.
@@ -334,7 +334,7 @@ exception OptionalEx0
     string firstName;
     optional(1) string secondName;
     optional(2) string emailAddress;
-};
+}
 
 //
 // TEST: Exception with optional members, different order, same tags.
@@ -344,7 +344,7 @@ exception OptionalEx1
     string firstName;
     optional(1) string secondName;
     optional(2) string emailAddress;
-};
+}
 
 //
 // TEST: Exception with different optional members.
@@ -354,7 +354,7 @@ exception OptionalEx2
     string firstName;
     string secondName;
     optional(1) string emailAddress;
-};
+}
 
 //
 // TEST: Exception with different optional members.
@@ -364,7 +364,7 @@ exception OptionalEx3
     string firstName;
     optional(1) string secondName;
     optional(2) string emailAddress;
-};
+}
 
 //
 // TEST: Exception with optional members using different tags.
@@ -374,131 +374,111 @@ exception OptionalEx4
     string firstName;
     optional(1) string secondName;
     optional(2) string emailAddress;
-};
+}
 
 //
 // TEST: Same
 //
-class BaseClass1
+interface BaseInterface1
 {
     void baseOp1();
     void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
 // TEST: Change return type
 //
-class BaseClass2
+interface BaseInterface2
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
 // TEST: Add parameter
 //
-class BaseClass3
+interface BaseInterface3
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
 // TEST: Add exception
 //
-class BaseClass4
+interface BaseInterface4
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
 // TEST: Change out parameter to in parameter
 //
-class BaseClass5
+interface BaseInterface5
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
 // TEST: Remove parameter
 //
-class BaseClass6
+interface BaseInterface6
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
 // TEST: Remove exception
 //
-class BaseClass7
+interface BaseInterface7
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
 // TEST: Remove operation
 //
-class BaseClass8
+interface BaseInterface8
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
-// TEST: Add base class
+// TEST: Add base interface
 //
-class BaseClass9
+interface BaseInterface9
 {
     void baseOp();
     void baseOp2(int i, out string s) throws Exception1;
-};
-
-//
-// TEST: Add interface
-//
-class BaseClass10
-{
-    void baseOp();
-    void baseOp2(int i, out string s) throws Exception1;
-};
-
-//
-// TEST: Add base class and interface
-//
-class BaseClass11
-{
-    void baseOp();
-    void baseOp2(int i, out string s) throws Exception1;
-};
+}
 
 //
 // TEST: Class with compact id
 //
 class Compact1(1)
 {
-    void baseOp();
-    void baseOp2(int i, out string s) throws Exception1;
-};
+    int id;
+}
 
 //
 // TEST: Derived from class with compact id
 //
 class Derived1 extends Compact1
 {
-};
+}
 
 //
 // TEST: Same class names but different compact id
 //
 class Compact2(2)
 {
-    void baseOp();
-    void baseOp2(int i, out string s) throws Exception1;
-};
+    int id;
+}
 
 //
 // TEST: Class with optional members.
@@ -508,7 +488,7 @@ class Optional0
     string firstName;
     optional(1) string secondName;
     optional(2) string emailAddress;
-};
+}
 
 //
 // TEST: Class with optional members, different order, same tags.
@@ -518,7 +498,7 @@ class Optional1
     string firstName;
     optional(1) string secondName;
     optional(2) string emailAddress;
-};
+}
 
 //
 // TEST: Class with different optional members.
@@ -528,7 +508,7 @@ class Optional2
     string firstName;
     string secondName;
     optional(1) string emailAddress;
-};
+}
 
 //
 // TEST: Class with different optional members.
@@ -538,7 +518,7 @@ class Optional3
     string firstName;
     optional(1) string secondName;
     optional(2) string emailAddress;
-};
+}
 
 //
 // TEST: Class with optional members using different tags.
@@ -548,64 +528,64 @@ class Optional4
     string firstName;
     optional(1) string secondName;
     optional(2) string emailAddress;
-};
+}
 
 //
-// TEST: Class with optional parameters.
+// TEST: Interface with optional parameters.
 //
-class OptionalParameters0
+interface OptionalParameters0
 {
     void op1(string firstName, optional(1) string secondName,
              optional(2) string emailAddress);
-};
+}
 
 //
-// TEST: Class with optional parameters, different order.
+// TEST: Interface with optional parameters, different order.
 //
-class OptionalParameters1
+interface OptionalParameters1
 {
     void op1(string firstName, optional(1) string secondName,
              optional(2) string emailAddress);
-};
+}
 
 //
-// TEST: Class with optional parameters, different tags.
+// TEST: Interface with optional parameters, different tags.
 //
-class OptionalParameters2
+interface OptionalParameters2
 {
     void op1(string firstName, optional(1) string emailAddress,
              optional(2) string secondName);
-};
+}
 
 //
-// TEST: Class with different optional parameters.
+// TEST: Interface with different optional parameters.
 //
-class OptionalParameters3
+interface OptionalParameters3
 {
     void op1(string firstName, optional(1) string emailAddress,
              string secondName);
-};
+}
 
 //
-// TEST: Class with optional return type.
+// TEST: Interface with optional return type.
 //
-class OptionalReturn0
+interface OptionalReturn0
 {
     optional(1) int op();
-};
+}
 
 //
-// TEST: Class that changes optional return type.
+// TEST: Interface that changes optional return type.
 //
-class OptionalReturn2
+interface OptionalReturn2
 {
     optional(1) int op();
-};
+}
 
 //
 // TEST: Local
 //
-local enum LocalEnum { LocalEnum1, LocalEnum2, LocalEnum3 };
+local enum LocalEnum { LocalEnum1, LocalEnum2, LocalEnum3 }
 
 //
 // TEST: Local
@@ -623,13 +603,13 @@ local dictionary<string, string> LocalDictionary;
 local struct LocalStruct
 {
     string str;
-};
+}
 
 //
 // TEST: Local
 //
 local class LocalClass
 {
-};
+}
 
-};
+}

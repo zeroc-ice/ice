@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,6 +9,8 @@
 
 #include <Slice/PHPUtil.h>
 #include <functional>
+#include <algorithm>
+#include <vector>
 
 using namespace std;
 using namespace Slice;
@@ -29,14 +31,15 @@ lookupKwd(const string& name)
     //
     // Keyword list. *Must* be kept in alphabetical order.
     //
-    static const string keywordList[] = 
-    {       
-        "abstract", "and", "array", "as", "break", "case", "catch", "class", "clone", "const", "continue", "declare",
-        "default", "die", "do", "echo", "else", "elseif", "empty", "enddeclare", "endfor", "endforeach", "endif",
-        "endswitch", "endwhile", "eval", "exit", "extends", "final", "for", "foreach", "function", "global", "if",
-        "implements", "include", "include_once", "interface", "isset", "list", "new", "or", "print", "private",
-        "protected", "public", "require", "require_once", "return", "static", "switch", "this", "throw", "try",
-        "unset", "use", "var", "while", "xor"
+    static const string keywordList[] =
+    {
+        "_halt_compiler", "abstract", "and", "array", "as", "break", "callable", "case", "catch", "class", "clone",
+        "const", "continue", "declare", "default", "die", "do", "echo", "else", "elseif", "empty", "enddeclare",
+        "endfor", "endforeach", "endif", "endswitch", "endwhile", "eval", "exit", "extends", "final", "finally",
+        "for", "foreach", "function", "global", "goto", "if", "implements", "include", "include_once", "instanceof",
+        "insteadof", "interface", "isset", "list", "namespace", "new", "or", "print", "private", "protected", "public",
+        "require", "require_once", "return", "static", "switch", "this", "throw", "trait", "try", "unset", "use", "var",
+        "while", "xor", "yield"
     };
     bool found =  binary_search(&keywordList[0],
                                 &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
@@ -132,12 +135,6 @@ Slice::PHP::fixIdent(const string& ident)
         result << "::" + *i;
     }
     return result.str();
-}
-
-string
-Slice::PHP::getAbsolute(const ContainedPtr& cont, bool ns, const string& prefix, const string& suffix)
-{
-    return scopedToName(cont->scope() + prefix + cont->name() + suffix, ns);
 }
 
 string

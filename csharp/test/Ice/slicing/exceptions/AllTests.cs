@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private class Callback
     {
@@ -90,11 +90,12 @@ public class AllTests : TestCommon.TestApp
         }
     }
 
-    public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static TestIntfPrx allTests(TestCommon.Application app, bool collocated)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        String @ref = "Test:default -p 12010 -t 2000";
+        String @ref = "Test:" + app.getTestEndpoint(0) + " -t 2000";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -1114,9 +1115,53 @@ public class AllTests : TestCommon.TestApp
         Write("preserved exceptions... ");
         Flush();
         {
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
+            try
+            {
+                testPrx.unknownPreservedAsBase();
+                test(false);
+            }
+            catch(Base ex)
+            {
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                {
+                    test(ex.ice_getSlicedData() == null);
+                }
+                else
+                {
+                    Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                    test(slicedData != null);
+                    test(slicedData.slices.Length == 2);
+                    test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
+                    test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
+                }
+            }
+
+            try
+            {
+                testPrx.unknownPreservedAsKnownPreserved();
+                test(false);
+            }
+            catch(KnownPreserved ex)
+            {
+                test(ex.kp.Equals("preserved"));
+                if(testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
+                {
+                    test(ex.ice_getSlicedData() == null);
+                }
+                else
+                {
+                    Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                    test(slicedData != null);
+                    test(slicedData.slices.Length == 2);
+                    test(slicedData.slices[1].typeId.Equals("::Test::SPreserved1"));
+                    test(slicedData.slices[0].typeId.Equals("::Test::SPreserved2"));
+                }
+            }
+
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
             RelayPrx relay = RelayPrxHelper.uncheckedCast(adapter.addWithUUID(new RelayI()));
             adapter.activate();
+            testPrx.ice_getConnection().setAdapter(adapter);
 
             try
             {
@@ -1227,6 +1272,7 @@ public class AllTests : TestCommon.TestApp
             adapter.destroy();
         }
         WriteLine("ok");
+
         return testPrx;
     }
 }

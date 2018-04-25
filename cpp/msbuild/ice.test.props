@@ -1,26 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <PropertyGroup>
+    <IceSoVersion>37</IceSoVersion>
+  </PropertyGroup>
+
   <PropertyGroup Condition="'$(Configuration)' == 'Cpp11-Debug' Or '$(Configuration)' == 'Cpp11-Release'">
-    <Ice_CppMapping>cpp11</Ice_CppMapping>
+    <IceCppMapping>cpp11</IceCppMapping>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)' == 'Debug' Or '$(Configuration)' == 'Release'">
-    <Ice_CppMapping>cpp98</Ice_CppMapping>
+    <IceCppMapping>cpp98</IceCppMapping>
   </PropertyGroup>
 
   <Import Project="$(MSBuildThisFileDirectory)\ice.cpp.props"/>
 
+  <!--
+      The correct value for GenerateDebugInformation depends on the compiler:
+  -->
+  <ItemDefinitionGroup>
+    <Link>
+      <GenerateDebugInformation>Yes</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v140' or '$(DefaultPlatformToolset)'=='v141'">
+    <Link>
+      <FullProgramDatabaseFile>false</FullProgramDatabaseFile>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+
   <PropertyGroup>
-    <IceBuilderOutputDir>$(Platform)\$(Configuration)\</IceBuilderOutputDir>
     <OutDir>$(Platform)\$(Configuration)\</OutDir>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>$(Platform)\$(Configuration);$(Ice_SrcRootDir)\test\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(Platform)\$(Configuration);$(MSBuildThisFileDirectory)..\test\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(Ice_SrcRootDir)\test\Common\msbuild\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(MSBuildThisFileDirectory)..\test\Common\msbuild\$(Platform)\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
 
@@ -30,7 +50,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Cpp11-Debug|DynamicLibrary'">
     <TargetName>$(ProjectName)$(IceSoVersion)++11d</TargetName>
   </PropertyGroup>
-  
+
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Cpp11-Release|DynamicLibrary'">
     <TargetName>$(ProjectName)$(IceSoVersion)++11</TargetName>
   </PropertyGroup>
@@ -42,7 +62,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(ConfigurationType)' == 'Release|DynamicLibrary'">
     <TargetName>$(ProjectName)$(IceSoVersion)</TargetName>
   </PropertyGroup>
-  
+
   <ItemDefinitionGroup Condition="'$(ConfigurationType)' == 'DynamicLibrary'">
     <Link>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>

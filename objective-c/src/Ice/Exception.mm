@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -171,33 +171,38 @@ localExceptionToString(const Ice::LocalException& ex)
 @end
 
 @implementation ICEUserException
--(BOOL)usesClasses__
+-(id<ICESlicedData>)ice_getSlicedData
+{
+    return nil;
+}
+
+-(BOOL)iceUsesClasses
 {
     return NO;
 }
 
--(void)write__:(id<ICEOutputStream>)os
+-(void)iceWrite:(id<ICEOutputStream>)os
 {
     [os startException:nil];
-    [self writeImpl__:os];
+    [self iceWriteImpl:os];
     [os endException];
 }
 
--(void) writeImpl__:(id<ICEOutputStream>)os
+-(void) iceWriteImpl:(id<ICEOutputStream>)os
 {
-    NSAssert(NO, @"writeImpl__ requires override");
+    NSAssert(NO, @"iceWriteImpl requires override");
 }
 
--(void)read__:(id<ICEInputStream>)is
+-(void)iceRead:(id<ICEInputStream>)is
 {
     [is startException];
-    [self readImpl__:is];
+    [self iceReadImpl:is];
     [is endException:NO];
 }
 
--(void) readImpl__:(id<ICEInputStream>)is
+-(void) iceReadImpl:(id<ICEInputStream>)is
 {
-    NSAssert(NO, @"readImpl__ requires override");
+    NSAssert(NO, @"iceReadImpl requires override");
 }
 
 -(id) copyWithZone:(NSZone *)zone
@@ -732,13 +737,6 @@ localExceptionToString(const Ice::LocalException& ex)
 -(void) rethrowCxx
 {
     throw Ice::CloseConnectionException(file, line, fromNSString([self reason_]));
-}
-@end
-
-@implementation ICEForcedCloseConnectionException (ICEInternal)
--(void) rethrowCxx
-{
-    throw Ice::ForcedCloseConnectionException(file, line, fromNSString([self reason_]));
 }
 @end
 

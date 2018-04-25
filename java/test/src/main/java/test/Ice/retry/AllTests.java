@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -56,9 +56,13 @@ public class AllTests
         private boolean _called;
     }
 
-    public static RetryPrx allTests(com.zeroc.Ice.Communicator communicator, com.zeroc.Ice.Communicator communicator2,
-                                    PrintWriter out, Instrumentation instrumentation, String ref)
+    public static RetryPrx allTests(test.Util.Application app,
+                                    com.zeroc.Ice.Communicator communicator,
+                                    com.zeroc.Ice.Communicator communicator2,
+                                    Instrumentation instrumentation,
+                                    String ref)
     {
+        PrintWriter out = app.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         com.zeroc.Ice.ObjectPrx base1 = communicator.stringToProxy(ref);
@@ -102,7 +106,7 @@ public class AllTests
         instrumentation.testFailureCount(1);
         instrumentation.testRetryCount(0);
         out.println("ok");
-        
+
         out.print("calling regular operation with first proxy again... ");
         out.flush();
         retry1.op(false);

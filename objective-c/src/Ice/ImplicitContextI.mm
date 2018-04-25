@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,8 +17,8 @@
     self = [super init];
     if(self)
     {
-        self->implicitContext__ = implicitContext;
-        self->implicitContext__->__incRef();
+        self->implicitContext_ = implicitContext;
+        self->implicitContext_->__incRef();
     }
     return self;
 }
@@ -37,32 +37,32 @@
 
 -(void) dealloc
 {
-    self->implicitContext__->__decRef();
+    self->implicitContext_->__decRef();
     [super dealloc];
 }
 
 -(ICEContext*) getContext
 {
-    return [toNSDictionary(implicitContext__->getContext()) autorelease];
+    return [toNSDictionary(implicitContext_->getContext()) autorelease];
 }
 
 -(void) setContext:(ICEContext*)context
 {
     Ice::Context ctx;
     fromNSDictionary(context, ctx);
-    implicitContext__->setContext(ctx);
+    implicitContext_->setContext(ctx);
 }
 
 -(BOOL) containsKey:(NSString*)key
 {
-    return implicitContext__->containsKey(fromNSString(key));
+    return implicitContext_->containsKey(fromNSString(key));
 }
 
 -(NSMutableString*) get:(NSString*)key
 {
-    if(implicitContext__->containsKey(fromNSString(key)))
+    if(implicitContext_->containsKey(fromNSString(key)))
     {
-        return [toNSMutableString(implicitContext__->get(fromNSString(key))) autorelease];
+        return [toNSMutableString(implicitContext_->get(fromNSString(key))) autorelease];
     }
     else
     {
@@ -72,12 +72,12 @@
 
 -(NSMutableString*) put:(NSString*)key value:(NSString*)value
 {
-    return [toNSMutableString(implicitContext__->put(fromNSString(key), fromNSString(value))) autorelease];
+    return [toNSMutableString(implicitContext_->put(fromNSString(key), fromNSString(value))) autorelease];
 }
 
 -(NSMutableString*) remove:(NSString*)key
 {
-    return [toNSMutableString(implicitContext__->remove(fromNSString(key))) autorelease];
+    return [toNSMutableString(implicitContext_->remove(fromNSString(key))) autorelease];
 }
 
 @end

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -37,7 +37,7 @@ class ObjectDialog extends JDialog
     ObjectDialog(final Root root, boolean readOnly)
     {
         super(root.getCoordinator().getMainFrame(),
-              (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid Admin", true);
+              (readOnly ? "" : "New ") + "Dynamic Well-Known Object - IceGrid GUI", true);
 
         setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
         _mainFrame = root.getCoordinator().getMainFrame();
@@ -123,10 +123,10 @@ class ObjectDialog extends JDialog
                     }
                 };
             cancelButton.addActionListener(cancelListener);
-            
+
             JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, cancelButton).build();
             buttonBar.setBorder(Borders.DIALOG);
-            
+
             contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.Y_AXIS));
             contentPane.add(builder.getPanel());
             contentPane.add(buttonBar);

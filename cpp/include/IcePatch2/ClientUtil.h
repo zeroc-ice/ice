@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,10 +21,10 @@ namespace IcePatch2
 
 //
 // The IcePatch2::PatcherFeedback class is implemented by IcePatch2 clients to
-// allow the user to interact with the patching and report progress 
+// allow the user to interact with the patching and report progress
 // on the patching.
 //
-class ICE_PATCH2_API PatcherFeedback : public IceUtil::Shared
+class ICEPATCH2_API PatcherFeedback : public IceUtil::Shared
 {
 public:
 
@@ -76,7 +76,7 @@ typedef IceUtil::Handle<PatcherFeedback> PatcherFeedbackPtr;
 // IcePatch2 clients instantiate the IcePatch2::Patcher class to patch
 // a given local data directory.
 //
-class ICE_PATCH2_API Patcher : public IceUtil::Shared
+class ICEPATCH2_API Patcher : public IceUtil::Shared
 {
 public:
 
@@ -87,7 +87,7 @@ public:
     // files if no summary file exists or if a thorough patch was
     // specified. This method also computes the list of files to be
     // patched. This should be called once before any call to patch().
-    // 
+    //
     // Returns true if the patch preparation was successful, false if
     // preparation failed (for example, because a thorough patch is
     // necessary, but the user chose not to patch thorough), or raises
@@ -117,13 +117,13 @@ typedef IceUtil::Handle<Patcher> PatcherPtr;
 // IcePatch2 clients instantiate the IcePatch2::Patcher class
 // using the patcher factory.
 //
-class ICE_PATCH2_API PatcherFactory : public IceUtil::noncopyable
+class ICEPATCH2_API PatcherFactory : public IceUtil::noncopyable
 {
 public:
-    
+
     //
     // Create a patcher using configuration properties. The following
-    // properties are used to configure the patcher: 
+    // properties are used to configure the patcher:
     //
     // - IcePatch2.InstanceName
     // - IcePatch2.Endpoints

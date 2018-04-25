@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -34,7 +34,7 @@ IceBT::BluetoothException::ice_print(ostream& out) const
 extern "C"
 {
 
-ICE_BT_API Ice::Plugin*
+ICEBT_API Ice::Plugin*
 createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const StringSeq& /*args*/)
 {
     return new PluginI(communicator);
@@ -45,7 +45,7 @@ createIceBT(const CommunicatorPtr& communicator, const string& /*name*/, const S
 namespace Ice
 {
 
-ICE_BT_API void
+ICEBT_API void
 registerIceBT(bool loadOnInitialize)
 {
     Ice::registerPluginFactory("IceBT", createIceBT, loadOnInitialize);
@@ -59,21 +59,18 @@ registerIceBT(bool loadOnInitialize)
 IceBT::PluginI::PluginI(const Ice::CommunicatorPtr& com) :
     _engine(new Engine(com))
 {
-    IceInternal::ProtocolPluginFacadePtr pluginFacade = IceInternal::getProtocolPluginFacade(com);
+    IceInternal::ProtocolPluginFacadePtr f = IceInternal::getProtocolPluginFacade(com);
 
     //
     // Register the endpoint factory. We have to do this now, rather
     // than in initialize, because the communicator may need to
     // interpret proxies before the plug-in is fully initialized.
     //
-    pluginFacade->addEndpointFactory(new EndpointFactoryI(new Instance(_engine, BTEndpointType, "bt")));
+    InstancePtr bt = new Instance(_engine, BTEndpointType, "bt");
+    f->addEndpointFactory(new EndpointFactoryI(bt));
 
-    IceInternal::EndpointFactoryPtr sslFactory = pluginFacade->getEndpointFactory(SSLEndpointType);
-    if(sslFactory)
-    {
-        InstancePtr instance = new Instance(_engine, BTSEndpointType, "bts");
-        pluginFacade->addEndpointFactory(sslFactory->clone(instance, new EndpointFactoryI(instance)));
-    }
+    InstancePtr bts = new Instance(_engine, BTSEndpointType, "bts");
+    f->addEndpointFactory(new IceInternal::UnderlyingEndpointFactory(bts, SSLEndpointType, BTEndpointType));
 }
 
 void
@@ -102,4 +99,10 @@ void
 IceBT::PluginI::stopDiscovery(const string& address)
 {
     _engine->stopDiscovery(address);
+}
+
+IceBT::DeviceMap
+IceBT::PluginI::getDevices() const
+{
+    return _engine->getDevices();
 }

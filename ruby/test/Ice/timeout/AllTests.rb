@@ -1,11 +1,25 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
+
+def connect(prx)
+    nRetry = 10
+    while nRetry > 0 do
+        nRetry -=1
+        begin
+            prx.ice_getConnection() # Establish connection.
+            break
+        rescue Ice::ConnectTimeoutException
+            # Can sporadically occur with slow machines
+        end
+    end
+    return prx.ice_getConnection()
+end
 
 def allTests(communicator)
     sref = "timeout:default -p 12010"
@@ -15,26 +29,30 @@ def allTests(communicator)
     timeout = Test::TimeoutPrx::checkedCast(obj)
     test(timeout)
 
+    controller = Test::ControllerPrx::checkedCast(communicator.stringToProxy("controller:default -p 12011"))
+    test(controller)
+
     print "testing connect timeout... "
     STDOUT.flush
     #
     # Expect ConnectTimeoutException.
     #
     to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(100))
-    timeout.holdAdapter(500)
+    controller.holdAdapter(-1)
     begin
         to.op()
         test(false)
     rescue Ice::ConnectTimeoutException
         # Expected.
     end
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
 
     #
     # Expect success.
     #
-    timeout.op() # Ensure adapter is active.
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(1000))
-    timeout.holdAdapter(500)
+    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(2000))
+    controller.holdAdapter(100)
     begin
         to.op()
     rescue Ice::ConnectTimeoutException
@@ -48,20 +66,22 @@ def allTests(communicator)
     # Expect TimeoutException.
     #
     seq = "\0" * 10000000 # 10,000,000 entries
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(100))
-    timeout.holdAdapter(500)
+    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(250))
+    connect(to)
+    controller.holdAdapter(-1)
     begin
         to.sendData(seq)
         test(false)
     rescue Ice::TimeoutException
       # Expected.
     end
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     #
     # Expect success.
     #
-    timeout.op() # Ensure adapter is active.
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(1000))
-    timeout.holdAdapter(500)
+    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(2000))
+    controller.holdAdapter(100)
     begin
         seq2 = "\0" * 1000000 # 1,000,000 entries
         to.sendData(seq2)
@@ -76,17 +96,17 @@ def allTests(communicator)
     to = Test::TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(100))
     test(connection == to.ice_getConnection())
     begin
-        to.sleep(750)
+        to.sleep(500)
         test(false)
     rescue Ice::InvocationTimeoutException
         # Expected
     end
     obj.ice_ping();
 
-    to = Test::TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(500))
+    to = Test::TimeoutPrx.uncheckedCast(obj.ice_invocationTimeout(1000))
     test(connection == to.ice_getConnection())
     begin
-        to.sleep(250)
+        to.sleep(100)
     rescue Ice::InvocationTimeoutException
         test(false)
     end
@@ -95,22 +115,26 @@ def allTests(communicator)
 
     print "testing close timeout... "
     STDOUT.flush
-    to = Test::TimeoutPrx.checkedCast(obj.ice_timeout(100))
-    connection = to.ice_getConnection()
-    timeout.holdAdapter(500)
-    connection.close(false)
+    to = Test::TimeoutPrx.uncheckedCast(obj.ice_timeout(250))
+    connection = connect(to);
+    controller.holdAdapter(-1)
+    connection.close(Ice::ConnectionClose::GracefullyWithWait)
     begin
         connection.getInfo() # getInfo() doesn't throw in the closing state.
     rescue Ice::LocalException
         test(false)
     end
-    sleep(0.5)
-    begin
-        connection.getInfo()
-        test(false)
-    rescue Ice::CloseConnectionException
-        # Expected.
+    while(true)
+        begin
+            connection.getInfo()
+            sleep(0.01)
+        rescue Ice::ConnectionManuallyClosedException => ex
+            # Expected.
+            test(ex.graceful)
+            break
+        end
     end
+    controller.resumeAdapter()
     timeout.op() # Ensure adapter is active.
     puts "ok"
 
@@ -122,28 +146,34 @@ def allTests(communicator)
     #
     initData = Ice::InitializationData.new
     initData.properties = communicator.getProperties().clone()
+    initData.properties.setProperty("Ice.Override.ConnectTimeout", "250")
     initData.properties.setProperty("Ice.Override.Timeout", "100")
     comm = Ice.initialize(initData)
-    to = Test::TimeoutPrx::checkedCast(comm.stringToProxy(sref))
-    timeout.holdAdapter(500)
+    to = Test::TimeoutPrx::uncheckedCast(comm.stringToProxy(sref))
+    connect(to)
+    controller.holdAdapter(-1)
     begin
         to.sendData(seq)
         test(false)
     rescue Ice::TimeoutException
         # expected
     end
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     #
     # Calling ice_timeout() should have no effect.
     #
-    timeout.op() # Ensure adapter is active.
-    to = Test::TimeoutPrx::checkedCast(to.ice_timeout(1000))
-    timeout.holdAdapter(500)
+    to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(1000))
+    connect(to)
+    controller.holdAdapter(-1)
     begin
         to.sendData(seq)
         test(false)
     rescue Ice::TimeoutException
         # Expected.
     end
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     comm.destroy()
 
     #
@@ -153,7 +183,7 @@ def allTests(communicator)
     initData.properties = communicator.getProperties().clone()
     initData.properties.setProperty("Ice.Override.ConnectTimeout", "250")
     comm = Ice.initialize(initData)
-    timeout.holdAdapter(750)
+    controller.holdAdapter(-1)
     to = Test::TimeoutPrx::uncheckedCast(comm.stringToProxy(sref))
     begin
         to.op()
@@ -161,12 +191,13 @@ def allTests(communicator)
     rescue Ice::ConnectTimeoutException
         # expected
     end
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
 
     #
     # Calling ice_timeout() should have no effect on the connect timeout.
     #
-    timeout.op() # Ensure adapter is active.
-    timeout.holdAdapter(750)
+    controller.holdAdapter(-1)
     to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(1000))
     begin
         to.op()
@@ -174,20 +205,23 @@ def allTests(communicator)
     rescue Ice::ConnectTimeoutException
         # expected
     end
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
 
     #
     # Verify that timeout set via ice_timeout() is still used for requests.
     #
-    timeout.op() # Ensure adapter is active.
     to = Test::TimeoutPrx::uncheckedCast(to.ice_timeout(250))
-    to.ice_getConnection() # Establish connection.
-    timeout.holdAdapter(750)
+    connect(to)
+    controller.holdAdapter(-1)
     begin
         to.sendData(seq)
         test(false)
     rescue Ice::TimeoutException
         # Expected.
     end
+    controller.resumeAdapter()
+    timeout.op() # Ensure adapter is active.
     comm.destroy()
 
     #
@@ -198,12 +232,13 @@ def allTests(communicator)
     initData.properties.setProperty("Ice.Override.CloseTimeout", "100")
     comm = Ice.initialize(initData)
     connection = comm.stringToProxy(sref).ice_getConnection();
-    timeout.holdAdapter(500);
+    controller.holdAdapter(-1);
     now = Time.now
     comm.destroy();
-    test((Time.now - now) < 0.4);
+    test((Time.now - now) < 0.7);
+    controller.resumeAdapter()
 
     puts "ok"
 
-    return timeout
+    controller.shutdown()
 end

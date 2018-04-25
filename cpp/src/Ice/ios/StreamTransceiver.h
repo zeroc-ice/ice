@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,6 +13,7 @@
 #include <Ice/WSTransceiver.h>
 #include <Ice/Network.h>
 #include <Ice/Selector.h>
+#include <Ice/UniqueRef.h>
 
 struct __CFError;
 typedef struct __CFError * CFErrorRef;
@@ -42,6 +43,7 @@ public:
 
     StreamTransceiver(const InstancePtr&, CFReadStreamRef, CFWriteStreamRef, const std::string&, Ice::Int);
     StreamTransceiver(const InstancePtr&, CFReadStreamRef, CFWriteStreamRef, SOCKET);
+
     virtual ~StreamTransceiver();
 
     virtual IceInternal::NativeInfoPtr getNativeInfo();
@@ -67,13 +69,13 @@ public:
 
 private:
 
-    void checkError(CFErrorRef, const char*, int);
+    void checkErrorStatus(CFWriteStreamRef, CFReadStreamRef, const char*, int);
 
     const InstancePtr _instance;
     const std::string _host;
     const Ice::Int _port;
-    CFReadStreamRef _readStream;
-    CFWriteStreamRef _writeStream;
+    IceInternal::UniqueRef<CFReadStreamRef> _readStream;
+    IceInternal::UniqueRef<CFWriteStreamRef> _writeStream;
     bool _readStreamRegistered;
     bool _writeStreamRegistered;
     bool _opening;

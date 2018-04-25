@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Current.ice>
@@ -65,12 +65,15 @@ local interface ServantLocator
      * @return The located servant, or null if no suitable servant has
      * been found.
      *
+     * @throws UserException The implementation can raise a UserException
+     * and the run time will marshal it as the result of the invocation.
+     *
      * @see ObjectAdapter
      * @see Current
      * @see #finished
      *
      **/
-    ["UserException"] Object locate(Current curr, out LocalObject cookie);
+    ["java:UserException"] Object locate(Current curr, out LocalObject cookie);
 
     /**
      *
@@ -95,12 +98,15 @@ local interface ServantLocator
      *
      * @param cookie The cookie that was returned by <tt>locate</tt>.
      *
+     * @throws UserException The implementation can raise a UserException
+     * and the run time will marshal it as the result of the invocation.
+     *
      * @see ObjectAdapter
      * @see Current
      * @see #locate
      *
      **/
-    ["UserException"] void finished(Current curr, Object servant, LocalObject cookie);
+    ["java:UserException"] void finished(Current curr, Object servant, LocalObject cookie);
 
     /**
      *
@@ -116,6 +122,6 @@ local interface ServantLocator
      *
      **/
     void deactivate(string category);
-};
+}
 
-};
+}

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -52,8 +52,9 @@ class Twoways
         private Thread _thread;
     }
 
-    internal static void twoways(Ice.Communicator communicator, Test.MyClassPrx p)
+    internal static void twoways(TestCommon.Application app, Test.MyClassPrx p)
     {
+        Ice.Communicator communicator = app.communicator();
         string[] literals = p.opStringLiterals();
 
         test(Test.s0.value.Equals("\\") &&
@@ -111,7 +112,7 @@ class Twoways
              Test.s10.value.Equals(literals[10]) &&
              Test.s10.value.Equals(literals[21]));
 
-        test(Test.ss0.value.Equals("\'\"\u003f\\\a\b\f\n\r\t\v") &&
+        test(Test.ss0.value.Equals("\'\"\u003f\\\a\b\f\n\r\t\v\u0006") &&
              Test.ss0.value.Equals(Test.ss1.value) &&
              Test.ss0.value.Equals(Test.ss2.value) &&
              Test.ss0.value.Equals(literals[22]) &&
@@ -135,14 +136,11 @@ class Twoways
 
         p.ice_ping();
 
-
-        test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClass.ice_staticId()));
+        test(Test.MyClassPrxHelper.ice_staticId().Equals(Test.MyClassDisp_.ice_staticId()));
         test(Ice.ObjectPrxHelper.ice_staticId().Equals(Ice.ObjectImpl.ice_staticId()));
 
-
-        test(p.ice_isA(Test.MyClass.ice_staticId()));
-
-        test(p.ice_id().Equals(Test.MyDerivedClass.ice_staticId()));
+        test(p.ice_isA(Test.MyClassDisp_.ice_staticId()));
+        test(p.ice_id().Equals(Test.MyDerivedClassDisp_.ice_staticId()));
 
         {
             string[] ids = p.ice_ids();
@@ -1452,7 +1450,7 @@ class Twoways
                 ctx["three"] = "THREE";
 
                 Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                    ic.stringToProxy("test:default -p 12010"));
+                    ic.stringToProxy("test:" + app.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
@@ -1525,7 +1523,6 @@ class Twoways
             test(p.opByteBoolD1(null).Count == 0);
             test(p.opStringS2(null).Length == 0);
             test(p.opByteBoolD2(null).Count == 0);
-
 
             Test.MyDerivedClassPrx d = Test.MyDerivedClassPrxHelper.uncheckedCast(p);
             Test.MyStruct1 s = new Test.MyStruct1();

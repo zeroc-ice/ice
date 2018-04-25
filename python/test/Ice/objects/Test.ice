@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,24 +9,26 @@
 
 #pragma once
 
+[["suppress-warning:deprecated"]] // For classes with operations
+
 module Test
 {
 
 struct S
 {
     string str;
-};
+}
 
 class Base
 {
     S theS;
     string str;
-};
+}
 
 class AbstractBase extends Base
 {
     void op();
-};
+}
 
 class B;
 class C;
@@ -38,12 +40,12 @@ class A
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked;
-};
+}
 
 class B extends A
 {
     A theA;
-};
+}
 
 class C
 {
@@ -51,7 +53,7 @@ class C
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked;
-};
+}
 
 class D
 {
@@ -61,35 +63,36 @@ class D
 
     bool preMarshalInvoked;
     bool postUnmarshalInvoked;
-};
+}
 
 ["protected"] class E
 {
     int i;
     string s;
-
-    bool checkValues();
-};
+}
 
 class F
 {
     ["protected"] E e1;
     E e2;
+}
 
-    bool checkValues();
-};
+// Exercise empty class with non-empty base
+class G extends Base
+{
+}
 
 interface I
 {
-};
+}
 
 interface J extends I
 {
-};
+}
 
 class H implements I
 {
-};
+}
 
 sequence<Base> BaseSeq;
 
@@ -97,42 +100,42 @@ class CompactExt;
 
 class Compact(1)
 {
-};
+}
 
 const int CompactExtId = 789;
 
 class CompactExt(CompactExtId) extends Compact
 {
-};
+}
 
 class A1
 {
     string name;
-};
+}
 
 class B1
 {
     A1 a1;
     A1 a2;
-};
+}
 
 class D1 extends B1
 {
     A1 a3;
     A1 a4;
-};
+}
 
 exception EBase
 {
     A1 a1;
     A1 a2;
-};
+}
 
 exception EDerived extends EBase
 {
     A1 a3;
     A1 a4;
-};
+}
 
 module Inner
 {
@@ -140,12 +143,12 @@ module Inner
 class A
 {
     ::Test::A theA;
-};
+}
 
 exception Ex
 {
     string reason;
-};
+}
 
 module Sub
 {
@@ -153,18 +156,23 @@ module Sub
 class A
 {
     ::Test::Inner::A theA;
-};
+}
 
 exception Ex
 {
     string reason;
-};
+}
 
-};
+}
 
-};
+}
 
-class Initial
+class Recursive
+{
+    Recursive v;
+}
+
+interface Initial
 {
     void shutdown();
     B getB1();
@@ -173,6 +181,9 @@ class Initial
     D getD();
     E getE();
     F getF();
+
+    void setRecursive(Recursive p);
+    bool supportsClassGraphDepthMax();
 
     ["marshaled-result"] B getMB();
     ["amd", "marshaled-result"] B getAMDMB();
@@ -186,6 +197,7 @@ class Initial
     D1 getD1(D1 d1);
     void throwEDerived() throws EDerived;
 
+    void setG(G theG);
     void setI(I theI);
 
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
@@ -197,6 +209,6 @@ class Initial
 
     void throwInnerEx() throws Inner::Ex;
     void throwInnerSubEx() throws Inner::Sub::Ex;
-};
+}
 
-};
+}

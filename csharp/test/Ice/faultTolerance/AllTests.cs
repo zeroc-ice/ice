@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private class Callback
     {
@@ -69,14 +69,15 @@ public class AllTests : TestCommon.TestApp
         }
     }
 
-    public static void allTests(Ice.Communicator communicator, List<int> ports)
+    public static void allTests(TestCommon.Application app, List<int> ports)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
         string refString = "test";
         for(int i = 0; i < ports.Count; i++)
         {
-            refString += ":default -p " + ports[i];
+            refString += ":" + app.getTestEndpoint(ports[i]);
         }
         Ice.ObjectPrx basePrx = communicator.stringToProxy(refString);
         test(basePrx != null);
@@ -88,15 +89,6 @@ public class AllTests : TestCommon.TestApp
         test(obj != null);
         test(obj.Equals(basePrx));
         WriteLine("ok");
-
-        if(IceInternal.AssemblyUtil.runtime_ == IceInternal.AssemblyUtil.Runtime.Mono)
-        {
-            WriteLine("");
-            WriteLine("This test aborts a number of server processes.");
-            WriteLine("Test output may be interspersed with \"killed\" message from the shell.");
-            WriteLine("These messages are expected and do NOT indicate a test failure.");
-            WriteLine("");
-        }
 
         int oldPid = 0;
         bool ami = false;

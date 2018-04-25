@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,20 +32,36 @@ public:
     virtual void opWithArgs(Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&,
                             Ice::Int&, Ice::Int&, Ice::Int&, Ice::Int&, const Ice::Current&);
     virtual bool waitForBatch(Ice::Int, const Ice::Current&);
-    virtual void close(bool, const Ice::Current&);
+    virtual void close(Test::CloseMode, const Ice::Current&);
+    virtual void sleep(Ice::Int, const Ice::Current&);
+#ifdef ICE_CPP11_MAPPING
+    virtual void startDispatchAsync(std::function<void()>, std::function<void(std::exception_ptr)>,
+                                    const Ice::Current&);
+#else
+    virtual void startDispatch_async(const Test::AMD_TestIntf_startDispatchPtr&, const Ice::Current&);
+#endif
+    virtual void finishDispatch(const Ice::Current&);
     virtual void shutdown(const Ice::Current&);
 
+    virtual bool supportsAMD(const Ice::Current&);
     virtual bool supportsFunctionalTests(const Ice::Current&);
+
+    virtual void pingBiDir(ICE_IN(Ice::Identity), const Ice::Current&);
 
 private:
 
     int _batchCount;
+    bool _shutdown;
+#ifdef ICE_CPP11_MAPPING
+    std::function<void()> _pending;
+#else
+    Test::AMD_TestIntf_startDispatchPtr _pending;
+#endif
 };
 
 class TestIntfControllerI : public Test::TestIntfController, IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
-
 
     virtual void holdAdapter(const Ice::Current&);
     virtual void resumeAdapter(const Ice::Current&);
@@ -55,6 +71,13 @@ public:
 private:
 
     Ice::ObjectAdapterPtr _adapter;
+};
+
+class TestIntfII : public virtual Test::Outer::Inner::TestIntf
+{
+public:
+
+    Ice::Int op(Ice::Int, Ice::Int&, const Ice::Current&);
 };
 
 #endif

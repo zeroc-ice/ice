@@ -1,14 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-    
+
 const Ice = require("../Ice/ModuleRegistry").Ice;
-const __M = Ice.__M;
+const _ModuleRegistry = Ice._ModuleRegistry;
 const Slice = Ice.Slice;
 
 const eq = function(e1, e2)
@@ -55,7 +55,7 @@ class ArrayUtil
     }
 
     static equals(v1, v2, valuesEqual)
-    {        
+    {
         if(v1.length != v2.length)
         {
             return false;
@@ -77,8 +77,8 @@ class ArrayUtil
     {
         for(let i = arr.length; i > 1; --i)
         {
-            let e = arr[i - 1];
-            let rand = Math.floor(Math.random() * i);
+            const e = arr[i - 1];
+            const rand = Math.floor(Math.random() * i);
             arr[i - 1] = arr[rand];
             arr[rand] = e;
         }
@@ -90,13 +90,13 @@ ArrayUtil.eq = eq;
 Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
 {
     let helper = null;
-    Object.defineProperty(module, name, 
+    Object.defineProperty(module, name,
         {
             get: function()
                 {
                     if(helper === null)
                     {
-                        helper = Ice.StreamHelpers.generateSeqHelper(__M.type(valueHelper), fixed, __M.type(elementType));
+                        helper = Ice.StreamHelpers.generateSeqHelper(_ModuleRegistry.type(valueHelper), fixed, _ModuleRegistry.type(elementType));
                     }
                     return helper;
                 }

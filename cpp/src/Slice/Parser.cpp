@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -113,6 +113,22 @@ isMutableAfterReturnType(const TypePtr& type)
     return false;
 }
 
+void
+checkDeprecatedType(const UnitPtr& unit, const TypePtr& type)
+{
+    ClassDeclPtr decl = ClassDeclPtr::dynamicCast(type);
+    if(decl && !decl->isLocal() && decl->isInterface())
+    {
+        unit->warning(Deprecated, "interface by value is deprecated");
+    }
+
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    if(proxy && !proxy->_class()->isInterface())
+    {
+        unit->warning(Deprecated, "proxy for a class is deprecated");
+    }
+}
+
 }
 
 namespace Slice
@@ -129,6 +145,7 @@ Unit* unit;
 Slice::DefinitionContext::DefinitionContext(int includeLevel, const StringList& metaData) :
     _includeLevel(includeLevel), _metaData(metaData), _seenDefinition(false)
 {
+    initSuppressedWarnings();
 }
 
 string
@@ -171,6 +188,7 @@ void
 Slice::DefinitionContext::setMetaData(const StringList& metaData)
 {
     _metaData = metaData;
+    initSuppressedWarnings();
 }
 
 string
@@ -191,6 +209,130 @@ StringList
 Slice::DefinitionContext::getMetaData() const
 {
     return _metaData;
+}
+
+void
+Slice::DefinitionContext::warning(WarningCategory category, const string& file, int line, const string& msg) const
+{
+    if(!suppressWarning(category))
+    {
+        emitWarning(file, line, msg);
+    }
+}
+
+void
+Slice::DefinitionContext::warning(WarningCategory category, const string& file, const string& line, const string& msg) const
+{
+    if(!suppressWarning(category))
+    {
+        emitWarning(file, line, msg);
+    }
+}
+
+bool
+Slice::DefinitionContext::suppressWarning(WarningCategory category) const
+{
+    return _suppressedWarnings.find(category) != _suppressedWarnings.end() ||
+        _suppressedWarnings.find(All) != _suppressedWarnings.end();
+}
+
+void
+Slice::DefinitionContext::initSuppressedWarnings()
+{
+    _suppressedWarnings.clear();
+    const string prefix = "suppress-warning";
+    string value = findMetaData(prefix);
+    if(value == prefix)
+    {
+        _suppressedWarnings.insert(All);
+    }
+    else if(!value.empty())
+    {
+        assert(value.length() > prefix.length());
+        if(value[prefix.length()] == ':')
+        {
+            value = value.substr(prefix.length() + 1);
+            vector<string> result;
+            IceUtilInternal::splitString(value, ",", result);
+            for(vector<string>::iterator p = result.begin(); p != result.end(); ++p)
+            {
+                string s = IceUtilInternal::trim(*p);
+                if(s == "all")
+                {
+                    _suppressedWarnings.insert(All);
+                }
+                else if(s == "deprecated")
+                {
+                    _suppressedWarnings.insert(Deprecated);
+                }
+                else if(s == "invalid-metadata")
+                {
+                    _suppressedWarnings.insert(InvalidMetaData);
+                }
+                else
+                {
+                    warning(InvalidMetaData, "", "", string("invalid category `") + s +
+                            "' in global metadata suppress-warning");
+                }
+            }
+        }
+    }
+}
+
+// ----------------------------------------------------------------------
+// Comment
+// ----------------------------------------------------------------------
+
+bool
+Slice::Comment::isDeprecated() const
+{
+    return _isDeprecated;
+}
+
+StringList
+Slice::Comment::deprecated() const
+{
+    return _deprecated;
+}
+
+StringList
+Slice::Comment::overview() const
+{
+    return _overview;
+}
+
+StringList
+Slice::Comment::misc() const
+{
+    return _misc;
+}
+
+StringList
+Slice::Comment::seeAlso() const
+{
+    return _seeAlso;
+}
+
+StringList
+Slice::Comment::returns() const
+{
+    return _returns;
+}
+
+map<string, StringList>
+Slice::Comment::parameters() const
+{
+    return _parameters;
+}
+
+map<string, StringList>
+Slice::Comment::exceptions() const
+{
+    return _exceptions;
+}
+
+Slice::Comment::Comment()
+{
 }
 
 // ----------------------------------------------------------------------
@@ -425,12 +567,13 @@ string
 Slice::Contained::flattenedScope() const
 {
     string s = scope();
-    string flattenedScope;
-    for(string::const_iterator r = s.begin(); r != s.end(); ++r)
+    string::size_type pos = 0;
+    while((pos = s.find("::", pos)) != string::npos)
     {
-        flattenedScope += ((*r) == ':') ? '_' : *r;
+        s.replace(pos, 2, "_");
+
     }
-    return flattenedScope;
+    return s;
 }
 
 string
@@ -449,6 +592,330 @@ string
 Slice::Contained::comment() const
 {
     return _comment;
+}
+
+namespace
+{
+
+void
+trimLines(StringList& l)
+{
+    //
+    // Remove empty trailing lines.
+    //
+    while(!l.empty() && l.back().empty())
+    {
+        l.pop_back();
+    }
+}
+
+StringList
+splitComment(const string& c, bool stripMarkup)
+{
+    string comment = c;
+
+    if(stripMarkup)
+    {
+        //
+        // Strip HTML markup and javadoc links.
+        //
+        string::size_type pos = 0;
+        do
+        {
+            pos = comment.find('<', pos);
+            if(pos != string::npos)
+            {
+                string::size_type endpos = comment.find('>', pos);
+                if(endpos == string::npos)
+                {
+                    break;
+                }
+                comment.erase(pos, endpos - pos + 1);
+            }
+        }
+        while(pos != string::npos);
+
+        const string link = "{@link";
+        pos = 0;
+        do
+        {
+            pos = comment.find(link, pos);
+            if(pos != string::npos)
+            {
+                comment.erase(pos, link.size() + 1); // Erase trailing white space too.
+                string::size_type endpos = comment.find('}', pos);
+                if(endpos != string::npos)
+                {
+                    string ident = comment.substr(pos, endpos - pos);
+                    comment.erase(pos, endpos - pos + 1);
+
+                    //
+                    // Replace links of the form {@link Type#member} with "Type.member".
+                    //
+                    string::size_type hash = ident.find('#');
+                    string rest;
+                    if(hash != string::npos)
+                    {
+                        rest = ident.substr(hash + 1);
+                        ident = ident.substr(0, hash);
+                        if(!ident.empty())
+                        {
+                            if(!rest.empty())
+                            {
+                                ident += "." + rest;
+                            }
+                        }
+                        else if(!rest.empty())
+                        {
+                            ident = rest;
+                        }
+                    }
+
+                    comment.insert(pos, ident);
+                }
+            }
+        }
+        while(pos != string::npos);
+    }
+
+    StringList result;
+
+    string::size_type pos = 0;
+    string::size_type nextPos;
+    while((nextPos = comment.find_first_of('\n', pos)) != string::npos)
+    {
+        result.push_back(IceUtilInternal::trim(string(comment, pos, nextPos - pos)));
+        pos = nextPos + 1;
+    }
+    string lastLine = IceUtilInternal::trim(string(comment, pos));
+    if(!lastLine.empty())
+    {
+        result.push_back(lastLine);
+    }
+
+    trimLines(result);
+
+    return result;
+}
+
+bool
+parseCommentLine(const string& l, const string& tag, bool namedTag, string& name, string& doc)
+{
+    doc.clear();
+
+    if(l.find(tag) == 0)
+    {
+        const string ws = " \t";
+
+        if(namedTag)
+        {
+            string::size_type n = l.find_first_not_of(ws, tag.size());
+            if(n == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            string::size_type end = l.find_first_of(ws, n);
+            if(end == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            name = l.substr(n, end - n);
+            n = l.find_first_not_of(ws, end);
+            if(n != string::npos)
+            {
+                doc = l.substr(n);
+            }
+        }
+        else
+        {
+            name.clear();
+
+            string::size_type n = l.find_first_not_of(ws, tag.size());
+            if(n == string::npos)
+            {
+                return false; // Malformed line, ignore it.
+            }
+            doc = l.substr(n);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+}
+
+CommentPtr
+Slice::Contained::parseComment(bool stripMarkup) const
+{
+    CommentPtr comment = new Comment;
+
+    comment->_isDeprecated = false;
+
+    //
+    // First check metadata for a deprecated tag.
+    //
+    string deprecateMetadata;
+    if(findMetaData("deprecate", deprecateMetadata))
+    {
+        comment->_isDeprecated = true;
+        if(deprecateMetadata.find("deprecate:") == 0 && deprecateMetadata.size() > 10)
+        {
+            comment->_deprecated.push_back(IceUtilInternal::trim(deprecateMetadata.substr(10)));
+        }
+    }
+
+    if(!comment->_isDeprecated && _comment.empty())
+    {
+        return 0;
+    }
+
+    //
+    // Split up the comment into lines.
+    //
+    StringList lines = splitComment(_comment, stripMarkup);
+
+    StringList::const_iterator i;
+    for(i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string l = *i;
+        if(l[0] == '@')
+        {
+            break;
+        }
+        comment->_overview.push_back(l);
+    }
+
+    enum State { StateMisc, StateParam, StateThrows, StateReturn, StateDeprecated };
+    State state = StateMisc;
+    string name;
+    const string ws = " \t";
+    const string paramTag = "@param";
+    const string throwsTag = "@throws";
+    const string exceptionTag = "@exception";
+    const string returnTag = "@return";
+    const string deprecatedTag = "@deprecated";
+    const string seeTag = "@see";
+    for(; i != lines.end(); ++i)
+    {
+        const string l = IceUtilInternal::trim(*i);
+        string line;
+        if(parseCommentLine(l, paramTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateParam;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                comment->_parameters[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, throwsTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateThrows;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                comment->_exceptions[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, exceptionTag, true, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateThrows;
+                StringList sl;
+                sl.push_back(line); // The first line of the description.
+                comment->_exceptions[name] = sl;
+            }
+        }
+        else if(parseCommentLine(l, seeTag, false, name, line))
+        {
+            if(!line.empty())
+            {
+                comment->_seeAlso.push_back(line);
+            }
+        }
+        else if(parseCommentLine(l, returnTag, false, name, line))
+        {
+            if(!line.empty())
+            {
+                state = StateReturn;
+                comment->_returns.push_back(line); // The first line of the description.
+            }
+        }
+        else if(parseCommentLine(l, deprecatedTag, false, name, line))
+        {
+            comment->_isDeprecated = true;
+            if(!line.empty())
+            {
+                state = StateDeprecated;
+                comment->_deprecated.push_back(line); // The first line of the description.
+            }
+        }
+        else if(!l.empty())
+        {
+            if(l[0] == '@')
+            {
+                //
+                // Treat all other tags as miscellaneous comments.
+                //
+                state = StateMisc;
+            }
+
+            switch(state)
+            {
+                case StateMisc:
+                {
+                    comment->_misc.push_back(l);
+                    break;
+                }
+                case StateParam:
+                {
+                    assert(!name.empty());
+                    StringList sl;
+                    if(comment->_parameters.find(name) != comment->_parameters.end())
+                    {
+                        sl = comment->_parameters[name];
+                    }
+                    sl.push_back(l);
+                    comment->_parameters[name] = sl;
+                    break;
+                }
+                case StateThrows:
+                {
+                    assert(!name.empty());
+                    StringList sl;
+                    if(comment->_exceptions.find(name) != comment->_exceptions.end())
+                    {
+                        sl = comment->_exceptions[name];
+                    }
+                    sl.push_back(l);
+                    comment->_exceptions[name] = sl;
+                    break;
+                }
+                case StateReturn:
+                {
+                    comment->_returns.push_back(l);
+                    break;
+                }
+                case StateDeprecated:
+                {
+                    comment->_deprecated.push_back(l);
+                    break;
+                }
+            }
+        }
+    }
+
+    trimLines(comment->_overview);
+    trimLines(comment->_deprecated);
+    trimLines(comment->_misc);
+    trimLines(comment->_returns);
+
+    return comment;
 }
 
 int
@@ -590,7 +1057,6 @@ Slice::Container::destroy()
 ModulePtr
 Slice::Container::createModule(const string& name)
 {
-    checkIdentifier(name);
     ContainedList matches = _unit->findContents(thisScope() + name);
     matches.sort(); // Modules can occur many times...
     matches.unique(); // ... but we only want one instance of each.
@@ -643,8 +1109,6 @@ Slice::Container::createModule(const string& name)
 ClassDefPtr
 Slice::Container::createClassDef(const string& name, int id, bool intf, const ClassList& bases, bool local)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     for(ContainedList::const_iterator p = matches.begin(); p != matches.end(); ++p)
     {
@@ -725,20 +1189,15 @@ Slice::Container::createClassDef(const string& name, int id, bool intf, const Cl
     // definition. This way the code generator can rely on always
     // having a class declaration available for lookup.
     //
-    ClassDeclPtr decl = createClassDecl(name, intf, local, false);
+    ClassDeclPtr decl = createClassDecl(name, intf, local);
     def->_declaration = decl;
 
     return def;
 }
 
 ClassDeclPtr
-Slice::Container::createClassDecl(const string& name, bool intf, bool local, bool checkName)
+Slice::Container::createClassDecl(const string& name, bool intf, bool local)
 {
-    if (checkName)
-    {
-        checkIdentifier(name);
-    }
-
     ClassDefPtr def;
 
     ContainedList matches = _unit->findContents(thisScope() + name);
@@ -828,8 +1287,6 @@ Slice::Container::createClassDecl(const string& name, bool intf, bool local, boo
 ExceptionPtr
 Slice::Container::createException(const string& name, const ExceptionPtr& base, bool local, NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -880,8 +1337,6 @@ Slice::Container::createException(const string& name, const ExceptionPtr& base, 
 StructPtr
 Slice::Container::createStruct(const string& name, bool local, NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -925,8 +1380,6 @@ SequencePtr
 Slice::Container::createSequence(const string& name, const TypePtr& type, const StringList& metaData, bool local,
                                  NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -970,6 +1423,8 @@ Slice::Container::createSequence(const string& name, const TypePtr& type, const 
         _unit->error(msg);
     }
 
+    checkDeprecatedType(_unit, type);
+
     SequencePtr p = new Sequence(this, name, type, metaData, local);
     _contents.push_back(p);
     return p;
@@ -980,8 +1435,6 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
                                    const TypePtr& valueType, const StringList& valueMetaData, bool local,
                                    NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1026,7 +1479,7 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         }
         if(containsSequence)
         {
-            _unit->warning("use of sequences in dictionary keys has been deprecated");
+            _unit->warning(Deprecated, "use of sequences in dictionary keys has been deprecated");
         }
     }
 
@@ -1044,6 +1497,8 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
         }
     }
 
+    checkDeprecatedType(_unit, valueType);
+
     DictionaryPtr p = new Dictionary(this, name, keyType, keyMetaData, valueType, valueMetaData, local);
     _contents.push_back(p);
     return p;
@@ -1052,8 +1507,6 @@ Slice::Container::createDictionary(const string& name, const TypePtr& keyType, c
 EnumPtr
 Slice::Container::createEnum(const string& name, bool local, NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1097,13 +1550,11 @@ EnumeratorPtr
 Slice::Container::createEnumerator(const string& name)
 {
     EnumeratorPtr p = validateEnumerator(name);
-    if(p)
+    if(!p)
     {
-        return p;
+        p = new Enumerator(this, name);
+        _contents.push_back(p);
     }
-
-    p = new Enumerator(this, name);
-    _contents.push_back(p);
     return p;
 }
 
@@ -1111,13 +1562,11 @@ EnumeratorPtr
 Slice::Container::createEnumerator(const string& name, int value)
 {
     EnumeratorPtr p = validateEnumerator(name);
-    if(p)
+    if(!p)
     {
-        return p;
+        p = new Enumerator(this, name, value);
+        _contents.push_back(p);
     }
-
-    p = new Enumerator(this, name, value);
-    _contents.push_back(p);
     return p;
 }
 
@@ -1126,8 +1575,6 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
                               const SyntaxTreeBasePtr& valueType, const string& value, const string& literal,
                               NodeType nt)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -1162,15 +1609,17 @@ Slice::Container::createConst(const string name, const TypePtr& constType, const
         checkForGlobalDef(name, "constant"); // Don't return here -- we create the constant anyway.
     }
 
+    SyntaxTreeBasePtr resolvedValueType = valueType;
+
     //
-    // Validate the constant and its value.
+    // Validate the constant and its value; for enums, find enumerator
     //
-    if(nt == Real && !validateConstant(name, constType, valueType, value, true))
+    if(nt == Real && !validateConstant(name, constType, resolvedValueType, value, true))
     {
         return 0;
     }
 
-    ConstPtr p = new Const(this, name, constType, metaData, valueType, value, literal);
+    ConstPtr p = new Const(this, name, constType, metaData, resolvedValueType, value, literal);
     _contents.push_back(p);
     return p;
 }
@@ -1449,7 +1898,6 @@ Slice::Container::unit() const
     return SyntaxTreeBase::unit();
 }
 
-
 ModuleList
 Slice::Container::modules() const
 {
@@ -1552,6 +2000,86 @@ Slice::Container::enums() const
             result.push_back(q);
         }
     }
+    return result;
+}
+
+EnumeratorList
+Slice::Container::enumerators() const
+{
+    EnumeratorList result;
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        EnumeratorPtr q = EnumeratorPtr::dynamicCast(*p);
+        if(q)
+        {
+            result.push_back(q);
+        }
+    }
+    return result;
+}
+
+//
+// Find enumerators using the old unscoped enumerators lookup
+//
+EnumeratorList
+Slice::Container::enumerators(const string& scoped) const
+{
+    EnumeratorList result;
+    string::size_type lastColon = scoped.rfind(':');
+
+    if(lastColon == string::npos)
+    {
+        // check all enclosing scopes
+        ContainerPtr container = const_cast<Container*>(this);
+        do
+        {
+            EnumList enums = container->enums();
+            for(EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
+            {
+                ContainedList cl = (*p)->lookupContained(scoped, false);
+                if(!cl.empty())
+                {
+                    result.push_back(EnumeratorPtr::dynamicCast(cl.front()));
+                }
+            }
+
+            ContainedPtr contained = ContainedPtr::dynamicCast(container);
+            if(contained)
+            {
+                container = contained->container();
+            }
+            else
+            {
+                container = 0;
+            }
+        }
+        while(result.empty() && container);
+    }
+    else
+    {
+        // Find the referenced scope
+        ContainerPtr container = const_cast<Container*>(this);
+        string scope = scoped.substr(0, scoped.rfind("::"));
+        ContainedList cl = container->lookupContained(scope, false);
+        if(!cl.empty())
+        {
+            container = ContainerPtr::dynamicCast(cl.front());
+            if(container)
+            {
+                EnumList enums = container->enums();
+                string name = scoped.substr(lastColon + 1);
+                for(EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
+                {
+                    ContainedList cl = (*p)->lookupContained(name, false);
+                    if(!cl.empty())
+                    {
+                        result.push_back(EnumeratorPtr::dynamicCast(cl.front()));
+                    }
+                }
+            }
+        }
+    }
+
     return result;
 }
 
@@ -2117,7 +2645,7 @@ Slice::Container::mergeModules()
             metaData2.unique();
             if(!checkGlobalMetaData(metaData1, metaData2))
             {
-                unit()->warning("global metadata mismatch for module `" + mod1->name() + "' in files " +
+                unit()->warning(All, "global metadata mismatch for module `" + mod1->name() + "' in files " +
                                 dc1->filename() + " and " + dc2->filename());
             }
 
@@ -2391,63 +2919,6 @@ Slice::Container::Container(const UnitPtr& unit) :
 {
 }
 
-void
-Slice::Container::checkIdentifier(const string& name) const
-{
-    //
-    // Weed out identifiers with reserved suffixes.
-    //
-    static const string suffixBlacklist[] = { "Helper", "Holder", "Prx", "Ptr" };
-    for(size_t i = 0; i < sizeof(suffixBlacklist) / sizeof(*suffixBlacklist); ++i)
-    {
-        if(name.find(suffixBlacklist[i], name.size() - suffixBlacklist[i].size()) != string::npos)
-        {
-            _unit->error("illegal identifier `" + name + "': `" + suffixBlacklist[i] + "' suffix is reserved");
-        }
-    }
-
-    //
-    // Check for illegal underscores.
-    //
-    if(name.find('_') == 0)
-    {
-        _unit->error("illegal leading underscore in identifier `" + name + "'");
-    }
-    else if(name.rfind('_') == name.size() - 1)
-    {
-        _unit->error("illegal trailing underscore in identifier `" + name + "'");
-    }
-    else if(name.find("__") != string::npos)
-    {
-        _unit->error("illegal double underscore in identifier `" + name + "'");
-    }
-    else if(_unit->currentIncludeLevel() == 0 && !_unit->allowUnderscore() && name.find('_') != string::npos)
-    {
-        //
-        // For rules controlled by a translator option, we don't complain about included files.
-        //
-        _unit->error("illegal underscore in identifier `" + name + "'");
-    }
-
-    if(_unit->currentIncludeLevel() == 0 && !_unit->allowIcePrefix())
-    {
-        //
-        // For rules controlled by a translator option, we don't complain about included files.
-        //
-        if(name.size() >= 3)
-        {
-            string prefix3;
-            prefix3 += ::tolower(static_cast<unsigned char>(name[0]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[1]));
-            prefix3 += ::tolower(static_cast<unsigned char>(name[2]));
-            if(prefix3 == "ice")
-            {
-                _unit->error("illegal identifier `" + name + "': `" + name.substr(0, 3) + "' prefix is reserved");
-            }
-        }
-    }
-}
-
 bool
 Slice::Container::checkInterfaceAndLocal(const string& name, bool defined,
                                          bool intf, bool intfOther,
@@ -2545,7 +3016,7 @@ Slice::Container::checkGlobalMetaData(const StringList& m1, const StringList& m2
 }
 
 bool
-Slice::Container::validateConstant(const string& name, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
+Slice::Container::validateConstant(const string& name, const TypePtr& type, SyntaxTreeBasePtr& valueType,
                                    const string& value, bool isConstant)
 {
     //
@@ -2774,20 +3245,57 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
         }
         else
         {
-            EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
+            if(valueType)
+            {
+                EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
 
-            if(!lte)
-            {
-                string msg = "type of initializer is incompatible with the type of " + desc + " `" + name + "'";
-                _unit->error(msg);
-                return false;
+                if(!lte)
+                {
+                    string msg = "type of initializer is incompatible with the type of " + desc + " `" + name + "'";
+                    _unit->error(msg);
+                    return false;
+                }
+                EnumeratorList elist = e->enumerators();
+                if(find(elist.begin(), elist.end(), lte) == elist.end())
+                {
+                    string msg = "enumerator `" + value + "' is not defined in enumeration `" + e->scoped() + "'";
+                    _unit->error(msg);
+                    return false;
+                }
             }
-            EnumeratorList elist = e->getEnumerators();
-            if(find(elist.begin(), elist.end(), lte) == elist.end())
+            else
             {
-                string msg = "enumerator `" + value + "' is not defined in enumeration `" + e->scoped() + "'";
-                _unit->error(msg);
-                return false;
+                // Check if value designates an enumerator of e
+                string newVal = value;
+                string::size_type lastColon = value.rfind(':');
+                if(lastColon != string::npos && lastColon + 1 < value.length())
+                {
+                    newVal = value.substr(0, lastColon + 1) + e->name() + "::" + value.substr(lastColon + 1);
+                }
+
+                ContainedList clist = e->lookupContained(newVal, false);
+                if(clist.empty())
+                {
+                    string msg = "`" + value + "' does not designate an enumerator of `" + e->scoped() + "'";
+                    _unit->error(msg);
+                    return false;
+                }
+                EnumeratorPtr lte = EnumeratorPtr::dynamicCast(clist.front());
+                if(lte)
+                {
+                    valueType = lte;
+                    if(lastColon != string::npos)
+                    {
+                        _unit->warning(Deprecated, string("referencing enumerator `") + lte->name() +
+                                       "' in its enumeration's enclosing scope is deprecated");
+                    }
+                }
+                else
+                {
+                    string msg = "type of initializer is incompatible with the type of " + desc + " `" + name + "'";
+                    _unit->error(msg);
+                    return false;
+                }
             }
         }
     }
@@ -2798,8 +3306,6 @@ Slice::Container::validateConstant(const string& name, const TypePtr& type, cons
 EnumeratorPtr
 Slice::Container::validateEnumerator(const string& name)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -2814,20 +3320,17 @@ Slice::Container::validateEnumerator(const string& name)
         }
         if(matches.front()->name() == name)
         {
-            string msg = "redefinition of " + matches.front()->kindOf() + " `" + matches.front()->name();
-            msg += "' as enumerator";
-            _unit->error(msg);
+            _unit->error(string("redefinition of enumerator `") + name + "'");
         }
         else
         {
             string msg = "enumerator `" + name + "' differs only in capitalization from ";
-            msg += matches.front()->kindOf() + " `" + matches.front()->name() + "'";
+            msg += "`" + matches.front()->name() + "'";
             _unit->error(msg);
         }
     }
 
-    nameIsLegal(name, "enumerator"); // Don't return here -- we create the enumerator anyway.
-
+    nameIsLegal(name, "enumerator"); // Ignore return value.
     return 0;
 }
 
@@ -3208,8 +3711,6 @@ Slice::ClassDef::createOperation(const string& name,
                                  int tag,
                                  Operation::Mode mode)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3303,6 +3804,12 @@ Slice::ClassDef::createOperation(const string& name,
         _unit->error(msg);
     }
 
+    if(!isInterface() && !isLocal() && !_hasOperations)
+    {
+        // Only warn for the first operation
+        _unit->warning(Deprecated, "classes with operations are deprecated");
+    }
+
     _hasOperations = true;
     OperationPtr op = new Operation(this, name, returnType, optional, tag, mode);
     _contents.push_back(op);
@@ -3314,8 +3821,6 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
                                   const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                   const string& defaultLiteral)
 {
-    checkIdentifier(name);
-
     assert(!isInterface());
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
@@ -3398,7 +3903,7 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt)
+    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
         //
         // Validate the default value.
@@ -3430,6 +3935,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
             }
         }
     }
+
+    checkDeprecatedType(_unit, type);
 
     _hasDataMembers = true;
     DataMemberPtr member = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
@@ -3770,6 +4277,17 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
     _local(local),
     _compactId(id)
 {
+    if(!local && !intf)
+    {
+        for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
+        {
+            if((*p)->isInterface())
+            {
+                _unit->warning(Deprecated, "classes implementing interfaces are deprecated");
+                break;
+            }
+        }
+    }
     //
     // First element of bases may be a class, all others must be
     // interfaces.
@@ -3794,13 +4312,13 @@ Slice::ClassDef::ClassDef(const ContainerPtr& container, const string& name, int
 bool
 Slice::Proxy::isLocal() const
 {
-    return __class->isLocal();
+    return _classDecl->isLocal();
 }
 
 string
 Slice::Proxy::typeId() const
 {
-    return __class->scoped();
+    return _classDecl->scoped();
 }
 
 bool
@@ -3824,13 +4342,13 @@ Slice::Proxy::isVariableLength() const
 ClassDeclPtr
 Slice::Proxy::_class() const
 {
-    return __class;
+    return _classDecl;
 }
 
 Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
      SyntaxTreeBase(cl->unit()),
      Type(cl->unit()),
-    __class(cl)
+    _classDecl(cl)
 {
 }
 
@@ -3850,8 +4368,6 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
                                    const SyntaxTreeBasePtr& defaultValueType, const string& defaultValue,
                                    const string& defaultLiteral)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -3921,7 +4437,7 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt)
+    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
         //
         // Validate the default value.
@@ -3953,6 +4469,8 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
             }
         }
     }
+
+    checkDeprecatedType(_unit, type);
 
     DataMemberPtr p = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
     _contents.push_back(p);
@@ -4243,7 +4761,7 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
     string dv = defaultValue;
     string dl = defaultLiteral;
 
-    if(dlt)
+    if(dlt || (EnumPtr::dynamicCast(type) && !dv.empty()))
     {
         //
         // Validate the default value.
@@ -4275,6 +4793,8 @@ Slice::Struct::createDataMember(const string& name, const TypePtr& type, bool op
             }
         }
     }
+
+    checkDeprecatedType(_unit, type);
 
     DataMemberPtr p = new DataMember(this, name, type, optional, tag, dlt, dv, dl);
     _contents.push_back(p);
@@ -4709,69 +5229,7 @@ Slice::Dictionary::Dictionary(const ContainerPtr& container, const string& name,
 void
 Slice::Enum::destroy()
 {
-    _enumerators.clear();
     SyntaxTreeBase::destroy();
-}
-
-EnumeratorList
-Slice::Enum::getEnumerators()
-{
-    return _enumerators;
-}
-
-void
-Slice::Enum::setEnumerators(const EnumeratorList& ens)
-{
-    _enumerators = ens;
-    int lastValue = -1;
-    set<int> values;
-    for(EnumeratorList::iterator p = _enumerators.begin(); p != _enumerators.end(); ++p)
-    {
-        (*p)->_type = this;
-
-        if((*p)->_explicitValue)
-        {
-            _explicitValue = true;
-
-            if((*p)->_value < 0)
-            {
-                string msg = "value for enumerator `" + (*p)->name() + "' is out of range";
-                _unit->error(msg);
-            }
-        }
-        else
-        {
-            if(lastValue == Int32Max)
-            {
-                string msg = "value for enumerator `" + (*p)->name() + "' is out of range";
-                _unit->error(msg);
-            }
-
-            //
-            // If the enumerator was not assigned an explicit value, we automatically assign
-            // it one more than the previous enumerator.
-            //
-            (*p)->_value = lastValue + 1;
-        }
-
-        if(values.count((*p)->_value) != 0)
-        {
-            string msg = "enumerator `" + (*p)->name() + "' has a duplicate value";
-            _unit->error(msg);
-        }
-        values.insert((*p)->_value);
-
-        lastValue = (*p)->_value;
-
-        if(lastValue > _maxValue)
-        {
-            _maxValue = lastValue;
-        }
-        if(lastValue < _minValue)
-        {
-            _minValue = lastValue;
-        }
-    }
 }
 
 bool
@@ -4842,13 +5300,75 @@ Slice::Enum::recDependencies(set<ConstructedPtr>&)
 
 Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local) :
     SyntaxTreeBase(container->unit()),
+    Container(container->unit()),
     Type(container->unit()),
     Contained(container, name),
     Constructed(container, name, local),
     _explicitValue(false),
     _minValue(Int32Max),
-    _maxValue(0)
+    _maxValue(0),
+    _lastValue(-1)
 {
+}
+
+int
+Slice::Enum::newEnumerator(const EnumeratorPtr& p)
+{
+    if(p->explicitValue())
+    {
+        _explicitValue = true;
+        _lastValue = p->value();
+
+        if(_lastValue < 0)
+        {
+            string msg = "value for enumerator `" + p->name() + "' is out of range";
+            _unit->error(msg);
+        }
+    }
+    else
+    {
+        if(_lastValue == Int32Max)
+        {
+            string msg = "value for enumerator `" + p->name() + "' is out of range";
+            _unit->error(msg);
+        }
+        else
+        {
+            //
+            // If the enumerator was not assigned an explicit value, we automatically assign
+            // it one more than the previous enumerator.
+            //
+            ++_lastValue;
+        }
+    }
+
+    bool checkForDuplicates = true;
+    if(_lastValue > _maxValue)
+    {
+        _maxValue = _lastValue;
+        checkForDuplicates = false;
+    }
+    if(_lastValue < _minValue)
+    {
+        _minValue = _lastValue;
+        checkForDuplicates = false;
+    }
+
+    if(checkForDuplicates)
+    {
+        EnumeratorList enl = enumerators();
+        for(EnumeratorList::iterator q = enl.begin(); q != enl.end(); ++q)
+        {
+            EnumeratorPtr& r = *q;
+            if(r != p && r->value() == _lastValue)
+            {
+                _unit->error(string("enumerator `") + p->name() + "' has the same value as enumerator `" +
+                             r->name() + "'");
+            }
+        }
+    }
+
+    return _lastValue;
 }
 
 // ----------------------------------------------------------------------
@@ -4858,7 +5378,7 @@ Slice::Enum::Enum(const ContainerPtr& container, const string& name, bool local)
 EnumPtr
 Slice::Enumerator::type() const
 {
-    return _type;
+    return EnumPtr::dynamicCast(container());
 }
 
 Contained::ContainedType
@@ -4897,6 +5417,7 @@ Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name)
     _explicitValue(false),
     _value(-1)
 {
+    _value = EnumPtr::dynamicCast(container)->newEnumerator(this);
 }
 
 Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name, int value) :
@@ -4905,6 +5426,7 @@ Slice::Enumerator::Enumerator(const ContainerPtr& container, const string& name,
     _explicitValue(true),
     _value(value)
 {
+    EnumPtr::dynamicCast(container)->newEnumerator(this);
 }
 
 // ----------------------------------------------------------------------
@@ -4977,6 +5499,11 @@ Slice::Const::Const(const ContainerPtr& container, const string& name, const Typ
     _value(value),
     _literal(literal)
 {
+    if(valueType == 0)
+    {
+        cerr << "const " << name << " created with null valueType" << endl;
+    }
+
 }
 
 // ----------------------------------------------------------------------
@@ -5046,8 +5573,6 @@ Slice::Operation::hasMarshaledResult() const
 ParamDeclPtr
 Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool isOutParam, bool optional, int tag)
 {
-    checkIdentifier(name);
-
     ContainedList matches = _unit->findContents(thisScope() + name);
     if(!matches.empty())
     {
@@ -5101,6 +5626,11 @@ Slice::Operation::createParamDecl(const string& name, const TypePtr& type, bool 
         msg += name + "' in operation `" + this->name() + "'";
         _unit->error(msg);
     }
+
+    //
+    // Issue a warning for a deprecated parameter type.
+    //
+    checkDeprecatedType(_unit, type);
 
     if(optional)
     {
@@ -5423,7 +5953,7 @@ Slice::Operation::attributes() const
         }
         if(i == 2)
         {
-            emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
+            _unit->warning(InvalidMetaData, "invalid freeze metadata for operation");
         }
         else
         {
@@ -5444,7 +5974,7 @@ Slice::Operation::attributes() const
                 {
                     if(result != 0 && (i == int(Supports) || i == int(Never)))
                     {
-                        emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
+                        _unit->warning(InvalidMetaData, "invalid freeze metadata for operation");
                     }
                     else
                     {
@@ -5458,7 +5988,7 @@ Slice::Operation::attributes() const
 
             if(i == 4)
             {
-                emitWarning(definitionContext()->filename(), line(), "invalid freeze metadata for operation");
+                _unit->warning(InvalidMetaData, "invalid freeze metadata for operation");
 
                 //
                 // Set default
@@ -5516,6 +6046,10 @@ Slice::Operation::Operation(const ContainerPtr& container,
     _returnTag(returnTag),
     _mode(mode)
 {
+    if(returnType)
+    {
+        checkDeprecatedType(_unit, returnType);
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -5941,13 +6475,6 @@ Slice::Unit::setSeenDefinition()
 }
 
 void
-Slice::Unit::error(const char* s)
-{
-    emitError(currentFile(), _currentLine, s);
-    _errors++;
-}
-
-void
 Slice::Unit::error(const string& s)
 {
     emitError(currentFile(), _currentLine, s);
@@ -5955,15 +6482,16 @@ Slice::Unit::error(const string& s)
 }
 
 void
-Slice::Unit::warning(const char* s) const
+Slice::Unit::warning(WarningCategory category, const string& msg) const
 {
-    emitWarning(currentFile(), _currentLine, s);
-}
-
-void
-Slice::Unit::warning(const string& s) const
-{
-    emitWarning(currentFile(), _currentLine, s);
+    if(_definitionContextStack.empty())
+    {
+        emitWarning(currentFile(), _currentLine, msg);
+    }
+    else
+    {
+        _definitionContextStack.top()->warning(category, currentFile(), _currentLine, msg);
+    }
 }
 
 ContainerPtr
@@ -6204,12 +6732,6 @@ Slice::Unit::usesConsts() const
     return false;
 }
 
-FeatureProfile
-Slice::Unit::profile() const
-{
-    return _featureProfile;
-}
-
 StringList
 Slice::Unit::includeFiles() const
 {
@@ -6229,7 +6751,7 @@ Slice::Unit::allFiles() const
 }
 
 int
-Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::FeatureProfile profile)
+Slice::Unit::parse(const string& filename, FILE* file, bool debug)
 {
     slice_debug = debug ? 1 : 0;
 
@@ -6239,7 +6761,6 @@ Slice::Unit::parse(const string& filename, FILE* file, bool debug, Slice::Featur
     _currentComment = "";
     _currentLine = 1;
     _currentIncludeLevel = 0;
-    _featureProfile = profile;
     _topLevelFile = fullPath(filename);
     pushContainer(this);
     pushDefinitionContext();
@@ -6526,7 +7047,6 @@ Slice::cICompare(const std::string& s1, const std::string& s2)
     return c(s1, s2);
 }
 #endif
-
 
 // ----------------------------------------------------------------------
 // DerivedToBaseCompare

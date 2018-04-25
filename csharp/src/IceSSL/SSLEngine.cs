@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,6 @@
 namespace IceSSL
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.IO;
     using System.Security;
@@ -31,15 +30,6 @@ namespace IceSSL
             _securityTraceCategory = "Security";
             _initialized = false;
             _trustManager = new TrustManager(_communicator);
-            _tls12Support = false;
-            try
-            {
-                Enum.Parse(typeof(System.Security.Authentication.SslProtocols), "Tls12");
-                _tls12Support = true;
-            }
-            catch(Exception)
-            {
-            }
         }
 
         internal void initialize()
@@ -81,9 +71,7 @@ namespace IceSSL
             // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
             //
             _protocols = parseProtocols(
-                properties.getPropertyAsListWithDefault(prefix + "Protocols",
-                                                        _tls12Support ? new string[]{"TLS1_0", "TLS1_1", "TLS1_2"} :
-                                                                        new string[]{"TLS1_0", "TLS1_1"}));
+                properties.getPropertyAsListWithDefault(prefix + "Protocols", new string[]{"TLS1_0", "TLS1_1", "TLS1_2"}));
             //
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.
@@ -419,6 +407,11 @@ namespace IceSSL
             return _verifier;
         }
 
+        internal bool getCheckCertName()
+        {
+            return _checkCertName;
+        }
+
         internal void setPasswordCallback(PasswordCallback callback)
         {
             _passwordCallback = callback;
@@ -484,204 +477,13 @@ namespace IceSSL
             _logger.trace(_securityTraceCategory, s.ToString());
         }
 
-        internal void verifyPeer(string address, NativeConnectionInfo info, string desc)
+        internal void verifyPeer(string address, IceSSL.ConnectionInfo info, string desc)
         {
-            //
-            // For an outgoing connection, we compare the proxy address (if any) against
-            // fields in the server's certificate (if any).
-            //
-            if(info.nativeCerts != null && info.nativeCerts.Length > 0 && address.Length > 0)
-            {
-                //
-                // Extract the IP addresses and the DNS names from the subject
-                // alternative names.
-                //
-                List<string> dnsNames = null;
-                List<string> ipAddresses = null;
 
-                //
-                // Search for "subject alternative name" extensions. The OID value
-                // of interest is 2.5.29.17 and the encoded data has the following
-                // ASN.1 syntax:
-                //
-                // GeneralNames ::= SEQUENCE SIZE (1..MAX) OF GeneralName
-                //
-                // GeneralName ::= CHOICE {
-                //    otherName                       [0]     OtherName,
-                //    rfc822Name                      [1]     IA5String,
-                //    dNSName                         [2]     IA5String,
-                //    x400Address                     [3]     ORAddress,
-                //    directoryName                   [4]     Name,
-                //    ediPartyName                    [5]     EDIPartyName,
-                //    uniformResourceIdentifier       [6]     IA5String,
-                //    iPAddress                       [7]     OCTET STRING,
-                //    registeredID                    [8]     OBJECT IDENTIFIER
-                // }
-                //
-                foreach(X509Extension ext in info.nativeCerts[0].Extensions)
-                {
-                    if(ext.Oid.Value.Equals("2.5.29.17") && ext.RawData.Length > 0)
-                    {
-                        byte[] data = ext.RawData;
-                        if(data.Length < 2 || data[0] != 0x30) // ASN.1 sequence
-                        {
-                            continue;
-                        }
-
-                        int seqLen, pos;
-                        if(!decodeASN1Length(data, 1, out seqLen, out pos))
-                        {
-                            continue;
-                        }
-
-                        while(pos < data.Length)
-                        {
-                            int tag = data[pos];
-
-                            int len;
-                            if(!decodeASN1Length(data, pos + 1, out len, out pos))
-                            {
-                                break;
-                            }
-
-                            if(tag == 0x82)
-                            {
-                                //
-                                // Extract DNS name.
-                                //
-                                StringBuilder b = new StringBuilder();
-                                for(int j = pos; j < pos + len; ++j)
-                                {
-                                    b.Append((char)data[j]);
-                                }
-                                if(dnsNames == null)
-                                {
-                                    dnsNames = new List<string>();
-                                }
-                                dnsNames.Add(b.ToString().ToUpperInvariant());
-                            }
-                            else if(tag == 0x87)
-                            {
-                                //
-                                // Extract IP address.
-                                //
-                                char sep = len == 4 ? '.' : ':';
-                                StringBuilder b = new StringBuilder();
-                                for(int j = pos; j < pos + len; ++j)
-                                {
-                                    if(j > pos)
-                                    {
-                                        b.Append(sep);
-                                    }
-                                    b.Append(data[j].ToString(CultureInfo.InvariantCulture));
-                                }
-                                if(ipAddresses == null)
-                                {
-                                    ipAddresses = new List<string>();
-                                }
-                                ipAddresses.Add(b.ToString().ToUpperInvariant());
-                            }
-
-                            pos += len;
-                        }
-                    }
-                }
-
-                //
-                // Compare the peer's address against the common name as well as
-                // the dnsName and ipAddress values in the subject alternative name.
-                //
-                string dn = info.nativeCerts[0].Subject;
-                string addrLower = address.ToUpperInvariant();
-                bool certNameOK = false;
-                {
-                    string cn = "cn=" + addrLower;
-                    int pos = dn.ToLower(CultureInfo.InvariantCulture).IndexOf(cn, StringComparison.Ordinal);
-                    if(pos >= 0)
-                    {
-                        //
-                        // Ensure we match the entire common name.
-                        //
-                        certNameOK = (pos + cn.Length == dn.Length) || (dn[pos + cn.Length] == ',');
-                    }
-                }
-
-                //
-                // Compare the peer's address against the dnsName and ipAddress
-                // values in the subject alternative name.
-                //
-                if(!certNameOK && ipAddresses != null)
-                {
-                    certNameOK = ipAddresses.Contains(addrLower);
-                }
-                if(!certNameOK && dnsNames != null)
-                {
-                    certNameOK = dnsNames.Contains(addrLower);
-                }
-
-                //
-                // Log a message if the name comparison fails. If CheckCertName is defined,
-                // we also raise an exception to abort the connection. Don't log a message if
-                // CheckCertName is not defined and a verifier is present.
-                //
-                if(!certNameOK && (_checkCertName || (_securityTraceLevel >= 1 && _verifier == null)))
-                {
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append("IceSSL: ");
-                    if(!_checkCertName)
-                    {
-                        sb.Append("ignoring ");
-                    }
-                    sb.Append("certificate validation failure:\npeer certificate does not have `");
-                    sb.Append(address);
-                    sb.Append("' as its commonName or in its subjectAltName extension");
-                    if(dn.Length > 0)
-                    {
-                        sb.Append("\nSubject DN: ");
-                        sb.Append(dn);
-                    }
-                    if(dnsNames != null)
-                    {
-                        sb.Append("\nDNS names found in certificate: ");
-                        for(int j = 0; j < dnsNames.Count; ++j)
-                        {
-                            if(j > 0)
-                            {
-                                sb.Append(", ");
-                            }
-                            sb.Append(dnsNames[j]);
-                        }
-                    }
-                    if(ipAddresses != null)
-                    {
-                        sb.Append("\nIP addresses found in certificate: ");
-                        for(int j = 0; j < ipAddresses.Count; ++j)
-                        {
-                            if(j > 0)
-                            {
-                                sb.Append(", ");
-                            }
-                            sb.Append(ipAddresses[j]);
-                        }
-                    }
-                    string msg = sb.ToString();
-                    if(_securityTraceLevel >= 1)
-                    {
-                        _logger.trace(_securityTraceCategory, msg);
-                    }
-                    if(_checkCertName)
-                    {
-                        Ice.SecurityException ex = new Ice.SecurityException();
-                        ex.reason = msg;
-                        throw ex;
-                    }
-                }
-            }
-
-            if(_verifyDepthMax > 0 && info.nativeCerts != null && info.nativeCerts.Length > _verifyDepthMax)
+            if(_verifyDepthMax > 0 && info.certs != null && info.certs.Length > _verifyDepthMax)
             {
                 string msg = (info.incoming ? "incoming" : "outgoing") + " connection rejected:\n" +
-                    "length of peer's certificate chain (" + info.nativeCerts.Length + ") exceeds maximum of " +
+                    "length of peer's certificate chain (" + info.certs.Length + ") exceeds maximum of " +
                     _verifyDepthMax + "\n" + desc;
                 if(_securityTraceLevel >= 1)
                 {
@@ -780,20 +582,23 @@ namespace IceSSL
             //
             path = path.Trim();
 
-            //
-            // We need at least 3 non-whitespace characters to have an absolute path
-            //
-            if(path.Length < 3)
+            if(IceInternal.AssemblyUtil.isWindows)
             {
-                return false;
-            }
+                //
+                // We need at least 3 non-whitespace characters to have an absolute path
+                //
+                if(path.Length < 3)
+                {
+                    return false;
+                }
 
-            //
-            // Check for X:\ path ('\' may have been converted to '/')
-            //
-            if((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
-            {
-                return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+                //
+                // Check for X:\ path ('\' may have been converted to '/')
+                //
+                if((path[0] >= 'A' && path[0] <= 'Z') || (path[0] >= 'a' && path[0] <= 'z'))
+                {
+                    return path[1] == ':' && (path[2] == '\\' || path[2] == '/');
+                }
             }
 
             //
@@ -1138,6 +943,5 @@ namespace IceSSL
         private CertificateVerifier _verifier;
         private PasswordCallback _passwordCallback;
         private TrustManager _trustManager;
-        private bool _tls12Support;
     }
 }

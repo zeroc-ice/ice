@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -45,7 +45,7 @@ class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<I
 
 public:
 
-    SessionKeepAliveThread(const InternalRegistryPrx& registry, const Ice::LoggerPtr& logger) : 
+    SessionKeepAliveThread(const InternalRegistryPrx& registry, const Ice::LoggerPtr& logger) :
         IceUtil::Thread("IceGrid session keepalive thread"),
         _registry(registry),
         _logger(logger),
@@ -59,7 +59,7 @@ public:
     {
         TPrx session;
         InternalRegistryPrx registry;
-        IceUtil::Time timeout = IceUtil::Time::seconds(10); 
+        IceUtil::Time timeout = IceUtil::Time::seconds(10);
         Action action = Connect;
 
         try
@@ -124,9 +124,9 @@ public:
                     {
                         break;
                     }
-                
+
                     assert(_nextAction != None);
-                
+
                     action = _nextAction;
                     registry = InternalRegistryPrx::uncheckedCast(
                         _registry->ice_timeout(static_cast<int>(timeout.toMilliSeconds())));
@@ -158,7 +158,7 @@ public:
                     assert(false);
                 }
             }
-        
+
             //
             // Destroy the session.
             //

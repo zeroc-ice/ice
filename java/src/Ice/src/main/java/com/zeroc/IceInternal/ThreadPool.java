@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 package com.zeroc.IceInternal;
 
-public final class ThreadPool
+public final class ThreadPool implements java.util.concurrent.Executor
 {
     final class ShutdownWorkItem implements ThreadPoolWorkItem
     {
@@ -84,11 +84,11 @@ public final class ThreadPool
     private static ThreadPoolWorkItem _interruptWorkItem = new InterruptWorkItem();
 
     //
-    // Exception raised by the thread pool work queue when the thread pool
-    // is destroyed.
+    // Exception raised by the thread pool work queue when the thread pool is destroyed.
     //
     static final class DestroyedException extends RuntimeException
     {
+        public static final long serialVersionUID = 0L;
     }
 
     public
@@ -227,6 +227,7 @@ public final class ThreadPool
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()
@@ -335,7 +336,7 @@ public final class ThreadPool
         {
             try
             {
-                _dispatcher.dispatch(workItem, workItem.getConnection());
+                _dispatcher.accept(workItem, workItem.getConnection());
             }
             catch(java.lang.Exception ex)
             {
@@ -384,6 +385,22 @@ public final class ThreadPool
         // Destroy the selector
         //
         _selector.destroy();
+    }
+
+    //
+    // Implement execute method from java.util.concurrent.Executor interface
+    //
+    @Override
+    public void execute(Runnable command)
+    {
+        dispatch(new com.zeroc.IceInternal.DispatchWorkItem()
+            {
+                @Override
+                public void run()
+                {
+                    command.run();
+                }
+            });
     }
 
     private void
@@ -686,7 +703,7 @@ public final class ThreadPool
     }
 
     private final Instance _instance;
-    private final com.zeroc.Ice.Dispatcher _dispatcher;
+    private final java.util.function.BiConsumer<Runnable, com.zeroc.Ice.Connection> _dispatcher;
     private final ThreadPoolWorkQueue _workQueue;
     private boolean _destroyed;
     private final String _prefix;
@@ -750,15 +767,15 @@ public final class ThreadPool
         public void
         run()
         {
-            if(_instance.initializationData().threadHook != null)
+            if(_instance.initializationData().threadStart != null)
             {
                 try
                 {
-                    _instance.initializationData().threadHook.start();
+                    _instance.initializationData().threadStart.run();
                 }
                 catch(java.lang.Exception ex)
                 {
-                    String s = "thread hook start() method raised an unexpected exception in `";
+                    String s = "threadStart method raised an unexpected exception in `";
                     s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                     _instance.initializationData().logger.error(s);
                 }
@@ -779,19 +796,24 @@ public final class ThreadPool
                 _observer.detach();
             }
 
-            if(_instance.initializationData().threadHook != null)
+            if(_instance.initializationData().threadStop != null)
             {
                 try
                 {
-                    _instance.initializationData().threadHook.stop();
+                    _instance.initializationData().threadStop.run();
                 }
                 catch(java.lang.Exception ex)
                 {
-                    String s = "thread hook stop() method raised an unexpected exception in `";
+                    String s = "threadStop method raised an unexpected exception in `";
                     s += _prefix + "' thread " + _name + ":\n" + Ex.toString(ex);
                     _instance.initializationData().logger.error(s);
                 }
             }
+        }
+
+        Thread getThread()
+        {
+            return _thread;
         }
 
         final private String _name;

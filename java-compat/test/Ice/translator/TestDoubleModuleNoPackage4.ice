@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,13 +24,13 @@ struct dmnpTest4Struct
     M1::M2::dmnpStringStructDict dict;
     M1::M2::dmnpClass c;
     M1::M2::dmnpInterface i;
-};
+}
 
 sequence<M1::M2::dmnpStruct> dmnpTest4StructSeq;
 
 dictionary<M1::M2::dmnpStruct, M1::M2::dmnpBaseClass> dmnpTest4StructClassSeq;
 
-interface dmnpTest4Interface extends M1::M2::dmnpInterface {};
+interface dmnpTest4Interface extends M1::M2::dmnpInterface {}
 
 exception dmnpTest4Exception extends M1::M2::dmnpException
 {
@@ -40,7 +40,7 @@ exception dmnpTest4Exception extends M1::M2::dmnpException
     M1::M2::dmnpStringStructDict dict1;
     M1::M2::dmnpClass c1;
     M1::M2::dmnpInterface i1;
-};
+}
 
 class dmnpTest4Class extends M1::M2::dmnpBaseClass implements M1::M2::dmnpBaseInterface
 {
@@ -74,6 +74,6 @@ class dmnpTest4Class extends M1::M2::dmnpBaseClass implements M1::M2::dmnpBaseIn
                  out M1::M2::dmnpInterface o5,
                  out M1::M2::dmnpClass o6)
         throws M1::M2::dmnpException;
-};
+}
 
-};
+}

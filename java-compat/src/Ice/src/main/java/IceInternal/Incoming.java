@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -101,7 +101,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
         //
         // Read the current.
         //
-        _current.id.__read(_is);
+        _current.id.ice_readMembers(_is);
 
         //
         // For compatibility with the old FacetPath.
@@ -211,7 +211,7 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 Thread.currentThread().setContextClassLoader(_servant.getClass().getClassLoader());
             }
 
-            _servant.__dispatch(this, _current);
+            _servant._iceDispatch(this, _current);
 
             //
             // If the request was not dispatched asynchronously, send the response.

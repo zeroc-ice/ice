@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2015-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2015-2018 ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -102,8 +102,16 @@ certs = [
     (ca1, "c_rsa_ca1",       { "cn": "Client", "ip": "127.0.0.1", "dns": "client", "serial": 2 }),
     (ca1, "s_rsa_ca1_exp",   { "cn": "Server", "validity": -1 }), # Expired certificate
     (ca1, "c_rsa_ca1_exp",   { "cn": "Client", "validity": -1 }), # Expired certificate
-    (ca1, "s_rsa_ca1_cn1",   { "cn": "127.0.0.1" }),  # No subjectAltName, CN=127.0.0.1
-    (ca1, "s_rsa_ca1_cn2",   { "cn": "127.0.0.11" }), # No subjectAltName, CN=127.0.0.11
+
+    (ca1, "s_rsa_ca1_cn1",   { "cn": "Server", "dns": "localhost" }),       # DNS subjectAltName localhost
+    (ca1, "s_rsa_ca1_cn2",   { "cn": "Server", "dns": "localhostXX" }),     # DNS subjectAltName localhostXX
+    (ca1, "s_rsa_ca1_cn3",   { "cn": "localhost" }),                        # No subjectAltName, CN=localhost
+    (ca1, "s_rsa_ca1_cn4",   { "cn": "localhostXX" }),                      # No subjectAltName, CN=localhostXX
+    (ca1, "s_rsa_ca1_cn5",   { "cn": "localhost", "dns": "localhostXX" }),  # DNS subjectAltName localhostXX, CN=localhost
+    (ca1, "s_rsa_ca1_cn6",   { "cn": "Server", "ip": "127.0.0.1" }),        # IP subjectAltName 127.0.0.1
+    (ca1, "s_rsa_ca1_cn7",   { "cn": "Server", "ip": "127.0.0.2" }),        # IP subjectAltName 127.0.0.2
+    (ca1, "s_rsa_ca1_cn8",   { "cn": "127.0.0.1" }),                        # No subjectAltName, CN=127.0.0.1
+
     (ca2, "s_rsa_ca2",       { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }),
     (ca2, "c_rsa_ca2",       { "cn": "Client", "ip": "127.0.0.1", "dns": "client" }),
     (dsaca, "s_dsa_ca1",     { "cn": "Server", "ip": "127.0.0.1", "dns": "server" }), # DSA
@@ -127,6 +135,12 @@ savecerts = [
     (ca1, "c_rsa_ca1_exp", None,              {}),
     (ca1, "s_rsa_ca1_cn1", None,              {}),
     (ca1, "s_rsa_ca1_cn2", None,              {}),
+    (ca1, "s_rsa_ca1_cn3", None,              {}),
+    (ca1, "s_rsa_ca1_cn4", None,              {}),
+    (ca1, "s_rsa_ca1_cn5", None,              {}),
+    (ca1, "s_rsa_ca1_cn6", None,              {}),
+    (ca1, "s_rsa_ca1_cn7", None,              {}),
+    (ca1, "s_rsa_ca1_cn8", None,              {}),
     (ca2, "s_rsa_ca2",     None,              {}),
     (ca2, "c_rsa_ca2",     None,              {}),
     (dsaca, "s_dsa_ca1",   None,              {}),
@@ -154,9 +168,23 @@ for (ca, alias, path, args) in savecerts:
         cert.save(path + ".p12", **args)
 
 #
-# Create DH parameters to use with OS X Secure Transport.
+# Create DH parameters to use with macOS Secure Transport.
 #
 if clean or not os.path.exists("dh_params512.der"):
     ca1.run("openssl", "dhparam", 512, outform="DER", out="dh_params512.der")
 if clean or not os.path.exists("dh_params1024.der"):
     ca1.run("openssl", "dhparam", 1024, outform="DER", out="dh_params1024.der")
+
+#
+# Create certificate with custom extensions
+#
+if not os.path.exists("cacert_custom.pem"):
+    commands = ["openssl req -new -key cakey1.pem -out cacert_custom.csr -config cacert_custom.req",
+                "openssl x509 -req -in cacert_custom.csr -signkey cakey1.pem -out cacert_custom.pem -extfile cacert_custom.ext"]
+    for command in commands:
+        if os.system(command) != 0:
+            print "error running command `{0}'".format(command)
+            sys.exit(1)
+
+    if os.path.exists("cacert_custom.csr"):
+        os.remove("cacert_custom.csr")

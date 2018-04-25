@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -50,10 +50,7 @@
 {
     return [super init:1 s:@"hello"];
 }
--(BOOL) checkValues:(ICECurrent*)current
-{
-    return i == 1 && [s isEqualToString:@"hello"];
-}
+
 @end
 
 @implementation TestObjectsFI
@@ -164,7 +161,6 @@
     return _b2;
 }
 
-
 -(TestObjectsC*) getC:(ICECurrent*)current
 {
     _b1.preMarshalInvoked = NO;
@@ -172,7 +168,6 @@
     _c.preMarshalInvoked = NO;
     return _c;
 }
-
 
 -(TestObjectsD*) getD:(ICECurrent*)current
 {
@@ -183,16 +178,23 @@
     return _d;
 }
 
-
 -(TestObjectsE*) getE:(ICECurrent*)current
 {
     return _e;
 }
 
-
 -(TestObjectsF*) getF:(ICECurrent*)current
 {
     return _f;
+}
+
+-(void) setRecursive:(TestObjectsRecursive*)recursive current:(ICECurrent*)current
+{
+}
+
+-(BOOL) supportsClassGraphDepthMax:(ICECurrent*)current
+{
+    return YES;
 }
 
 -(TestObjectsB*) getMB:(ICECurrent*)current
@@ -275,6 +277,10 @@
 -(void) throwInnerSubEx:(ICECurrent *)current
 {
     @throw [TestInnerSubEx ex:@"Inner::Sub::Ex"];
+}
+
+-(void) setG:(TestObjectsG*)g current:(ICECurrent*)current
+{
 }
 
 -(void) setI:(TestObjectsI*)i current:(ICECurrent*)current

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -37,25 +37,25 @@ public:
     {
     public:
 
-        Thread(ReplicaSessionManager& manager, const InternalRegistryPrx& master, const Ice::LoggerPtr& logger) : 
+        Thread(ReplicaSessionManager& manager, const InternalRegistryPrx& master, const Ice::LoggerPtr& logger) :
             SessionKeepAliveThread<ReplicaSessionPrx>(master, logger),
             _manager(manager)
         {
         }
 
-        virtual ReplicaSessionPrx 
+        virtual ReplicaSessionPrx
         createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
             return _manager.createSession(master, timeout);
         }
 
-        virtual void 
+        virtual void
         destroySession(const ReplicaSessionPrx& session)
         {
             _manager.destroySession(session);
         }
 
-        virtual bool 
+        virtual bool
         keepAlive(const ReplicaSessionPrx& session)
         {
             return _manager.keepAlive(session);
@@ -64,13 +64,13 @@ public:
         void registerAllWellKnownObjects();
 
     private:
-        
+
         ReplicaSessionManager& _manager;
     };
     typedef IceUtil::Handle<Thread> ThreadPtr;
 
     ReplicaSessionManager(const Ice::CommunicatorPtr&, const std::string&);
-    void create(const std::string&, const InternalReplicaInfoPtr&, const DatabasePtr&, 
+    void create(const std::string&, const InternalReplicaInfoPtr&, const DatabasePtr&,
                 const WellKnownObjectsManagerPtr&, const InternalRegistryPrx&);
     void create(const InternalRegistryPrx&);
     NodePrxSeq getNodes(const NodePrxSeq&) const;
@@ -80,17 +80,17 @@ public:
     ReplicaSessionPrx getSession() const { return _thread ? _thread->getSession() : ReplicaSessionPrx(); }
 
     IceGrid::InternalRegistryPrx findInternalRegistryForReplica(const Ice::Identity&);
-    
+
 private:
 
     friend class Thread;
 
-    bool isDestroyed() 
+    bool isDestroyed()
     {
         Lock sync(*this);
         return !_communicator;
     }
-    
+
     ReplicaSessionPrx createSession(InternalRegistryPrx&, IceUtil::Time&);
     ReplicaSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);
     void destroySession(const ReplicaSessionPrx&);

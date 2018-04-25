@@ -1,14 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#ifndef ICE_SSL_TRUST_MANAGER_H
-#define ICE_SSL_TRUST_MANAGER_H
+#ifndef ICESSL_TRUST_MANAGER_H
+#define ICESSL_TRUST_MANAGER_H
 
 #include <Ice/CommunicatorF.h>
 #include <IceSSL/TrustManagerF.h>
@@ -25,7 +25,7 @@ public:
 
     TrustManager(const Ice::CommunicatorPtr&);
 
-    bool verify(const NativeConnectionInfoPtr&, const std::string&);
+    bool verify(const ConnectionInfoPtr&, const std::string&);
 
 private:
 

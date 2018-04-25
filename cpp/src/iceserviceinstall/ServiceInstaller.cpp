@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -73,12 +73,12 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
         {
             if(_icegridInstanceName == "")
             {
-                throw "Ice.Default.Locator must be set in " + _configFile;
+                throw logic_error("Ice.Default.Locator must be set in " + _configFile);
             }
             _nodeName = _serviceProperties->getProperty("IceGrid.Node.Name");
             if(_nodeName == "")
             {
-                throw "IceGrid.Node.Name must be set in " + _configFile;
+                throw logic_error("IceGrid.Node.Name must be set in " + _configFile);
             }
             _serviceName = serviceTypeToLowerString(_serviceType) + "." + _icegridInstanceName + "." + _nodeName;
         }
@@ -89,7 +89,7 @@ IceServiceInstaller::IceServiceInstaller(int serviceType, const string& configFi
         }
         else
         {
-            throw "Unknown service type";
+            throw invalid_argument("Unknown service type");
         }
     }
 }
@@ -117,28 +117,22 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
 
     string displayName = properties->getPropertyWithDefault("DisplayName", defaultDisplayName[_serviceType]);
     string description = properties->getPropertyWithDefault("Description", defaultDescription[_serviceType]);
-    string imagePath = properties->getProperty("ImagePath");
-    if(imagePath == "")
+    string imagePath = fixDirSeparator(properties->getPropertyWithDefault("ImagePath",
+                                                                          getServiceInstallerPath() + '\\' +
+                                                                          serviceTypeToLowerString(_serviceType) +
+                                                                          ".exe"));
+    if(!IceUtilInternal::fileExists(imagePath))
     {
-        string serviceInstallerPath = getServiceInstallerPath();
-        if(serviceInstallerPath.empty())
-        {
-            throw "Can't get full path to service installer!";
-        }
-
-        imagePath = serviceInstallerPath + '\\' + serviceTypeToLowerString(_serviceType);
-#ifdef _DEBUG
-        imagePath += 'd';
-#endif
-        imagePath += ".exe";
+        throw runtime_error(imagePath + ": not found");
     }
     else
     {
-        imagePath = fixDirSeparator(imagePath);
-    }
-    if(!fileExists(imagePath))
-    {
-        throw imagePath + ": not found";
+        string imageDir = imagePath;
+        imageDir.erase(imageDir.rfind('\\'));
+        if(imageDir != "")
+        {
+            grantPermissions(imageDir.c_str(), SE_FILE_OBJECT, true, GENERIC_READ | GENERIC_EXECUTE);
+        }
     }
 
     string dependency;
@@ -147,22 +141,23 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         if(properties->getPropertyAsInt("DependOnRegistry") != 0)
         {
-            throw "The IceGrid registry service can't depend on itself";
+            throw logic_error("The IceGrid registry service can't depend on itself");
         }
 
         string registryDataDir = fixDirSeparator(_serviceProperties->getProperty("IceGrid.Registry.LMDB.Path"));
         if(registryDataDir == "")
         {
-            throw "IceGrid.Registry.LMDB.Path must be set in " + _configFile;
+            throw logic_error("IceGrid.Registry.LMDB.Path must be set in " + _configFile);
         }
         if(!IceUtilInternal::isAbsolutePath(registryDataDir))
         {
-            throw "'" + registryDataDir + "' is a relative path; IceGrid.Registry.LMDB.Path must be an absolute path";
+            throw logic_error("'" + registryDataDir +
+                              "' is a relative path; IceGrid.Registry.LMDB.Path must be an absolute path");
         }
 
         if(!mkdir(registryDataDir))
         {
-            grantPermissions(registryDataDir, SE_FILE_OBJECT, true, true);
+            grantPermissions(registryDataDir, SE_FILE_OBJECT, true, FILE_ALL_ACCESS);
         }
     }
     else if(_serviceType == icegridnode)
@@ -170,16 +165,16 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         string nodeDataDir = fixDirSeparator(_serviceProperties->getProperty("IceGrid.Node.Data"));
         if(nodeDataDir == "")
         {
-            throw "IceGrid.Node.Data must be set in " + _configFile;
+            throw logic_error("IceGrid.Node.Data must be set in " + _configFile);
         }
         if(!IceUtilInternal::isAbsolutePath(nodeDataDir))
         {
-            throw "'" + nodeDataDir + "' is a relative path; IceGrid.Node.Data must be an absolute path";
+            throw logic_error("'" + nodeDataDir + "' is a relative path; IceGrid.Node.Data must be an absolute path");
         }
 
         if(!mkdir(nodeDataDir))
         {
-            grantPermissions(nodeDataDir, SE_FILE_OBJECT, true, true);
+            grantPermissions(nodeDataDir, SE_FILE_OBJECT, true, FILE_ALL_ACCESS);
         }
 
         grantPermissions("MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Perflib", SE_REGISTRY_KEY, true);
@@ -195,7 +190,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         {
             if(_icegridInstanceName == "")
             {
-                throw "Ice.Default.Locator must be set in " + _configFile + " when DependOnRegistry is not zero";
+                throw logic_error("Ice.Default.Locator must be set in " + _configFile + " when DependOnRegistry is not zero");
             }
             dependency = "icegridregistry." + _icegridInstanceName;
         }
@@ -224,7 +219,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     if(scm == 0)
     {
         DWORD res = GetLastError();
-        throw "Cannot open SCM: " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Cannot open SCM: " + IceUtilInternal::errorToString(res));
     }
 
     string deps = dependency;
@@ -257,7 +252,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         char fullPath[MAX_PATH];
         if(GetFullPathName(_configFile.c_str(), MAX_PATH, fullPath, 0) > MAX_PATH)
         {
-            throw "Could not compute the full path of " + _configFile;
+            throw runtime_error("Could not compute the full path of " + _configFile);
         }
         command += string(fullPath) + "\"";
     }
@@ -266,7 +261,10 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         command += _configFile + "\"";
     }
 
-    bool autoStart = properties->getPropertyAsIntWithDefault("AutoStart", 1) != 0;
+    int autoStartVal = properties->getPropertyAsIntWithDefault("AutoStart", 1);
+    bool autoStart = autoStartVal != 0;
+    bool delayedAutoStart = autoStartVal == 2;
+
     string password = properties->getProperty("Password");
 
     //
@@ -292,7 +290,7 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw "Cannot create service" + _serviceName + ": " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Cannot create service" + _serviceName + ": " + IceUtilInternal::errorToString(res));
     }
 
     //
@@ -306,7 +304,23 @@ IceServiceInstaller::install(const PropertiesPtr& properties)
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
-        throw "Cannot set description for service" + _serviceName + ": " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Cannot set description for service" + _serviceName + ": " + IceUtilInternal::errorToString(res));
+    }
+
+    //
+    // Set delayed auto-start
+    //
+    if(delayedAutoStart)
+    {
+        SERVICE_DELAYED_AUTO_START_INFO info = { true };
+
+        if(!ChangeServiceConfig2W(service, SERVICE_CONFIG_DELAYED_AUTO_START_INFO, &info))
+        {
+            DWORD res = GetLastError();
+            CloseServiceHandle(scm);
+            CloseServiceHandle(service);
+            throw runtime_error("Cannot set delayed auto start for service" + _serviceName + ": " + IceUtilInternal::errorToString(res));
+        }
     }
 
     CloseServiceHandle(scm);
@@ -320,7 +334,7 @@ IceServiceInstaller::uninstall()
     if(scm == 0)
     {
         DWORD res = GetLastError();
-        throw "Cannot open SCM: " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Cannot open SCM: " + IceUtilInternal::errorToString(res));
     }
 
     //
@@ -332,7 +346,7 @@ IceServiceInstaller::uninstall()
     {
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
-        throw "Cannot open service '" + _serviceName + "': " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Cannot open service '" + _serviceName + "': " + IceUtilInternal::errorToString(res));
     }
 
     //
@@ -346,7 +360,7 @@ IceServiceInstaller::uninstall()
         {
             CloseServiceHandle(scm);
             CloseServiceHandle(service);
-            throw "Cannot stop service '" + _serviceName + "': " + IceUtilInternal::errorToString(res);
+            throw runtime_error("Cannot stop service '" + _serviceName + "': " + IceUtilInternal::errorToString(res));
         }
     }
 
@@ -355,7 +369,7 @@ IceServiceInstaller::uninstall()
         DWORD res = GetLastError();
         CloseServiceHandle(scm);
         CloseServiceHandle(service);
-        throw "Cannot delete service '" + _serviceName + "': " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Cannot delete service '" + _serviceName + "': " + IceUtilInternal::errorToString(res));
     }
 
     CloseServiceHandle(scm);
@@ -370,7 +384,7 @@ IceServiceInstaller::uninstall()
     }
 }
 
-/*static*/ vector<string>
+vector<string>
 IceServiceInstaller::getPropertyNames()
 {
     static const string propertyNames[] = { "ImagePath", "DisplayName", "ObjectName", "Password",
@@ -381,7 +395,7 @@ IceServiceInstaller::getPropertyNames()
     return result;
 }
 
-/*static*/  string
+string
 IceServiceInstaller::serviceTypeToString(int serviceType)
 {
     static const string serviceTypeArray[] = { "IceGridRegistry", "IceGridNode", "Glacier2Router" };
@@ -396,7 +410,7 @@ IceServiceInstaller::serviceTypeToString(int serviceType)
     }
 }
 
-/*static*/ string
+string
 IceServiceInstaller::serviceTypeToLowerString(int serviceType)
 {
     static const string serviceTypeArray[] = { "icegridregistry", "icegridnode", "glacier2router" };
@@ -411,27 +425,18 @@ IceServiceInstaller::serviceTypeToLowerString(int serviceType)
     }
 }
 
-/*static*/ string
+string
 IceServiceInstaller::getServiceInstallerPath()
 {
-    string path;
-
-    char buffer[MAX_PATH];
-    DWORD size = GetModuleFileName(0, buffer, MAX_PATH);
-    if(size > 0)
+    wchar_t buffer[MAX_PATH];
+    if(!GetModuleFileNameW(0, buffer, MAX_PATH))
     {
-        path = string(buffer, size);
-        size_t p = path.find_last_of("/\\");
-        if(p != string::npos)
-        {
-            path = path.substr(0, p);
-        }
-        else
-        {
-            path = "";
-        }
+        throw runtime_error("Can not get full path to service installer:\n" + IceUtilInternal::lastErrorToString());
     }
-    return path;
+
+    string path = wstringToString(buffer);
+    assert(path.find_last_of("/\\"));
+    return path.substr(0, path.find_last_of("/\\"));
 }
 
 void
@@ -461,7 +466,8 @@ IceServiceInstaller::initializeSid(const string& name)
                 domainName.resize(domainNameSize);
                 continue;
             }
-            throw "Could not retrieve Security ID for " + name + ": " + IceUtilInternal::errorToString(res);
+            throw runtime_error("Could not retrieve Security ID for " + name + ": " +
+                                IceUtilInternal::errorToString(res));
         }
         _sid = reinterpret_cast<SID*>(_sidBuffer.data());
     }
@@ -492,7 +498,8 @@ IceServiceInstaller::initializeSid(const string& name)
         if(LookupAccountSidW(0, _sid, accountName, &accountNameLen, domainName, &domainLen, &nameUse) == false)
         {
             DWORD res = GetLastError();
-            throw "Could not retrieve full account name for " + name + ": " + IceUtilInternal::errorToString(res);
+            throw runtime_error("Could not retrieve full account name for " + name + ": " +
+                                IceUtilInternal::errorToString(res));
         }
 
         _sidName = wstringToString(domainName) + "\\" + wstringToString(accountName);
@@ -509,37 +516,8 @@ IceServiceInstaller::initializeSid(const string& name)
     }
 }
 
-bool
-IceServiceInstaller::fileExists(const string& path) const
-{
-    IceUtilInternal::structstat st = {0};
-    int err = IceUtilInternal::stat(path, &st);
-
-    if(err == 0)
-    {
-        if((S_ISREG(st.st_mode)) == 0)
-        {
-            throw path + " is not a regular file";
-        }
-        return true;
-    }
-    else
-    {
-        if(errno == ENOENT)
-        {
-            return false;
-        }
-        else
-        {
-            char msg[128];
-            strerror_s(msg, 128, errno);
-            throw "Problem with " + path + ": " + msg;
-        }
-    }
-}
-
 void
-IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, bool inherit, bool fullControl) const
+IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, bool inherit, DWORD desiredAccess) const
 {
     if(_debug)
     {
@@ -563,7 +541,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
                                       flags, 0, 0, &acl, 0, &sd);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not retrieve securify info for " + path + ": " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not retrieve securify info for " + path + ": " + IceUtilInternal::errorToString(res));
     }
 
     //
@@ -573,14 +551,14 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
     {
         if(!AuthzInitializeResourceManager(AUTHZ_RM_FLAG_NO_AUDIT, 0, 0, 0, 0, &manager))
         {
-            throw "AutzInitializeResourceManager failed: " + IceUtilInternal::lastErrorToString();
+            throw runtime_error("AutzInitializeResourceManager failed: " + IceUtilInternal::lastErrorToString());
         }
 
         LUID unusedId = { 0 };
 
         if(!AuthzInitializeContextFromSid(0, _sid, manager, 0, unusedId, 0, &clientContext))
         {
-            throw "AuthzInitializeContextFromSid failed: " + IceUtilInternal::lastErrorToString();
+            throw runtime_error("AuthzInitializeContextFromSid failed: " + IceUtilInternal::lastErrorToString());
         }
 
         AUTHZ_ACCESS_REQUEST accessRequest = { 0 };
@@ -601,14 +579,14 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
 
         if(!AuthzAccessCheck(0, clientContext, &accessRequest, 0, sd, 0, 0, &accessReply, 0))
         {
-            throw "AuthzAccessCheck failed: " + IceUtilInternal::lastErrorToString();
+            throw runtime_error("AuthzAccessCheck failed: " + IceUtilInternal::lastErrorToString());
         }
 
         bool done = false;
 
         if(type == SE_FILE_OBJECT)
         {
-            if(fullControl)
+            if(desiredAccess == FILE_ALL_ACCESS)
             {
                 done = (accessMask & READ_CONTROL) && (accessMask & SYNCHRONIZE) && (accessMask & 0x1F) == 0x1F;
             }
@@ -633,15 +611,7 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
         else
         {
             EXPLICIT_ACCESS_W ea = { 0 };
-
-            if(type == SE_FILE_OBJECT && fullControl)
-            {
-                ea.grfAccessPermissions = (accessMask | FILE_ALL_ACCESS);
-            }
-            else
-            {
-                ea.grfAccessPermissions = (accessMask | GENERIC_READ);
-            }
+            ea.grfAccessPermissions = (accessMask | desiredAccess);
             ea.grfAccessMode = GRANT_ACCESS;
             if(inherit)
             {
@@ -662,15 +632,15 @@ IceServiceInstaller::grantPermissions(const string& path, SE_OBJECT_TYPE type, b
             res = SetEntriesInAclW(1, &ea, acl, &newAcl);
             if(res != ERROR_SUCCESS)
             {
-                throw "Could not modify ACL for " + path + ": " + IceUtilInternal::errorToString(res);
+                throw runtime_error("Could not modify ACL for " + path + ": " + IceUtilInternal::errorToString(res));
             }
 
             res = SetNamedSecurityInfoW(const_cast<wchar_t*>(stringToWstring(path).c_str()), type,
                                         DACL_SECURITY_INFORMATION, 0, 0, newAcl, 0);
             if(res != ERROR_SUCCESS)
             {
-                throw "Could not grant access to " + _sidName + " on " + path + ": " +
-                      IceUtilInternal::errorToString(res);
+                throw runtime_error("Could not grant access to " + _sidName + " on " + path + ": " +
+                                    IceUtilInternal::errorToString(res));
             }
 
             if(_debug)
@@ -718,12 +688,12 @@ IceServiceInstaller::mkdir(const string& path) const
         }
         else
         {
-            throw "Could not create directory " + path + ": " + IceUtilInternal::errorToString(res);
+            throw runtime_error("Could not create directory " + path + ": " + IceUtilInternal::errorToString(res));
         }
     }
     else
     {
-        grantPermissions(path, SE_FILE_OBJECT, true, true);
+        grantPermissions(path, SE_FILE_OBJECT, true, FILE_ALL_ACCESS);
         return true;
     }
 }
@@ -746,13 +716,13 @@ IceServiceInstaller::addLog(const string& log) const
 
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not create new Event Log '" + log + "': " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not create new Event Log '" + log + "': " + IceUtilInternal::errorToString(res));
     }
 
     res = RegCloseKey(key);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
     }
 }
 
@@ -770,7 +740,7 @@ IceServiceInstaller::removeLog(const string& log) const
     //
     if(res != ERROR_SUCCESS && res != ERROR_ACCESS_DENIED)
     {
-        throw "Could not remove registry key '" + createLog(log) + "': " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not remove registry key '" + createLog(log) + "': " + IceUtilInternal::errorToString(res));
     }
 }
 
@@ -787,7 +757,7 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
                                0, L"REG_SZ", REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, 0, &key, &disposition);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not create Event Log source in registry: " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not create Event Log source in registry: " + IceUtilInternal::errorToString(res));
     }
 
     //
@@ -813,13 +783,13 @@ IceServiceInstaller::addSource(const string& source, const string& log, const st
     if(res != ERROR_SUCCESS)
     {
         RegCloseKey(key);
-        throw "Could not set registry key: " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not set registry key: " + IceUtilInternal::errorToString(res));
     }
 
     res = RegCloseKey(key);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
     }
 }
 
@@ -837,7 +807,7 @@ IceServiceInstaller::removeSource(const string& source) const
 
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not open EventLog key: " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not open EventLog key: " + IceUtilInternal::errorToString(res));
     }
 
     DWORD index = 0;
@@ -864,7 +834,7 @@ IceServiceInstaller::removeSource(const string& source) const
                 res = RegCloseKey(key);
                 if(res != ERROR_SUCCESS)
                 {
-                    throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
+                    throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
                 }
                 return wstringToString(subkey);
             }
@@ -876,18 +846,18 @@ IceServiceInstaller::removeSource(const string& source) const
     if(res == ERROR_NO_MORE_ITEMS)
     {
         RegCloseKey(key);
-        throw "Could not locate EventLog with source '" + source + "'";
+        throw runtime_error("Could not locate EventLog with source '" + source + "'");
     }
     else
     {
         RegCloseKey(key);
-        throw "Error while searching EventLog with source '" + source + "': " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Error while searching EventLog with source '" + source + "': " + IceUtilInternal::errorToString(res));
     }
 
     res = RegCloseKey(key);
     if(res != ERROR_SUCCESS)
     {
-        throw "Could not close registry key handle: " + IceUtilInternal::errorToString(res);
+        throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
     }
 
     return ""; // To keep compilers happy.
@@ -949,24 +919,16 @@ IceServiceInstaller::getIceDLLPath(const string& imagePath) const
         os << 'a' << (patchVersion - 50);
     }
 
-    string version = os.str();
+    const string version = os.str();
 
     string result = imagePathDir + '\\' + "ice" + version + ".dll";
-
-    if(fileExists(result))
-    {
-        return result;
-    }
-    else
+    if(!IceUtilInternal::fileExists(result))
     {
         result = imagePathDir + '\\' + "ice" +  version + "d.dll";
-        if(fileExists(result))
+        if(!IceUtilInternal::fileExists(result))
         {
-            return result;
-        }
-        else
-        {
-            throw "Could not find Ice DLL";
+            throw runtime_error("Could not find Ice DLL");
         }
     }
+    return result;
 }

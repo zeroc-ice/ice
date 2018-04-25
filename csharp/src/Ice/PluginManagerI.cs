@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -168,8 +168,8 @@ namespace Ice
                             }
                             catch(System.Exception ex)
                             {
-                                Ice.Util.getProcessLogger().warning("unexpected exception raised by plug-in `" +
-                                                                    p.name + "' destruction:\n" + ex.ToString());
+                                Util.getProcessLogger().warning("unexpected exception raised by plug-in `" +
+                                                                p.name + "' destruction:\n" + ex.ToString());
                             }
                         }
                     }
@@ -354,7 +354,7 @@ namespace Ice
             //
             string err = "unable to load plug-in `" + entryPoint + "': ";
             int sepPos = entryPoint.IndexOf(':');
-            if(sepPos != -1 && IceInternal.AssemblyUtil.platform_ == IceInternal.AssemblyUtil.Platform.Windows)
+            if(sepPos != -1)
             {
                 const string driveLetters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 if(entryPoint.Length > 3 &&
@@ -384,11 +384,14 @@ namespace Ice
                 // in configuration. If that fails, try Assembly.LoadFrom(), which will succeed
                 // if a file name is configured or a partial name is configured and DEVPATH is used.
                 //
+                // We catch System.Exception as this can fail with System.ArgumentNullException
+                // or System.IO.IOException depending of the .NET framework and platform.
+                //
                 try
                 {
                     pluginAssembly = System.Reflection.Assembly.Load(assemblyName);
                 }
-                catch(System.IO.IOException ex)
+                catch(System.Exception ex)
                 {
                     try
                     {
@@ -433,13 +436,13 @@ namespace Ice
                     throw e;
                 }
             }
-            catch(System.InvalidCastException ex)
+            catch(InvalidCastException ex)
             {
                 PluginInitializationException e = new PluginInitializationException(ex);
                 e.reason = err + "InvalidCastException to Ice.PluginFactory";
                 throw e;
             }
-            catch(System.UnauthorizedAccessException ex)
+            catch(UnauthorizedAccessException ex)
             {
                 PluginInitializationException e = new PluginInitializationException(ex);
                 e.reason = err + "UnauthorizedAccessException: " + ex.ToString();

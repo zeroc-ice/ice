@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,17 +19,17 @@ public abstract class Functional_TwowayCallbackVoidUE
         Functional_BoolCallback sentCb)
     {
         super(responseCb != null, userExceptionCb, exceptionCb, sentCb);
-        __responseCb = responseCb;
+        _responseCb = responseCb;
     }
 
     @Override
     public void response()
     {
-        if(__responseCb != null)
+        if(_responseCb != null)
         {
-            __responseCb.apply();
+            _responseCb.apply();
         }
     }
 
-    private final Functional_VoidCallback __responseCb;
+    private final Functional_VoidCallback _responseCb;
 }

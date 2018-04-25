@@ -1,11 +1,15 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
+
+#ifndef TEST_API_EXPORTS
+#   define TEST_API_EXPORTS
+#endif
 
 #include <Configuration.h>
 
@@ -33,7 +37,7 @@ Configuration::connectorsException(Ice::LocalException* ex)
     Lock sync(*this);
     _connectorsException.reset(ex);
 }
-    
+
 void
 Configuration::checkConnectorsException()
 {
@@ -80,7 +84,7 @@ Configuration::initializeException(Ice::LocalException* ex)
     Lock sync(*this);
     _initializeException.reset(ex);
 }
-    
+
 IceInternal::SocketOperation
 Configuration::initializeSocketOperation()
 {
@@ -116,7 +120,7 @@ Configuration::readException(Ice::LocalException* ex)
     Lock sync(*this);
     _readException.reset(ex);
 }
-    
+
 bool
 Configuration::readReady()
 {
@@ -152,7 +156,7 @@ Configuration::writeException(Ice::LocalException* ex)
     Lock sync(*this);
     _writeException.reset(ex);
 }
-    
+
 bool
 Configuration::writeReady()
 {
@@ -194,4 +198,3 @@ Configuration::getInstance()
 {
     return _instance;
 }
-

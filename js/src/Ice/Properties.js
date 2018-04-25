@@ -1,15 +1,14 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/StringUtil",
         "../Ice/PropertyNames",
@@ -22,7 +21,6 @@ Ice.__M.require(module,
 const StringUtil = Ice.StringUtil;
 const PropertyNames = Ice.PropertyNames;
 const Debug = Ice.Debug;
-const ProcessLogger = Ice.ProcessLogger;
 const getProcessLogger = Ice.getProcessLogger;
 const InitializationException = Ice.InitializationException;
 
@@ -43,8 +41,7 @@ class Properties
             // NOTE: we can't just do a shallow copy of the map as the map values
             // would otherwise be shared between the two PropertiesI object.
             //
-            //_properties = new Map(pi._properties);
-            for(let [key, property] of defaults._properties)
+            for(const [key, property] of defaults._properties)
             {
                 this._properties.set(key, { 'value': property.value, 'used': false });
             }
@@ -52,7 +49,7 @@ class Properties
 
         if(args !== undefined && args !== null)
         {
-            let v = this.parseIceCommandLineOptions(args);
+            const v = this.parseIceCommandLineOptions(args);
             args.length = 0;
             for(let i = 0; i < v.length; ++i)
             {
@@ -84,7 +81,7 @@ class Properties
     {
         return this.getPropertyAsIntWithDefault(key, 0);
     }
-    
+
     getPropertyAsIntWithDefault(key, value)
     {
         const pv = this._properties.get(key);
@@ -184,7 +181,7 @@ class Properties
                 {
                     continue;
                 }
-                
+
                 let found = false;
                 let mismatchCase = false;
                 let otherKey;
@@ -202,7 +199,7 @@ class Properties
                             key = PropertyNames.validProps[i][j].deprecatedBy;
                         }
                     }
-                    
+
                     if(found)
                     {
                         break;
@@ -221,7 +218,7 @@ class Properties
                         }
                     }
                 }
-                
+
                 if(!found)
                 {
                     logger.warning("unknown property: " + key);
@@ -238,7 +235,7 @@ class Properties
         //
         if(value !== null && value.length > 0)
         {
-            let pv = this._properties.get(key);
+            const pv = this._properties.get(key);
             if(pv !== undefined)
             {
                 pv.value = value;
@@ -273,7 +270,7 @@ class Properties
         pfx = "--" + pfx;
 
         const result = [];
-        
+
         options.forEach(opt =>
             {
                 if(opt.indexOf(pfx) === 0)
@@ -318,7 +315,7 @@ class Properties
         let whitespace = "";
         let escapedspace = "";
         let finished = false;
-        
+
         for(let i = 0; i < line.length; ++i)
         {
             let c = line.charAt(i);
@@ -473,7 +470,7 @@ class Properties
         {
             return;
         }
-        
+
         this.setProperty(key, value);
     }
 
@@ -494,7 +491,7 @@ class Properties
             });
         return unused;
     }
-    
+
     static createProperties(args, defaults)
     {
         return new Properties(args, defaults);

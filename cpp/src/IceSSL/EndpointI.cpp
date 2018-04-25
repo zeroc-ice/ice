@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -58,7 +58,7 @@ IceSSL::EndpointI::streamWriteImpl(Ice::OutputStream* stream) const
 }
 
 Ice::EndpointInfoPtr
-IceSSL::EndpointI::getInfo() const
+IceSSL::EndpointI::getInfo() const ICE_NOEXCEPT
 {
     EndpointInfoPtr info = ICE_MAKE_SHARED(IceInternal::InfoI<EndpointInfo>, ICE_SHARED_FROM_CONST_THIS(EndpointI));
     info->underlying = _delegate->getInfo();
@@ -203,16 +203,56 @@ IceSSL::EndpointI::acceptor(const string& adapterName) const
 EndpointIPtr
 IceSSL::EndpointI::endpoint(const IceInternal::EndpointIPtr& delEndp) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _instance, delEndp);
+    if(delEndp.get() == _delegate.get())
+    {
+        return ICE_DYNAMIC_CAST(EndpointI, ICE_SHARED_FROM_CONST_THIS(EndpointI));
+    }
+    else
+    {
+        return ICE_MAKE_SHARED(EndpointI, _instance, delEndp);
+    }
 }
 
 vector<IceInternal::EndpointIPtr>
-IceSSL::EndpointI::expand() const
+IceSSL::EndpointI::expandIfWildcard() const
 {
-    vector<IceInternal::EndpointIPtr> endps = _delegate->expand();
+    vector<IceInternal::EndpointIPtr> endps = _delegate->expandIfWildcard();
     for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
     {
-        *p = p->get() == _delegate.get() ? ICE_SHARED_FROM_CONST_THIS(EndpointI) : ICE_MAKE_SHARED(EndpointI, _instance, *p);
+        if(p->get() == _delegate.get())
+        {
+            *p = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        }
+        else
+        {
+            *p = ICE_MAKE_SHARED(EndpointI, _instance, *p);
+        }
+    }
+    return endps;
+}
+
+vector<IceInternal::EndpointIPtr>
+IceSSL::EndpointI::expandHost(IceInternal::EndpointIPtr& publish) const
+{
+    vector<IceInternal::EndpointIPtr> endps = _delegate->expandHost(publish);
+    if(publish.get() == _delegate.get())
+    {
+        publish = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+    }
+    else if(publish.get())
+    {
+        publish = ICE_MAKE_SHARED(EndpointI, _instance, publish);
+    }
+    for(vector<IceInternal::EndpointIPtr>::iterator p = endps.begin(); p != endps.end(); ++p)
+    {
+        if(p->get() == _delegate.get())
+        {
+            *p = ICE_SHARED_FROM_CONST_THIS(EndpointI);
+        }
+        else
+        {
+            *p = ICE_MAKE_SHARED(EndpointI, _instance, *p);
+        }
     }
     return endps;
 }
@@ -307,51 +347,31 @@ IceSSL::EndpointI::checkOption(const string& option, const string& argument, con
     return false;
 }
 
-IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance,
-                                           const IceInternal::EndpointFactoryPtr& delegate) :
-    _instance(instance), _delegate(delegate)
+IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, Short type) :
+    IceInternal::EndpointFactoryWithUnderlying(instance, type), _instance(instance.get())
 {
-}
-
-IceSSL::EndpointFactoryI::~EndpointFactoryI()
-{
-}
-
-Short
-IceSSL::EndpointFactoryI::type() const
-{
-    return _instance->type();
-}
-
-string
-IceSSL::EndpointFactoryI::protocol() const
-{
-    return _instance->protocol();
-}
-
-IceInternal::EndpointIPtr
-IceSSL::EndpointFactoryI::create(vector<string>& args, bool oaEndpoint) const
-{
-    return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->create(args, oaEndpoint));
-}
-
-IceInternal::EndpointIPtr
-IceSSL::EndpointFactoryI::read(Ice::InputStream* s) const
-{
-    return ICE_MAKE_SHARED(EndpointI, _instance, _delegate->read(s));
 }
 
 void
 IceSSL::EndpointFactoryI::destroy()
 {
-    _delegate->destroy();
     _instance = 0;
 }
 
 IceInternal::EndpointFactoryPtr
-IceSSL::EndpointFactoryI::clone(const IceInternal::ProtocolInstancePtr& inst,
-                                const IceInternal::EndpointFactoryPtr& delegate) const
+IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, Short underlying) const
 {
-    InstancePtr instance = new Instance(_instance->engine(), inst->type(), inst->protocol());
-    return new EndpointFactoryI(instance, delegate ? delegate : _delegate->clone(instance, 0));
+    return new EndpointFactoryI(new Instance(_instance->engine(), instance->type(), instance->protocol()), underlying);
+}
+
+IceInternal::EndpointIPtr
+IceSSL::EndpointFactoryI::createWithUnderlying(const IceInternal::EndpointIPtr& underlying, vector<string>&, bool) const
+{
+    return ICE_MAKE_SHARED(EndpointI, _instance, underlying);
+}
+
+IceInternal::EndpointIPtr
+IceSSL::EndpointFactoryI::readWithUnderlying(const IceInternal::EndpointIPtr& underlying, Ice::InputStream* s) const
+{
+    return ICE_MAKE_SHARED(EndpointI, _instance, underlying);
 }

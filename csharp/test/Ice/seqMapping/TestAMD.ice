@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -72,7 +72,7 @@ sequence<Object*> AObjectPrxS;
 struct S
 {
     int i;
-};
+}
 
 sequence<S> AStructS;
 ["clr:generic:List"] sequence<S> LStructS;
@@ -83,7 +83,7 @@ sequence<S> AStructS;
 struct SD
 {
     int i = 1;
-};
+}
 
 sequence<SD> AStructSD;
 ["clr:generic:List"] sequence<SD> LStructSD;
@@ -94,26 +94,27 @@ sequence<SD> AStructSD;
 class CV
 {
     int i;
-};
+}
 
 sequence<CV> ACVS;
 ["clr:generic:List"] sequence<CV> LCVS;
 
-sequence<CV*> ACVPrxS;
-["clr:generic:List"] sequence<CV*> LCVPrxS;
-["clr:generic:LinkedList"] sequence<CV*> KCVPrxS;
-["clr:generic:Queue"] sequence<CV*> QCVPrxS;
-["clr:generic:Stack"] sequence<CV*> SCVPrxS;
+interface I {}
+sequence<I*> AIPrxS;
+["clr:generic:List"] sequence<I*> LIPrxS;
+["clr:generic:LinkedList"] sequence<I*> KIPrxS;
+["clr:generic:Queue"] sequence<I*> QIPrxS;
+["clr:generic:Stack"] sequence<I*> SIPrxS;
 
 class CR
 {
     CV v;
-};
+}
 
 sequence<CR> ACRS;
 ["clr:generic:List"] sequence<CR> LCRS;
 
-enum En { A, B, C };
+enum En { A, B, C }
 
 sequence<En> AEnS;
 ["clr:generic:List"] sequence<En> LEnS;
@@ -131,7 +132,7 @@ sequence<En> AEnS;
 ["clr:serializable:Serialize.Large"] sequence<byte> SerialLarge;
 ["clr:serializable:Serialize.Struct"] sequence<byte> SerialStruct;
 
-["amd"] class MyClass
+["amd"] interface MyClass
 {
     void shutdown();
 
@@ -216,11 +217,11 @@ sequence<En> AEnS;
     QEnS opQEnS(QEnS i, out QEnS o);
     SEnS opSEnS(SEnS i, out SEnS o);
 
-    ACVPrxS opACVPrxS(ACVPrxS i, out ACVPrxS o);
-    LCVPrxS opLCVPrxS(LCVPrxS i, out LCVPrxS o);
-    KCVPrxS opKCVPrxS(KCVPrxS i, out KCVPrxS o);
-    QCVPrxS opQCVPrxS(QCVPrxS i, out QCVPrxS o);
-    SCVPrxS opSCVPrxS(SCVPrxS i, out SCVPrxS o);
+    AIPrxS opAIPrxS(AIPrxS i, out AIPrxS o);
+    LIPrxS opLIPrxS(LIPrxS i, out LIPrxS o);
+    KIPrxS opKIPrxS(KIPrxS i, out KIPrxS o);
+    QIPrxS opQIPrxS(QIPrxS i, out QIPrxS o);
+    SIPrxS opSIPrxS(SIPrxS i, out SIPrxS o);
 
     CustomIntS opCustomIntS(CustomIntS i, out CustomIntS o);
     CustomCVS opCustomCVS(CustomCVS i, out CustomCVS o);
@@ -231,6 +232,6 @@ sequence<En> AEnS;
     SerialSmall opSerialSmallCSharp(SerialSmall i, out SerialSmall o);
     SerialLarge opSerialLargeCSharp(SerialLarge i, out SerialLarge o);
     SerialStruct opSerialStructCSharp(SerialStruct i, out SerialStruct o);
-};
+}
 
-};
+}

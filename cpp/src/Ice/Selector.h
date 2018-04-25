@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,6 +17,7 @@
 #include <Ice/Network.h>
 #include <Ice/InstanceF.h>
 #include <Ice/EventHandlerF.h>
+#include <Ice/UniqueRef.h>
 
 #if defined(ICE_USE_EPOLL)
 #   include <sys/epoll.h>
@@ -43,7 +44,7 @@ struct __CFSocket;
 typedef struct __CFSocket * CFSocketRef;
 #endif
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
 #    include <deque>
 #endif
 
@@ -57,12 +58,11 @@ class SelectorTimeoutException
 {
 };
 
-
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 
 class Selector
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     struct SelectEvent
     {
         SelectEvent(const EventHandlerPtr& handler, SocketOperation status) : handler(handler), status(status)
@@ -140,6 +140,7 @@ private:
     void wakeup();
     void checkReady(EventHandler*);
     void updateSelector();
+    void updateSelectorForEventHandler(EventHandler*, SocketOperation, SocketOperation);
 
     const InstancePtr _instance;
 
@@ -255,8 +256,8 @@ private:
     Selector& _selector;
     SocketOperation _ready;
     bool _finish;
-    CFSocketRef _socket;
-    CFRunLoopSourceRef _source;
+    IceInternal::UniqueRef<CFSocketRef> _socket;
+    IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
 };
 typedef IceUtil::Handle<EventHandlerWrapper> EventHandlerWrapperPtr;
 
@@ -295,7 +296,7 @@ private:
     InstancePtr _instance;
     IceUtil::ThreadPtr _thread;
     CFRunLoopRef _runLoop;
-    CFRunLoopSourceRef _source;
+    IceInternal::UniqueRef<CFRunLoopSourceRef> _source;
     bool _destroyed;
 
     std::set<EventHandlerWrapperPtr> _changes;

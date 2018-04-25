@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,8 +38,8 @@ public:
 
     void destroy(const Callback_Session_destroyPtr&);
 
-    virtual Ice::ObjectPrx getClientProxy(const Ice::Current& = Ice::noExplicitCurrent) const;
-    virtual Ice::ObjectPrx getServerProxy(const Ice::Current& = Ice::noExplicitCurrent) const;
+    virtual Ice::ObjectPrx getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const;
+    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
     virtual std::string getCategoryForClient(const Ice::Current&) const;
     virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&,

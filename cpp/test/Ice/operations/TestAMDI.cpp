@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,7 +27,7 @@ MyDerivedClassI::ice_isA(ICE_IN(string) id, const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
 #ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_isA(move(id), current);
+    return Test::MyDerivedClass::ice_isA(move(id), current);
 #else
     return Test::MyDerivedClass::ice_isA(id, current);
 #endif
@@ -37,22 +37,15 @@ void
 MyDerivedClassI::ice_ping(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    Test::MyDerivedClassDisp::ice_ping(current);
-#else
     Test::MyDerivedClass::ice_ping(current);
-#endif
+
 }
 
 std::vector<std::string>
 MyDerivedClassI::ice_ids(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_ids(current);
-#else
     return Test::MyDerivedClass::ice_ids(current);
-#endif
 }
 
 #ifdef ICE_CPP11_MAPPING
@@ -63,11 +56,7 @@ const std::string&
 MyDerivedClassI::ice_id(const Ice::Current& current) const
 {
     test(current.mode == ICE_ENUM(OperationMode, Nonmutating));
-#ifdef ICE_CPP11_MAPPING
-    return Test::MyDerivedClassDisp::ice_id(current);
-#else
     return Test::MyDerivedClass::ice_id(current);
-#endif
 }
 
 #ifdef ICE_CPP11_MAPPING
@@ -110,6 +99,17 @@ MyDerivedClassI::shutdownAsync(function<void()> response,
 }
 
 void
+MyDerivedClassI::supportsCompressAsync(std::function<void(bool)> response,
+                                       std::function<void(std::exception_ptr)>, const Ice::Current&)
+{
+#if defined(ICE_OS_UWP)
+    response(false);
+#else
+    response(true);
+#endif
+}
+
+void
 MyDerivedClassI::opVoidAsync(function<void()> response,
                              function<void(exception_ptr)>,
                              const Ice::Current& current)
@@ -147,7 +147,6 @@ MyDerivedClassI::opBoolAsync(bool p1,
     response(p2, p1);
 }
 
-
 void
 MyDerivedClassI::opShortIntLongAsync(short p1,
                                      int p2,
@@ -158,7 +157,6 @@ MyDerivedClassI::opShortIntLongAsync(short p1,
 {
     response(p3, p1, p2, p3);
 }
-
 
 void
 MyDerivedClassI::opFloatDoubleAsync(float p1,
@@ -179,7 +177,6 @@ MyDerivedClassI::opStringAsync(string p1,
 {
     response(p1 + " " + p2, p2 + " " + p1);
 }
-
 
 void
 MyDerivedClassI::opMyEnumAsync(Test::MyEnum p1,
@@ -1086,6 +1083,17 @@ MyDerivedClassI::shutdown_async(const Test::AMD_MyClass_shutdownPtr& cb, const I
 }
 
 void
+MyDerivedClassI::supportsCompress_async(const Test::AMD_MyClass_supportsCompressPtr& cb,
+                                        const Ice::Current&)
+{
+#if defined(ICE_OS_UWP)
+    cb->ice_response(false);
+#else
+    cb->ice_response(true);
+#endif
+}
+
+void
 MyDerivedClassI::opVoid_async(const Test::AMD_MyClass_opVoidPtr& cb, const Ice::Current& current)
 {
     test(current.mode == ICE_ENUM(OperationMode, Normal));
@@ -1911,4 +1919,3 @@ MyDerivedClassI::opMDict2_async(const Test::AMD_MyClass_opMDict2Ptr& cb,
 }
 
 #endif
-

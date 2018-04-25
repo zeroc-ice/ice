@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -25,23 +25,6 @@
 
 using namespace std;
 using namespace IceUtil;
-
-long fib_num ( long n)
-{
-    if ( n == 0)
-    {
-        return 0;
-    }
-    
-    else if ( n == 1 )
-    {
-        return 1;
-    }
-    else
-    {
-        return  fib_num( n -1) + fib_num(n-2);
-    }
-}
 
 class TaskCollector : public IceUtil::Shared
 {
@@ -151,7 +134,6 @@ private:
 };
 typedef IceUtil::Handle<TaskCollector> TaskCollectorPtr;
 
-
 class SharedResource : public IceUtil::Shared
 {
 public:
@@ -186,7 +168,23 @@ public:
         Mutex::Lock lock(_mutex);
         taskCollector()->acquired();
         taskCollector()->waitAll();
-        fib_num(30);
+        //
+        // If this is the low priority thread we ensure the test runs at least timeout
+        // seconds this ensure that it doesn't terminate righ away and medium priority
+        // threads will take over all available cores
+        //
+        IceUtil::Time t = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        IceUtil::Time timeout = IceUtil::Time::seconds(2);
+        if(priority == 1)
+        {
+            while(true)
+            {
+                if(IceUtil::Time::now(IceUtil::Time::Monotonic) - t > timeout)
+                {
+                    break;
+                }
+            }
+        }
         taskCollector()->taskEnd(priority);
     }
 
@@ -194,7 +192,6 @@ private:
 
     IceUtil::Mutex _mutex;
 };
-
 
 class SharedResourceRecMutex : public SharedResource
 {
@@ -211,7 +208,23 @@ public:
         RecMutex::Lock lock(_mutex);
         taskCollector()->acquired();
         taskCollector()->waitAll();
-        fib_num(40);
+        //
+        // If this is the low priority thread we ensure the test runs at least timeout
+        // seconds this ensure that it doesn't terminate righ away and medium priority
+        // threads will take over all available cores
+        //
+        IceUtil::Time t = IceUtil::Time::now(IceUtil::Time::Monotonic);
+        IceUtil::Time timeout = IceUtil::Time::seconds(2);
+        if(priority == 1)
+        {
+            while(true)
+            {
+                if(IceUtil::Time::now(IceUtil::Time::Monotonic) - t > timeout)
+                {
+                    break;
+                }
+            }
+        }
         taskCollector()->taskEnd(priority);
     }
 
@@ -294,7 +307,6 @@ public:
             {
                 break;
             }
-            fib_num(10);
         }
         _taskCollector->taskEnd(getPriority());
     }
@@ -339,7 +351,7 @@ PriorityInversionTest::run()
         Monitor<Mutex> monitor;
         TaskCollectorPtr collector = new TaskCollector(cores, high, medium, low, monitor);
         vector<ThreadControl> threads;
-                
+
         SharedResourcePtr shared = new SharedResourceMutex(collector);
 
         //
@@ -364,7 +376,6 @@ PriorityInversionTest::run()
             ThreadPtr t = new MediumPriorityThread(collector, highThread, timeout);
             threads.push_back(t->start(128, medium));
         }
-
         //
         // Join with all the threads.
         //

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,6 +8,8 @@
 // **********************************************************************
 
 subprojects {
+    project.ext.topSrcDir = "$rootProject.projectDir/.."
+
     project.version = iceVersion
     project.group = "com.zeroc"
 
@@ -15,12 +17,17 @@ subprojects {
     apply plugin: 'idea'
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
-
     repositories {
         if (slice.jarDir) {
             flatDir {
                 name "local"
                 dirs slice.jarDir
+            }
+        }
+
+        if(this.devRepo) {
+            maven {
+                url this.devRepo
             }
         }
 
@@ -32,6 +39,9 @@ subprojects {
 
         mavenCentral()
 
+        //
+        // The thirdparty repository is required on macOS for appblunder
+        //
         maven {
             url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
         }
@@ -44,7 +54,9 @@ subprojects {
     }
 
     tasks.withType(JavaCompile) {
-        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:deprecation" << "-Xlint:-options"
+        options.compilerArgs << "-Xlint:unchecked" << "-Xlint:-options"
+        options.encoding = "UTF-8"
+        options.deprecation = true
     }
 
     idea.module {
@@ -55,18 +67,21 @@ subprojects {
 
 task dist()
 dist.dependsOn(project(":ice").assemble)
+dist.dependsOn(project(":icessl").assemble)
 dist.dependsOn(project(":glacier2").assemble)
 dist.dependsOn(project(":icegrid").assemble)
 dist.dependsOn(project(":icebox").assemble)
+dist.dependsOn(project(":icebt").assemble)
 dist.dependsOn(project(":icediscovery").assemble)
+dist.dependsOn(project(":icelocatordiscovery").assemble)
 dist.dependsOn(project(":icepatch2").assemble)
 dist.dependsOn(project(":icestorm").assemble)
-//dist.dependsOn(project(":IceGridGUI").assemble)
+dist.dependsOn(project(":IceGridGUI").assemble)
 
 //
 // Used to build the gradle wrapper to automatically download and install
 // the version of gradle needed to build Ice.
 //
 task wrapper(type: Wrapper) {
-    gradleVersion = "2.14"
+    gradleVersion = "4.7"
 }

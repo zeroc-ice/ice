@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -145,7 +145,6 @@ public class ApplicationActions
                 }
             };
 
-
         _array[TreeNode.NEW_SERVICE] = new AbstractAction(popup ? "New Service" : "Service")
             {
                 @Override
@@ -195,7 +194,6 @@ public class ApplicationActions
                     }
                 }
             };
-
 
         _array[TreeNode.NEW_TEMPLATE_SERVICE] = new AbstractAction(popup ? "New Service Template" : "Service Template")
             {

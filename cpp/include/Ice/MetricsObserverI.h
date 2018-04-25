@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,6 +26,7 @@
 namespace IceMX
 {
 
+/// \cond INTERNAL
 template<typename T> class MetricsHelperT
 {
 public:
@@ -169,7 +170,6 @@ protected:
 
             Y (Helper::*_memberFn)() const;
         };
-
 
         template<typename I, typename O, typename Y> class MemberResolver : public Resolver
         {
@@ -653,6 +653,7 @@ private:
 };
 
 typedef ObserverT<Metrics> ObserverI;
+/// \endcond
 
 }
 

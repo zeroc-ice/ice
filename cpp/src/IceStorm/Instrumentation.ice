@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["ice-prefix", "cpp:header-ext:h"]]
 
 #include <Ice/Instrumentation.ice>
 #include <IceStorm/IceStorm.ice>
@@ -35,7 +35,7 @@ local interface TopicObserver extends Ice::Instrumentation::Observer
      *
      **/
     void forwarded();
-};
+}
 
 local interface SubscriberObserver extends Ice::Instrumentation::Observer
 {
@@ -59,7 +59,7 @@ local interface SubscriberObserver extends Ice::Instrumentation::Observer
      *
      **/
     void delivered(int count);
-};
+}
 
 /**
  *
@@ -76,13 +76,13 @@ local interface ObserverUpdater
 {
     /**
      *
-     * Update topic observers associated with each topics. 
+     * Update topic observers associated with each topics.
      *
      * When called, this method goes through all the topics and for
      * each topic TopicManagerObserver::getTopicObserver is
      * called. The implementation of getTopicObserver has the
      * possibility to return an updated observer if necessary.
-     * 
+     *
      **/
     void updateTopicObservers();
 
@@ -94,10 +94,10 @@ local interface ObserverUpdater
      * for each subscriber TopicManagerObserver::getSubscriberObserver
      * is called. The implementation of getSubscriberObserver has the
      * possibility to return an updated observer if necessary.
-     * 
+     *
      **/
     void updateSubscriberObservers();
-};
+}
 
 enum SubscriberState
 {
@@ -121,7 +121,7 @@ enum SubscriberState
      *
      **/
     SubscriberStateError
-};
+}
 
 /**
  *
@@ -177,9 +177,8 @@ local interface TopicManagerObserver
      *
      **/
     void setObserverUpdater(ObserverUpdater updater);
-};
+}
 
-};
-    
-};
+}
 
+}

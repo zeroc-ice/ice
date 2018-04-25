@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,14 +31,14 @@ class WSEndpointFactory extends WSEndpoint
 
     create(args, oaEndpoint)
     {
-        let e = new WSEndpoint(this._instance, this._delegate.create(args, oaEndpoint));
+        const e = new WSEndpoint(this._instance, this._delegate.create(args, oaEndpoint));
         e.initWithOptions(args);
         return e;
     }
 
     read(s)
     {
-        let e = new WSEndpoint(this._instance, this._delegate.read(s));
+        const e = new WSEndpoint(this._instance, this._delegate.read(s));
         e.initWithStream(s);
         return e;
     }

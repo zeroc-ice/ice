@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,6 +11,7 @@
 #define ICE_GRID_ADMIN_ROUTER_H
 
 #include <Ice/Ice.h>
+#include <IceGrid/TraceLevels.h>
 
 namespace IceGrid
 {
@@ -20,13 +21,16 @@ namespace IceGrid
 //
 class AdminRouter : public Ice::BlobjectArrayAsync
 {
-public:
-    
-    virtual Ice::ObjectPrx getTarget(const Ice::Current&) = 0;
+protected:
 
-    virtual void ice_invoke_async(const Ice::AMD_Object_ice_invokePtr&, 
-                                  const std::pair<const Ice::Byte*, const Ice::Byte*>&,
-                                  const Ice::Current&);
+    AdminRouter(const TraceLevelsPtr&);
+
+    void invokeOnTarget(const Ice::ObjectPrx&,
+                        const Ice::AMD_Object_ice_invokePtr&,
+                        const std::pair<const Ice::Byte*, const Ice::Byte*>&,
+                        const Ice::Current&);
+
+    const TraceLevelsPtr _traceLevels;
 };
 
 }

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,6 +13,10 @@
 
 #ifndef _WIN32
 #   include <dlfcn.h>
+#endif
+
+#if defined(ICE_CPP11) && defined(__GNUC__) && (__GNUC__ < 6) && defined(__GLIBCXX__)
+#   define ICE_LIBSUFFIX "++11"
 #endif
 
 using namespace Ice;
@@ -129,7 +133,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 #ifdef _WIN32
     lib += libName;
     lib += version;
-#  ifdef ICE_OS_WINRT
+#  ifdef ICE_OS_UWP
     lib += "uwp";
 #  endif
 
@@ -179,7 +183,7 @@ IceInternal::DynamicLibrary::loadEntryPoint(const string& entryPoint, bool useIc
 
 #ifdef __APPLE__
     //
-    // On OS X fallback to .so and .bundle extensions, if the default
+    // On macOS fallback to .so and .bundle extensions, if the default
     // .dylib fails.
     //
     if(!load(lib + ".dylib"))
@@ -213,7 +217,7 @@ IceInternal::DynamicLibrary::load(const string& lib)
     // Don't need to use a wide string converter as the wide string is passed
     // to Windows API.
     //
-#ifdef ICE_OS_WINRT
+#ifdef ICE_OS_UWP
     _hnd = LoadPackagedLibrary(stringToWstring(lib, getProcessStringConverter()).c_str(), 0);
 #elif defined(_WIN32)
     _hnd = LoadLibraryW(stringToWstring(lib, getProcessStringConverter()).c_str());

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,7 +17,7 @@ using namespace IceBT;
 IceUtil::Shared* IceBT::upCast(IceBT::Instance* p) { return p; }
 
 IceBT::Instance::Instance(const EnginePtr& engine, Short type, const string& protocol) :
-    ProtocolInstance(engine->communicator(), type, protocol, true),
+    ProtocolInstance(engine->communicator(), type, protocol, type == BTSEndpointType),
     _engine(engine)
 {
 }

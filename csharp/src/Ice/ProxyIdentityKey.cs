@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,7 +27,7 @@ namespace Ice
         public int GetHashCode(object obj)
         {
             int h = 5381;
-            IceInternal.HashUtil.hashAdd(ref h, ((Ice.ObjectPrx)obj).ice_getIdentity());
+            IceInternal.HashUtil.hashAdd(ref h, ((ObjectPrx)obj).ice_getIdentity());
             return h;
         }
 
@@ -55,18 +55,18 @@ namespace Ice
         /// 0, otherwise.</returns>
         public int Compare(object obj1, object obj2)
         {
-            Ice.ObjectPrx proxy1 = obj1 as Ice.ObjectPrx;
+            ObjectPrx proxy1 = obj1 as ObjectPrx;
             if(obj1 != null && proxy1 == null)
             {
-                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
+                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
             }
 
-            Ice.ObjectPrx proxy2 = obj2 as Ice.ObjectPrx;
+            ObjectPrx proxy2 = obj2 as ObjectPrx;
             if(obj2 != null && proxy2 == null)
             {
-                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
+                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
             }
-            return Ice.Util.proxyIdentityCompare(proxy1, proxy2);
+            return Util.proxyIdentityCompare(proxy1, proxy2);
         }
     }
 
@@ -84,8 +84,8 @@ namespace Ice
         /// <returns>The hash value for the proxy based on the identity and facet.</returns>
         public int GetHashCode(object obj)
         {
-            Ice.ObjectPrx o = (Ice.ObjectPrx)obj;
-            Ice.Identity identity = o.ice_getIdentity();
+            ObjectPrx o = (ObjectPrx)obj;
+            Identity identity = o.ice_getIdentity();
             string facet = o.ice_getFacet();
             int h = 5381;
             IceInternal.HashUtil.hashAdd(ref h, identity);
@@ -117,18 +117,18 @@ namespace Ice
         /// 0, otherwise.</returns>
         public int Compare(object obj1, object obj2)
         {
-            Ice.ObjectPrx proxy1 = obj1 as Ice.ObjectPrx;
+            ObjectPrx proxy1 = obj1 as ObjectPrx;
             if(obj1 != null && proxy1 == null)
             {
-                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
+                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj1");
             }
 
-            Ice.ObjectPrx proxy2 = obj2 as Ice.ObjectPrx;
+            ObjectPrx proxy2 = obj2 as ObjectPrx;
             if(obj2 != null && proxy2 == null)
             {
-                throw new System.ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
+                throw new ArgumentException("Argument must be derived from Ice.ObjectPrx", "obj2");
             }
-            return Ice.Util.proxyIdentityAndFacetCompare(proxy1, proxy2);
+            return Util.proxyIdentityAndFacetCompare(proxy1, proxy2);
         }
     }
 

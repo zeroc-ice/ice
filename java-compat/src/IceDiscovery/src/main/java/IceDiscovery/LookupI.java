@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,6 +11,8 @@ package IceDiscovery;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -21,7 +23,8 @@ class LookupI extends _LookupDisp
         Request(T id, int retryCount)
         {
             _id = id;
-            _nRetry = retryCount;
+            _requestId = java.util.UUID.randomUUID().toString();
+            _retryCount = retryCount;
         }
 
         T
@@ -40,7 +43,38 @@ class LookupI extends _LookupDisp
         boolean
         retry()
         {
-            return --_nRetry >= 0;
+            return --_retryCount >= 0;
+        }
+
+        void
+        invoke(String domainId, Map<LookupPrx, LookupReplyPrx> lookups)
+        {
+            _lookupCount = lookups.size();
+            _failureCount = 0;
+            final Ice.Identity id = new Ice.Identity(_requestId, "");
+            for(Map.Entry<LookupPrx, LookupReplyPrx> entry : lookups.entrySet())
+            {
+                invokeWithLookup(domainId,
+                                 entry.getKey(),
+                                 LookupReplyPrxHelper.uncheckedCast(entry.getValue().ice_identity(id)));
+            }
+        }
+
+        boolean
+        exception()
+        {
+            if(++_failureCount == _lookupCount)
+            {
+                finished(null);
+                return true;
+            }
+            return false;
+        }
+
+        String
+        getRequestId()
+        {
+            return _requestId;
         }
 
         void
@@ -57,9 +91,17 @@ class LookupI extends _LookupDisp
             _future = null;
         }
 
-        protected int _nRetry;
+        abstract void finished(Ice.ObjectPrx proxy);
+
+        abstract protected void invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply);
+
+        private final String _requestId;
+
+        protected int _retryCount;
+        protected int _lookupCount;
+        protected int _failureCount;
         protected List<AmdCB> _callbacks = new ArrayList<AmdCB>();
-        private T _id;
+        protected T _id;
         protected java.util.concurrent.Future<?> _future;
     };
 
@@ -76,7 +118,7 @@ class LookupI extends _LookupDisp
         boolean
         retry()
         {
-            return _proxies.size() == 0 && --_nRetry >= 0;
+            return _proxies.size() == 0 && --_retryCount >= 0;
         }
 
         boolean
@@ -101,31 +143,32 @@ class LookupI extends _LookupDisp
             return true;
         }
 
+        @Override
         void
         finished(Ice.ObjectPrx proxy)
         {
             if(proxy != null || _proxies.isEmpty())
             {
                 sendResponse(proxy);
-                return;
             }
             else if(_proxies.size() == 1)
             {
-                sendResponse(_proxies.get(0));
-                return;
+                sendResponse(_proxies.toArray(new Ice.ObjectPrx[1])[0]);
             }
-
-            List<Ice.Endpoint> endpoints = new ArrayList<Ice.Endpoint>();
-            Ice.ObjectPrx result = null;
-            for(Ice.ObjectPrx prx : _proxies)
+            else
             {
-                if(result == null)
+                List<Ice.Endpoint> endpoints = new ArrayList<Ice.Endpoint>();
+                Ice.ObjectPrx result = null;
+                for(Ice.ObjectPrx prx : _proxies)
                 {
-                    result = prx;
+                    if(result == null)
+                    {
+                        result = prx;
+                    }
+                    endpoints.addAll(java.util.Arrays.asList(prx.ice_getEndpoints()));
                 }
-                endpoints.addAll(java.util.Arrays.asList(prx.ice_getEndpoints()));
+                sendResponse(result.ice_endpoints(endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
             }
-            sendResponse(result.ice_endpoints(endpoints.toArray(new Ice.Endpoint[endpoints.size()])));
         }
 
         @Override
@@ -133,6 +176,28 @@ class LookupI extends _LookupDisp
         run()
         {
             adapterRequestTimedOut(this);
+        }
+
+        @Override
+        protected void
+        invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
+        {
+            lookup.begin_findAdapterById(domainId, _id, lookupReply, new Ice.Callback()
+            {
+                @Override
+                public void
+                completed(Ice.AsyncResult r)
+                {
+                    try
+                    {
+                        r.throwLocalException();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        adapterRequestException(AdapterRequest.this, ex);
+                    }
+                }
+            });
         }
 
         private void
@@ -145,7 +210,12 @@ class LookupI extends _LookupDisp
             _callbacks.clear();
         }
 
-        private List<Ice.ObjectPrx> _proxies = new ArrayList<Ice.ObjectPrx>();
+        //
+        // We use a set because the same IceDiscovery plugin might return multiple times
+        // the same proxy if it's accessible through multiple network interfaces and if we
+        // also sent the request to multiple interfaces.
+        //
+        private Set<Ice.ObjectPrx> _proxies = new HashSet<Ice.ObjectPrx>();
         private long _start;
         private long _latency;
     };
@@ -163,6 +233,7 @@ class LookupI extends _LookupDisp
             finished(proxy);
         }
 
+        @Override
         void
         finished(Ice.ObjectPrx proxy)
         {
@@ -179,6 +250,28 @@ class LookupI extends _LookupDisp
         {
             objectRequestTimedOut(this);
         }
+
+        @Override
+        protected void
+        invokeWithLookup(String domainId, LookupPrx lookup, LookupReplyPrx lookupReply)
+        {
+            lookup.begin_findObjectById(domainId, _id, lookupReply, new Ice.Callback()
+            {
+                @Override
+                public void
+                completed(Ice.AsyncResult r)
+                {
+                    try
+                    {
+                        r.throwLocalException();
+                    }
+                    catch(Ice.LocalException ex)
+                    {
+                        objectRequestException(ObjectRequest.this, ex);
+                    }
+                }
+            });
+        }
     };
 
     public LookupI(LocatorRegistryI registry, LookupPrx lookup, Ice.Properties properties)
@@ -190,12 +283,49 @@ class LookupI extends _LookupDisp
         _latencyMultiplier = properties.getPropertyAsIntWithDefault("IceDiscovery.LatencyMultiplier", 1);
         _domainId = properties.getProperty("IceDiscovery.DomainId");
         _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+
+        //
+        // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
+        // datagram on each endpoint.
+        //
+        Ice.Endpoint[] single = new Ice.Endpoint[1];
+        for(Ice.Endpoint endpt : lookup.ice_getEndpoints())
+        {
+            single[0] = endpt;
+            _lookups.put((LookupPrx)lookup.ice_endpoints(single), null);
+        }
+        assert(!_lookups.isEmpty());
     }
 
     void
     setLookupReply(LookupReplyPrx lookupReply)
     {
-        _lookupReply = lookupReply;
+        //
+        // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+        //
+        Ice.Endpoint[] single = new Ice.Endpoint[1];
+        for(Map.Entry<LookupPrx, LookupReplyPrx> entry : _lookups.entrySet())
+        {
+            Ice.UDPEndpointInfo info = (Ice.UDPEndpointInfo)entry.getKey().ice_getEndpoints()[0].getInfo();
+            if(!info.mcastInterface.isEmpty())
+            {
+                for(Ice.Endpoint q : lookupReply.ice_getEndpoints())
+                {
+                    Ice.EndpointInfo r = q.getInfo();
+                    if(r instanceof Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.equals(info.mcastInterface))
+                    {
+                        single[0] = q;
+                        entry.setValue((LookupReplyPrx)lookupReply.ice_endpoints(single));
+                    }
+                }
+            }
+
+            if(entry.getValue() == null)
+            {
+                // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                entry.setValue(lookupReply);
+            }
+        }
     }
 
     @Override
@@ -265,7 +395,7 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findObjectById(_domainId, id, _lookupReply);
+                request.invoke(_domainId, _lookups);
                 request.scheduleTimer(_timeout);
             }
             catch(Ice.LocalException ex)
@@ -290,7 +420,7 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findAdapterById(_domainId, adapterId, _lookupReply);
+                request.invoke(_domainId, _lookups);
                 request.scheduleTimer(_timeout);
             }
             catch(Ice.LocalException ex)
@@ -302,32 +432,28 @@ class LookupI extends _LookupDisp
     }
 
     synchronized void
-    foundObject(Ice.Identity id, Ice.ObjectPrx proxy)
+    foundObject(Ice.Identity id, String requestId, Ice.ObjectPrx proxy)
     {
         ObjectRequest request = _objectRequests.get(id);
-        if(request == null)
+        if(request != null && request.getRequestId().equals(requestId)) // Ignore responses from old requests
         {
-            return;
+            request.response(proxy);
+            request.cancelTimer();
+            _objectRequests.remove(id);
         }
-
-        request.response(proxy);
-        request.cancelTimer();
-        _objectRequests.remove(id);
     }
 
     synchronized void
-    foundAdapter(String adapterId, Ice.ObjectPrx proxy, boolean isReplicaGroup)
+    foundAdapter(String adapterId, String requestId, Ice.ObjectPrx proxy, boolean isReplicaGroup)
     {
         AdapterRequest request = _adapterRequests.get(adapterId);
-        if(request == null)
+        if(request != null && request.getRequestId().equals(requestId)) // Ignore responses from old requests
         {
-            return;
-        }
-
-        if(request.response(proxy, isReplicaGroup))
-        {
-            request.cancelTimer();
-            _adapterRequests.remove(adapterId);
+            if(request.response(proxy, isReplicaGroup))
+            {
+                request.cancelTimer();
+                _adapterRequests.remove(adapterId);
+            }
         }
     }
 
@@ -344,7 +470,7 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findObjectById(_domainId, request.getId(), _lookupReply);
+                request.invoke(_domainId, _lookups);
                 request.scheduleTimer(_timeout);
                 return;
             }
@@ -355,6 +481,34 @@ class LookupI extends _LookupDisp
 
         request.finished(null);
         _objectRequests.remove(request.getId());
+    }
+
+    synchronized void
+    objectRequestException(ObjectRequest request, Ice.LocalException ex)
+    {
+        ObjectRequest r = _objectRequests.get(request.getId());
+        if(r == null || r != request)
+        {
+            return;
+        }
+
+        if(request.exception())
+        {
+            if(_warnOnce)
+            {
+                StringBuilder s = new StringBuilder();
+                s.append("failed to lookup object `");
+                s.append(_lookup.ice_getCommunicator().identityToString(request.getId()));
+                s.append("' with lookup proxy `");
+                s.append(_lookup);
+                s.append("':\n");
+                s.append(ex.toString());
+                _lookup.ice_getCommunicator().getLogger().warning(s.toString());
+                _warnOnce = false;
+            }
+            request.cancelTimer();
+            _objectRequests.remove(request.getId());
+        }
     }
 
     synchronized void
@@ -370,7 +524,7 @@ class LookupI extends _LookupDisp
         {
             try
             {
-                _lookup.begin_findAdapterById(_domainId, request.getId(), _lookupReply);
+                request.invoke(_domainId, _lookups);
                 request.scheduleTimer(_timeout);
                 return;
             }
@@ -383,17 +537,44 @@ class LookupI extends _LookupDisp
         _adapterRequests.remove(request.getId());
     }
 
+    synchronized void
+    adapterRequestException(AdapterRequest request, Ice.LocalException ex)
+    {
+        AdapterRequest r = _adapterRequests.get(request.getId());
+        if(r == null || r != request)
+        {
+            return;
+        }
+
+        if(request.exception())
+        {
+            if(_warnOnce)
+            {
+                StringBuilder s = new StringBuilder();
+                s.append("failed to lookup adapter `");
+                s.append(request.getId());
+                s.append("' with lookup proxy `");
+                s.append(_lookup);
+                s.append("':\n");
+                s.append(ex.toString());
+                _lookup.ice_getCommunicator().getLogger().warning(s.toString());
+                _warnOnce = false;
+            }
+            request.cancelTimer();
+            _adapterRequests.remove(request.getId());
+        }
+    }
+
     private LocatorRegistryI _registry;
-    private final LookupPrx _lookup;
-    private LookupReplyPrx _lookupReply;
+    private LookupPrx _lookup;
+    private java.util.Map<LookupPrx, LookupReplyPrx> _lookups = new java.util.HashMap<>();
     private final int _timeout;
     private final int _retryCount;
     private final int _latencyMultiplier;
     private final String _domainId;
-
     private final java.util.concurrent.ScheduledExecutorService _timer;
+    private boolean _warnOnce = true;
 
     private Map<Ice.Identity, ObjectRequest> _objectRequests = new HashMap<Ice.Identity, ObjectRequest>();
     private Map<String, AdapterRequest> _adapterRequests = new HashMap<String, AdapterRequest>();
 }
-

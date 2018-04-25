@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -391,6 +391,13 @@ public final class Instance implements Ice.ClassResolver
     {
         // No mutex lock, immutable.
         return _batchAutoFlushSize;
+    }
+
+    public Ice.ToStringMode
+    toStringMode()
+    {
+        // No mutex lock, immutable
+        return _toStringMode;
     }
 
     public int
@@ -1018,6 +1025,24 @@ public final class Instance implements Ice.ClassResolver
                 }
             }
 
+            String toStringModeStr = _initData.properties.getPropertyWithDefault("Ice.ToStringMode", "Unicode");
+            if(toStringModeStr.equals("Unicode"))
+            {
+                _toStringMode = Ice.ToStringMode.Unicode;
+            }
+            else if(toStringModeStr.equals("ASCII"))
+            {
+                _toStringMode = Ice.ToStringMode.ASCII;
+            }
+            else if(toStringModeStr.equals("Compat"))
+            {
+                _toStringMode = Ice.ToStringMode.Compat;
+            }
+            else
+            {
+                throw new Ice.InitializationException("The value for Ice.ToStringMode must be Unicode, ASCII or Compat");
+            }
+
             _implicitContext = Ice.ImplicitContextI.create(_initData.properties.getProperty("Ice.ImplicitContext"));
 
             _routerManager = new RouterManager();
@@ -1061,6 +1086,12 @@ public final class Instance implements Ice.ClassResolver
             ProtocolInstance udpProtocolInstance = new ProtocolInstance(this, Ice.UDPEndpointType.value, "udp", false);
             _endpointFactoryManager.add(new UdpEndpointFactory(udpProtocolInstance));
 
+            ProtocolInstance wsProtocolInstance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
+            _endpointFactoryManager.add(new WSEndpointFactory(wsProtocolInstance, Ice.TCPEndpointType.value));
+
+            ProtocolInstance wssProtocolInstance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
+            _endpointFactoryManager.add(new WSEndpointFactory(wssProtocolInstance, Ice.SSLEndpointType.value));
+
             _pluginManager = new Ice.PluginManagerI(communicator, this);
 
             if(_initData.valueFactoryManager == null)
@@ -1096,11 +1127,12 @@ public final class Instance implements Ice.ClassResolver
         }
         catch(Ice.LocalException ex)
         {
-            destroy();
+            destroy(false);
             throw ex;
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()
@@ -1144,20 +1176,10 @@ public final class Instance implements Ice.ClassResolver
         pluginManagerImpl.loadPlugins(args);
 
         //
-        // Add WS and WSS endpoint factories if TCP/SSL factories are installed.
+        // Initialize the endpoint factories once all the plugins are loaded. This gives
+        // the opportunity for the endpoint factories to find underyling factories.
         //
-        final EndpointFactory tcpFactory = _endpointFactoryManager.get(Ice.TCPEndpointType.value);
-        if(tcpFactory != null)
-        {
-            final ProtocolInstance instance = new ProtocolInstance(this, Ice.WSEndpointType.value, "ws", false);
-            _endpointFactoryManager.add(new WSEndpointFactory(instance, tcpFactory.clone(instance, null)));
-        }
-        final EndpointFactory sslFactory = _endpointFactoryManager.get(Ice.SSLEndpointType.value);
-        if(sslFactory != null)
-        {
-            final ProtocolInstance instance = new ProtocolInstance(this, Ice.WSSEndpointType.value, "wss", true);
-            _endpointFactoryManager.add(new WSEndpointFactory(instance, sslFactory.clone(instance, null)));
-        }
+        _endpointFactoryManager.initialize();
 
         //
         // Create Admin facets, if enabled.
@@ -1323,9 +1345,9 @@ public final class Instance implements Ice.ClassResolver
     //
     @SuppressWarnings("deprecation")
     public void
-    destroy()
+    destroy(boolean interruptible)
     {
-        if(Thread.interrupted())
+        if(interruptible && Thread.interrupted())
         {
             throw new Ice.OperationInterruptedException();
         }
@@ -1345,7 +1367,10 @@ public final class Instance implements Ice.ClassResolver
                 }
                 catch(InterruptedException ex)
                 {
-                    throw new Ice.OperationInterruptedException();
+                    if(interruptible)
+                    {
+                        throw new Ice.OperationInterruptedException();
+                    }
                 }
             }
 
@@ -1454,7 +1479,10 @@ public final class Instance implements Ice.ClassResolver
             }
             catch(InterruptedException ex)
             {
-                throw new Ice.OperationInterruptedException();
+                if(interruptible)
+                {
+                    throw new Ice.OperationInterruptedException();
+                }
             }
 
             //
@@ -1507,6 +1535,12 @@ public final class Instance implements Ice.ClassResolver
                 _pluginManager.destroy();
             }
 
+            if(_initData.logger instanceof Ice.LoggerI)
+            {
+                Ice.LoggerI logger = (Ice.LoggerI)_initData.logger;
+                logger.destroy();
+            }
+
             synchronized(this)
             {
                 _objectAdapterFactory = null;
@@ -1545,6 +1579,7 @@ public final class Instance implements Ice.ClassResolver
             {
                 if(_state == StateDestroyInProgress)
                 {
+                    assert(interruptible);
                     _state = StateActive;
                     notifyAll();
                 }
@@ -1820,6 +1855,7 @@ public final class Instance implements Ice.ClassResolver
     private final DefaultsAndOverrides _defaultsAndOverrides; // Immutable, not reset by destroy().
     private final int _messageSizeMax; // Immutable, not reset by destroy().
     private final int _batchAutoFlushSize; // Immutable, not reset by destroy().
+    private final Ice.ToStringMode _toStringMode; // Immutable, not reset by destroy().
     private final int _cacheMessageBuffers; // Immutable, not reset by destroy().
     private final ACMConfig _clientACM; // Immutable, not reset by destroy().
     private final ACMConfig _serverACM; // Immutable, not reset by destroy().

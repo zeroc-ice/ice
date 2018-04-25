@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -103,7 +103,7 @@ void
 MyObjectI::amdAddWithRetryAsync(int x,
                                 int y,
                                 function<void(int)> response,
-                                function<void(exception_ptr)>,
+                                function<void(exception_ptr)> error,
                                 const Ice::Current& current)
 {
     thread t(
@@ -114,7 +114,7 @@ MyObjectI::amdAddWithRetryAsync(int x,
                 this_thread::sleep_for(chrono::milliseconds(10));
                 response(x + y);
             }
-            catch(Ice::ResponseSentException&)
+            catch(const Ice::ResponseSentException&)
             {
             }
         });
@@ -124,19 +124,26 @@ MyObjectI::amdAddWithRetryAsync(int x,
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        throw Test::RetryException(__FILE__, __LINE__);
+        try
+        {
+            throw Test::RetryException(__FILE__, __LINE__);
+        }
+        catch(...)
+        {
+            error(std::current_exception());
+        }
     }
 }
 
 void
-MyObjectI::amdBadAddAsync(int x,
-                          int y,
+MyObjectI::amdBadAddAsync(int,
+                          int,
                           function<void(int)>,
                           function<void(exception_ptr)> error,
                           const Ice::Current&)
 {
     thread t(
-        [x, y, error]()
+        [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
             try
@@ -145,21 +152,21 @@ MyObjectI::amdBadAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
 }
 
 void
-MyObjectI::amdNotExistAddAsync(int x,
-                               int y,
+MyObjectI::amdNotExistAddAsync(int,
+                               int,
                                function<void(int)>,
                                function<void(exception_ptr)> error,
                                const Ice::Current&)
 {
     thread t(
-        [x, y, error]()
+        [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
             try
@@ -168,21 +175,21 @@ MyObjectI::amdNotExistAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
 }
 
 void
-MyObjectI::amdBadSystemAddAsync(int x,
-                                int y,
+MyObjectI::amdBadSystemAddAsync(int,
+                                int,
                                 function<void(int)>,
                                 function<void(exception_ptr)> error,
                                 const Ice::Current&)
 {
     thread t(
-        [x, y, error]()
+        [error]()
         {
             this_thread::sleep_for(chrono::milliseconds(10));
             try
@@ -191,7 +198,7 @@ MyObjectI::amdBadSystemAddAsync(int x,
             }
             catch(...)
             {
-                error(current_exception());
+                error(std::current_exception());
             }
         });
     t.detach();
@@ -258,7 +265,7 @@ MyObjectI::amdAddWithRetry_async(const Test::AMD_MyObject_amdAddWithRetryPtr& cb
 
     if(p == current.ctx.end() || p->second != "no")
     {
-        throw Test::RetryException(__FILE__, __LINE__);
+        cb->ice_exception(Test::RetryException(__FILE__, __LINE__));
     }
 }
 

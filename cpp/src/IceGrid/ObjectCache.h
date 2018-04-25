@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,11 +23,12 @@ class ObjectCache;
 class ObjectEntry : public IceUtil::Shared
 {
 public:
-    
-    ObjectEntry(const ObjectInfo&, const std::string&);
+
+    ObjectEntry(const ObjectInfo&, const std::string&, const std::string&);
     Ice::ObjectPrx getProxy() const;
     std::string getType() const;
     std::string getApplication() const;
+    std::string getServer() const;
     const ObjectInfo& getObjectInfo() const;
 
     bool canRemove();
@@ -36,6 +37,7 @@ private:
 
     const ObjectInfo _info;
     const std::string _application;
+    const std::string _server;
 };
 typedef IceUtil::Handle<ObjectEntry> ObjectEntryPtr;
 
@@ -45,18 +47,19 @@ public:
 
     ObjectCache(const Ice::CommunicatorPtr&);
 
-    void add(const ObjectInfo&, const std::string&);
+    void add(const ObjectInfo&, const std::string&, const std::string&);
     ObjectEntryPtr get(const Ice::Identity&) const;
     void remove(const Ice::Identity&);
 
-    Ice::ObjectProxySeq getObjectsByType(const std::string&); 
+    std::vector<ObjectEntryPtr> getObjectsByType(const std::string&);
+
     ObjectInfoSeq getAll(const std::string&);
     ObjectInfoSeq getAllByType(const std::string&);
 
     const Ice::CommunicatorPtr& getCommunicator() const { return _communicator; }
 
 private:
-    
+
     class TypeEntry
     {
     public:
@@ -65,11 +68,11 @@ private:
 
         void add(const ObjectEntryPtr&);
         bool remove(const ObjectEntryPtr&);
-        
+
         const std::vector<ObjectEntryPtr>& getObjects() const { return _objects; }
 
     private:
-        
+
         std::vector<ObjectEntryPtr> _objects;
     };
 

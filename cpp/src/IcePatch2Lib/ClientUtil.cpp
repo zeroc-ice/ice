@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,6 @@ using namespace Ice;
 using namespace IceUtil;
 using namespace IcePatch2;
 using namespace IcePatch2Internal;
-
 
 IcePatch2::Patcher::~Patcher()
 {
@@ -120,7 +119,7 @@ Decompressor::add(const LargeFileInfo& info)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(!_exception.empty())
     {
-        throw _exception;
+        throw runtime_error(_exception);
     }
     _files.push_back(info);
     notify();
@@ -132,7 +131,7 @@ Decompressor::exception() const
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(!_exception.empty())
     {
-        throw _exception;
+        throw runtime_error(_exception);
     }
 }
 
@@ -145,7 +144,7 @@ Decompressor::log(FILE* fp)
     {
         if(fputc('+', fp) == EOF || !writeFileInfo(fp, *p))
         {
-            throw "error writing log file:\n" + IceUtilInternal::lastErrorToString();
+            throw runtime_error("error writing log file:\n" + IceUtilInternal::lastErrorToString());
         }
     }
 
@@ -189,16 +188,15 @@ Decompressor::run()
             setFileFlags(_dataDir + '/' + info.path, info);
             remove(_dataDir + '/' + info.path + ".bz2");
         }
-        catch(const string& ex)
+        catch(const std::exception& ex)
         {
             IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
             _destroy = true;
-            _exception = ex;
+            _exception = ex.what();
             return;
         }
     }
 }
-
 
 PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr& feedback) :
     _feedback(feedback),
@@ -213,13 +211,13 @@ PatcherI::PatcherI(const CommunicatorPtr& communicator, const PatcherFeedbackPtr
     string clientProxy = communicator->getProperties()->getProperty(clientProxyProperty);
     if(clientProxy.empty())
     {
-        throw "property `IcePatch2Client.Proxy' is not set";
+        throw runtime_error("property `IcePatch2Client.Proxy' is not set");
     }
 
     FileServerPrx server = FileServerPrx::checkedCast(communicator->stringToProxy(clientProxy));
     if(!server)
     {
-        throw "proxy `" + clientProxy + "' is not a file server.";
+        throw runtime_error("proxy `" + clientProxy + "' is not a file server.");
     }
 
     init(server);
@@ -295,9 +293,9 @@ PatcherI::prepare()
         {
             loadFileInfoSeq(_dataDir, _localFiles);
         }
-        catch(const string& ex)
+        catch(const exception& ex)
         {
-            thorough = _feedback->noFileSummary(ex);
+            thorough = _feedback->noFileSummary(ex.what());
             if(!thorough)
             {
                 return false;
@@ -339,7 +337,7 @@ PatcherI::prepare()
         ByteSeqSeq checksumSeq = _serverCompress->getChecksumSeq();
         if(checksumSeq.size() != 256)
         {
-            throw string("server returned illegal value");
+            throw runtime_error("server returned illegal value");
         }
 
         while(true)
@@ -473,7 +471,7 @@ PatcherI::prepare()
     _log = IceUtilInternal::fopen(pathLog, "w");
     if(!_log)
     {
-        throw "cannot open `" + pathLog + "' for writing:\n" + IceUtilInternal::lastErrorToString();
+        throw runtime_error("cannot open `" + pathLog + "' for writing:\n" + IceUtilInternal::lastErrorToString());
     }
 
     return true;
@@ -600,7 +598,7 @@ PatcherI::init(const FileServerPrx& server)
 {
     if(_dataDir.empty())
     {
-        throw string("no data directory specified");
+        throw runtime_error("no data directory specified");
     }
 
     Ice::CommunicatorPtr communicator = server->ice_getCommunicator();
@@ -634,7 +632,7 @@ PatcherI::init(const FileServerPrx& server)
         string cwd;
         if(IceUtilInternal::getcwd(cwd) != 0)
         {
-            throw "cannot get the current directory:\n" + IceUtilInternal::lastErrorToString();
+            throw runtime_error("cannot get the current directory:\n" + IceUtilInternal::lastErrorToString());
         }
         const_cast<string&>(_dataDir) = simplify(cwd + '/' + _dataDir);
     }
@@ -658,7 +656,7 @@ PatcherI::removeFiles(const LargeFileInfoSeq& files)
             remove(_dataDir + '/' + p->path);
             if(fputc('-', _log) == EOF || ! writeFileInfo(_log, *p))
             {
-                throw "error writing log file:\n" + IceUtilInternal::lastErrorToString();
+                throw runtime_error("error writing log file:\n" + IceUtilInternal::lastErrorToString());
             }
         }
         catch(...)
@@ -755,7 +753,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
             createDirectoryRecursive(_dataDir + '/' + p->path);
             if(fputc('+', _log) == EOF || !writeFileInfo(_log, *p))
             {
-                throw "error writing log file:\n" + IceUtilInternal::lastErrorToString();
+                throw runtime_error("error writing log file:\n" + IceUtilInternal::lastErrorToString());
             }
         }
         else // Regular file.
@@ -771,7 +769,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                 FILE* fp = IceUtilInternal::fopen(path, "wb");
                 if(fp == 0)
                 {
-                    throw "cannot open `" + path +"' for writing:\n" + IceUtilInternal::lastErrorToString();
+                    throw runtime_error("cannot open `" + path +"' for writing:\n" + IceUtilInternal::lastErrorToString());
                 }
                 fclose(fp);
             }
@@ -796,7 +794,7 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                 FILE* fileBZ2 = IceUtilInternal::fopen(pathBZ2, "wb");
                 if(fileBZ2 == 0)
                 {
-                    throw "cannot open `" + pathBZ2 + "' for writing:\n" + IceUtilInternal::lastErrorToString();
+                    throw runtime_error("cannot open `" + pathBZ2 + "' for writing:\n" + IceUtilInternal::lastErrorToString());
                 }
 
                 try
@@ -850,21 +848,27 @@ PatcherI::updateFilesInternal(const LargeFileInfoSeq& files, const DecompressorP
                         }
                         catch(const FileAccessException& ex)
                         {
-                            throw "error from IcePatch2 server for `" + p->path + "': " + ex.reason;
+                            throw runtime_error("error from IcePatch2 server for `" + p->path + "': " + ex.reason);
                         }
 
                         if(bytes.empty())
                         {
-                            throw "size mismatch for `" + p->path + "'";
+                            throw runtime_error("size mismatch for `" + p->path + "'");
                         }
 
                         if(fwrite(reinterpret_cast<char*>(&bytes[0]), bytes.size(), 1, fileBZ2) != 1)
                         {
-                            throw ": cannot write `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString();
+                            throw runtime_error(": cannot write `" + pathBZ2 + "':\n" + IceUtilInternal::lastErrorToString());
                         }
 
-                        pos += bytes.size();
-                        updated += bytes.size();
+                        // 'bytes' is always returned with size '_chunkSize'. When a file is smaller than '_chunkSize'
+                        // or we are reading the last chunk of a file, 'bytes' will be larger than necessary. In this
+                        // case we calculate the current position and updated size based on the known file size.
+                        size_t size = (pos + bytes.size()) > static_cast<size_t>(p->size) ?
+                            static_cast<size_t>(p->size - pos) : bytes.size();
+
+                        pos += size;
+                        updated += size;
 
                         if(!_feedback->patchProgress(pos, p->size, updated, total))
                         {

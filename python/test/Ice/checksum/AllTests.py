@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -46,7 +46,6 @@ def allTests(communicator):
         m = patt.search(i)
         if m:
             n = int(i[m.start():])
-
         test(i in Ice.sliceChecksums)
 
         if n <= 1:

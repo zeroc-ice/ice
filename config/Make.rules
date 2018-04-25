@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,14 +11,14 @@
 # Select an installation base directory. The directory will be created
 # if it does not exist.
 #
-prefix			?= /opt/Ice-$(version)
+prefix                 ?= /opt/Ice-$(version)
 
 #
 # The "root directory" for runpath embedded in executables. Can be set
 # to change the runpath added to Ice executables.
 #
 # If not set, a runpath relative to the path of the executable is
-# embedded (using @loader_path on OS X and $ORIGIN on Linux).
+# embedded (using @loader_path on macOS and $ORIGIN on Linux).
 #
 #embedded_runpath_prefix ?= /opt/Ice-$(mmversion)
 
@@ -26,13 +26,21 @@ prefix			?= /opt/Ice-$(version)
 # Define embedded_runpath as no if you don't want any runpath added to
 # the executables. If not set, defaults to to "yes"
 #
-embedded_runpath 	?= yes
+embedded_runpath       ?= yes
 
 #
-# Define OPTIMIZE as yes if you want to build with optimization.
-# Otherwise Ice is build with debug information.
+# Define new_dtags as yes if you want the linker to enable the new style
+# dtags, this will cause the linker to add a runpath entry instead of
+# a rpath entry. This only aplly to gcc builds on Linux
 #
-#OPTIMIZE		= yes
+new_dtags              ?= no
+
+#
+# Define OPTIMIZE as no if you want to build with debug iformation and
+# without optimizations. Otherwise Ice is build with optimizations and
+# without debug information.
+#
+OPTIMIZE                ?= yes
 
 #
 # Default Mutex protocol: one of PrioNone or PrioInherit.
@@ -46,7 +54,7 @@ embedded_runpath 	?= yes
 # Run `make print V=supported-platforms' to see the list of supported
 # platforms on this system.
 #
-PLATFORMS              	?= $(firstword $(supported-platforms))
+PLATFORMS               ?= $(firstword $(supported-platforms))
 
 #
 # Configurations to build. This defaults to the first supported
@@ -55,7 +63,14 @@ PLATFORMS              	?= $(firstword $(supported-platforms))
 # Run `make print V=supported-configs` to see the list of supported
 # configurations.
 #
-CONFIGS			?= $(firstword $(supported-configs))
+CONFIGS                 ?= $(firstword $(supported-configs))
+
+#
+# List of binary distributions to build against. Defaults to undefined,
+# i.e. build all source distributions. This is useful for building
+# a language mapping or tests against a binary distribution.
+#
+#ICE_BIN_DIST         ?=
 
 #
 # Third-party libraries (Ice for C++)
@@ -64,73 +79,95 @@ CONFIGS			?= $(firstword $(supported-configs))
 # where the compiler can find it, set the corresponding variable
 # below to the installation directory of the library.
 #
-#MCPP_HOME 		?= /opt/mcpp
-#ICONV_HOME 		?= /opt/iconv
-#EXPAT_HOME 		?= /opt/expat
-#BZ2_HOME 		?= /opt/bz2
-#LMDB_HOME 		?= /opt/lmdb
+#MCPP_HOME              ?= /opt/mcpp
+#ICONV_HOME             ?= /opt/iconv
+#EXPAT_HOME             ?= /opt/expat
+#BZ2_HOME               ?= /opt/bz2
+#LMDB_HOME              ?= /opt/lmdb
 
 # ----------------------------------------------------------------------
 # Don't change anything below this line!
 # ----------------------------------------------------------------------
 
-os			?= $(shell uname)
+os                      ?= $(shell uname)
 
-include	$(top_srcdir)/config/Make.rules.$(os)
-include	$(top_srcdir)/config/Make.project.rules
-include	$(top_srcdir)/config/Make.tests.rules
+include $(top_srcdir)/config/Make.rules.$(os)
+include $(top_srcdir)/config/Make.project.rules
+include $(top_srcdir)/config/Make.tests.rules
 
-ifeq ($(USE_BIN_DIST),yes)
-prefix 			:= $(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local,/usr))
-bindir			?= $(install_bindir)
-libdir			?= $(install_libdir)
-slicedir 		?= $(install_slicedir)
-includedir		?= $(install_includedir)
-else
-bindir			?= $(call mappingdir,$(or $1,$(currentdir)),bin)
-libdir			?= $(call mappingdir,$(or $1,$(currentdir)),lib)
-slicedir		?= $(top_srcdir)/slice
-includedir		?= $(call mappingdir,$(or $1,$(currentdir)),include)
-endif
+dotnet := $(shell command -v dotnet 2> /dev/null)
 
-srcdir 			?= $(call mappingdir,$(or $1,$(currentdir)),src)
+#
+# Languages, platforms and configurations to build
+#
+supported-languages     ?= cpp $(if $(filter %/dotnet,$(dotnet)),csharp) java java-compat python js ruby php $(if $(filter Darwin,$(os)),objective-c)
+supported-configs       ?= shared
 
-usr_dir_install		:= $(filter /usr%,$(prefix))
-install_bindir	  	?= $(prefix)/bin
-install_libdir	  	?= $(prefix)/lib
-install_slicedir 	?= $(prefix)$(if $(usr_dir_install),/share/Ice-$(version))/slice
-install_includedir	?= $(prefix)/include
-install_docdir 		?= $(prefix)$(if $(usr_dir_install),/share/Ice-$(version))
-install_mandir		?= $(prefix)$(if $(usr_dir_install),/share)/man
-install_configdir 	?= $(prefix)$(if $(usr_dir_install),/share/Ice-$(version),/config)
-
-version     		= 3.7a3
-mmversion		= 3.7
-soversion   		= 37a3
+version                 = 3.7.1
+mmversion               = 3.7
+soversion               = 37
 
 #
 # The compatversion is the lowest patch release with the same API.
 # For example, if 3.7.2 introduces no new API compared to 3.7.1, we
 # would set version to 3.7.2 and compatversion to 3.7.1.
-# Used for OS X libraries.
+# Used for macOS libraries.
 #
 compatversion           = $(version)
+
+ifneq ($(filter all cpp obj%c,$(ICE_BIN_DIST)),)
+# NOTE: on macOS, if ICE_HOME isn't set we build against /usr/local/opt/ice because the
+# XCode SDK is not accessible through /usr/local
+$(eval $(call create-project-dependencies,ice,$(or $(ICE_HOME),$(if $(filter Darwin,$(os)),/usr/local/opt/ice)),cpp))
+endif
+
+ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
+ice_cpp_cppflags        = -I$(top_srcdir)/cpp/include -I$(top_srcdir)/cpp/include/generated
+else
+ice_cpp_cppflags        = $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
+endif
+
+ifeq ($(filter all obj%c,$(ICE_BIN_DIST)),)
+ice_objc_cppflags       = -I$(top_srcdir)/objective-c/include -I$(top_srcdir)/objective-c/include/generated
+else
+ice_objc_cppflags       = $(if $(ice_includedir),-I$(ice_includedir) $(if $(ice_src_dist),-I$(ice_includedir)/generated))
+endif
+
+ifeq ($(filter all cpp,$(ICE_BIN_DIST)),)
+bindir                  = $(call mappingdir,$(or $1,$(currentdir)),bin)
+else
+bindir                  = $(ice_bindir)
+endif
+
+# Use the bin distribution if ICE_BIN_DIST=all or if ICE_BIN_DIST=cpp and processing a file from the cpp directory.
+use-bin-dist = $(or $(filter all,$(ICE_BIN_DIST)),\
+                    $(and $(filter cpp,$(ICE_BIN_DIST)),$(filter %/cpp/,$(call mappingdir,$(or $1,$(currentdir))))))
+
+bindir                  = $(if $(use-bin-dist),$(ice_bindir),$(call mappingdir,$(or $1,$(currentdir)),bin))
+libdir                  = $(if $(use-bin-dist),$(ice_libdir),$(call mappingdir,$(or $1,$(currentdir)),lib))
+includedir              = $(if $(use-bin-dist),$(ice_slicedir),$(call mappingdir,$(or $1,$(currentdir)),include))
+slicedir                = $(if $(use-bin-dist),$(ice_slicedir),$(top_srcdir)/slice)
+sdkdir                  = $(if $(use-bin-dist),$(ice_home)/sdk,$(top_srcdir)/sdk)
+srcdir                  = $(call mappingdir,$(or $1,$(currentdir)),src)
+
+usr_dir_install         := $(or $(filter yes,$(USR_DIR_INSTALL)),$(filter /usr%,$(prefix)))
+install_bindir          ?= $(prefix)/bin
+install_libdir          ?= $(prefix)/lib
+install_slicedir        ?= $(prefix)$(if $(usr_dir_install),/share/ice)/slice
+install_includedir      ?= $(prefix)/include
+install_docdir          ?= $(prefix)$(if $(usr_dir_install),/share/ice)
+install_mandir          ?= $(prefix)$(if $(usr_dir_install),/share)/man
+install_configdir       ?= $(prefix)$(if $(usr_dir_install),/share/ice,/config)
+install_sdkdir          ?= $(prefix)/sdk
 
 #
 # Support for 3rd party libraries
 #
-thirdparties		:= mcpp iconv expat bz2 lmdb
-mcpp_home 		:= $(MCPP_HOME)
-iconv_home 		:= $(ICONV_HOME)
-expat_home 		:= $(EXPAT_HOME)
-bz2_home 		:= $(BZ2_HOME)
-lmdb_home 		:= $(LMDB_HOME)
+thirdparties            := mcpp iconv expat bz2 lmdb
+mcpp_home               := $(MCPP_HOME)
+iconv_home              := $(ICONV_HOME)
+expat_home              := $(EXPAT_HOME)
+bz2_home                := $(BZ2_HOME)
+lmdb_home               := $(LMDB_HOME)
 
 $(foreach l,$(thirdparties),$(eval $(call make-lib,$l)))
-
-#
-# Languages, platforms and configurations to build
-#
-supported-languages	?= cpp java java-compat python js ruby php
-supported-configs	?= shared
-

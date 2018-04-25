@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,8 +22,7 @@ class TestI : public Test::MyInterface
 {
 public:
 
-    void op(bool, const Ice::Current& = Ice::noExplicitCurrent);
-
+    void op(bool, const Ice::Current&);
 };
 
 void
@@ -42,4 +41,3 @@ void allTests(const Ice::ObjectAdapterPtr& oa)
     Test::MyInterfacePrxPtr proxy = ICE_UNCHECKED_CAST(Test::MyInterfacePrx, oa->addWithUUID(servant));
     consume(servant, proxy);
 }
-

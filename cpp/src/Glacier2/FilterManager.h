@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,25 +31,25 @@ public:
 
     void destroy();
 
-    StringSetIPtr 
+    StringSetIPtr
     categories() const
     {
         return _categories;
     }
 
-    StringSetIPtr 
+    StringSetIPtr
     adapterIds() const
     {
         return _adapters;
     }
 
-    IdentitySetIPtr 
+    IdentitySetIPtr
     identities() const
     {
         return _identities;
     }
 
-    StringSetPrx 
+    StringSetPrx
     categoriesPrx() const
     {
         return _categoriesPrx;
@@ -67,7 +67,7 @@ public:
         return _identitiesPrx;
     }
 
-    static FilterManagerPtr 
+    static FilterManagerPtr
     create(const InstancePtr&, const std::string&, const bool);
 
 private:
@@ -86,4 +86,3 @@ private:
 };
 
 #endif /* FILTER_MANAGER_H */
-

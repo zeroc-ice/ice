@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,6 @@
 #include <Ice/EndpointI.h>
 #include <Test.h>
 #include <Configuration.h>
-
 
 class EndpointI;
 ICE_DEFINE_PTR(EndpointIPtr, EndpointI);
@@ -39,13 +38,13 @@ public:
     virtual IceInternal::TransceiverPtr transceiver() const;
     virtual void connectors_async(Ice::EndpointSelectionType, const IceInternal::EndpointI_connectorsPtr&) const;
     virtual IceInternal::AcceptorPtr acceptor(const std::string&) const;
-
-    virtual std::vector<IceInternal::EndpointIPtr> expand() const;
+    virtual std::vector<IceInternal::EndpointIPtr> expandIfWildcard() const;
+    virtual std::vector<IceInternal::EndpointIPtr> expandHost(IceInternal::EndpointIPtr&) const;
     virtual bool equivalent(const IceInternal::EndpointIPtr&) const;
 
     // From TestEndpoint
-    virtual std::string toString() const;
-    virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual std::string toString() const ICE_NOEXCEPT;
+    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
     virtual Ice::Int timeout() const;
     virtual const std::string& connectionId() const;
     virtual bool compress() const;

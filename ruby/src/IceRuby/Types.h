@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,10 @@ typedef std::vector<ExceptionInfoPtr> ExceptionInfoList;
 
 class ClassInfo;
 typedef IceUtil::Handle<ClassInfo> ClassInfoPtr;
-typedef std::vector<ClassInfoPtr> ClassInfoList;
+
+class ProxyInfo;
+typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
+typedef std::vector<ProxyInfoPtr> ProxyInfoList;
 
 //
 // This class is raised as an exception when object marshaling needs to be aborted.
@@ -388,7 +391,7 @@ public:
 
     ClassInfo(VALUE, bool);
 
-    void define(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
+    void define(VALUE, VALUE, VALUE, VALUE, VALUE, VALUE);
 
     virtual std::string getId() const;
 
@@ -415,10 +418,9 @@ public:
     const Ice::Int compactId;
     const bool isBase; // Is this the ClassInfo for Ice::Object or Ice::LocalObject?
     const bool isLocal;
-    const bool isAbstract;
     const bool preserve;
+    const bool interface;
     const ClassInfoPtr base;
-    const ClassInfoList interfaces;
     const DataMemberList members;
     const DataMemberList optionalMembers;
     const VALUE rubyClass;
@@ -435,7 +437,7 @@ public:
 
     ProxyInfo(VALUE);
 
-    void define(VALUE, VALUE);
+    void define(VALUE, VALUE, VALUE);
 
     virtual std::string getId() const;
 
@@ -452,12 +454,15 @@ public:
 
     virtual void destroy();
 
+    bool isA(const ProxyInfoPtr&);
+
     const std::string id;
+    const bool isBase; // Is this the ClassInfo for Ice::ObjectPrx?
+    const ProxyInfoPtr base;
+    const ProxyInfoList interfaces;
     const VALUE rubyClass;
-    const ClassInfoPtr classInfo;
     const VALUE typeObj;
 };
-typedef IceUtil::Handle<ProxyInfo> ProxyInfoPtr;
 
 //
 // Exception information.
@@ -487,13 +492,13 @@ class ObjectWriter : public Ice::Object
 {
 public:
 
-    ObjectWriter(VALUE, ObjectMap*);
+    ObjectWriter(VALUE, ObjectMap*, const ClassInfoPtr&);
     virtual ~ObjectWriter();
 
     virtual void ice_preMarshal();
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void _iceWrite(Ice::OutputStream*) const;
+    virtual void _iceRead(Ice::InputStream*);
 
 private:
 
@@ -502,6 +507,7 @@ private:
     VALUE _object;
     ObjectMap* _map;
     ClassInfoPtr _info;
+    ClassInfoPtr _formal;
 };
 
 //
@@ -516,8 +522,8 @@ public:
 
     virtual void ice_postUnmarshal();
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void _iceWrite(Ice::OutputStream*) const;
+    virtual void _iceRead(Ice::InputStream*);
 
     virtual ClassInfoPtr getInfo() const;
 
@@ -548,22 +554,19 @@ public:
 #endif
     virtual void ice_throw() const;
 
-    virtual void __write(Ice::OutputStream*) const;
-    virtual void __read(Ice::InputStream*);
+    virtual void _write(Ice::OutputStream*) const;
+    virtual void _read(Ice::InputStream*);
 
-    virtual bool __usesClasses() const;
+    virtual bool _usesClasses() const;
 
     VALUE getException() const;
 
     Ice::SlicedDataPtr getSlicedData() const;
 
-    using Ice::UserException::__read;
-    using Ice::UserException::__write;
-
 protected:
 
-    virtual void __writeImpl(Ice::OutputStream*) const {}
-    virtual void __readImpl(Ice::InputStream*) {}
+    virtual void _writeImpl(Ice::OutputStream*) const {}
+    virtual void _readImpl(Ice::InputStream*) {}
 
 private:
 

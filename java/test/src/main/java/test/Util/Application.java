@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,12 +29,6 @@ public abstract class Application
     {
     }
 
-    static public class GetInitDataResult
-    {
-        public InitializationData initData;
-        public String[] args;
-    }
-
     //
     // This main() must be called by the global main(). main()
     // initializes the Communicator, calls run(), and destroys
@@ -45,9 +39,7 @@ public abstract class Application
     //
     public final int main(String appName, String[] args)
     {
-        GetInitDataResult r = getInitData(args);
-        r.initData.classLoader = _classLoader;
-        return main(appName, r.args, r.initData);
+        return main(appName, args, null);
     }
 
     public final int main(String appName, String[] args, InitializationData initializationData)
@@ -66,9 +58,9 @@ public abstract class Application
         //
         if(initializationData == null)
         {
-            GetInitDataResult r = getInitData(args);
-            initializationData = r.initData;
-            args = r.args;
+            java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+            initializationData = getInitData(args, remainingArgs);
+            args = remainingArgs.toArray(new String[remainingArgs.size()]);
         }
 
         InitializationData initData;
@@ -80,8 +72,10 @@ public abstract class Application
         {
             initData = new InitializationData();
         }
-        Util.CreatePropertiesResult cpr = Util.createProperties(args, initData.properties);
-        initData.properties = cpr.properties;
+
+        java.util.List<String> remainingArgs = new java.util.ArrayList<>();
+        initData.properties = Util.createProperties(args, initData.properties, remainingArgs);
+        args = remainingArgs.toArray(new String[remainingArgs.size()]);
 
         //
         // If the process logger is the default logger, we replace it with a
@@ -94,15 +88,16 @@ public abstract class Application
 
         int status = 0;
 
-        try
+        try(Communicator communicator = Util.initialize(args, initData, remainingArgs))
         {
-            Util.InitializeResult ir = Util.initialize(cpr.args, initData);
-            _communicator = ir.communicator;
+            _communicator = communicator;
+            args = remainingArgs.toArray(new String[remainingArgs.size()]);
+
             if(_communicatorListener != null)
             {
                 _communicatorListener.communicatorInitialized(_communicator);
             }
-            status = run(ir.args);
+            status = run(args);
             if(status == WAIT)
             {
                 if(_cb != null)
@@ -134,26 +129,8 @@ public abstract class Application
             err.printStackTrace(writer);
             status = 1;
         }
-        writer.flush();
-
-        if(_communicator != null)
+        finally
         {
-            try
-            {
-                _communicator.destroy();
-            }
-            catch(LocalException ex)
-            {
-                writer.println(_testName + ": " + ex);
-                ex.printStackTrace(writer);
-                status = 1;
-            }
-            catch(java.lang.Exception ex)
-            {
-                writer.println(_testName + ": unknown exception");
-                ex.printStackTrace(writer);
-                status = 1;
-            }
             _communicator = null;
         }
         writer.flush();
@@ -199,14 +176,14 @@ public abstract class Application
     // necessary because some properties must be set prior to
     // communicator initialization.
     //
-    protected GetInitDataResult getInitData(String[] args)
+    protected InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = new GetInitDataResult();
-        r.initData = createInitializationData();
-        com.zeroc.Ice.Util.CreatePropertiesResult cpr = com.zeroc.Ice.Util.createProperties(args);
-        r.initData.properties = cpr.properties;
-        r.args = cpr.args;
-        return r;
+        InitializationData initData = createInitializationData();
+        initData.properties = Util.createProperties(args, rArgs);
+        args = initData.properties.parseCommandLineOptions("Test", rArgs.toArray(new String[rArgs.size()]));
+        rArgs.clear();
+        rArgs.addAll(java.util.Arrays.asList(args));
+        return initData;
     }
 
     public java.io.PrintWriter getWriter()
@@ -280,6 +257,83 @@ public abstract class Application
     public ClassLoader classLoader()
     {
         return _classLoader;
+    }
+
+    public String getTestEndpoint(int num)
+    {
+        return getTestEndpoint(num, "");
+    }
+
+    public String getTestEndpoint(com.zeroc.Ice.Properties properties, int num)
+    {
+        return getTestEndpoint(properties, num, "");
+    }
+
+    public String getTestEndpoint(int num, String prot)
+    {
+        return getTestEndpoint(_communicator.getProperties(), num, prot);
+    }
+
+    static public String getTestEndpoint(com.zeroc.Ice.Properties properties, int num, String prot)
+    {
+        String protocol = prot;
+        if(protocol.isEmpty())
+        {
+            protocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "default");
+        }
+
+        int basePort = properties.getPropertyAsIntWithDefault("Test.BasePort", 12010);
+
+        if(protocol.indexOf("bt") == 0)
+        {
+            //
+            // For Bluetooth, there's no need to specify a port (channel) number.
+            // The client locates the server using its address and a UUID.
+            //
+            switch(num)
+            {
+            case 0:
+                return "default -u 5e08f4de-5015-4507-abe1-a7807002db3d";
+            case 1:
+                return "default -u dae56460-2485-46fd-a3ca-8b730e1e868b";
+            case 2:
+                return "default -u 99e08bc6-fcda-4758-afd0-a8c00655c999";
+            default:
+                assert(false);
+            }
+        }
+
+        return protocol + " -p " + Integer.toString(basePort + num);
+    }
+
+    public String getTestHost()
+    {
+        return getTestHost(_communicator.getProperties());
+    }
+
+    static public String getTestHost(com.zeroc.Ice.Properties properties)
+    {
+        return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1");
+    }
+
+    public String getTestProtocol()
+    {
+        return getTestProtocol(_communicator.getProperties());
+    }
+
+    static public String getTestProtocol(com.zeroc.Ice.Properties properties)
+    {
+        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    }
+
+    public int getTestPort(int num)
+    {
+        return getTestPort(_communicator.getProperties(), num);
+    }
+
+    static public int getTestPort(com.zeroc.Ice.Properties properties, int num)
+    {
+        return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
     }
 
     private ClassLoader _classLoader;

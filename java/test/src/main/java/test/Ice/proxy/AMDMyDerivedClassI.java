@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,9 +12,9 @@ package test.Ice.proxy;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.CompletableFuture;
 
-import test.Ice.proxy.AMD.Test._MyDerivedClassDisp;
+import test.Ice.proxy.AMD.Test.MyDerivedClass;
 
-public final class AMDMyDerivedClassI implements _MyDerivedClassDisp
+public final class AMDMyDerivedClassI implements MyDerivedClass
 {
     public AMDMyDerivedClassI()
     {
@@ -44,7 +44,7 @@ public final class AMDMyDerivedClassI implements _MyDerivedClassDisp
     public boolean ice_isA(String s, com.zeroc.Ice.Current current)
     {
         _ctx = current.ctx;
-        return _MyDerivedClassDisp.super.ice_isA(s, current);
+        return MyDerivedClass.super.ice_isA(s, current);
     }
 
     private java.util.Map<String, String> _ctx;

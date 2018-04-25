@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,7 +16,6 @@ import test.Glacier2.router.Test.CallbackPrx;
 import test.Glacier2.router.Test.CallbackPrxHelper;
 import test.Glacier2.router.Test.CallbackReceiverPrx;
 import test.Glacier2.router.Test.CallbackReceiverPrxHelper;
-
 
 public class Client extends test.Util.Application
 {
@@ -38,10 +37,10 @@ public class Client extends test.Util.Application
         {
             out.print("testing stringToProxy for router... ");
             out.flush();
-            routerBase = communicator().stringToProxy("Glacier2/router:default -p 12347");
+            routerBase = communicator().stringToProxy("Glacier2/router:" + getTestEndpoint(50));
             out.println("ok");
         }
-        
+
         Glacier2.RouterPrx router;
 
         {
@@ -56,7 +55,7 @@ public class Client extends test.Util.Application
             out.print("testing router finder... ");
             out.flush();
             Ice.RouterFinderPrx finder = Ice.RouterFinderPrxHelper.uncheckedCast(
-                communicator().stringToProxy("Ice/RouterFinder:default -p 12347"));
+                communicator().stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
             test(finder.getRouter().ice_getIdentity().equals(router.ice_getIdentity()));
             out.println("ok");
         }
@@ -81,10 +80,10 @@ public class Client extends test.Util.Application
         {
             out.print("testing stringToProxy for server object... ");
             out.flush();
-            base = communicator().stringToProxy("c1/callback:tcp -p 12010");
+            base = communicator().stringToProxy("c1/callback:" + getTestEndpoint(0));
             out.println("ok");
         }
-            
+
         {
             out.print("trying to ping server before session creation... ");
             out.flush();
@@ -190,6 +189,20 @@ public class Client extends test.Util.Application
             out.println("ok");
         }
 
+        {
+            out.print("pinging object with client endpoint... ");
+            out.flush();
+            Ice.ObjectPrx baseC = communicator().stringToProxy("collocated:" + getTestEndpoint(50));
+            try
+            {
+                baseC.ice_ping();
+            }
+            catch(Ice.ObjectNotExistException ex)
+            {
+            }
+            out.println("ok");
+        }
+
         CallbackPrx twoway;
 
         {
@@ -224,7 +237,7 @@ public class Client extends test.Util.Application
         Ice.Object callbackReceiver;
         CallbackReceiverPrx twowayR;
         CallbackReceiverPrx fakeTwowayR;
-        
+
         {
             out.print("creating and adding callback receiver object... ");
             out.flush();
@@ -241,7 +254,7 @@ public class Client extends test.Util.Application
                 adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
             out.println("ok");
         }
-        
+
         {
             out.print("testing oneway callback... ");
             out.flush();
@@ -310,7 +323,7 @@ public class Client extends test.Util.Application
             callbackReceiverImpl.callbackOK();
             out.println("ok");
         }
-        
+
         {
             out.print("testing whether disallowed category gets rejected... ");
             out.flush();
@@ -328,7 +341,7 @@ public class Client extends test.Util.Application
                 out.println("ok");
             }
         }
-        
+
         {
             out.print("testing whether user-id as category is accepted... ");
             out.flush();
@@ -340,7 +353,8 @@ public class Client extends test.Util.Application
             callbackReceiverImpl.callbackOK();
             out.println("ok");
         }
-        
+
+        if(args.length >= 1 && args[0].equals("--shutdown"))
         {
             out.print("testing server shutdown... ");
             out.flush();
@@ -362,7 +376,7 @@ public class Client extends test.Util.Application
               }
             */
         }
-        
+
         {
             out.print("destroying session... ");
             out.flush();
@@ -380,7 +394,7 @@ public class Client extends test.Util.Application
             }
             out.println("ok");
         }
-        
+
         {
             out.print("trying to ping server after session destruction... ");
             out.flush();
@@ -406,11 +420,12 @@ public class Client extends test.Util.Application
                 }
                 else
                 {
+                    System.err.println(ex);
                     test(false);
                 }
             }
         }
-        
+
         if(args.length >= 1 && args[0].equals("--shutdown"))
         {
             {
@@ -419,15 +434,15 @@ public class Client extends test.Util.Application
                 communicator().setDefaultRouter(null);
                 out.println("ok");
             }
-            
+
             Ice.ObjectPrx processBase;
-            
+
             {
                 out.print("testing stringToProxy for process object... ");
-                processBase = communicator().stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
+                processBase = communicator().stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
                 out.println("ok");
             }
-            
+
 /*
             {
                 out.print("uninstalling router with process object... ");
@@ -435,16 +450,16 @@ public class Client extends test.Util.Application
                 out.println("ok");
             }
 */
-            
+
             Ice.ProcessPrx process;
-            
+
             {
                 out.print("testing checked cast for admin object... ");
                 process = Ice.ProcessPrxHelper.checkedCast(processBase);
                 test(process != null);
                 out.println("ok");
             }
-            
+
             out.print("testing Glacier2 shutdown... ");
             process.shutdown();
             try
@@ -457,14 +472,13 @@ public class Client extends test.Util.Application
                 out.println("ok");
             }
         }
-        
+
         return 0;
     }
-    
+
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
@@ -477,7 +491,7 @@ public class Client extends test.Util.Application
     {
         Client c = new Client();
         int status = c.main("Client", args);
-        
+
         System.gc();
         System.exit(status);
     }

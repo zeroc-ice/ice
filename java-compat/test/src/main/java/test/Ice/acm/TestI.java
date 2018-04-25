@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -49,27 +49,34 @@ public class TestI extends _TestIntfDisp
         }
     }
 
-    public void waitForHeartbeat(int count, Ice.Current current)
+    public void startHeartbeatCount(Ice.Current current)
     {
-        final Ice.Holder<Integer> c = new Ice.Holder<Integer>(count);
+        _counter = new Ice.Holder<Integer>(0);
         Ice.HeartbeatCallback callback = new Ice.HeartbeatCallback()
         {
-            synchronized public void heartbeat(Ice.Connection connection)
+            public void heartbeat(Ice.Connection connection)
             {
-                --c.value;
-                notifyAll();
+                synchronized(_counter)
+                {
+                    ++_counter.value;
+                    _counter.notifyAll();
+                }
             }
 
         };
         current.con.setHeartbeatCallback(callback);
+    }
 
-        synchronized(callback)
+    public void waitForHeartbeatCount(int count, Ice.Current current)
+    {
+        assert(_counter != null);
+        synchronized(_counter)
         {
-            while(c.value > 0)
+            while(_counter.value < count)
             {
                 try
                 {
-                    callback.wait();
+                    _counter.wait();
                 }
                 catch(InterruptedException ex)
                 {
@@ -77,4 +84,6 @@ public class TestI extends _TestIntfDisp
             }
         }
     }
-};
+
+    private Ice.Holder<Integer> _counter;
+}

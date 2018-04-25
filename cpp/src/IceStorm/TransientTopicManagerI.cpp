@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -40,9 +40,7 @@ TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
 
     if(_topics.find(name) != _topics.end())
     {
-        TopicExists ex;
-        ex.name = name;
-        throw ex;
+        throw TopicExists(name);
     }
 
     Ice::Identity id = IceStormInternal::nameToIdentity(_instance, name);
@@ -55,7 +53,7 @@ TransientTopicManagerImpl::create(const string& name, const Ice::Current&)
     {
         Ice::Trace out(traceLevels->logger, traceLevels->topicMgrCat);
         out << "creating new topic \"" << name << "\". id: "
-            << identityToString(id);
+            << _instance->communicator()->identityToString(id);
     }
 
     //
@@ -82,9 +80,7 @@ TransientTopicManagerImpl::retrieve(const string& name, const Ice::Current&) con
     map<string, TransientTopicImplPtr>::const_iterator p = _topics.find(name);
     if(p == _topics.end())
     {
-        NoSuchTopic ex;
-        ex.name = name;
-        throw ex;
+        throw NoSuchTopic(name);
     }
 
     // Here we cannot just reconstruct the identity since the

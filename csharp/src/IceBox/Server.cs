@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,13 +28,13 @@ public class Server
 
         public override int run(string[] args)
         {
-            List<String> argSeq = new List<String>(args);
-            const String prefix = "IceBox.Service.";
+            List<string> argSeq = new List<string>(args);
+            const string prefix = "IceBox.Service.";
             Ice.Properties properties = communicator().getProperties();
             Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
             foreach(KeyValuePair<string, string> pair in services)
             {
-                String name = pair.Key.Substring(prefix.Length);
+                string name = pair.Key.Substring(prefix.Length);
                 for(int i = 0; i < argSeq.Count; ++i)
                 {
                     if(argSeq[i].StartsWith("--" + name, StringComparison.CurrentCulture))
@@ -45,11 +45,16 @@ public class Server
                 }
             }
 
-            foreach(String s in argSeq)
+            foreach(string s in argSeq)
             {
                 if(s.Equals("-h") || s.Equals("--help"))
                 {
                     usage();
+                    return 0;
+                }
+                else if(s.Equals("-v") || s.Equals("--version"))
+                {
+                    Console.Out.WriteLine(Ice.Util.stringVersion());
                     return 0;
                 }
                 else

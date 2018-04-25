@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -41,11 +41,6 @@ public:
     TopicManagerI(const PersistentInstancePtr& instance, const TopicManagerImplPtr& impl) :
         _instance(instance), _impl(impl)
     {
-    }
-
-    ~TopicManagerI()
-    {
-        //cout << "~TopicManagerI" << endl;
     }
 
     virtual TopicPrx create(const string& id, const Ice::Current&)
@@ -134,11 +129,6 @@ public:
     {
     }
 
-    ~ReplicaObserverI()
-    {
-        //cout << "~ReplicaObserverI" << endl;
-    }
-
     virtual void init(const LogUpdate& llu, const TopicContentSeq& content, const Ice::Current&)
     {
         NodeIPtr node = _instance->node();
@@ -154,7 +144,6 @@ public:
         try
         {
             ObserverUpdateHelper unlock(_instance->node(), llu.generation, __FILE__, __LINE__);
-            //cout << "createTopic: " << llu.generation << " node generation: " << unlock.generation() << endl;
             _impl->observerCreateTopic(llu, name);
         }
         catch(const ObserverInconsistencyException& e)
@@ -231,11 +220,6 @@ public:
     {
     }
 
-    ~TopicManagerSyncI()
-    {
-        //cout << "~TopicManagerSyncI" << endl;
-    }
-
     virtual void getContent(LogUpdate& llu, TopicContentSeq& content, const Ice::Current&)
     {
         _impl->getContent(llu, content);
@@ -284,7 +268,6 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
             LogUpdate empty = {0, 0};
             _instance->lluMap().put(txn, lluDbKey, empty);
 
-
             // Recreate each of the topics.
             SubscriberRecordKey k;
             SubscriberRecord v;
@@ -325,11 +308,6 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
     __setNoDelete(false);
 }
 
-TopicManagerImpl::~TopicManagerImpl()
-{
-    //cout << "~TopicManagerImpl" << endl;
-}
-
 TopicPrx
 TopicManagerImpl::create(const string& name)
 {
@@ -338,9 +316,7 @@ TopicManagerImpl::create(const string& name)
     reap();
     if(_topics.find(name) != _topics.end())
     {
-        TopicExists ex;
-        ex.name = name;
-        throw ex;
+        throw TopicExists(name);
     }
 
     // Identity is <instanceName>/topic.<topicname>
@@ -384,9 +360,7 @@ TopicManagerImpl::retrieve(const string& name) const
     map<string, TopicImplPtr>::const_iterator p = _topics.find(name);
     if(p == _topics.end())
     {
-        NoSuchTopic ex;
-        ex.name = name;
-        throw ex;
+        throw NoSuchTopic(name);
     }
 
     return p->second->proxy();
@@ -421,14 +395,14 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
         out << "init";
         for(TopicContentSeq::const_iterator p = content.begin(); p != content.end(); ++p)
         {
-            out << " topic: " << identityToString(p->id) << " subscribers: ";
+            out << " topic: " << _instance->communicator()->identityToString(p->id) << " subscribers: ";
             for(SubscriberRecordSeq::const_iterator q = p->records.begin(); q != p->records.end(); ++q)
             {
                 if(q != p->records.begin())
                 {
                     out << ",";
                 }
-                out << identityToString(q->id);
+                out << _instance->communicator()->identityToString(q->id);
                 if(traceLevels->topicMgr > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
@@ -803,7 +777,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
         if(create)
         {
             out << "creating new topic \"" << name << "\". id: "
-                << identityToString(id)
+                << _instance->communicator()->identityToString(id)
                 << " subscribers: ";
             for(SubscriberRecordSeq::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
             {
@@ -813,7 +787,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
                 }
                 if(traceLevels->topicMgr > 1)
                 {
-                    out << identityToString(q->id)
+                    out << _instance->communicator()->identityToString(q->id)
                         << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
                 }
             }
@@ -821,7 +795,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
         else
         {
             out << "loading topic \"" << name << "\" from database. id: "
-                << identityToString(id)
+                << _instance->communicator()->identityToString(id)
                 << " subscribers: ";
             for(SubscriberRecordSeq::const_iterator q = subscribers.begin(); q != subscribers.end(); ++q)
             {
@@ -831,7 +805,7 @@ TopicManagerImpl::installTopic(const string& name, const Ice::Identity& id, bool
                 }
                 if(traceLevels->topicMgr > 1)
                 {
-                    out << identityToString(q->id)
+                    out << _instance->communicator()->identityToString(q->id)
                         << " endpoints: " << IceStormInternal::describeEndpoints(q->obj);
                 }
             }

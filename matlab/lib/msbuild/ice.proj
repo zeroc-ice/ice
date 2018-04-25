@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+    <Import Project="$(MSBuildThisFileDirectory)..\..\msbuild\ice.matlab.props" />
+
+    <ItemDefinitionGroup>
+        <SliceCompile>
+            <OutputDir>$(MSBuildThisFileDirectory)..\generated</OutputDir>
+        </SliceCompile>
+    </ItemDefinitionGroup>
+
+    <ItemGroup>
+        <SliceCompile Include="..\..\..\slice\Ice\BuiltinSequences.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Communicator.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Connection.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Current.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Endpoint.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\EndpointTypes.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Identity.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Instrumentation.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\LocalException.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Locator.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Metrics.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Process.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\PropertiesAdmin.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\RemoteLogger.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Router.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\SliceChecksumDict.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\ValueFactory.ice" />
+        <SliceCompile Include="..\..\..\slice\Ice\Version.ice" />
+        <SliceCompile Include="..\..\..\slice\Glacier2\*.ice" />
+        <SliceCompile Include="..\..\..\slice\IceStorm\*.ice" />
+        <SliceCompile Include="..\..\..\slice\IceGrid\*.ice" />
+    </ItemGroup>
+
+    <Import Project="$(MSBuildThisFileDirectory)..\..\msbuild\ice.matlab.targets" />
+</Project>

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -45,12 +45,12 @@ typedef std::vector<LocatorAdapterInfo> LocatorAdapterInfoSeq;
 class AdapterEntry : public virtual IceUtil::Shared
 {
 public:
-    
+
     AdapterEntry(AdapterCache&, const std::string&, const std::string&);
 
     virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&) = 0;
 
-    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&, 
+    virtual void getLocatorAdapterInfo(LocatorAdapterInfoSeq&, int&, bool&, bool&, std::string&,
                                        const std::set<std::string>&) = 0;
     virtual float getLeastLoadedNodeLoad(LoadSample) const = 0;
     virtual AdapterInfoSeq getAdapterInfo() const = 0;
@@ -60,7 +60,7 @@ public:
 
     std::string getId() const;
     std::string getApplication() const;
-    
+
 protected:
 
     AdapterCache& _cache;
@@ -73,7 +73,7 @@ class ServerAdapterEntry : public AdapterEntry
 {
 public:
 
-    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const std::string&, int, 
+    ServerAdapterEntry(AdapterCache&, const std::string&, const std::string&, const std::string&, int,
                        const ServerEntryPtr&);
 
     virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&);
@@ -104,7 +104,7 @@ class ReplicaGroupEntry : public AdapterEntry, public IceUtil::Monitor<IceUtil::
 {
 public:
 
-    ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&, 
+    ReplicaGroupEntry(AdapterCache&, const std::string&, const std::string&, const LoadBalancingPolicyPtr&,
                       const std::string&);
 
     virtual bool addSyncCallback(const SynchronizationCallbackPtr&, const std::set<std::string>&);
@@ -145,12 +145,12 @@ public:
     void addReplicaGroup(const ReplicaGroupDescriptor&, const std::string&);
 
     AdapterEntryPtr get(const std::string&) const;
-    
+
     void removeServerAdapter(const std::string&);
     void removeReplicaGroup(const std::string&);
 
 protected:
-    
+
     virtual AdapterEntryPtr addImpl(const std::string&, const AdapterEntryPtr&);
     virtual void removeImpl(const std::string&);
 

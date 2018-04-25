@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -409,7 +409,7 @@ IceXML::Parser::parse(const string& file, Handler& handler) // The given filenam
 void
 IceXML::Parser::parse(istream& in, Handler& handler)
 {
-    XML_Parser parser = XML_ParserCreate(NULL);
+    XML_Parser parser = XML_ParserCreate(ICE_NULLPTR);
     CallbackData cb;
     cb.parser = parser;
     cb.handler = &handler;

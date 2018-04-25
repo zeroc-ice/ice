@@ -2,7 +2,7 @@
 <!--
  **********************************************************************
 
- Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+ Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 
  This copy of Ice is licensed to you under the terms described in the
  ICE_LICENSE file included in this distribution.
@@ -327,6 +327,7 @@ generated from the section label.
         <property name="BatchAutoFlush" deprecated="true"/>
         <property name="BatchAutoFlushSize" />
         <property name="ChangeUser" />
+        <property name="ClassGraphDepthMax" />
         <property name="ClientAccessPolicyProtocol" />
         <property name="Compression.Level" />
         <property name="CollectObjects"/>
@@ -369,6 +370,7 @@ generated from the section label.
         <property name="Plugin.[any]" />
         <property name="PluginLoadOrder" />
         <property name="PreferIPv6Address" />
+        <property name="PreloadAssemblies" />
         <property name="PrintAdapterReady" />
         <property name="PrintProcessId" />
         <property name="PrintStackTraces" />
@@ -383,6 +385,7 @@ generated from the section label.
         <property name="ThreadPool.Client" class="threadpool" />
         <property name="ThreadPool.Server" class="threadpool" />
         <property name="ThreadPriority"/>
+        <property name="ToStringMode" />
         <property name="Trace.Admin.Properties" />
         <property name="Trace.Admin.Logger" />
         <property name="Trace.Locator" />
@@ -428,7 +431,7 @@ generated from the section label.
         <property name="DomainId"/>
     </section>
 
-    <section name="IceGridDiscovery">
+    <section name="IceLocatorDiscovery">
         <property name="Reply" class="objectadapter" />
         <property name="Locator" class="objectadapter" />
         <property name="Lookup"/>
@@ -439,6 +442,7 @@ generated from the section label.
         <property name="Port"/>
         <property name="Interface"/>
         <property name="InstanceName"/>
+        <property name="Trace.Lookup"/>"
     </section>
 
     <section name="IceBox">
@@ -456,6 +460,12 @@ generated from the section label.
         <property name="ServiceManager.Proxy" class="proxy"/>
     </section>
 
+    <section name="IceBridge">
+        <property name="Source" class="objectadapter" />
+        <property name="Target.Endpoints" />
+        <property name="InstanceName" />
+    </section>
+
     <section name="IceGridAdmin">
         <property name="AuthenticateUsingSSL" />
         <property name="MetricsConfig" />
@@ -469,6 +479,7 @@ generated from the section label.
         <property name="Discovery.Interface" />
         <property name="Discovery.Lookup" />
         <property name="Discovery.Reply" class="objectadapter" />
+        <property name="Discovery.Locator" class="objectadapter" />
         <property name="Trace.Observers" />
         <property name="Trace.SaveToRegistry" />
     </section>
@@ -490,6 +501,7 @@ generated from the section label.
         <property name="Node.RedirectErrToOut" />
         <property name="Node.Trace.Activator" />
         <property name="Node.Trace.Adapter" />
+        <property name="Node.Trace.Admin" />
         <property name="Node.Trace.Patch" />
         <property name="Node.Trace.Replica" />
         <property name="Node.Trace.Server" />
@@ -523,9 +535,11 @@ generated from the section label.
         <property name="Registry.SessionFilters" />
         <property name="Registry.SessionManager" class="objectadapter" />
         <property name="Registry.SessionTimeout" />
-        <property name="Registry.SSLPermissionsVerifier" class="proxy" />
+        <property name="Registry.SSLPermissionsVerifier" class="proxy"/>
+        <property name="Registry.Trace.Admin" />
         <property name="Registry.Trace.Application" />
         <property name="Registry.Trace.Adapter" />
+        <property name="Registry.Trace.Discovery" />
         <property name="Registry.Trace.Locator" />
         <property name="Registry.Trace.Node" />
         <property name="Registry.Trace.Object" />
@@ -570,7 +584,7 @@ generated from the section label.
         <property name="DHParams" />
         <property name="EntropyDaemon" />
         <property name="FindCert" />
-        <property name="FindCert.[any]" deprecatedBy="IceSSL.FindCert"/>
+        <property name="FindCert.[any]" deprecated="true"/>
         <property name="InitOpenSSL" />
         <property name="KeyFile" deprecated="true"/>
         <property name="Keychain"/>
@@ -585,6 +599,7 @@ generated from the section label.
         <property name="ProtocolVersionMax" />
         <property name="ProtocolVersionMin" />
         <property name="Random" />
+        <property name="SchannelStrongCrypto" />
         <property name="Trace.Security" />
         <property name="TrustOnly" />
         <property name="TrustOnly.Client" />

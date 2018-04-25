@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,7 +35,7 @@ enum ByteEnum
     benum9 = LongConst1,
     benum10,
     benum11 = ByteConst2
-};
+}
 sequence<ByteEnum> ByteEnumSeq;
 
 enum ShortEnum
@@ -51,7 +51,7 @@ enum ShortEnum
     senum9 = LongConst1,
     senum10,
     senum11 = ShortConst2
-};
+}
 sequence<ShortEnum> ShortEnumSeq;
 
 enum IntEnum
@@ -68,7 +68,7 @@ enum IntEnum
     ienum10,
     ienum11 = IntConst2,
     ienum12 = LongConst2
-};
+}
 sequence<IntEnum> IntEnumSeq;
 
 enum SimpleEnum
@@ -76,7 +76,7 @@ enum SimpleEnum
     red,
     green,
     blue
-};
+}
 sequence<SimpleEnum> SimpleEnumSeq;
 
 interface TestIntf
@@ -92,6 +92,6 @@ interface TestIntf
     SimpleEnumSeq opSimpleSeq(SimpleEnumSeq s1, out SimpleEnumSeq s2);
 
     void shutdown();
-};
+}
 
-};
+}

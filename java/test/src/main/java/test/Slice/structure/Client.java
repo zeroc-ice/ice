@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -281,34 +281,17 @@ public class Client
 
     public static void main(String[] args)
     {
-        int status = 0;
-        com.zeroc.Ice.Communicator communicator = null;
-
-        try
+        int status;
+        java.util.List<String> rArgs = new java.util.ArrayList<>();
+        try(com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, rArgs))
         {
-            com.zeroc.Ice.Util.InitializeResult ir = com.zeroc.Ice.Util.initialize(args);
-            communicator = ir.communicator;
-            status = run(ir.args, communicator);
+            status = run(rArgs.toArray(new String[rArgs.size()]), communicator);
         }
         catch(Exception ex)
         {
             ex.printStackTrace();
             status = 1;
         }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(com.zeroc.Ice.LocalException ex)
-            {
-                ex.printStackTrace();
-                status = 1;
-            }
-        }
-
         System.gc();
         System.exit(status);
     }

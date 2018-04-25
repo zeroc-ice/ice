@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -106,14 +106,14 @@ def allTests(communicator):
     i = initial.getI()
     test(i)
     j = initial.getJ()
-    test(isinstance(j, Test.J))
+    test(isinstance(j, TestI.JI))
     h = initial.getH()
     test(isinstance(h, Test.H))
     print("ok")
 
     sys.stdout.write("getting D1... ")
     sys.stdout.flush()
-    d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")));
+    d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")))
     test(d1.a1.name == "a1")
     test(d1.a2.name == "a2")
     test(d1.a3.name == "a3")
@@ -130,6 +130,14 @@ def allTests(communicator):
         test(e.a2.name == "a2")
         test(e.a3.name == "a3")
         test(e.a4.name == "a4")
+    print("ok")
+
+    sys.stdout.write("setting G... ")
+    sys.stdout.flush()
+    try:
+        initial.setG(Test.G(Test.S("hello"), "g"))
+    except Ice.OperationNotExistException:
+        pass
     print("ok")
 
     sys.stdout.write("setting I... ")
@@ -213,6 +221,31 @@ def allTests(communicator):
         pass
     print("ok")
 
+    sys.stdout.write("testing recursive type... ")
+    sys.stdout.flush()
+    top = Test.Recursive()
+    p = top;
+    depth = 0;
+    try:
+        while depth <= 700:
+            p.v = Test.Recursive()
+            p = p.v;
+            if (depth < 10 and (depth % 10) == 0) or \
+               (depth < 1000 and (depth % 100) == 0) or \
+               (depth < 10000 and (depth % 1000) == 0) or \
+               (depth % 10000) == 0:
+                initial.setRecursive(top)
+            depth += 1
+        test(not initial.supportsClassGraphDepthMax())
+    except Ice.UnknownLocalException:
+        # Expected marshal exception from the server (max class graph depth reached)
+        pass
+    except Ice.UnknownException:
+        # Expected stack overflow from the server (Java only)
+        pass
+    initial.setRecursive(Test.Recursive())
+    print("ok")
+
     sys.stdout.write("testing compact ID... ")
     sys.stdout.flush()
     try:
@@ -225,9 +258,9 @@ def allTests(communicator):
     sys.stdout.write("testing marshaled results...")
     sys.stdout.flush()
     b1 = initial.getMB()
-    test(b1 != None and b1.theB == b1);
-    b1 = initial.end_getAMDMB(initial.begin_getAMDMB());
-    test(b1 != None and b1.theB == b1);
+    test(b1 != None and b1.theB == b1)
+    b1 = initial.getAMDMBAsync().result()
+    test(b1 != None and b1.theB == b1)
     print("ok")
 
     # Don't run this test with collocation, this should work with collocation

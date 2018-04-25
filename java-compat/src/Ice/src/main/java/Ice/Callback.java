@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,19 +38,19 @@ public abstract class Callback extends IceInternal.CallbackBase
     }
 
     @Override
-    public final void __completed(AsyncResult r)
+    public final void _iceCompleted(AsyncResult r)
     {
         completed(r);
     }
 
     @Override
-    public final void __sent(AsyncResult r)
+    public final void _iceSent(AsyncResult r)
     {
         sent(r);
     }
 
     @Override
-    public final boolean __hasSentCallback()
+    public final boolean _iceHasSentCallback()
     {
         return true;
     }

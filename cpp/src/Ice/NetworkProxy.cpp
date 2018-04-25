@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@ NetworkProxy::~NetworkProxy()
     // Out of line to avoid weak vtable
 }
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 
 namespace
 {
@@ -124,7 +124,7 @@ SOCKSNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
 SocketOperation
 SOCKSNetworkProxy::endWrite(Buffer& buf)
 {
-    // Once the request is sent, read the response 
+    // Once the request is sent, read the response
     return buf.i != buf.b.end() ? SocketOperationWrite : SocketOperationRead;
 }
 
@@ -168,7 +168,7 @@ NetworkProxyPtr
 SOCKSNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return new SOCKSNetworkProxy(getAddresses(_host, _port, protocol, Ice::Random, false, true)[0]);
+    return new SOCKSNetworkProxy(getAddresses(_host, _port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Random), false, true)[0]);
 }
 
 Address
@@ -190,14 +190,14 @@ SOCKSNetworkProxy::getProtocolSupport() const
     return EnableIPv4;
 }
 
-HTTPNetworkProxy::HTTPNetworkProxy(const string& host, int port) : 
+HTTPNetworkProxy::HTTPNetworkProxy(const string& host, int port) :
     _host(host), _port(port), _protocol(EnableBoth)
 {
     assert(!host.empty());
     memset(&_address, 0, sizeof(_address));
 }
 
-HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol) : 
+HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol) :
     _port(0), _address(addr), _protocol(protocol)
 {
 }
@@ -219,7 +219,7 @@ HTTPNetworkProxy::beginWrite(const Address& addr, Buffer& buf)
 SocketOperation
 HTTPNetworkProxy::endWrite(Buffer& buf)
 {
-    // Once the request is sent, read the response 
+    // Once the request is sent, read the response
     return buf.i != buf.b.end() ? SocketOperationWrite : SocketOperationRead;
 }
 
@@ -247,7 +247,7 @@ HTTPNetworkProxy::endRead(Buffer& buf)
         // Read one more byte, we can't easily read bytes in advance
         // since the transport implenentation might be be able to read
         // the data from the memory instead of the socket. This is for
-        // instance the case with the OpenSSL transport (or we would 
+        // instance the case with the OpenSSL transport (or we would
         // have to use a buffering BIO).
         //
         buf.b.resize(buf.b.size() + 1);
@@ -272,7 +272,7 @@ NetworkProxyPtr
 HTTPNetworkProxy::resolveHost(ProtocolSupport protocol) const
 {
     assert(!_host.empty());
-    return new HTTPNetworkProxy(getAddresses(_host, _port, protocol, Ice::Random, false, true)[0], protocol);
+    return new HTTPNetworkProxy(getAddresses(_host, _port, protocol, Ice::ICE_ENUM(EndpointSelectionType, Random), false, true)[0], protocol);
 }
 
 Address
@@ -304,8 +304,8 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     proxyHost = properties->getProperty("Ice.SOCKSProxyHost");
     if(!proxyHost.empty())
     {
-#ifdef ICE_OS_WINRT
-        throw Ice::InitializationException(__FILE__, __LINE__, "SOCKS proxy not supported with WinRT");
+#ifdef ICE_OS_UWP
+        throw Ice::InitializationException(__FILE__, __LINE__, "SOCKS proxy not supported with UWP");
 #else
         if(protocolSupport == EnableIPv6)
         {
@@ -319,12 +319,12 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     proxyHost = properties->getProperty("Ice.HTTPProxyHost");
     if(!proxyHost.empty())
     {
-#ifdef ICE_OS_WINRT
-        throw Ice::InitializationException(__FILE__, __LINE__, "HTTP proxy not supported with WinRT");
+#ifdef ICE_OS_UWP
+        throw Ice::InitializationException(__FILE__, __LINE__, "HTTP proxy not supported with UWP");
 #else
         return new HTTPNetworkProxy(proxyHost, properties->getPropertyAsIntWithDefault("Ice.HTTPProxyPort", 1080));
 #endif
     }
-    
+
     return 0;
 }

@@ -9,7 +9,7 @@
       <parameter name="manager"/>
       <parameter name="ssl-manager"/>
 
-      <server id="${id}" exe="${ice.bindir}/glacier2router">
+      <server id="${id}" exe="${glacier2router.exe}">
         <property name="Glacier2.Client.Endpoints" value="${endpoints}"/>
         <property name="Glacier2.Server.Endpoints" value="tcp -h 127.0.0.1"/>
 

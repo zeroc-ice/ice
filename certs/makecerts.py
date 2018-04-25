@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -15,15 +15,15 @@ except Exception as ex:
     sys.exit(1)
 
 def usage():
-    print("Usage: " + sys.argv[0] + " [options] [ip-address]")
+    print("Usage: " + sys.argv[0] + " [options]")
     print("")
     print("Options:")
     print("-h               Show this message.")
     print("-d | --debug     Debugging output.")
     print("--ip <ip>        The IP address for the server certificate.")
-    print("--dns <dns>      The DNS name for the server ceritificate.")
+    print("--dns <dns>      The DNS name for the server certificate.")
     print("--use-dns        Use the DNS name for the server certificate common")
-    print("                 name (default is to use the IP)." )
+    print("                 name (default is to use the IP address)." )
     sys.exit(1)
 
 #
@@ -127,6 +127,5 @@ except Exception as ex:
         if os.path.exists(f): os.remove(f)
     print("warning: couldn't generate JKS certificates for Java applications:\n" + str(ex))
     print("Please fix this issue if you want to run the Java tests.")
-
 
 factory.destroy()

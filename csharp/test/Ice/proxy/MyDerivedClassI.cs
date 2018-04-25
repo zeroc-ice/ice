@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     public MyDerivedClassI()
     {
     }
-    
+
     public override Ice.ObjectPrx echo(Ice.ObjectPrx obj, Ice.Current c)
     {
         return obj;
@@ -24,7 +24,7 @@ public sealed class MyDerivedClassI : Test.MyDerivedClassDisp_
     {
         current.adapter.getCommunicator().shutdown();
     }
-    
+
     public override Dictionary<string, string> getContext(Ice.Current current)
     {
         return _ctx;

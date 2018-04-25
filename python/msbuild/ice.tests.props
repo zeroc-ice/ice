@@ -6,9 +6,6 @@
     <PropertyGroup Label="IceBuilder">
         <IceBuilderOutputDir>..</IceBuilderOutputDir>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(PhpUseNamespaces)' == 'yes'">
-      <IceBuilderNamespace>yes</IceBuilderNamespace>
-    </PropertyGroup>
     <Target Name="Build"/>
     <Target Name="Clean"/>
 </Project>

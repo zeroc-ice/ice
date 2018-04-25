@@ -1,12 +1,12 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-  
+
 #import <AMITest.h>
 #import <Foundation/Foundation.h>
 
@@ -16,7 +16,16 @@
 @interface TestAMITestIntfI : TestAMITestIntf<TestAMITestIntf>
 {
     int _batchCount;
+    BOOL _dispatching;
     NSCondition* _cond;
+}
+@end
+
+//
+// Servant implementation
+//
+@interface TestAMITestOuterInnerTestIntfI : TestAMITestOuterInnerTestIntf<TestAMITestOuterInnerTestIntf>
+{
 }
 @end
 
@@ -26,4 +35,3 @@
 }
 -(id) initWithAdapter:(id<ICEObjectAdapter>)adapter;
 @end
-

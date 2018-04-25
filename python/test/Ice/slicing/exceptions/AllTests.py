@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -23,27 +23,21 @@ class CallbackBase:
         self._cond = threading.Condition()
 
     def check(self):
-        self._cond.acquire()
-        try:
+        with self._cond:
             while not self._called:
                 self._cond.wait()
             self._called = False
-        finally:
-            self._cond.release()
 
     def called(self):
-        self._cond.acquire()
-        self._called = True
-        self._cond.notify()
-        self._cond.release()
+        with self._cond:
+            self._called = True
+            self._cond.notify()
 
 class Callback(CallbackBase):
-    def response(self):
-        test(False)
-
-    def exception_baseAsBase(self, exc):
+    def exception_baseAsBase(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.Base as b:
             test(b.b == "Base.b")
             test(b.ice_id() == "::Test::Base")
@@ -51,9 +45,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_unknownDerivedAsBase(self, exc):
+    def exception_unknownDerivedAsBase(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.Base as b:
             test(b.b == "UnknownDerived.b")
             test(b.ice_id() == "::Test::Base")
@@ -61,9 +56,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_knownDerivedAsBase(self, exc):
+    def exception_knownDerivedAsBase(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownDerived as k:
             test(k.b == "KnownDerived.b")
             test(k.kd == "KnownDerived.kd")
@@ -72,9 +68,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_knownDerivedAsKnownDerived(self, exc):
+    def exception_knownDerivedAsKnownDerived(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownDerived as k:
             test(k.b == "KnownDerived.b")
             test(k.kd == "KnownDerived.kd")
@@ -83,9 +80,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_unknownIntermediateAsBase(self, exc):
+    def exception_unknownIntermediateAsBase(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.Base as b:
             test(b.b == "UnknownIntermediate.b")
             test(b.ice_id() == "::Test::Base")
@@ -93,9 +91,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_knownIntermediateAsBase(self, exc):
+    def exception_knownIntermediateAsBase(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownIntermediate as ki:
             test(ki.b == "KnownIntermediate.b")
             test(ki.ki == "KnownIntermediate.ki")
@@ -104,9 +103,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_knownMostDerivedAsBase(self, exc):
+    def exception_knownMostDerivedAsBase(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownMostDerived as kmd:
             test(kmd.b == "KnownMostDerived.b")
             test(kmd.ki == "KnownMostDerived.ki")
@@ -116,9 +116,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_knownIntermediateAsKnownIntermediate(self, exc):
+    def exception_knownIntermediateAsKnownIntermediate(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownIntermediate as ki:
             test(ki.b == "KnownIntermediate.b")
             test(ki.ki == "KnownIntermediate.ki")
@@ -127,9 +128,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_knownMostDerivedAsKnownMostDerived(self, exc):
+    def exception_knownMostDerivedAsKnownMostDerived(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownMostDerived as kmd:
             test(kmd.b == "KnownMostDerived.b")
             test(kmd.ki == "KnownMostDerived.ki")
@@ -139,9 +141,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_knownMostDerivedAsKnownIntermediate(self, exc):
+    def exception_knownMostDerivedAsKnownIntermediate(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownMostDerived as kmd:
             test(kmd.b == "KnownMostDerived.b")
             test(kmd.ki == "KnownMostDerived.ki")
@@ -151,9 +154,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_unknownMostDerived1AsBase(self, exc):
+    def exception_unknownMostDerived1AsBase(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownIntermediate as ki:
             test(ki.b == "UnknownMostDerived1.b")
             test(ki.ki == "UnknownMostDerived1.ki")
@@ -162,9 +166,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_unknownMostDerived1AsKnownIntermediate(self, exc):
+    def exception_unknownMostDerived1AsKnownIntermediate(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.KnownIntermediate as ki:
             test(ki.b == "UnknownMostDerived1.b")
             test(ki.ki == "UnknownMostDerived1.ki")
@@ -173,9 +178,10 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-    def exception_unknownMostDerived2AsBase(self, exc):
+    def exception_unknownMostDerived2AsBase(self, f):
         try:
-            raise exc
+            f.result()
+            test(False)
         except Test.Base as b:
             test(b.b == "UnknownMostDerived2.b")
             test(b.ice_id() == "::Test::Base")
@@ -235,7 +241,7 @@ def allTests(communicator):
     sys.stdout.write("base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_baseAsBase(cb.response, cb.exception_baseAsBase)
+    t.baseAsBaseAsync().add_done_callback(cb.exception_baseAsBase)
     cb.check()
     print("ok")
 
@@ -254,7 +260,7 @@ def allTests(communicator):
     sys.stdout.write("slicing of unknown derived (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_unknownDerivedAsBase(cb.response, cb.exception_unknownDerivedAsBase)
+    t.unknownDerivedAsBaseAsync().add_done_callback(cb.exception_unknownDerivedAsBase)
     cb.check()
     print("ok")
 
@@ -274,7 +280,7 @@ def allTests(communicator):
     sys.stdout.write("non-slicing of known derived as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_knownDerivedAsBase(cb.response, cb.exception_knownDerivedAsBase)
+    t.knownDerivedAsBaseAsync().add_done_callback(cb.exception_knownDerivedAsBase)
     cb.check()
     print("ok")
 
@@ -294,7 +300,7 @@ def allTests(communicator):
     sys.stdout.write("non-slicing of known derived as derived (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_knownDerivedAsKnownDerived(cb.response, cb.exception_knownDerivedAsKnownDerived)
+    t.knownDerivedAsKnownDerivedAsync().add_done_callback(cb.exception_knownDerivedAsKnownDerived)
     cb.check()
     print("ok")
 
@@ -313,7 +319,7 @@ def allTests(communicator):
     sys.stdout.write("slicing of unknown intermediate as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_unknownIntermediateAsBase(cb.response, cb.exception_unknownIntermediateAsBase)
+    t.unknownIntermediateAsBaseAsync().add_done_callback(cb.exception_unknownIntermediateAsBase)
     cb.check()
     print("ok")
 
@@ -333,7 +339,7 @@ def allTests(communicator):
     sys.stdout.write("slicing of known intermediate as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_knownIntermediateAsBase(cb.response, cb.exception_knownIntermediateAsBase)
+    t.knownIntermediateAsBaseAsync().add_done_callback(cb.exception_knownIntermediateAsBase)
     cb.check()
     print("ok")
 
@@ -354,7 +360,7 @@ def allTests(communicator):
     sys.stdout.write("slicing of known most derived as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_knownMostDerivedAsBase(cb.response, cb.exception_knownMostDerivedAsBase)
+    t.knownMostDerivedAsBaseAsync().add_done_callback(cb.exception_knownMostDerivedAsBase)
     cb.check()
     print("ok")
 
@@ -374,7 +380,7 @@ def allTests(communicator):
     sys.stdout.write("non-slicing of known intermediate as intermediate (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_knownIntermediateAsKnownIntermediate(cb.response, cb.exception_knownIntermediateAsKnownIntermediate)
+    t.knownIntermediateAsKnownIntermediateAsync().add_done_callback(cb.exception_knownIntermediateAsKnownIntermediate)
     cb.check()
     print("ok")
 
@@ -395,7 +401,7 @@ def allTests(communicator):
     sys.stdout.write("non-slicing of known most derived as intermediate (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_knownMostDerivedAsKnownIntermediate(cb.response, cb.exception_knownMostDerivedAsKnownIntermediate)
+    t.knownMostDerivedAsKnownIntermediateAsync().add_done_callback(cb.exception_knownMostDerivedAsKnownIntermediate)
     cb.check()
     print("ok")
 
@@ -416,7 +422,7 @@ def allTests(communicator):
     sys.stdout.write("non-slicing of known most derived as most derived (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_knownMostDerivedAsKnownMostDerived(cb.response, cb.exception_knownMostDerivedAsKnownMostDerived)
+    t.knownMostDerivedAsKnownMostDerivedAsync().add_done_callback(cb.exception_knownMostDerivedAsKnownMostDerived)
     cb.check()
     print("ok")
 
@@ -436,7 +442,7 @@ def allTests(communicator):
     sys.stdout.write("slicing of unknown most derived, known intermediate as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_unknownMostDerived1AsBase(cb.response, cb.exception_unknownMostDerived1AsBase)
+    t.unknownMostDerived1AsBaseAsync().add_done_callback(cb.exception_unknownMostDerived1AsBase)
     cb.check()
     print("ok")
 
@@ -456,7 +462,8 @@ def allTests(communicator):
     sys.stdout.write("slicing of unknown most derived, known intermediate as intermediate (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_unknownMostDerived1AsKnownIntermediate(cb.response, cb.exception_unknownMostDerived1AsKnownIntermediate)
+    t.unknownMostDerived1AsKnownIntermediateAsync().add_done_callback(
+        cb.exception_unknownMostDerived1AsKnownIntermediate)
     cb.check()
     print("ok")
 
@@ -475,7 +482,7 @@ def allTests(communicator):
     sys.stdout.write("slicing of unknown most derived, unknown intermediate as base (AMI)... ")
     sys.stdout.flush()
     cb = Callback()
-    t.begin_unknownMostDerived2AsBase(cb.response, cb.exception_unknownMostDerived2AsBase)
+    t.unknownMostDerived2AsBaseAsync().add_done_callback(cb.exception_unknownMostDerived2AsBase)
     cb.check()
     print("ok")
 
@@ -503,9 +510,38 @@ def allTests(communicator):
 
     sys.stdout.write("preserved exceptions... ")
     sys.stdout.flush()
-    adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default")
+
+    try:
+        t.unknownPreservedAsBase();
+        test(False);
+    except Test.Base as ex:
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(ex.ice_getSlicedData() is None)
+        else:
+            slicedData = ex.ice_getSlicedData();
+            test(slicedData);
+            test(len(slicedData.slices) == 2);
+            test(slicedData.slices[1].typeId == "::Test::SPreserved1");
+            test(slicedData.slices[0].typeId == "::Test::SPreserved2");
+
+    try:
+        t.unknownPreservedAsKnownPreserved();
+        test(False);
+    except Test.KnownPreserved as ex:
+        test(ex.kp == "preserved")
+        if t.ice_getEncodingVersion() == Ice.Encoding_1_0:
+            test(ex.ice_getSlicedData() is None)
+        else:
+            slicedData = ex.ice_getSlicedData();
+            test(slicedData);
+            test(len(slicedData.slices) == 2);
+            test(slicedData.slices[1].typeId == "::Test::SPreserved1");
+            test(slicedData.slices[0].typeId == "::Test::SPreserved2");
+
+    adapter = communicator.createObjectAdapter("")
     relay = Test.RelayPrx.uncheckedCast(adapter.addWithUUID(RelayI()))
     adapter.activate()
+    t.ice_getConnection().setAdapter(adapter)
 
     try:
         t.relayKnownPreservedAsBase(relay)

@@ -4,14 +4,19 @@
     <file name="classes/test/Slice/generation/Test/_Interface1Operations.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface1OperationsNC.java"/>
     <file name="classes/test/Slice/generation/Test/_Marker.java"/>
+    <file name="classes/test/Slice/generation/modpkg/Test2/_Marker.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1.java"/>
+    <file name="classes/test/Slice/generation/modpkg/Test2/Class1.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1Holder.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1PrxHolder.java"/>
+    <file name="classes/test/Slice/generation/modpkg/Test2/Class1Holder.java"/>
+    <file name="classes/test/Slice/generation/modpkg/Test2/Class1PrxHolder.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1PrxHelper.java"/>
+    <file name="classes/test/Slice/generation/modpkg/Test2/Class1PrxHelper.java"/>
     <file name="classes/test/Slice/generation/Test/Interface1Prx.java"/>
+    <file name="classes/test/Slice/generation/modpkg/Test2/Class1Prx.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface1Disp.java"/>
     <file name="classes/test/Slice/generation/Test/Callback_Interface1_method.java"/>
-    <output></output>
   </source>
   <source name="File2.ice">
     <file name="classes/test/Slice/generation/Test/_Interface2Operations.java"/>
@@ -24,6 +29,5 @@
     <file name="classes/test/Slice/generation/Test/Interface2Prx.java"/>
     <file name="classes/test/Slice/generation/Test/_Interface2Disp.java"/>
     <file name="classes/test/Slice/generation/Test/Callback_Interface2_method.java"/>
-    <output></output>
   </source>
 </generated>

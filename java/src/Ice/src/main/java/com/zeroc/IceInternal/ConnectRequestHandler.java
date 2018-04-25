@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -96,14 +96,20 @@ public class ConnectRequestHandler
     synchronized public com.zeroc.Ice.ConnectionI
     getConnection()
     {
-        if(_exception != null)
-        {
-            throw (com.zeroc.Ice.LocalException)_exception.fillInStackTrace();
-        }
-        else
+        //
+        // First check for the connection, it's important otherwise the user could first get a connection
+        // and then the exception if he tries to obtain the proxy cached connection mutiple times (the
+        // exception can be set after the connection is set if the flush of pending requests fails).
+        //
+        if(_connection != null)
         {
             return _connection;
         }
+        else if(_exception != null)
+        {
+            throw (com.zeroc.Ice.LocalException)_exception.fillInStackTrace();
+        }
+        return null;
     }
 
     //
@@ -116,7 +122,7 @@ public class ConnectRequestHandler
     {
         synchronized(this)
         {
-            assert(_exception == null && _connection == null);
+            assert(!_flushing && _exception == null && _connection == null);
             _connection = connection;
             _compress = compress;
         }
@@ -138,19 +144,20 @@ public class ConnectRequestHandler
     }
 
     @Override
-    public synchronized void
+    public void
     setException(final com.zeroc.Ice.LocalException ex)
     {
-        assert(!_initialized && _exception == null);
-        _exception = ex;
-        _proxies.clear();
-        _proxy = null; // Break cyclic reference count.
+        synchronized(this)
+        {
+            assert(!_flushing && !_initialized && _exception == null);
+            _exception = ex;
+            _flushing = true; // Ensures request handler is removed before processing new requests.
+        }
 
         //
-        // NOTE: remove the request handler *before* notifying the
-        // requests that the connection failed. It's important to ensure
-        // that future invocations will obtain a new connect request
-        // handler once invocations are notified.
+        // NOTE: remove the request handler *before* notifying the requests that the connection
+        // failed. It's important to ensure that future invocations will obtain a new connect
+        // request handler once invocations are notified.
         //
         try
         {
@@ -169,8 +176,15 @@ public class ConnectRequestHandler
             }
         }
         _requests.clear();
-        notifyAll();
-    }
+
+        synchronized(this)
+        {
+            _flushing = false;
+            _proxies.clear();
+            _proxy = null; // Break cyclic reference count.
+            notifyAll();
+        }
+     }
 
     //
     // Implementation of RouterInfo.AddProxyCallback
@@ -222,7 +236,7 @@ public class ConnectRequestHandler
             // only true for a short period of time.
             //
             boolean interrupted = false;
-            while(_flushing && _exception == null)
+            while(_flushing)
             {
                 try
                 {
@@ -343,7 +357,7 @@ public class ConnectRequestHandler
             }
             for(com.zeroc.Ice._ObjectPrxI proxy : _proxies)
             {
-                proxy.__updateRequestHandler(previous, _requestHandler);
+                proxy._updateRequestHandler(previous, _requestHandler);
             }
         }
 

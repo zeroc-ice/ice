@@ -1,14 +1,14 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-top_srcdir	:= ..
-lang_srcdir	:= $(top_srcdir)/php
+top_srcdir      := ..
+lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST))))))
 
 include $(top_srcdir)/config/Make.rules
 
@@ -23,18 +23,16 @@ $(eval $(call load-dependencies,$(addprefix $(top_srcdir)/cpp/src/,Ice IceSSL Ic
 #
 include $(lang_srcdir)/config/Make.rules
 
+ifeq ($(filter all php,$(ICE_BIN_DIST)),)
+
 #
 # Load Makefile.mk fragments
 #
 ifeq ($(filter tests,$(MAKECMDGOALS)),)
-    ifneq ($(shell type $(PHP_CONFIG) > /dev/null 2>&1 && echo 0),0)
-        $(error $(PHP_CONFIG) not found review your PHP installation and ensure $(PHP_CONFIG) is in your PATH)
+    ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 70000 ] && echo 0),0)
+        include $(lang_srcdir)/src/php5/Makefile.mk
     else
-        ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 70000 ] && echo 0),0)
-            include $(lang_srcdir)/src/php5/Makefile.mk
-        else
-            include $(lang_srcdir)/src/php7/Makefile.mk
-        endif
+        include $(lang_srcdir)/src/php7/Makefile.mk
     endif
 endif
 
@@ -46,7 +44,12 @@ $(call make-projects,$(projects))
 
 install:: | $(DESTDIR)$(install_phpdir)
 	$(E) "Installing generated code"
-	$(Q)$(INSTALL) lib/*.php $(DESTDIR)$(install_phpdir)
+	$(Q)$(INSTALL) -m 644 lib/Glacier2.php  lib/IceBox.php  lib/IceGrid.php lib/IcePatch2.php lib/IceStorm.php $(DESTDIR)$(install_phpdir)
+ifeq ($(USE_NAMESPACES),no)
+	$(Q)$(INSTALL) -m 644 lib/Ice_no_ns.php $(DESTDIR)$(install_phpdir)/Ice.php
+else
+	$(Q)$(INSTALL) -m 644 lib/Ice_ns.php $(DESTDIR)$(install_phpdir)/Ice.php
+endif
 
 $(eval $(call make-php-package,$(slicedir),lib,Ice))
 $(eval $(call make-php-package,$(slicedir),lib,Glacier2))
@@ -55,9 +58,11 @@ $(eval $(call make-php-package,$(slicedir),lib,IceGrid))
 $(eval $(call make-php-package,$(slicedir),lib,IcePatch2))
 $(eval $(call make-php-package,$(slicedir),lib,IceStorm))
 
+endif
+
 #
 # Translate the Slice files from test directories
 #
-tests := $(tests-without-project-makefile)
+tests := $(call tests-without-project-makefile,php)
 include $(shell find test -name Makefile.mk)
 $(foreach t,$(tests),$(eval $(call make-php-test-project,$(t))))

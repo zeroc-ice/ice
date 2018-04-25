@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,31 +27,31 @@ public class Client extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.interrupt");
         //
         // We need to enable the ThreadInterruptSafe property so that Ice is
         // interrupt safe for this test.
         //
-        r.initData.properties.setProperty("Ice.ThreadInterruptSafe", "1");
+        initData.properties.setProperty("Ice.ThreadInterruptSafe", "1");
         //
         // We need to send messages large enough to cause the transport
         // buffers to fill up.
         //
-        r.initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
         //
         // Retry up to 2 times, sleep 1s for the last retry. This is
         // useful to test interrupting the retry sleep
         //
-        r.initData.properties.setProperty("Ice.RetryIntervals", "0 1000");
+        initData.properties.setProperty("Ice.RetryIntervals", "0 1000");
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        r.initData.properties.setProperty("Ice.TCP.SndSize", "50000");
-        return r;
+        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        return initData;
     }
 
     public static void main(String[] args)

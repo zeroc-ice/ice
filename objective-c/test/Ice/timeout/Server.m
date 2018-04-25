@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,11 +14,17 @@
 static int
 run(id<ICECommunicator> communicator)
 {
-    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010:udp"];
+    [[communicator getProperties] setProperty:@"TestAdapter.Endpoints" value:@"default -p 12010"];
+    [[communicator getProperties] setProperty:@"ControllerAdapter.Endpoints" value:@"default -p 12011"];
+    [[communicator getProperties] setProperty:@"ControllerAdapter.ThreadPool.Size" value:@"1"];
+
     id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@"TestAdapter"];
-    ICEObject* object = [TimeoutI timeout];
-    [adapter add:object identity:[ICEUtil stringToIdentity:@"timeout"]];
+    [adapter add:[TimeoutI timeout] identity:[ICEUtil stringToIdentity:@"timeout"]];
     [adapter activate];
+
+    id<ICEObjectAdapter> controllerAdapter = [communicator createObjectAdapter:@"ControllerAdapter"];
+    [controllerAdapter add:[TimeoutControllerI controller:adapter] identity:[ICEUtil stringToIdentity:@"controller"]];
+    [controllerAdapter activate];
 
     serverReady(communicator);
 
@@ -35,7 +41,9 @@ main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);
-#if TARGET_OS_IPHONE
+    ICEregisterIceWS(YES);
+    ICEregisterIceUDP(YES);
+#if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
     ICEregisterIceIAP(YES);
 #endif
 #endif
@@ -61,13 +69,19 @@ main(int argc, char* argv[])
             [initData.properties setProperty:@"Ice.Warn.Connections" value:@"0"];
 
             //
+            // The client sends large messages to cause the transport
+            // buffers to fill up.
+            //
+            [initData.properties setProperty:@"Ice.MessageSizeMax" value:@"20000"];
+
+            //
             // Limit the send buffer size, this test relies on the socket
             // send() blocking after sending a given amount of data.
             //
             [initData.properties setProperty:@"Ice.TCP.RcvSize" value:@"50000"];
 
 #if TARGET_OS_IPHONE
-            initData.prefixTable__ = [NSDictionary dictionaryWithObjectsAndKeys:
+            initData.prefixTable_ = [NSDictionary dictionaryWithObjectsAndKeys:
                                       @"TestTimeout", @"::Test",
                                       nil];
 #endif
@@ -83,15 +97,7 @@ main(int argc, char* argv[])
 
         if(communicator)
         {
-            @try
-            {
-                [communicator destroy];
-            }
-            @catch(ICEException* ex)
-            {
-            tprintf("%@\n", ex);
-                status = EXIT_FAILURE;
-            }
+            [communicator destroy];
         }
     }
     return status;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -40,9 +40,9 @@ public:
     virtual void syncApplicationWithoutRestart(const ApplicationDescriptor&, const Ice::Current&);
     virtual void updateApplicationWithoutRestart(const ApplicationUpdateDescriptor&, const Ice::Current&);
     virtual void removeApplication(const std::string&, const Ice::Current&);
-    virtual void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&, 
+    virtual void instantiateServer(const std::string&, const std::string&, const ServerInstanceDescriptor&,
                                    const Ice::Current&);
-    virtual void patchApplication_async(const AMD_Admin_patchApplicationPtr&, const std::string&, bool, 
+    virtual void patchApplication_async(const AMD_Admin_patchApplicationPtr&, const std::string&, bool,
                                         const Ice::Current&);
     virtual ApplicationInfo getApplicationInfo(const ::std::string&, const Ice::Current&) const;
     virtual ApplicationDescriptor getDefaultApplicationDescriptor(const Ice::Current&) const;
@@ -95,7 +95,7 @@ public:
 private:
 
     void checkIsReadOnly() const;
-    
+
     const DatabasePtr _database;
     const RegistryIPtr _registry;
     const TraceLevelsPtr _traceLevels;

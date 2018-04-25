@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,7 +17,6 @@ IceUtil::Shared* IceInternal::upCast(EndpointI* p) { return p; }
 IceUtil::Shared* IceInternal::upCast(EndpointI_connectors* p) { return p; }
 #endif
 
-
 IceInternal::EndpointI_connectors::~EndpointI_connectors()
 {
     // Out of line to avoid weak vtable
@@ -32,7 +31,7 @@ IceInternal::EndpointI::streamWrite(Ice::OutputStream* s) const
 }
 
 string
-IceInternal::EndpointI::toString() const
+IceInternal::EndpointI::toString() const ICE_NOEXCEPT
 {
     //
     // WARNING: Certain features, such as proxy validation in Glacier2,

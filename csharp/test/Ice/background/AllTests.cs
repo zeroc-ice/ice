@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -193,15 +193,16 @@ public class AllTests
         private Thread _thread;
     }
 
-    public static Test.BackgroundPrx allTests(Ice.Communicator communicator)
+    public static Test.BackgroundPrx allTests(TestCommon.Application app)
     {
-        string sref = "background:default -p 12010";
+        Ice.Communicator communicator = app.communicator();
+        string sref = "background:" + app.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         BackgroundPrx background = BackgroundPrxHelper.uncheckedCast(obj);
 
-        sref = "backgroundController:tcp -p 12011";
+        sref = "backgroundController:" + app.getTestEndpoint(1, "tcp");
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -241,7 +242,7 @@ public class AllTests
         Console.Out.Flush();
         {
             Ice.LocatorPrx locator;
-            obj = communicator.stringToProxy("locator:default -p 12010").ice_invocationTimeout(250);
+            obj = communicator.stringToProxy("locator:" + app.getTestEndpoint(0)).ice_invocationTimeout(250);
             locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_locator(locator).ice_oneway();
 
@@ -256,7 +257,7 @@ public class AllTests
             }
             backgroundController.resumeCall("findAdapterById");
 
-            obj = communicator.stringToProxy("locator:default -p 12010");
+            obj = communicator.stringToProxy("locator:" + app.getTestEndpoint(0));
             locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
             obj = obj.ice_locator(locator);
             obj.ice_ping();
@@ -282,7 +283,7 @@ public class AllTests
         {
             Ice.RouterPrx router;
 
-            obj = communicator.stringToProxy("router:default -p 12010").ice_invocationTimeout(250);
+            obj = communicator.stringToProxy("router:" + app.getTestEndpoint(0)).ice_invocationTimeout(250);
             router = Ice.RouterPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router).ice_oneway();
 
@@ -297,7 +298,7 @@ public class AllTests
             }
             backgroundController.resumeCall("getClientProxy");
 
-            obj = communicator.stringToProxy("router:default -p 12010");
+            obj = communicator.stringToProxy("router:" + app.getTestEndpoint(0));
             router = Ice.RouterPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router);
             BackgroundPrx bg = BackgroundPrxHelper.uncheckedCast(obj);
@@ -326,7 +327,7 @@ public class AllTests
             configuration.buffered(true);
             backgroundController.buffered(true);
             background.begin_op();
-            background.ice_getCachedConnection().close(true);
+            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
             background.begin_op();
 
             OpAMICallback cb = new OpAMICallback();
@@ -366,7 +367,7 @@ public class AllTests
             System.Console.Out.WriteLine(ex);
             test(false);
         }
-        background.ice_getConnection().close(false);
+        background.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
         for(int i = 0; i < 4; ++i)
         {
@@ -419,36 +420,45 @@ public class AllTests
 
         OpThread thread1 = new OpThread(background);
         OpThread thread2 = new OpThread(background);
-
-        for(int i = 0; i < 5; i++)
+        try
         {
-            try
+            for(int i = 0; i < 5; i++)
             {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
-                test(false);
-            }
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                    test(false);
+                }
 
-            configuration.connectException(new Ice.SocketException());
-            background.ice_getCachedConnection().close(true);
-            Thread.Sleep(10);
-            configuration.connectException(null);
-            try
-            {
-                background.ice_ping();
-            }
-            catch(Ice.LocalException)
-            {
+                configuration.connectException(new Ice.SocketException());
+                background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
+                Thread.Sleep(10);
+                configuration.connectException(null);
+                try
+                {
+                    background.ice_ping();
+                }
+                catch(Ice.LocalException)
+                {
+                }
             }
         }
+        catch(Exception ex)
+        {
+            System.Console.Out.WriteLine(ex);
+            test(false);
+        }
+        finally
+        {
+            thread1.destroy();
+            thread2.destroy();
 
-        thread1.destroy();
-        thread2.destroy();
-
-        thread1.Join();
-        thread2.Join();
+            thread1.Join();
+            thread2.Join();
+        }
     }
 
     private static void initializeTests(Configuration configuration, Test.BackgroundPrx background,
@@ -462,7 +472,7 @@ public class AllTests
         {
             test(false);
         }
-        background.ice_getConnection().close(false);
+        background.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 
         for(int i = 0; i < 4; ++i)
         {
@@ -543,7 +553,7 @@ public class AllTests
             }
 
             configuration.initializeException(new Ice.SocketException());
-            background.ice_getCachedConnection().close(true);
+            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
             Thread.Sleep(10);
             configuration.initializeException(null);
             try
@@ -562,11 +572,11 @@ public class AllTests
                 test(false);
             }
 
-            background.ice_getCachedConnection().close(true);
+            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
             background.ice_ping();
 
             ctl.initializeException(true);
-            background.ice_getCachedConnection().close(true);
+            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
             Thread.Sleep(10);
             ctl.initializeException(false);
             try
@@ -587,7 +597,7 @@ public class AllTests
 
             try
             {
-                background.ice_getCachedConnection().close(true);
+                background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
                 background.op();
             }
             catch(Ice.LocalException)
@@ -619,7 +629,7 @@ public class AllTests
     {
         CloseCallback cb = new CloseCallback();
         prx.ice_getConnection().setCloseCallback(cb.closed);
-        prx.ice_getConnection().close(false);
+        prx.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
         cb.check();
     }
 
@@ -822,7 +832,7 @@ public class AllTests
         // in the flush to report a CloseConnectionException). Instead we flush a second time
         // with the same callback to wait for the first flush to complete.
         //
-        //backgroundBatchOneway.ice_getConnection().close(false);
+        //backgroundBatchOneway.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
         backgroundBatchOneway.end_ice_flushBatchRequests(r3);
         closeConnection(backgroundBatchOneway);
     }
@@ -1158,10 +1168,10 @@ public class AllTests
             Thread.Sleep(10);
 
             background.ice_ping();
-            background.ice_getCachedConnection().close(true);
+            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
             Thread.Sleep(10);
 
-            background.ice_getCachedConnection().close(true);
+            background.ice_getCachedConnection().close(Ice.ConnectionClose.Forcefully);
         }
 
         thread1.destroy();

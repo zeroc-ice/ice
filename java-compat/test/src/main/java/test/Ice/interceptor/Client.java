@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -36,22 +36,22 @@ public class Client extends test.Util.Application
         test(!interceptor.getLastStatus());
         prx.ice_ping();
         test(interceptor.getLastOperation().equals("ice_ping"));
-        test(!interceptor.getLastStatus());
+        test(interceptor.getLastStatus());
         String typeId = prx.ice_id();
         test(interceptor.getLastOperation().equals("ice_id"));
-        test(!interceptor.getLastStatus());
+        test(interceptor.getLastStatus());
         test(prx.ice_isA(typeId));
         test(interceptor.getLastOperation().equals("ice_isA"));
-        test(!interceptor.getLastStatus());
+        test(interceptor.getLastStatus());
         test(prx.add(33, 12) == 45);
         test(interceptor.getLastOperation().equals("add"));
-        test(!interceptor.getLastStatus());
+        test(interceptor.getLastStatus());
         out.println("ok");
         out.print("testing retry... ");
         out.flush();
         test(prx.addWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().equals("addWithRetry"));
-        test(!interceptor.getLastStatus());
+        test(interceptor.getLastStatus());
         out.println("ok");
         out.print("testing user exception... ");
         out.flush();
@@ -65,7 +65,7 @@ public class Client extends test.Util.Application
             // expected
         }
         test(interceptor.getLastOperation().equals("badAdd"));
-        test(!interceptor.getLastStatus());
+        test(interceptor.getLastStatus());
         out.println("ok");
         out.print("testing ONE... ");
         out.flush();
@@ -80,7 +80,6 @@ public class Client extends test.Util.Application
             // expected
         }
         test(interceptor.getLastOperation().equals("notExistAdd"));
-        test(!interceptor.getLastStatus());
         out.println("ok");
         out.print("testing system exception... ");
         out.flush();
@@ -103,14 +102,13 @@ public class Client extends test.Util.Application
             test(false);
         }
         test(interceptor.getLastOperation().equals("badSystemAdd"));
-        test(!interceptor.getLastStatus());
         out.println("ok");
 
         out.print("testing simple AMD... ");
         out.flush();
         test(prx.amdAdd(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAdd"));
-        test(interceptor.getLastStatus());
+        test(!interceptor.getLastStatus());
         out.println("ok");
 
         return 0;
@@ -125,13 +123,13 @@ public class Client extends test.Util.Application
         test(!interceptor.getLastStatus());
         test(prx.amdAdd(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAdd"));
-        test(interceptor.getLastStatus());
+        test(!interceptor.getLastStatus());
         out.println("ok");
         out.print("testing retry... ");
         out.flush();
         test(prx.amdAddWithRetry(33, 12) == 45);
         test(interceptor.getLastOperation().equals("amdAddWithRetry"));
-        test(interceptor.getLastStatus());
+        test(!interceptor.getLastStatus());
         out.println("ok");
         out.print("testing user exception... ");
         out.flush();
@@ -145,7 +143,7 @@ public class Client extends test.Util.Application
             // expected
         }
         test(interceptor.getLastOperation().equals("amdBadAdd"));
-        test(interceptor.getLastStatus());
+        test(!interceptor.getLastStatus());
         out.println("ok");
         out.print("testing ONE... ");
         out.flush();
@@ -160,7 +158,7 @@ public class Client extends test.Util.Application
             // expected
         }
         test(interceptor.getLastOperation().equals("amdNotExistAdd"));
-        test(interceptor.getLastStatus());
+        test(!interceptor.getLastStatus());
         test(interceptor.getException() instanceof Ice.ObjectNotExistException);
         out.println("ok");
         out.print("testing system exception... ");
@@ -184,7 +182,7 @@ public class Client extends test.Util.Application
             test(false);
         }
         test(interceptor.getLastOperation().equals("amdBadSystemAdd"));
-        test(interceptor.getLastStatus());
+        test(!interceptor.getLastStatus());
         test(interceptor.getException() instanceof MySystemException);
         out.println("ok");
         return 0;
@@ -242,12 +240,10 @@ public class Client extends test.Util.Application
         return rs;
     }
 
-
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData() ;
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.interceptor");
         return initData;
     }
@@ -260,6 +256,3 @@ public class Client extends test.Util.Application
         System.exit(status);
     }
 }
-
-
-

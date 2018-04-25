@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,24 +16,21 @@ using namespace Ice;
 using namespace IceInternal;
 
 void
-IceInternal::ValueFactoryManagerI::add(ICE_IN(ICE_VALUE_FACTORY) factory, const string& id)
+IceInternal::ValueFactoryManagerI::add(ICE_IN(ICE_DELEGATE(ValueFactory)) factory, const string& id)
 {
     IceUtil::Mutex::Lock sync(*this);
 
     if((_factoryMapHint != _factoryMap.end() && _factoryMapHint->first == id)
        || _factoryMap.find(id) != _factoryMap.end())
     {
-        AlreadyRegisteredException ex(__FILE__, __LINE__);
-        ex.kindOfObject = "value factory";
-        ex.id = id;
-        throw ex;
+        throw AlreadyRegisteredException(__FILE__, __LINE__, "value factory", id);
     }
 
-    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ICE_VALUE_FACTORY>(id, factory));
+    _factoryMapHint = _factoryMap.insert(_factoryMapHint, pair<const string, ICE_DELEGATE(ValueFactory)>(id, factory));
 }
 
-ICE_VALUE_FACTORY
-IceInternal::ValueFactoryManagerI::find(const string& id) const
+ICE_DELEGATE(ValueFactory)
+IceInternal::ValueFactoryManagerI::find(const string& id) const ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 

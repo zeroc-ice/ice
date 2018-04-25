@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,8 +14,7 @@ public class Collocated extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010:udp");
-        java.io.PrintWriter out = getWriter();
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.ObjectPrx prx = adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
         //adapter.activate(); // Don't activate OA to ensure collocation is used.
@@ -25,7 +24,7 @@ public class Collocated extends test.Util.Application
             throw new RuntimeException();
         }
 
-        AllTests.allTests(this, out);
+        AllTests.allTests(this);
 
         return 0;
     }
@@ -33,8 +32,7 @@ public class Collocated extends test.Util.Application
     @Override
     protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
     {
-        Ice.InitializationData initData = createInitializationData();
-        initData.properties = Ice.Util.createProperties(argsH);
+        Ice.InitializationData initData = super.getInitData(argsH);
         if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0 || isAndroid())
         {
             initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");

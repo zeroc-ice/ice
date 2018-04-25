@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,6 +18,7 @@ public class Collocated extends test.Util.Application
         com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
 
         adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+        adapter.add(new TestII(), com.zeroc.Ice.Util.stringToIdentity("test2"));
         //adapter.activate(); // Collocated test doesn't need to activate the OA
         adapter2.add(new TestControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("testController"));
         //adapter2.activate(); // Collocated test doesn't need to activate the OA
@@ -27,15 +28,15 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
-        r.initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010");
-        r.initData.properties.setProperty("ControllerAdapter.Endpoints", "default -p 12011");
-        r.initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-        r.initData.properties.setProperty("Ice.Warn.AMICallback", "0");
-        return r;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
+        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
+        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1));
+        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+        return initData;
     }
 
     public static void main(String[] args)

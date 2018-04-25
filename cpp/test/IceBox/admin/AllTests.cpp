@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -116,7 +116,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         views = ma->getMetricsViewNames(disabledViews);
         test(views.size() == 3);
-        
+
         // Make sure that the IceBox communicator metrics admin is a separate instance.
 #ifdef ICE_CPP11_MAPPING
         test(Ice::checkedCast<IceMX::MetricsAdminPrx>(admin, "Metrics")->getMetricsViewNames(disabledViews).empty());

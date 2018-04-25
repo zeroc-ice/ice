@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #include <IceUtil/Random.h>
 #include <IceUtil/IceUtil.h>
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <TestCommon.h>
 #include <CallbackI.h>
@@ -65,7 +65,7 @@ public:
 private:
 
     bool _haveResponse;
-    IceUtil::UniquePtr<Exception> _ex;
+    IceInternal::UniquePtr<Exception> _ex;
     Int _response;
 };
 typedef IceUtil::Handle<AsyncCallback> AsyncCallbackPtr;
@@ -82,7 +82,7 @@ public:
     void run()
     {
         CommunicatorPtr communicator = initialize(initData);
-        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
+        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator, 50));
         Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
         communicator->setDefaultRouter(router);
 
@@ -109,10 +109,9 @@ public:
         ident.category = category;
         CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
 
-        ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010");
+        ObjectPrx base = communicator->stringToProxy("c1/callback:" + getTestEndpoint(communicator, 0));
         base = base->ice_oneway();
         CallbackPrx callback = CallbackPrx::uncheckedCast(base);
-
 
         //
         // Block the CallbackReceiver in wait() to prevent the client from
@@ -189,7 +188,7 @@ public:
     void run()
     {
         CommunicatorPtr communicator = initialize(initData);
-        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:default -p 12347");
+        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator, 50));
         _router = Glacier2::RouterPrx::checkedCast(routerBase);
         communicator->setDefaultRouter(_router);
 
@@ -207,7 +206,7 @@ public:
         ident.category = category;
         CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
 
-        ObjectPrx base = communicator->stringToProxy("c1/callback:tcp -p 12010");
+        ObjectPrx base = communicator->stringToProxy("c1/callback:" + getTestEndpoint(communicator, 0));
         base = base->ice_oneway();
         CallbackPrx callback = CallbackPrx::uncheckedCast(base);
 
@@ -419,16 +418,12 @@ public:
 int
 main(int argc, char* argv[])
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-#endif
-
     //
     // We must disable connection warnings, because we attempt to ping
     // the router before session establishment, as well as after
     // session destruction. Both will cause a ConnectionLostException.
     //
-    initData.properties = Ice::createProperties(argc, argv);
+    initData = getTestInitData(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
 
     CallbackClient app;
@@ -442,7 +437,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
         cout << "testing stringToProxy for router... " << flush;
-        routerBase = communicator()->stringToProxy("Glacier2/router:default -p 12347");
+        routerBase = communicator()->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator(), 50));
         cout << "ok" << endl;
     }
 
@@ -458,7 +453,8 @@ CallbackClient::run(int argc, char* argv[])
     {
         cout << "testing router finder... " << flush;
         Ice::RouterFinderPrx finder =
-            RouterFinderPrx::uncheckedCast(communicator()->stringToProxy("Ice/RouterFinder:default -p 12347"));
+            RouterFinderPrx::uncheckedCast(communicator()->stringToProxy("Ice/RouterFinder:" +
+                                                                         getTestEndpoint(communicator(), 50)));
         test(finder->getRouter()->ice_getIdentity() == router->ice_getIdentity());
         cout << "ok" << endl;
     }
@@ -480,7 +476,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
         cout << "testing stringToProxy for server object... " << flush;
-        base = communicator()->stringToProxy("c1/callback:tcp -p 12010");
+        base = communicator()->stringToProxy("c1/callback:" + getTestEndpoint(communicator(), 0));
         cout << "ok" << endl;
     }
 
@@ -555,6 +551,19 @@ CallbackClient::run(int argc, char* argv[])
     {
         cout << "pinging server after session creation... " << flush;
         base->ice_ping();
+        cout << "ok" << endl;
+    }
+
+    {
+        cout << "pinging object with client endpoint... " << flush;
+        Ice::ObjectPrx baseC = communicator()->stringToProxy("collocated:" + getTestEndpoint(communicator(), 50));
+        try
+        {
+            baseC->ice_ping();
+        }
+        catch(const Ice::ObjectNotExistException&)
+        {
+        }
         cout << "ok" << endl;
     }
 
@@ -845,10 +854,10 @@ CallbackClient::run(int argc, char* argv[])
             (*q)->getThreadControl().join();
         }
 
-
         cout << "ok" << endl;
     }
 
+    if(argc >= 2 && strcmp(argv[1], "--shutdown") == 0)
     {
         cout << "testing server shutdown... " << flush;
         twoway->shutdown();
@@ -876,8 +885,9 @@ CallbackClient::run(int argc, char* argv[])
         {
             router->destroySession();
         }
-        catch(const Ice::LocalException&)
+        catch(const Ice::LocalException& ex)
         {
+            cerr << ex << endl;
             test(false);
         }
         cout << "ok" << endl;
@@ -908,7 +918,8 @@ CallbackClient::run(int argc, char* argv[])
 
         {
             cout << "testing stringToProxy for admin process facet... " << flush;
-            processBase = communicator()->stringToProxy("Glacier2/admin -f Process:tcp -h 127.0.0.1 -p 12348");
+            processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
+                                                        getTestEndpoint(communicator(), 51));
             cout << "ok" << endl;
         }
 

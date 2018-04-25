@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,7 +26,7 @@ public final class ProxyFactory
         if(proxy != null)
         {
             Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
-            return h.__reference().toString();
+            return h._getReference().toString();
         }
         else
         {
@@ -48,7 +48,7 @@ public final class ProxyFactory
         if(proxy != null)
         {
             Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase)proxy;
-            return h.__reference().toProperty(prefix);
+            return h._getReference().toProperty(prefix);
         }
         else
         {
@@ -60,7 +60,7 @@ public final class ProxyFactory
     streamToProxy(Ice.InputStream s)
     {
         Ice.Identity ident = new Ice.Identity();
-        ident.__read(s);
+        ident.ice_readMembers(s);
 
         Reference ref = _instance.referenceFactory().create(ident, s);
         return referenceToProxy(ref);
@@ -72,7 +72,7 @@ public final class ProxyFactory
         if(ref != null)
         {
             Ice.ObjectPrxHelperBase proxy = new Ice.ObjectPrxHelperBase();
-            proxy.__setup(ref);
+            proxy._setup(ref);
             return proxy;
         }
         else
@@ -187,10 +187,12 @@ public final class ProxyFactory
         }
 
         //
-        // Don't retry if the communicator is destroyed or object adapter
-        // deactivated.
+        // Don't retry if the communicator is destroyed, object adapter is deactivated,
+        // or connection is manually closed.
         //
-        if(ex instanceof Ice.CommunicatorDestroyedException || ex instanceof Ice.ObjectAdapterDeactivatedException)
+        if(ex instanceof Ice.CommunicatorDestroyedException ||
+           ex instanceof Ice.ObjectAdapterDeactivatedException ||
+           ex instanceof Ice.ConnectionManuallyClosedException)
         {
             throw ex;
         }

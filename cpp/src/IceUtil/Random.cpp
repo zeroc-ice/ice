@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,13 +38,13 @@ namespace
 // platforms is usually a port from Linux, this problem could be
 // widespread. Therefore, we serialize access to /dev/urandom using a
 // static mutex.
-// 
+//
 Mutex* staticMutex = 0;
 int fd = -1;
 
 //
-// Callback to use with pthread_atfork to reset the "/dev/urandom"  
-// fd state. We don't need to close the fd here as that is done 
+// Callback to use with pthread_atfork to reset the "/dev/urandom"
+// fd state. We don't need to close the fd here as that is done
 // during static destruction.
 //
 extern "C"
@@ -69,12 +69,12 @@ public:
         staticMutex = new IceUtil::Mutex;
 
         //
-        // Register a callback to reset the "/dev/urandom" fd 
+        // Register a callback to reset the "/dev/urandom" fd
         // state after fork.
         //
         pthread_atfork(0, 0, &childAtFork);
     }
-    
+
     ~Init()
     {
         if(fd != -1)
@@ -98,7 +98,7 @@ IceUtilInternal::generateRandom(char* buffer, size_t size)
 #ifdef _WIN32
     int i = 0;
     const size_t randSize = sizeof(unsigned int);
-    
+
     while(size - i >= randSize)
     {
         unsigned int r = 0;
@@ -107,7 +107,7 @@ IceUtilInternal::generateRandom(char* buffer, size_t size)
         {
             throw SyscallException(__FILE__, __LINE__, errno);
         }
-        memcpy(buffer + i, &r, randSize);   
+        memcpy(buffer + i, &r, randSize);
         i += randSize;
     }
 
@@ -120,7 +120,7 @@ IceUtilInternal::generateRandom(char* buffer, size_t size)
         {
             throw SyscallException(__FILE__, __LINE__, errno);
         }
-        memcpy(buffer + i, &r, size - i);   
+        memcpy(buffer + i, &r, size - i);
     }
 #else
     //
@@ -135,17 +135,17 @@ IceUtilInternal::generateRandom(char* buffer, size_t size)
             throw SyscallException(__FILE__, __LINE__, errno);
         }
     }
-    
+
     //
     // Limit the number of attempts to 20 reads to avoid
     // a potential "for ever" loop
     //
     int reads = 0;
-    size_t index = 0;    
+    size_t index = 0;
     while(reads <= 20 && index != size)
     {
         ssize_t bytesRead = read(fd, buffer + index, size - index);
-        
+
         if(bytesRead == -1 && errno != EINTR)
         {
             throw SyscallException(__FILE__, __LINE__, errno);
@@ -156,7 +156,7 @@ IceUtilInternal::generateRandom(char* buffer, size_t size)
             reads++;
         }
     }
-        
+
     if(index != size)
     {
         throw SyscallException(__FILE__, __LINE__, 0);

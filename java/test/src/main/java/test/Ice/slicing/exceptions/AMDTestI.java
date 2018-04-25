@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -234,7 +234,8 @@ public final class AMDTestI implements TestIntf
     {
         try
         {
-            r.knownPreservedAsBase();
+            RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+            p.knownPreservedAsBase();
             test(false);
             return null;
         }
@@ -257,7 +258,8 @@ public final class AMDTestI implements TestIntf
     {
         try
         {
-            r.knownPreservedAsKnownPreserved();
+            RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+            p.knownPreservedAsKnownPreserved();
             test(false);
             return null;
         }
@@ -308,7 +310,8 @@ public final class AMDTestI implements TestIntf
     {
         try
         {
-            r.unknownPreservedAsBase();
+            RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+            p.unknownPreservedAsBase();
             test(false);
             return null;
         }
@@ -331,7 +334,8 @@ public final class AMDTestI implements TestIntf
     {
         try
         {
-            r.unknownPreservedAsKnownPreserved();
+            RelayPrx p = RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+            p.unknownPreservedAsKnownPreserved();
             test(false);
             return null;
         }

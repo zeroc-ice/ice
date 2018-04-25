@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -11,15 +11,23 @@ namespace IceLocatorDiscovery
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.Threading;
     using System.Threading.Tasks;
+    using System.Text;
 
     public sealed class PluginFactory : Ice.PluginFactory
     {
         public Ice.Plugin
         create(Ice.Communicator communicator, string name, string[] args)
         {
-            return new PluginI(communicator);
+            return new PluginI(name, communicator);
         }
+    }
+
+    public interface Plugin : Ice.Plugin
+    {
+        List<Ice.LocatorPrx> getLocators(string instanceName, int waitTime);
     }
 
     internal class Request : TaskCompletionSource<Ice.Object_Ice_invokeResult>
@@ -40,9 +48,9 @@ namespace IceLocatorDiscovery
         public void
         invoke(Ice.LocatorPrx l)
         {
-            _locatorPrx = l;
-            try
+            if(_locatorPrx == null || !_locatorPrx.Equals(l))
             {
+                _locatorPrx = l;
                 l.ice_invokeAsync(_operation, _mode, _inParams, _context).ContinueWith(
                     (task) =>
                     {
@@ -56,9 +64,10 @@ namespace IceLocatorDiscovery
                         }
                     });
             }
-            catch(Ice.LocalException ex)
+            else
             {
-                exception(ex);
+                Debug.Assert(_exception != null);
+                throw _exception;
             }
         }
 
@@ -89,8 +98,9 @@ namespace IceLocatorDiscovery
             {
                 SetException(new Ice.ObjectNotExistException());
             }
-            catch(Exception)
+            catch(Exception exc)
             {
+                _exception = exc;
                 _locator.invoke(_locatorPrx, this); // Retry with new locator proxy
             }
         }
@@ -102,6 +112,7 @@ namespace IceLocatorDiscovery
         private readonly byte[] _inParams;
 
         private Ice.LocatorPrx _locatorPrx;
+        private Exception _exception;
     }
 
     internal class VoidLocatorI : Ice.LocatorDisp_
@@ -128,24 +139,65 @@ namespace IceLocatorDiscovery
     internal class LocatorI : Ice.BlobjectAsync, IceInternal.TimerTask
     {
         public
-        LocatorI(LookupPrx lookup, Ice.Properties properties, string instanceName, Ice.LocatorPrx voidLocator)
+        LocatorI(string name, LookupPrx lookup, Ice.Properties properties, string instanceName,
+                 Ice.LocatorPrx voidLocator)
         {
             _lookup = lookup;
-            _timeout = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Timeout", 300);
-            _retryCount = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryCount", 3);
-            _retryDelay = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.RetryDelay", 2000);
+            _timeout = properties.getPropertyAsIntWithDefault(name + ".Timeout", 300);
+            _retryCount = properties.getPropertyAsIntWithDefault(name + ".RetryCount", 3);
+            _retryDelay = properties.getPropertyAsIntWithDefault(name + ".RetryDelay", 2000);
             _timer = IceInternal.Util.getInstance(lookup.ice_getCommunicator()).timer();
+            _traceLevel = properties.getPropertyAsInt(name + ".Trace.Lookup");
             _instanceName = instanceName;
             _warned = false;
             _locator = lookup.ice_getCommunicator().getDefaultLocator();
             _voidLocator = voidLocator;
             _pendingRetryCount = 0;
+            _failureCount = 0;
+            _warnOnce = true;
+
+            //
+            // Create one lookup proxy per endpoint from the given proxy. We want to send a multicast
+            // datagram on each endpoint.
+            //
+            var single = new Ice.Endpoint[1];
+            foreach(var endpt in lookup.ice_getEndpoints())
+            {
+                single[0] = endpt;
+                _lookups[(LookupPrx)lookup.ice_endpoints(single)] = null;
+            }
+            Debug.Assert(_lookups.Count > 0);
         }
 
         public void
         setLookupReply(LookupReplyPrx lookupReply)
         {
-            _lookupReply = lookupReply;
+            //
+            // Use a lookup reply proxy whose adress matches the interface used to send multicast datagrams.
+            //
+            var single = new Ice.Endpoint[1];
+            foreach(var key in new List<LookupPrx>(_lookups.Keys))
+            {
+                var info = (Ice.UDPEndpointInfo)key.ice_getEndpoints()[0].getInfo();
+                if(info.mcastInterface.Length > 0)
+                {
+                    foreach(var q in lookupReply.ice_getEndpoints())
+                    {
+                        var r = q.getInfo();
+                        if(r is Ice.IPEndpointInfo && ((Ice.IPEndpointInfo)r).host.Equals(info.mcastInterface))
+                        {
+                            single[0] = q;
+                            _lookups[key] = (LookupReplyPrx)lookupReply.ice_endpoints(single);
+                        }
+                    }
+                }
+
+                if(_lookups[key] == null)
+                {
+                    // Fallback: just use the given lookup reply proxy if no matching endpoint found.
+                    _lookups[key] = lookupReply;
+                }
+            }
         }
 
         public override Task<Ice.Object_Ice_invokeResult>
@@ -159,6 +211,49 @@ namespace IceLocatorDiscovery
             }
         }
 
+        public List<Ice.LocatorPrx>
+        getLocators(String instanceName, int waitTime)
+        {
+            //
+            // Clear locators from previous search.
+            //
+            lock(this)
+            {
+                _locators.Clear();
+            }
+
+            //
+            // Find a locator
+            //
+            invoke(null, null);
+
+            //
+            // Wait for responses
+            //
+            if(instanceName.Length == 0)
+            {
+                Thread.Sleep(waitTime);
+            }
+            else
+            {
+                lock(this)
+                {
+                    while(!_locators.ContainsKey(instanceName) && _pendingRetryCount > 0)
+                    {
+                        Monitor.Wait(this, waitTime);
+                    }
+                }
+            }
+
+            //
+            // Return found locators
+            //
+            lock(this)
+            {
+                return new List<Ice.LocatorPrx>(_locators.Values);
+            }
+        }
+
         public void
         foundLocator(Ice.LocatorPrx locator)
         {
@@ -167,6 +262,13 @@ namespace IceLocatorDiscovery
                 if(locator == null ||
                    (_instanceName.Length > 0 && !locator.ice_getIdentity().category.Equals(_instanceName)))
                 {
+                    if(_traceLevel > 2)
+                    {
+                        StringBuilder s = new StringBuilder("ignoring locator reply: instance name doesn't match\n");
+                        s.Append("expected = ").Append(_instanceName);
+                        s.Append("received = ").Append(locator.ice_getIdentity().category);
+                        _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
+                    }
                     return;
                 }
 
@@ -174,7 +276,8 @@ namespace IceLocatorDiscovery
                 // If we already have a locator assigned, ensure the given locator
                 // has the same identity, otherwise ignore it.
                 //
-                if(_locator != null && !locator.ice_getIdentity().category.Equals(_locator.ice_getIdentity().category))
+                if(_pendingRequests.Count > 0 &&
+                   _locator != null && !locator.ice_getIdentity().category.Equals(_locator.ice_getIdentity().category))
                 {
                     if(!_warned)
                     {
@@ -198,13 +301,33 @@ namespace IceLocatorDiscovery
                     _pendingRetryCount = 0;
                 }
 
-                if(_locator != null)
+                if(_traceLevel > 0)
+                {
+                    StringBuilder s = new StringBuilder("locator lookup succeeded:\nlocator = ");
+                    s.Append(locator);
+                    if(_instanceName.Length == 0)
+                    {
+                        s.Append("\ninstance name = ").Append(_instanceName);
+                    }
+                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
+                }
+
+                Ice.LocatorPrx l = null;
+                if(_pendingRequests.Count == 0)
+                {
+                    _locators.TryGetValue(locator.ice_getIdentity().category, out _locator);
+                }
+                else
+                {
+                    l = _locator;
+                }
+                if(l != null)
                 {
                     //
                     // We found another locator replica, append its endpoints to the
                     // current locator proxy endpoints.
                     //
-                    List<Ice.Endpoint> newEndpoints = new List<Ice.Endpoint>(_locator.ice_getEndpoints());
+                    List<Ice.Endpoint> newEndpoints = new List<Ice.Endpoint>(l.ice_getEndpoints());
                     foreach(Ice.Endpoint p in locator.ice_getEndpoints())
                     {
                         //
@@ -224,25 +347,35 @@ namespace IceLocatorDiscovery
                             newEndpoints.Add(p);
                         }
                     }
-                    _locator = (Ice.LocatorPrx) _locator.ice_endpoints(newEndpoints.ToArray());
+                    l = (Ice.LocatorPrx)l.ice_endpoints(newEndpoints.ToArray());
                 }
                 else
                 {
-                    _locator = locator;
+                    l = locator;
+                }
+
+                if(_pendingRequests.Count == 0)
+                {
+                    _locators[locator.ice_getIdentity().category] = l;
+                    Monitor.Pulse(this);
+                }
+                else
+                {
+                    _locator = l;
                     if(_instanceName.Length == 0)
                     {
                         _instanceName = _locator.ice_getIdentity().category; // Stick to the first locator
                     }
-                }
 
-                //
-                // Send pending requests if any.
-                //
-                foreach(Request req in _pendingRequests)
-                {
-                    req.invoke(_locator);
+                    //
+                    // Send pending requests if any.
+                    //
+                    foreach(Request req in _pendingRequests)
+                    {
+                        req.invoke(_locator);
+                    }
+                    _pendingRequests.Clear();
                 }
-                _pendingRequests.Clear();
             }
         }
 
@@ -251,11 +384,11 @@ namespace IceLocatorDiscovery
         {
             lock(this)
             {
-                if(_locator != null && _locator != locator)
+                if(request != null && _locator != null && _locator != locator)
                 {
                     request.invoke(_locator);
                 }
-                else if(IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
+                else if(request != null && IceInternal.Time.currentMonotonicTimeMillis() < _nextRetry)
                 {
                     request.invoke(_voidLocator); // Don't retry to find a locator before the retry delay expires
                 }
@@ -263,18 +396,57 @@ namespace IceLocatorDiscovery
                 {
                     _locator = null;
 
-                    _pendingRequests.Add(request);
+                    if(request != null)
+                    {
+                        _pendingRequests.Add(request);
+                    }
 
                     if(_pendingRetryCount == 0) // No request in progress
                     {
                         _pendingRetryCount = _retryCount;
+                        _failureCount = 0;
                         try
                         {
-                            _lookup.findLocatorAsync(_instanceName, _lookupReply); // Send multicast request.
+                            if(_traceLevel > 1)
+                            {
+                                StringBuilder s = new StringBuilder("looking up locator:\nlookup = ");
+                                s.Append(_lookup);
+                                if(_instanceName.Length == 0)
+                                {
+                                    s.Append("\ninstance name = ").Append(_instanceName);
+                                }
+                                _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
+                            }
+
+                            foreach(var l in _lookups)
+                            {
+                                l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(t => {
+                                    try
+                                    {
+                                        t.Wait();
+                                    }
+                                    catch(AggregateException ex)
+                                    {
+                                        exception(ex.InnerException);
+                                    }
+                                }, l.Key.ice_scheduler()); // Send multicast request.
+                            }
                             _timer.schedule(this, _timeout);
                         }
-                        catch(Ice.LocalException)
+                        catch(Ice.LocalException ex)
                         {
+                            if(_traceLevel > 0)
+                            {
+                                StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
+                                s.Append(_lookup);
+                                if(_instanceName.Length == 0)
+                                {
+                                    s.Append("\ninstance name = ").Append(_instanceName);
+                                }
+                                s.Append("\n").Append(ex);
+                                _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
+                            }
+
                             foreach(Request req in _pendingRequests)
                             {
                                 req.invoke(_voidLocator);
@@ -287,8 +459,59 @@ namespace IceLocatorDiscovery
             }
         }
 
-        public void
-        runTimerTask()
+        void exception(Exception ex)
+        {
+            lock(this)
+            {
+                if(++_failureCount == _lookups.Count && _pendingRetryCount > 0)
+                {
+                    //
+                    // All the lookup calls failed, cancel the timer and propagate the error to the requests.
+                    //
+                    _timer.cancel(this);
+
+                    _pendingRetryCount = 0;
+
+                    if(_warnOnce)
+                    {
+                        StringBuilder builder = new StringBuilder();
+                        builder.Append("failed to lookup locator with lookup proxy `");
+                        builder.Append(_lookup);
+                        builder.Append("':\n");
+                        builder.Append(ex);
+                        _lookup.ice_getCommunicator().getLogger().warning(builder.ToString());
+                        _warnOnce = false;
+                    }
+
+                    if(_traceLevel > 0)
+                    {
+                        StringBuilder s = new StringBuilder("locator lookup failed:\nlookup = ");
+                        s.Append(_lookup);
+                        if(_instanceName.Length == 0)
+                        {
+                            s.Append("\ninstance name = ").Append(_instanceName);
+                        }
+                        s.Append("\n").Append(ex);
+                        _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
+                    }
+
+                    if(_pendingRequests.Count == 0)
+                    {
+                        Monitor.Pulse(this);
+                    }
+                    else
+                    {
+                        foreach(Request req in _pendingRequests)
+                        {
+                            req.invoke(_voidLocator);
+                        }
+                        _pendingRequests.Clear();
+                    }
+                }
+            }
+        }
+
+        public void runTimerTask()
         {
             lock(this)
             {
@@ -296,7 +519,31 @@ namespace IceLocatorDiscovery
                 {
                     try
                     {
-                        _lookup.findLocatorAsync(_instanceName, _lookupReply); // Send multicast request
+                        if(_traceLevel > 1)
+                        {
+                            StringBuilder s = new StringBuilder("retrying locator lookup:\nlookup = ");
+                            s.Append(_lookup);
+                            s.Append("\nretry count = ").Append(_retryCount);
+                            if(_instanceName.Length == 0)
+                            {
+                                s.Append("\ninstance name = ").Append(_instanceName);
+                            }
+                            _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
+                        }
+
+                        foreach(var l in _lookups)
+                        {
+                            l.Key.findLocatorAsync(_instanceName, l.Value).ContinueWith(t => {
+                                    try
+                                    {
+                                        t.Wait();
+                                    }
+                                    catch(AggregateException ex)
+                                    {
+                                        exception(ex.InnerException);
+                                    }
+                                }, l.Key.ice_scheduler()); // Send multicast request.
+                        }
                         _timer.schedule(this, _timeout);
                         return;
                     }
@@ -306,28 +553,50 @@ namespace IceLocatorDiscovery
                     _pendingRetryCount = 0;
                 }
 
-                foreach(Request req in _pendingRequests)
+                if(_traceLevel > 0)
                 {
-                    req.invoke(_voidLocator);
+                    StringBuilder s = new StringBuilder("locator lookup timed out:\nlookup = ");
+                    s.Append(_lookup);
+                    if(_instanceName.Length == 0)
+                    {
+                        s.Append("\ninstance name = ").Append(_instanceName);
+                    }
+                    _lookup.ice_getCommunicator().getLogger().trace("Lookup", s.ToString());
                 }
-                _pendingRequests.Clear();
+
+                if(_pendingRequests.Count == 0)
+                {
+                    Monitor.Pulse(this);
+                }
+                else
+                {
+                    foreach(Request req in _pendingRequests)
+                    {
+                        req.invoke(_voidLocator);
+                    }
+                    _pendingRequests.Clear();
+                }
                 _nextRetry = IceInternal.Time.currentMonotonicTimeMillis() + _retryDelay;
             }
         }
 
         private LookupPrx _lookup;
+        private Dictionary<LookupPrx, LookupReplyPrx> _lookups = new Dictionary<LookupPrx, LookupReplyPrx>();
         private int _timeout;
         private IceInternal.Timer _timer;
+        private int _traceLevel;
         private int _retryCount;
         private int _retryDelay;
 
         private string _instanceName;
         private bool _warned;
-        private LookupReplyPrx _lookupReply;
         private Ice.LocatorPrx _locator;
         private Ice.LocatorPrx _voidLocator;
+        private Dictionary<string, Ice.LocatorPrx> _locators = new Dictionary<string, Ice.LocatorPrx>();
 
         private int _pendingRetryCount;
+        private int _failureCount;
+        private bool _warnOnce = true;
         private List<Request> _pendingRequests = new List<Request>();
         private long _nextRetry;
     };
@@ -348,12 +617,13 @@ namespace IceLocatorDiscovery
         private LocatorI _locator;
     }
 
-    class PluginI : Ice.Plugin
+    internal class PluginI : Ice.Plugin
     {
         public
-        PluginI(Ice.Communicator communicator)
+        PluginI(string name, Ice.Communicator communicator)
         {
-           _communicator = communicator;
+            _name = name;
+            _communicator = communicator;
         }
 
         public void
@@ -366,85 +636,66 @@ namespace IceLocatorDiscovery
             string address;
             if(ipv4 && !preferIPv6)
             {
-                address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "239.255.0.1");
+                address = properties.getPropertyWithDefault(_name + ".Address", "239.255.0.1");
             }
             else
             {
-                address = properties.getPropertyWithDefault("IceLocatorDiscovery.Address", "ff15::1");
+                address = properties.getPropertyWithDefault(_name + ".Address", "ff15::1");
             }
-            int port = properties.getPropertyAsIntWithDefault("IceLocatorDiscovery.Port", 4061);
-            string intf = properties.getProperty("IceLocatorDiscovery.Interface");
+            int port = properties.getPropertyAsIntWithDefault(_name + ".Port", 4061);
+            string intf = properties.getProperty(_name + ".Interface");
 
-            if(properties.getProperty("IceLocatorDiscovery.Reply.Endpoints").Length == 0)
+            string lookupEndpoints = properties.getProperty(_name + ".Lookup");
+            if(lookupEndpoints.Length == 0)
             {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
-                s.Append("udp");
-                if(intf.Length > 0)
+                int protocol = ipv4 && !preferIPv6 ? IceInternal.Network.EnableIPv4 : IceInternal.Network.EnableIPv6;
+                var interfaces = IceInternal.Network.getInterfacesForMulticast(intf, protocol);
+                foreach(string p in interfaces)
                 {
-                    s.Append(" -h \"");
-                    s.Append(intf);
-                    s.Append("\"");
+                    if(p != interfaces[0])
+                    {
+                        lookupEndpoints += ":";
+                    }
+                    lookupEndpoints += "udp -h \"" + address + "\" -p " + port + " --interface \"" + p + "\"";
                 }
-                properties.setProperty("IceLocatorDiscovery.Reply.Endpoints", s.ToString());
-            }
-            if(properties.getProperty("IceLocatorDiscovery.Locator.Endpoints").Length == 0)
-            {
-                properties.setProperty("IceLocatorDiscovery.Locator.AdapterId", Guid.NewGuid().ToString());
             }
 
-            _replyAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Reply");
-            _locatorAdapter = _communicator.createObjectAdapter("IceLocatorDiscovery.Locator");
+            if(properties.getProperty(_name + ".Reply.Endpoints").Length == 0)
+            {
+                properties.setProperty(_name + ".Reply.Endpoints",
+                                       "udp -h " + (intf.Length == 0 ? "*" : "\"" + intf + "\""));
+            }
+
+            if(properties.getProperty(_name + ".Locator.Endpoints").Length == 0)
+            {
+                properties.setProperty(_name + ".Locator.AdapterId", Guid.NewGuid().ToString());
+            }
+
+            _replyAdapter = _communicator.createObjectAdapter(_name + ".Reply");
+            _locatorAdapter = _communicator.createObjectAdapter(_name + ".Locator");
 
             // We don't want those adapters to be registered with the locator so clear their locator.
             _replyAdapter.setLocator(null);
             _locatorAdapter.setLocator(null);
 
-            string lookupEndpoints = properties.getProperty("IceLocatorDiscovery.Lookup");
-            if(lookupEndpoints.Length == 0)
-            {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
-                s.Append("udp -h \"");
-                s.Append(address);
-                s.Append("\" -p ");
-                s.Append(port);
-                if(intf.Length > 0)
-                {
-                    s.Append(" --interface \"");
-                    s.Append(intf);
-                    s.Append("\"");
-                }
-                lookupEndpoints = s.ToString();
-            }
-
             Ice.ObjectPrx lookupPrx = _communicator.stringToProxy("IceLocatorDiscovery/Lookup -d:" + lookupEndpoints);
-            lookupPrx = lookupPrx.ice_collocationOptimized(false); // No colloc optimization for the multicast proxy!
-            try
-            {
-                lookupPrx.ice_getConnection(); // Ensure we can establish a connection to the multicast proxy
-            }
-            catch (Ice.LocalException ex)
-            {
-                System.Text.StringBuilder s = new System.Text.StringBuilder();
-                s.Append("IceLocatorDiscovery is unable to establish a multicast connection:\n");
-                s.Append("proxy = ");
-                s.Append(lookupPrx.ToString());
-                s.Append("\n");
-                s.Append(ex);
-                throw new Ice.PluginInitializationException(s.ToString());
-            }
+            // No colloc optimization or router for the multicast proxy!
+            lookupPrx = lookupPrx.ice_collocationOptimized(false).ice_router(null);
 
             Ice.LocatorPrx voidLo = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(new VoidLocatorI()));
 
-            string instanceName = properties.getProperty("IceLocatorDiscovery.InstanceName");
+            string instanceName = properties.getProperty(_name + ".InstanceName");
             Ice.Identity id = new Ice.Identity();
             id.name = "Locator";
             id.category = instanceName.Length > 0 ? instanceName : Guid.NewGuid().ToString();
 
-            LocatorI locator = new LocatorI(LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
-            _communicator.setDefaultLocator(Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(locator)));
+            _defaultLocator = _communicator.getDefaultLocator();
+            _locator = new LocatorI(_name, LookupPrxHelper.uncheckedCast(lookupPrx), properties, instanceName, voidLo);
+            _locatorPrx = Ice.LocatorPrxHelper.uncheckedCast(_locatorAdapter.addWithUUID(_locator));
+            _communicator.setDefaultLocator(_locatorPrx);
 
-            Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(locator)).ice_datagram();
-            locator.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
+            Ice.ObjectPrx lookupReply = _replyAdapter.addWithUUID(new LookupReplyI(_locator)).ice_datagram();
+            _locator.setLookupReply(LookupReplyPrxHelper.uncheckedCast(lookupReply));
 
             _replyAdapter.activate();
             _locatorAdapter.activate();
@@ -453,12 +704,33 @@ namespace IceLocatorDiscovery
         public void
         destroy()
         {
-            _replyAdapter.destroy();
-            _locatorAdapter.destroy();
+            if(_replyAdapter != null)
+            {
+                _replyAdapter.destroy();
+            }
+            if(_locatorAdapter != null)
+            {
+                _locatorAdapter.destroy();
+            }
+            if(_communicator.getDefaultLocator().Equals(_locatorPrx))
+            {
+                // Restore original default locator proxy, if the user didn't change it in the meantime
+                _communicator.setDefaultLocator(_defaultLocator);
+            }
         }
 
+        List<Ice.LocatorPrx>
+        getLocators(string instanceName, int waitTime)
+        {
+            return _locator.getLocators(instanceName, waitTime);
+        }
+
+        private string _name;
         private Ice.Communicator _communicator;
         private Ice.ObjectAdapter _locatorAdapter;
         private Ice.ObjectAdapter _replyAdapter;
+        private LocatorI _locator;
+        private Ice.LocatorPrx _locatorPrx;
+        private Ice.LocatorPrx _defaultLocator;
     }
 }

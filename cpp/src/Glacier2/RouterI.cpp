@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& connection, const string& userId, 
+Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& connection, const string& userId,
                            const SessionPrx& session, const Identity& controlId, const FilterManagerPtr& filters,
                            const Ice::Context& context) :
     _instance(instance),
@@ -39,7 +39,7 @@ Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& con
     //
     if(_instance->properties()->getPropertyAsInt("Glacier2.ReturnClientProxy") > 0)
     {
-        const_cast<Ice::ObjectPrx&>(_clientProxy) = 
+        const_cast<Ice::ObjectPrx&>(_clientProxy) =
             _instance->clientObjectAdapter()->createProxy(stringToIdentity("dummy"));
     }
 
@@ -130,9 +130,10 @@ Glacier2::RouterI::destroy(const Callback_Session_destroyPtr& asyncCB)
 }
 
 ObjectPrx
-Glacier2::RouterI::getClientProxy(const Current&) const
+Glacier2::RouterI::getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Current&) const
 {
     // No mutex lock necessary, _clientProxy is immutable and is never destroyed.
+    hasRoutingTable = true;
     return _clientProxy;
 }
 

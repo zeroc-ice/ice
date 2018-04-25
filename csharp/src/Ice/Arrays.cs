@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,6 @@ using System.Collections;
 
 namespace IceUtilInternal
 {
-
     public sealed class Arrays
     {
         public static bool Equals(object[] arr1, object[] arr2)
@@ -47,7 +46,7 @@ namespace IceUtilInternal
                 return true;
             }
 
-            return false;           
+            return false;
         }
 
         public static bool Equals(Array arr1, Array arr2)
@@ -85,7 +84,7 @@ namespace IceUtilInternal
                 return true;
             }
 
-            return false;           
+            return false;
         }
 
         public static int GetHashCode(object[] arr)
@@ -101,7 +100,7 @@ namespace IceUtilInternal
                 }
             }
 
-            return h;           
+            return h;
         }
 
         public static int GetHashCode(Array arr)
@@ -116,7 +115,7 @@ namespace IceUtilInternal
                 }
             }
 
-            return h;           
+            return h;
         }
     }
 }

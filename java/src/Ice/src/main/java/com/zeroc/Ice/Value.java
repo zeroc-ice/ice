@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -45,14 +45,12 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
     }
 
     /**
-     * The Ice run time invokes this method vafter unmarshaling an object's data members. This allows a
+     * The Ice run time invokes this method after unmarshaling an object's data members. This allows a
      * subclass to override this method in order to perform additional initialization.
      **/
     public void ice_postUnmarshal()
     {
     }
-
-    public static final String ice_staticId = "::Ice::Object";
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by this object.
@@ -61,28 +59,44 @@ public abstract class Value implements java.lang.Cloneable, java.io.Serializable
      **/
     public String ice_id()
     {
-        return ice_staticId;
+        return ice_staticId();
     }
 
-    public void __write(OutputStream __os)
+    /**
+     * Returns the sliced data if the value has a preserved-slice base class and has been sliced during
+     * un-marshaling of the value, null is returned otherwise.
+     *
+     * @return The sliced data or null.
+     **/
+    public SlicedData ice_getSlicedData()
     {
-        __os.startValue(null);
-        __writeImpl(__os);
-        __os.endValue();
+        return null;
     }
 
-    public void __read(InputStream __is)
+    public static String ice_staticId()
     {
-        __is.startValue();
-        __readImpl(__is);
-        __is.endValue(false);
+        return "::Ice::Object";
     }
 
-    protected void __writeImpl(OutputStream __os)
+    public void _iceWrite(OutputStream ostr)
+    {
+        ostr.startValue(null);
+        _iceWriteImpl(ostr);
+        ostr.endValue();
+    }
+
+    public void _iceRead(InputStream istr)
+    {
+        istr.startValue();
+        _iceReadImpl(istr);
+        istr.endValue(false);
+    }
+
+    protected void _iceWriteImpl(OutputStream ostr)
     {
     }
 
-    protected void __readImpl(InputStream __is)
+    protected void _iceReadImpl(InputStream istr)
     {
     }
 

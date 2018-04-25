@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,8 +24,9 @@ public class AllTests
     }
 
     public static InitialPrx
-    allTests(test.Util.Application app, boolean collocated, PrintWriter out)
+    allTests(test.Util.Application app, boolean collocated)
     {
+        PrintWriter out = app.getWriter();
         Ice.Communicator communicator = app.communicator();
 
         FactoryI factory = new FactoryI();
@@ -33,7 +34,7 @@ public class AllTests
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:default -p 12010";
+        String ref = "initial:" + app.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -1005,16 +1006,16 @@ public class AllTests
                 os = new Ice.OutputStream(communicator);
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.Size);
-                MyEnum.write(os, p1.get());
+                MyEnum.ice_write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opMyEnumReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
                 in = new Ice.InputStream(communicator, outEncaps.value);
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.Size));
-                test(MyEnum.read(in) == MyEnum.MyEnumMember);
+                test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
                 test(in.readOptional(3, Ice.OptionalFormat.Size));
-                test(MyEnum.read(in) == MyEnum.MyEnumMember);
+                test(MyEnum.ice_read(in) == MyEnum.MyEnumMember);
                 in.endEncapsulation();
 
                 in = new Ice.InputStream(communicator, outEncaps.value);
@@ -1052,7 +1053,7 @@ public class AllTests
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.VSize);
                 os.writeSize(1);
-                SmallStruct.write(os, p1.get());
+                SmallStruct.ice_write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opSmallStructReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -1060,11 +1061,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                SmallStruct f = SmallStruct.read(in, null);
+                SmallStruct f = SmallStruct.ice_read(in);
                 test(f.m == (byte)56);
                 test(in.readOptional(3, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                SmallStruct.read(in, f);
+                f = SmallStruct.ice_read(in);
                 test(f.m == (byte)56);
                 in.endEncapsulation();
 
@@ -1101,7 +1102,7 @@ public class AllTests
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.VSize);
                 os.writeSize(4);
-                FixedStruct.write(os, p1.get());
+                FixedStruct.ice_write(os, p1.get());
                 os.endEncapsulation();
                 inEncaps = os.finished();
                 initial.ice_invoke("opFixedStructReq", Ice.OperationMode.Normal, inEncaps, outEncaps);
@@ -1109,11 +1110,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                FixedStruct f = FixedStruct.read(in, null);
+                FixedStruct f = FixedStruct.ice_read(in);
                 test(f.m == 56);
                 test(in.readOptional(3, Ice.OptionalFormat.VSize));
                 in.skipSize();
-                FixedStruct.read(in, f);
+                f = FixedStruct.ice_read(in);
                 test(f.m == 56);
                 in.endEncapsulation();
 
@@ -1150,7 +1151,7 @@ public class AllTests
                 os.startEncapsulation();
                 os.writeOptional(2, Ice.OptionalFormat.FSize);
                 int pos = os.startSize();
-                VarStruct.write(os, p1.get());
+                VarStruct.ice_write(os, p1.get());
                 os.endSize(pos);
                 os.endEncapsulation();
                 inEncaps = os.finished();
@@ -1159,11 +1160,11 @@ public class AllTests
                 in.startEncapsulation();
                 test(in.readOptional(1, Ice.OptionalFormat.FSize));
                 in.skip(4);
-                VarStruct v = VarStruct.read(in, null);
+                VarStruct v = VarStruct.ice_read(in);
                 test(v.m.equals("test"));
                 test(in.readOptional(3, Ice.OptionalFormat.FSize));
                 in.skip(4);
-                VarStruct.read(in, v);
+                v = VarStruct.ice_read(in);
                 test(v.m.equals("test"));
                 in.endEncapsulation();
 
@@ -2349,8 +2350,8 @@ public class AllTests
             if(cls != null)
             {
                 java.lang.reflect.Method allTests = cls.getDeclaredMethod("allTests",
-                    new Class<?>[]{test.Util.Application.class, java.io.PrintWriter.class});
-                allTests.invoke(null, app, out);
+                    new Class<?>[]{test.Util.Application.class});
+                allTests.invoke(null, app);
             }
         }
         catch(java.lang.NoSuchMethodException ex)

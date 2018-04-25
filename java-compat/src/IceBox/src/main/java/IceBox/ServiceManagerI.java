@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -303,6 +303,12 @@ public class ServiceManagerI extends _ServiceManagerDisp
             //
             final String prefix = "IceBox.Service.";
             java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+
+            if(services.isEmpty())
+            {
+                throw new FailureException("ServiceManager: configuration must include at least one IceBox service");
+            }
+
             String[] loadOrder = properties.getPropertyAsList("IceBox.LoadOrder");
             java.util.List<StartServiceInfo> servicesInfo = new java.util.ArrayList<StartServiceInfo>();
             for(String name : loadOrder)
@@ -714,7 +720,7 @@ public class ServiceManagerI extends _ServiceManagerDisp
                     //
                     try
                     {
-                        obj = c.newInstance();
+                        obj = c.getDeclaredConstructor().newInstance();
                     }
                     catch(IllegalAccessException ex)
                     {
@@ -1161,7 +1167,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
             // Ignored
         }
     }
-
 
     private Ice.Communicator _communicator;
     private boolean _adminEnabled = false;

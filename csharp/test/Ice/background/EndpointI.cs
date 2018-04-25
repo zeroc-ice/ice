@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -168,15 +168,36 @@ internal class EndpointI : IceInternal.EndpointI
 
     public EndpointI endpoint(IceInternal.EndpointI delEndp)
     {
-        return new EndpointI(delEndp);
+        if(delEndp == _endpoint)
+        {
+            return this;
+        }
+        else
+        {
+            return new EndpointI(delEndp);
+        }
     }
 
-    public override List<IceInternal.EndpointI> expand()
+    public override List<IceInternal.EndpointI> expandIfWildcard()
     {
         List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
-        foreach(IceInternal.EndpointI endpt in _endpoint.expand())
+        foreach(IceInternal.EndpointI endpt in _endpoint.expandIfWildcard())
         {
             endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
+        }
+        return endps;
+    }
+
+    public override List<IceInternal.EndpointI> expandHost(out IceInternal.EndpointI publish)
+    {
+        List<IceInternal.EndpointI> endps = new List<IceInternal.EndpointI>();
+        foreach(IceInternal.EndpointI endpt in _endpoint.expandHost(out publish))
+        {
+            endps.Add(endpt == _endpoint ? this : new EndpointI(endpt));
+        }
+        if(publish != null)
+        {
+            publish = publish == _endpoint ? this : new EndpointI(publish);
         }
         return endps;
     }

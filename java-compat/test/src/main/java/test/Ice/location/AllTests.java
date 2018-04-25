@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -43,7 +43,7 @@ public class AllTests
         PrintWriter out = app.getWriter();
 
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-            communicator.stringToProxy("ServerManager :default -p 12010"));
+            communicator.stringToProxy("ServerManager :" + app.getTestEndpoint(0)));
         test(manager != null);
 
         TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
@@ -611,7 +611,7 @@ public class AllTests
         out.flush();
         hello = HelloPrxHelper.checkedCast(communicator.stringToProxy("hello"));
         obj.migrateHello();
-        hello.ice_getConnection().close(false);
+        hello.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
         hello.sayHello();
         obj.migrateHello();
         hello.sayHello();
@@ -671,7 +671,7 @@ public class AllTests
         //
         Ice.Properties properties = communicator.getProperties();
         properties.setProperty("Ice.PrintAdapterReady", "0");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "default");
+        Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Hello", "tcp -h *");
         adapter.setLocator(locator);
 
         Ice.Identity id = new Ice.Identity();
@@ -682,7 +682,7 @@ public class AllTests
         // Note the quotes are necessary here due to ":" in the
         // java generated UUID.
         HelloPrx helloPrx = HelloPrxHelper.checkedCast(
-            communicator.stringToProxy("\"" + Ice.Util.identityToString(id) + "\""));
+            communicator.stringToProxy("\"" + communicator.identityToString(id) + "\""));
         test(helloPrx.ice_getConnection() == null);
 
         adapter.deactivate();

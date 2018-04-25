@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,6 @@
 
 #pragma once
 
-
 [["java:package:test.IceDiscovery.simple"]]
 module Test
 {
@@ -17,7 +16,7 @@ module Test
 interface TestIntf
 {
     string getAdapterId();
-};
+}
 
 interface Controller
 {
@@ -28,6 +27,6 @@ interface Controller
     void removeObject(string oaName, string id);
 
     void shutdown();
-};
+}
 
-};
+}

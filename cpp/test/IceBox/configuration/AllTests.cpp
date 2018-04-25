@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,12 +15,12 @@ using namespace std;
 using namespace Test;
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(const Ice::CommunicatorPtr& com)
 {
-    TestIntfPrxPtr service1 = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("test:tcp -p 12010"));
-    TestIntfPrxPtr service2 = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("test:tcp -p 12011"));
-    TestIntfPrxPtr service3 = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("test:tcp -p 12012"));
-    TestIntfPrxPtr service4 = ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy("test:tcp -p 12013"));
+    TestIntfPrxPtr service1 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + getTestEndpoint(com, 0)));
+    TestIntfPrxPtr service2 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + getTestEndpoint(com, 1)));
+    TestIntfPrxPtr service3 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + getTestEndpoint(com, 2)));
+    TestIntfPrxPtr service4 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + getTestEndpoint(com, 3)));
 
     if(service1->getProperty("IceBox.InheritProperties") == "")
     {
@@ -88,4 +88,3 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "ok" << endl;
     }
 }
-

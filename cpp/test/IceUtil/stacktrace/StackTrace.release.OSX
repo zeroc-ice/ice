@@ -1,3 +1,0 @@
-  0 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7a3.dylib
-  1 main in client
-  2 start in libdyld.dylib

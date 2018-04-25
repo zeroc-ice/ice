@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc", "objc:dll-export:ICESTORM_API", "js:ice-build", "python:pkgdir:IceStorm"]]
 [["cpp:include:IceStorm/Config.h"]]
 
 #include <Ice/Metrics.ice>
@@ -42,7 +42,7 @@ class TopicMetrics extends Metrics
      *
      **/
     long forwarded = 0;
-};
+}
 
 /**
  *
@@ -71,6 +71,6 @@ class SubscriberMetrics extends Metrics
      *
      **/
     long delivered = 0;
-};
+}
 
-};
+}

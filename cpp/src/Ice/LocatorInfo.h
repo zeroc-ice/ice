@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@
 #include <Ice/PropertiesF.h>
 #include <Ice/Version.h>
 
-#include <IceUtil/UniquePtr.h>
+#include <Ice/UniquePtr.h>
 
 namespace IceInternal
 {
@@ -117,7 +117,6 @@ public:
     public:
 
         void addCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
-        std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
 
         void response(const Ice::ObjectPrxPtr&);
         void exception(const Ice::Exception&);
@@ -139,7 +138,7 @@ public:
         bool _sent;
         bool _response;
         Ice::ObjectPrxPtr _proxy;
-        IceUtil::UniquePtr<Ice::Exception> _exception;
+        IceInternal::UniquePtr<Ice::Exception> _exception;
     };
     typedef IceUtil::Handle<Request> RequestPtr;
 
@@ -159,17 +158,11 @@ public:
     }
     Ice::LocatorRegistryPrxPtr getLocatorRegistry();
 
-    std::vector<EndpointIPtr> getEndpoints(const ReferencePtr& ref, int ttl, bool& cached)
+    void getEndpoints(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
     {
-        return getEndpoints(ref, 0, ttl, cached);
+        getEndpoints(ref, 0, ttl, cb);
     }
-    std::vector<EndpointIPtr> getEndpoints(const ReferencePtr&, const ReferencePtr&, int, bool&);
-
-    void getEndpointsWithCallback(const ReferencePtr& ref, int ttl, const GetEndpointsCallbackPtr& cb)
-    {
-        getEndpointsWithCallback(ref, 0, ttl, cb);
-    }
-    void getEndpointsWithCallback(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
+    void getEndpoints(const ReferencePtr&, const ReferencePtr&, int, const GetEndpointsCallbackPtr&);
 
     void clearCache(const ReferencePtr&);
 
@@ -178,6 +171,7 @@ private:
     void getEndpointsException(const ReferencePtr&, const Ice::Exception&);
     void getEndpointsTrace(const ReferencePtr&, const std::vector<EndpointIPtr>&, bool);
     void trace(const std::string&, const ReferencePtr&, const std::vector<EndpointIPtr>&);
+    void trace(const std::string&, const ReferencePtr&, const ReferencePtr&);
 
     RequestPtr getAdapterRequest(const ReferencePtr&);
     RequestPtr getObjectRequest(const ReferencePtr&);

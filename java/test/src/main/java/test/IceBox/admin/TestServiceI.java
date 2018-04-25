@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -21,7 +21,7 @@ public class TestServiceI implements com.zeroc.IceBox.Service
         serviceManagerCommunicator.addAdminFacet(facet, "TestFacet");
 
         //
-        // The TestFacetI servant also implements PropertiesAdminUpdateCallback.
+        // The TestFacetI servant also implements java.util.function.Consumer<java.util.Map<String, String>>.
         // Set the callback on the admin facet.
         //
         com.zeroc.Ice.Object propFacet =

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,7 +32,7 @@ public:
     FILE* preprocess(bool, const std::vector<std::string>&);
     bool close();
 
-    enum Language { CPlusPlus, Java, CSharp, Python, Ruby, PHP, JavaScript, JavaScriptJSON, ObjC, SliceXML };
+    enum Language { CPlusPlus, Java, CSharp, Python, Ruby, PHP, JavaScript, JavaScriptJSON, ObjC, SliceXML, MATLAB };
 
     bool printMakefileDependencies(std::ostream&, Language, const std::vector<std::string>&, const std::string& = "",
                                    const std::string& = "cpp", const std::string& = "");
@@ -40,6 +40,7 @@ public:
                                    const std::vector<std::string>&, const std::string& = "cpp",
                                    const std::string& = "");
 
+    std::string getFileName();
     std::string getBaseName();
 
     static std::string addQuotes(const std::string&);

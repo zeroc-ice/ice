@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,6 +12,7 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
+#include <Ice/ConsoleUtil.h>
 #include <Ice/Locator.h>
 #include <Ice/Service.h>
 #include <IceGrid/Activator.h>
@@ -33,6 +34,7 @@
 
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceGrid;
 
 namespace
@@ -53,7 +55,6 @@ private:
     ProcessPtr _origProcess;
 };
 
-
 class NodeService : public Service
 {
 public:
@@ -69,7 +70,7 @@ protected:
     bool startImpl(int, char*[], int&);
     virtual void waitForShutdown();
     virtual bool stop();
-    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&);
+    virtual CommunicatorPtr initializeCommunicator(int&, char*[], const InitializationData&, int);
 
 private:
 
@@ -79,7 +80,7 @@ private:
     IceUtil::TimerPtr _timer;
     RegistryIPtr _registry;
     NodeIPtr _node;
-    IceUtil::UniquePtr<NodeSessionManager> _sessions;
+    IceInternal::UniquePtr<NodeSessionManager> _sessions;
     Ice::ObjectAdapterPtr _adapter;
 };
 
@@ -95,32 +96,24 @@ private:
     ActivatorPtr _activator;
 };
 
-
 #ifdef _WIN32
 void
-setNoIndexingAttribute(const string& pa)
+setNoIndexingAttribute(const string& path)
 {
-    wstring path = Ice::stringToWstring(pa);
-    DWORD attrs = GetFileAttributesW(path.c_str());
+    wstring wpath = Ice::stringToWstring(path);
+    DWORD attrs = GetFileAttributesW(wpath.c_str());
     if(attrs == INVALID_FILE_ATTRIBUTES)
     {
-        FileException ex(__FILE__, __LINE__);
-        ex.path = pa;
-        ex.error = IceInternal::getSystemErrno();
-        throw ex;
+        throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
     }
-    if(!SetFileAttributesW(path.c_str(), attrs | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
+    if(!SetFileAttributesW(wpath.c_str(), attrs | FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
     {
-        FileException ex(__FILE__, __LINE__);
-        ex.path = pa;
-        ex.error = IceInternal::getSystemErrno();
-        throw ex;
+        throw FileException(__FILE__, __LINE__, IceInternal::getSystemErrno(), path);
     }
 }
 #endif
 
 }
-
 
 CollocatedRegistry::CollocatedRegistry(const CommunicatorPtr& com,
                                        const ActivatorPtr& activator,
@@ -165,16 +158,12 @@ NodeService::~NodeService()
 {
 }
 
-
 bool
 NodeService::shutdown()
 {
-    assert(_activator);
+    assert(_activator && _sessions.get());
     _activator->shutdown();
-    if(_sessions.get())
-    {
-        _sessions->terminate(); // Unblock the main thread if it's blocked on waitForCreate()
-    }
+    _sessions->terminate(); // Unblock the main thread if it's blocked on waitForCreate()
     return true;
 }
 
@@ -205,7 +194,6 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string initFromReplica;
     string desc;
     vector<string> targets;
-
 
     for(int i = 1; i < argc; ++i)
     {
@@ -345,10 +333,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     {
         if(!IceUtilInternal::directoryExists(dataPath))
         {
-            FileException ex(__FILE__, __LINE__);
-            ex.path = dataPath;
-            ex.error = IceInternal::getSystemErrno();
-
+            FileException ex(__FILE__, __LINE__, IceInternal::getSystemErrno(), dataPath);
             ServiceError err(this);
             err << "property `IceGrid.Node.Data' is set to an invalid path:\n" << ex;
             return false;
@@ -433,9 +418,9 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                 Ice::ObjectPrx object = _adapter->addWithUUID(new FileUserAccountMapperI(userAccountFileProperty));
                 mapper = UserAccountMapperPrx::uncheckedCast(object);
             }
-            catch(const std::string& msg)
+            catch(const exception& ex)
             {
-                error(msg);
+                error(ex.what());
                 return false;
             }
         }
@@ -452,7 +437,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     string instanceName = properties->getProperty("IceGrid.InstanceName");
     if(instanceName.empty())
     {
-        instanceName = properties->getProperty("IceGridDiscovery.InstanceName");
+        instanceName = properties->getProperty("IceLocatorDiscovery.InstanceName");
     }
     if(instanceName.empty())
     {
@@ -565,7 +550,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             RegistryPrx registry = RegistryPrx::checkedCast(communicator()->getDefaultLocator()->findObjectById(regId));
             if(!registry)
             {
-                throw "invalid registry";
+                throw runtime_error("invalid registry");
             }
 
             registry = registry->ice_preferSecure(true); // Use SSL if available.
@@ -581,14 +566,14 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                 string password = communicator()->getProperties()->getProperty("IceGridAdmin.Password");
                 while(id.empty())
                 {
-                    cout << "user id: " << flush;
+                    consoleOut << "user id: " << flush;
                     getline(cin, id);
                     id = IceUtilInternal::trim(id);
                 }
 
                 if(password.empty())
                 {
-                    cout << "password: " << flush;
+                    consoleOut << "password: " << flush;
                     getline(cin, password);
                     password = IceUtilInternal::trim(password);
                 }
@@ -624,12 +609,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
         catch(const std::exception& ex)
         {
             ServiceWarning warn(this);
-            warn << "failed to deploy application `" << desc << "':\n" << ex;
-        }
-        catch(const string& reason)
-        {
-            ServiceWarning warn(this);
-            warn << "failed to deploy application `" << desc << "':\n" << reason;
+            warn << "failed to deploy application `" << desc << "':\n" << ex.what();
         }
     }
 
@@ -667,7 +647,6 @@ NodeService::stop()
         {
             assert(false);
         }
-        _activator = 0;
     }
 
     if(_timer)
@@ -757,7 +736,8 @@ NodeService::stop()
 
 CommunicatorPtr
 NodeService::initializeCommunicator(int& argc, char* argv[],
-                                    const InitializationData& initializationData)
+                                    const InitializationData& initializationData,
+                                    int version)
 {
     InitializationData initData = initializationData;
     initData.properties = createProperties(argc, argv, initData.properties);
@@ -785,7 +765,7 @@ NodeService::initializeCommunicator(int& argc, char* argv[],
     //
     initData.properties->setProperty("Ice.ACM.Close", "3");
 
-    return Service::initializeCommunicator(argc, argv, initData);
+    return Service::initializeCommunicator(argc, argv, initData, version);
 }
 
 void
@@ -797,7 +777,7 @@ NodeService::usage(const string& appName)
         "-v, --version        Display the Ice version.\n"
         "--nowarn             Don't print any security warnings.\n"
         "--readonly           Start the collocated master registry in read-only mode.\n"
-        "--initdb-from-replica=<replica>\n"
+        "--initdb-from-replica <replica>\n"
         "                     Initialize the collocated registry database from the\n"
         "                     given replica.\n"
         "--deploy DESCRIPTOR [TARGET1 [TARGET2 ...]]\n"

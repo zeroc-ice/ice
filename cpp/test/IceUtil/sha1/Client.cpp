@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <IceUtil/SHA1.h>
+#include <Ice/SHA1.h>
 #include <TestCommon.h>
 
 using namespace std;
@@ -39,7 +39,7 @@ SHA1Item items[] =
      "Nullam elit neque, suscipit ac convallis non, convallis et urna. "
      "Sed semper elementum erat, ut egestas lacus interdum sit amet. "
      "Sed ipsum nisi, ultricies congue augue id, euismod posuere sapien. "
-     "Fusce volutpat nisl in orci laoreet, vitae lacinia urna venenatis.", 
+     "Fusce volutpat nisl in orci laoreet, vitae lacinia urna venenatis.",
      "84fac2d6a78ab4acbeae1408ab4de49c4bd145bb"},
     {"Pellentesque accumsan mauris neque, nec sollicitudin metus ornare eu. "
      "Sed dignissim nisi neque, sit amet dapibus purus faucibus laoreet. "
@@ -82,16 +82,16 @@ int main(int argc, char* argv[])
     {
         const SHA1Item* item = &items[i];
         vector<unsigned char> buffer;
-        IceUtilInternal::sha1(reinterpret_cast<const unsigned char*>(item->data), strlen(item->data), buffer);
+        IceInternal::sha1(reinterpret_cast<const unsigned char*>(item->data), strlen(item->data), buffer);
         test(buffer.size() == 20);
         string digest = toHex(string(reinterpret_cast<const char*>(&buffer[0]), 20));
         test(item->digest == digest);
     }
-    
+
     for(int i = 0; i < itemsSize; ++i)
     {
         const SHA1Item* item = &items[i];
-        IceUtilInternal::SHA1 hasher;
+        IceInternal::SHA1 hasher;
         //
         // Test adding the data in chunks
         //

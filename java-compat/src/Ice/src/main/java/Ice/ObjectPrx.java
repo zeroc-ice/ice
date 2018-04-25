@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,138 +24,138 @@ public interface ObjectPrx
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param __id The type ID of the Slice interface to test against.
+     * @param id The type ID of the Slice interface to test against.
      * @return <code>true</code> if the target object has the interface
-     * specified by <code>__id</code> or derives from the interface
-     * specified by <code>__id</code>.
+     * specified by <code>id</code> or derives from the interface
+     * specified by <code>id</code>.
      **/
-    boolean ice_isA(String __id);
+    boolean ice_isA(String id);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param __id The type ID of the Slice interface to test against.
-     * @param __context The context map for the invocation.
+     * @param id The type ID of the Slice interface to test against.
+     * @param context The context map for the invocation.
      * @return <code>true</code> if the target object has the interface
-     * specified by <code>__id</code> or derives from the interface
-     * specified by <code>__id</code>.
+     * specified by <code>id</code> or derives from the interface
+     * specified by <code>id</code>.
      **/
-    boolean ice_isA(String __id, java.util.Map<String, String> __context);
+    boolean ice_isA(String id, java.util.Map<String, String> context);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param __id The type ID of the Slice interface to test against.
+     * @param id The type ID of the Slice interface to test against.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id);
+    AsyncResult begin_ice_isA(String id);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param __id The type ID of the Slice interface to test against.
-     * @param __context The context map for the invocation.
+     * @param id The type ID of the Slice interface to test against.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, java.util.Map<String, String> __context);
+    AsyncResult begin_ice_isA(String id, java.util.Map<String, String> context);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param __id The type ID of the Slice interface to test against.
-     * @param __cb The asynchronous callback object.
+     * @param id The type ID of the Slice interface to test against.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, Callback __cb);
+    AsyncResult begin_ice_isA(String id, Callback cb);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param __id The type ID of the Slice interface to test against.
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param id The type ID of the Slice interface to test against.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, java.util.Map<String, String> __context, Callback __cb);
+    AsyncResult begin_ice_isA(String id, java.util.Map<String, String> context, Callback cb);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param __id The type ID of the Slice interface to test against.
-     * @param __cb The asynchronous callback object.
+     * @param id The type ID of the Slice interface to test against.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, Callback_Object_ice_isA __cb);
+    AsyncResult begin_ice_isA(String id, Callback_Object_ice_isA cb);
 
     /**
      * Tests whether this object supports a specific Slice interface.
      *
-     * @param __id The type ID of the Slice interface to test against.
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param id The type ID of the Slice interface to test against.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, java.util.Map<String, String> __context, Callback_Object_ice_isA __cb);
+    AsyncResult begin_ice_isA(String id, java.util.Map<String, String> context, Callback_Object_ice_isA cb);
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param id The Slice type ID of an interface.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, IceInternal.Functional_BoolCallback __responseCb,
-                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_isA(String id, IceInternal.Functional_BoolCallback responseCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param id The Slice type ID of an interface.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, IceInternal.Functional_BoolCallback __responseCb,
-                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                              IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_isA(String id, IceInternal.Functional_BoolCallback responseCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                              IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __context The <code>Context</code> map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param id The Slice type ID of an interface.
+     * @param context The <code>Context</code> map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, java.util.Map<String, String> __context,
-                              IceInternal.Functional_BoolCallback __responseCb,
-                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_isA(String id, java.util.Map<String, String> context,
+                              IceInternal.Functional_BoolCallback responseCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __context The <code>Context</code> map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param id The Slice type ID of an interface.
+     * @param context The <code>Context</code> map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_isA(String __id, java.util.Map<String, String> __context,
-                              IceInternal.Functional_BoolCallback __responseCb,
-                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                              IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_isA(String id, java.util.Map<String, String> context,
+                              IceInternal.Functional_BoolCallback responseCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                              IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Completes the asynchronous ice_isA request.
      *
-     * @param __result The asynchronous result.
+     * @param result The asynchronous result.
      * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
      **/
-    boolean end_ice_isA(AsyncResult __result);
+    boolean end_ice_isA(AsyncResult result);
 
     /**
      * Tests whether the target object of this proxy can be reached.
@@ -165,9 +165,9 @@ public interface ObjectPrx
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      **/
-    void ice_ping(java.util.Map<String, String> __context);
+    void ice_ping(java.util.Map<String, String> context);
 
     /**
      * Tests whether the target object of this proxy can be reached.
@@ -179,99 +179,99 @@ public interface ObjectPrx
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(java.util.Map<String, String> __context);
+    AsyncResult begin_ice_ping(java.util.Map<String, String> context);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(Callback __cb);
+    AsyncResult begin_ice_ping(Callback cb);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(java.util.Map<String, String> __context, Callback __cb);
+    AsyncResult begin_ice_ping(java.util.Map<String, String> context, Callback cb);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(Callback_Object_ice_ping __cb);
+    AsyncResult begin_ice_ping(Callback_Object_ice_ping cb);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(java.util.Map<String, String> __context, Callback_Object_ice_ping __cb);
+    AsyncResult begin_ice_ping(java.util.Map<String, String> context, Callback_Object_ice_ping cb);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb,
-                               IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_ping(IceInternal.Functional_VoidCallback responseCb,
+                               IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb,
-                               IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                               IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_ping(IceInternal.Functional_VoidCallback responseCb,
+                               IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                               IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(java.util.Map<String, String> __context,
-                               IceInternal.Functional_VoidCallback __responseCb,
-                               IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_ping(java.util.Map<String, String> context,
+                               IceInternal.Functional_VoidCallback responseCb,
+                               IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ping(java.util.Map<String, String> __context,
-                               IceInternal.Functional_VoidCallback __responseCb,
-                               IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                               IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_ping(java.util.Map<String, String> context,
+                               IceInternal.Functional_VoidCallback responseCb,
+                               IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                               IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Completes the asynchronous ice_ping request.
      *
-     * @param __result The asynchronous result.
+     * @param result The asynchronous result.
      **/
-    void end_ice_ping(AsyncResult __result);
+    void end_ice_ping(AsyncResult result);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -284,11 +284,11 @@ public interface ObjectPrx
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
      * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
-    String[] ice_ids(java.util.Map<String, String> __context);
+    String[] ice_ids(java.util.Map<String, String> context);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
@@ -300,101 +300,101 @@ public interface ObjectPrx
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(java.util.Map<String, String> __context);
+    AsyncResult begin_ice_ids(java.util.Map<String, String> context);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(Callback __cb);
+    AsyncResult begin_ice_ids(Callback cb);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(java.util.Map<String, String> __context, Callback __cb);
+    AsyncResult begin_ice_ids(java.util.Map<String, String> context, Callback cb);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(Callback_Object_ice_ids __cb);
+    AsyncResult begin_ice_ids(Callback_Object_ice_ids cb);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(java.util.Map<String, String> __context, Callback_Object_ice_ids __cb);
+    AsyncResult begin_ice_ids(java.util.Map<String, String> context, Callback_Object_ice_ids cb);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                              IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                              IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(java.util.Map<String, String> __context,
-                              IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_ids(java.util.Map<String, String> context,
+                              IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_ids(java.util.Map<String, String> __context,
-                              IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                              IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                              IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_ids(java.util.Map<String, String> context,
+                              IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                              IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Completes the asynchronous ice_ids request.
      *
-     * @param __result The asynchronous result.
+     * @param result The asynchronous result.
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
      * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
-    String[] end_ice_ids(AsyncResult __result);
+    String[] end_ice_ids(AsyncResult result);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -406,10 +406,10 @@ public interface ObjectPrx
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The Slice type ID of the most-derived interface.
      **/
-    String ice_id(java.util.Map<String, String> __context);
+    String ice_id(java.util.Map<String, String> context);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
@@ -421,100 +421,100 @@ public interface ObjectPrx
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(java.util.Map<String, String> __context);
+    AsyncResult begin_ice_id(java.util.Map<String, String> context);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(Callback __cb);
+    AsyncResult begin_ice_id(Callback cb);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(java.util.Map<String, String> __context, Callback __cb);
+    AsyncResult begin_ice_id(java.util.Map<String, String> context, Callback cb);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(Callback_Object_ice_id __cb);
+    AsyncResult begin_ice_id(Callback_Object_ice_id cb);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(java.util.Map<String, String> __context, Callback_Object_ice_id __cb);
+    AsyncResult begin_ice_id(java.util.Map<String, String> context, Callback_Object_ice_id cb);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb,
-                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_id(IceInternal.Functional_GenericCallback1<String> responseCb,
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb,
-                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                             IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_id(IceInternal.Functional_GenericCallback1<String> responseCb,
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                             IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(java.util.Map<String, String> __context,
-                             IceInternal.Functional_GenericCallback1<String> __responseCb,
-                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_id(java.util.Map<String, String> context,
+                             IceInternal.Functional_GenericCallback1<String> responseCb,
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_id(java.util.Map<String, String> __context,
-                             IceInternal.Functional_GenericCallback1<String> __responseCb,
-                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                             IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_id(java.util.Map<String, String> context,
+                             IceInternal.Functional_GenericCallback1<String> responseCb,
+                             IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                             IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Completes the asynchronous ice_id request.
      *
-     * @param __result The asynchronous result.
+     * @param result The asynchronous result.
      * @return The Slice type ID of the most-derived interface.
      **/
-    String end_ice_id(AsyncResult __result);
+    String end_ice_id(AsyncResult result);
 
     /**
      * Invokes an operation dynamically.
@@ -543,7 +543,7 @@ public interface ObjectPrx
      * @param inParams The encoded in-parameters for the operation.
      * @param outParams The encoded out-paramaters and return value
      * for the operation. The return value follows any out-parameters.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
      * the return value is <code>false</code>; in this case, <code>outParams</code>
@@ -554,7 +554,7 @@ public interface ObjectPrx
      * @see OperationMode
      **/
     boolean ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-                       java.util.Map<String, String> __context);
+                       java.util.Map<String, String> context);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -576,14 +576,14 @@ public interface ObjectPrx
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> __context);
+                                 java.util.Map<String, String> context);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -592,13 +592,13 @@ public interface ObjectPrx
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
-    AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback __cb);
+    AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback cb);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -607,15 +607,15 @@ public interface ObjectPrx
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> __context, Callback __cb);
+                                 java.util.Map<String, String> context, Callback cb);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -624,14 +624,14 @@ public interface ObjectPrx
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 Callback_Object_ice_invoke __cb);
+                                 Callback_Object_ice_invoke cb);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -640,15 +640,15 @@ public interface ObjectPrx
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> __context, Callback_Object_ice_invoke __cb);
+                                 java.util.Map<String, String> context, Callback_Object_ice_invoke cb);
 
     public interface FunctionalCallback_Object_ice_invoke_Response
     {
@@ -662,18 +662,18 @@ public interface ObjectPrx
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                                 IceInternal.Functional_BoolCallback __sentCb);
+                                 FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                 IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -682,16 +682,16 @@ public interface ObjectPrx
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+                                 FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -699,21 +699,21 @@ public interface ObjectPrx
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * for the operation. The return value follows any out-parameters.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> __context,
-                                 FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                                 IceInternal.Functional_BoolCallback __sentCb);
+                                 java.util.Map<String, String> context,
+                                 FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                 IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -721,32 +721,32 @@ public interface ObjectPrx
      * @param operation The name of the operation to invoke.
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * for the operation. The return value follows any out-parameters.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
      * @see OperationMode
      **/
     AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> __context,
-                                 FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+                                 java.util.Map<String, String> context,
+                                 FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Completes the asynchronous ice_invoke request.
      *
      * @param outParams The encoded out-paramaters and return value.
-     * @param __result The asynchronous result.
+     * @param result The asynchronous result.
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
      * the return value is <code>false</code>; in this case, <code>outParams</code>
      * contains the encoded user exception. If the operation raises a run-time exception,
      * it throws it directly.
      **/
-    boolean end_ice_invoke(ByteSeqHolder outParams, AsyncResult __result);
+    boolean end_ice_invoke(ByteSeqHolder outParams, AsyncResult result);
 
     /**
      * Returns the identity embedded in this proxy.
@@ -854,6 +854,7 @@ public interface ObjectPrx
      * Creates a new proxy that is identical to this proxy, except for the locator cache timeout.
      *
      * @param newTimeout The new locator cache timeout (in seconds).
+     * @return The new proxy with the specified locator cache timeout.
      *
      * @see Locator
      **/
@@ -863,6 +864,7 @@ public interface ObjectPrx
      * Creates a new proxy that is identical to this proxy, except for the invocation timeout.
      *
      * @param newTimeout The new invocation timeout (in seconds).
+     * @return The new proxy with the specified invocation timeout.
      *
      **/
     ObjectPrx ice_invocationTimeout(int newTimeout);
@@ -1072,12 +1074,28 @@ public interface ObjectPrx
     ObjectPrx ice_compress(boolean co);
 
     /**
+     * Obtains the compression override setting of this proxy.
+     *
+     * @return The compression override setting. If no optional value is present, no override is
+     * set. Otherwise, true if compression is enabled, false otherwise.
+     */
+    Ice.BooleanOptional ice_getCompress();
+
+    /**
      * Creates a new proxy that is identical to this proxy, except for its timeout setting.
      *
      * @param t The timeout for the new proxy in milliseconds.
      * @return A new proxy with the specified timeout.
      **/
     ObjectPrx ice_timeout(int t);
+
+    /**
+     * Obtains the timeout override of this proxy.
+     *
+     * @return The timeout override. If no optional value is present, no override is set. Otherwise,
+     * returns the timeout override value.
+     */
+    Ice.IntOptional ice_getTimeout();
 
     /**
      * Creates a new proxy that is identical to this proxy, except for its connection ID.
@@ -1088,6 +1106,15 @@ public interface ObjectPrx
      * @return A new proxy with the specified connection ID.
      **/
     ObjectPrx ice_connectionId(String connectionId);
+
+    /**
+     * Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     *
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    ObjectPrx ice_fixed(Ice.Connection connection);
 
     /**
      * Returns the {@link Connection} for this proxy. If the proxy does not yet have an established connection,
@@ -1111,35 +1138,37 @@ public interface ObjectPrx
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
+     * @param cb The callback object to notify the application when the operation is complete.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_getConnection(Callback __cb);
+    AsyncResult begin_ice_getConnection(Callback cb);
 
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
-     * @param __cb The callback object to notify the application when the operation is complete.
+     * @param cb The callback object to notify the application when the operation is complete.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_getConnection(Callback_Object_ice_getConnection __cb);
+    AsyncResult begin_ice_getConnection(Callback_Object_ice_getConnection cb);
 
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
-     * @param __responseCb The callback object to notify the application when there is a response available.
-     * @param __exceptionCb The callback object to notify the application when an exception occurs while getting
+     * @param responseCb The callback object to notify the application when there is a response available.
+     * @param exceptionCb The callback object to notify the application when an exception occurs while getting
      * the connection.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_getConnection(IceInternal.Functional_GenericCallback1<Ice.Connection> __responseCb,
-                                        IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb);
+    AsyncResult begin_ice_getConnection(IceInternal.Functional_GenericCallback1<Ice.Connection> responseCb,
+                                        IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb);
 
     /**
      * Completes the asynchronous get connection.
      *
-     * @param __result The asynchronous result.
+     * @param result The asynchronous result.
+     * @return The connection object.
      **/
-    Ice.Connection end_ice_getConnection(AsyncResult __result);
+    Ice.Connection end_ice_getConnection(AsyncResult result);
 
     /**
      * Returns the cached {@link Connection} for this proxy. If the proxy does not yet have an established
@@ -1169,36 +1198,37 @@ public interface ObjectPrx
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
+     * @param cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_flushBatchRequests(Callback __cb);
+    AsyncResult begin_ice_flushBatchRequests(Callback cb);
 
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
-     * @param __cb The callback object to notify the application when the flush is complete.
+     * @param cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_flushBatchRequests(Callback_Object_ice_flushBatchRequests __cb);
+    AsyncResult begin_ice_flushBatchRequests(Callback_Object_ice_flushBatchRequests cb);
 
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
-     * @param __responseCb The asynchronous completion callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous completion callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
-    AsyncResult begin_ice_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
-                                             IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                                             IceInternal.Functional_BoolCallback __sentCb);
+    AsyncResult begin_ice_flushBatchRequests(IceInternal.Functional_VoidCallback responseCb,
+                                             IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                             IceInternal.Functional_BoolCallback sentCb);
 
     /**
      * Completes the asynchronous flush request.
      *
-     * @param __result The asynchronous result.
+     * @param result The asynchronous result.
      **/
-    void end_ice_flushBatchRequests(AsyncResult __result);
+    void end_ice_flushBatchRequests(AsyncResult result);
 
     /**
      * Returns whether this proxy equals the passed object. Two proxies are equal if they are equal in all respects,
@@ -1210,5 +1240,5 @@ public interface ObjectPrx
     @Override
     boolean equals(java.lang.Object r);
 
-    void __write(OutputStream os);
+    void _write(OutputStream os);
 }

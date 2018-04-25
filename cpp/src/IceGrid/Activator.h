@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -52,22 +52,22 @@ public:
 
     virtual int activate(const std::string&, const std::string&, const std::string&,
 #ifndef _WIN32
-                         uid_t, gid_t, 
+                         uid_t, gid_t,
 #endif
                          const Ice::StringSeq&, const Ice::StringSeq&, const ServerIPtr&);
     virtual void deactivate(const std::string&, const Ice::ProcessPrx&);
     virtual void kill(const std::string&);
     virtual void sendSignal(const std::string&, const std::string&);
-  
+
     virtual Ice::Int getServerPid(const std::string&);
-    
+
     virtual void start();
     virtual void waitForShutdown();
     virtual void shutdown();
     virtual void destroy();
-    
+
     bool isActive();
-    
+
     void sendSignal(const std::string&, int);
     void runTerminationListener();
 
@@ -80,7 +80,7 @@ private:
     void terminationListener();
     void clearInterrupt();
     void setInterrupt();
-    
+
 #ifndef _WIN32
     int waitPid(pid_t);
 #endif

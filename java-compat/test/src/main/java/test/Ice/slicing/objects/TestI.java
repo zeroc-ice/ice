@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -93,6 +93,7 @@ public final class TestI extends _TestIntfDisp
     {
         SUnknown su = new SUnknown();
         su.su = "SUnknown.su";
+        su.cycle = su;
         return su;
     }
 
@@ -312,7 +313,7 @@ public final class TestI extends _TestIntfDisp
         java.util.Map<Integer, B> r = new java.util.HashMap<Integer, B>();
         for(i = 0; i < 10; ++i)
         {
-            String s = "D1." + new Integer(i * 20).toString();
+            String s = "D1." + Integer.valueOf(i * 20).toString();
             D1 d1 = new D1();
             d1.sb = s;
             d1.pb = (i == 0 ? null : r.get((i - 1) * 20));

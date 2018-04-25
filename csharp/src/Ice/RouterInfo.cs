@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,15 +38,14 @@ namespace IceInternal
             lock(this)
             {
                 _clientEndpoints = new EndpointI[0];
-                _serverEndpoints = new EndpointI[0];
                 _adapter = null;
                 _identities.Clear();
             }
         }
 
-        public override bool Equals(System.Object obj)
+        public override bool Equals(object obj)
         {
-            if(object.ReferenceEquals(this, obj))
+            if(ReferenceEquals(this, obj))
             {
                 return true;
             }
@@ -78,7 +77,9 @@ namespace IceInternal
                 }
             }
 
-            return setClientEndpoints(_router.getClientProxy());
+            Ice.Optional<bool> hasRoutingTable;
+            var proxy = _router.getClientProxy(out hasRoutingTable);
+            return setClientEndpoints(proxy, hasRoutingTable.HasValue ? hasRoutingTable.Value : true);
         }
 
         public void getClientEndpoints(GetClientEndpointsCallback callback)
@@ -100,7 +101,9 @@ namespace IceInternal
                 {
                     try
                     {
-                        callback.setEndpoints(setClientEndpoints(t.Result));
+                        var r = t.Result;
+                        callback.setEndpoints(setClientEndpoints(r.returnValue,
+                                                    r.hasRoutingTable.HasValue ? r.hasRoutingTable.Value : true));
                     }
                     catch(System.AggregateException ae)
                     {
@@ -112,16 +115,14 @@ namespace IceInternal
 
         public EndpointI[] getServerEndpoints()
         {
-            lock(this)
+            Ice.ObjectPrx serverProxy = _router.getServerProxy();
+            if(serverProxy == null)
             {
-                if(_serverEndpoints != null) // Lazy initialization.
-                {
-                    return _serverEndpoints;
-                }
-
+                throw new Ice.NoEndpointException();
             }
 
-            return setServerEndpoints(_router.getServerProxy());
+            serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
+            return ((Ice.ObjectPrxHelperBase)serverProxy).iceReference().getEndpoints();
         }
 
         public void addProxy(Ice.ObjectPrx proxy)
@@ -146,6 +147,10 @@ namespace IceInternal
             Debug.Assert(proxy != null);
             lock(this)
             {
+                if(!_hasRoutingTable)
+                {
+                    return true; // The router implementation doesn't maintain a routing table.
+                }
                 if(_identities.Contains(proxy.ice_getIdentity()))
                 {
                     //
@@ -196,18 +201,19 @@ namespace IceInternal
             }
         }
 
-        private EndpointI[] setClientEndpoints(Ice.ObjectPrx clientProxy)
+        private EndpointI[] setClientEndpoints(Ice.ObjectPrx clientProxy, bool hasRoutingTable)
         {
             lock(this)
             {
                 if(_clientEndpoints == null)
                 {
+                    _hasRoutingTable = hasRoutingTable;
                     if(clientProxy == null)
                     {
                         //
                         // If getClientProxy() return nil, use router endpoints.
                         //
-                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).reference__().getEndpoints();
+                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)_router).iceReference().getEndpoints();
                     }
                     else
                     {
@@ -223,25 +229,10 @@ namespace IceInternal
                             clientProxy = clientProxy.ice_timeout(_router.ice_getConnection().timeout());
                         }
 
-                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).reference__().getEndpoints();
+                        _clientEndpoints = ((Ice.ObjectPrxHelperBase)clientProxy).iceReference().getEndpoints();
                     }
                 }
                 return _clientEndpoints;
-            }
-        }
-
-        private EndpointI[] setServerEndpoints(Ice.ObjectPrx serverProxy)
-        {
-            lock(this)
-            {
-                if(serverProxy == null)
-                {
-                    throw new Ice.NoEndpointException();
-                }
-
-                serverProxy = serverProxy.ice_router(null); // The server proxy cannot be routed.
-                _serverEndpoints = ((Ice.ObjectPrxHelperBase)serverProxy).reference__().getEndpoints();
-                return _serverEndpoints;
             }
         }
 
@@ -288,10 +279,10 @@ namespace IceInternal
 
         private readonly Ice.RouterPrx _router;
         private EndpointI[] _clientEndpoints;
-        private EndpointI[] _serverEndpoints;
         private Ice.ObjectAdapter _adapter;
         private HashSet<Ice.Identity> _identities = new HashSet<Ice.Identity>();
         private List<Ice.Identity> _evictedIdentities = new List<Ice.Identity>();
+        private bool _hasRoutingTable;
     }
 
     public sealed class RouterManager

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,11 +26,6 @@ std::string addrToString(const std::string&, Ice::Int);
 std::string addrToString(const SocketAddress&);
 SocketAddress createAddr(const std::string&, Ice::Int);
 
-SOCKET createSocket();
-bool doConnect(SOCKET, const SocketAddress&);
-void doFinishConnect(SOCKET);
-SocketAddress doBind(SOCKET, const SocketAddress&);
-SOCKET doAccept(SOCKET);
 std::string fdToString(SOCKET);
 void fdToAddressAndChannel(SOCKET, std::string&, int&, std::string&, int&);
 int compareAddress(const SocketAddress&, const SocketAddress&);

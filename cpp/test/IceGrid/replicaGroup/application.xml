@@ -70,6 +70,7 @@
       <parameter name="encoding" default=""/>
       <server id="${id}" exe="${server.dir}/server" activation="on-demand" pwd=".">
         <property name="Identity" value="${replicaGroup}"/>
+        <property name="Ice.StdErr" value="${server.data}/${id}.log"/>
         <property name="Ice.Admin.DelayCreation" value="1"/>
         <property name="Ice.Default.EncodingVersion" value="${encoding}"/>
         <property name="ReplicatedAdapter.Endpoints" value="default"/>
@@ -114,7 +115,6 @@
       <parameter name="replicaGroup"/>
       <icebox id="${id}" exe="${icebox.exe}" activation="on-demand" pwd=".">
         <service-instance template="Service" name="Service" replicaGroup="${replicaGroup}"/>
-
 
         <!-- Dummy service with server lifetime adapter to ensure all
              the services are started when the server is marked as

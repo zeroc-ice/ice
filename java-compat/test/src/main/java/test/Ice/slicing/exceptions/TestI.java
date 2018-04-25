@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -218,7 +218,8 @@ public final class TestI extends _TestIntfDisp
     relayKnownPreservedAsBase(RelayPrx r, Ice.Current current)
         throws Base
     {
-        r.knownPreservedAsBase();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.knownPreservedAsBase();
         test(false);
     }
 
@@ -227,7 +228,8 @@ public final class TestI extends _TestIntfDisp
     relayKnownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
         throws KnownPreserved
     {
-        r.knownPreservedAsKnownPreserved();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.knownPreservedAsKnownPreserved();
         test(false);
     }
 
@@ -264,7 +266,8 @@ public final class TestI extends _TestIntfDisp
     relayUnknownPreservedAsBase(RelayPrx r, Ice.Current current)
         throws Base
     {
-        r.unknownPreservedAsBase();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.unknownPreservedAsBase();
         test(false);
     }
 
@@ -273,7 +276,8 @@ public final class TestI extends _TestIntfDisp
     relayUnknownPreservedAsKnownPreserved(RelayPrx r, Ice.Current current)
         throws KnownPreserved
     {
-        r.unknownPreservedAsKnownPreserved();
+        RelayPrx p = RelayPrxHelper.uncheckedCast(current.con.createProxy(r.ice_getIdentity()));
+        p.unknownPreservedAsKnownPreserved();
         test(false);
     }
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -16,7 +16,7 @@ if not slice_dir:
     print(sys.argv[0] + ': Slice directory not found.')
     sys.exit(1)
 
-Ice.loadSlice('"-I' + slice_dir + '" TestAMD.ice')
+Ice.loadSlice('"-I' + slice_dir + '" Test.ice')
 import Test
 
 def test(b):
@@ -24,120 +24,131 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 class ThrowerI(Test.Thrower):
-    def shutdown_async(self, cb, current=None):
+    def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
-        cb.ice_response()
 
-    def supportsUndeclaredExceptions_async(self, cb, current=None):
-        cb.ice_response(True)
+    def supportsUndeclaredExceptions(self, current=None):
+        return True
 
-    def supportsAssertException_async(self, cb, current=None):
-        cb.ice_response(False)
+    def supportsAssertException(self, current=None):
+        return False
 
-    def throwAasA_async(self, cb, a, current=None):
+    def throwAasA(self, a, current=None):
         ex = Test.A()
         ex.aMem = a
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def throwAorDasAorD_async(self, cb, a, current=None):
+    def throwAorDasAorD(self, a, current=None):
+        f = Ice.Future()
         if a > 0:
             ex = Test.A()
             ex.aMem = a
-            cb.ice_exception(ex)
+            f.set_exception(ex)
         else:
             ex = Test.D()
             ex.dMem = a
-            cb.ice_exception(ex)
+            f.set_exception(ex)
+        return f
 
-    def throwBasA_async(self, cb, a, b, current=None):
+    def throwBasA(self, a, b, current=None):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
-        #cb.ice_exception(ex)
 
-    def throwCasA_async(self, cb, a, b, c, current=None):
+    def throwCasA(self, a, b, c, current=None):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def throwBasB_async(self, cb, a, b, current=None):
+    def throwBasB(self, a, b, current=None):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
-        #cb.ice_exception(ex)
 
-    def throwCasB_async(self, cb, a, b, c, current=None):
+    def throwCasB(self, a, b, c, current=None):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def throwCasC_async(self, cb, a, b, c, current=None):
+    def throwCasC(self, a, b, c, current=None):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def throwModA_async(self, cb, a, a2, current=None):
+    def throwModA(self, a, a2, current=None):
         ex = Test.Mod.A()
         ex.aMem = a
         ex.a2Mem = a2
         raise ex
 
-    def throwUndeclaredA_async(self, cb, a, current=None):
+    def throwUndeclaredA(self, a, current=None):
         ex = Test.A()
         ex.aMem = a
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def throwUndeclaredB_async(self, cb, a, b, current=None):
+    def throwUndeclaredB(self, a, b, current=None):
         ex = Test.B()
         ex.aMem = a
         ex.bMem = b
         raise ex
-        #cb.ice_exception(ex)
 
-    def throwUndeclaredC_async(self, cb, a, b, c, current=None):
+    def throwUndeclaredC(self, a, b, c, current=None):
         ex = Test.C()
         ex.aMem = a
         ex.bMem = b
         ex.cMem = c
-        cb.ice_exception(ex)
+        f = Ice.Future()
+        f.set_exception(ex)
+        return f
 
-    def throwLocalException_async(self, cb, current=None):
-        cb.ice_exception(Ice.TimeoutException())
+    def throwLocalException(self, current=None):
+        f = Ice.Future()
+        f.set_exception(Ice.TimeoutException())
+        return f
 
-    def throwNonIceException_async(self, cb, current=None):
-        # Python-specific: make sure the argument is validated.
-        try:
-            cb.ice_exception('foo')
-            test(False)
-        except TypeError:
-            pass
+    def throwNonIceException(self, current=None):
+        f = Ice.Future()
+        f.set_exception(RuntimeError("12345"))
+        return f
 
-        cb.ice_exception(RuntimeError("12345"))
-
-    def throwAssertException_async(self, cb, current=None):
+    def throwAssertException(self, current=None):
         raise RuntimeError("operation `throwAssertException' not supported")
 
-    def throwMemoryLimitException_async(self, cb, seq, current=None):
-        cb.ice_response(bytearray(20 * 1024))
+    def throwMemoryLimitException(self, seq, current=None):
+        return Ice.Future.completed(bytearray(20 * 1024))
 
-    def throwLocalExceptionIdempotent_async(self, cb, current=None):
-        cb.ice_exception(Ice.TimeoutException())
+    def throwLocalExceptionIdempotent(self, current=None):
+        f = Ice.Future()
+        f.set_exception(Ice.TimeoutException())
+        return f
 
-    def throwAfterResponse_async(self, cb, current=None):
-        cb.ice_response()
-        raise RuntimeError("12345")
+    def throwAfterResponse(self, current=None):
+        # Cannot be implemented with Futures
+        return None
 
-    def throwAfterException_async(self, cb, current=None):
-        cb.ice_exception(Test.A())
-        raise RuntimeError("12345")
+    def throwAfterException(self, current=None):
+        # Cannot be implemented with Futures
+        f = Ice.Future()
+        f.set_exception(Test.A())
+        return f
 
 def run(args, communicator):
     adapter = communicator.createObjectAdapter("TestAdapter")
@@ -158,23 +169,16 @@ try:
     initData.properties = Ice.createProperties(sys.argv)
     initData.properties.setProperty("Ice.Warn.Dispatch", "0")
     initData.properties.setProperty("Ice.Warn.Connections", "0");
-    initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010:udp")
+    initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010")
     initData.properties.setProperty("Ice.MessageSizeMax", "10")
     initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011")
     initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0")
     initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012")
     initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1")
-    communicator = Ice.initialize(sys.argv, initData)
-    status = run(sys.argv, communicator)
+    with Ice.initialize(sys.argv, initData) as communicator:
+        status = run(sys.argv, communicator)
 except:
     traceback.print_exc()
     status = False
-
-if communicator:
-    try:
-        communicator.destroy()
-    except:
-        traceback.print_exc()
-        status = False
 
 sys.exit(not status)

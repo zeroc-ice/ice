@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -203,17 +203,38 @@ final class WSEndpoint extends IceInternal.EndpointI
 
     public WSEndpoint endpoint(EndpointI delEndp)
     {
-        return new WSEndpoint(_instance, delEndp, _resource);
+        if(delEndp == _delegate)
+        {
+            return this;
+        }
+        else
+        {
+            return new WSEndpoint(_instance, delEndp, _resource);
+        }
     }
 
     @Override
-    public java.util.List<EndpointI> expand()
+    public java.util.List<EndpointI> expandIfWildcard()
     {
-        java.util.List<EndpointI> endps = _delegate.expand();
         java.util.List<EndpointI> l = new java.util.ArrayList<EndpointI>();
-        for(EndpointI e : endps)
+        for(EndpointI e : _delegate.expandIfWildcard())
         {
             l.add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
+        }
+        return l;
+    }
+
+    @Override
+    public java.util.List<EndpointI> expandHost(Ice.Holder<EndpointI> publish)
+    {
+        java.util.List<EndpointI> l = new java.util.ArrayList<EndpointI>();
+        for(EndpointI e : _delegate.expandHost(publish))
+        {
+            l.add(e == _delegate ? this : new WSEndpoint(_instance, e, _resource));
+        }
+        if(publish.value != null)
+        {
+            publish.value = publish.value == _delegate ? this : new WSEndpoint(_instance, publish.value, _resource);
         }
         return l;
     }

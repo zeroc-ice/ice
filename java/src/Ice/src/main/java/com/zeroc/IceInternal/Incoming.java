@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -114,7 +114,7 @@ final public class Incoming implements com.zeroc.Ice.Request
         //
         // Read the current.
         //
-        _current.id.ice_read(_is);
+        _current.id.ice_readMembers(_is);
 
         //
         // For compatibility with the old FacetPath.
@@ -223,7 +223,7 @@ final public class Incoming implements com.zeroc.Ice.Request
 
             try
             {
-                CompletionStage<OutputStream> f = _servant.__dispatch(this, _current);
+                CompletionStage<OutputStream> f = _servant._iceDispatch(this, _current);
                 if(f == null)
                 {
                     completed(null, false);
@@ -533,18 +533,25 @@ final public class Incoming implements com.zeroc.Ice.Request
         com.zeroc.IceUtilInternal.OutputBase out = new com.zeroc.IceUtilInternal.OutputBase(pw);
         out.setUseTab(false);
         out.print("dispatch exception:");
-        out.print("\nidentity: " + Util.identityToString(_current.id));
-        out.print("\nfacet: " + com.zeroc.IceUtilInternal.StringUtil.escapeString(_current.facet, ""));
+        out.print("\nidentity: " + Util.identityToString(_current.id, _instance.toStringMode()));
+        out.print("\nfacet: " + com.zeroc.IceUtilInternal.StringUtil.escapeString(_current.facet, "", _instance.toStringMode()));
         out.print("\noperation: " + _current.operation);
         if(_current.con != null)
         {
-            for(ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
+            try
             {
-                if(connInfo instanceof IPConnectionInfo)
+                for(ConnectionInfo connInfo = _current.con.getInfo(); connInfo != null; connInfo = connInfo.underlying)
                 {
-                    IPConnectionInfo ipConnInfo = (IPConnectionInfo)connInfo;
-                    out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                    if(connInfo instanceof IPConnectionInfo)
+                    {
+                        IPConnectionInfo ipConnInfo = (IPConnectionInfo)connInfo;
+                        out.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " + ipConnInfo.remotePort);
+                    }
                 }
+            }
+            catch(com.zeroc.Ice.LocalException exc)
+            {
+                // Ignore.
             }
         }
         out.print("\n");
@@ -610,7 +617,7 @@ final public class Incoming implements com.zeroc.Ice.Request
                 {
                     assert(false);
                 }
-                ex.id.ice_write(_os);
+                ex.id.ice_writeMembers(_os);
 
                 //
                 // For compatibility with the old FacetPath.
@@ -849,20 +856,25 @@ final public class Incoming implements com.zeroc.Ice.Request
                 _responseHandler.sendNoResponse();
             }
 
-            if(ex instanceof java.lang.Error)
-            {
-                throw new ServantError((java.lang.Error)ex);
-            }
-        }
-        finally
-        {
             if(_observer != null)
             {
                 _observer.detach();
                 _observer = null;
             }
             _responseHandler = null;
+
+            if(!amd && ex instanceof java.lang.Error)
+            {
+                throw new ServantError((java.lang.Error)ex);
+            }
         }
+
+        if(_observer != null)
+        {
+            _observer.detach();
+            _observer = null;
+        }
+        _responseHandler = null;
     }
 
     private Instance _instance;

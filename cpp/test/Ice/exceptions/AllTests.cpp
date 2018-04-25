@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,6 @@ namespace
 {
 const bool printException = false;
 }
-
 
 class EmptyI : public virtual Empty
 {
@@ -405,6 +404,8 @@ endsWith(const string& s, const string& findme)
 ThrowerPrxPtr
 allTests(const Ice::CommunicatorPtr& communicator)
 {
+    const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
+
     cout << "testing ice_print()/what()... " << flush;
     {
         A a;
@@ -501,147 +502,156 @@ allTests(const Ice::CommunicatorPtr& communicator)
         }
         localOAEndpoint = ostr.str();
     }
+#ifdef ICE_OS_UWP
+    bool uwp = true;
+#else
+    bool uwp = false;
+#endif
 
-    cout << "testing object adapter registration exceptions... " << flush;
+    if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
+                  communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
     {
-        Ice::ObjectAdapterPtr first;
-        try
+        cout << "testing object adapter registration exceptions... " << flush;
         {
+            Ice::ObjectAdapterPtr first;
+            try
+            {
+                first = communicator->createObjectAdapter("TestAdapter0");
+                test(false);
+            }
+            catch(const Ice::InitializationException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+                // Expected
+            }
+
+            communicator->getProperties()->setProperty("TestAdapter0.Endpoints", localOAEndpoint);
             first = communicator->createObjectAdapter("TestAdapter0");
-            test(false);
-        }
-        catch(const Ice::InitializationException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
+                test(false);
             }
-            // Expected
-        }
-
-        communicator->getProperties()->setProperty("TestAdapter0.Endpoints", localOAEndpoint);
-        first = communicator->createObjectAdapter("TestAdapter0");
-        try
-        {
-            Ice::ObjectAdapterPtr second = communicator->createObjectAdapter("TestAdapter0");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException& ex)
-        {
-            if(printException)
+            catch(const Ice::AlreadyRegisteredException& ex)
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+
+                // Expected
             }
 
-            // Expected
-        }
-
-        try
-        {
-            Ice::ObjectAdapterPtr second =
-                communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                Ice::ObjectAdapterPtr second =
+                    communicator->createObjectAdapterWithEndpoints("TestAdapter0", "ssl -h foo -p 12011");
+                test(false);
             }
+            catch(const Ice::AlreadyRegisteredException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
 
-            // Expected.
+                // Expected.
+            }
+            first->deactivate();
         }
-        first->deactivate();
-    }
-    cout << "ok" << endl;
+        cout << "ok" << endl;
 
-    cout << "testing servant registration exceptions... " << flush;
-    {
-        communicator->getProperties()->setProperty("TestAdapter1.Endpoints", localOAEndpoint);
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
-        Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
-        adapter->add(obj, Ice::stringToIdentity("x"));
-        try
+        cout << "testing servant registration exceptions... " << flush;
         {
+            communicator->getProperties()->setProperty("TestAdapter1.Endpoints", localOAEndpoint);
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter1");
+            Ice::ObjectPtr obj = ICE_MAKE_SHARED(EmptyI);
             adapter->add(obj, Ice::stringToIdentity("x"));
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->add(obj, Ice::stringToIdentity("x"));
+                test(false);
             }
-        }
-
-        try
-        {
-            adapter->add(obj, Ice::stringToIdentity(""));
-        }
-        catch(const Ice::IllegalIdentityException& ex)
-        {
-            test(ex.id.name == "");
-            if(printException)
+            catch(const Ice::AlreadyRegisteredException& ex)
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
             }
-        }
 
-        try
-        {
-            adapter->add(0, Ice::stringToIdentity("x"));
-        }
-        catch(const Ice::IllegalServantException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->add(obj, Ice::stringToIdentity(""));
             }
-        }
+            catch(const Ice::IllegalIdentityException& ex)
+            {
+                test(ex.id.name == "");
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
 
-        adapter->remove(Ice::stringToIdentity("x"));
-        try
-        {
+            try
+            {
+                adapter->add(0, Ice::stringToIdentity("x"));
+            }
+            catch(const Ice::IllegalServantException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
+
             adapter->remove(Ice::stringToIdentity("x"));
-            test(false);
-        }
-        catch(const Ice::NotRegisteredException& ex)
-        {
-            if(printException)
+            try
             {
-                Ice::Print printer(communicator->getLogger());
-                printer << ex;
+                adapter->remove(Ice::stringToIdentity("x"));
+                test(false);
             }
+            catch(const Ice::NotRegisteredException& ex)
+            {
+                if(printException)
+                {
+                    Ice::Print printer(communicator->getLogger());
+                    printer << ex;
+                }
+            }
+
+            adapter->deactivate();
         }
+        cout << "ok" << endl;
 
-        adapter->deactivate();
-    }
-    cout << "ok" << endl;
-
-    cout << "testing servant locator registrations exceptions... " << flush;
-    {
-        communicator->getProperties()->setProperty("TestAdapter2.Endpoints", localOAEndpoint);
-        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
-        Ice::ServantLocatorPtr loc = ICE_MAKE_SHARED(ServantLocatorI);
-        adapter->addServantLocator(loc, "x");
-        try
+        cout << "testing servant locator registrations exceptions... " << flush;
         {
+            communicator->getProperties()->setProperty("TestAdapter2.Endpoints", localOAEndpoint);
+            Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter2");
+            Ice::ServantLocatorPtr loc = ICE_MAKE_SHARED(ServantLocatorI);
             adapter->addServantLocator(loc, "x");
-            test(false);
-        }
-        catch(const Ice::AlreadyRegisteredException&)
-        {
-        }
+            try
+            {
+                adapter->addServantLocator(loc, "x");
+                test(false);
+            }
+            catch(const Ice::AlreadyRegisteredException&)
+            {
+            }
 
-        adapter->deactivate();
+            adapter->deactivate();
+        }
+        cout << "ok" << endl;
     }
-    cout << "ok" << endl;
 
     cout << "testing value factory registration exception... " << flush;
     {
@@ -955,7 +965,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "ok" << endl;
     }
 
-    if(thrower->ice_getConnection())
+    if(thrower->ice_getConnection() && protocol != "bt")
     {
         cout << "testing memory limit marshal exception..." << flush;
         try
@@ -979,32 +989,42 @@ allTests(const Ice::CommunicatorPtr& communicator)
         catch(const Ice::ConnectionLostException&)
         {
         }
+        catch(const Ice::UnknownLocalException&)
+        {
+            // Expected with JS bidir server
+        }
         catch(const Ice::LocalException& ex)
         {
             cerr << ex << endl;
             test(false);
         }
 
-        ThrowerPrxPtr thrower2 =
-            ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + getTestEndpoint(communicator, 1)));
         try
         {
-            thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
+            ThrowerPrxPtr thrower2 =
+                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + getTestEndpoint(communicator, 1)));
+            try
+            {
+                thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
+            }
+            catch(const Ice::MemoryLimitException&)
+            {
+            }
+            ThrowerPrxPtr thrower3 =
+                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + getTestEndpoint(communicator, 2)));
+            try
+            {
+                thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit
+                test(false);
+            }
+            catch(const Ice::ConnectionLostException&)
+            {
+            }
         }
-        catch(const Ice::MemoryLimitException&)
+        catch(const Ice::ConnectionRefusedException&)
         {
+            // Expected with JS bidir server
         }
-        ThrowerPrxPtr thrower3 =
-            ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + getTestEndpoint(communicator, 2)));
-        try
-        {
-            thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit
-            test(false);
-        }
-        catch(const Ice::ConnectionLostException&)
-        {
-        }
-
         cout << "ok" << endl;
     }
 

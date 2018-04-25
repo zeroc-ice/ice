@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,14 +16,14 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server
+public class Server : TestCommon.Application
 {
     private static void usage()
     {
         Console.Error.WriteLine("Usage: Server port");
     }
 
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override int run(string[] args)
     {
         int port = 0;
         for(int i = 0; i < args.Length; i++)
@@ -61,53 +61,25 @@ public class Server
             return 1;
         }
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p " + port + ":udp");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
+        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         Ice.Object obj = new TestI();
         adapter.add(obj, Ice.Util.stringToIdentity("test"));
         adapter.activate();
-        communicator.waitForShutdown();
+        communicator().waitForShutdown();
         return 0;
+    }
+
+    protected override Ice.InitializationData getInitData(ref string[] args)
+    {
+        Ice.InitializationData initData = base.getInitData(ref args);
+        initData.properties.setProperty("Ice.ServerIdleTime", "120");
+        return initData;
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            //
-            // In this test, we need longer server idle time,
-            // otherwise our test servers may time out before they are
-            // used in the test.
-            //
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            initData.properties.setProperty("Ice.ServerIdleTime", "120"); // Two minutes
-
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            try
-            {
-                communicator.destroy();
-            }
-            catch(Ice.LocalException ex)
-            {
-                Console.Error.WriteLine(ex);
-                status = 1;
-            }
-        }
-
-        return status;
+        Server app = new Server();
+        return app.runmain(args);
     }
 }

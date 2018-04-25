@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -26,12 +26,18 @@ public class AllTests
     }
 
     public static void
-    allTests(Ice.Communicator communicator, PrintWriter out)
+    allTests(test.Util.Application app)
     {
-        TestIntfPrx service1 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:tcp -p 12010"));
-        TestIntfPrx service2 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:tcp -p 12011"));
-        TestIntfPrx service3 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:tcp -p 12012"));
-        TestIntfPrx service4 = TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:tcp -p 12013"));
+        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = app.getWriter();
+        TestIntfPrx service1 =
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(0)));
+        TestIntfPrx service2 =
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(1)));
+        TestIntfPrx service3 =
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(2)));
+        TestIntfPrx service4 =
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(3)));
 
         if(service1.getProperty("IceBox.InheritProperties").equals(""))
         {

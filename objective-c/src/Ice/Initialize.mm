@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -187,10 +187,11 @@ private:
 @synthesize logger;
 @synthesize dispatcher;
 @synthesize batchRequestInterceptor;
-@synthesize prefixTable__;
+@synthesize prefixTable_;
 
--(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log dispatcher:(void(^)(id<ICEDispatcherCall>,
-                                                                                  id<ICEConnection>))d;
+-(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log
+                                dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d
+                   batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i;
 {
     self = [super init];
     if(!self)
@@ -200,6 +201,7 @@ private:
     properties = [props retain];
     logger = [log retain];
     dispatcher = [d copy];
+    batchRequestInterceptor = [i copy];
     return self;
 }
 
@@ -211,9 +213,11 @@ private:
 }
 
 +(id) initializationData:(id<ICEProperties>)p logger:(id<ICELogger>)l
-              dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d;
+                                          dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d
+                             batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i;
 {
-   return [[((ICEInitializationData *)[ICEInitializationData alloc]) init:p logger:l dispatcher:d] autorelease];
+   return [[((ICEInitializationData *)[ICEInitializationData alloc]) init:p logger:l dispatcher:d
+            batchRequestInterceptor:i] autorelease];
 }
 
 -(id) copyWithZone:(NSZone *)zone
@@ -222,7 +226,8 @@ private:
     copy->properties = [properties retain];
     copy->logger = [logger retain];
     copy->dispatcher = [dispatcher copy];
-    copy->prefixTable__ = [prefixTable__ retain];
+    copy->batchRequestInterceptor = [batchRequestInterceptor copy];
+    copy->prefixTable_ = [prefixTable_ retain];
     return copy;
 }
 
@@ -231,7 +236,9 @@ private:
     NSUInteger h = 0;
     h = (h << 5 ^ [properties hash]);
     h = (h << 5 ^ [logger hash]);
-    h = (h << 5 ^ [prefixTable__ hash]);
+    h = (h << 5 ^ [dispatcher hash]);
+    h = (h << 5 ^ [batchRequestInterceptor hash]);
+    h = (h << 5 ^ [prefixTable_ hash]);
     return h;
 }
 
@@ -288,16 +295,30 @@ private:
             return NO;
         }
     }
-    if(!prefixTable__)
+    if(!batchRequestInterceptor)
     {
-        if(obj->prefixTable__)
+        if(obj->batchRequestInterceptor)
         {
             return NO;
         }
     }
     else
     {
-        if(![prefixTable__ isEqual:obj->prefixTable__])
+        if(batchRequestInterceptor == obj->batchRequestInterceptor)
+        {
+            return NO;
+        }
+    }
+    if(!prefixTable_)
+    {
+        if(obj->prefixTable_)
+        {
+            return NO;
+        }
+    }
+    else
+    {
+        if(![prefixTable_ isEqual:obj->prefixTable_])
         {
             return NO;
         }
@@ -310,7 +331,8 @@ private:
     [properties release];
     [logger release];
     [dispatcher release];
-    [prefixTable__ release];
+    [batchRequestInterceptor release];
+    [prefixTable_ release];
     [super dealloc];
 }
 @end
@@ -415,6 +437,15 @@ private:
     }
     @throw nsex;
     return nil; // Keep the compiler happy.
+}
+
++(id<ICECommunicator>) createCommunicator:(int*)argc argv:(char*[])argv configFile:(NSString*)configFile
+{
+    ICEInitializationData* initData = [ICEInitializationData initializationData];
+    initData.properties = [ICEUtil createProperties];
+    [initData.properties load:configFile];
+
+    return [self createCommunicator:argc argv:argv initData:initData];
 }
 
 +(id<ICEInputStream>) createInputStream:(id<ICECommunicator>)c data:(NSData*)data
@@ -554,12 +585,13 @@ private:
     return nil; // Keep the compiler happy.
 }
 
-+(NSMutableString*) identityToString:(ICEIdentity*)ident
++(NSMutableString*) identityToString:(ICEIdentity*)ident toStringMode:(ICEToStringMode)toStringMode
 {
     NSException* nsex = nil;
     try
     {
-        return [toNSMutableString(Ice::identityToString([ident identity])) autorelease];
+        return [toNSMutableString(Ice::identityToString([ident identity],
+                                                        static_cast<Ice::ToStringMode>(toStringMode))) autorelease];
     }
     catch(const std::exception& ex)
     {
@@ -568,6 +600,12 @@ private:
     @throw nsex;
     return nil; // Keep the compiler happy.
 }
+
++(NSMutableString*) identityToString:(ICEIdentity*)ident
+{
+    return [ICEUtil identityToString:ident toStringMode:ICEUnicode];
+}
+
 @end
 
 @implementation ICEEncodingVersion(StringConv)

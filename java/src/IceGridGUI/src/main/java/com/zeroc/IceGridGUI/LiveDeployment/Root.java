@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,7 +29,7 @@ import com.zeroc.IceGridGUI.*;
 //
 // The Root node of the Live Deployment view
 //
-public class Root extends ListArrayTreeNode
+public class Root extends Communicator
 {
     //
     // A custom tree model to filter tree views.
@@ -150,18 +150,13 @@ public class Root extends ListArrayTreeNode
         return _applicationNameFilter;
     }
 
-    @Override
-    public void clearShowIceLogDialog()
-    {
-        _showIceLogDialog = null;
-    }
-
     public Root(Coordinator coordinator)
     {
-        super(null, "Root", 2);
+        super(null, "Root", 3);
         _coordinator = coordinator;
-        _childrenArray[0] = _slaves;
-        _childrenArray[1] = _nodes;
+        _childrenArray[0] = _metrics;
+        _childrenArray[1] = _slaves;
+        _childrenArray[2] = _nodes;
         _messageSizeMax = computeMessageSizeMax(_coordinator.getProperties().getPropertyAsInt("Ice.MessageSizeMax"));
 
         _treeModel = new FilteredTreeModel(this);
@@ -176,16 +171,12 @@ public class Root extends ListArrayTreeNode
                 public void treeWillExpand(javax.swing.event.TreeExpansionEvent event)
                 {
                     //
-                    // Fetch metrics when Server node is expanded.
+                    // Fetch metrics when Communicator node is expanded.
                     //
                     TreeNode node = (TreeNode)event.getPath().getLastPathComponent();
-                    if(node instanceof Server)
+                    if(node instanceof Communicator)
                     {
-                        ((Server)node).fetchMetricsViewNames();
-                    }
-                    else if(node instanceof Service)
-                    {
-                        ((Service)node).fetchMetricsViewNames();
+                        ((Communicator)node).fetchMetricsViewNames();
                     }
                 }
 
@@ -344,8 +335,11 @@ public class Root extends ListArrayTreeNode
         _infoMap.clear();
         _nodes.clear();
         _slaves.clear();
+        _metrics.clear();
+        _metricsRetrieved = false;
         _treeModel.nodeStructureChanged(this);
         _tree.setRootVisible(false);
+        _editor = null;
     }
 
     public void patch(final String applicationName)
@@ -427,17 +421,20 @@ public class Root extends ListArrayTreeNode
         int[] toRemoveIndices = new int[_nodes.size()];
 
         int i = 0;
-        for(int index = 0; index < _nodes.size(); ++index)
+        for(Node node : _nodes)
         {
-            Node node = _nodes.get(index);
             if(node.remove(name))
             {
                 toRemove.add(node);
-                toRemoveIndices[i++] = _slaves.size() + index;
+                toRemoveIndices[i++] = getIndex(node);
             }
         }
 
-        removeNodes(resize(toRemoveIndices, toRemove.size()), toRemove);
+        if(toRemove.size() > 0)
+        {
+            _nodes.removeAll(toRemove);
+            _treeModel.nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
+        }
     }
 
     public void applicationUpdated(ApplicationUpdateInfo update)
@@ -600,23 +597,23 @@ public class Root extends ListArrayTreeNode
     {
         for(ObjectInfo info : objects)
         {
-            _objects.put(com.zeroc.Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
+            _objects.put(info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()), info);
         }
     }
 
     public void objectAdded(ObjectInfo info)
     {
-        _objects.put(com.zeroc.Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
+        _objects.put(info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()), info);
     }
 
     public void objectUpdated(ObjectInfo info)
     {
-        _objects.put(com.zeroc.Ice.Util.identityToString(info.proxy.ice_getIdentity()), info);
+        _objects.put(info.proxy.ice_getCommunicator().identityToString(info.proxy.ice_getIdentity()), info);
     }
 
     public void objectRemoved(com.zeroc.Ice.Identity id)
     {
-        _objects.remove(com.zeroc.Ice.Util.identityToString(id));
+        _objects.remove(_coordinator.getCommunicator().identityToString(id));
     }
 
     //
@@ -627,22 +624,12 @@ public class Root extends ListArrayTreeNode
         if(info.name.equals(_replicaName))
         {
             _info = info;
+            fetchMetricsViewNames();
         }
         else
         {
             Slave newSlave = new Slave(this, info, _replicaName);
-
-            int i;
-            for(i = 0; i < _slaves.size(); ++i)
-            {
-                String otherName = _slaves.get(i).toString();
-                if(info.name.compareTo(otherName) < 0)
-                {
-                    break;
-                }
-            }
-            _slaves.add(i, newSlave);
-            _treeModel.nodesWereInserted(this, new int[]{i});
+            insertSortedChild(newSlave, _slaves, _treeModel);
         }
     }
 
@@ -836,7 +823,7 @@ public class Root extends ListArrayTreeNode
                 JOptionPane.ERROR_MESSAGE);
         }
 
-        String strIdentity = com.zeroc.Ice.Util.identityToString(proxy.ice_getIdentity());
+        String strIdentity = _coordinator.getCommunicator().identityToString(proxy.ice_getIdentity());
 
         final String prefix = "Adding well-known object '" + strIdentity + "'...";
         final AdminPrx admin = _coordinator.getAdmin();
@@ -887,7 +874,7 @@ public class Root extends ListArrayTreeNode
     {
         com.zeroc.Ice.ObjectPrx proxy = _coordinator.getCommunicator().stringToProxy(strProxy);
         com.zeroc.Ice.Identity identity = proxy.ice_getIdentity();
-        final String strIdentity = com.zeroc.Ice.Util.identityToString(identity);
+        final String strIdentity = _coordinator.getCommunicator().identityToString(identity);
 
         final String prefix = "Removing well-known object '" + strIdentity + "'...";
         final String errorTitle = "Failed to remove object '" + strIdentity + "'";
@@ -926,60 +913,26 @@ public class Root extends ListArrayTreeNode
         }
     }
 
+    //
+    // Implement Communicator abstract methods
+    //
+
     @Override
-    public void retrieveIceLog()
+    protected java.util.concurrent.CompletableFuture<com.zeroc.Ice.ObjectPrx> getAdminAsync()
     {
-        if(_showIceLogDialog == null)
-        {
-            final String prefix = "Retrieving Admin proxy for Registry...";
-            final String errorTitle = "Failed to retrieve Admin Proxy for Registry";
-            _coordinator.getStatusBar().setText(prefix);
+        return _coordinator.getAdmin().getRegistryAdminAsync(_replicaName);
+    }
 
-            try
-            {
-                _coordinator.getSession().getAdmin().getRegistryAdminAsync(_replicaName).whenComplete((result, ex) ->
-                    {
-                        if(ex == null)
-                        {
-                            final com.zeroc.Ice.LoggerAdminPrx loggerAdmin =
-                                com.zeroc.Ice.LoggerAdminPrx.uncheckedCast(result.ice_facet("Logger"));
-                            final String title = "Registry " + _label + " Ice log";
-                            final String defaultFileName = "registry-" + _instanceName + "-" + _replicaName;
+    @Override
+    protected String getDisplayName()
+    {
+        return "Registry";
+    }
 
-                            SwingUtilities.invokeLater(() ->
-                                {
-                                    success(prefix);
-                                    if(_showIceLogDialog == null)
-                                    {
-                                        _showIceLogDialog = new ShowIceLogDialog(Root.this, title, loggerAdmin,
-                                                                                 defaultFileName, getLogMaxLines(),
-                                                                                 getLogInitialLines());
-                                    }
-                                    else
-                                    {
-                                        _showIceLogDialog.toFront();
-                                    }
-                                });
-                        }
-                        else if(ex instanceof com.zeroc.Ice.UserException)
-                        {
-                            amiFailure(prefix, errorTitle, (com.zeroc.Ice.UserException)ex);
-                        }
-                        else
-                        {
-                            amiFailure(prefix, errorTitle, ex.toString());
-                        }
-                    });
-            }
-            catch(com.zeroc.Ice.LocalException e)
-            {
-                failure(prefix, errorTitle, e.toString());
-            }
-        }
-        else
-        {
-            _showIceLogDialog.toFront();
-        }
+    @Override
+    protected String getDefaultFileName()
+    {
+        return "registry-" + _instanceName + "-" + _replicaName;
     }
 
     @Override
@@ -1107,11 +1060,11 @@ public class Root extends ListArrayTreeNode
 
     private void loadLogPrefs()
     {
-        Preferences logPrefs = _coordinator.getPrefs().node("Log");
-        _logMaxLines = logPrefs.getInt("maxLines", 500);
-        _logMaxSize = logPrefs.getInt("maxSize", 20000);
-        _logInitialLines = logPrefs.getInt("initialLines", 10);
-        _logMaxReadSize = logPrefs.getInt("maxReadSize", 10000);
+        Preferences logPrefs = Coordinator.getPreferences().node("Log");
+        _logMaxLines = logPrefs.getInt("maxLines", 1000);
+        _logMaxSize = logPrefs.getInt("maxSize", 1000000);
+        _logInitialLines = logPrefs.getInt("initialLines", 1000);
+        _logMaxReadSize = logPrefs.getInt("maxReadSize", 1000000);
         _logPeriod = logPrefs.getInt("period", 300);
 
         if(_logMaxReadSize + 512 > _messageSizeMax)
@@ -1122,7 +1075,7 @@ public class Root extends ListArrayTreeNode
 
     private void storeLogPrefs()
     {
-        Preferences logPrefs = _coordinator.getPrefs().node("Log");
+        Preferences logPrefs = Coordinator.getPreferences().node("Log");
         logPrefs.putInt("maxLines", _logMaxLines);
         logPrefs.putInt("maxSize", _logMaxSize);
         logPrefs.putInt("initialLines", _logInitialLines);
@@ -1137,29 +1090,7 @@ public class Root extends ListArrayTreeNode
 
     private void insertNode(Node node)
     {
-        String nodeName = node.toString();
-        int i;
-        for(i = 0; i < _nodes.size(); ++i)
-        {
-            String otherNodeName = _nodes.get(i).toString();
-            if(nodeName.compareTo(otherNodeName) < 0)
-            {
-                break;
-            }
-        }
-
-        _nodes.add(i, node);
-        _treeModel.nodesWereInserted(this, new int[]{_slaves.size() + i});
-    }
-
-    @SuppressWarnings("rawtypes")
-    private void removeNodes(int[] toRemoveIndices, java.util.List toRemove)
-    {
-        if(toRemove.size() > 0)
-        {
-            _nodes.removeAll(toRemove);
-            _treeModel.nodesWereRemoved(this, toRemoveIndices, toRemove.toArray());
-        }
+        insertSortedChild(node, _nodes, _treeModel);
     }
 
     public static int computeMessageSizeMax(int num)
@@ -1227,8 +1158,6 @@ public class Root extends ListArrayTreeNode
     int _logInitialLines;
     int _logMaxReadSize;
     int _logPeriod;
-
-    private ShowIceLogDialog _showIceLogDialog;
 
     private ApplicationDetailsDialog _applicationDetailsDialog;
 

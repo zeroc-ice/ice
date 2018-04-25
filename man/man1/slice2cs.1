@@ -1,0 +1,123 @@
+.TH slice2cs 1
+
+.SH NAME
+
+slice2cs - The Slice to C# compiler.
+
+.SH SYNOPSIS
+
+slice2cs [options] [files]
+
+.SH DESCRIPTION
+
+slice2cpp compiles Slice files to C#. The macro __SLICE2CS__
+is defined during this compilation.
+
+Full documentation for slice2cs is available online at:
+.br
+https://doc.zeroc.com/display/Ice37/slice2cs+Command-Line+Options
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help\fR
+.br
+Displays a help message.
+
+.TP
+.BR \-v ", " \-\-version\fR
+Displays the compiler version.
+
+.TP
+.BR \-DNAME\fR
+.br
+Defines the preprocessor symbol NAME.
+
+.TP
+.BR \-DNAME=DEF\fR
+.br
+Defines the preprocessor symbol NAME with the value DEF.
+
+.TP
+.BR \-UNAME\fR
+.br
+Undefines the preprocessor symbol NAME.
+
+.TP
+.BR \-IDIR\fR
+.br
+Add the directory DIR to the search path for #include directives.
+
+.TP
+.BR \-E\fR
+.br
+Print the preprocessor output on stdout.
+
+.TP
+.BR \-\-output-dir " " DIR\fR
+.br
+Place the generated files into directory DIR.
+
+.TP
+.BR \-d ", " \-\-debug\fR
+.br
+Print debug information showing the operation of the Slice parser.
+
+.TP
+.BR \-\-depend\fR
+.br
+Print dependency information to standard output by default, or to the
+file specified by the --depend-file option. No code is generated when
+this option is specified.
+
+.TP
+.BR \-\-depend\-xml\fR
+.br
+Print dependency information in XML format to standard output by default,
+or to the file specified by the --depend-file option. No code is generated
+when this option is specified.
+
+.TP
+.BR \-\-depend\-file " " FILE\fR
+.br
+Directs dependency information to the specified file. The output
+format depends on whether --depend or --depend-xml is also specified.
+
+.TP
+.BR \-\-validate\fR
+.br
+Checks the provided command-line options for correctness, and does not
+generate any code.
+
+.TP
+.BR \-\-tie\fR
+.br
+Generate tie classes.
+
+.TP
+.BR \-\-impl\fR
+.br
+Generate sample implementation files. This option will not overwrite an
+existing file.
+
+.TP
+.BR \-\-impl\-tie
+.br
+Generate sample implementation files using tie classes. This option will not
+overwrite an existing file.
+
+.TP
+.BR \-\-checksum " " CLASS\fR
+.br
+Generate checksums for Slice definitions.
+
+.SH SEE ALSO
+
+.BR slice2cpp (1),
+.BR slice2java (1),
+.BR slice2js (1),
+.BR slice2matlab (1),
+.BR slice2objc (1),
+.BR slice2php (1),
+.BR slice2py (1),
+.BR slice2rb (1)

@@ -10,10 +10,12 @@ slice2java [options] [files]
 
 .SH DESCRIPTION
 
-slice2java compiles Slice files to Java. Full documentation for slice2java is
-available online at:
+slice2java compiles Slice files to Java. The macro __SLICE2JAVA__
+is defined during this compilation.
+
+Full documentation for slice2java is available online at:
 .br
-"https://doc.zeroc.com/display/Ice37/slice2java+Command-Line+Options".
+https://doc.zeroc.com/display/Ice37/slice2java+Command-Line+Options
 
 .SH OPTIONS
 
@@ -33,7 +35,7 @@ Defines the preprocessor symbol NAME.
 
 .TP
 .BR \-DNAME=DEF\fR
-.br 
+.br
 Defines the preprocessor symbol NAME with the value DEF.
 
 .TP
@@ -62,20 +64,43 @@ Place the generated files into directory DIR.
 Print debug information showing the operation of the Slice parser.
 
 .TP
-.BR \-\-ice\fR
+.BR \-\-depend\fR
 .br
-Permit use of the normally reserved prefix Ice for identifiers. Use this
-option only when compiling the source code for the Ice run time.
+Print dependency information to standard output by default, or to the
+file specified by the --depend-file option. No code is generated when
+this option is specified.
 
 .TP
-.BR \-\-underscore\fR
+.BR \-\-depend\-xml\fR
 .br
-Permit use of underscores in Slice identifiers.
+Print dependency information in XML format to standard output by default,
+or to the file specified by the --depend-file option. No code is generated
+when this option is specified.
+
+.TP
+.BR \-\-depend\-file " " FILE\fR
+.br
+Directs dependency information to the specified file. The output
+format depends on whether --depend or --depend-xml is also specified.
+
+.TP
+.BR \-\-validate\fR
+.br
+Checks the provided command-line options for correctness, and does not
+generate any code.
+
+.TP
+.BR \-\-compat\fR
+.br
+Generate code for the Java Compat mapping. When this option is specified, the
+macro __SLICE2JAVA_COMPAT__ is defined during the compilation. If this
+option is not specified, the default behavior is to generate code for the
+Java mapping.
 
 .TP
 .BR \-\-tie\fR
 .br
-Generate tie classes.
+Generate tie classes. (Java Compat only)
 
 .TP
 .BR \-\-impl\fR
@@ -87,7 +112,7 @@ existing file.
 .BR \-\-impl\-tie
 .br
 Generate sample implementation files using tie classes. This option will not
-overwrite an existing file.
+overwrite an existing file. (Java Compat only)
 
 .TP
 .BR \-\-checksum " " CLASS\fR
@@ -98,11 +123,6 @@ checksums for all of the Slice files being translated by this invocation of
 the compiler.
 
 .TP
-.BR \-\-stream\fR
-.br
-Generate streaming helper functions for Slice types.
-
-.TP
 .BR \-\-meta " " META\fR
 .br
 Define the global metadata directive META. Using this option is equivalent to
@@ -111,13 +131,18 @@ file included by a named Slice file. Global metadata specified with --meta
 overrides any corresponding global metadata directive in the files being
 compiled.
 
+.TP
+.BR \-\-list\-generated\fR
+.br
+Emit a list of generated files in XML format.
+
 .SH SEE ALSO
 
 .BR slice2cpp (1),
 .BR slice2cs (1),
-.BR slice2freeze (1),
-.BR slice2freezej (1),
-.BR slice2html (1),
+.BR slice2js (1),
+.BR slice2matlab (1),
+.BR slice2objc (1),
 .BR slice2php (1),
 .BR slice2py (1),
 .BR slice2rb (1)

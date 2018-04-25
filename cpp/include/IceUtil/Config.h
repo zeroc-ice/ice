@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -64,31 +64,37 @@
 
 #endif
 
+#ifdef _MSC_VER
 
-//
-// Use system headers as preferred way to detect 32 or 64 bit mode and
-// fallback to architecture based checks
-//
-#include <stdint.h>
-
-#if defined(__WORDSIZE) && (__WORDSIZE == 64)
-#   define ICE_64
-#elif defined(__WORDSIZE) && (__WORDSIZE == 32)
-#   define ICE_32
-#elif defined(__sun) && (defined(__sparcv9) || defined(__x86_64))  || \
-      defined(__linux) && defined(__x86_64)                        || \
-      defined(__APPLE__) && defined(__x86_64)                      || \
-      defined(__hppa) && defined(__LP64__)                         || \
-      defined(_ARCH_COM) && defined(__64BIT__)                     || \
-      defined(__alpha__)                                           || \
-      defined(_WIN64)
-
-#   define ICE_64
+#   ifdef _WIN64
+#      define ICE_64
+#   else
+#      define ICE_32
+#   endif
 
 #else
 
-#   define ICE_32
+    //
+    // Use system headers as preferred way to detect 32 or 64 bit mode and
+    // fallback to architecture based checks
+    //
+#   include <stdint.h>
 
+#   if defined(__WORDSIZE) && (__WORDSIZE == 64)
+#      define ICE_64
+#   elif defined(__WORDSIZE) && (__WORDSIZE == 32)
+#      define ICE_32
+#   elif defined(__sun) && (defined(__sparcv9) || defined(__x86_64))  || \
+         defined(__linux) && defined(__x86_64)                        || \
+         defined(__APPLE__) && defined(__x86_64)                      || \
+         defined(__hppa) && defined(__LP64__)                         || \
+         defined(_ARCH_COM) && defined(__64BIT__)                     || \
+         defined(__alpha__)                                           || \
+         defined(_WIN64)
+#      define ICE_64
+#   else
+#      define ICE_32
+#   endif
 #endif
 
 //
@@ -99,7 +105,7 @@
 //
 #if (__cplusplus >= 201103) || \
     ((defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) && ((__GNUC__* 100) + __GNUC_MINOR__) >= 405)) || \
-    (defined(_MSC_VER) && (_MSC_VER >= 1600))
+    (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_CPP11_COMPILER
 #endif
 
@@ -110,7 +116,6 @@
 #   error "you need a C++11 capable compiler to use the C++11 mapping"
 #endif
 
-
 #if defined(ICE_CPP11_COMPILER) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
@@ -118,7 +123,6 @@
 #   define ICE_NOEXCEPT throw()
 #   define ICE_NOEXCEPT_FALSE /**/
 #endif
-
 
 //
 // Does the C++ compiler library provide std::codecvt_utf8 and
@@ -136,11 +140,11 @@
 #if defined(_MSC_VER) && (_MSC_VER >= 1900)
 
 //
-// Check if building for WinRT
+// Check if building for UWP
 //
 #   include <winapifamily.h>
 #   if defined(WINAPI_FAMILY) && (WINAPI_FAMILY == WINAPI_FAMILY_APP)
-#      define ICE_OS_WINRT
+#      define ICE_OS_UWP
 #      define ICE_STATIC_LIBS
 #   endif
 
@@ -152,6 +156,12 @@
 //
 #if defined(ICE_CPP11_MAPPING) || defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_HAS_THREAD_SAFE_LOCAL_STATIC
+#endif
+
+#if defined(_MSVC_LANG)
+#   define ICE_CPLUSPLUS _MSVC_LANG
+#else
+#   define ICE_CPLUSPLUS __cplusplus
 #endif
 
 //
@@ -234,10 +244,13 @@
 #include <cassert>
 #include <iostream>
 #include <sstream>
+#include <exception>
+#include <stdexcept>
 
 #ifndef _WIN32
 #   include <pthread.h>
 #   include <errno.h>
+#   include <unistd.h>
 #endif
 
 #ifdef __APPLE__
@@ -257,9 +270,9 @@
 //
 // The Ice version.
 //
-#define ICE_STRING_VERSION "3.7a3" // "A.B.C", with A=major, B=minor, C=patch
-#define ICE_INT_VERSION 30753      // AABBCC, with AA=major, BB=minor, CC=patch
-#define ICE_SO_VERSION "37a3"      // "ABC", with A=major, B=minor, C=patch
+#define ICE_STRING_VERSION "3.7.1" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 30701      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICE_SO_VERSION "37"      // "ABC", with A=major, B=minor, C=patch
 
 #if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)
 #   define ICE_BUILDING_ICE
@@ -272,13 +285,13 @@
 
 #   ifdef ICE_CPP11_MAPPING
 #      if defined(_DEBUG)
-#         if defined(ICE_OS_WINRT)
+#         if defined(ICE_OS_UWP)
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp++11D.lib"
 #         else
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11D.lib"
 #         endif
 #      else
-#         if defined(ICE_OS_WINRT)
+#         if defined(ICE_OS_UWP)
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp++11.lib"
 #         else
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "++11.lib"
@@ -286,13 +299,13 @@
 #      endif
 #   else
 #      if defined(_DEBUG)
-#         if defined(ICE_OS_WINRT)
+#         if defined(ICE_OS_UWP)
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwpD.lib"
 #         else
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "D.lib"
 #         endif
 #      else
-#         if defined(ICE_OS_WINRT)
+#         if defined(ICE_OS_UWP)
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION "uwp.lib"
 #         else
 #            define ICE_LIBNAME(NAME) NAME ICE_SO_VERSION ".lib"
@@ -327,7 +340,6 @@ private:
     noncopyable(const noncopyable&);
     const noncopyable& operator=(const noncopyable&);
 };
-
 
 typedef unsigned char Byte;
 
@@ -364,6 +376,7 @@ typedef long long Int64;
 #   define ICE_MAKE_SHARED(T, ...) ::std::make_shared<T>(__VA_ARGS__)
 #   define ICE_DEFINE_PTR(TPtr, T) using TPtr = ::std::shared_ptr<T>
 #   define ICE_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
+#   define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS::ENUMERATOR
 #   define ICE_NULLPTR nullptr
 #   define ICE_DYNAMIC_CAST(T,V) ::std::dynamic_pointer_cast<T>(V)
 #   define ICE_SHARED_FROM_THIS shared_from_this()
@@ -371,10 +384,7 @@ typedef long long Int64;
 #   define ICE_GET_SHARED_FROM_THIS(p) p->shared_from_this()
 #   define ICE_CHECKED_CAST(T, ...) Ice::checkedCast<T>(__VA_ARGS__)
 #   define ICE_UNCHECKED_CAST(T, ...) Ice::uncheckedCast<T>(__VA_ARGS__)
-#   define ICE_VALUE_FACTORY ::std::function<::std::shared_ptr<::Ice::Value>(const std::string&)>
-#   define ICE_USER_EXCEPTION_FACTORY ::std::function<void(const std::string&)>
-#   define ICE_CLOSE_CALLBACK ::std::function<void(const ::std::shared_ptr<::Ice::Connection>&)>
-#   define ICE_HEARTBEAT_CALLBACK ::std::function<void(const ::std::shared_ptr<::Ice::Connection>&)>
+#   define ICE_DELEGATE(T) T
 #   define ICE_IN(...) __VA_ARGS__
 #   define ICE_SET_EXCEPTION_FROM_CLONE(T, V)  T = V
 #else // C++98 mapping
@@ -384,6 +394,7 @@ typedef long long Int64;
 #   define ICE_MAKE_SHARED(T, ...) new T(__VA_ARGS__)
 #   define ICE_DEFINE_PTR(TPtr, T) typedef ::IceUtil::Handle<T> TPtr
 #   define ICE_ENUM(CLASS,ENUMERATOR) ENUMERATOR
+#   define ICE_SCOPED_ENUM(CLASS,ENUMERATOR) CLASS##ENUMERATOR
 #   define ICE_NULLPTR 0
 #   define ICE_DYNAMIC_CAST(T,V) T##Ptr::dynamicCast(V)
 #   define ICE_SHARED_FROM_THIS this
@@ -391,10 +402,7 @@ typedef long long Int64;
 #   define ICE_GET_SHARED_FROM_THIS(p) p
 #   define ICE_CHECKED_CAST(T, ...) T::checkedCast(__VA_ARGS__)
 #   define ICE_UNCHECKED_CAST(T, ...) T::uncheckedCast(__VA_ARGS__)
-#   define ICE_VALUE_FACTORY ::Ice::ValueFactoryPtr
-#   define ICE_USER_EXCEPTION_FACTORY ::Ice::UserExceptionFactoryPtr
-#   define ICE_CLOSE_CALLBACK ::Ice::CloseCallbackPtr
-#   define ICE_HEARTBEAT_CALLBACK ::Ice::HeartbeatCallbackPtr
+#   define ICE_DELEGATE(T) T##Ptr
 #   define ICE_IN(...) const __VA_ARGS__&
 #   define ICE_SET_EXCEPTION_FROM_CLONE(T, V) T.reset(V)
 #endif

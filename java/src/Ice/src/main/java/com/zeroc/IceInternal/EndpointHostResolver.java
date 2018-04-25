@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,7 +31,7 @@ class EndpointHostResolver
         }
     }
 
-    synchronized void resolve(final String host, final int port, final com.zeroc.Ice.EndpointSelectionType selType, 
+    synchronized void resolve(final String host, final int port, final com.zeroc.Ice.EndpointSelectionType selType,
                               final IPEndpointI endpoint, final EndpointI_connectors callback)
     {
         //
@@ -61,74 +61,71 @@ class EndpointHostResolver
             observer.attach();
         }
 
-        _executor.execute(new Runnable()
+        _executor.execute(() ->
             {
-                @Override
-                public void run()
+                synchronized(EndpointHostResolver.this)
                 {
-                    synchronized(EndpointHostResolver.this)
+                    if(_destroyed)
                     {
-                        if(_destroyed)
-                        {
-                            com.zeroc.Ice.CommunicatorDestroyedException ex =
-                                new com.zeroc.Ice.CommunicatorDestroyedException();
-                            if(observer != null)
-                            {
-                                observer.failed(ex.ice_id());
-                                observer.detach();
-                            }
-                            callback.exception(ex);
-                            return;
-                        }
-                    }
-
-                    if(threadObserver != null)
-                    {
-                        threadObserver.stateChanged(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle,
-                                                    com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
-                    }
-
-                    try
-                    {
-                        int protocol = _protocol;
-                        NetworkProxy networkProxy = _instance.networkProxy();
-                        if(networkProxy != null)
-                        {
-                            networkProxy = networkProxy.resolveHost(_protocol);
-                            if(networkProxy != null)
-                            {
-                                protocol = networkProxy.getProtocolSupport();
-                            }
-                        }
-
-                        callback.connectors(endpoint.connectors(Network.getAddresses(host,
-                                                                                     port,
-                                                                                     protocol,
-                                                                                     selType,
-                                                                                     _preferIPv6,
-                                                                                     true),
-                                                                networkProxy));                        
-                    }
-                    catch(com.zeroc.Ice.LocalException ex)
-                    {
+                        com.zeroc.Ice.CommunicatorDestroyedException ex =
+                            new com.zeroc.Ice.CommunicatorDestroyedException();
                         if(observer != null)
                         {
                             observer.failed(ex.ice_id());
-                        }
-                        callback.exception(ex);
-                    }
-                    finally
-                    {
-                        if(threadObserver != null)
-                        {
-                            threadObserver.stateChanged(
-                                com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
-                                com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
-                        }
-                        if(observer != null)
-                        {
                             observer.detach();
                         }
+                        callback.exception(ex);
+                        return;
+                    }
+                }
+
+                if(threadObserver != null)
+                {
+                    threadObserver.stateChanged(com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle,
+                                                com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther);
+                }
+
+                com.zeroc.Ice.Instrumentation.Observer obsv = observer;
+                try
+                {
+                    int protocol = _protocol;
+                    NetworkProxy np = _instance.networkProxy();
+                    if(np != null)
+                    {
+                        np = np.resolveHost(_protocol);
+                        if(np != null)
+                        {
+                            protocol = np.getProtocolSupport();
+                        }
+                    }
+
+                    java.util.List<java.net.InetSocketAddress> addresses =
+                        Network.getAddresses(host, port, _protocol, selType, _preferIPv6, true);
+
+                    if(obsv != null)
+                    {
+                        obsv.detach();
+                        obsv = null;
+                    }
+
+                    callback.connectors(endpoint.connectors(addresses, np));
+                }
+                catch(com.zeroc.Ice.LocalException ex)
+                {
+                    if(obsv != null)
+                    {
+                        obsv.failed(ex.ice_id());
+                        obsv.detach();
+                    }
+                    callback.exception(ex);
+                }
+                finally
+                {
+                    if(threadObserver != null)
+                    {
+                        threadObserver.stateChanged(
+                            com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateInUseForOther,
+                            com.zeroc.Ice.Instrumentation.ThreadState.ThreadStateIdle);
                     }
                 }
             });

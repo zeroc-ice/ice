@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,6 @@
 #include <map>
 #include <set>
 #include <stdio.h>
-
 
 namespace Slice
 {
@@ -50,12 +49,6 @@ const IceUtil::Int64 Int16Min = -Int16Max - 1;
 const IceUtil::Int64 ByteMax = 0xff;
 const IceUtil::Int64 ByteMin = 0x00;
 
-enum FeatureProfile
-{
-    Ice,
-    IceE
-};
-
 enum NodeType
 {
     Dummy,
@@ -70,6 +63,13 @@ enum FormatType
     DefaultFormat,    // No preference was specified.
     CompactFormat,    // Minimal format.
     SlicedFormat      // Full format.
+};
+
+enum WarningCategory
+{
+    All,
+    Deprecated,
+    InvalidMetaData
 };
 
 class GrammarBase;
@@ -240,14 +240,61 @@ public:
     std::string findMetaData(const std::string&) const;
     StringList getMetaData() const;
 
+    //
+    // Emit warning unless filtered out by [["suppress-warning"]]
+    //
+    void warning(WarningCategory, const std::string&, int, const std::string&) const;
+    void warning(WarningCategory, const std::string&, const std::string&, const std::string&) const;
+
 private:
+
+    bool suppressWarning(WarningCategory) const;
+    void initSuppressedWarnings();
 
     int _includeLevel;
     StringList _metaData;
     std::string _filename;
     bool _seenDefinition;
+    std::set<WarningCategory> _suppressedWarnings;
 };
 typedef ::IceUtil::Handle<DefinitionContext> DefinitionContextPtr;
+
+// ----------------------------------------------------------------------
+// Comment
+// ----------------------------------------------------------------------
+
+class Comment : public ::IceUtil::SimpleShared
+{
+public:
+
+    bool isDeprecated() const;
+    StringList deprecated() const;
+
+    StringList overview() const;  // Contains all introductory lines up to the first tag.
+    StringList misc() const;      // Contains unrecognized tags.
+    StringList seeAlso() const;   // Targets of @see tags.
+
+    StringList returns() const;                           // Description of an operation's return value.
+    std::map<std::string, StringList> parameters() const; // Parameter descriptions for an op. Key is parameter name.
+    std::map<std::string, StringList> exceptions() const; // Exception descriptions for an op. Key is exception name.
+
+private:
+
+    Comment();
+
+    bool _isDeprecated;
+    StringList _deprecated;
+    StringList _overview;
+    StringList _misc;
+    StringList _seeAlso;
+
+    StringList _returns;
+    std::map<std::string, StringList> _parameters;
+    std::map<std::string, StringList> _exceptions;
+
+    friend class Contained;
+};
+typedef ::IceUtil::Handle<Comment> CommentPtr;
 
 // ----------------------------------------------------------------------
 // GrammarBase
@@ -356,6 +403,7 @@ public:
     std::string file() const;
     std::string line() const;
     std::string comment() const;
+    CommentPtr parseComment(bool) const;
 
     int includeLevel() const;
     void updateIncludeLevel();
@@ -417,7 +465,7 @@ public:
     virtual void destroy();
     ModulePtr createModule(const std::string&);
     ClassDefPtr createClassDef(const std::string&, int, bool, const ClassList&, bool);
-    ClassDeclPtr createClassDecl(const std::string&, bool, bool, bool = true);
+    ClassDeclPtr createClassDecl(const std::string&, bool, bool);
     ExceptionPtr createException(const std::string&, const ExceptionPtr&, bool, NodeType = Real);
     StructPtr createStruct(const std::string&, bool, NodeType = Real);
     SequencePtr createSequence(const std::string&, const TypePtr&, const StringList&, bool, NodeType = Real);
@@ -440,6 +488,8 @@ public:
     SequenceList sequences() const;
     DictionaryList dictionaries() const;
     EnumList enums() const;
+    EnumeratorList enumerators() const;
+    EnumeratorList enumerators(const std::string&) const;
     ConstList consts() const;
     ContainedList contents() const;
     bool hasNonLocalClassDecls() const;
@@ -478,10 +528,9 @@ protected:
 
     Container(const UnitPtr&);
 
-    void checkIdentifier(const std::string&) const;
     bool checkInterfaceAndLocal(const std::string&, bool, bool, bool, bool, bool);
     bool checkGlobalMetaData(const StringList&, const StringList&);
-    bool validateConstant(const std::string&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&, bool);
+    bool validateConstant(const std::string&, const TypePtr&, SyntaxTreeBasePtr&, const std::string&, bool);
     EnumeratorPtr validateEnumerator(const std::string&);
 
     ContainedList _contents;
@@ -707,7 +756,7 @@ public:
 
 protected:
 
-    ClassDeclPtr __class;
+    ClassDeclPtr _classDecl;
 };
 
 // ----------------------------------------------------------------------
@@ -844,13 +893,11 @@ protected:
 // Enum
 // ----------------------------------------------------------------------
 
-class Enum : public virtual Constructed
+class Enum : public virtual Container, public virtual Constructed
 {
 public:
 
     virtual void destroy();
-    EnumeratorList getEnumerators();
-    void setEnumerators(const EnumeratorList&);
     bool explicitValue() const;
     int minValue() const;
     int maxValue() const;
@@ -866,12 +913,15 @@ public:
 protected:
 
     Enum(const ContainerPtr&, const std::string&, bool);
-    friend class Container;
+    int newEnumerator(const EnumeratorPtr&);
 
-    EnumeratorList _enumerators;
+    friend class Container;
+    friend class Enumerator;
+
     bool _explicitValue;
     IceUtil::Int64 _minValue;
     IceUtil::Int64 _maxValue;
+    int _lastValue;
 };
 
 // ----------------------------------------------------------------------
@@ -895,9 +945,7 @@ protected:
     Enumerator(const ContainerPtr&, const std::string&);
     Enumerator(const ContainerPtr&, const std::string&, int);
     friend class Container;
-    friend class Enum;
 
-    EnumPtr _type;
     bool _explicitValue;
     int _value;
 };
@@ -980,7 +1028,6 @@ public:
     virtual std::string kindOf() const;
     virtual void visit(ParserVisitor*, bool);
 
-
 protected:
 
     DataMember(const ContainerPtr&, const std::string&, const TypePtr&, bool, int, const SyntaxTreeBasePtr&,
@@ -1025,11 +1072,8 @@ public:
 
     void setSeenDefinition();
 
-    void error(const char*); // Not const, because error count is increased.
-    void error(const std::string&); // Ditto.
-
-    void warning(const char*) const;
-    void warning(const std::string&) const;
+    void error(const std::string&); // Not const because error count is increased
+    void warning(WarningCategory, const std::string&) const;
 
     ContainerPtr currentContainer() const;
     void pushContainer(const ContainerPtr&);
@@ -1053,8 +1097,6 @@ public:
     bool usesNonLocals() const;
     bool usesConsts() const;
 
-    FeatureProfile profile() const;
-
     //
     // Returns the path names of the files included directly by the top-level file.
     //
@@ -1065,7 +1107,7 @@ public:
     //
     StringList allFiles() const;
 
-    int parse(const std::string&, FILE*, bool, FeatureProfile profile = Ice);
+    int parse(const std::string&, FILE*, bool);
 
     virtual void destroy();
     virtual void visit(ParserVisitor*, bool);
@@ -1097,7 +1139,6 @@ private:
     std::stack<ContainerPtr> _containerStack;
     std::map<Builtin::Kind, BuiltinPtr> _builtins;
     std::map<std::string, ContainedList> _contentMap;
-    FeatureProfile _featureProfile;
     std::map<std::string, DefinitionContextPtr> _definitionContextMap;
     std::map<int, std::string> _typeIds;
     std::map< std::string, std::set<std::string> > _fileTopLevelModules;

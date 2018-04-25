@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,17 +17,23 @@ public interface BatchRequest
     void enqueue();
 
     /**
-     * The marshalled size of the request.
+     * Returns the marshaled size of the request.
+     *
+     * @return The marshaled size.
      **/
     int getSize();
 
     /**
-     * The name of the operation
+     * Returns the name of the operation.
+     *
+     * @return The name of the operation.
      **/
     String getOperation();
 
     /**
-     * The proxy used to invoke the batch request.
+     * Returns the proxy used to invoke the batch request.
+     *
+     * @return The proxy used to invoke the batch request.
      **/
     Ice.ObjectPrx getProxy();
 };

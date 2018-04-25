@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -261,7 +261,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
         }
         if(_reverseConnection)
         {
-            out << "\nidentity = " << identityToString(proxy->ice_getIdentity());
+            out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
         }
         else
         {
@@ -310,7 +310,7 @@ Glacier2::Blobject::invoke(ObjectPrx& proxy, const AMD_Object_ice_invokePtr& amd
             out << "routing override";
             if(_reverseConnection)
             {
-                out << "\nidentity = " << identityToString(proxy->ice_getIdentity());
+                out << "\nidentity = " << _instance->communicator()->identityToString(proxy->ice_getIdentity());
             }
             else
             {

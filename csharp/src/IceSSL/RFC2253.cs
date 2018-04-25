@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -13,7 +13,6 @@
 namespace IceSSL
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Text;
@@ -276,11 +275,11 @@ namespace IceSSL
             //
             // First the OID case.
             //
-            if(Char.IsDigit(data[pos]) ||
+            if(char.IsDigit(data[pos]) ||
                (data.Length - pos >= 4 && (data.Substring(pos, 4).Equals("oid.") ||
                                                        data.Substring(pos, 4).Equals("OID."))))
             {
-                if(!Char.IsDigit(data[pos]))
+                if(!char.IsDigit(data[pos]))
                 {
                     result += data.Substring(pos, 4);
                     pos += 4;
@@ -289,7 +288,7 @@ namespace IceSSL
                 while(true)
                 {
                     // 1*DIGIT
-                    while(pos < data.Length && Char.IsDigit(data[pos]))
+                    while(pos < data.Length && char.IsDigit(data[pos]))
                     {
                         result += data[pos];
                         ++pos;
@@ -300,7 +299,7 @@ namespace IceSSL
                         result += data[pos];
                         ++pos;
                         // 1*DIGIT must follow "."
-                        if(pos < data.Length && !Char.IsDigit(data[pos]))
+                        if(pos < data.Length && !char.IsDigit(data[pos]))
                         {
                             throw new ParseException("invalid attribute type (expected end of data)");
                         }
@@ -311,7 +310,7 @@ namespace IceSSL
                     }
                 }
             }
-            else if(Char.IsUpper(data[pos]) || Char.IsLower(data[pos]))
+            else if(char.IsUpper(data[pos]) || char.IsLower(data[pos]))
             {
                 //
                 // The grammar is wrong in this case. It should be ALPHA
@@ -322,9 +321,9 @@ namespace IceSSL
                 ++pos;
                 // 1* KEYCHAR
                 while(pos < data.Length &&
-                      (Char.IsDigit(data[pos]) ||
-                       Char.IsUpper(data[pos]) ||
-                       Char.IsLower(data[pos]) ||
+                      (char.IsDigit(data[pos]) ||
+                       char.IsUpper(data[pos]) ||
+                       char.IsLower(data[pos]) ||
                        data[pos] == '-'))
                 {
                     result += data[pos];

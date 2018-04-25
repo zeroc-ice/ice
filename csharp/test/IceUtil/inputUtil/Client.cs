@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,17 +9,9 @@
 
 using System;
 
-public class Client
+public class Client : TestCommon.Application
 {
-    private static void test(bool b)
-    {
-        if (!b)
-        {
-            throw new Exception();
-        }
-    }
-
-    public static void Main(string[] argvs)
+    public override int run(string[] argvs)
     {
         Console.Out.Write("testing string to command line arguments... ");
         Console.Out.Flush();
@@ -28,7 +20,7 @@ public class Client
         try
         {
             test(IceUtilInternal.Options.split("").Length == 0);
-            
+
             args = IceUtilInternal.Options.split("\"\"");
             test(args.Length == 1 && args[0].Equals(""));
             args = IceUtilInternal.Options.split("''");
@@ -128,7 +120,7 @@ public class Client
             test(arr.Length == 2 && arr[0].Equals("a") && arr[1].Equals("b"));
             arr = IceUtilInternal.StringUtil.splitString(":a:b:", ":");
             test(arr.Length == 2 && arr[0].Equals("a") && arr[1].Equals("b"));
-                 
+
             arr = IceUtilInternal.StringUtil.splitString("\"a\"", ":");
             test(arr.Length == 1 && arr[0].Equals("a"));
             arr = IceUtilInternal.StringUtil.splitString("\"a\":b", ":");
@@ -146,7 +138,7 @@ public class Client
             test(arr.Length == 1 && arr[0].Equals("\"a"));
             arr = IceUtilInternal.StringUtil.splitString("\"'a\"", ":");
             test(arr.Length == 1 && arr[0].Equals("'a"));
-            
+
             arr = IceUtilInternal.StringUtil.splitString("a\\'b", ":");
             test(arr.Length == 1 && arr[0].Equals("a'b"));
             arr = IceUtilInternal.StringUtil.splitString("'a:b\\'c'", ":");
@@ -163,5 +155,12 @@ public class Client
             test(IceUtilInternal.StringUtil.splitString("a\"b", ":") == null);
         }
         Console.Out.WriteLine("ok");
+        return 0;
+    }
+
+    public static int Main(string[] args)
+    {
+        Client app = new Client();
+        return app.runmain(args);
     }
 }

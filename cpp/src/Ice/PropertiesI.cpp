@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,7 +23,7 @@ using namespace Ice;
 using namespace IceInternal;
 
 string
-Ice::PropertiesI::getProperty(const string& key)
+Ice::PropertiesI::getProperty(const string& key) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -40,7 +40,7 @@ Ice::PropertiesI::getProperty(const string& key)
 }
 
 string
-Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
+Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -57,13 +57,13 @@ Ice::PropertiesI::getPropertyWithDefault(const string& key, const string& value)
 }
 
 Int
-Ice::PropertiesI::getPropertyAsInt(const string& key)
+Ice::PropertiesI::getPropertyAsInt(const string& key) ICE_NOEXCEPT
 {
     return getPropertyAsIntWithDefault(key, 0);
 }
 
 Int
-Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
+Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -85,13 +85,13 @@ Ice::PropertiesI::getPropertyAsIntWithDefault(const string& key, Int value)
 }
 
 Ice::StringSeq
-Ice::PropertiesI::getPropertyAsList(const string& key)
+Ice::PropertiesI::getPropertyAsList(const string& key) ICE_NOEXCEPT
 {
     return getPropertyAsListWithDefault(key, StringSeq());
 }
 
 Ice::StringSeq
-Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value)
+Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSeq& value) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -118,9 +118,8 @@ Ice::PropertiesI::getPropertyAsListWithDefault(const string& key, const StringSe
     }
 }
 
-
 PropertyDict
-Ice::PropertiesI::getPropertiesForPrefix(const string& prefix)
+Ice::PropertiesI::getPropertiesForPrefix(const string& prefix) ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -236,7 +235,7 @@ Ice::PropertiesI::setProperty(const string& key, const string& value)
 }
 
 StringSeq
-Ice::PropertiesI::getCommandLineOptions()
+Ice::PropertiesI::getCommandLineOptions() ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
 
@@ -301,7 +300,7 @@ Ice::PropertiesI::load(const std::string& file)
 //
 // Metro style applications cannot access Windows registry.
 //
-#if defined (_WIN32) && !defined(ICE_OS_WINRT)
+#if defined (_WIN32) && !defined(ICE_OS_UWP)
     if(file.find("HKLM\\") == 0)
     {
         HKEY iceKey;
@@ -309,9 +308,8 @@ Ice::PropertiesI::load(const std::string& file)
         LONG err;
         if((err = RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
-            InitializationException ex(__FILE__, __LINE__);
-            ex.reason = "could not open Windows registry key `" + file + "':\n" + IceUtilInternal::errorToString(err);
-            throw ex;
+            throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file + "':\n" +
+                                          IceUtilInternal::errorToString(err));
         }
 
         DWORD maxNameSize; // Size in characters not including terminating null character.
@@ -319,14 +317,12 @@ Ice::PropertiesI::load(const std::string& file)
         DWORD numValues;
         try
         {
-            err = RegQueryInfoKey(iceKey, NULL, NULL, NULL, NULL, NULL, NULL, &numValues, &maxNameSize, &maxDataSize,
-                                  NULL, NULL);
+            err = RegQueryInfoKey(iceKey, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, &numValues, &maxNameSize, &maxDataSize,
+                                  ICE_NULLPTR, ICE_NULLPTR);
             if(err != ERROR_SUCCESS)
             {
-                InitializationException ex(__FILE__, __LINE__);
-                ex.reason = "could not open Windows registry key `" + file + "':\n";
-                ex.reason += IceUtilInternal::errorToString(err);
-                throw ex;
+                throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file + "':\n" +
+                                              IceUtilInternal::errorToString(err));
             }
 
             for(DWORD i = 0; i < numValues; ++i)
@@ -336,7 +332,7 @@ Ice::PropertiesI::load(const std::string& file)
                 DWORD keyType;
                 DWORD nameBufSize = static_cast<DWORD>(nameBuf.size());
                 DWORD dataBufSize = static_cast<DWORD>(dataBuf.size());
-                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, NULL, &keyType, &dataBuf[0], &dataBufSize);
+                err = RegEnumValueW(iceKey, i, &nameBuf[0], &nameBufSize, ICE_NULLPTR, &keyType, &dataBuf[0], &dataBufSize);
                 if(err != ERROR_SUCCESS || nameBufSize == 0)
                 {
                     ostringstream os;
@@ -404,10 +400,7 @@ Ice::PropertiesI::load(const std::string& file)
         ifstream in(IceUtilInternal::streamFilename(file).c_str());
         if(!in)
         {
-            FileException ex(__FILE__, __LINE__);
-            ex.path = file;
-            ex.error = getSystemErrno();
-            throw ex;
+            throw FileException(__FILE__, __LINE__, getSystemErrno(), file);
         }
 
         string line;
@@ -435,7 +428,7 @@ Ice::PropertiesI::load(const std::string& file)
 }
 
 PropertiesPtr
-Ice::PropertiesI::clone()
+Ice::PropertiesI::clone() ICE_NOEXCEPT
 {
     IceUtil::Mutex::Lock sync(*this);
     return ICE_MAKE_SHARED(PropertiesI, this);
@@ -711,9 +704,9 @@ void
 Ice::PropertiesI::loadConfig()
 {
     string value = getProperty("Ice.Config");
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     //
-    // WinRT cannot access environment variables
+    // UWP cannot access environment variables
     //
     if(value.empty() || value == "1")
     {

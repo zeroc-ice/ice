@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@ public class RemoteObjectAdapterI : RemoteObjectAdapterDisp_
     public RemoteObjectAdapterI(Ice.ObjectAdapter adapter)
     {
         _adapter = adapter;
-        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(), 
+        _testIntf = TestIntfPrxHelper.uncheckedCast(_adapter.add(new TestI(),
                                                     Ice.Util.stringToIdentity("test")));
         _adapter.activate();
     }

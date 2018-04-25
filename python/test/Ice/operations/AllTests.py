@@ -1,14 +1,14 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-import Ice, Test, Twoways, TwowaysAMI, Oneways, OnewaysAMI, BatchOneways, sys
-import BatchOnewaysAMI
+import Ice, Test, Twoways, TwowaysFuture, TwowaysAMI, Oneways, OnewaysFuture, OnewaysAMI, BatchOneways, sys
+import BatchOnewaysAMI, BatchOnewaysFuture
 
 def test(b):
     if not b:
@@ -32,23 +32,39 @@ def allTests(communicator):
     Oneways.oneways(communicator, cl)
     print("ok")
 
+    sys.stdout.write("testing twoway operations with futures... ")
+    sys.stdout.flush()
+    TwowaysFuture.twowaysFuture(communicator, cl)
+    print("ok")
+
     sys.stdout.write("testing twoway operations with AMI... ")
     sys.stdout.flush()
     TwowaysAMI.twowaysAMI(communicator, cl)
     print("ok")
-    
+
+    sys.stdout.write("testing oneway operations with futures... ")
+    sys.stdout.flush()
+    OnewaysFuture.onewaysFuture(communicator, cl)
+    print("ok")
+
     sys.stdout.write("testing oneway operations with AMI... ")
     sys.stdout.flush()
     OnewaysAMI.onewaysAMI(communicator, cl)
     print("ok")
-    
+
     sys.stdout.write("testing batch oneway operations...  ")
     sys.stdout.flush()
     BatchOneways.batchOneways(cl)
     BatchOneways.batchOneways(derived)
     print("ok")
-    
-    sys.stdout.write("testing batch AMI oneway operations...  ")
+
+    sys.stdout.write("testing batch oneway operations with futures...  ")
+    sys.stdout.flush()
+    BatchOnewaysFuture.batchOneways(cl)
+    BatchOnewaysFuture.batchOneways(derived)
+    print("ok")
+
+    sys.stdout.write("testing batch oneway operations with AMI...  ")
     sys.stdout.flush()
     BatchOnewaysAMI.batchOneways(cl)
     BatchOnewaysAMI.batchOneways(derived)

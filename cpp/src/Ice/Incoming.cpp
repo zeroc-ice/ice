@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@
 #include <Ice/Protocol.h>
 #include <Ice/ReplyStatus.h>
 #include <Ice/ResponseHandler.h>
-#include <IceUtil/StringUtil.h>
+#include <Ice/StringUtil.h>
 #include <typeinfo>
 
 using namespace std;
@@ -39,11 +39,11 @@ extern bool printStackTraces;
 
 #ifdef ICE_CPP11_MAPPING
 Ice::MarshaledResult::MarshaledResult(const Ice::Current& current) :
-    __os(make_shared<Ice::OutputStream>(current.adapter->getCommunicator(), Ice::currentProtocolEncoding))
+    ostr(make_shared<Ice::OutputStream>(current.adapter->getCommunicator(), Ice::currentProtocolEncoding))
 {
-    __os->writeBlob(replyHdr, sizeof(replyHdr));
-    __os->write(current.requestId);
-    __os->write(replyOK);
+    ostr->writeBlob(replyHdr, sizeof(replyHdr));
+    ostr->write(current.requestId);
+    ostr->write(replyOK);
 }
 #endif
 
@@ -52,7 +52,7 @@ IceInternal::IncomingBase::IncomingBase(Instance* instance, ResponseHandler* res
                                         bool response, Byte compress, Int requestId) :
     _response(response),
     _compress(compress),
-    _format(Ice::DefaultFormat),
+    _format(Ice::ICE_ENUM(FormatType, DefaultFormat)),
     _os(instance, Ice::currentProtocolEncoding),
     _responseHandler(responseHandler)
 {
@@ -222,21 +222,31 @@ IceInternal::IncomingBase::warning(const Exception& ex) const
 {
     Warning out(_os.instance()->initializationData().logger);
 
+    ToStringMode toStringMode = _os.instance()->toStringMode();
+
     out << "dispatch exception: " << ex;
-    out << "\nidentity: " << Ice::identityToString(_current.id);
-    out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
+    out << "\nidentity: " << identityToString(_current.id, toStringMode);
+    out << "\nfacet: ";
+    out << escapeString(_current.facet, "", toStringMode);
     out << "\noperation: " << _current.operation;
 
     if(_current.con)
     {
-        for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
+        try
         {
-            Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
-            if(ipConnInfo)
+            for(Ice::ConnectionInfoPtr connInfo = _current.con->getInfo(); connInfo; connInfo = connInfo->underlying)
             {
-                out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
-                break;
+                Ice::IPConnectionInfoPtr ipConnInfo = ICE_DYNAMIC_CAST(Ice::IPConnectionInfo, connInfo);
+                if(ipConnInfo)
+                {
+                    out << "\nremote host: " << ipConnInfo->remoteAddress << " remote port: " << ipConnInfo->remotePort;
+                    break;
+                }
             }
+        }
+        catch(const Ice::LocalException&)
+        {
+            // Ignore.
         }
     }
 }
@@ -245,10 +255,11 @@ void
 IceInternal::IncomingBase::warning(const string& msg) const
 {
     Warning out(_os.instance()->initializationData().logger);
+    ToStringMode toStringMode = _os.instance()->toStringMode();
 
     out << "dispatch exception: " << msg;
-    out << "\nidentity: " << Ice::identityToString(_current.id);
-    out << "\nfacet: " << IceUtilInternal::escapeString(_current.facet, "");
+    out << "\nidentity: " << identityToString(_current.id, toStringMode);
+    out << "\nfacet: " << escapeString(_current.facet, "", toStringMode);
     out << "\noperation: " << _current.operation;
 
     if(_current.con)
@@ -547,7 +558,6 @@ IceInternal::IncomingBase::handleException(const string& msg, bool amd)
     _responseHandler = 0;
 }
 
-
 IceInternal::Incoming::Incoming(Instance* instance, ResponseHandler* responseHandler, Ice::Connection* connection,
                                 const ObjectAdapterPtr& adapter, bool response, Byte compress, Int requestId) :
     IncomingBase(instance, responseHandler, connection, adapter, response, compress, requestId),
@@ -721,7 +731,7 @@ IceInternal::Incoming::invoke(const ServantManagerPtr& servantManager, InputStre
         //
         // Dispatch in the incoming call
         //
-        _servant->__dispatch(*this, _current);
+        _servant->_iceDispatch(*this, _current);
 
         //
         // If the request was not dispatched asynchronously, send the response.

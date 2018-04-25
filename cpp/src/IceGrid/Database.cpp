@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -264,6 +264,8 @@ Database::Database(const Ice::ObjectAdapterPtr& registryAdapter,
 
     _nodeObserverTopic = new NodeObserverTopic(_topicManager, _internalAdapter);
     _registryObserverTopic = new RegistryObserverTopic(_topicManager);
+
+    _serverCache.setNodeObserverTopic(_nodeObserverTopic);
 
     // Set all serials to 1 if they have not yet been set.
     Ice::Long serial;
@@ -665,7 +667,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
                 }
             }
         }
-        catch(const DeploymentException& ex)
+        catch(const DeploymentException&)
         {
             try
             {
@@ -693,7 +695,7 @@ Database::addApplication(const ApplicationInfo& info, AdminSessionI* session, Ic
             _applicationObserverTopic->waitForSyncedSubscribers(serial);
             for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitForSyncNoThrow));
             finishUpdating(info.descriptor.name);
-            throw ex;
+            throw;
         }
     }
 
@@ -713,8 +715,8 @@ Database::updateApplication(const ApplicationUpdateInfo& updt, bool noRestart, A
 
     ApplicationInfo oldApp;
     ApplicationUpdateInfo update = updt;
-    IceUtil::UniquePtr<ApplicationHelper> previous;
-    IceUtil::UniquePtr<ApplicationHelper> helper;
+    IceInternal::UniquePtr<ApplicationHelper> previous;
+    IceInternal::UniquePtr<ApplicationHelper> helper;
     try
     {
         Lock sync(*this);
@@ -755,8 +757,8 @@ Database::syncApplicationDescriptor(const ApplicationDescriptor& newDesc, bool n
 
     ApplicationUpdateInfo update;
     ApplicationInfo oldApp;
-    IceUtil::UniquePtr<ApplicationHelper> previous;
-    IceUtil::UniquePtr<ApplicationHelper> helper;
+    IceInternal::UniquePtr<ApplicationHelper> previous;
+    IceInternal::UniquePtr<ApplicationHelper> helper;
     try
     {
         Lock sync(*this);
@@ -800,8 +802,8 @@ Database::instantiateServer(const string& application,
 
     ApplicationUpdateInfo update;
     ApplicationInfo oldApp;
-    IceUtil::UniquePtr<ApplicationHelper> previous;
-    IceUtil::UniquePtr<ApplicationHelper> helper;
+    IceInternal::UniquePtr<ApplicationHelper> previous;
+    IceInternal::UniquePtr<ApplicationHelper> helper;
 
     try
     {
@@ -1004,6 +1006,13 @@ Database::setAdapterDirectProxy(const string& adapterId, const string& replicaGr
         {
             throw AdapterExistsException(adapterId);
         }
+        if(_adapterCache.has(replicaGroupId))
+        {
+            throw DeploymentException("registering adapter `" + adapterId + "' with the replica group `" +
+                                      replicaGroupId + "' is not allowed:\nthe replica group was added with an "
+                                      "application descriptor and only adapters specified in an application descriptor "
+                                      "can be member of this replica group");
+        }
 
         AdapterInfo info;
         info.id = adapterId;
@@ -1093,6 +1102,11 @@ Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& en
 
     Ice::EndpointSeq endpoints;
     vector<AdapterInfo> infos = findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id);
+    if(infos.empty())
+    {
+        throw AdapterNotExistException(id);
+    }
+
     filterAdapterInfos("", id, _pluginFacade, con, ctx, infos);
     for(unsigned int i = 0; i < infos.size(); ++i)
     {
@@ -1106,8 +1120,7 @@ Database::getAdapterDirectProxy(const string& id, const Ice::EncodingVersion& en
     {
         return _communicator->stringToProxy("dummy:default")->ice_endpoints(endpoints);
     }
-
-    throw AdapterNotExistException(id);
+    return 0;
 }
 
 void
@@ -1121,10 +1134,9 @@ Database::removeAdapter(const string& adapterId)
         if(_adapterCache.has(adapterId))
         {
             AdapterEntryPtr adpt = _adapterCache.get(adapterId);
-            DeploymentException ex;
-            ex.reason = "removing adapter `" + adapterId + "' is not allowed:\n";
-            ex.reason += "the adapter was added with the application descriptor `" + adpt->getApplication() + "'";
-            throw ex;
+            throw DeploymentException("removing adapter `" + adapterId + "' is not allowed:\n" +
+                                      "the adapter was added with the application descriptor `" +
+                                      adpt->getApplication() + "'");
         }
 
         AdapterInfoSeq infos;
@@ -1483,7 +1495,7 @@ Database::addObject(const ObjectInfo& info)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "added object `" << identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << "added object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1539,7 +1551,7 @@ Database::addOrUpdateObject(const ObjectInfo& info, Ice::Long dbSerial)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << (!update ? "added" : "updated") << " object `" << identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << (!update ? "added" : "updated") << " object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1555,12 +1567,9 @@ Database::removeObject(const Ice::Identity& id, Ice::Long dbSerial)
         Lock sync(*this);
         if(_objectCache.has(id))
         {
-            DeploymentException ex;
-            ex.reason = "removing object `" + identityToString(id) + "' is not allowed:\n";
-            ex.reason += "the object was added with the application descriptor `";
-            ex.reason += _objectCache.get(id)->getApplication();
-            ex.reason += "'";
-            throw ex;
+            throw DeploymentException("removing object `" + _communicator->identityToString(id) + "' is not allowed:\n"
+                                      + "the object was added with the application descriptor `" +
+                                      _objectCache.get(id)->getApplication());
         }
 
         try
@@ -1570,9 +1579,7 @@ Database::removeObject(const Ice::Identity& id, Ice::Long dbSerial)
             ObjectInfo info;
             if(!_objects.get(txn, id, info))
             {
-                ObjectNotRegisteredException ex;
-                ex.id = id;
-                throw ex;
+                throw ObjectNotRegisteredException(id);
             }
             deleteObject(txn, info, false);
             dbSerial = updateSerial(txn, objectsDbName, dbSerial);
@@ -1590,7 +1597,7 @@ Database::removeObject(const Ice::Identity& id, Ice::Long dbSerial)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "removed object `" << identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << "removed object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1608,12 +1615,9 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
         const Ice::Identity id = proxy->ice_getIdentity();
         if(_objectCache.has(id))
         {
-            DeploymentException ex;
-            ex.reason = "updating object `" + identityToString(id) + "' is not allowed:\n";
-            ex.reason += "the object was added with the application descriptor `";
-            ex.reason += _objectCache.get(id)->getApplication();
-            ex.reason += "'";
-            throw ex;
+            throw DeploymentException("updating object `" + _communicator->identityToString(id) + "' is not allowed:\n"
+                                      + "the object was added with the application descriptor `" +
+                                      _objectCache.get(id)->getApplication() + "'");
         }
 
         ObjectInfo info;
@@ -1624,9 +1628,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 
             if(!_objects.get(txn, id, info))
             {
-                ObjectNotRegisteredException ex;
-                ex.id = id;
-                throw ex;
+                ObjectNotRegisteredException(id);
             }
             info.proxy = proxy;
             addObject(txn, info, false);
@@ -1644,7 +1646,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
         if(_traceLevels->object > 0)
         {
             Ice::Trace out(_traceLevels->logger, _traceLevels->objectCat);
-            out << "updated object `" << identityToString(id) << "' (serial = `" << dbSerial << "')";
+            out << "updated object `" << _communicator->identityToString(id) << "' (serial = `" << dbSerial << "')";
         }
     }
     _objectObserverTopic->waitForSyncedSubscribers(serial);
@@ -1723,9 +1725,7 @@ Database::getObjectProxy(const Ice::Identity& id)
     ObjectInfo info;
     if(!_objects.get(txn, id, info))
     {
-        ObjectNotRegisteredException ex;
-        ex.id = id;
-        throw ex;
+        throw ObjectNotRegisteredException(id);
     }
     return info.proxy;
 }
@@ -1773,11 +1773,19 @@ Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample
     return min_element(objectsWithLoad.begin(), objectsWithLoad.end(), ObjectLoadCI())->first;
 }
 
-
 Ice::ObjectProxySeq
 Database::getObjectsByType(const string& type, const Ice::ConnectionPtr& con, const Ice::Context& ctx)
 {
-    Ice::ObjectProxySeq proxies = _objectCache.getObjectsByType(type);
+    Ice::ObjectProxySeq proxies;
+
+    vector<ObjectEntryPtr> objects = _objectCache.getObjectsByType(type);
+    for(vector<ObjectEntryPtr>::const_iterator q = objects.begin(); q != objects.end(); ++q)
+    {
+        if(_nodeObserverTopic->isServerEnabled((*q)->getServer())) // Only return proxies from enabled servers.
+        {
+            proxies.push_back((*q)->getProxy());
+        }
+    }
 
     IceDB::ReadOnlyTxn txn(_env);
     vector<ObjectInfo> infos = findByType(txn, _objects, _objectsByType, type);
@@ -1833,7 +1841,7 @@ Database::getAllObjectInfos(const string& expression)
     ObjectsMapROCursor cursor(_objects, txn);
     while(cursor.get(id, info, MDB_NEXT))
     {
-        if(expression.empty() || IceUtilInternal::match(identityToString(id), expression, true))
+        if(expression.empty() || IceUtilInternal::match(_communicator->identityToString(id), expression, true))
         {
             infos.push_back(info);
         }
@@ -1897,9 +1905,7 @@ Database::removeInternalObject(const Ice::Identity& id)
         ObjectInfo info;
         if(!_internalObjects.get(txn, id, info))
         {
-            ObjectNotRegisteredException ex;
-            ex.id = id;
-            throw ex;
+            throw ObjectNotRegisteredException(id);
         }
         deleteObject(txn, info, true);
 
@@ -2012,9 +2018,7 @@ Database::checkForUpdate(const ApplicationHelper& origApp,
                      back_inserter(invalidAdptRepGrps));
     if(!invalidAdptRepGrps.empty())
     {
-        DeploymentException ex;
-        ex.reason = "couldn't find replica group `" + invalidAdptRepGrps.front() + "'";
-        throw ex;
+        throw DeploymentException("couldn't find replica group `" + invalidAdptRepGrps.front() + "'");
     }
 }
 
@@ -2032,9 +2036,7 @@ Database::checkServerForAddition(const string& id)
 {
     if(_serverCache.has(id))
     {
-        DeploymentException ex;
-        ex.reason = "server `" + id + "' is already registered";
-        throw ex;
+        throw DeploymentException("server `" + id + "' is already registered");
     }
 }
 
@@ -2054,7 +2056,7 @@ Database::checkAdapterForAddition(const string& id, const IceDB::ReadWriteTxn& t
         }
         else
         {
-            if(!findByReplicaGroupId(txn, _adapters,_adaptersByGroupId, id).empty())
+            if(!findByReplicaGroupId(txn, _adapters, _adaptersByGroupId, id).empty())
             {
                 found = true;
             }
@@ -2063,9 +2065,7 @@ Database::checkAdapterForAddition(const string& id, const IceDB::ReadWriteTxn& t
 
     if(found)
     {
-        DeploymentException ex;
-        ex.reason = "adapter `" + id + "' is already registered";
-        throw ex;
+        throw DeploymentException("adapter `" + id + "' is already registered");
     }
 }
 
@@ -2088,9 +2088,7 @@ Database::checkObjectForAddition(const Ice::Identity& objectId,
 
     if(found)
     {
-        DeploymentException ex;
-        ex.reason = "object `" + identityToString(objectId) + "' is already registered";
-        throw ex;
+        throw DeploymentException("object `" + _communicator->identityToString(objectId) + "' is already registered");
     }
 }
 
@@ -2108,9 +2106,7 @@ Database::checkReplicaGroupExists(const string& replicaGroup)
 
     if(!entry)
     {
-        DeploymentException ex;
-        ex.reason = "couldn't find replica group `" + replicaGroup + "'";
-        throw ex;
+        throw DeploymentException("couldn't find replica group `" + replicaGroup + "'");
     }
 }
 
@@ -2138,10 +2134,8 @@ Database::checkReplicaGroupForRemove(const string& replicaGroup)
 
     if(entry->hasAdaptersFromOtherApplications())
     {
-        DeploymentException ex;
-        ex.reason = "couldn't remove application because the replica group `" + replicaGroup +
-            "' is used by object adapters from other applications.";
-        throw ex;
+        throw DeploymentException("couldn't remove application because the replica group `" + replicaGroup +
+                                  "' is used by object adapters from other applications.");
     }
 }
 
@@ -2162,7 +2156,7 @@ Database::load(const ApplicationHelper& app, ServerEntrySeq& entries, const stri
         _adapterCache.addReplicaGroup(*r, application);
         for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
         {
-            _objectCache.add(toObjectInfo(_communicator, *o, r->id), application);
+            _objectCache.add(toObjectInfo(_communicator, *o, r->id), application, "");
         }
     }
 
@@ -2305,7 +2299,7 @@ Database::reload(const ApplicationHelper& oldApp,
 
         for(ObjectDescriptorSeq::const_iterator o = r->objects.begin(); o != r->objects.end(); ++o)
         {
-            _objectCache.add(toObjectInfo(_communicator, *o, r->id), application);
+            _objectCache.add(toObjectInfo(_communicator, *o, r->id), application, "");
         }
     }
 
@@ -2614,7 +2608,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
                 }
             }
         }
-        catch(const DeploymentException& ex)
+        catch(const DeploymentException&)
         {
             ApplicationUpdateInfo newUpdate;
             {
@@ -2655,7 +2649,7 @@ Database::finishApplicationUpdate(const ApplicationUpdateInfo& update,
             _applicationObserverTopic->waitForSyncedSubscribers(serial); // Wait for subscriber to be updated.
             for_each(entries.begin(), entries.end(), IceUtil::voidMemFun(&ServerEntry::waitForSyncNoThrow));
             finishUpdating(newDesc.name);
-            throw ex;
+            throw;
         }
     }
 
@@ -2761,7 +2755,7 @@ Database::addObject(const IceDB::ReadWriteTxn& txn, const ObjectInfo& info, bool
         catch(const IceDB::KeyTooLongException& ex)
         {
             throw DeploymentException("object identity `" +
-                                      identityToString(info.proxy->ice_getIdentity()) 
+                                      _communicator->identityToString(info.proxy->ice_getIdentity())
                                       + "' is too long: " + ex.what());
         }
         try

@@ -1,0 +1,55 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test Suite | Ice for JavaScript</title>
+    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico"/>
+    <link rel="stylesheet" type="text/css" href="/assets/common.css"/>
+    {{#cssDeps}}
+    <link rel="stylesheet" type="text/css" href="{{.}}"/>
+    {{/cssDeps}}
+  </head>
+  <body>
+    <div id="header">
+        <nav class="top-bar" data-topbar>
+            <ul class="title-area">
+                <li class="name">
+                    <h1><a href="#">Ice for JavaScript</a></h1>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <section role="main" id="body">
+        <div class="row">
+            <div class="large-12 medium-12 columns">
+                <textarea id="clientConsole" class="disabled" height="300" readonly></textarea>
+                <textarea id="serverConsole" class="disabled" height="100" readonly></textarea>
+            </div>
+        </div>
+    </section>
+    <div id="footer" class="show-for-medium-up">
+        <div class="logo">
+            <h4><strong>ZeroC</strong></h4>
+        </div>
+        <div class="copyright">
+            <h6>Copyright &copy; 2003-2018 ZeroC, Inc. All rights reserved.</h6>
+        </div>
+    </div>
+    {{#jsDeps}}
+    <script src="{{.}}"></script>
+    {{/jsDeps}}
+    <script src="/assets/common.js"></script>
+    {{#scripts}}
+    <script src="{{.}}"></script>
+    {{/scripts}}
+    <script>
+        $(document).foundation();
+        $(document).ready(function() {
+            $("#clientConsole").height(300);
+            $("#serverConsole").height(100);
+            runController($("#clientConsole"), $("#serverConsole"), "{{{workerScripts}}}".split(","));
+        });
+    </script>
+  </body>
+</html>

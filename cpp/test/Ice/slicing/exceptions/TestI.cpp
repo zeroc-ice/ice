@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -171,16 +171,18 @@ TestI::knownPreservedAsKnownPreserved(const ::Ice::Current&)
 }
 
 void
-TestI::relayKnownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current&)
+TestI::relayKnownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
 {
-    r->knownPreservedAsBase();
+    RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
+    p->knownPreservedAsBase();
     test(false);
 }
 
 void
-TestI::relayKnownPreservedAsKnownPreserved(ICE_IN(RelayPrxPtr) r, const ::Ice::Current&)
+TestI::relayKnownPreservedAsKnownPreserved(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
 {
-    r->knownPreservedAsKnownPreserved();
+    RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
+    p->knownPreservedAsKnownPreserved();
     test(false);
 }
 
@@ -209,16 +211,18 @@ TestI::unknownPreservedAsKnownPreserved(const ::Ice::Current&)
 }
 
 void
-TestI::relayUnknownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current&)
+TestI::relayUnknownPreservedAsBase(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
 {
-    r->unknownPreservedAsBase();
+    RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
+    p->unknownPreservedAsBase();
     test(false);
 }
 
 void
-TestI::relayUnknownPreservedAsKnownPreserved(ICE_IN(RelayPrxPtr) r, const ::Ice::Current&)
+TestI::relayUnknownPreservedAsKnownPreserved(ICE_IN(RelayPrxPtr) r, const ::Ice::Current& c)
 {
-    r->unknownPreservedAsKnownPreserved();
+    RelayPrxPtr p = ICE_UNCHECKED_CAST(RelayPrx, c.con->createProxy(r->ice_getIdentity()));
+    p->unknownPreservedAsKnownPreserved();
     test(false);
 }
 

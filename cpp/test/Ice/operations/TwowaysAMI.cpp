@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,7 +17,6 @@
 #if defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
-
 
 //
 // Disable VC++ warning
@@ -177,7 +176,7 @@ public:
         //
         // We can't do the callbacks below in connection serialization mode.
         //
-        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize"))
+        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
         {
             r->opVoid();
             c1->opVoid();
@@ -204,7 +203,7 @@ public:
         //
         // We can't do the callbacks below in connection serialization mode.
         //
-        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize"))
+        if(_communicator->getProperties()->getPropertyAsInt("Ice.ThreadPool.Client.Serialize") == 0)
         {
             so.p->opVoid();
         }
@@ -2456,7 +2455,6 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
 #endif
         }
 
-#ifndef ICE_OS_WINRT
         if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
         {
             //
@@ -2592,7 +2590,6 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 ic->destroy();
             }
         }
-#endif
     }
 
     {

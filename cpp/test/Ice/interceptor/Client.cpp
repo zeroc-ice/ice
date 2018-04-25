@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,10 +24,9 @@ DEFINE_TEST("client")
 #   include <signal.h>
 #endif
 
-
 using namespace std;
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(ICE_OS_UWP)
 namespace
 {
 
@@ -39,14 +38,7 @@ public:
     {
         if(_communicator)
         {
-            try
-            {
-                _communicator->destroy();
-            }
-            catch(const Ice::Exception& ex)
-            {
-                cout << ex << endl;
-            }
+            _communicator->destroy();
         }
     }
 
@@ -57,8 +49,7 @@ public:
 
     virtual int _main(int argc, char** argv)
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
         initData.properties->setProperty("Ice.Warn.Dispatch", "0");
         _communicator = Ice::initialize(initData);
         return run(argc, argv);
@@ -78,7 +69,7 @@ typedef Ice::Application App;
 }
 #endif
 
-class Client : public App
+class ClientApp : public App
 {
 public:
 
@@ -101,7 +92,8 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
 #endif
 
 #ifndef _WIN32
@@ -115,8 +107,8 @@ main(int argc, char* argv[])
     sigaction(SIGPIPE, &action, 0);
 #endif
 
-    Client app;
-#if __APPLE__
+    ClientApp app;
+#if defined(__APPLE__) || defined(ICE_OS_UWP)
     int result = app._main(argc, argv);
 #else
     int result = app.main(argc, argv);
@@ -135,7 +127,7 @@ main(int argc, char* argv[])
 }
 
 int
-Client::run(int, char*[])
+ClientApp::run(int, char*[])
 {
 
 #ifndef _WIN32
@@ -192,29 +184,28 @@ Client::run(int, char*[])
     return rs;
 }
 
-
 int
-Client::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
+ClientApp::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
     prx->ice_ping();
     test(interceptor->getLastOperation() == "ice_ping");
-    test(!interceptor->getLastStatus());
+    test(interceptor->getLastStatus());
     string typeId = prx->ice_id();
     test(interceptor->getLastOperation() == "ice_id");
-    test(!interceptor->getLastStatus());
+    test(interceptor->getLastStatus());
     test(prx->ice_isA(typeId));
     test(interceptor->getLastOperation() == "ice_isA");
-    test(!interceptor->getLastStatus());
+    test(interceptor->getLastStatus());
     test(prx->add(33, 12) == 45);
     test(interceptor->getLastOperation() == "add");
-    test(!interceptor->getLastStatus());
+    test(interceptor->getLastStatus());
     cout << "ok" << endl;
     cout << "testing retry... " << flush;
     test(prx->addWithRetry(33, 12) == 45);
     test(interceptor->getLastOperation() == "addWithRetry");
-    test(!interceptor->getLastStatus());
+    test(interceptor->getLastStatus());
     cout << "ok" << endl;
     cout << "testing user exception... " << flush;
     try
@@ -227,7 +218,7 @@ Client::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
         // expected
     }
     test(interceptor->getLastOperation() == "badAdd");
-    test(!interceptor->getLastStatus());
+    test(interceptor->getLastStatus());
     cout << "ok" << endl;
     cout << "testing ONE... " << flush;
 
@@ -268,25 +259,25 @@ Client::run(const Test::MyObjectPrxPtr& prx, const InterceptorIPtr& interceptor)
     cout << "testing simple AMD... " << flush;
     test(prx->amdAdd(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAdd");
-    test(interceptor->getLastStatus());
+    test(!interceptor->getLastStatus());
     cout << "ok" << endl;
 
     return EXIT_SUCCESS;
 }
 
 int
-Client::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interceptor)
+ClientApp::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interceptor)
 {
     cout << "testing simple interceptor... " << flush;
     test(interceptor->getLastOperation().empty());
     test(prx->amdAdd(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAdd");
-    test(interceptor->getLastStatus());
+    test(!interceptor->getLastStatus());
     cout << "ok" << endl;
     cout << "testing retry... " << flush;
     test(prx->amdAddWithRetry(33, 12) == 45);
     test(interceptor->getLastOperation() == "amdAddWithRetry");
-    test(interceptor->getLastStatus());
+    test(!interceptor->getLastStatus());
     cout << "ok" << endl;
     cout << "testing user exception... " << flush;
     try
@@ -299,7 +290,7 @@ Client::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interc
         // expected
     }
     test(interceptor->getLastOperation() == "amdBadAdd");
-    test(interceptor->getLastStatus());
+    test(!interceptor->getLastStatus());
     cout << "ok" << endl;
     cout << "testing ONE... " << flush;
     interceptor->clear();
@@ -313,7 +304,7 @@ Client::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interc
         // expected
     }
     test(interceptor->getLastOperation() == "amdNotExistAdd");
-    test(interceptor->getLastStatus());
+    test(!interceptor->getLastStatus());
 
     test(dynamic_cast<Ice::ObjectNotExistException*>(interceptor->getException()) != 0);
 
@@ -334,7 +325,7 @@ Client::runAmd(const Test::MyObjectPrxPtr& prx, const AMDInterceptorIPtr& interc
         test(prx->ice_isCollocationOptimized());
     }
     test(interceptor->getLastOperation() == "amdBadSystemAdd");
-    test(interceptor->getLastStatus());
+    test(!interceptor->getLastStatus());
     test(dynamic_cast<MySystemException*>(interceptor->getException()) != 0);
     cout << "ok" << endl;
     return EXIT_SUCCESS;

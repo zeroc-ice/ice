@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -60,17 +60,17 @@ public:
 
     virtual void keepAlive(const LoadInfo&, const Ice::Current&);
     virtual void setReplicaObserver(const ReplicaObserverPrx&, const Ice::Current&);
-    virtual int getTimeout(const Ice::Current& = Ice::noExplicitCurrent) const;
+    virtual int getTimeout(const Ice::Current&) const;
     virtual NodeObserverPrx getObserver(const Ice::Current&) const;
     virtual void loadServers_async(const AMD_NodeSession_loadServersPtr&, const Ice::Current&) const;
     virtual Ice::StringSeq getServers(const Ice::Current&) const;
     virtual void waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr&,
                                                 const std::string&, int, const Ice::Current&) const;
-    virtual void destroy(const Ice::Current& = Ice::noExplicitCurrent);
-    
+    virtual void destroy(const Ice::Current&);
+
     virtual IceUtil::Time timestamp() const;
     virtual void shutdown();
-    void patch(const PatcherFeedbackAggregatorPtr&, const std::string&,  const std::string&, 
+    void patch(const PatcherFeedbackAggregatorPtr&, const std::string&,  const std::string&,
                const InternalDistributionDescriptorPtr&, bool);
 
     const NodePrx& getNode() const;
@@ -84,7 +84,7 @@ public:
 private:
 
     void destroyImpl(bool);
-    
+
     const DatabasePtr _database;
     const TraceLevelsPtr _traceLevels;
     const std::string _name;

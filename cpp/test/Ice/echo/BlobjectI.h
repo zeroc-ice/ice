@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@
 
 #include <Ice/Object.h>
 
-class BlobjectI : public Ice::BlobjectAsync
+class BlobjectI : public Ice::BlobjectAsync, private IceUtil::Monitor<IceUtil::Mutex>
 {
 public:
 
@@ -20,11 +20,12 @@ public:
 
     void startBatch();
     void flushBatch();
+    void setConnection(const Ice::ConnectionPtr&);
 
 #ifdef ICE_CPP11_MAPPING
 
     virtual void ice_invokeAsync(std::vector<Ice::Byte>,
-                                 std::function<void(bool, std::vector<Ice::Byte>)>,
+                                 std::function<void(bool, const std::vector<Ice::Byte>&)>,
                                  std::function<void(std::exception_ptr)>,
                                  const Ice::Current&) override;
 
@@ -35,8 +36,11 @@ public:
 
 private:
 
+    Ice::ConnectionPtr getConnection(const Ice::Current&);
+
     bool _startBatch;
     Ice::ObjectPrxPtr _batchProxy;
+    Ice::ConnectionPtr _connection;
 };
 
 ICE_DEFINE_PTR(BlobjectIPtr, BlobjectI);

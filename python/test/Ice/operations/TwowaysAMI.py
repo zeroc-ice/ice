@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -19,19 +19,15 @@ class CallbackBase:
         self._cond = threading.Condition()
 
     def check(self):
-        self._cond.acquire()
-        try:
+        with self._cond:
             while not self._called:
                 self._cond.wait()
             self._called = False
-        finally:
-            self._cond.release()
 
     def called(self):
-        self._cond.acquire()
-        self._called = True
-        self._cond.notify()
-        self._cond.release()
+        with self._cond:
+            self._called = True
+            self._cond.notify()
 
 class Callback(CallbackBase):
     def __init__(self, communicator=None):
@@ -1105,7 +1101,7 @@ def twowaysAMI(communicator, p):
     test(c != ctx)
 
     test(len(p.ice_getContext()) == 0)
-    r = p.begin_opContext(_ctx=ctx)
+    r = p.begin_opContext(context=ctx)
     c = p.end_opContext(r)
     test(c == ctx)
 
@@ -1115,7 +1111,7 @@ def twowaysAMI(communicator, p):
     c = p2.end_opContext(r)
     test(c == ctx)
 
-    r = p2.begin_opContext(_ctx=ctx)
+    r = p2.begin_opContext(context=ctx)
     c = p2.end_opContext(r)
     test(c == ctx)
 
@@ -1180,37 +1176,36 @@ def twowaysAMI(communicator, p):
     cb = Callback()
     derived.begin_opDerived(cb.opDerived, cb.exCB)
     cb.check()
-    
-    
+
     r = p.begin_opByte1(0xFF)
     test(p.end_opByte1(r) == 0xFF)
-    
+
     r = p.begin_opShort1(0x7FFF)
     test(p.end_opShort1(r) == 0x7FFF)
-    
+
     r = p.begin_opInt1(0x7FFFFFFF)
     test(p.end_opInt1(r) == 0x7FFFFFFF)
-    
+
     r = p.begin_opLong1(0x7FFFFFFFFFFFFFFF)
     test(p.end_opLong1(r) == 0x7FFFFFFFFFFFFFFF)
-    
+
     r = p.begin_opFloat1(1.0)
     test(p.end_opFloat1(r) == 1.0)
-    
+
     r = p.begin_opDouble1(1.0)
     test(p.end_opDouble1(r) == 1.0)
-    
+
     r = p.begin_opString1("opString1")
     test(p.end_opString1(r) == "opString1")
-    
+
     r = p.begin_opStringS1(None)
     test(len(p.end_opStringS1(r)) == 0)
-    
+
     r = p.begin_opByteBoolD1(None)
     test(len(p.end_opByteBoolD1(r)) == 0)
-    
+
     r = p.begin_opStringS2(None)
     test(len(p.end_opStringS2(r)) == 0)
-    
+
     r = p.begin_opByteBoolD2(None)
     test(len(p.end_opByteBoolD2(r)) == 0)

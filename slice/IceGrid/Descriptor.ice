@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,12 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "js:ice-build", "python:pkgdir:IceGrid"]]
+
+#ifndef ICE_BUILDING_ICEGRIDDB
+[["cpp:dll-export:ICEGRID_API", "objc:dll-export:ICEGRID_API"]]
+#endif
+
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Identity.ice>
@@ -50,7 +55,7 @@ struct PropertyDescriptor
      *
      **/
     string value;
-};
+}
 
 /**
  *
@@ -80,7 +85,7 @@ struct PropertySetDescriptor
      *
      **/
     PropertyDescriptorSeq properties;
-};
+}
 
 /**
  *
@@ -118,7 +123,7 @@ struct ObjectDescriptor
      *
      **/
     string proxyOptions;
-};
+}
 
 /**
  *
@@ -202,7 +207,7 @@ struct AdapterDescriptor
      *
      **/
     ObjectDescriptorSeq allocatables;
-};
+}
 
 /**
  *
@@ -249,7 +254,7 @@ struct DbEnvDescriptor
      *
      **/
     PropertyDescriptorSeq properties;
-};
+}
 
 /**
  *
@@ -299,7 +304,7 @@ class CommunicatorDescriptor
      *
      **/
     string description;
-};
+}
 
 /**
  *
@@ -315,7 +320,7 @@ struct DistributionDescriptor
 
     /** The source directories. */
     ["java:type:java.util.LinkedList<String>"] Ice::StringSeq directories;
-};
+}
 
 /**
  *
@@ -422,7 +427,7 @@ class ServerDescriptor extends CommunicatorDescriptor
      *
      **/
     string user;
-};
+}
 
 /**
  *
@@ -451,7 +456,7 @@ class ServiceDescriptor extends CommunicatorDescriptor
      *
      **/
     string entry;
-};
+}
 
 /**
  *
@@ -496,7 +501,7 @@ struct ServerInstanceDescriptor
      *
      **/
     PropertySetDescriptorDict servicePropertySets;
-};
+}
 
 /**
  *
@@ -533,7 +538,7 @@ struct TemplateDescriptor
      *
      **/
     StringStringDict parameterDefaults;
-};
+}
 
 /**
  *
@@ -577,7 +582,7 @@ struct ServiceInstanceDescriptor
      *
      **/
     PropertySetDescriptor propertySet;
-};
+}
 
 /**
  *
@@ -600,7 +605,7 @@ class IceBoxDescriptor extends ServerDescriptor
      *
      **/
     ServiceInstanceDescriptorSeq services;
-};
+}
 
 /**
  *
@@ -650,7 +655,7 @@ struct NodeDescriptor
      *
      **/
     PropertySetDescriptorDict propertySets;
-};
+}
 
 /**
  *
@@ -673,7 +678,7 @@ class LoadBalancingPolicy
      *
      **/
     string nReplicas;
-};
+}
 
 /**
  *
@@ -682,7 +687,7 @@ class LoadBalancingPolicy
  **/
 class RandomLoadBalancingPolicy extends LoadBalancingPolicy
 {
-};
+}
 
 /**
  *
@@ -691,7 +696,7 @@ class RandomLoadBalancingPolicy extends LoadBalancingPolicy
  **/
 class OrderedLoadBalancingPolicy extends LoadBalancingPolicy
 {
-};
+}
 
 /**
  *
@@ -700,7 +705,7 @@ class OrderedLoadBalancingPolicy extends LoadBalancingPolicy
  **/
 class RoundRobinLoadBalancingPolicy extends LoadBalancingPolicy
 {
-};
+}
 
 /**
  *
@@ -718,7 +723,7 @@ class AdaptiveLoadBalancingPolicy extends LoadBalancingPolicy
      *
      **/
     string loadSample;
-};
+}
 
 /**
  *
@@ -768,7 +773,7 @@ struct ReplicaGroupDescriptor
      *
      **/
     string filter;
-};
+}
 
 /**
  *
@@ -846,7 +851,7 @@ struct ApplicationDescriptor
      *
      **/
     PropertySetDescriptorDict propertySets;
-};
+}
 
 /**
  *
@@ -864,7 +869,7 @@ class BoxedString
 {
     /** The value of the boxed string. */
     string value;
-};
+}
 
 /**
  *
@@ -945,7 +950,7 @@ struct NodeUpdateDescriptor
      *
      **/
     BoxedString loadFactor;
-};
+}
 
 /**
  *
@@ -963,7 +968,7 @@ class BoxedDistributionDescriptor
 {
     /** The value of the boxed distribution descriptor. */
     DistributionDescriptor value;
-};
+}
 
 /**
  *
@@ -1078,6 +1083,6 @@ struct ApplicationUpdateDescriptor
      *
      **/
     Ice::StringSeq removeNodes;
-};
+}
 
-};
+}

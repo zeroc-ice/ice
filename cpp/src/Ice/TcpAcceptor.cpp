@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@
 
 #if defined(ICE_USE_IOCP)
 #  include <Mswsock.h>
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 using namespace Platform;
 using namespace Windows::Foundation;
 using namespace Windows::Storage::Streams;
@@ -49,7 +49,7 @@ IceInternal::TcpAcceptor::getNativeInfo()
 void
 IceInternal::TcpAcceptor::close()
 {
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     IceUtil::Mutex::Lock lock(_mutex);
     if(_acceptPending)
     {
@@ -68,6 +68,13 @@ IceInternal::TcpAcceptor::close()
     }
 #endif
 
+#if defined(ICE_USE_IOCP)
+    if(_acceptFd != INVALID_SOCKET)
+    {
+        closeSocketNoThrow(_acceptFd);
+        _acceptFd = INVALID_SOCKET;
+    }
+#endif
     if(_fd != INVALID_SOCKET)
     {
         closeSocketNoThrow(_fd);
@@ -81,7 +88,7 @@ IceInternal::TcpAcceptor::listen()
     try
     {
         const_cast<Address&>(_addr) = doBind(_fd, _addr);
-#if !defined(ICE_OS_WINRT)
+#if !defined(ICE_OS_UWP)
         doListen(_fd, _backlog);
 #endif
     }
@@ -105,7 +112,7 @@ IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation)
 void
 IceInternal::TcpAcceptor::startAccept()
 {
-    LPFN_ACCEPTEX AcceptEx = NULL; // a pointer to the 'AcceptEx()' function
+    LPFN_ACCEPTEX AcceptEx = ICE_NULLPTR; // a pointer to the 'AcceptEx()' function
     GUID GuidAcceptEx = WSAID_ACCEPTEX; // The Guid
     DWORD dwBytes;
     if(WSAIoctl(_fd,
@@ -115,12 +122,10 @@ IceInternal::TcpAcceptor::startAccept()
                 &AcceptEx,
                 sizeof(AcceptEx),
                 &dwBytes,
-                NULL,
-                NULL) == SOCKET_ERROR)
+                ICE_NULLPTR,
+                ICE_NULLPTR) == SOCKET_ERROR)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     assert(_acceptFd == INVALID_SOCKET);
@@ -130,9 +135,7 @@ IceInternal::TcpAcceptor::startAccept()
     {
         if(!wouldBlock())
         {
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, getSocketErrno());
         }
     }
 }
@@ -153,18 +156,14 @@ IceInternal::TcpAcceptor::accept()
 {
     if(_acceptFd == INVALID_SOCKET)
     {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = _acceptError;
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, _acceptError);
     }
     if(setsockopt(_acceptFd, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (char*)&_acceptFd, sizeof(_acceptFd)) ==
        SOCKET_ERROR)
     {
         closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, getSocketErrno());
     }
 
     SOCKET fd = _acceptFd;
@@ -172,7 +171,7 @@ IceInternal::TcpAcceptor::accept()
     return new TcpTransceiver(_instance, new StreamSocket(_instance, fd));
 }
 
-#elif defined(ICE_OS_WINRT)
+#elif defined(ICE_OS_UWP)
 
 AsyncInfo*
 IceInternal::TcpAcceptor::getAsyncInfo(SocketOperation)
@@ -283,14 +282,14 @@ IceInternal::TcpAcceptor::TcpAcceptor(const TcpEndpointIPtr& endpoint,
                                       int port) :
     _endpoint(endpoint),
     _instance(instance),
-    _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6()))
+    _addr(getAddressForServer(host, port, _instance->protocolSupport(), instance->preferIPv6(), true))
 #ifdef ICE_USE_IOCP
     , _acceptFd(INVALID_SOCKET), _info(SocketOperationRead)
 #endif
 {
     _backlog = instance->properties()->getPropertyAsIntWithDefault("Ice.TCP.Backlog", SOMAXCONN);
 
-#if defined(ICE_OS_WINRT)
+#if defined(ICE_OS_UWP)
     _fd = ref new StreamSocketListener();
     safe_cast<StreamSocketListener^>(_fd)->ConnectionReceived +=
         ref new TypedEventHandler<StreamSocketListener^, StreamSocketListenerConnectionReceivedEventArgs^>(
@@ -352,4 +351,3 @@ IceInternal::TcpAcceptor::~TcpAcceptor()
     assert(_acceptFd == INVALID_SOCKET);
 #endif
 }
-

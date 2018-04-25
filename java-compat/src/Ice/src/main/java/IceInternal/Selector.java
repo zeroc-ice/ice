@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -67,27 +67,21 @@ public final class Selector
             return;
         }
 
-        if(handler.fd() == null)
+        if(handler.fd() != null)
         {
-            return;
+            updateImpl(handler);
         }
 
-        updateImpl(handler);
         checkReady(handler);
     }
 
     void enable(EventHandler handler, int status)
     {
-        if(handler.fd() == null || (handler._disabled & status) == 0)
+        if((handler._disabled & status) == 0)
         {
             return;
         }
         handler._disabled = handler._disabled & ~status;
-
-        if(handler.fd() == null)
-        {
-            return;
-        }
 
         if(handler._key != null && (handler._registered & status) != 0)
         {
@@ -98,7 +92,7 @@ public final class Selector
 
     void disable(EventHandler handler, int status)
     {
-        if(handler.fd() == null || (handler._disabled & status) != 0)
+        if((handler._disabled & status) != 0)
         {
             return;
         }
@@ -262,7 +256,7 @@ public final class Selector
             }
             catch(java.nio.channels.CancelledKeyException ex)
             {
-                // This sometime occurs on OS X, ignore.
+                // This sometime occurs on macOS, ignore.
                 continue;
             }
             catch(java.io.IOException ex)
@@ -280,12 +274,27 @@ public final class Selector
 
                 try
                 {
-                    String s = "fatal error: selector failed:\n" + ex.getCause().getMessage();
-                    _instance.initializationData().logger.error(s);
+                    String s = "selector failed:\n" + ex.getCause().getMessage();
+                    try
+                    {
+                        _instance.initializationData().logger.error(s);
+                    }
+                    catch(Throwable ex1)
+                    {
+                        System.out.println(s);
+                    }
                 }
-                finally
+                catch(Throwable ex2)
                 {
-                    Runtime.getRuntime().halt(1);
+                    // Ignore
+                }
+
+                try
+                {
+                    Thread.sleep(1);
+                }
+                catch(InterruptedException ex2)
+                {
                 }
             }
 

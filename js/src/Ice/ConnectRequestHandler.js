@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/AsyncStatus",
         "../Ice/ConnectionRequestHandler",
@@ -36,7 +36,6 @@ class ConnectRequestHandler
         this._initialized = false;
 
         this._connection = null;
-        this._compress = false;
         this._exception = null;
         this._requests = [];
     }
@@ -59,7 +58,7 @@ class ConnectRequestHandler
     {
         if(!this._initialized)
         {
-            out.__cancelable(this); // This will throw if the request is canceled
+            out.cancelable(this); // This will throw if the request is canceled
         }
 
         if(!this.initialized())
@@ -67,7 +66,7 @@ class ConnectRequestHandler
             this._requests.push(out);
             return AsyncStatus.Queued;
         }
-        return out.__invokeRemote(this._connection, this._compress, this._response);
+        return out.invokeRemote(this._connection, this._response);
     }
 
     asyncRequestCanceled(out, ex)
@@ -83,7 +82,7 @@ class ConnectRequestHandler
             {
                 if(this._requests[i] === out)
                 {
-                    out.__completedEx(ex);
+                    out.completedEx(ex);
                     this._requests.splice(i, 1);
                     return;
                 }
@@ -113,21 +112,21 @@ class ConnectRequestHandler
     //
     // Implementation of Reference_GetConnectionCallback
     //
-    setConnection(values)
+    setConnection(connection)
     {
         Debug.assert(this._exception === null && this._connection === null);
 
-        [this._connection, this._compress] = values;
+        this._connection = connection;
 
         //
         // If this proxy is for a non-local object, and we are using a router, then
         // add this proxy to the router info object.
         //
-        let ri = this._reference.getRouterInfo();
+        const ri = this._reference.getRouterInfo();
         if(ri !== null)
         {
                                                                                   //
-            ri.addProxy(this._proxy).then(() => this.flushRequests(),             // The proxy was added to the router 
+            ri.addProxy(this._proxy).then(() => this.flushRequests(),             // The proxy was added to the router
                                                                                   // info, we're now ready to send the
                                                                                   // queued requests.
                                                                                   //
@@ -168,7 +167,7 @@ class ConnectRequestHandler
             {
                 if(request !== null)
                 {
-                    request.__completedEx(this._exception);
+                    request.completedEx(this._exception);
                 }
             });
         this._requests.length = 0;
@@ -213,7 +212,7 @@ class ConnectRequestHandler
             {
                 try
                 {
-                    request.__invokeRemote(this._connection, this._compress, this._response);
+                    request.invokeRemote(this._connection, this._response);
                 }
                 catch(ex)
                 {
@@ -224,13 +223,13 @@ class ConnectRequestHandler
                         // Remove the request handler before retrying.
                         this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
 
-                        request.__retryException(ex.inner);
+                        request.retryException(ex.inner);
                     }
                     else
                     {
                         Debug.assert(ex instanceof LocalException);
                         exception = ex;
-                        request.out.__completedEx(ex);
+                        request.out.completedEx(ex);
                     }
                 }
             });
@@ -238,8 +237,8 @@ class ConnectRequestHandler
 
         if(this._reference.getCacheConnection() && exception === null)
         {
-            this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection, this._compress);
-            this._proxies.forEach(proxy => proxy.__updateRequestHandler(this, this._requestHandler));
+            this._requestHandler = new ConnectionRequestHandler(this._reference, this._connection);
+            this._proxies.forEach(proxy => proxy._updateRequestHandler(this, this._requestHandler));
         }
 
         Debug.assert(!this._initialized);

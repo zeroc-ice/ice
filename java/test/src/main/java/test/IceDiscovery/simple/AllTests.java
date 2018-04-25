@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,8 +27,10 @@ public class AllTests
         }
     }
 
-    public static void allTests(com.zeroc.Ice.Communicator communicator, int num)
+    public static void allTests(test.Util.Application app, int num)
     {
+        com.zeroc.Ice.Communicator communicator = app.communicator();
+
         List<ControllerPrx> proxies = new ArrayList<>();
         List<ControllerPrx> indirectProxies = new ArrayList<>();
         for(int i = 0; i < num; ++i)
@@ -64,6 +66,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(com.zeroc.Ice.NoEndpointException ex)
             {
@@ -74,6 +77,7 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(com.zeroc.Ice.ObjectNotExistException ex)
             {
@@ -84,13 +88,14 @@ public class AllTests
             try
             {
                 communicator.stringToProxy("object @ oa1").ice_ping();
+                test(false);
             }
             catch(com.zeroc.Ice.NoEndpointException ex)
             {
             }
         }
         System.out.println("ok");
-    
+
         System.out.print("testing object adapter migration...");
         System.out.flush();
         {
@@ -201,6 +206,55 @@ public class AllTests
             proxies.get(0).addObject("oa", "object");
             test(TestIntfPrx.uncheckedCast(communicator.stringToProxy("object @ rg")).getAdapterId().equals("oa1"));
             proxies.get(0).deactivateObjectAdapter("oa");
+        }
+        System.out.println("ok");
+
+        System.out.print("testing invalid lookup endpoints... ");
+        System.out.flush();
+        {
+            String multicast;
+            if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
+            {
+                multicast = "\"ff15::1\"";
+            }
+            else
+            {
+                multicast = "239.255.0.1";
+            }
+
+            {
+                com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+                initData.properties = communicator.getProperties()._clone();
+                initData.properties.setProperty("IceDiscovery.Lookup", "udp -h " + multicast + " --interface unknown");
+                com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(initData);
+                test(comm.getDefaultLocator() != null);
+                try
+                {
+                    comm.stringToProxy("controller0@control0").ice_ping();
+                    test(false);
+                }
+                catch(com.zeroc.Ice.LocalException ex)
+                {
+                }
+                comm.destroy();
+            }
+            {
+                com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+                initData.properties = communicator.getProperties()._clone();
+                String intf = initData.properties.getProperty("IceDiscovery.Interface");
+                if(!intf.isEmpty())
+                {
+                    intf = " --interface \"" + intf + "\"";
+                }
+                String port = initData.properties.getProperty("IceDiscovery.Port");
+                initData.properties.setProperty("IceDiscovery.Lookup",
+                                                 "udp -h " + multicast + " --interface unknown:" +
+                                                 "udp -h " + multicast + " -p " + port + intf);
+                com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(initData);
+                test(comm.getDefaultLocator() != null);
+                comm.stringToProxy("controller0@control0").ice_ping();
+                comm.destroy();
+            }
         }
         System.out.println("ok");
 

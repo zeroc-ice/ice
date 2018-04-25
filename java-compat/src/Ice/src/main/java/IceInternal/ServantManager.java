@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,11 +32,11 @@ public final class ServantManager
             if(m.containsKey(facet))
             {
                 Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-                ex.id = Ice.Util.identityToString(ident);
+                ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
                 ex.kindOfObject = "servant";
                 if(facet.length() > 0)
                 {
-                    ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
+                    ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
                 }
                 throw ex;
             }
@@ -77,11 +77,11 @@ public final class ServantManager
         if(m == null || (obj = m.remove(facet)) == null)
         {
             Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-            ex.id = Ice.Util.identityToString(ident);
+            ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
             ex.kindOfObject = "servant";
             if(facet.length() > 0)
             {
-                ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "");
+                ex.id += " -f " + IceUtilInternal.StringUtil.escapeString(facet, "", _instance.toStringMode());
             }
             throw ex;
         }
@@ -120,7 +120,7 @@ public final class ServantManager
         if(m == null)
         {
             Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-            ex.id = Ice.Util.identityToString(ident);
+            ex.id = Ice.Util.identityToString(ident, _instance.toStringMode());
             ex.kindOfObject = "servant";
             throw ex;
         }
@@ -218,7 +218,7 @@ public final class ServantManager
         if(l != null)
         {
             Ice.AlreadyRegisteredException ex = new Ice.AlreadyRegisteredException();
-            ex.id = IceUtilInternal.StringUtil.escapeString(category, "");
+            ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
             ex.kindOfObject = "servant locator";
             throw ex;
         }
@@ -236,7 +236,7 @@ public final class ServantManager
         if(l == null)
         {
             Ice.NotRegisteredException ex = new Ice.NotRegisteredException();
-            ex.id = IceUtilInternal.StringUtil.escapeString(category, "");
+            ex.id = IceUtilInternal.StringUtil.escapeString(category, "", _instance.toStringMode());
             ex.kindOfObject = "servant locator";
             throw ex;
         }

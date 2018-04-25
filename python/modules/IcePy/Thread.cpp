@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,10 +35,33 @@ IcePy::AdoptThread::~AdoptThread()
     PyGILState_Release(_state);
 }
 
-IcePy::ThreadHook::ThreadHook(PyObject* threadNotification) :
-    _threadNotification(threadNotification)
+IcePy::ThreadHook::ThreadHook(PyObject* threadNotification, PyObject* threadStart, PyObject* threadStop) :
+    _threadNotification(threadNotification), _threadStart(threadStart), _threadStop(threadStop)
 {
-    Py_INCREF(threadNotification);
+    if(threadNotification)
+    {
+        if(!PyObject_HasAttrString(threadNotification, STRCAST("start")) ||
+           !PyObject_HasAttrString(threadNotification, STRCAST("stop")))
+        {
+            throw Ice::InitializationException(__FILE__, __LINE__,
+                "threadNotification object must have 'start' and 'stop' methods");
+        }
+
+    }
+
+    if(threadStart && !PyCallable_Check(threadStart))
+    {
+        throw Ice::InitializationException(__FILE__, __LINE__, "threadStart must be a callable");
+    }
+
+    if(threadStop && !PyCallable_Check(threadStop))
+    {
+        throw Ice::InitializationException(__FILE__, __LINE__, "threadStop must be a callable");
+    }
+
+    Py_XINCREF(threadNotification);
+    Py_XINCREF(threadStart);
+    Py_XINCREF(threadStop);
 }
 
 void
@@ -46,10 +69,22 @@ IcePy::ThreadHook::start()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("start"), 0);
-    if(!tmp.get())
+    if(_threadNotification.get())
     {
-        throwPythonException();
+        PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("start"), 0);
+        if(!tmp.get())
+        {
+            throwPythonException();
+        }
+    }
+    if(_threadStart.get())
+    {
+        PyObjectHandle args = PyTuple_New(0);
+        PyObjectHandle tmp = PyObject_Call(_threadStart.get(), args.get(), 0);
+        if(!tmp.get())
+        {
+            throwPythonException();
+        }
     }
 }
 
@@ -58,15 +93,21 @@ IcePy::ThreadHook::stop()
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
-    PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("stop"), 0);
-    if(!tmp.get())
+    if(_threadNotification.get())
     {
-        throwPythonException();
+        PyObjectHandle tmp = PyObject_CallMethod(_threadNotification.get(), STRCAST("stop"), 0);
+        if(!tmp.get())
+        {
+            throwPythonException();
+        }
     }
-}
-
-PyObject*
-IcePy::ThreadHook::getObject()
-{
-    return _threadNotification.get();
+    if(_threadStop.get())
+    {
+        PyObjectHandle args = PyTuple_New(0);
+        PyObjectHandle tmp = PyObject_Call(_threadStop.get(), args.get(), 0);
+        if(!tmp.get())
+        {
+            throwPythonException();
+        }
+    }
 }

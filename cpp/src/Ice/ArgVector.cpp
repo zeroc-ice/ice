@@ -1,16 +1,16 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <IceUtil/ArgVector.h>
+#include <Ice/ArgVector.h>
 #include <cstring>
 
-IceUtilInternal::ArgVector::ArgVector(int argc, char* const argv[])
+IceInternal::ArgVector::ArgVector(int argc, const char* const argv[])
 {
     assert(argc >= 0);
     _args.resize(argc);
@@ -21,20 +21,20 @@ IceUtilInternal::ArgVector::ArgVector(int argc, char* const argv[])
     setupArgcArgv();
 }
 
-IceUtilInternal::ArgVector::ArgVector(const ::std::vector< ::std::string>& vec)
+IceInternal::ArgVector::ArgVector(const ::std::vector< ::std::string>& vec)
 {
     _args = vec;
     setupArgcArgv();
 }
 
-IceUtilInternal::ArgVector::ArgVector(const ArgVector& rhs)
+IceInternal::ArgVector::ArgVector(const ArgVector& rhs)
 {
     _args = rhs._args;
     setupArgcArgv();
 }
 
-IceUtilInternal::ArgVector&
-IceUtilInternal::ArgVector::operator=(const ArgVector& rhs)
+IceInternal::ArgVector&
+IceInternal::ArgVector::operator=(const ArgVector& rhs)
 {
     delete[] argv;
     argv = 0;
@@ -43,13 +43,13 @@ IceUtilInternal::ArgVector::operator=(const ArgVector& rhs)
     return *this;
 }
 
-IceUtilInternal::ArgVector::~ArgVector()
+IceInternal::ArgVector::~ArgVector()
 {
     delete[] argv;
 }
 
 void
-IceUtilInternal::ArgVector::setupArgcArgv()
+IceInternal::ArgVector::setupArgcArgv()
 {
     argc = static_cast<int>(_args.size());
     if((argv = new char*[argc + 1]) == 0)

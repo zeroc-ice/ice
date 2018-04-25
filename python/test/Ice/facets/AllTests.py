@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -42,7 +42,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing facet registration exceptions... ")
     sys.stdout.flush()
-    communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "default")
+    communicator.getProperties().setProperty("FacetExceptionTestAdapter.Endpoints", "tcp -h *")
     adapter = communicator.createObjectAdapter("FacetExceptionTestAdapter")
     obj = EmptyI()
     adapter.add(obj, Ice.stringToIdentity("d"))

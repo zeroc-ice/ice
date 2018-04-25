@@ -1,2 +1,2 @@
-EnumeratorDuplication.ice:19: enumerator `B' has a duplicate value
-EnumeratorDuplication.ice:19: enumerator `D' has a duplicate value
+EnumeratorDuplication.ice:16: enumerator `B' has the same value as enumerator `A'
+EnumeratorDuplication.ice:18: enumerator `D' has the same value as enumerator `C'

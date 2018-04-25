@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -42,7 +42,6 @@
 #include <Ice/FacetMap.h>
 #include <Ice/Process.h>
 #include <list>
-#include <IceUtil/UniquePtr.h>
 
 namespace Ice
 {
@@ -109,7 +108,9 @@ public:
     Ice::PluginManagerPtr pluginManager() const;
     size_t messageSizeMax() const { return _messageSizeMax; }
     size_t batchAutoFlushSize() const { return _batchAutoFlushSize; }
+    size_t classGraphDepthMax() const { return _classGraphDepthMax; }
     bool collectObjects() const { return _collectObjects; }
+    Ice::ToStringMode toStringMode() const { return _toStringMode; }
     const ACMConfig& clientACM() const;
     const ACMConfig& serverACM() const;
 
@@ -151,7 +152,7 @@ private:
 
     Instance(const Ice::CommunicatorPtr&, const Ice::InitializationData&);
     virtual ~Instance();
-    void finishSetup(int&, char*[], const Ice::CommunicatorPtr&);
+    void finishSetup(int&, const char*[], const Ice::CommunicatorPtr&);
     void destroy();
     friend class Ice::CommunicatorI;
 
@@ -176,7 +177,9 @@ private:
     const DefaultsAndOverridesPtr _defaultsAndOverrides; // Immutable, not reset by destroy().
     const size_t _messageSizeMax; // Immutable, not reset by destroy().
     const size_t _batchAutoFlushSize; // Immutable, not reset by destroy().
+    const size_t _classGraphDepthMax; // Immutable, not reset by destroy().
     const bool _collectObjects; // Immutable, not reset by destroy().
+    const Ice::ToStringMode _toStringMode; // Immutable, not reset by destroy()
     ACMConfig _clientACM;
     ACMConfig _serverACM;
     RouterManagerPtr _routerManager;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -61,6 +61,8 @@ class BatchOnewaysAMI
 
     static void batchOneways(MyClassPrx p, PrintWriter out)
     {
+        final Ice.Communicator communicator = p.ice_getCommunicator();
+        final Ice.Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10 * 1024];
 
         MyClassPrx batch = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
@@ -100,14 +102,15 @@ class BatchOnewaysAMI
             }
         }
 
-        if(batch.ice_getConnection() != null)
+        final boolean bluetooth = properties.getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+        if(batch.ice_getConnection() != null && !bluetooth)
         {
             MyClassPrx batch2 = MyClassPrxHelper.uncheckedCast(p.ice_batchOneway());
 
             batch.begin_ice_ping();
             batch2.begin_ice_ping();
             batch.end_ice_flushBatchRequests(batch.begin_ice_flushBatchRequests());
-            batch.ice_getConnection().close(false);
+            batch.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             batch.begin_ice_ping();
             batch2.begin_ice_ping();
 
@@ -115,7 +118,7 @@ class BatchOnewaysAMI
             batch2.ice_getConnection();
 
             batch.begin_ice_ping();
-            batch.ice_getConnection().close(false);
+            batch.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
             batch.begin_ice_ping().throwLocalException();
             batch2.begin_ice_ping().throwLocalException();
         }

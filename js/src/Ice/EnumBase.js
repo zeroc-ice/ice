@@ -1,12 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 //
@@ -44,12 +43,12 @@ class EnumBase
     {
         return this._name;
     }
-    
+
     get name()
     {
         return this._name;
     }
-    
+
     get value()
     {
         return this._value;
@@ -66,22 +65,22 @@ class EnumHelper
 
     write(os, v)
     {
-        this._enumType.__write(os, v);
+        this._enumType._write(os, v);
     }
 
     writeOptional(os, tag, v)
     {
-        this._enumType.__writeOpt(os, tag, v);
+        this._enumType._writeOpt(os, tag, v);
     }
 
     read(is)
     {
-        return this._enumType.__read(is);
+        return this._enumType._read(is);
     }
 
     readOptional(is, tag)
     {
-        return this._enumType.__readOpt(is, tag);
+        return this._enumType._readOpt(is, tag);
     }
 }
 
@@ -101,11 +100,12 @@ Slice.defineEnum = function(enumerators)
     const enums = [];
     let maxValue = 0;
     let firstEnum = null;
-    
-    for(let idx in enumerators)
+
+    for(const idx in enumerators)
     {
-        let e = enumerators[idx][0], value = enumerators[idx][1];
-        let enumerator = new type(e, value);
+        const e = enumerators[idx][0];
+        const value = enumerators[idx][1];
+        const enumerator = new type(e, value);
         enums[value] = enumerator;
         if(!firstEnum)
         {
@@ -125,7 +125,7 @@ Slice.defineEnum = function(enumerators)
         get: function(){ return 1; }
     });
 
-    type.__write = function(os, v)
+    type._write = function(os, v)
     {
         if(v)
         {
@@ -136,26 +136,26 @@ Slice.defineEnum = function(enumerators)
             os.writeEnum(firstEnum);
         }
     };
-    type.__read = function(is)
+    type._read = function(is)
     {
         return is.readEnum(type);
     };
-    type.__writeOpt = function(os, tag, v)
+    type._writeOpt = function(os, tag, v)
     {
         if(v !== undefined)
         {
             if(os.writeOptional(tag, Ice.OptionalFormat.Size))
             {
-                type.__write(os, v);
+                type._write(os, v);
             }
         }
     };
-    type.__readOpt = function(is, tag)
+    type._readOpt = function(is, tag)
     {
         return is.readOptionalEnum(tag, type);
     };
 
-    type.__helper = new EnumHelper(type);
+    type._helper = new EnumHelper(type);
 
     Object.defineProperty(type, 'valueOf', {
         value: function(v) {

@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -17,43 +17,29 @@ class CallQueue(threading.Thread):
         self._destroy = False
 
     def add(self, call):
-        self._condVar.acquire()
-        self._queue.append(call)
-        self._condVar.notify()
-        self._condVar.release()
+        with self._condVar:
+            self._queue.append(call)
+            self._condVar.notify()
 
     def destroy(self):
-        self._condVar.acquire()
-        self._destroy = True
-        self._condVar.notify()
-        self._condVar.release()
+        with self._condVar:
+            self._destroy = True
+            self._condVar.notify()
 
     def run(self):
         while True:
-            self._condVar.acquire()
-            while len(self._queue) == 0 and not self._destroy:
-                self._condVar.wait()
-            if self._destroy:
-                self._condVar.release()
-                break
-            call = self._queue.pop()
-            self._condVar.release()
+            with self._condVar:
+                while len(self._queue) == 0 and not self._destroy:
+                    self._condVar.wait()
+                if self._destroy:
+                    break
+                call = self._queue.pop()
             call.execute()
 
-class AsyncCallback(object):
-    def __init__(self, cb):
-        self._cb = cb
-
-    def response(self, ok, results):
-        self._cb.ice_response(ok, results)
-
-    def exception(self, ex):
-        self._cb.ice_exception(ex)
-
 class BlobjectCall(object):
-    def __init__(self, proxy, amdCallback, inParams, curr):
+    def __init__(self, proxy, future, inParams, curr):
         self._proxy = proxy
-        self._amdCallback = amdCallback
+        self._future = future
         self._inParams = inParams
         self._curr = curr
 
@@ -66,13 +52,19 @@ class BlobjectCall(object):
             proxy = proxy.ice_oneway()
             try:
                 ok, out = proxy.ice_invoke(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
-                self._amdCallback.ice_response(ok, out)
+                self._future.set_result((ok, out))
             except Ice.Exception as e:
-                self._amdCallback.ice_exception(e)
+                self._future.set_exception(e)
         else:
-            cb = AsyncCallback(self._amdCallback)
-            proxy.begin_ice_invoke(self._curr.operation, self._curr.mode, self._inParams, cb.response, cb.exception,
-                                   None, self._curr.ctx)
+            f = proxy.ice_invokeAsync(self._curr.operation, self._curr.mode, self._inParams, self._curr.ctx)
+            f.add_done_callback(self.done)
+
+    def done(self, future):
+        try:
+            (ok, bytes) = future.result()
+            self._future.set_result((ok, bytes))
+        except Exception as ex:
+            self._future.set_exception(ex)
 
 class BlobjectAsyncI(Ice.BlobjectAsync):
     def __init__(self):
@@ -81,23 +73,22 @@ class BlobjectAsyncI(Ice.BlobjectAsync):
         self._objects = {}
         self._lock = threading.Lock()
 
-    def ice_invoke_async(self, amdCallback, inParams, curr):
-        self._lock.acquire()
-        proxy = self._objects[curr.id]
-        assert proxy
-        self._lock.release()
-        self._queue.add(BlobjectCall(proxy, amdCallback, inParams, curr))
+    def ice_invoke(self, inParams, curr):
+        f = Ice.Future()
+        with self._lock:
+            proxy = self._objects[curr.id]
+            assert proxy
+            self._queue.add(BlobjectCall(proxy, f, inParams, curr))
+        return f
 
     def add(self, proxy):
-        self._lock.acquire()
-        self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
-        self._lock.release()
+        with self._lock:
+            self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
 
     def destroy(self):
-        self._lock.acquire()
-        self._queue.destroy()
-        self._queue.join()
-        self._lock.release()
+        with self._lock:
+            self._queue.destroy()
+            self._queue.join()
 
 class BlobjectI(Ice.Blobject):
     def __init__(self):
@@ -105,9 +96,8 @@ class BlobjectI(Ice.Blobject):
         self._lock = threading.Lock()
 
     def ice_invoke(self, inParams, curr):
-        self._lock.acquire()
-        proxy = self._objects[curr.id]
-        self._lock.release()
+        with self._lock:
+            proxy = self._objects[curr.id]
 
         if len(curr.facet) > 0:
             proxy = proxy.ice_facet(curr.facet)
@@ -122,9 +112,8 @@ class BlobjectI(Ice.Blobject):
             raise
 
     def add(self, proxy):
-        self._lock.acquire()
-        self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
-        self._lock.release()
+        with self._lock:
+            self._objects[proxy.ice_getIdentity()] = proxy.ice_facet("").ice_twoway().ice_router(None)
 
     def destroy(self):
         pass
@@ -159,7 +148,7 @@ class RouterI(Ice.Router):
         self._locator.useSync(sync)
 
     def getClientProxy(self, current):
-        return self._blobjectProxy
+        return (self._blobjectProxy, True)
 
     def getServerProxy(self, current):
         assert false

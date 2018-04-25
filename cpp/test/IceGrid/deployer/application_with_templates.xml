@@ -4,7 +4,7 @@
 
     <!-- Include server templates -->
     <include descriptor="icebox.xml"/>
-    <include descriptor="server.xml"/>    
+    <include descriptor="server.xml"/>
 
     <node name="localnode">
       <server-instance template="IceBoxTemplate" name="IceBox1"/>

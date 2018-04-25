@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,11 +8,11 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
-        "../Ice/StringUtil", 
-        "../Ice/LocalException", 
-        "../Ice/Version", 
+        "../Ice/StringUtil",
+        "../Ice/LocalException",
+        "../Ice/Version",
         "../Ice/Buffer"
     ]);
 
@@ -43,7 +43,7 @@ Protocol.headerSize = 14;
 // The magic number at the front of each message
 //
 //Protocol.magic = [ 0x49, 0x63, 0x65, 0x50 ];      // 'I', 'c', 'e', 'P'
-Protocol.magic = Ice.Buffer.createNative([ 0x49, 0x63, 0x65, 0x50 ]);      // 'I', 'c', 'e', 'P'
+Protocol.magic = new Uint8Array([ 0x49, 0x63, 0x65, 0x50 ]);      // 'I', 'c', 'e', 'P'
 
 //
 // The current Ice protocol and encoding version
@@ -77,7 +77,7 @@ Protocol.replyUnknownLocalException = 5;
 Protocol.replyUnknownUserException = 6;
 Protocol.replyUnknownException = 7;
 
-Protocol.requestHdr = Ice.Buffer.createNative([
+Protocol.requestHdr = new Uint8Array([
     Protocol.magic[0],
     Protocol.magic[1],
     Protocol.magic[2],
@@ -92,7 +92,7 @@ Protocol.requestHdr = Ice.Buffer.createNative([
     0, 0, 0, 0  // Request ID (placeholder).
 ]);
 
-Protocol.requestBatchHdr = Ice.Buffer.createNative([
+Protocol.requestBatchHdr = new Uint8Array([
     Protocol.magic[0],
     Protocol.magic[1],
     Protocol.magic[2],
@@ -107,7 +107,7 @@ Protocol.requestBatchHdr = Ice.Buffer.createNative([
     0, 0, 0, 0  // Number of requests in batch (placeholder).
 ]);
 
-Protocol.replyHdr = Ice.Buffer.createNative([
+Protocol.replyHdr = new Uint8Array([
     Protocol.magic[0],
     Protocol.magic[1],
     Protocol.magic[2],
@@ -122,7 +122,7 @@ Protocol.replyHdr = Ice.Buffer.createNative([
 ]);
 
 Protocol.currentProtocol = new Ice.ProtocolVersion(Protocol.protocolMajor, Protocol.protocolMinor);
-Protocol.currentProtocolEncoding = new Ice.EncodingVersion(Protocol.protocolEncodingMajor, 
+Protocol.currentProtocolEncoding = new Ice.EncodingVersion(Protocol.protocolEncodingMajor,
                                                             Protocol.protocolEncodingMinor);
 
 Protocol.currentEncoding = new Ice.EncodingVersion(Protocol.encodingMajor, Protocol.encodingMinor);
@@ -172,7 +172,7 @@ Protocol.getCompatibleProtocol = function(v)
         // Unsupported but compatible, use the currently supported
         // protocol, that's the best we can do.
         //
-        return Protocol.currentProtocol; 
+        return Protocol.currentProtocol;
     }
 };
 
@@ -196,7 +196,7 @@ Protocol.getCompatibleEncoding = function(v)
         // Unsupported but compatible, use the currently supported
         // encoding, that's the best we can do.
         //
-        return Protocol.currentEncoding; 
+        return Protocol.currentEncoding;
     }
 };
 

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,7 +35,11 @@ extern "C"
 // Factory function
 //
 ICE_DECLSPEC_EXPORT ::IceBox::Service*
-create(CommunicatorPtr communicator)
+#ifdef ICE_CPP11_MAPPING
+create(const shared_ptr<Communicator>&)
+#else
+create(CommunicatorPtr)
+#endif
 {
     return new ServiceI;
 }
@@ -62,4 +66,3 @@ void
 ServiceI::stop()
 {
 }
-

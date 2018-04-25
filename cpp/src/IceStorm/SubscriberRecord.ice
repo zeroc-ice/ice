@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,14 +9,13 @@
 
 #pragma once
 
-[["cpp:header-ext:h"]]
+[["ice-prefix", "cpp:header-ext:h"]]
 
 #include <Ice/Identity.ice>
 #include <IceStorm/IceStorm.ice>
 
 module IceStorm
 {
-
 
 /**
  *
@@ -35,7 +34,7 @@ struct SubscriberRecordKey
     // The identity of the subscriber. If this is empty then the key
     // is a placeholder for a topic.
     Ice::Identity id;
-};
+}
 
 /**
  *
@@ -61,9 +60,8 @@ struct SubscriberRecord
     // Link subscriber data.
     int cost; // The cost.
     Topic* theTopic;  // The linked topic.
-};
+}
 
 sequence<SubscriberRecord> SubscriberRecordSeq;
 
-}; // End module IceStorm
-
+} // End module IceStorm

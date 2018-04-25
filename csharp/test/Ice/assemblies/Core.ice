@@ -1,0 +1,8 @@
+module Core
+{
+
+exception ArgumentException
+{
+}
+
+}

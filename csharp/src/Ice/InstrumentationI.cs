@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -67,11 +67,11 @@ namespace IceInternal
             where ObserverImpl : ObserverWithDelegate<S, Observer>, Observer, new()
             where Observer : Ice.Instrumentation.Observer
         {
-            ObserverImpl obsv = base.getObserver<S, ObserverImpl>(mapName, helper);
+            ObserverImpl obsv = getObserver<S, ObserverImpl>(mapName, helper);
             if(obsv != null)
             {
                 obsv.setDelegate(del);
-                return (Observer)obsv;
+                return obsv;
             }
             return del;
         }
@@ -84,13 +84,13 @@ namespace IceInternal
         where OImpl : ObserverWithDelegate<T, O>, O, new()
         where O : Ice.Instrumentation.Observer
     {
-        public ObserverFactoryWithDelegate(IceInternal.MetricsAdminI metrics, string name) : base(metrics, name)
+        public ObserverFactoryWithDelegate(MetricsAdminI metrics, string name) : base(metrics, name)
         {
         }
 
         public O getObserver(MetricsHelper<T> helper, O del)
         {
-            OImpl o = base.getObserver(helper);
+            OImpl o = getObserver(helper);
             if(o != null)
             {
                 o.setDelegate(del);
@@ -101,7 +101,7 @@ namespace IceInternal
 
         public O getObserver(MetricsHelper<T> helper, object observer, O del)
         {
-            OImpl o = base.getObserver(helper, observer);
+            OImpl o = getObserver(helper, observer);
             if(o != null)
             {
                 o.setDelegate(del);
@@ -148,13 +148,13 @@ namespace IceInternal
             r.add("mcastHost", cl.GetMethod("getConnectionInfo"), cli.GetField("mcastAddress"));
             r.add("mcastPort", cl.GetMethod("getConnectionInfo"), cli.GetField("mcastPort"));
 
-            AttrsUtil.addEndpointAttributes<T>(r, cl);
+            addEndpointAttributes<T>(r, cl);
         }
     }
 
     class ConnectionHelper : MetricsHelper<ConnectionMetrics>
     {
-        class AttributeResolverI : MetricsHelper<ConnectionMetrics>.AttributeResolver
+        class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -164,7 +164,7 @@ namespace IceInternal
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
                     add("state", cl.GetMethod("getState"));
-                    AttrsUtil.addConnectionAttributes<ConnectionMetrics>(this, cl);
+                    AttrsUtil.addConnectionAttributes(this, cl);
                 }
                 catch(Exception)
                 {
@@ -280,7 +280,7 @@ namespace IceInternal
 
     class DispatchHelper : MetricsHelper<DispatchMetrics>
     {
-        class AttributeResolverI : MetricsHelper<DispatchMetrics>.AttributeResolver
+        class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -290,7 +290,7 @@ namespace IceInternal
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
 
-                    AttrsUtil.addConnectionAttributes<DispatchMetrics>(this, cl);
+                    AttrsUtil.addConnectionAttributes(this, cl);
 
                     Type clc = typeof(Ice.Current);
                     add("operation", cl.GetMethod("getCurrent"), clc.GetField("operation"));
@@ -395,7 +395,7 @@ namespace IceInternal
 
         public string getIdentity()
         {
-            return Ice.Util.identityToString(_current.id);
+            return _current.adapter.getCommunicator().identityToString(_current.id);
         }
 
         readonly private Ice.Current _current;
@@ -406,7 +406,7 @@ namespace IceInternal
 
     class InvocationHelper : MetricsHelper<InvocationMetrics>
     {
-        class AttributeResolverI : MetricsHelper<InvocationMetrics>.AttributeResolver
+        class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -500,7 +500,7 @@ namespace IceInternal
                     catch(Ice.Exception)
                     {
                         // Either a fixed proxy or the communicator is destroyed.
-                        os.Append(Ice.Util.identityToString(_proxy.ice_getIdentity()));
+                        os.Append(_proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity()));
                         os.Append(" [").Append(_operation).Append(']');
                     }
                     _id = os.ToString();
@@ -532,7 +532,7 @@ namespace IceInternal
         {
             if(_proxy != null)
             {
-                return Ice.Util.identityToString(_proxy.ice_getIdentity());
+                return _proxy.ice_getCommunicator().identityToString(_proxy.ice_getIdentity());
             }
             else
             {
@@ -555,7 +555,7 @@ namespace IceInternal
 
     class ThreadHelper : MetricsHelper<ThreadMetrics>
     {
-        class AttributeResolverI : MetricsHelper<ThreadMetrics>.AttributeResolver
+        class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -605,7 +605,7 @@ namespace IceInternal
 
     class EndpointHelper : MetricsHelper<Metrics>
     {
-        class AttributeResolverI : MetricsHelper<Metrics>.AttributeResolver
+        class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -614,7 +614,7 @@ namespace IceInternal
                     Type cl = typeof(EndpointHelper);
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
-                    AttrsUtil.addEndpointAttributes<Metrics>(this, cl);
+                    AttrsUtil.addEndpointAttributes(this, cl);
                 }
                 catch(Exception)
                 {
@@ -670,7 +670,7 @@ namespace IceInternal
 
     public class RemoteInvocationHelper : MetricsHelper<RemoteMetrics>
     {
-        class AttributeResolverI : MetricsHelper<RemoteMetrics>.AttributeResolver
+        class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -680,7 +680,7 @@ namespace IceInternal
                     add("parent", cl.GetMethod("getParent"));
                     add("id", cl.GetMethod("getId"));
                     add("requestId", cl.GetMethod("getRequestId"));
-                    AttrsUtil.addConnectionAttributes<RemoteMetrics>(this, cl);
+                    AttrsUtil.addConnectionAttributes(this, cl);
                 }
                 catch(Exception)
                 {
@@ -763,7 +763,7 @@ namespace IceInternal
 
     public class CollocatedInvocationHelper : MetricsHelper<CollocatedMetrics>
     {
-        class AttributeResolverI : MetricsHelper<CollocatedMetrics>.AttributeResolver
+        class AttributeResolverI : AttributeResolver
         {
             public AttributeResolverI()
             {
@@ -1212,12 +1212,12 @@ namespace IceInternal
             }
         }
 
-        public IceInternal.MetricsAdminI getFacet()
+        public MetricsAdminI getFacet()
         {
             return _metrics;
         }
 
-        readonly private IceInternal.MetricsAdminI _metrics;
+        readonly private MetricsAdminI _metrics;
         readonly private Ice.Instrumentation.CommunicatorObserver _delegate;
         readonly private ObserverFactoryWithDelegate<ConnectionMetrics, ConnectionObserverI,
             Ice.Instrumentation.ConnectionObserver> _connections;

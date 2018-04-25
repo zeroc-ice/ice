@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,7 +10,8 @@
 #ifndef SLICE_PHP_UTIL_H
 #define SLICE_PHP_UTIL_H
 
-#include <Slice/Parser.h>
+#include <IceUtil/Config.h>
+#include <string>
 
 namespace Slice
 {
@@ -27,16 +28,6 @@ std::string scopedToName(const std::string&, bool);
 // a reserved word, then an escaped version is returned with a leading underscore.
 //
 std::string fixIdent(const std::string&);
-
-//
-// Get the fully-qualified name of the given definition. If a suffix is provided,
-// it is prepended to the definition's unqualified name. If the nameSuffix
-// is provided, it is appended to the container's name.
-//
-// COMPILERFIX: MSVC 6 seems to have a problem with const std::string
-// = std::string(), const std::string = std::string().
-//
-std::string getAbsolute(const Slice::ContainedPtr&, bool, const std::string& = "", const std::string& = "");
 
 //
 // Since PHP uses the backslash character as the namespace separator, we have

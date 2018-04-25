@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,7 +20,7 @@
 #include <Ice/ProtocolInstanceF.h>
 #include <Ice/ObserverHelper.h>
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 #   include <deque>
 #endif
 
@@ -34,9 +34,9 @@ public:
     IPEndpointInfoI(const EndpointIPtr&);
     virtual ~IPEndpointInfoI();
 
-    virtual Ice::Short type() const;
-    virtual bool datagram() const;
-    virtual bool secure() const;
+    virtual Ice::Short type() const ICE_NOEXCEPT;
+    virtual bool datagram() const ICE_NOEXCEPT;
+    virtual bool secure() const ICE_NOEXCEPT;
 
 private:
 
@@ -52,7 +52,7 @@ public:
 
     virtual void streamWriteImpl(Ice::OutputStream*) const;
 
-    virtual Ice::EndpointInfoPtr getInfo() const;
+    virtual Ice::EndpointInfoPtr getInfo() const ICE_NOEXCEPT;
     virtual Ice::Short type() const;
     virtual const std::string& protocol() const;
     virtual bool secure() const;
@@ -61,7 +61,8 @@ public:
     virtual EndpointIPtr connectionId(const ::std::string&) const;
 
     virtual void connectors_async(Ice::EndpointSelectionType, const EndpointI_connectorsPtr&) const;
-    virtual std::vector<EndpointIPtr> expand() const;
+    virtual std::vector<EndpointIPtr> expandIfWildcard() const;
+    virtual std::vector<EndpointIPtr> expandHost(EndpointIPtr&) const;
     virtual bool equivalent(const EndpointIPtr&) const;
     virtual ::Ice::Int hash() const;
     virtual std::string options() const;
@@ -108,7 +109,7 @@ private:
     mutable Ice::Int _hashValue;
 };
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
 class ICE_API EndpointHostResolver : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
 #else
 class ICE_API EndpointHostResolver : public IceUtil::Shared
@@ -127,7 +128,7 @@ public:
 
 private:
 
-#ifndef ICE_OS_WINRT
+#ifndef ICE_OS_UWP
     struct ResolveEntry
     {
         std::string host;

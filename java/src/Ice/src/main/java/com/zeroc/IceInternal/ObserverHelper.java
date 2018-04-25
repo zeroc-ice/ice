@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -39,8 +39,8 @@ public final class ObserverHelper
     static public InvocationObserver
     get(com.zeroc.Ice.ObjectPrx proxy, String op, java.util.Map<String, String> context)
     {
-        CommunicatorObserver obsv = 
-            ((com.zeroc.Ice._ObjectPrxI)proxy).__reference().getInstance().initializationData().observer;
+        CommunicatorObserver obsv =
+            ((com.zeroc.Ice._ObjectPrxI)proxy)._getReference().getInstance().initializationData().observer;
         if(obsv != null)
         {
             InvocationObserver observer;

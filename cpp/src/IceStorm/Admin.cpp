@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,14 +9,21 @@
 
 #include <IceUtil/Options.h>
 #include <Ice/Application.h>
+#include <Ice/ConsoleUtil.h>
 #include <Ice/SliceChecksums.h>
 #include <IceStorm/Parser.h>
 
+#ifdef  _WIN32
+#   include <fcntl.h>
+#   include <io.h>
+#endif
+
 using namespace std;
 using namespace Ice;
+using namespace IceInternal;
 using namespace IceStorm;
 
-class Client : public Application
+class Client : public Ice::Application
 {
 public:
 
@@ -28,14 +35,17 @@ public:
 
 int
 wmain(int argc, wchar_t* argv[])
-
+{
+    //
+    // Enable binary input mode for stdin to avoid automatic conversions.
+    //
+    _setmode(_fileno(stdin), _O_BINARY);
 #else
 
 int
 main(int argc, char* argv[])
-
-#endif
 {
+#endif
     Client app;
     Ice::InitializationData id;
     Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
@@ -48,8 +58,8 @@ main(int argc, char* argv[])
 void
 Client::usage()
 {
-    cerr << "Usage: " << appName() << " [options]\n";
-    cerr <<
+    consoleErr << "Usage: " << appName() << " [options]\n";
+    consoleErr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
         "-v, --version        Display the Ice version.\n"
@@ -77,13 +87,13 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << e.reason << endl;
+        consoleErr << e.reason << endl;
         usage();
         return EXIT_FAILURE;
     }
     if(!args.empty())
     {
-        cerr << argv[0] << ": too many arguments" << endl;
+        consoleErr << argv[0] << ": too many arguments" << endl;
         usage();
         return EXIT_FAILURE;
     }
@@ -95,7 +105,7 @@ Client::run(int argc, char* argv[])
     }
     if(opts.isSet("version"))
     {
-        cout << ICE_STRING_VERSION << endl;
+        consoleOut << ICE_STRING_VERSION << endl;
         return EXIT_SUCCESS;
     }
     if(opts.isSet("e"))
@@ -131,7 +141,7 @@ Client::run(int argc, char* argv[])
                 }
                 catch(const Ice::ProxyParseException&)
                 {
-                    cerr << appName() << ": malformed proxy: " << p->second << endl;
+                    consoleErr << appName() << ": malformed proxy: " << p->second << endl;
                     return EXIT_FAILURE;
                 }
             }
@@ -172,7 +182,7 @@ Client::run(int argc, char* argv[])
 
     if(!defaultManager)
     {
-        cerr << appName() << ": no manager proxies configured" << endl;
+        consoleErr << appName() << ": no manager proxies configured" << endl;
         return EXIT_FAILURE;
     }
 

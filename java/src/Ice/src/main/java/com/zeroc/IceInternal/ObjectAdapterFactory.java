@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -48,7 +48,6 @@ public final class ObjectAdapterFactory
             notifyAll();
         }
     }
-
 
     public void
     waitForShutdown()
@@ -144,7 +143,7 @@ public final class ObjectAdapterFactory
         }
     }
 
-    public synchronized ObjectAdapter
+    public ObjectAdapter
     createObjectAdapter(String name, com.zeroc.Ice.RouterPrx router)
     {
         if(Thread.interrupted())
@@ -152,27 +151,69 @@ public final class ObjectAdapterFactory
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
 
-        if(_instance == null)
+        synchronized(this)
         {
-            throw new com.zeroc.Ice.CommunicatorDestroyedException();
+            if(_instance == null)
+            {
+                throw new com.zeroc.Ice.CommunicatorDestroyedException();
+            }
+
+            if(!name.isEmpty())
+            {
+                if(_adapterNamesInUse.contains(name))
+                {
+                    throw new com.zeroc.Ice.AlreadyRegisteredException("object adapter", name);
+                }
+                _adapterNamesInUse.add(name);
+            }
         }
 
-        ObjectAdapterI adapter = null;
-        if(name.length() == 0)
+        //
+        // Must be called outside the synchronization since initialize can make client invocations
+        // on the router if it's set.
+        //
+        com.zeroc.Ice.ObjectAdapterI adapter = null;
+        try
         {
-            String uuid = java.util.UUID.randomUUID().toString();
-            adapter = new ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
-        }
-        else
-        {
-            if(_adapterNamesInUse.contains(name))
+            if(name.isEmpty())
             {
-                throw new com.zeroc.Ice.AlreadyRegisteredException("object adapter", name);
+                String uuid = java.util.UUID.randomUUID().toString();
+                adapter = new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, uuid, null, true);
             }
-            adapter = new ObjectAdapterI(_instance, _communicator, this, name, router, false);
-            _adapterNamesInUse.add(name);
+            else
+            {
+                adapter = new com.zeroc.Ice.ObjectAdapterI(_instance, _communicator, this, name, router, false);
+            }
+
+            synchronized(this)
+            {
+                if(_instance == null)
+                {
+                    throw new com.zeroc.Ice.CommunicatorDestroyedException();
+                }
+                _adapters.add(adapter);
+            }
         }
-        _adapters.add(adapter);
+        catch(com.zeroc.Ice.CommunicatorDestroyedException ex)
+        {
+            if(adapter != null)
+            {
+                adapter.destroy();
+            }
+            throw ex;
+        }
+        catch(com.zeroc.Ice.LocalException ex)
+        {
+            if(!name.isEmpty())
+            {
+                synchronized(this)
+                {
+                    _adapterNamesInUse.remove(name);
+                }
+            }
+            throw ex;
+        }
+
         return adapter;
     }
 
@@ -221,7 +262,7 @@ public final class ObjectAdapterFactory
     }
 
     public void
-    flushAsyncBatchRequests(CommunicatorFlushBatch outAsync)
+    flushAsyncBatchRequests(com.zeroc.Ice.CompressBatch compressBatch, CommunicatorFlushBatch outAsync)
     {
         java.util.List<ObjectAdapterI> adapters;
         synchronized(this)
@@ -231,7 +272,7 @@ public final class ObjectAdapterFactory
 
         for(ObjectAdapterI adapter : adapters)
         {
-            adapter.flushAsyncBatchRequests(outAsync);
+            adapter.flushAsyncBatchRequests(compressBatch, outAsync);
         }
     }
 
@@ -244,6 +285,7 @@ public final class ObjectAdapterFactory
         _communicator = communicator;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     protected synchronized void
     finalize()

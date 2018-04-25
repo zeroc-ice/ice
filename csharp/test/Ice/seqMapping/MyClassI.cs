@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -413,31 +413,31 @@ public sealed class MyClassI : Test.MyClassDisp_
         return i;
     }
 
-    public override CVPrx[] opACVPrxS(CVPrx[] i, out CVPrx[] o, Ice.Current current)
+    public override Test.IPrx[] opAIPrxS(Test.IPrx[] i, out Test.IPrx[] o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override List<CVPrx> opLCVPrxS(List<CVPrx> i, out List<CVPrx> o, Ice.Current current)
+    public override List<Test.IPrx> opLIPrxS(List<Test.IPrx> i, out List<Test.IPrx> o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override LinkedList<CVPrx> opKCVPrxS(LinkedList<CVPrx> i, out LinkedList<CVPrx> o, Ice.Current current)
+    public override LinkedList<Test.IPrx> opKIPrxS(LinkedList<Test.IPrx> i, out LinkedList<Test.IPrx> o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override Queue<CVPrx> opQCVPrxS(Queue<CVPrx> i, out Queue<CVPrx> o, Ice.Current current)
+    public override Queue<Test.IPrx> opQIPrxS(Queue<Test.IPrx> i, out Queue<Test.IPrx> o, Ice.Current current)
     {
         o = i;
         return i;
     }
 
-    public override Stack<CVPrx> opSCVPrxS(Stack<CVPrx> i, out Stack<CVPrx> o, Ice.Current current)
+    public override Stack<Test.IPrx> opSIPrxS(Stack<Test.IPrx> i, out Stack<Test.IPrx> o, Ice.Current current)
     {
         o = i;
         return i;

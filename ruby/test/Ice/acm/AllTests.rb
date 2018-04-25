@@ -1,18 +1,15 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
 #
 # **********************************************************************
 
-def allTests(communicator)
+def testSetACM(communicator, com)
     print "testing setACM/getACM... "
     STDOUT.flush
-
-    ref = "communicator:default -p 12010"
-    com = Test::RemoteCommunicatorPrx::uncheckedCast(communicator.stringToProxy(ref))
 
     adapter = com.createObjectAdapter(-1, -1, -1)
 
@@ -25,6 +22,12 @@ def allTests(communicator)
     testCommunicator = Ice::initialize(initData)
     proxy = Test::TestIntfPrx::uncheckedCast(testCommunicator.stringToProxy(adapter.getTestIntf().ice_toString()))
     proxy.ice_getConnection()
+
+    begin
+        proxy.ice_getCachedConnection().setACM(-19, Ice::Unset, Ice::Unset)
+        test(false)
+    rescue
+    end
 
     acm = proxy.ice_getCachedConnection().getACM()
     test(acm.timeout == 15)
@@ -44,14 +47,49 @@ def allTests(communicator)
     test(acm.close == Ice::ACMClose::CloseOnInvocationAndIdle)
     test(acm.heartbeat == Ice::ACMHeartbeat::HeartbeatAlways)
 
-    proxy.waitForHeartbeat(2)
+    proxy.startHeartbeatCount()
+    proxy.waitForHeartbeatCount(2)
 
     adapter.deactivate()
     testCommunicator.destroy()
     puts "ok"
+end
 
-    print "shutting down... "
+def testHeartbeatManual(communicator, com)
+    print "testing manual heartbeats... "
     STDOUT.flush
-    com.shutdown()
+
+    adapter = com.createObjectAdapter(10, -1, 0)
+
+    initData = Ice::InitializationData.new
+    initData.properties = communicator.getProperties().clone()
+    initData.properties.setProperty("Ice.ACM.Timeout", "10")
+    initData.properties.setProperty("Ice.ACM.Client.Timeout", "10")
+    initData.properties.setProperty("Ice.ACM.Client.Close", "0")
+    initData.properties.setProperty("Ice.ACM.Client.Heartbeat", "0")
+    testCommunicator = Ice::initialize(initData)
+    proxy = Test::TestIntfPrx::uncheckedCast(testCommunicator.stringToProxy(adapter.getTestIntf().ice_toString()))
+    con = proxy.ice_getConnection()
+
+    proxy.startHeartbeatCount()
+    con.heartbeat()
+    con.heartbeat()
+    con.heartbeat()
+    con.heartbeat()
+    con.heartbeat()
+    proxy.waitForHeartbeatCount(5)
+
+    adapter.deactivate()
+    testCommunicator.destroy()
     puts "ok"
+end
+
+def allTests(communicator)
+    ref = "communicator:default -p 12010"
+    com = Test::RemoteCommunicatorPrx::uncheckedCast(communicator.stringToProxy(ref))
+
+    testSetACM(communicator, com)
+    testHeartbeatManual(communicator, com)
+
+    com.shutdown()
 end

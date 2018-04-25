@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/StringUtil",
         "../Ice/Stream",
@@ -126,19 +126,25 @@ class EndpointFactoryManager
     read(s)
     {
         const type = s.readShort();
-        for(let i = 0; i < this._factories.length; ++i)
-        {
-            if(this._factories[i].type() == type)
-            {
-                s.startEncapsulation();
-                const e = this._factories[i].read(s);
-                s.endEncapsulation();
-                return e;
-            }
-        }
+
+        const factory = this.get(type);
+        let e = null;
         s.startEncapsulation();
-        const e = new OpaqueEndpointI(type);
-        e.initWithStream(s);
+        if(factory)
+        {
+            e = factory.read(s);
+        }
+        //
+        // If the factory failed to read the endpoint, return an opaque endpoint. This can
+        // occur if for example the factory delegates to another factory and this factory
+        // isn't available. In this case, the factory needs to make sure the stream position
+        // is preserved for reading the opaque endpoint.
+        //
+        if(!e)
+        {
+            e = new OpaqueEndpointI(type);
+            e.initWithStream(s);
+        }
         s.endEncapsulation();
         return e;
     }

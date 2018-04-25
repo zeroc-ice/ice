@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -47,7 +47,7 @@ class Instance extends IceInternal.ProtocolInstance
         _engine.traceConnection(desc, engine, incoming);
     }
 
-    void verifyPeer(String address, NativeConnectionInfo info, String desc)
+    void verifyPeer(String address, ConnectionInfo info, String desc)
     {
         _engine.verifyPeer(address, info, desc);
     }

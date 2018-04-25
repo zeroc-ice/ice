@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -95,7 +95,6 @@ class ServerSubEditor extends CommunicatorSubEditor
                              "<html>Check this box to ensure that the well-known objects<br>"
                              + "of this server can only be allocated by one session at a time.</html>");
         _allocatable = new JCheckBox(allocatable);
-
 
         Action appDistrib = new AbstractAction("Depends on the application distribution")
             {

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,9 +20,9 @@ namespace IcePHP
 bool proxyInit(TSRMLS_D);
 
 bool createProxy(zval*, const Ice::ObjectPrx&, const CommunicatorInfoPtr& TSRMLS_DC);
-bool createProxy(zval*, const Ice::ObjectPrx&, const ClassInfoPtr&, const CommunicatorInfoPtr& TSRMLS_DC);
-bool fetchProxy(zval*, Ice::ObjectPrx&, ClassInfoPtr& TSRMLS_DC);
-bool fetchProxy(zval*, Ice::ObjectPrx&, ClassInfoPtr&, CommunicatorInfoPtr& TSRMLS_DC);
+bool createProxy(zval*, const Ice::ObjectPrx&, const ProxyInfoPtr&, const CommunicatorInfoPtr& TSRMLS_DC);
+bool fetchProxy(zval*, Ice::ObjectPrx&, ProxyInfoPtr& TSRMLS_DC);
+bool fetchProxy(zval*, Ice::ObjectPrx&, ProxyInfoPtr&, CommunicatorInfoPtr& TSRMLS_DC);
 
 //
 // Class entry.

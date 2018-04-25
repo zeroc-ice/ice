@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/Protocol",
@@ -25,29 +25,25 @@ const Protocol = Ice.Protocol;
 const StringUtil = Ice.StringUtil;
 const OperationMode = Ice.OperationMode;
 const Identity = Ice.Identity;
-
 const slicingIds = new Map();
-
-function traceSlicing(kind, typeId, slicingCat, logger)
-{
-    if(!slicingIds.has(typeId))
-    {
-        logger.trace(slicingCat, `unknown ${kind} type \`${typeId}'`);
-        slicingIds.set(typeId, 1);
-    }
-}
 
 function printIdentityFacetOperation(s, stream)
 {
+    let toStringMode = Ice.ToStringMode.Unicode;
+    if(stream.instance !== null)
+    {
+        toStringMode = stream.instance.toStringMode();
+    }
+
     const identity = new Identity();
-    identity.__read(stream);
-    s.push("\nidentity = " + Ice.identityToString(identity));
+    identity._read(stream);
+    s.push("\nidentity = " + Ice.identityToString(identity, toStringMode));
 
     const facet = Ice.StringSeqHelper.read(stream);
     s.push("\nfacet = ");
     if(facet.length > 0)
     {
-        s.push(StringUtil.escapeString(facet[0], ""));
+        s.push(StringUtil.escapeString(facet[0], "", toStringMode));
     }
 
     const operation = stream.readString();
@@ -360,6 +356,15 @@ function getMessageTypeAsString(type)
 
 class TraceUtil
 {
+    static traceSlicing(kind, typeId, slicingCat, logger)
+    {
+        if(!slicingIds.has(typeId))
+        {
+            logger.trace(slicingCat, `unknown ${kind} type \`${typeId}'`);
+            slicingIds.set(typeId, 1);
+        }
+    }
+
     static traceSend(stream, logger, traceLevels)
     {
         if(traceLevels.protocol >= 1)
@@ -425,7 +430,7 @@ class TraceUtil
             stream.pos = p;
         }
     }
-    
+
     static dumpStream(stream)
     {
         const pos = stream.pos;

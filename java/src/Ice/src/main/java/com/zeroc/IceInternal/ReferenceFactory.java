@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -56,8 +56,12 @@ public final class ReferenceFactory
             "", // Facet
             fixedConnection.endpoint().datagram() ? Reference.ModeDatagram : Reference.ModeTwoway,
             fixedConnection.endpoint().secure(),
+            com.zeroc.Ice.Util.Protocol_1_0,
             _instance.defaultsAndOverrides().defaultEncoding,
-            fixedConnection);
+            fixedConnection,
+            -1,
+            null,
+            java.util.Optional.empty());
     }
 
     public Reference
@@ -68,7 +72,7 @@ public final class ReferenceFactory
         {
             return null;
         }
-	return r.clone();
+        return r.clone();
     }
 
     public Reference
@@ -256,7 +260,7 @@ public final class ReferenceFactory
 
                     try
                     {
-                        facet = StringUtil.unescapeString(argument, 0, argument.length());
+                        facet = StringUtil.unescapeString(argument, 0, argument.length(), "");
                     }
                     catch(IllegalArgumentException ex)
                     {
@@ -524,7 +528,7 @@ public final class ReferenceFactory
 
             try
             {
-                adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length());
+                adapter = StringUtil.unescapeString(adapterstr, 0, adapterstr.length(), "");
             }
             catch(IllegalArgumentException ex)
             {
@@ -589,8 +593,8 @@ public final class ReferenceFactory
         com.zeroc.Ice.EncodingVersion encoding;
         if(!s.getEncoding().equals(com.zeroc.Ice.Util.Encoding_1_0))
         {
-            protocol = com.zeroc.Ice.ProtocolVersion.read(s, null);
-            encoding = com.zeroc.Ice.EncodingVersion.read(s, null);
+            protocol = com.zeroc.Ice.ProtocolVersion.ice_read(s);
+            encoding = com.zeroc.Ice.EncodingVersion.ice_read(s);
         }
         else
         {
@@ -744,10 +748,9 @@ public final class ReferenceFactory
         LocatorInfo locatorInfo = null;
         if(_defaultLocator != null)
         {
-            if(!((com.zeroc.Ice._ObjectPrxI)_defaultLocator).__reference().getEncoding().equals(encoding))
+            if(!((com.zeroc.Ice._ObjectPrxI)_defaultLocator)._getReference().getEncoding().equals(encoding))
             {
-                locatorInfo = _instance.locatorManager().get(
-                    (com.zeroc.Ice.LocatorPrx)_defaultLocator.ice_encodingVersion(encoding));
+                locatorInfo = _instance.locatorManager().get(_defaultLocator.ice_encodingVersion(encoding));
             }
             else
             {
@@ -785,10 +788,9 @@ public final class ReferenceFactory
                 com.zeroc.Ice.LocatorPrx.uncheckedCast(_communicator.propertyToProxy(property));
             if(locator != null)
             {
-                if(!((com.zeroc.Ice._ObjectPrxI)locator).__reference().getEncoding().equals(encoding))
+                if(!((com.zeroc.Ice._ObjectPrxI)locator)._getReference().getEncoding().equals(encoding))
                 {
-                    locatorInfo =
-                        _instance.locatorManager().get((com.zeroc.Ice.LocatorPrx)locator.ice_encodingVersion(encoding));
+                    locatorInfo = _instance.locatorManager().get(locator.ice_encodingVersion(encoding));
                 }
                 else
                 {

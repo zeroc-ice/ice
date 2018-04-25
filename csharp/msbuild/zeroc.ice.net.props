@@ -1,14 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (c) 2009-2016 ZeroC, Inc. All rights reserved. -->
+<!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup>
-        <IceVersion>3.7a3</IceVersion>
-        <IceIntVersion>30753</IceIntVersion>
+        <IceVersion>3.7.1</IceVersion>
+        <IceIntVersion>30701</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
-        <IceSoVersion>37a3</IceSoVersion>
-        <IceNugetPackageVersion>3.7.53.0</IceNugetPackageVersion>
+        <IceSoVersion>37</IceSoVersion>
         <IceHome>$(MSBuildThisFileDirectory)..</IceHome>
-        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
         <IceAssembliesDir>$(IceHome)\lib</IceAssembliesDir>
     </PropertyGroup>
+
+    <Choose>
+        <When Condition="'$(IceToolsPath)' == ''">
+            <Choose>
+                <When Condition="'$(OS)' == 'Windows_NT'">
+                    <PropertyGroup>
+                        <IceToolsPath>$(IceHome)\tools</IceToolsPath>
+                    </PropertyGroup>
+                </When>
+                <When Condition="Exists('/usr/bin/slice2cs')">
+                    <PropertyGroup>
+                        <IceToolsPath>/usr/bin</IceToolsPath>
+                    </PropertyGroup>
+                </When>
+                <When Condition="Exists('/usr/local/bin/slice2cs')">
+                    <PropertyGroup>
+                        <IceToolsPath>/usr/local/bin</IceToolsPath>
+                    </PropertyGroup>
+                </When>
+            </Choose>
+        </When>
+    </Choose>
 </Project>

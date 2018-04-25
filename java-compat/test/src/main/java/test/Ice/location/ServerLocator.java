@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -63,7 +63,7 @@ public class ServerLocator extends _TestLocatorDisp
         }
         response.ice_response(_registry.getObject(id));
     }
-    
+
     @Override
     public Ice.LocatorRegistryPrx
     getRegistry(Ice.Current current)
@@ -77,10 +77,9 @@ public class ServerLocator extends _TestLocatorDisp
     {
         return _requestCount;
     }
-    
+
     private ServerLocatorRegistry _registry;
     private Ice.LocatorRegistryPrx _registryPrx;
     private int _requestCount;
 
 }
-

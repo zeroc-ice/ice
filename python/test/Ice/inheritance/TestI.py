@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -9,15 +9,15 @@
 
 import Ice, Test
 
-class CAI(Test.MA.CA):
+class CAI(Test.MA.CADisp):
     def caop(self, p, current=None):
         return p
 
-class CBI(Test.MB.CB, CAI):
+class CBI(Test.MB.CBDisp, CAI):
      def cbop(self, p, current=None):
         return p
 
-class CCI(Test.MA.CC, CBI):
+class CCI(Test.MA.CCDisp, CBI):
     def ccop(self, p, current=None):
         return p
 
@@ -37,7 +37,7 @@ class ICI(Test.MA.IC, IB1I, IB2I):
     def icop(self, p, current=None):
         return p
 
-class CDI(Test.MA.CD, CCI, IB1I, IB2I):
+class CDI(Test.MA.CDDisp, CCI, IB1I, IB2I):
     def cdop(self, p, current=None):
         return p
 

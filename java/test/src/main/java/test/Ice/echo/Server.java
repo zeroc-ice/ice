@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,19 +17,19 @@ public class Server extends test.Util.Application
         {
             _blob = blob;
         }
-        
+
         @Override
         public void startBatch(com.zeroc.Ice.Current current)
         {
             _blob.startBatch();
         }
-        
+
         @Override
         public void flushBatch(com.zeroc.Ice.Current current)
         {
             _blob.flushBatch();
         }
-        
+
         @Override
         public void shutdown(com.zeroc.Ice.Current current)
         {
@@ -42,7 +42,7 @@ public class Server extends test.Util.Application
     @Override
     public int run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010");
+        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
         com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
         BlobjectI blob = new BlobjectI();
         adapter.addDefaultServant(blob, "");
@@ -52,11 +52,11 @@ public class Server extends test.Util.Application
     }
 
     @Override
-    protected GetInitDataResult getInitData(String[] args)
+    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
     {
-        GetInitDataResult r = super.getInitData(args);
-        r.initData.properties.setProperty("Ice.Package.Test", "test.Ice.echo");
-        return r;
+        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        initData.properties.setProperty("Ice.Package.Test", "test.Ice.echo");
+        return initData;
     }
 
     public static void main(String[] args)

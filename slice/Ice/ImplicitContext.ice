@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/LocalException.ice>
 #include <Ice/Current.ice>
@@ -26,28 +26,27 @@ module Ice
  *
  * An interface to associate implict contexts with communicators.
  *
- * When you make a remote invocation without an explicit {@link Context} parameter,
- * Ice uses the per-proxy {@link Context} (if any) combined with the <tt>ImplicitContext</tt>
- * associated with the communicator.</p>
- * <p>Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
+ * When you make a remote invocation without an explicit context parameter,
+ * Ice uses the per-proxy context (if any) combined with the <tt>ImplicitContext</tt>
+ * associated with the communicator.
+ *
+ * Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
  * used depends on the value of the <tt>Ice.ImplicitContext</tt> property.
  * <dl>
  * <dt><tt>None</tt> (default)</dt>
  * <dd>No implicit context at all.</dd>
  * <dt><tt>PerThread</tt></dt>
- * <dd>The implementation maintains a {@link Context} per thread.</dd>
+ * <dd>The implementation maintains a context per thread.</dd>
  * <dt><tt>Shared</tt></dt>
- * <dd>The implementation maintains a single {@link Context} shared 
- * by all threads.</dd>
- * </dl><p>
- *  
+ * <dd>The implementation maintains a single context shared by all threads.</dd>
+ * </dl>
+ *
  * <tt>ImplicitContext</tt> also provides a number of operations to create, update or retrieve
  * an entry in the underlying context without first retrieving a copy of the entire
  * context. These operations correspond to a subset of the <tt>java.util.Map</tt> methods,
  * with <tt>java.lang.Object</tt> replaced by <tt>string</tt> and null replaced by the empty-string.
- * 
+ *
  **/
-
 local interface ImplicitContext
 {
     /**
@@ -56,17 +55,17 @@ local interface ImplicitContext
      *
      **/
     ["cpp:const"] Context getContext();
-    
+
     /**
      * Set the underlying context.
      *
      * @param newContext The new context.
-     * 
+     *
      **/
     void setContext(Context newContext);
 
     /**
-     * Check if this key has an associated value in the underlying context. 
+     * Check if this key has an associated value in the underlying context.
      *
      * @param key The key.
      *
@@ -74,11 +73,11 @@ local interface ImplicitContext
      *
      **/
     ["cpp:const"] bool containsKey(string key);
- 
+
     /**
      * Get the value associated with the given key in the underlying context.
      * Returns an empty string if no value is associated with the key.
-     * {@link #containsKey} allows you to distinguish between an empty-string value and 
+     * {@link #containsKey} allows you to distinguish between an empty-string value and
      * no value at all.
      *
      * @param key The key.
@@ -109,5 +108,5 @@ local interface ImplicitContext
      *
      **/
     string remove(string key);
-};
-};
+}
+}

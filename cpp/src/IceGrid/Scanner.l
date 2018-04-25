@@ -2,7 +2,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -24,6 +24,17 @@
 // Puts a pointer-difference into an int
 //
 #   pragma warning( 4 : 4244 )
+#endif
+
+#if defined(_MSC_VER) && defined(ICE_32)
+//
+// '<' : signed/unsigned mismatch
+//
+#   pragma warning( 4 : 4018 )
+#endif
+
+#if defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wsign-compare"
 #endif
 
 using namespace std;
@@ -61,12 +72,12 @@ std::string parseDoubleQuotedString();
 std::string parseSingleQuotedString();
 
 }
-#define	YY_USER_INIT initScanner();
+#define         YY_USER_INIT initScanner();
 
 %}
 
-WS	[ \t\v\f\r]
-NL	[\n]
+WS      [ \t\v\f\r]
+NL      [\n]
 keyword [[:alpha:]]*
 
 %option noyywrap
@@ -79,7 +90,7 @@ keyword [[:alpha:]]*
     int c;
     do
     {
-	c = yyinput();
+        c = yyinput();
     }
     while(c != '\n' && c != EOF);
 }
@@ -88,24 +99,24 @@ keyword [[:alpha:]]*
     // C-style comment
     while(true)
     {
-	int c = yyinput();
-	if(c == '*')
-	{
-	    int next = yyinput();
-	    if(next == '/')
-	    {
-		break;
-	    }
-	    else
-	    {
-		unput(next);
-	    }
-	}
-	else if(c == EOF)
-	{
-	    parser->warning("EOF in comment");
-	    break;
-	}
+        int c = yyinput();
+        if(c == '*')
+        {
+            int next = yyinput();
+            if(next == '/')
+            {
+                break;
+            }
+            else
+            {
+                unput(next);
+            }
+        }
+        else if(c == EOF)
+        {
+            parser->warning("EOF in comment");
+            break;
+        }
     }
 }
 
@@ -113,10 +124,10 @@ keyword [[:alpha:]]*
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
     {
-	if(yytext[i] == '\\')
-	{
-	    parser->continueLine();
-	}
+        if(yytext[i] == '\\')
+        {
+            parser->continueLine();
+        }
     }
 }
 
@@ -137,20 +148,20 @@ keyword [[:alpha:]]*
     string s;
     while(true)
     {
-	char c = static_cast<char>(yyinput());
-	if(c == '\'')
-	{
-	    break;
-	}
-	else if(c == EOF)
-	{
-	    parser->warning("EOF in string");
-	    break;
-	}
-	else
-	{
-	    s += c;
-	}
+        char c = static_cast<char>(yyinput());
+        if(c == '\'')
+        {
+            break;
+        }
+        else if(c == EOF)
+        {
+            parser->warning("EOF in string");
+            break;
+        }
+        else
+        {
+            s += c;
+        }
     }
     yylvalp->clear();
     yylvalp->push_back(s);
@@ -247,75 +258,45 @@ initScanner()
     keywordMap["disable"] = ICE_GRID_DISABLE;
 }
 
-std::string 
+std::string
 parseDoubleQuotedString()
 {
     string s;
     while(true)
     {
-	char c = static_cast<char>(yyinput());
-	if(c == '"')
-	{
-	    break;
-	}
-	else if(c == EOF)
-	{
-	    parser->warning("EOF in string");
-	    break;
-	}
-	else if(c == '\\')
-	{
-	    char next = static_cast<char>(yyinput());
-	    switch(next)
-	    {
-		case '\\':
-		case '"':
-		{
-		    s += next;
-		    break;
-		}
-	    
-		case 'n':
-		{
-		    s += '\n';
-		    break;
-		}
-	    
-		case 'r':
-		{
-		    s += '\r';
-		    break;
-		}
+        char c = static_cast<char>(yyinput());
+        if(c == '"')
+        {
+            break;
+        }
+        else if(c == EOF)
+        {
+            parser->warning("EOF in string");
+            break;
+        }
+        else if(c == '\\')
+        {
+            char next = static_cast<char>(yyinput());
+            switch(next)
+            {
+                case '\\':
+                case '"':
+                {
+                    s += next;
+                    break;
+                }
 
-		case 't':
-		{
-		    s += '\t';
-		    break;
-		}
-	    
-		case 'v':
-		{
-		    s += '\v';
-		    break;
-		}
-	    
-		case 'f':
-		{
-		    s += '\f';
-		    break;
-		}
-	    
-		default:
-		{
-		    s += c;
-		    unput(next);
-		}
-	    }
-	}
-	else
-	{
-	    s += c;
-	}
+                default:
+                {
+                    s += c;
+                    unput(next);
+                }
+            }
+        }
+        else
+        {
+            s += c;
+        }
     }
     return s;
 }
@@ -326,20 +307,20 @@ parseSingleQuotedString()
     string s;
     while(true)
     {
-	char c = static_cast<char>(yyinput());
-	if(c == '\'')
-	{
-	    break;
-	}
-	else if(c == EOF)
-	{
-	    parser->warning("EOF in string");
-	    break;
-	}
-	else
-	{
-	    s += c;
-	}
+        char c = static_cast<char>(yyinput());
+        if(c == '\'')
+        {
+            break;
+        }
+        else if(c == EOF)
+        {
+            parser->warning("EOF in string");
+            break;
+        }
+        else
+        {
+            s += c;
+        }
     }
     return s;
 }

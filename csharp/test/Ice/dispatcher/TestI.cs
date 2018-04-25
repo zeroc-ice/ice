@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -65,14 +65,14 @@ public class TestControllerI : TestIntfControllerDisp_
         test(Dispatcher.isDispatcherThread());
         _adapter.hold();
     }
-    
+
     override public void
     resumeAdapter(Ice.Current current)
     {
         test(Dispatcher.isDispatcherThread());
         _adapter.activate();
     }
-    
+
     public
     TestControllerI(Ice.ObjectAdapter adapter)
     {

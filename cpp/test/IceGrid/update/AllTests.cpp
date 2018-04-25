@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -70,7 +70,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -554,21 +554,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         IceBoxDescriptorPtr server = new IceBoxDescriptor();
         server->id = "IceBox";
-
-        string iceboxExe = "/icebox";
-#if defined(__linux)
-#  if defined(__i386)
-        iceboxExe += "32";
-#  endif
-#  if defined(ICE_CPP11_COMPILER)
-        iceboxExe += "++11";
-#  endif
-#endif
-
-#if defined(_WIN32) && !defined(NDEBUG)
-        iceboxExe += "d";
-#endif
-        server->exe = properties->getProperty("IceBinDir") + iceboxExe;
+        server->exe = properties->getProperty("IceBoxExe");
 
         server->applicationDistrib = false;
         server->allocatable = false;
@@ -1115,7 +1101,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
         ServerDescriptorPtr server = new ServerDescriptor();
         server->id = "node-${index}";
-        server->exe = properties->getProperty("IceBinDir") + "/icegridnode";
+        server->exe = properties->getProperty("IceGridNodeExe");
         server->pwd = ".";
         server->applicationDistrib = false;
         server->allocatable = false;
@@ -1206,6 +1192,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             admin->startServer("Server");
             test(admin->getServerState("Server") == Active);
+        }
+        catch(const ServerStartException& ex)
+        {
+            cerr << ex << "\nreason = " << ex.reason << endl;
+            test(false);
         }
         catch(const Ice::Exception& ex)
         {

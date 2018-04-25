@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -178,6 +178,7 @@
 
     _cond = [[NSCondition alloc] init];
     _logger = [[LoggerI alloc] init];
+    _thread = nil;
 
     _clientACMTimeout = -1;
     _clientACMClose = -1;
@@ -196,6 +197,7 @@
 {
     [_cond release];
     [_logger release];
+    [_thread release];
     [super dealloc];
 }
 #endif
@@ -208,7 +210,7 @@
     ICEInitializationData* initData = [ICEInitializationData initializationData];
     initData.properties = [[[_com ice_getCommunicator] getProperties] clone];
     initData.logger = _logger;
-    [initData.properties setProperty:@"Ice.ACM.Timeout" value:@"1"];
+    [initData.properties setProperty:@"Ice.ACM.Timeout" value:@"2"];
     if(_clientACMTimeout >= 0)
     {
         [initData.properties setProperty:@"Ice.ACM.Client.Timeout"
@@ -264,16 +266,16 @@
     {
         [[proxy ice_getConnection] setCloseCallback:^(id<ICEConnection> connection)
         {
-            [_cond lock];
-            _closed = YES;
-            [_cond signal];
-            [_cond unlock];
+            [self->_cond lock];
+            self->_closed = YES;
+            [self->_cond signal];
+            [self->_cond unlock];
         }];
         [[proxy ice_getConnection] setHeartbeatCallback:^(id<ICEConnection> connection)
         {
-            [_cond lock];
-            ++_heartbeat;
-            [_cond unlock];
+            [self->_cond lock];
+            ++self->_heartbeat;
+            [self->_cond unlock];
         }];
 
         [self runTestCase:_adapter proxy:proxy];
@@ -303,7 +305,7 @@
         NSDate* start = [NSDate date];
         while(!_closed)
         {
-            [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
+            [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:2]];
             if(start.timeIntervalSinceNow > -1)
             {
                 test(NO);
@@ -358,6 +360,7 @@
 {
     [_cond lock];
     [_test run];
+    _test = nil; // Break cyclic reference count
     _called = YES;
     [_cond signal];
     [_cond unlock];
@@ -380,18 +383,24 @@
 @end
 
 @implementation InvocationHeartbeatTest
++(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
+{
+    id tc = [super testCase:com];
+    [tc setServerACM:1 close:-1 heartbeat:-1]; // Faster ACM to make sure we receive enough ACM heartbeats
+    return tc;
+}
 +(NSString*) getName
 {
       return @"invocation heartbeat";
 }
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
-    [proxy sleep:2];
+    [proxy sleep:4];
 
     [_cond lock];
     @try
     {
-        test(_heartbeat >= 2);
+        test(_heartbeat >= 4);
     }
     @finally
     {
@@ -440,7 +449,7 @@
 +(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
 {
     id tc = [super testCase:com];
-    [tc setServerACM:1 close:2 heartbeat:0]; // Disable heartbeat on invocations
+    [tc setServerACM:2 close:2 heartbeat:0]; // Disable heartbeat on invocations
     return tc;
 }
 +(NSString*) getName
@@ -497,7 +506,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     // No close on invocation, the call should succeed this time.
-    [proxy sleep:2];
+    [proxy sleep:3];
 
     [_cond lock];
     @try
@@ -532,7 +541,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.5]]; // Idle for 1.5 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
     [_cond unlock];
 
     [self waitForClosed];
@@ -569,7 +578,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.5]]; // Idle for 1.5 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
     [_cond unlock];
 
     [_cond lock];
@@ -612,7 +621,7 @@
     [adapter hold];
 
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.5]]; // Idle for 1.5 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
     [_cond unlock];
 
     [_cond lock];
@@ -628,7 +637,7 @@
 
     [adapter activate];
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.5]];
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1]];
     [_cond unlock];
 
     [self waitForClosed];
@@ -657,7 +666,7 @@
     [adapter hold];
 
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:1.5]]; // Idle for 1.5 seconds
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
     [_cond unlock];
 
     [self waitForClosed];
@@ -694,7 +703,7 @@
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     [_cond lock];
-    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:2]];
+    [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]];
     [_cond unlock];
 
     [_cond lock];
@@ -728,12 +737,12 @@
 }
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
-    for(int i = 0; i < 12; ++i)
+    for(int i = 0; i < 10; ++i)
     {
         [proxy ice_ping];
 
         [_cond lock];
-        [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.2]];
+        [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:0.3]];
         [_cond unlock];
     }
 
@@ -746,6 +755,40 @@
     {
         [_cond unlock];
     }
+}
+@end
+
+@interface HeartbeatManualTest : TestCase
++(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com;
++(NSString*) getName;
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy;
+@end
+
+@implementation HeartbeatManualTest
++(id) testCase:(id<TestACMRemoteCommunicatorPrx>)com
+{
+    id tc = [super testCase:com];
+    //
+    // Disable heartbeats.
+    //
+    [tc setClientACM:10 close:-1 heartbeat:0];
+    [tc setServerACM:10 close:-1 heartbeat:0];
+    return tc;
+}
++(NSString*) getName
+{
+      return @"manual heartbeats";
+}
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+{
+    [proxy startHeartbeatCount];
+    id<ICEConnection> con = [proxy ice_getConnection];
+    [con heartbeat];
+    [con heartbeat];
+    [con heartbeat];
+    [con heartbeat];
+    [con heartbeat];
+    [proxy waitForHeartbeatCount:5];
 }
 @end
 
@@ -768,6 +811,16 @@
 }
 -(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
+    @try
+    {
+        [[proxy ice_getCachedConnection] setACM:@(-19) close:ICENone heartbeat:ICENone];
+        test(NO);
+    }
+    @catch(NSException* ex)
+    {
+        test([ex name] == NSInvalidArgumentException);
+    }
+
     ICEACM* acm = [[proxy ice_getCachedConnection] getACM];
     test(acm.timeout == 15);
     test(acm.close == ICECloseOnIdleForceful);
@@ -788,7 +841,8 @@
     test(acm.close == ICECloseOnInvocationAndIdle);
     test(acm.heartbeat == ICEHeartbeatAlways);
 
-    [proxy waitForHeartbeat:2];
+    [proxy startHeartbeatCount];
+    [proxy waitForHeartbeatCount:2];
 }
 @end
 
@@ -812,6 +866,7 @@ acmAllTests(id<ICECommunicator> communicator)
 
     [tests addObject:[HeartbeatOnIdleTest testCase:com]];
     [tests addObject:[HeartbeatAlwaysTest testCase:com]];
+    [tests addObject:[HeartbeatManualTest testCase:com]];
     [tests addObject:[SetACMTest testCase:com]];
 
     for(int i = 0; i < tests.count; ++i)

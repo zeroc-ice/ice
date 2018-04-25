@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -54,7 +54,7 @@ class NodeSessionManager : public SessionManager
 public:
 
     NodeSessionManager(const Ice::CommunicatorPtr&, const std::string&);
-    
+
     void create(const NodeIPtr&);
     void create(const InternalRegistryPrx&);
     void activate();
@@ -77,12 +77,12 @@ private:
 
     void syncServers(const NodeSessionPrx&);
 
-    bool isDestroyed() 
+    bool isDestroyed()
     {
         Lock sync(*this);
         return _destroyed;
     }
-    
+
     class Thread : public NodeSessionKeepAliveThread
     {
     public:
@@ -91,7 +91,7 @@ private:
         {
         }
 
-        virtual NodeSessionPrx 
+        virtual NodeSessionPrx
         createSession(InternalRegistryPrx& master, IceUtil::Time& timeout)
         {
             NodeSessionPrx session = NodeSessionKeepAliveThread::createSession(master, timeout);
@@ -100,14 +100,14 @@ private:
             return session;
         }
 
-        virtual void 
+        virtual void
         destroySession(const NodeSessionPrx& session)
         {
             NodeSessionKeepAliveThread::destroySession(session);
             _manager.reapReplicas();
         }
 
-        virtual bool 
+        virtual bool
         keepAlive(const NodeSessionPrx& session)
         {
             bool alive = NodeSessionKeepAliveThread::keepAlive(session);

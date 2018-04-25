@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@ class HoldI : public Test::Hold, public IceUtil::Mutex, public IceUtil::TimerTas
 #endif
 {
 public:
-    
+
     HoldI(const IceUtil::TimerPtr&, const Ice::ObjectAdapterPtr&);
 
     virtual void putOnHold(Ice::Int, const Ice::Current&);
@@ -28,7 +28,7 @@ public:
     virtual void shutdown(const Ice::Current&);
 
     virtual void runTimerTask();
-    
+
 private:
 
     int _last;

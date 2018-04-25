@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc", "js:ice-build"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBT_API", "cpp:doxygen:include:IceBT/IceBT.h", "objc:header-dir:objc", "js:ice-build", "python:pkgdir:IceBT"]]
 
 #include <Ice/Endpoint.ice>
 
@@ -46,6 +46,6 @@ local class EndpointInfo extends Ice::EndpointInfo
      *
      **/
     string uuid;
-};
+}
 
-};
+}

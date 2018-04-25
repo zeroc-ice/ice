@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,7 +17,7 @@ import com.zeroc.Ice.Current;
 
 import test.Ice.operations.AMD.Test.*;
 
-public final class AMDMyDerivedClassI implements _MyDerivedClassDisp
+public final class AMDMyDerivedClassI implements MyDerivedClass
 {
     private static void test(boolean b)
     {
@@ -51,28 +51,28 @@ public final class AMDMyDerivedClassI implements _MyDerivedClassDisp
     public boolean ice_isA(String id, Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-        return _MyDerivedClassDisp.super.ice_isA(id, current);
+        return MyDerivedClass.super.ice_isA(id, current);
     }
 
     @Override
     public void ice_ping(Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-        _MyDerivedClassDisp.super.ice_ping(current);
+        MyDerivedClass.super.ice_ping(current);
     }
 
     @Override
     public String[] ice_ids(Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-        return _MyDerivedClassDisp.super.ice_ids(current);
+        return MyDerivedClass.super.ice_ids(current);
     }
 
     @Override
     public String ice_id(Current current)
     {
         test(current.mode == com.zeroc.Ice.OperationMode.Nonmutating);
-        return _MyDerivedClassDisp.super.ice_id(current);
+        return MyDerivedClass.super.ice_id(current);
     }
 
     @Override
@@ -92,6 +92,12 @@ public final class AMDMyDerivedClassI implements _MyDerivedClassDisp
 
         current.adapter.getCommunicator().shutdown();
         return CompletableFuture.completedFuture((Void)null);
+    }
+
+    @Override
+    synchronized public CompletionStage<Boolean> supportsCompressAsync(Current current)
+    {
+        return CompletableFuture.completedFuture(true);
     }
 
     @Override

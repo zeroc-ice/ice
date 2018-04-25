@@ -1,6 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 #
 # This copy of Ice is licensed to you under the terms described in the
 # ICE_LICENSE file included in this distribution.
@@ -11,23 +11,39 @@ ifeq ($(GRADLE),)
 GRADLE = ./gradlew
 endif
 
+ifneq ($(prefix),)
+  GRADLEARGS += -Pprefix=$(prefix)
+endif
+
+ifneq ($(DESTDIR),)
+  GRADLEARGS += -PDESTDIR=$(DESTDIR)
+endif
+
+ifneq ($(install_javadir),)
+  GRADLEARGS += -Dorg.gradle.project.jarDir=$(install_javadir)
+endif
+
+ifneq ($(install_bindir),)
+  GRADLEARGS += -Dorg.gradle.project.binDir=$(install_bindir)
+endif
+
 all:
-	$(GRADLE) $(GRADLEOPTS) build
+	$(GRADLE) $(GRADLEARGS) build
 
 tests:
-	$(GRADLE) $(GRADLEOPTS) :test:assemble
+	$(GRADLE) $(GRADLEARGS) :test:assemble
 
 srcs:
-	$(GRADLE) $(GRADLEOPTS) dist
+	$(GRADLE) $(GRADLEARGS) dist
 
 distclean clean:
-	$(GRADLE) $(GRADLEOPTS) clean
+	$(GRADLE) $(GRADLEARGS) clean
 
 install::
-	$(GRADLE) $(GRADLEOPTS) install
+	$(GRADLE) $(GRADLEARGS) install
 
 install-icegridgui::
-	$(GRADLE) $(GRADLEOPTS) :IceGridGUI:install
+	$(GRADLE) $(GRADLEARGS) :IceGridGUI:install
 
 test::
 	@python ./allTests.py

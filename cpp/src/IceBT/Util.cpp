@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -87,172 +87,10 @@ SocketAddress
 IceBT::createAddr(const string& addr, Ice::Int channel)
 {
     SocketAddress ret;
+    memset(&ret, 0, sizeof(ret));
     ret.rc_family = AF_BLUETOOTH;
     ret.rc_channel = static_cast<uint8_t>(channel);
     parseDeviceAddress(addr, ret.rc_bdaddr);
-    return ret;
-}
-
-SOCKET
-IceBT::createSocket()
-{
-    SOCKET fd = ::socket(AF_BLUETOOTH, SOCK_STREAM, BTPROTO_RFCOMM);
-    if(fd == INVALID_SOCKET)
-    {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = errno;
-        throw ex;
-    }
-    return fd;
-}
-
-bool
-IceBT::doConnect(SOCKET fd, const SocketAddress& addr)
-{
-    int size = sizeof(SocketAddress);
-    assert(size != 0);
-
-repeatConnect:
-    if(::connect(fd, reinterpret_cast<const struct sockaddr*>(&addr), size) == SOCKET_ERROR)
-    {
-        if(IceInternal::interrupted())
-        {
-            goto repeatConnect;
-        }
-
-        if(IceInternal::connectInProgress())
-        {
-            return false;
-        }
-
-        IceInternal::closeSocketNoThrow(fd);
-        if(IceInternal::connectionRefused())
-        {
-            ConnectionRefusedException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSocketErrno();
-            throw ex;
-        }
-        else if(IceInternal::connectFailed())
-        {
-            ConnectFailedException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSocketErrno();
-            throw ex;
-        }
-        else
-        {
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSocketErrno();
-            throw ex;
-        }
-    }
-    return true;
-}
-
-void
-IceBT::doFinishConnect(SOCKET fd)
-{
-    //
-    // Note: we don't close the socket if there's an exception. It's the responsibility
-    // of the caller to do so.
-    //
-
-    int val;
-    socklen_t len = static_cast<socklen_t>(sizeof(int));
-    if(::getsockopt(fd, SOL_SOCKET, SO_ERROR, reinterpret_cast<char*>(&val), &len) == SOCKET_ERROR)
-    {
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = IceInternal::getSocketErrno();
-        throw ex;
-    }
-
-    if(val > 0)
-    {
-        errno = val;
-        if(IceInternal::connectionRefused())
-        {
-            ConnectionRefusedException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSocketErrno();
-            throw ex;
-        }
-        else if(IceInternal::connectFailed())
-        {
-            ConnectFailedException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSocketErrno();
-            throw ex;
-        }
-        else
-        {
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSocketErrno();
-            throw ex;
-        }
-    }
-}
-
-SocketAddress
-IceBT::doBind(SOCKET fd, const SocketAddress& addr)
-{
-    if(addr.rc_channel <= 0)
-    {
-        //
-        // Find an available by channel by looping over the valid channel numbers (1-30) until bind succeeds.
-        //
-        SocketAddress tmp = addr;
-        for(tmp.rc_channel = 1; tmp.rc_channel <= 30; ++tmp.rc_channel)
-        {
-            if(::bind(fd, reinterpret_cast<const struct sockaddr*>(&tmp), sizeof(SocketAddress)) == 0)
-            {
-                break;
-            }
-        }
-        if(tmp.rc_channel > 30)
-        {
-            IceInternal::closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = errno;
-            throw ex;
-        }
-    }
-    else
-    {
-        if(::bind(fd, reinterpret_cast<const struct sockaddr*>(&addr), sizeof(SocketAddress)) == SOCKET_ERROR)
-        {
-            IceInternal::closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = errno;
-            throw ex;
-        }
-    }
-
-    SocketAddress local;
-    socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
-#  ifdef NDEBUG
-    getsockname(fd, reinterpret_cast<struct sockaddr*>(&local), &len);
-#  else
-    int ret = getsockname(fd, reinterpret_cast<struct sockaddr*>(&local), &len);
-    assert(ret != SOCKET_ERROR);
-#  endif
-    return local;
-}
-
-SOCKET
-IceBT::doAccept(SOCKET fd)
-{
-    int ret;
-
-repeatAccept:
-    if((ret = ::accept(fd, 0, 0)) == INVALID_SOCKET)
-    {
-        if(IceInternal::acceptInterrupted())
-        {
-            goto repeatAccept;
-        }
-
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = errno;
-        throw ex;
-    }
-
     return ret;
 }
 
@@ -262,20 +100,18 @@ namespace
 void
 fdToLocalAddress(SOCKET fd, SocketAddress& addr)
 {
-    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_rc));
+    socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
     if(::getsockname(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
     {
         IceInternal::closeSocketNoThrow(fd);
-        SocketException ex(__FILE__, __LINE__);
-        ex.error = IceInternal::getSocketErrno();
-        throw ex;
+        throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
     }
 }
 
 bool
 fdToRemoteAddress(SOCKET fd, SocketAddress& addr)
 {
-    socklen_t len = static_cast<socklen_t>(sizeof(sockaddr_rc));
+    socklen_t len = static_cast<socklen_t>(sizeof(SocketAddress));
     if(::getpeername(fd, reinterpret_cast<struct sockaddr*>(&addr), &len) == SOCKET_ERROR)
     {
         if(IceInternal::notConnected())
@@ -285,9 +121,7 @@ fdToRemoteAddress(SOCKET fd, SocketAddress& addr)
         else
         {
             IceInternal::closeSocketNoThrow(fd);
-            SocketException ex(__FILE__, __LINE__);
-            ex.error = IceInternal::getSocketErrno();
-            throw ex;
+            throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
         }
     }
 
@@ -386,5 +220,5 @@ IceBT::compareAddress(const SocketAddress& addr1, const SocketAddress& addr2)
         return 1;
     }
 
-    return ::memcmp(&addr1.rc_bdaddr, &addr2.rc_bdaddr, sizeof(bdaddr_t));
+    return ::memcmp(&addr1.rc_bdaddr, &addr2.rc_bdaddr, sizeof(DeviceAddress));
 }

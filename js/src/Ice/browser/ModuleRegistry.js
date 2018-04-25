@@ -1,44 +1,50 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-/* globals self */
-const __root = typeof(window) !== "undefined" ? window : typeof(global) !== "undefined" ? global : typeof(self) !== "undefined" ? self : {};
-/* globals -self */
+/* global
+    self : false
+*/
+const root = typeof(window) !== "undefined" ? window :
+             typeof(global) !== "undefined" ? global :
+             typeof(self) !== "undefined" ? self : {};
+/* global
+    self : true
+*/
 
-class __M
+class _ModuleRegistry
 {
     static module(name)
     {
-        var m =  __root[name];
+        let m = root[name];
         if(m === undefined)
         {
             m = {};
-            __root[name] =  m;
+            root[name] =  m;
         }
         return m;
     }
-    
+
     static require(name)
     {
-        return __root;
+        return root;
     }
-    
+
     static type(scoped)
     {
         if(scoped === undefined)
         {
             return undefined;
         }
-        var components = scoped.split(".");
-        var T = __root;
+        const components = scoped.split(".");
+        let T = root;
 
-        for(var i = 0, length = components.length; i < length; ++i)
+        for(let i = 0, length = components.length; i < length; ++i)
         {
             T = T[components[i]];
             if(T === undefined)
@@ -50,12 +56,12 @@ class __M
     }
 }
 
-const Ice = __M.module("Ice");
+const Ice = _ModuleRegistry.module("Ice");
 
-Ice.__require = function()
+Ice._require = function()
 {
-    return __root;
+    return root;
 };
 
 Ice.Slice = Ice.Slice || {};
-Ice.__M = __M;
+Ice._ModuleRegistry = _ModuleRegistry;

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,7 +18,7 @@ using namespace std;
 using namespace IceUtil;
 using namespace IceInternal;
 
-namespace 
+namespace
 {
 
 typedef ::map<GCObject*, int> GCCountMap;
@@ -41,11 +41,11 @@ public:
 };
 
 Init init;
-    
+
 class ClearMembers : public GCVisitor
 {
 public:
-    
+
     virtual bool visit(GCObject*);
 };
 ClearMembers clearMembers;
@@ -53,7 +53,7 @@ ClearMembers clearMembers;
 class DecreaseRefCounts : public GCVisitor
 {
 public:
-    
+
     DecreaseRefCounts(GCCountMap&);
 
     virtual bool visit(GCObject*);
@@ -66,7 +66,7 @@ private:
 class RestoreRefCountsIfReachable : public GCVisitor
 {
 public:
-        
+
     RestoreRefCountsIfReachable(GCCountMap&);
 
     virtual bool visit(GCObject*);
@@ -111,7 +111,7 @@ private:
 class ClearCollectable : public GCVisitor
 {
 public:
-    
+
     virtual bool visit(GCObject*);
 };
 
@@ -127,7 +127,7 @@ DecreaseRefCounts::DecreaseRefCounts(GCCountMap& counts) : _counts(counts)
 {
 }
 
-bool 
+bool
 DecreaseRefCounts::visit(GCObject* obj)
 {
     //
@@ -142,10 +142,10 @@ DecreaseRefCounts::visit(GCObject* obj)
     GCCountMap::iterator p = _counts.find(obj);
     if(p == _counts.end())
     {
-        _counts.insert(make_pair(obj, obj->__getRefUnsafe() - 1));
+        _counts.insert(make_pair(obj, obj->_iceGetRefUnsafe() - 1));
         if(obj->__hasFlag(GCObject::Collectable))
         {
-            obj->__gcVisitMembers(*this);
+            obj->_iceGcVisitMembers(*this);
         }
     }
     else
@@ -159,7 +159,7 @@ RestoreRefCountsIfReachable::RestoreRefCountsIfReachable(GCCountMap& counts) : _
 {
 }
 
-bool 
+bool
 RestoreRefCountsIfReachable::visit(GCObject* obj)
 {
     GCCountMap::iterator p = _counts.find(obj);
@@ -170,7 +170,7 @@ RestoreRefCountsIfReachable::visit(GCObject* obj)
         // it's reachable.
         //
         return false;
-    } 
+    }
     else if(_reachable)
     {
         //
@@ -179,7 +179,7 @@ RestoreRefCountsIfReachable::visit(GCObject* obj)
         // reachable children.
         //
         _counts.erase(p);
-        obj->__gcVisitMembers(*this);
+        obj->_iceGcVisitMembers(*this);
     }
     else if(p->second == 0)
     {
@@ -189,7 +189,7 @@ RestoreRefCountsIfReachable::visit(GCObject* obj)
         // being visited again.
         //
         p->second = -1;
-        obj->__gcVisitMembers(*this);
+        obj->_iceGcVisitMembers(*this);
     }
     else if(p->second > 0)
     {
@@ -198,10 +198,10 @@ RestoreRefCountsIfReachable::visit(GCObject* obj)
         // and visit its sub-graph to remove children wobjects from
         // the counts map since they are also reachable.
         //
-        _counts.erase(p); 
-            
+        _counts.erase(p);
+
         _reachable = true;
-        obj->__gcVisitMembers(*this);
+        obj->_iceGcVisitMembers(*this);
         _reachable = false;
     }
     return false;
@@ -212,7 +212,7 @@ MarkCollectable::MarkCollectable() : _counter(0)
     _neighborsVisitor.setVisitor(this);
 }
 
-bool 
+bool
 MarkCollectable::visit(GCObject* obj)
 {
     //
@@ -229,12 +229,12 @@ MarkCollectable::visit(GCObject* obj)
         return false;
     }
     obj->__setFlag(GCObject::Collectable);
-        
+
     _numbers[obj] = ++_counter;
     _p.push(obj);
     _s.push(obj);
 
-    obj->__gcVisitMembers(_neighborsVisitor);
+    obj->_iceGcVisitMembers(_neighborsVisitor);
 
     if(_p.top() == obj)
     {
@@ -274,14 +274,14 @@ MarkCollectable::VisitNeighbors::setVisitor(MarkCollectable* visitor)
     _visitor = visitor;
 }
 
-bool 
+bool
 MarkCollectable::VisitNeighbors::visit(GCObject* obj)
 {
     _visitor->visitNeighbor(obj);
     return false;
 }
 
-bool 
+bool
 ClearCollectable::visit(GCObject* obj)
 {
     //
@@ -290,7 +290,7 @@ ClearCollectable::visit(GCObject* obj)
     if(obj->__hasFlag(GCObject::Collectable))
     {
         obj->__clearFlag(GCObject::Collectable | GCObject::CycleMember);
-        obj->__gcVisitMembers(*this);
+        obj->_iceGcVisitMembers(*this);
     }
     return false;
 }
@@ -356,7 +356,7 @@ IceInternal::GCObject::__setNoDelete(bool b)
 }
 
 bool
-GCObject::__gcVisit(GCVisitor& v)
+GCObject::_iceGcVisit(GCVisitor& v)
 {
     return v.visit(this);
 }
@@ -436,7 +436,7 @@ GCObject::collect(IceUtilInternal::MutexPtrLock<IceUtil::Mutex>& lock)
     }
     for(GCCountMap::const_iterator p = counts.begin(); p != counts.end(); ++p)
     {
-        p->first->__gcVisitMembers(clearMembers);
+        p->first->_iceGcVisitMembers(clearMembers);
     }
     for(GCCountMap::const_iterator p = counts.begin(); p != counts.end(); ++p)
     {

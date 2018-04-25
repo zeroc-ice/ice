@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -65,7 +65,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
                 boolean ok = bb.ice_isA("::Ice::Object");
                 assert(ok);
                 ObjectPrxHelper h = new ObjectPrxHelper();
-                h.__copyFrom(bb);
+                h._copyFrom(bb);
                 d = h;
             }
             catch(Ice.FacetNotExistException ex)
@@ -98,7 +98,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
                 boolean ok = bb.ice_isA("::Ice::Object", ctx);
                 assert(ok);
                 ObjectPrxHelper h = new ObjectPrxHelper();
-                h.__copyFrom(bb);
+                h._copyFrom(bb);
                 d = h;
             }
             catch(Ice.FacetNotExistException ex)
@@ -137,7 +137,7 @@ public class ObjectPrxHelper extends ObjectPrxHelperBase
         {
             Ice.ObjectPrx bb = b.ice_facet(f);
             ObjectPrxHelper h = new ObjectPrxHelper();
-            h.__copyFrom(bb);
+            h._copyFrom(bb);
             d = h;
         }
         return d;

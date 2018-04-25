@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -18,28 +18,35 @@ using namespace std;
 int
 run(int, char**, const Ice::CommunicatorPtr& communicator)
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0) + ":udp");
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
+    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(communicator, 1));
+    communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(TimeoutI);
-    adapter->add(object, Ice::stringToIdentity("timeout"));
+    adapter->add(ICE_MAKE_SHARED(TimeoutI), Ice::stringToIdentity("timeout"));
     adapter->activate();
+
+    Ice::ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("ControllerAdapter");
+    controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), Ice::stringToIdentity("controller"));
+    controllerAdapter->activate();
+
     TEST_READY
     communicator->waitForShutdown();
     return EXIT_SUCCESS;
 }
 
-
 int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
+    Ice::registerIceUDP(true);
 #endif
 
     try
     {
-        Ice::InitializationData initData;
-        initData.properties = Ice::createProperties(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
 
 #if TARGET_OS_IPHONE != 0
         //
@@ -55,12 +62,18 @@ main(int argc, char* argv[])
         initData.properties->setProperty("Ice.Warn.Connections", "0");
 
         //
+        // The client sends large messages to cause the transport
+        // buffers to fill up.
+        //
+        initData.properties->setProperty("Ice.MessageSizeMax", "20000");
+
+        //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
         initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
 
-        Ice::CommunicatorHolder ich = Ice::initialize(argc, argv, initData);
+        Ice::CommunicatorHolder ich(argc, argv, initData);
         return run(argc, argv, ich.communicator());
     }
     catch(const Ice::Exception& ex)

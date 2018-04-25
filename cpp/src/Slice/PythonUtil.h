@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,6 +19,17 @@ namespace Python
 {
 
 //
+// Get the package directory from metadata (if any).
+//
+std::string getPackageDirectory(const std::string&, const Slice::UnitPtr&);
+
+//
+// Determine the name of a Python source file for use in an import statement.
+// The return value does not include the .py extension.
+//
+std::string getImportFileName(const std::string&, const Slice::UnitPtr&, const std::vector<std::string>&);
+
+//
 // Generate Python code for a translation unit.
 //
 void generate(const Slice::UnitPtr&, bool, bool, const std::vector<std::string>&, IceUtilInternal::Output&);
@@ -35,7 +46,7 @@ std::string scopedToName(const std::string&);
 std::string fixIdent(const std::string&);
 
 //
-// Return the package specified in the global metadata for the given definition,
+// Return the package specified by metadata for the given definition,
 // or an empty string if no metadata was found.
 //
 std::string getPackageMetadata(const Slice::ContainedPtr&);
@@ -56,7 +67,7 @@ std::string getAbsolute(const Slice::ContainedPtr&, const std::string& = "", con
 //
 void printHeader(IceUtilInternal::Output&);
 
-int compile(int, char*[]);
+int compile(const std::vector<std::string>&);
 
 }
 }

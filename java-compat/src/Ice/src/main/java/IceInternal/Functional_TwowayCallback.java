@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -27,18 +27,18 @@ public abstract class Functional_TwowayCallback extends IceInternal.Functional_C
     @Override
     public void exception(Ice.SystemException ex)
     {
-        if(__exceptionCb != null)
+        if(_exceptionCb != null)
         {
-            __exceptionCb.apply(ex);
+            _exceptionCb.apply(ex);
         }
     }
 
     @Override
     public final void exception(Ice.LocalException ex)
     {
-        if(__exceptionCb != null)
+        if(_exceptionCb != null)
         {
-            __exceptionCb.apply(ex);
+            _exceptionCb.apply(ex);
         }
     }
 }

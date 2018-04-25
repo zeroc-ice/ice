@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -59,298 +59,298 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
+     * @param id The Slice type ID of an interface.
      * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
      **/
     @Override
     public final boolean
-    ice_isA(String __id)
+    ice_isA(String id)
     {
-        return ice_isA(__id, null, false);
+        return _iceI_ice_isA(id, null, false);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __context The <code>Context</code> map for the invocation.
+     * @param id The Slice type ID of an interface.
+     * @param context The <code>Context</code> map for the invocation.
      * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
      **/
     @Override
     public final boolean
-    ice_isA(String __id, java.util.Map<String, String> __context)
+    ice_isA(String id, java.util.Map<String, String> context)
     {
-        return ice_isA(__id, __context, true);
+        return _iceI_ice_isA(id, context, true);
     }
 
-    private static final String __ice_isA_name = "ice_isA";
+    private static final String _ice_isA_name = "ice_isA";
 
     private boolean
-    ice_isA(String __id, java.util.Map<String, String> __context, boolean __explicitCtx)
+    _iceI_ice_isA(String id, java.util.Map<String, String> context, boolean explicitCtx)
     {
-        __checkTwowayOnly(__ice_isA_name);
-        return end_ice_isA(begin_ice_isA(__id, __context, __explicitCtx, true, null));
+        _checkTwowayOnly(_ice_isA_name);
+        return end_ice_isA(_iceI_begin_ice_isA(id, context, explicitCtx, true, null));
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
+     * @param id The Slice type ID of an interface.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id)
+    begin_ice_isA(String id)
     {
-        return begin_ice_isA(__id, null, false, false, null);
+        return _iceI_begin_ice_isA(id, null, false, false, null);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __context The <code>Context</code> map for the invocation.
+     * @param id The Slice type ID of an interface.
+     * @param context The <code>Context</code> map for the invocation.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id, java.util.Map<String, String> __context)
+    begin_ice_isA(String id, java.util.Map<String, String> context)
     {
-        return begin_ice_isA(__id, __context, true, false, null);
+        return _iceI_begin_ice_isA(id, context, true, false, null);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __cb The asynchronous callback object.
+     * @param id The Slice type ID of an interface.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id, Callback __cb)
+    begin_ice_isA(String id, Callback cb)
     {
-        return begin_ice_isA(__id, null, false, false, __cb);
+        return _iceI_begin_ice_isA(id, null, false, false, cb);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __context The <code>Context</code> map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param id The Slice type ID of an interface.
+     * @param context The <code>Context</code> map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id, java.util.Map<String, String> __context, Callback __cb)
+    begin_ice_isA(String id, java.util.Map<String, String> context, Callback cb)
     {
-        return begin_ice_isA(__id, __context, true, false, __cb);
+        return _iceI_begin_ice_isA(id, context, true, false, cb);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __cb The asynchronous callback object.
+     * @param id The Slice type ID of an interface.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id, Callback_Object_ice_isA __cb)
+    begin_ice_isA(String id, Callback_Object_ice_isA cb)
     {
-        return begin_ice_isA(__id, null, false, false, __cb);
+        return _iceI_begin_ice_isA(id, null, false, false, cb);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __context The <code>Context</code> map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param id The Slice type ID of an interface.
+     * @param context The <code>Context</code> map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id, java.util.Map<String, String> __context, Callback_Object_ice_isA __cb)
+    begin_ice_isA(String id, java.util.Map<String, String> context, Callback_Object_ice_isA cb)
     {
-        return begin_ice_isA(__id, __context, true, false, __cb);
+        return _iceI_begin_ice_isA(id, context, true, false, cb);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param id The Slice type ID of an interface.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id,
-                  IceInternal.Functional_BoolCallback __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_isA(String id,
+                  IceInternal.Functional_BoolCallback responseCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_isA(__id, null, false, false, __responseCb, __exceptionCb, null);
+        return _iceI_begin_ice_isA(id, null, false, false, responseCb, exceptionCb, null);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param id The Slice type ID of an interface.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id,
-                  IceInternal.Functional_BoolCallback __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                  IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_isA(String id,
+                  IceInternal.Functional_BoolCallback responseCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                  IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_isA(__id, null, false, false, __responseCb, __exceptionCb, __sentCb);
+        return _iceI_begin_ice_isA(id, null, false, false, responseCb, exceptionCb, sentCb);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __context The <code>Context</code> map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param id The Slice type ID of an interface.
+     * @param context The <code>Context</code> map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id,
-                  java.util.Map<String, String> __context,
-                  IceInternal.Functional_BoolCallback __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_isA(String id,
+                  java.util.Map<String, String> context,
+                  IceInternal.Functional_BoolCallback responseCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_isA(__id, __context, true, false, __responseCb, __exceptionCb, null);
+        return _iceI_begin_ice_isA(id, context, true, false, responseCb, exceptionCb, null);
     }
 
     /**
      * Tests whether this proxy supports a given interface.
      *
-     * @param __id The Slice type ID of an interface.
-     * @param __context The <code>Context</code> map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param id The Slice type ID of an interface.
+     * @param context The <code>Context</code> map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_isA(String __id,
-                  java.util.Map<String, String> __context,
-                  IceInternal.Functional_BoolCallback __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                  IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_isA(String id,
+                  java.util.Map<String, String> context,
+                  IceInternal.Functional_BoolCallback responseCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                  IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_isA(__id, __context, true, false, __responseCb, __exceptionCb, __sentCb);
+        return _iceI_begin_ice_isA(id, context, true, false, responseCb, exceptionCb, sentCb);
     }
 
     private AsyncResult
-    begin_ice_isA(String __id,
-                  java.util.Map<String, String> __context,
-                  boolean __explicitCtx,
-                  boolean __synchronous,
-                  IceInternal.Functional_BoolCallback __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                  IceInternal.Functional_BoolCallback __sentCb)
+    _iceI_begin_ice_isA(String id,
+                        java.util.Map<String, String> context,
+                        boolean explicitCtx,
+                        boolean synchronous,
+                        IceInternal.Functional_BoolCallback responseCb,
+                        IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                        IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_isA(__id, __context, __explicitCtx, __synchronous,
-            new IceInternal.Functional_TwowayCallbackBool(__responseCb, __exceptionCb, __sentCb)
-                {
-                    @Override
-                    public final void __completed(AsyncResult __result)
-                    {
-                        ObjectPrxHelperBase.__ice_isA_completed(this, __result);
-                    }
-                });
+        return _iceI_begin_ice_isA(id, context, explicitCtx, synchronous,
+                                   new IceInternal.Functional_TwowayCallbackBool(responseCb, exceptionCb, sentCb)
+                                   {
+                                       @Override
+                                       public final void _iceCompleted(AsyncResult result)
+                                       {
+                                           ObjectPrxHelperBase._iceI_ice_isA_completed(this, result);
+                                       }
+                                   });
     }
 
     private AsyncResult
-    begin_ice_isA(String __id, java.util.Map<String, String> __context, boolean __explicitCtx,
-                  boolean __synchronous, IceInternal.CallbackBase __cb)
+    _iceI_begin_ice_isA(String id, java.util.Map<String, String> context, boolean explicitCtx,
+                        boolean synchronous, IceInternal.CallbackBase cb)
     {
-        __checkAsyncTwowayOnly(__ice_isA_name);
-        IceInternal.OutgoingAsync __result = getOutgoingAsync(__ice_isA_name, __cb);
+        _checkAsyncTwowayOnly(_ice_isA_name);
+        IceInternal.OutgoingAsync result = getOutgoingAsync(_ice_isA_name, cb);
         try
         {
-            __result.prepare(__ice_isA_name, OperationMode.Nonmutating, __context, __explicitCtx, __synchronous);
-            OutputStream __os = __result.startWriteParams(Ice.FormatType.DefaultFormat);
-            __os.writeString(__id);
-            __result.endWriteParams();
-            __result.invoke();
+            result.prepare(_ice_isA_name, OperationMode.Nonmutating, context, explicitCtx, synchronous);
+            OutputStream ostr = result.startWriteParams(Ice.FormatType.DefaultFormat);
+            ostr.writeString(id);
+            result.endWriteParams();
+            result.invoke();
         }
-        catch(Exception __ex)
+        catch(Exception ex)
         {
-            __result.abort(__ex);
+            result.abort(ex);
         }
-        return __result;
+        return result;
     }
 
     /**
      * Completes the asynchronous ice_isA request.
      *
-     * @param __r The asynchronous result.
+     * @param r The asynchronous result.
      * @return <code>true</code> if this proxy supports the specified interface; <code>false</code>, otherwise.
      **/
     @Override
     public final boolean
-    end_ice_isA(AsyncResult __r)
+    end_ice_isA(AsyncResult r)
     {
-        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__r, this, __ice_isA_name);
+        IceInternal.OutgoingAsync result = IceInternal.OutgoingAsync.check(r, this, _ice_isA_name);
         try
         {
-            if(!__result.__wait())
+            if(!result.waitForResponseOrUserEx())
             {
                 try
                 {
-                    __result.throwUserException();
+                    result.throwUserException();
                 }
-                catch(UserException __ex)
+                catch(UserException ex)
                 {
-                    throw new UnknownUserException(__ex.ice_id(), __ex);
+                    throw new UnknownUserException(ex.ice_id(), ex);
                 }
             }
-            boolean __ret;
-            InputStream __is = __result.startReadParams();
-            __ret = __is.readBool();
-            __result.endReadParams();
-            return __ret;
+            boolean ret;
+            InputStream istr = result.startReadParams();
+            ret = istr.readBool();
+            result.endReadParams();
+            return ret;
         }
         finally
         {
-            if(__result != null)
+            if(result != null)
             {
-                __result.cacheMessageBuffers();
+                result.cacheMessageBuffers();
             }
         }
     }
 
-    static public void __ice_isA_completed(TwowayCallbackBool __cb, AsyncResult __result)
+    static public void _iceI_ice_isA_completed(TwowayCallbackBool cb, AsyncResult result)
     {
-        boolean __ret = false;
+        boolean ret = false;
         try
         {
-            __ret = __result.getProxy().end_ice_isA(__result);
+            ret = result.getProxy().end_ice_isA(result);
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        catch(SystemException __ex)
+        catch(SystemException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        __cb.response(__ret);
+        cb.response(ret);
     }
 
     /**
@@ -360,27 +360,27 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final void
     ice_ping()
     {
-        ice_ping(null, false);
+        _iceI_ice_ping(null, false);
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The <code>Context</code> map for the invocation.
+     * @param context The <code>Context</code> map for the invocation.
      **/
     @Override
     public final void
-    ice_ping(java.util.Map<String, String> __context)
+    ice_ping(java.util.Map<String, String> context)
     {
-        ice_ping(__context, true);
+        _iceI_ice_ping(context, true);
     }
 
-    private static final String __ice_ping_name = "ice_ping";
+    private static final String _ice_ping_name = "ice_ping";
 
     private void
-    ice_ping(java.util.Map<String, String> __context, boolean __explicitCtx)
+    _iceI_ice_ping(java.util.Map<String, String> context, boolean explicitCtx)
     {
-        end_ice_ping(begin_ice_ping(__context, __explicitCtx, true, null));
+        end_ice_ping(_iceI_begin_ice_ping(context, explicitCtx, true, null));
     }
 
     /**
@@ -392,175 +392,175 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_ping()
     {
-        return begin_ice_ping(null, false, false, null);
+        return _iceI_begin_ice_ping(null, false, false, null);
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(java.util.Map<String, String> __context)
+    begin_ice_ping(java.util.Map<String, String> context)
     {
-        return begin_ice_ping(__context, true, false, null);
+        return _iceI_begin_ice_ping(context, true, false, null);
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(Callback __cb)
+    begin_ice_ping(Callback cb)
     {
-        return begin_ice_ping(null, false, false, __cb);
+        return _iceI_begin_ice_ping(null, false, false, cb);
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(java.util.Map<String, String> __context, Callback __cb)
+    begin_ice_ping(java.util.Map<String, String> context, Callback cb)
     {
-        return begin_ice_ping(__context, true, false, __cb);
+        return _iceI_begin_ice_ping(context, true, false, cb);
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(Callback_Object_ice_ping __cb)
+    begin_ice_ping(Callback_Object_ice_ping cb)
     {
-        return begin_ice_ping(null, false, false, __cb);
+        return _iceI_begin_ice_ping(null, false, false, cb);
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(java.util.Map<String, String> __context, Callback_Object_ice_ping __cb)
+    begin_ice_ping(java.util.Map<String, String> context, Callback_Object_ice_ping cb)
     {
-        return begin_ice_ping(__context, true, false, __cb);
+        return _iceI_begin_ice_ping(context, true, false, cb);
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb,
-                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_ping(IceInternal.Functional_VoidCallback responseCb,
+                   IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_ping(null, false, false,
-                              new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, null));
+        return _iceI_begin_ice_ping(null, false, false,
+                                    new IceInternal.Functional_OnewayCallback(responseCb, exceptionCb, null));
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(IceInternal.Functional_VoidCallback __responseCb,
-                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                   IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_ping(IceInternal.Functional_VoidCallback responseCb,
+                   IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                   IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_ping(null, false, false, new IceInternal.Functional_OnewayCallback(__responseCb,
-                __exceptionCb, __sentCb));
+        return _iceI_begin_ice_ping(null, false, false, new IceInternal.Functional_OnewayCallback(responseCb,
+                                                                                                  exceptionCb, sentCb));
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(java.util.Map<String, String> __context,
-                   IceInternal.Functional_VoidCallback __responseCb,
-                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_ping(java.util.Map<String, String> context,
+                   IceInternal.Functional_VoidCallback responseCb,
+                   IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_ping(__context, true, false, new IceInternal.Functional_OnewayCallback(__responseCb,
-                __exceptionCb, null));
+        return _iceI_begin_ice_ping(context, true, false, new IceInternal.Functional_OnewayCallback(responseCb,
+                                                                                                    exceptionCb, null));
     }
 
     /**
      * Tests whether the target object of this proxy can be reached.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ping(java.util.Map<String, String> __context,
-                   IceInternal.Functional_VoidCallback __responseCb,
-                   IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                   IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_ping(java.util.Map<String, String> context,
+                   IceInternal.Functional_VoidCallback responseCb,
+                   IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                   IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_ping(__context, true, false,
-                              new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, __sentCb));
+        return _iceI_begin_ice_ping(context, true, false,
+                                    new IceInternal.Functional_OnewayCallback(responseCb, exceptionCb, sentCb));
     }
 
-    private AsyncResult begin_ice_ping(java.util.Map<String, String> __context, boolean __explicitCtx,
-            boolean __synchronous, IceInternal.CallbackBase __cb)
+    private AsyncResult _iceI_begin_ice_ping(java.util.Map<String, String> context, boolean explicitCtx,
+                                             boolean synchronous, IceInternal.CallbackBase cb)
     {
-        IceInternal.OutgoingAsync __result = getOutgoingAsync(__ice_ping_name, __cb);
+        IceInternal.OutgoingAsync result = getOutgoingAsync(_ice_ping_name, cb);
         try
         {
-            __result.prepare(__ice_ping_name, OperationMode.Nonmutating, __context, __explicitCtx, __synchronous);
-            __result.writeEmptyParams();
-            __result.invoke();
+            result.prepare(_ice_ping_name, OperationMode.Nonmutating, context, explicitCtx, synchronous);
+            result.writeEmptyParams();
+            result.invoke();
         }
-        catch(Exception __ex)
+        catch(Exception ex)
         {
-            __result.abort(__ex);
+            result.abort(ex);
         }
-        return __result;
+        return result;
     }
 
     /**
      * Completes the asynchronous ping request.
      *
-     * @param __result The asynchronous result.
+     * @param result The asynchronous result.
      **/
     @Override
     public final void
-    end_ice_ping(AsyncResult __result)
+    end_ice_ping(AsyncResult result)
     {
-        __end(__result, __ice_ping_name);
+        _end(result, _ice_ping_name);
     }
 
     /**
@@ -573,30 +573,30 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final String[]
     ice_ids()
     {
-        return ice_ids(null, false);
+        return _iceI_ice_ids(null, false);
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The <code>Context</code> map for the invocation.
+     * @param context The <code>Context</code> map for the invocation.
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
      * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
     @Override
     public final String[]
-    ice_ids(java.util.Map<String, String> __context)
+    ice_ids(java.util.Map<String, String> context)
     {
-        return ice_ids(__context, true);
+        return _iceI_ice_ids(context, true);
     }
 
-    private static final String __ice_ids_name = "ice_ids";
+    private static final String _ice_ids_name = "ice_ids";
 
     private String[]
-    ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx)
+    _iceI_ice_ids(java.util.Map<String, String> context, boolean explicitCtx)
     {
-        __checkTwowayOnly(__ice_id_name);
-        return end_ice_ids(begin_ice_ids(__context, __explicitCtx, true, null));
+        _checkTwowayOnly(_ice_id_name);
+        return end_ice_ids(_iceI_begin_ice_ids(context, explicitCtx, true, null));
     }
 
     /**
@@ -608,240 +608,240 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_ids()
     {
-        return begin_ice_ids(null, false, false, null);
+        return _iceI_begin_ice_ids(null, false, false, null);
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(java.util.Map<String, String> __context)
+    begin_ice_ids(java.util.Map<String, String> context)
     {
-        return begin_ice_ids(__context, true, false, null);
+        return _iceI_begin_ice_ids(context, true, false, null);
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(Callback __cb)
+    begin_ice_ids(Callback cb)
     {
-        return begin_ice_ids(null, false, false,__cb);
+        return _iceI_begin_ice_ids(null, false, false,cb);
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(java.util.Map<String, String> __context, Callback __cb)
+    begin_ice_ids(java.util.Map<String, String> context, Callback cb)
     {
-        return begin_ice_ids(__context, true, false,__cb);
+        return _iceI_begin_ice_ids(context, true, false,cb);
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(Callback_Object_ice_ids __cb)
+    begin_ice_ids(Callback_Object_ice_ids cb)
     {
-        return begin_ice_ids(null, false, false,__cb);
+        return _iceI_begin_ice_ids(null, false, false,cb);
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(java.util.Map<String, String> __context, Callback_Object_ice_ids __cb)
+    begin_ice_ids(java.util.Map<String, String> context, Callback_Object_ice_ids cb)
     {
-        return begin_ice_ids(__context, true, false,__cb);
+        return _iceI_begin_ice_ids(context, true, false,cb);
     }
 
     private class FunctionalCallback_Object_ice_ids extends IceInternal.Functional_TwowayCallbackArg1<String[]>
     {
-        FunctionalCallback_Object_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                                          IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                                          IceInternal.Functional_BoolCallback __sentCb)
+        FunctionalCallback_Object_ice_ids(IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                                          IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                          IceInternal.Functional_BoolCallback sentCb)
         {
-            super(__responseCb, __exceptionCb, __sentCb);
+            super(responseCb, exceptionCb, sentCb);
         }
 
         @Override
-        public final void __completed(AsyncResult __result)
+            public final void _iceCompleted(AsyncResult result)
         {
-            ObjectPrxHelperBase.__ice_ids_completed(this, __result);
+            ObjectPrxHelperBase._iceI_ice_ids_completed(this, result);
         }
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_ids(null, false, false, new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb,
-                null));
+        return _iceI_begin_ice_ids(null, false, false, new FunctionalCallback_Object_ice_ids(responseCb, exceptionCb,
+                                                                                             null));
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                  IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_ids(IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                  IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_ids(null, false, false, new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb,
-                __sentCb));
+        return _iceI_begin_ice_ids(null, false, false, new FunctionalCallback_Object_ice_ids(responseCb, exceptionCb,
+                                                                                             sentCb));
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(java.util.Map<String, String> __context,
-                  IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_ids(java.util.Map<String, String> context,
+                  IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_ids(__context, true, false, new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb,
-                null));
+        return _iceI_begin_ice_ids(context, true, false, new FunctionalCallback_Object_ice_ids(responseCb, exceptionCb,
+                                                                                               null));
     }
 
     /**
      * Returns the Slice type IDs of the interfaces supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_ids(java.util.Map<String, String> __context,
-                  IceInternal.Functional_GenericCallback1<String[]> __responseCb,
-                  IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                  IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_ids(java.util.Map<String, String> context,
+                  IceInternal.Functional_GenericCallback1<String[]> responseCb,
+                  IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                  IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_ids(__context, true, false,
-                             new FunctionalCallback_Object_ice_ids(__responseCb, __exceptionCb, __sentCb));
+        return _iceI_begin_ice_ids(context, true, false,
+                                   new FunctionalCallback_Object_ice_ids(responseCb, exceptionCb, sentCb));
     }
 
-    private AsyncResult begin_ice_ids(java.util.Map<String, String> __context, boolean __explicitCtx,
-            boolean __synchronous, IceInternal.CallbackBase __cb)
+    private AsyncResult _iceI_begin_ice_ids(java.util.Map<String, String> context, boolean explicitCtx,
+                                            boolean synchronous, IceInternal.CallbackBase cb)
     {
-        __checkAsyncTwowayOnly(__ice_ids_name);
-        IceInternal.OutgoingAsync __result = getOutgoingAsync(__ice_ids_name, __cb);
+        _checkAsyncTwowayOnly(_ice_ids_name);
+        IceInternal.OutgoingAsync result = getOutgoingAsync(_ice_ids_name, cb);
         try
         {
-            __result.prepare(__ice_ids_name, OperationMode.Nonmutating, __context, __explicitCtx, __synchronous);
-            __result.writeEmptyParams();
-            __result.invoke();
+            result.prepare(_ice_ids_name, OperationMode.Nonmutating, context, explicitCtx, synchronous);
+            result.writeEmptyParams();
+            result.invoke();
         }
-        catch(Exception __ex)
+        catch(Exception ex)
         {
-            __result.abort(__ex);
+            result.abort(ex);
         }
-        return __result;
+        return result;
     }
 
     /**
      * Completes the asynchronous ice_ids request.
      *
-     * @param __r The asynchronous result.
+     * @param r The asynchronous result.
      * @return The Slice type IDs of the interfaces supported by the target object, in base-to-derived
      * order. The first element of the returned array is always <code>::Ice::Object</code>.
      **/
     @Override
     public final String[]
-    end_ice_ids(AsyncResult __r)
+    end_ice_ids(AsyncResult r)
     {
-        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__r, this, __ice_ids_name);
+        IceInternal.OutgoingAsync result = IceInternal.OutgoingAsync.check(r, this, _ice_ids_name);
         try
         {
-            if(!__result.__wait())
+            if(!result.waitForResponseOrUserEx())
             {
                 try
                 {
-                    __result.throwUserException();
+                    result.throwUserException();
                 }
-                catch(UserException __ex)
+                catch(UserException ex)
                 {
-                    throw new UnknownUserException(__ex.ice_id(), __ex);
+                    throw new UnknownUserException(ex.ice_id(), ex);
                 }
             }
-            String[] __ret = null;
-            InputStream __is = __result.startReadParams();
-            __ret = StringSeqHelper.read(__is);
-            __result.endReadParams();
-            return __ret;
+            String[] ret = null;
+            InputStream istr = result.startReadParams();
+            ret = StringSeqHelper.read(istr);
+            result.endReadParams();
+            return ret;
         }
         finally
         {
-            if(__result != null)
+            if(result != null)
             {
-                __result.cacheMessageBuffers();
+                result.cacheMessageBuffers();
             }
         }
     }
 
-    static public void __ice_ids_completed(TwowayCallbackArg1<String[]> __cb, AsyncResult __result)
+    static public void _iceI_ice_ids_completed(TwowayCallbackArg1<String[]> cb, AsyncResult result)
     {
-        String[] __ret = null;
+        String[] ret = null;
         try
         {
-            __ret = __result.getProxy().end_ice_ids(__result);
+            ret = result.getProxy().end_ice_ids(result);
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        catch(SystemException __ex)
+        catch(SystemException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        __cb.response(__ret);
+        cb.response(ret);
     }
 
     /**
@@ -853,29 +853,29 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final String
     ice_id()
     {
-        return ice_id(null, false);
+        return _iceI_ice_id(null, false);
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The <code>Context</code> map for the invocation.
+     * @param context The <code>Context</code> map for the invocation.
      * @return The Slice type ID of the most-derived interface.
      **/
     @Override
     public final String
-    ice_id(java.util.Map<String, String> __context)
+    ice_id(java.util.Map<String, String> context)
     {
-        return ice_id(__context, true);
+        return _iceI_ice_id(context, true);
     }
 
-    private static final String __ice_id_name = "ice_id";
+    private static final String _ice_id_name = "ice_id";
 
     private String
-    ice_id(java.util.Map<String, String> __context, boolean __explicitCtx)
+    _iceI_ice_id(java.util.Map<String, String> context, boolean explicitCtx)
     {
-        __checkTwowayOnly(__ice_id_name);
-        return end_ice_id(begin_ice_id(__context, __explicitCtx, true, null));
+        _checkTwowayOnly(_ice_id_name);
+        return end_ice_id(_iceI_begin_ice_id(context, explicitCtx, true, null));
     }
 
     /**
@@ -887,74 +887,74 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_id()
     {
-        return begin_ice_id(null, false, false, null);
+        return _iceI_begin_ice_id(null, false, false, null);
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(java.util.Map<String, String> __context)
+    begin_ice_id(java.util.Map<String, String> context)
     {
-        return begin_ice_id(__context, true, false, null);
+        return _iceI_begin_ice_id(context, true, false, null);
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(Callback __cb)
+    begin_ice_id(Callback cb)
     {
-        return begin_ice_id(null, false, false, __cb);
+        return _iceI_begin_ice_id(null, false, false, cb);
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(java.util.Map<String, String> __context, Callback __cb)
+    begin_ice_id(java.util.Map<String, String> context, Callback cb)
     {
-        return begin_ice_id(__context, true, false, __cb);
+        return _iceI_begin_ice_id(context, true, false, cb);
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(Callback_Object_ice_id __cb)
+    begin_ice_id(Callback_Object_ice_id cb)
     {
-        return begin_ice_id(null, false, false, __cb);
+        return _iceI_begin_ice_id(null, false, false, cb);
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(java.util.Map<String, String> __context, Callback_Object_ice_id __cb)
+    begin_ice_id(java.util.Map<String, String> context, Callback_Object_ice_id cb)
     {
-        return begin_ice_id(__context, true, false, __cb);
+        return _iceI_begin_ice_id(context, true, false, cb);
     }
 
     private class FunctionalCallback_Object_ice_id extends IceInternal.Functional_TwowayCallbackArg1<String>
@@ -967,156 +967,156 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         }
 
         @Override
-        public final void __completed(AsyncResult __result)
+            public final void _iceCompleted(AsyncResult result)
         {
-            ObjectPrxHelperBase.__ice_id_completed(this, __result);
+            ObjectPrxHelperBase._iceI_ice_id_completed(this, result);
         }
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb,
-                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_id(IceInternal.Functional_GenericCallback1<String> responseCb,
+                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_id(null, false, false, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, null));
+        return _iceI_begin_ice_id(null, false, false, new FunctionalCallback_Object_ice_id(responseCb, exceptionCb, null));
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(IceInternal.Functional_GenericCallback1<String> __responseCb,
-                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                 IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_id(IceInternal.Functional_GenericCallback1<String> responseCb,
+                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                 IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_id(null, false, false, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, __sentCb));
+        return _iceI_begin_ice_id(null, false, false, new FunctionalCallback_Object_ice_id(responseCb, exceptionCb, sentCb));
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(java.util.Map<String, String> __context,
-                 IceInternal.Functional_GenericCallback1<String> __responseCb,
-                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_id(java.util.Map<String, String> context,
+                 IceInternal.Functional_GenericCallback1<String> responseCb,
+                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_id(__context, true, false, new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, null));
+        return _iceI_begin_ice_id(context, true, false, new FunctionalCallback_Object_ice_id(responseCb, exceptionCb, null));
     }
 
     /**
      * Returns the Slice type ID of the most-derived interface supported by the target object of this proxy.
      *
-     * @param __context The context map for the invocation.
-     * @param __responseCb The asynchronous response callback object.
-     * @param __exceptionCb The asynchronous exception callback object.
-     * @param __sentCb The asynchronous sent callback object.
+     * @param context The context map for the invocation.
+     * @param responseCb The asynchronous response callback object.
+     * @param exceptionCb The asynchronous exception callback object.
+     * @param sentCb The asynchronous sent callback object.
      * @return The asynchronous result object.
      **/
     @Override
     public final AsyncResult
-    begin_ice_id(java.util.Map<String, String> __context,
-                 IceInternal.Functional_GenericCallback1<String> __responseCb,
-                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                 IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_id(java.util.Map<String, String> context,
+                 IceInternal.Functional_GenericCallback1<String> responseCb,
+                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                 IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_id(__context, true, false,
-                            new FunctionalCallback_Object_ice_id(__responseCb, __exceptionCb, __sentCb));
+        return _iceI_begin_ice_id(context, true, false,
+                                  new FunctionalCallback_Object_ice_id(responseCb, exceptionCb, sentCb));
     }
 
-    private AsyncResult begin_ice_id(java.util.Map<String, String> __context, boolean __explicitCtx,
-            boolean __synchronous, IceInternal.CallbackBase __cb)
+    private AsyncResult _iceI_begin_ice_id(java.util.Map<String, String> context, boolean explicitCtx,
+                                           boolean synchronous, IceInternal.CallbackBase cb)
     {
-        __checkAsyncTwowayOnly(__ice_id_name);
-        IceInternal.OutgoingAsync __result = getOutgoingAsync(__ice_id_name, __cb);
+        _checkAsyncTwowayOnly(_ice_id_name);
+        IceInternal.OutgoingAsync result = getOutgoingAsync(_ice_id_name, cb);
         try
         {
-            __result.prepare(__ice_id_name, OperationMode.Nonmutating, __context, __explicitCtx, __synchronous);
-            __result.writeEmptyParams();
-            __result.invoke();
+            result.prepare(_ice_id_name, OperationMode.Nonmutating, context, explicitCtx, synchronous);
+            result.writeEmptyParams();
+            result.invoke();
         }
-        catch(Exception __ex)
+        catch(Exception ex)
         {
-            __result.abort(__ex);
+            result.abort(ex);
         }
-        return __result;
+        return result;
     }
 
     /**
      * Completes the asynchronous ice_id request.
      *
-     * @param __r The asynchronous result.
+     * @param r The asynchronous result.
      * @return The Slice type ID of the most-derived interface.
      **/
     @Override
     public final String
-    end_ice_id(AsyncResult __r)
+    end_ice_id(AsyncResult r)
     {
-        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__r, this, __ice_id_name);
+        IceInternal.OutgoingAsync result = IceInternal.OutgoingAsync.check(r, this, _ice_id_name);
         try
         {
-            if(!__result.__wait())
+            if(!result.waitForResponseOrUserEx())
             {
                 try
                 {
-                    __result.throwUserException();
+                    result.throwUserException();
                 }
-                catch(UserException __ex)
+                catch(UserException ex)
                 {
-                    throw new UnknownUserException(__ex.ice_id(), __ex);
+                    throw new UnknownUserException(ex.ice_id(), ex);
                 }
             }
-            String __ret = null;
-            InputStream __is = __result.startReadParams();
-            __ret = __is.readString();
-            __result.endReadParams();
-            return __ret;
+            String ret = null;
+            InputStream istr = result.startReadParams();
+            ret = istr.readString();
+            result.endReadParams();
+            return ret;
         }
         finally
         {
-            if(__result != null)
+            if(result != null)
             {
-                __result.cacheMessageBuffers();
+                result.cacheMessageBuffers();
             }
         }
     }
 
-    static public void __ice_id_completed(TwowayCallbackArg1<String> __cb, AsyncResult __result)
+    static public void _iceI_ice_id_completed(TwowayCallbackArg1<String> cb, AsyncResult result)
     {
-        String __ret = null;
+        String ret = null;
         try
         {
-            __ret = __result.getProxy().end_ice_id(__result);
+            ret = result.getProxy().end_ice_id(result);
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        catch(SystemException __ex)
+        catch(SystemException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        __cb.response(__ret);
+        cb.response(ret);
     }
 
     /**
@@ -1140,7 +1140,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final boolean
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams)
     {
-        return ice_invoke(operation, mode, inParams, outParams, null, false);
+        return _iceI_ice_invoke(operation, mode, inParams, outParams, null, false);
     }
 
     /**
@@ -1164,17 +1164,17 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
                java.util.Map<String, String> context)
     {
-        return ice_invoke(operation, mode, inParams, outParams, context, true);
+        return _iceI_ice_invoke(operation, mode, inParams, outParams, context, true);
     }
 
     private boolean
-    ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
-               java.util.Map<String, String> context, boolean explicitCtx)
+    _iceI_ice_invoke(String operation, OperationMode mode, byte[] inParams, ByteSeqHolder outParams,
+                     java.util.Map<String, String> context, boolean explicitCtx)
     {
-        return end_ice_invoke(outParams, begin_ice_invoke(operation, mode, inParams, context, explicitCtx, true, null));
+        return end_ice_invoke(outParams, _iceI_begin_ice_invoke(operation, mode, inParams, context, explicitCtx, true, null));
     }
 
-    private static final String __ice_invoke_name = "ice_invoke";
+    private static final String _ice_invoke_name = "ice_invoke";
 
     /**
      * Invokes an operation dynamically and asynchronously.
@@ -1191,7 +1191,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public final AsyncResult
     begin_ice_invoke(String operation, OperationMode mode, byte[] inParams)
     {
-        return begin_ice_invoke(operation, mode, inParams, null, false, false, null);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, null, false, false, null);
     }
 
     /**
@@ -1201,7 +1201,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __context The context map for the invocation.
+     * @param context The context map for the invocation.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1210,9 +1210,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     @Override
     public final AsyncResult
     begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> __context)
+                     java.util.Map<String, String> context)
     {
-        return begin_ice_invoke(operation, mode, inParams, __context, true, false, null);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, context, true, false, null);
     }
 
     /**
@@ -1222,7 +1222,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1230,9 +1230,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final AsyncResult
-    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback __cb)
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback cb)
     {
-        return begin_ice_invoke(operation, mode, inParams, null, false, false, __cb);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, null, false, false, cb);
     }
 
     /**
@@ -1242,8 +1242,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1251,10 +1251,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final AsyncResult
-    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> __context,
-                     Callback __cb)
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> context,
+                     Callback cb)
     {
-        return begin_ice_invoke(operation, mode, inParams, __context, true, false, __cb);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, context, true, false, cb);
     }
 
     /**
@@ -1264,7 +1264,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __cb The asynchronous callback object.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1272,9 +1272,9 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final AsyncResult
-    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback_Object_ice_invoke __cb)
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, Callback_Object_ice_invoke cb)
     {
-        return begin_ice_invoke(operation, mode, inParams, null, false, false, __cb);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, null, false, false, cb);
     }
 
     /**
@@ -1284,8 +1284,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      * @param mode The operation mode (normal or idempotent).
      * @param inParams The encoded in-parameters for the operation.
      * for the operation. The return value follows any out-parameters.
-     * @param __context The context map for the invocation.
-     * @param __cb The asynchronous callback object.
+     * @param context The context map for the invocation.
+     * @param cb The asynchronous callback object.
      * @return The asynchronous result object.
      *
      * @see Blobject
@@ -1293,10 +1293,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final AsyncResult
-    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> __context,
-                     Callback_Object_ice_invoke __cb)
+    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> context,
+                     Callback_Object_ice_invoke cb)
     {
-        return begin_ice_invoke(operation, mode, inParams, __context, true, false, __cb);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, context, true, false, cb);
     }
 
     /**
@@ -1316,11 +1316,11 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 FunctionalCallback_Object_ice_invoke_Response responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
-                                 IceInternal.Functional_BoolCallback sentCb)
+                                              FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                              IceInternal.Functional_BoolCallback sentCb)
     {
-         return begin_ice_invoke(operation, mode, inParams, null, false, false, responseCb, exceptionCb, sentCb);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, null, false, false, responseCb, exceptionCb, sentCb);
     }
 
     /**
@@ -1339,10 +1339,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 FunctionalCallback_Object_ice_invoke_Response responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
+                                              FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_invoke(operation, mode, inParams, null, false, false, responseCb, exceptionCb, null);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, null, false, false, responseCb, exceptionCb, null);
     }
 
     /**
@@ -1363,12 +1363,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> context,
-                                 FunctionalCallback_Object_ice_invoke_Response responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
-                                 IceInternal.Functional_BoolCallback sentCb)
+                                              java.util.Map<String, String> context,
+                                              FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                              IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_invoke(operation, mode, inParams, context, true, false, responseCb, exceptionCb, sentCb);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, context, true, false, responseCb, exceptionCb, sentCb);
     }
 
     /**
@@ -1388,20 +1388,20 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> context,
-                                 FunctionalCallback_Object_ice_invoke_Response responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
+                                              java.util.Map<String, String> context,
+                                              FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                              IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_invoke(operation, mode, inParams, context, true, false, responseCb, exceptionCb, null);
+        return _iceI_begin_ice_invoke(operation, mode, inParams, context, true, false, responseCb, exceptionCb, null);
     }
 
-    private AsyncResult begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
-                                 java.util.Map<String, String> __context,
-                                 boolean __explicitCtx,
-                                 boolean __synchronous,
-                                 FunctionalCallback_Object_ice_invoke_Response __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                                 IceInternal.Functional_BoolCallback __sentCb)
+    private AsyncResult _iceI_begin_ice_invoke(String operation, OperationMode mode, byte[] inParams,
+                                               java.util.Map<String, String> context,
+                                               boolean explicitCtx,
+                                               boolean synchronous,
+                                               FunctionalCallback_Object_ice_invoke_Response responseCb,
+                                               IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                               IceInternal.Functional_BoolCallback sentCb)
     {
         class CB extends IceInternal.Functional_TwowayCallback implements _Callback_Object_ice_invoke
         {
@@ -1410,50 +1410,50 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                IceInternal.Functional_BoolCallback sentCb)
             {
                 super(responseCb != null, exceptionCb, sentCb);
-                __responseCb = responseCb;
+                _responseCb = responseCb;
             }
 
             @Override
-            public void response(boolean __ret, byte[] outParams)
+            public void response(boolean ret, byte[] outParams)
             {
-                __responseCb.apply(__ret, outParams);
+                _responseCb.apply(ret, outParams);
             }
 
             @Override
-            public final void __completed(AsyncResult __result)
+            public final void _iceCompleted(AsyncResult result)
             {
-                ObjectPrxHelperBase.__ice_invoke_completed(this, __result);
+                ObjectPrxHelperBase._iceI_ice_invoke_completed(this, result);
             }
 
-            FunctionalCallback_Object_ice_invoke_Response __responseCb;
+            FunctionalCallback_Object_ice_invoke_Response _responseCb;
         }
-        return begin_ice_invoke(operation, mode, inParams, __context, __explicitCtx, __synchronous,
-            new CB(__responseCb, __exceptionCb, __sentCb));
+        return _iceI_begin_ice_invoke(operation, mode, inParams, context, explicitCtx, synchronous,
+                                      new CB(responseCb, exceptionCb, sentCb));
     }
 
     private AsyncResult
-    begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> __context,
-                     boolean __explicitCtx, boolean __synchronous, IceInternal.CallbackBase __cb)
+    _iceI_begin_ice_invoke(String operation, OperationMode mode, byte[] inParams, java.util.Map<String, String> context,
+                           boolean explicitCtx, boolean synchronous, IceInternal.CallbackBase cb)
     {
-        IceInternal.OutgoingAsync __result = getOutgoingAsync(__ice_invoke_name, __cb);
+        IceInternal.OutgoingAsync result = getOutgoingAsync(_ice_invoke_name, cb);
         try
         {
-            __result.prepare(operation, mode, __context, __explicitCtx, __synchronous);
-            __result.writeParamEncaps(inParams);
-            __result.invoke();
+            result.prepare(operation, mode, context, explicitCtx, synchronous);
+            result.writeParamEncaps(inParams);
+            result.invoke();
         }
-        catch(Exception __ex)
+        catch(Exception ex)
         {
-            __result.abort(__ex);
+            result.abort(ex);
         }
-        return __result;
+        return result;
     }
 
     /**
      * Completes the asynchronous ice_invoke request.
      *
      * @param outParams The encoded out-paramaters and return value.
-     * @param __r The asynchronous result.
+     * @param r The asynchronous result.
      * @return If the operation completed successfully, the return value
      * is <code>true</code>. If the operation raises a user exception,
      * the return value is <code>false</code>; in this case, <code>outParams</code>
@@ -1462,49 +1462,49 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final boolean
-    end_ice_invoke(ByteSeqHolder outParams, AsyncResult __r)
+    end_ice_invoke(ByteSeqHolder outParams, AsyncResult r)
     {
-        IceInternal.OutgoingAsync __result = IceInternal.OutgoingAsync.check(__r, this, __ice_invoke_name);
+        IceInternal.OutgoingAsync result = IceInternal.OutgoingAsync.check(r, this, _ice_invoke_name);
         try
         {
-            boolean ok = __result.__wait();
+            boolean ok = result.waitForResponseOrUserEx();
             if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
             {
                 if(outParams != null)
                 {
-                    outParams.value = __result.readParamEncaps();
+                    outParams.value = result.readParamEncaps();
                 }
             }
             return ok;
         }
         finally
         {
-            if(__result != null)
+            if(result != null)
             {
-                __result.cacheMessageBuffers();
+                result.cacheMessageBuffers();
             }
         }
     }
 
-    public static void __ice_invoke_completed(_Callback_Object_ice_invoke __cb, AsyncResult __result)
+    public static void _iceI_ice_invoke_completed(_Callback_Object_ice_invoke cb, AsyncResult result)
     {
         ByteSeqHolder outParams = new ByteSeqHolder();
-        boolean __ret = false;
+        boolean ret = false;
         try
         {
-            __ret = __result.getProxy().end_ice_invoke(outParams, __result);
+            ret = result.getProxy().end_ice_invoke(outParams, result);
         }
-        catch(LocalException __ex)
+        catch(LocalException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        catch(SystemException __ex)
+        catch(SystemException ex)
         {
-            __cb.exception(__ex);
+            cb.exception(ex);
             return;
         }
-        __cb.response(__ret, outParams.value);
+        cb.response(ret, outParams.value);
     }
 
     /**
@@ -1540,7 +1540,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         else
         {
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.__setup(_reference.changeIdentity(newIdentity));
+            proxy._setup(_reference.changeIdentity(newIdentity));
             return proxy;
         }
     }
@@ -1553,7 +1553,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
      **/
     @Override
     public final java.util.Map<String, String>
-    ice_getContext()
+        ice_getContext()
     {
         return new java.util.HashMap<String, String>(_reference.getContext());
     }
@@ -1605,7 +1605,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         else
         {
             ObjectPrxHelperBase proxy = new ObjectPrxHelperBase();
-            proxy.__setup(_reference.changeFacet(newFacet));
+            proxy._setup(_reference.changeFacet(newFacet));
             return proxy;
         }
     }
@@ -2212,6 +2212,19 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
+     * Obtains the compression override setting of this proxy.
+     *
+     * @return The compression override setting. If no optional value is present, no override is
+     * set. Otherwise, true if compression is enabled, false otherwise.
+     */
+    @Override
+    public final Ice.BooleanOptional
+    ice_getCompress()
+    {
+        return _reference.getCompress();
+    }
+
+    /**
      * Creates a new proxy that is identical to this proxy, except for its timeout setting.
      *
      * @param t The timeout for the new proxy in milliseconds.
@@ -2237,6 +2250,19 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     /**
+     * Obtains the timeout override of this proxy.
+     *
+     * @return The timeout override. If no optional value is present, no override is set. Otherwise,
+     * returns the timeout override value.
+     */
+    @Override
+    public final Ice.IntOptional
+    ice_getTimeout()
+    {
+        return _reference.getTimeout();
+    }
+
+    /**
      * Creates a new proxy that is identical to this proxy, except for its connection ID.
      *
      * @param id The connection ID for the new proxy. An empty string removes the
@@ -2249,6 +2275,36 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     ice_connectionId(String id)
     {
         IceInternal.Reference ref = _reference.changeConnectionId(id);
+        if(ref.equals(_reference))
+        {
+            return this;
+        }
+        else
+        {
+            return newInstance(ref);
+        }
+    }
+
+    /**
+     * Returns a proxy that is identical to this proxy, except it's a fixed proxy bound
+     * the given connection.
+     *
+     * @param connection The fixed proxy connection.
+     * @return A fixed proxy bound to the given connection.
+     */
+    @Override
+    public final ObjectPrx
+    ice_fixed(Ice.Connection connection)
+    {
+        if(connection == null)
+        {
+            throw new IllegalArgumentException("invalid null connection passed to ice_fixed");
+        }
+        if(!(connection instanceof Ice.ConnectionI))
+        {
+            throw new IllegalArgumentException("invalid connection passed to ice_fixed");
+        }
+        IceInternal.Reference ref = _reference.changeConnection((Ice.ConnectionI)connection);
         if(ref.equals(_reference))
         {
             return this;
@@ -2285,75 +2341,75 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public AsyncResult
     begin_ice_getConnection()
     {
-        return begin_ice_getConnectionInternal(null);
+        return _iceI_begin_ice_getConnectionInternal(null);
     }
 
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
-     * @param __cb The callback object to notify the application when the flush is complete.
+     * @param cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
     @Override
     public AsyncResult
-    begin_ice_getConnection(Callback __cb)
+    begin_ice_getConnection(Callback cb)
     {
-        return begin_ice_getConnectionInternal(__cb);
+        return _iceI_begin_ice_getConnectionInternal(cb);
     }
 
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
-     * @param __cb The callback object to notify the application when the flush is complete.
+     * @param cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
     @Override
     public AsyncResult
-    begin_ice_getConnection(Callback_Object_ice_getConnection __cb)
+    begin_ice_getConnection(Callback_Object_ice_getConnection cb)
     {
-        return begin_ice_getConnectionInternal(__cb);
+        return _iceI_begin_ice_getConnectionInternal(cb);
     }
 
     private class FunctionalCallback_Object_ice_getConnection
         extends IceInternal.Functional_TwowayCallbackArg1<Ice.Connection>
     {
         FunctionalCallback_Object_ice_getConnection(
-            IceInternal.Functional_GenericCallback1<Ice.Connection> __responseCb,
-            IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+            IceInternal.Functional_GenericCallback1<Ice.Connection> responseCb,
+            IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
         {
-            super(__responseCb, __exceptionCb, null);
+            super(responseCb, exceptionCb, null);
         }
 
         @Override
-        public final void __completed(AsyncResult __result)
+            public final void _iceCompleted(AsyncResult result)
         {
-            ObjectPrxHelperBase.__ice_getConnection_completed(this, __result);
+            ObjectPrxHelperBase._iceI_ice_getConnection_completed(this, result);
         }
     }
 
     /**
      * Asynchronously gets the connection for this proxy. The call does not block.
      *
-     * @param __responseCb The callback object to notify the application when the there is a response available.
-     * @param __exceptionCb The callback object to notify the application when the there is an exception getting
+     * @param responseCb The callback object to notify the application when the there is a response available.
+     * @param exceptionCb The callback object to notify the application when the there is an exception getting
      * connection.
      * @return The asynchronous result object.
      **/
     @Override
     public AsyncResult
-    begin_ice_getConnection(IceInternal.Functional_GenericCallback1<Ice.Connection> __responseCb,
-                            IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb)
+    begin_ice_getConnection(IceInternal.Functional_GenericCallback1<Ice.Connection> responseCb,
+                            IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb)
     {
-        return begin_ice_getConnectionInternal(
-            new FunctionalCallback_Object_ice_getConnection(__responseCb, __exceptionCb));
+        return _iceI_begin_ice_getConnectionInternal(
+            new FunctionalCallback_Object_ice_getConnection(responseCb, exceptionCb));
     }
 
-    private static final String __ice_getConnection_name = "ice_getConnection";
+    private static final String _ice_getConnection_name = "ice_getConnection";
 
     private AsyncResult
-    begin_ice_getConnectionInternal(IceInternal.CallbackBase cb)
+    _iceI_begin_ice_getConnectionInternal(IceInternal.CallbackBase cb)
     {
-        IceInternal.ProxyGetConnection result = new IceInternal.ProxyGetConnection(this, __ice_getConnection_name, cb);
+        IceInternal.ProxyGetConnection result = new IceInternal.ProxyGetConnection(this, _ice_getConnection_name, cb);
         try
         {
             result.invoke();
@@ -2369,12 +2425,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public Ice.Connection
     end_ice_getConnection(AsyncResult r)
     {
-        IceInternal.ProxyGetConnection result = IceInternal.ProxyGetConnection.check(r, this, __ice_getConnection_name);
-        result.__wait();
+        IceInternal.ProxyGetConnection result = IceInternal.ProxyGetConnection.check(r, this, _ice_getConnection_name);
+        result.waitForResponseOrUserEx();
         return result.getConnection();
     }
 
-    static public void __ice_getConnection_completed(TwowayCallbackArg1<Ice.Connection> cb, AsyncResult result)
+    static public void _iceI_ice_getConnection_completed(TwowayCallbackArg1<Ice.Connection> cb, AsyncResult result)
     {
         Ice.Connection ret = null;
         try
@@ -2447,59 +2503,59 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public AsyncResult
     begin_ice_flushBatchRequests()
     {
-        return begin_ice_flushBatchRequestsInternal(null);
+        return _iceI_begin_ice_flushBatchRequestsInternal(null);
     }
 
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
-     * @param __cb The callback object to notify the application when the flush is complete.
+     * @param cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
     @Override
     public AsyncResult
-    begin_ice_flushBatchRequests(Callback __cb)
+    begin_ice_flushBatchRequests(Callback cb)
     {
-        return begin_ice_flushBatchRequestsInternal(__cb);
+        return _iceI_begin_ice_flushBatchRequestsInternal(cb);
     }
 
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
-     * @param __cb The callback object to notify the application when the flush is complete.
+     * @param cb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
     @Override
     public AsyncResult
-    begin_ice_flushBatchRequests(Callback_Object_ice_flushBatchRequests __cb)
+    begin_ice_flushBatchRequests(Callback_Object_ice_flushBatchRequests cb)
     {
-        return begin_ice_flushBatchRequestsInternal(__cb);
+        return _iceI_begin_ice_flushBatchRequestsInternal(cb);
     }
 
     /**
      * Asynchronously flushes any pending batched requests for this communicator. The call does not block.
      *
-     * @param __exceptionCb The callback object to notify the application when the there is an exception flushing
+     * @param exceptionCb The callback object to notify the application when the there is an exception flushing
      * the requests.
-     * @param __sentCb The callback object to notify the application when the flush is complete.
+     * @param sentCb The callback object to notify the application when the flush is complete.
      * @return The asynchronous result object.
      **/
     @Override
     public AsyncResult
-    begin_ice_flushBatchRequests(IceInternal.Functional_VoidCallback __responseCb,
-                                 IceInternal.Functional_GenericCallback1<Ice.Exception> __exceptionCb,
-                                 IceInternal.Functional_BoolCallback __sentCb)
+    begin_ice_flushBatchRequests(IceInternal.Functional_VoidCallback responseCb,
+                                 IceInternal.Functional_GenericCallback1<Ice.Exception> exceptionCb,
+                                 IceInternal.Functional_BoolCallback sentCb)
     {
-        return begin_ice_flushBatchRequestsInternal(
-                                    new IceInternal.Functional_OnewayCallback(__responseCb, __exceptionCb, __sentCb));
+        return _iceI_begin_ice_flushBatchRequestsInternal(
+            new IceInternal.Functional_OnewayCallback(responseCb, exceptionCb, sentCb));
     }
 
-    private static final String __ice_flushBatchRequests_name = "ice_flushBatchRequests";
+    private static final String _ice_flushBatchRequests_name = "ice_flushBatchRequests";
 
     private AsyncResult
-    begin_ice_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
+    _iceI_begin_ice_flushBatchRequestsInternal(IceInternal.CallbackBase cb)
     {
-        IceInternal.ProxyFlushBatch result = new IceInternal.ProxyFlushBatch(this, __ice_flushBatchRequests_name, cb);
+        IceInternal.ProxyFlushBatch result = new IceInternal.ProxyFlushBatch(this, _ice_flushBatchRequests_name, cb);
         try
         {
             result.invoke();
@@ -2515,8 +2571,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     public void
     end_ice_flushBatchRequests(AsyncResult r)
     {
-        IceInternal.ProxyFlushBatch result = IceInternal.ProxyFlushBatch.check(r, this, __ice_flushBatchRequests_name);
-        result.__wait();
+        IceInternal.ProxyFlushBatch result = IceInternal.ProxyFlushBatch.check(r, this, _ice_flushBatchRequests_name);
+        result.waitForResponseOrUserEx();
     }
 
     /**
@@ -2543,20 +2599,20 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
         return false;
     }
 
-    public void __write(OutputStream os)
+    public void _write(OutputStream os)
     {
-        _reference.getIdentity().__write(os);
+        _reference.getIdentity().ice_writeMembers(os);
         _reference.streamWrite(os);
     }
 
     public final IceInternal.Reference
-    __reference()
+    _getReference()
     {
         return _reference;
     }
 
     public final void
-    __copyFrom(ObjectPrx from)
+    _copyFrom(ObjectPrx from)
     {
         synchronized(from)
         {
@@ -2567,10 +2623,10 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final int
-    __handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent,
-                      Holder<Integer> interval, int cnt)
+    _handleException(Exception ex, IceInternal.RequestHandler handler, OperationMode mode, boolean sent,
+                     Holder<Integer> interval, int cnt)
     {
-        __updateRequestHandler(handler, null); // Clear the request handler
+        _updateRequestHandler(handler, null); // Clear the request handler
 
         //
         // We only retry local exception, system exceptions aren't retried.
@@ -2614,7 +2670,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final void
-    __checkTwowayOnly(String name)
+    _checkTwowayOnly(String name)
     {
         //
         // No mutex lock necessary, there is nothing mutable in this
@@ -2630,7 +2686,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final void
-    __checkAsyncTwowayOnly(String name)
+    _checkAsyncTwowayOnly(String name)
     {
         //
         // No mutex lock necessary, there is nothing mutable in this
@@ -2644,12 +2700,12 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final void
-    __end(AsyncResult r, String operation)
+    _end(AsyncResult r, String operation)
     {
         IceInternal.ProxyOutgoingAsyncBase result = IceInternal.ProxyOutgoingAsyncBase.check(r, this, operation);
         try
         {
-            boolean ok = result.__wait();
+            boolean ok = result.waitForResponseOrUserEx();
             if(_reference.getMode() == IceInternal.Reference.ModeTwoway)
             {
                 IceInternal.OutgoingAsync outAsync = (IceInternal.OutgoingAsync)result;
@@ -2677,7 +2733,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public final IceInternal.RequestHandler
-    __getRequestHandler()
+    _getRequestHandler()
     {
         if(_reference.getCacheConnection())
         {
@@ -2693,7 +2749,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     synchronized public final IceInternal.BatchRequestQueue
-    __getBatchRequestQueue()
+    _getBatchRequestQueue()
     {
         if(_batchRequestQueue == null)
         {
@@ -2703,7 +2759,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public IceInternal.RequestHandler
-    __setRequestHandler(IceInternal.RequestHandler handler)
+    _setRequestHandler(IceInternal.RequestHandler handler)
     {
         if(_reference.getCacheConnection())
         {
@@ -2720,7 +2776,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     }
 
     public void
-    __updateRequestHandler(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
+    _updateRequestHandler(IceInternal.RequestHandler previous, IceInternal.RequestHandler handler)
     {
         if(_reference.getCacheConnection() && previous != null)
         {
@@ -2758,7 +2814,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     // Only for use by IceInternal.ProxyFactory
     //
     public final void
-    __setup(IceInternal.Reference ref)
+    _setup(IceInternal.Reference ref)
     {
         //
         // No need to synchronize, as this operation is only called
@@ -2819,7 +2875,15 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                         ObjectPrxHelperBase h = null;
                         try
                         {
-                            h = ObjectPrxHelperBase.class.cast(helperCls.newInstance());
+                            h = ObjectPrxHelperBase.class.cast(helperCls.getDeclaredConstructor().newInstance());
+                        }
+                        catch(NoSuchMethodException ex)
+                        {
+                            throw new SyscallException(ex);
+                        }
+                        catch(java.lang.reflect.InvocationTargetException ex)
+                        {
+                            throw new SyscallException(ex);
                         }
                         catch(InstantiationException ex)
                         {
@@ -2829,7 +2893,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                         {
                             throw new SyscallException(ex);
                         }
-                        h.__copyFrom(obj);
+                        h._copyFrom(obj);
                         d = proxyCls.cast(h);
                     }
                 }
@@ -2861,8 +2925,8 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
             {
                 if(explicitFacet)
                 {
-                    ObjectPrxHelperBase h = ObjectPrxHelperBase.class.cast(helperCls.newInstance());
-                    h.__copyFrom(obj.ice_facet(facet));
+                    ObjectPrxHelperBase h = ObjectPrxHelperBase.class.cast(helperCls.getDeclaredConstructor().newInstance());
+                    h._copyFrom(obj.ice_facet(facet));
                     d = proxyCls.cast(h);
                 }
                 else
@@ -2873,11 +2937,19 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
                     }
                     else
                     {
-                        ObjectPrxHelperBase h = ObjectPrxHelperBase.class.cast(helperCls.newInstance());
-                        h.__copyFrom(obj);
+                        ObjectPrxHelperBase h = ObjectPrxHelperBase.class.cast(helperCls.getDeclaredConstructor().newInstance());
+                        h._copyFrom(obj);
                         d = proxyCls.cast(h);
                     }
                 }
+            }
+            catch(NoSuchMethodException ex)
+            {
+                throw new SyscallException(ex);
+            }
+            catch(java.lang.reflect.InvocationTargetException ex)
+            {
+                throw new SyscallException(ex);
             }
             catch(InstantiationException ex)
             {
@@ -2920,9 +2992,25 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
     {
         try
         {
-            ObjectPrxHelperBase proxy = getClass().newInstance();
-            proxy.__setup(ref);
+            ObjectPrxHelperBase proxy = getClass().getDeclaredConstructor().newInstance();
+            proxy._setup(ref);
             return proxy;
+        }
+        catch(NoSuchMethodException e)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
+        }
+        catch(java.lang.reflect.InvocationTargetException e)
+        {
+            //
+            // Impossible
+            //
+            assert false;
+            return null;
         }
         catch(InstantiationException e)
         {
@@ -2951,7 +3039,7 @@ public class ObjectPrxHelperBase implements ObjectPrx, java.io.Serializable
 
     private void
     readObject(java.io.ObjectInputStream in)
-         throws java.io.IOException, ClassNotFoundException
+        throws java.io.IOException, ClassNotFoundException
     {
         String s = in.readUTF();
         try

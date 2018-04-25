@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -23,8 +23,8 @@ class PatcherFeedbackI : public PatcherFeedback
 {
 public:
 
-    PatcherFeedbackI(const string& node, 
-                     const NodeSessionIPtr& session, 
+    PatcherFeedbackI(const string& node,
+                     const NodeSessionIPtr& session,
                      const Ice::Identity id,
                      const PatcherFeedbackAggregatorPtr& aggregator) :
         _node(node),
@@ -60,7 +60,7 @@ PatcherFeedbackAggregator::PatcherFeedbackAggregator(Ice::Identity id,
                                                      const TraceLevelsPtr& traceLevels,
                                                      const string& type,
                                                      const string& name,
-                                                     int nodeCount) : 
+                                                     int nodeCount) :
     _id(id),
     _traceLevels(traceLevels),
     _type(type),
@@ -81,13 +81,13 @@ PatcherFeedbackAggregator::finished(const string& node)
     {
         return;
     }
-    
+
     if(_traceLevels->patch > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
         out << "finished patching of " << _type << " `" << _name << "' on node `" << node << "'";
     }
-    
+
     _successes.insert(node);
     checkIfDone();
 }
@@ -100,13 +100,13 @@ PatcherFeedbackAggregator::failed(const string& node, const string& failure)
     {
         return;
     }
-    
+
     if(_traceLevels->patch > 0)
     {
         Ice::Trace out(_traceLevels->logger, _traceLevels->patchCat);
         out << "patching of " << _type << " `" << _name << "' on node `" << node <<"' failed:\n" << failure;
     }
-    
+
     _failures.insert(node);
     _reasons.push_back("patch on node `" + node + "' failed:\n" + failure);
     checkIfDone();
@@ -131,8 +131,8 @@ PatcherFeedbackAggregator::checkIfDone()
     }
 }
 
-NodeSessionI::NodeSessionI(const DatabasePtr& database, 
-                           const NodePrx& node, 
+NodeSessionI::NodeSessionI(const DatabasePtr& database,
+                           const NodePrx& node,
                            const InternalNodeInfoPtr& info,
                            int timeout,
                            const LoadInfo& load) :
@@ -265,9 +265,9 @@ NodeSessionI::getServers(const Ice::Current&) const
 }
 
 void
-NodeSessionI::waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr& cb, 
-                                             const std::string& application, 
-                                             int revision, 
+NodeSessionI::waitForApplicationUpdate_async(const AMD_NodeSession_waitForApplicationUpdatePtr& cb,
+                                             const std::string& application,
+                                             int revision,
                                              const Ice::Current&) const
 {
     _database->waitForApplicationUpdate(cb, application, revision);
@@ -297,10 +297,10 @@ NodeSessionI::shutdown()
 }
 
 void
-NodeSessionI::patch(const PatcherFeedbackAggregatorPtr& aggregator, 
+NodeSessionI::patch(const PatcherFeedbackAggregatorPtr& aggregator,
                     const string& application,
                     const string& server,
-                    const InternalDistributionDescriptorPtr& dist, 
+                    const InternalDistributionDescriptorPtr& dist,
                     bool shutdown)
 {
     Ice::Identity id;
@@ -368,7 +368,7 @@ NodeSessionI::destroyImpl(bool shutdown)
         if(_destroy)
         {
             throw Ice::ObjectNotExistException(__FILE__, __LINE__);
-        }       
+        }
         _destroy = true;
     }
 
@@ -378,7 +378,7 @@ NodeSessionI::destroyImpl(bool shutdown)
     //
     // If the registry isn't being shutdown we remove the node
     // internal proxy from the database.
-    // 
+    //
     if(!shutdown)
     {
         _database->removeInternalObject(_node->ice_getIdentity());
@@ -443,4 +443,3 @@ NodeSessionI::removeFeedback(const PatcherFeedbackPtr& feedback, const Ice::Iden
         _feedbacks.erase(feedback);
     }
 }
-

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,11 +9,27 @@
 
 package test.Ice.ami;
 
+import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntf;
 import test.Ice.ami.Test.TestIntfException;
+import test.Ice.ami.Test.PingReplyPrx;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.CompletableFuture;
 
 public class TestI implements TestIntf
 {
+    private static void test(boolean b)
+    {
+        if(!b)
+        {
+            new Throwable().printStackTrace();
+            //
+            // Exceptions raised by callbacks are swallowed by CompletableFuture.
+            //
+            throw new RuntimeException();
+        }
+    }
+
     TestI()
     {
     }
@@ -52,6 +68,12 @@ public class TestI implements TestIntf
     public synchronized int opBatchCount(com.zeroc.Ice.Current current)
     {
         return _batchCount;
+    }
+
+    @Override
+    public boolean supportsAMD(com.zeroc.Ice.Current current)
+    {
+        return true;
     }
 
     @Override
@@ -103,6 +125,17 @@ public class TestI implements TestIntf
     }
 
     @Override
+    public void pingBiDir(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
+    {
+        PingReplyPrx p = PingReplyPrx.uncheckedCast(current.con.createProxy(id));
+        p.replyAsync().whenCompleteAsync(
+            (result, ex) ->
+            {
+                test(Thread.currentThread().getName().indexOf("Ice.ThreadPool.Server") != -1);
+            }, p.ice_executor()).join();
+    }
+
+    @Override
     public synchronized boolean
     waitForBatch(int count, com.zeroc.Ice.Current current)
     {
@@ -123,17 +156,73 @@ public class TestI implements TestIntf
 
     @Override
     public void
-    close(boolean force, com.zeroc.Ice.Current current)
+    close(CloseMode mode, com.zeroc.Ice.Current current)
     {
-        current.con.close(force);
+        current.con.close(com.zeroc.Ice.ConnectionClose.valueOf(mode.value()));
     }
 
     @Override
     public void
+    sleep(int ms, com.zeroc.Ice.Current current)
+    {
+        try
+        {
+            Thread.sleep(ms);
+        }
+        catch(InterruptedException ex)
+        {
+        }
+    }
+
+    @Override
+    public synchronized CompletionStage<Void>
+    startDispatchAsync(com.zeroc.Ice.Current current)
+    {
+        if(_shutdown)
+        {
+            // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+            // before start dispatch.
+            CompletableFuture<Void> v = new CompletableFuture<>();
+            v.complete(null);
+            return v;
+        }
+        else if(_pending != null)
+        {
+            _pending.complete(null);
+        }
+        _pending = new CompletableFuture<>();
+        return _pending;
+    }
+
+    @Override
+    public synchronized void
+    finishDispatch(com.zeroc.Ice.Current current)
+    {
+        if(_shutdown)
+        {
+            return;
+        }
+        else if(_pending != null) // Pending might not be set yet if startDispatch is dispatch out-of-order
+        {
+            _pending.complete(null);
+            _pending = null;
+        }
+    }
+
+    @Override
+    public synchronized void
     shutdown(com.zeroc.Ice.Current current)
     {
+        _shutdown = true;
+        if(_pending != null)
+        {
+            _pending.complete(null);
+            _pending = null;
+        }
         current.adapter.getCommunicator().shutdown();
     }
 
     private int _batchCount;
+    private boolean _shutdown = false;
+    private CompletableFuture<Void> _pending = null;
 }

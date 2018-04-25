@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
 
-public class AllTests : TestCommon.TestApp
+public class AllTests : TestCommon.AllTests
 {
     private class Callback
     {
@@ -76,11 +76,12 @@ public class AllTests : TestCommon.TestApp
         return null;
     }
 
-    public static TestIntfPrx allTests(Ice.Communicator communicator, bool collocated)
+    public static TestIntfPrx allTests(TestCommon.Application app, bool collocated)
     {
+        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        Ice.ObjectPrx basePrx = communicator.stringToProxy("Test:default -p 12010 -t 2000");
+        Ice.ObjectPrx basePrx = communicator.stringToProxy("Test:" + app.getTestEndpoint(0) + " -t 2000");
         test(basePrx != null);
         WriteLine("ok");
 
@@ -399,7 +400,8 @@ public class AllTests : TestCommon.TestApp
                 Ice.Value o = testPrx.SUnknownAsObject();
                 test(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0));
                 test(o is Ice.UnknownSlicedValue);
-                test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
+                test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
+                test((o as Ice.UnknownSlicedValue).ice_getSlicedData() != null);
                 testPrx.checkSUnknown(o);
             }
             catch(Ice.NoValueFactoryException)
@@ -457,7 +459,7 @@ public class AllTests : TestCommon.TestApp
                             (Ice.Value o) =>
                             {
                                 test(o is Ice.UnknownSlicedValue);
-                                test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
+                                test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                                 cb.called();
                             },
                             (Ice.Exception ex) =>
@@ -470,7 +472,7 @@ public class AllTests : TestCommon.TestApp
                     {
                         var o = testPrx.SUnknownAsObjectAsync().Result;
                         test(o is Ice.UnknownSlicedValue);
-                        test((o as Ice.UnknownSlicedValue).getUnknownTypeId().Equals("::Test::SUnknown"));
+                        test((o as Ice.UnknownSlicedValue).ice_id().Equals("::Test::SUnknown"));
                     }
                     catch(AggregateException)
                     {
@@ -2683,7 +2685,15 @@ public class AllTests : TestCommon.TestApp
             testPrx.checkPBSUnknown(p);
             if(!testPrx.ice_getEncodingVersion().Equals(Ice.Util.Encoding_1_0))
             {
+                Ice.SlicedData slicedData = p.ice_getSlicedData();
+                test(slicedData != null);
+                test(slicedData.slices.Length == 1);
+                test(slicedData.slices[0].typeId.Equals("::Test::PSUnknown"));
                 (testPrx.ice_encodingVersion(Ice.Util.Encoding_1_0) as TestIntfPrx).checkPBSUnknown(p);
+            }
+            else
+            {
+                test(p.ice_getSlicedData() == null);
             }
         }
         catch(Ice.OperationNotExistException)
@@ -3087,7 +3097,7 @@ public class AllTests : TestCommon.TestApp
             // type is unknown. A data member in the preserved slice refers to the
             // outer object, so the chain of references looks like this:
             //
-            // outer.slicedData.outer
+            // outer.iceSlicedData_.outer
             //
             {
                 PreservedI.counter = 0;
@@ -3106,7 +3116,7 @@ public class AllTests : TestCommon.TestApp
             //
             // The chain of references looks like this:
             //
-            // ex.slicedData.obj.slicedData.obj
+            // ex.slicedData_.obj.iceSlicedData_.obj
             //
             try
             {

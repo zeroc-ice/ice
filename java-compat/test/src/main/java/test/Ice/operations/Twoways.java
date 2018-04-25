@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -55,9 +55,10 @@ class Twoways
     twoways(Application app, MyClassPrx p)
     {
         Communicator communicator = app.communicator();
-        
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
+
         String[] literals = p.opStringLiterals();
-        
+
         test(s0.value.equals("\\") &&
              s0.value.equals(sw0.value) &&
              s0.value.equals(literals[0]) &&
@@ -72,8 +73,8 @@ class Twoways
              s2.value.equals(sw2.value) &&
              s2.value.equals(literals[2]) &&
              s2.value.equals(literals[13]));
-        
-        test(s3.value.equals("A21") && 
+
+        test(s3.value.equals("A21") &&
              s3.value.equals(sw3.value) &&
              s3.value.equals(literals[3]) &&
              s3.value.equals(literals[14]));
@@ -102,7 +103,7 @@ class Twoways
              s8.value.equals(sw8.value) &&
              s8.value.equals(literals[8]) &&
              s8.value.equals(literals[19]));
-        
+
         test(s9.value.equals("\uD83C\uDF4C") &&
              s9.value.equals(sw9.value) &&
              s9.value.equals(literals[9]) &&
@@ -112,14 +113,14 @@ class Twoways
              s10.value.equals(sw10.value) &&
              s10.value.equals(literals[10]) &&
              s10.value.equals(literals[21]));
-    
-        test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b") &&
+
+        test(ss0.value.equals("\'\"\u003f\\\u0007\b\f\n\r\t\u000b\6") &&
              ss0.value.equals(ss1.value) &&
              ss0.value.equals(ss2.value) &&
              ss0.value.equals(literals[22]) &&
              ss0.value.equals(literals[23]) &&
              ss0.value.equals(literals[24]));
-        
+
         test(ss3.value.equals("\\\\U\\u\\") &&
              ss3.value.equals(literals[25]));
 
@@ -128,7 +129,7 @@ class Twoways
 
         test(ss5.value.equals("\\u0041\\") &&
              ss5.value.equals(literals[27]));
-             
+
         test(su0.value.equals(su1.value) &&
              su0.value.equals(su2.value) &&
              su0.value.equals(literals[28]) &&
@@ -137,11 +138,11 @@ class Twoways
 
         p.ice_ping();
 
-        test(p.ice_isA(MyClass.ice_staticId()));
+        test(p.ice_isA(_MyClassDisp.ice_staticId()));
 
-        test(p.ice_id().equals(MyDerivedClass.ice_staticId()));
+        test(p.ice_id().equals(_MyDerivedClassDisp.ice_staticId()));
 
-        test(MyDerivedClassPrxHelper.ice_staticId().equals(MyDerivedClass.ice_staticId()));
+        test(MyDerivedClassPrxHelper.ice_staticId().equals(_MyDerivedClassDisp.ice_staticId()));
         test(ObjectPrxHelper.ice_staticId().equals(Object.ice_staticId));
         test(LocatorPrxHelper.ice_staticId().equals(Locator.ice_staticId));
 
@@ -955,14 +956,14 @@ class Twoways
             List<Map<Long, Float>> dsi2 = new ArrayList<>();
 
             Map<Long, Float> di1 = new HashMap<>();
-            di1.put(999999110L, new Float(-1.1));
-            di1.put(999999111L, new Float(123123.2));
+            di1.put(999999110L, Float.valueOf((float)-1.1));
+            di1.put(999999111L, Float.valueOf((float)123123.2));
             Map<Long, Float> di2 = new HashMap<>();
-            di2.put(999999110L, new Float(-1.1));
-            di2.put(999999120L, new Float(-100.4));
-            di2.put(999999130L, new Float(0.5));
+            di2.put(999999110L, Float.valueOf((float)-1.1));
+            di2.put(999999120L, Float.valueOf((float)-100.4));
+            di2.put(999999130L, Float.valueOf((float)0.5));
             Map<Long, Float> di3 = new HashMap<>();
-            di3.put(999999140L, new Float(3.14));
+            di3.put(999999140L, Float.valueOf((float)3.14));
 
             dsi1.add(di1);
             dsi1.add(di2);
@@ -1393,7 +1394,6 @@ class Twoways
             StringStringSDHolder _do = new StringStringSDHolder();
             java.util.Map<String, String[]> ro = p.opStringStringSD(sdi1, sdi2, _do);
 
-
             test(_do.value.size() == 1);
             test(_do.value.get("ghi").length== 2);
             test(_do.value.get("ghi")[0].equals("and"));
@@ -1487,7 +1487,7 @@ class Twoways
             }
         }
 
-        if(p.ice_getConnection() != null)
+        if(p.ice_getConnection() != null && !bluetooth)
         {
             //
             // Test implicit context propagation
@@ -1507,7 +1507,7 @@ class Twoways
                 ctx.put("two", "TWO");
                 ctx.put("three", "THREE");
 
-                MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:default -p 12010"));
+                MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + app.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(ic.getImplicitContext().getContext().equals(ctx));
@@ -1571,7 +1571,7 @@ class Twoways
         p.opIdempotent();
 
         p.opNonmutating();
-        
+
         test(p.opByte1((byte)0xFF) == (byte)0xFF);
         test(p.opShort1((short)0x7FFF) == (short)0x7FFF);
         test(p.opInt1(0x7FFFFFFF) == 0x7FFFFFFF);
@@ -1583,8 +1583,7 @@ class Twoways
         test(p.opByteBoolD1(null).size() == 0);
         test(p.opStringS2(null).length == 0);
         test(p.opByteBoolD2(null).size() == 0);
-        
-        
+
         MyDerivedClassPrx d = MyDerivedClassPrxHelper.uncheckedCast(p);
         MyStruct1 s = new MyStruct1();
         s.tesT = "Test.MyStruct1.s";

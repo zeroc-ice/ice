@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@ import java.util.UUID;
 
 final class EndpointI extends IceInternal.EndpointI
 {
-    public EndpointI(Instance instance, String addr, UUID uuid, String name, int channel, int timeout,
+    public EndpointI(Instance instance, String addr, String uuid, String name, int channel, int timeout,
                      String connectionId, boolean compress)
     {
         _instance = instance;
@@ -32,7 +32,7 @@ final class EndpointI extends IceInternal.EndpointI
     {
         _instance = instance;
         _addr = "";
-        _uuid = null;
+        _uuid = "";
         _name = "";
         _channel = 0;
         _timeout = instance.defaultTimeout();
@@ -49,22 +49,9 @@ final class EndpointI extends IceInternal.EndpointI
         //
         _name = "";
         _channel = 0;
-
+        _connectionId = "";
         _addr = s.readString().toUpperCase();
-        if(!BluetoothAdapter.checkBluetoothAddress(_addr))
-        {
-            throw new Ice.MarshalException("invalid address `" + _addr + "' in endpoint");
-        }
-
-        try
-        {
-            _uuid = UUID.fromString(s.readString());
-        }
-        catch(IllegalArgumentException ex)
-        {
-            throw new Ice.MarshalException("invalid UUID for Bluetooth endpoint", ex);
-        }
-
+        _uuid = s.readString();
         _timeout = s.readInt();
         _compress = s.readBool();
         hashInit();
@@ -77,7 +64,7 @@ final class EndpointI extends IceInternal.EndpointI
         // _name and _channel are not marshaled.
         //
         s.writeString(_addr);
-        s.writeString(_uuid.toString());
+        s.writeString(_uuid);
         s.writeInt(_timeout);
         s.writeBool(_compress);
     }
@@ -184,8 +171,28 @@ final class EndpointI extends IceInternal.EndpointI
     }
 
     @Override
-    public java.util.List<IceInternal.EndpointI> expand()
+    public java.util.List<IceInternal.EndpointI> expandIfWildcard()
     {
+        java.util.List<IceInternal.EndpointI> endps = new java.util.ArrayList<IceInternal.EndpointI>();
+        if(_addr.isEmpty())
+        {
+            //
+            // Starting in Android 6 (API 23), BluetoothAdapter.getAddress() returns a bogus constant value.
+            //
+            String addr = BluetoothAdapter.getDefaultAdapter().getAddress();
+            endps.add(new EndpointI(_instance, addr, _uuid, _name, _channel, _timeout, _connectionId, _compress));
+        }
+        else
+        {
+            endps.add(this);
+        }
+        return endps;
+    }
+
+    @Override
+    public java.util.List<IceInternal.EndpointI> expandHost(Ice.Holder<IceInternal.EndpointI> publish)
+    {
+        publish.value = null;
         java.util.List<IceInternal.EndpointI> endps = new java.util.ArrayList<IceInternal.EndpointI>();
         endps.add(this);
         return endps;
@@ -215,7 +222,7 @@ final class EndpointI extends IceInternal.EndpointI
         //
         String s = "";
 
-        if(_addr != null && _addr.length() > 0)
+        if(!_addr.isEmpty())
         {
             s += " -a ";
             boolean addQuote = _addr.indexOf(':') != -1;
@@ -230,16 +237,15 @@ final class EndpointI extends IceInternal.EndpointI
             }
         }
 
-        if(_uuid != null)
+        if(!_uuid.isEmpty())
         {
             s += " -u ";
-            String uuidStr = _uuid.toString();
-            boolean addQuote = uuidStr.indexOf(':') != -1;
+            boolean addQuote = _uuid.indexOf(':') != -1;
             if(addQuote)
             {
                 s += "\"";
             }
-            s += uuidStr;
+            s += _uuid;
             if(addQuote)
             {
                 s += "\"";
@@ -272,7 +278,7 @@ final class EndpointI extends IceInternal.EndpointI
     {
         super.initWithOptions(args);
 
-        if(_addr.length() == 0)
+        if(_addr.isEmpty())
         {
             _addr = _instance.defaultHost();
             if(_addr == null)
@@ -280,35 +286,31 @@ final class EndpointI extends IceInternal.EndpointI
                 _addr = "";
             }
         }
-
-        if(_addr.length() == 0 || _addr.equals("*"))
+        else if(_addr.equals("*"))
         {
             if(oaEndpoint)
             {
-                //
-                // Ignore a missing address, we always use the default adapter anyway.
-                //
+                _addr = "";
             }
             else
             {
-                throw new Ice.EndpointParseException(
-                    "a device address must be specified using the -a option or Ice.Default.Host");
+                throw new Ice.EndpointParseException("`-a *' not valid for proxy endpoint `" + toString() + "'");
             }
         }
 
-        if(_name.length() == 0)
+        if(_name.isEmpty())
         {
             _name = "Ice Service";
         }
 
-        if(_uuid == null)
+        if(_uuid.isEmpty())
         {
             if(oaEndpoint)
             {
                 //
                 // Generate a UUID for object adapters that don't specify one.
                 //
-                _uuid = UUID.randomUUID();
+                _uuid = UUID.randomUUID().toString();
             }
             else
             {
@@ -343,7 +345,7 @@ final class EndpointI extends IceInternal.EndpointI
             }
         };
         info.addr = _addr;
-        info.uuid = _uuid.toString();
+        info.uuid = _uuid;
         return info;
     }
 
@@ -367,7 +369,7 @@ final class EndpointI extends IceInternal.EndpointI
             return v;
         }
 
-        v = _uuid.toString().compareTo(p._uuid.toString());
+        v = _uuid.compareTo(p._uuid);
         if(v != 0)
         {
             return v;
@@ -443,12 +445,13 @@ final class EndpointI extends IceInternal.EndpointI
             }
             try
             {
-                _uuid = UUID.fromString(argument);
+                UUID.fromString(argument);
             }
             catch(IllegalArgumentException ex)
             {
                 throw new Ice.EndpointParseException("invalid UUID for Bluetooth endpoint", ex);
             }
+            _uuid = argument;
         }
         else if(option.equals("-c"))
         {
@@ -532,7 +535,7 @@ final class EndpointI extends IceInternal.EndpointI
     {
         int h = 5381;
         h = IceInternal.HashUtil.hashAdd(h, _addr);
-        h = IceInternal.HashUtil.hashAdd(h, _uuid.toString());
+        h = IceInternal.HashUtil.hashAdd(h, _uuid);
         h = IceInternal.HashUtil.hashAdd(h, _timeout);
         h = IceInternal.HashUtil.hashAdd(h, _connectionId);
         h = IceInternal.HashUtil.hashAdd(h, _compress);
@@ -541,7 +544,7 @@ final class EndpointI extends IceInternal.EndpointI
 
     private Instance _instance;
     private String _addr;
-    private UUID _uuid;
+    private String _uuid;
     private String _name;
     private int _channel;
     private int _timeout;

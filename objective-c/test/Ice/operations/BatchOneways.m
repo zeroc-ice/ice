@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -52,7 +52,7 @@ batchOneways(id<TestOperationsMyClassPrx> p)
         [batch1 ice_ping];
         [batch2 ice_ping];
         [batch1 ice_flushBatchRequests];
-        [[batch1 ice_getConnection] close:NO];
+        [[batch1 ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         [batch1 ice_ping];
         [batch2 ice_ping];
 
@@ -60,7 +60,7 @@ batchOneways(id<TestOperationsMyClassPrx> p)
         [batch2 ice_getConnection];
 
         [batch1 ice_ping];
-        [[batch1 ice_getConnection] close:NO];
+        [[batch1 ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
         [batch1 ice_ping];
         [batch2 ice_ping];
     }

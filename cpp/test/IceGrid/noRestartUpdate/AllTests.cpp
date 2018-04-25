@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -156,7 +156,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(registry);
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::HeartbeatAlways);
+    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -324,8 +324,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         {
             admin->updateApplicationWithoutRestart(update);
         }
-        catch(const DeploymentException&)
+        catch(const DeploymentException& ex)
         {
+            cerr << ex.reason << endl;
             test(false);
         }
         catch(const Ice::Exception& ex)
@@ -541,19 +542,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         adapter.objects.push_back(object);
         service->adapters.push_back(adapter);
 
-        string iceboxExe = "/icebox";
-#if defined(__linux)
-#  if defined(__i386)
-        iceboxExe += "32";
-#  endif
-#  if defined(ICE_CPP11_COMPILER)
-        iceboxExe += "++11";
-#  endif
-#endif
-
         IceBoxDescriptorPtr icebox = new IceBoxDescriptor();
         icebox->id = "IceBox";
-        icebox->exe = properties->getProperty("IceBinDir") + iceboxExe;
+        icebox->exe = properties->getProperty("IceBoxExe");
         icebox->activation = "on-demand";
         icebox->applicationDistrib = false;
         icebox->allocatable = false;
@@ -563,6 +554,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
         service->name = "Service2";
         icebox->services[1].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
         service->name = "Service3";
+        // Test also with shared communicator because it uses different proxy name
+        // and thus different branches in code.
+        addProperty(icebox, "IceBox.UseSharedCommunicator.Service3", "1");
         icebox->services[2].descriptor = ServiceDescriptorPtr::dynamicCast(service->ice_clone());
 
         try

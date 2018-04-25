@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -44,7 +44,7 @@ Ice::LocalObject* Ice::upCast(ConnectionI* p) { return p; }
 namespace
 {
 
-const ::std::string __flushBatchRequests_name = "flushBatchRequests";
+const ::std::string flushBatchRequests_name = "flushBatchRequests";
 
 class TimeoutCallback : public IceUtil::TimerTask
 {
@@ -72,7 +72,7 @@ public:
     DispatchCall(const ConnectionIPtr& connection, const ConnectionI::StartCallbackPtr& startCB,
                  const vector<ConnectionI::OutgoingMessage>& sentCBs, Byte compress, Int requestId,
                  Int invokeNum, const ServantManagerPtr& servantManager, const ObjectAdapterPtr& adapter,
-                 const OutgoingAsyncBasePtr& outAsync, const ICE_HEARTBEAT_CALLBACK& heartbeatCallback,
+                 const OutgoingAsyncBasePtr& outAsync, const ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback,
                  InputStream& stream) :
         DispatchWorkItem(connection),
         _connection(connection),
@@ -108,7 +108,7 @@ private:
     const ServantManagerPtr _servantManager;
     const ObjectAdapterPtr _adapter;
     const OutgoingAsyncBasePtr _outAsync;
-    const ICE_HEARTBEAT_CALLBACK _heartbeatCallback;
+    const ICE_DELEGATE(HeartbeatCallback) _heartbeatCallback;
     InputStream _stream;
 };
 
@@ -133,17 +133,102 @@ private:
     const bool _close;
 };
 
+//
+// Class for handling Ice::Connection::begin_flushBatchRequests
+//
+class ConnectionFlushBatchAsync : public OutgoingAsyncBase
+{
+public:
+
+    ConnectionFlushBatchAsync(const Ice::ConnectionIPtr&, const InstancePtr&);
+
+    virtual Ice::ConnectionPtr getConnection() const;
+
+    void invoke(const std::string&, Ice::CompressBatch);
+
+private:
+
+    const Ice::ConnectionIPtr _connection;
+};
+typedef IceUtil::Handle<ConnectionFlushBatchAsync> ConnectionFlushBatchAsyncPtr;
+
 ConnectionState connectionStateMap[] = {
-    ConnectionStateValidating,   // StateNotInitialized
-    ConnectionStateValidating,   // StateNotValidated
-    ConnectionStateActive,       // StateActive
-    ConnectionStateHolding,      // StateHolding
-    ConnectionStateClosing,      // StateClosing
-    ConnectionStateClosing,      // StateClosingPending
-    ConnectionStateClosed,       // StateClosed
-    ConnectionStateClosed,       // StateFinished
+    ICE_ENUM(ConnectionState, ConnectionStateValidating),   // StateNotInitialized
+    ICE_ENUM(ConnectionState, ConnectionStateValidating),   // StateNotValidated
+    ICE_ENUM(ConnectionState, ConnectionStateActive),       // StateActive
+    ICE_ENUM(ConnectionState, ConnectionStateHolding),      // StateHolding
+    ICE_ENUM(ConnectionState, ConnectionStateClosing),      // StateClosing
+    ICE_ENUM(ConnectionState, ConnectionStateClosing),      // StateClosingPending
+    ICE_ENUM(ConnectionState, ConnectionStateClosed),       // StateClosed
+    ICE_ENUM(ConnectionState, ConnectionStateClosed),       // StateFinished
 };
 
+}
+
+ConnectionFlushBatchAsync::ConnectionFlushBatchAsync(const ConnectionIPtr& connection, const InstancePtr& instance) :
+    OutgoingAsyncBase(instance), _connection(connection)
+{
+}
+
+ConnectionPtr
+ConnectionFlushBatchAsync::getConnection() const
+{
+    return _connection;
+}
+
+void
+ConnectionFlushBatchAsync::invoke(const string& operation, Ice::CompressBatch compressBatch)
+{
+    _observer.attach(_instance.get(), operation);
+    try
+    {
+        AsyncStatus status;
+        bool compress;
+        int batchRequestNum = _connection->getBatchRequestQueue()->swap(&_os, compress);
+        if(batchRequestNum == 0)
+        {
+            status = AsyncStatusSent;
+            if(sent())
+            {
+                status = static_cast<AsyncStatus>(status | AsyncStatusInvokeSentCallback);
+            }
+        }
+        else
+        {
+            if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, Yes))
+            {
+                compress = true;
+            }
+            else if(compressBatch == ICE_SCOPED_ENUM(CompressBatch, No))
+            {
+                compress = false;
+            }
+            status = _connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, compress, false, batchRequestNum);
+        }
+
+        if(status & AsyncStatusSent)
+        {
+            _sentSynchronously = true;
+            if(status & AsyncStatusInvokeSentCallback)
+            {
+                invokeSent();
+            }
+        }
+    }
+    catch(const RetryException& ex)
+    {
+        if(exception(*ex.get()))
+        {
+            invokeExceptionAsync();
+        }
+    }
+    catch(const Exception& ex)
+    {
+        if(exception(ex))
+        {
+            invokeExceptionAsync();
+        }
+    }
 }
 
 Ice::ConnectionI::Observer::Observer() : _readStreamPos(0), _writeStreamPos(0)
@@ -209,7 +294,6 @@ Ice::ConnectionI::Observer::attach(const Ice::Instrumentation::ConnectionObserve
     }
 }
 
-
 void
 Ice::ConnectionI::OutgoingMessage::adopt(OutputStream* str)
 {
@@ -271,7 +355,7 @@ Ice::ConnectionI::OutgoingMessage::sent()
 
     if(outAsync)
     {
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
         invokeSent = outAsync->sent();
         return invokeSent || receivedReply;
 #else
@@ -409,29 +493,31 @@ Ice::ConnectionI::destroy(DestructionReason reason)
 }
 
 void
-Ice::ConnectionI::close(bool force)
+Ice::ConnectionI::close(ConnectionClose mode) ICE_NOEXCEPT
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
 
-    if(force)
+    if(mode == ICE_SCOPED_ENUM(ConnectionClose, Forcefully))
     {
-        setState(StateClosed, ForcedCloseConnectionException(__FILE__, __LINE__));
+        setState(StateClosed, ConnectionManuallyClosedException(__FILE__, __LINE__, false));
+    }
+    else if(mode == ICE_SCOPED_ENUM(ConnectionClose, Gracefully))
+    {
+        setState(StateClosing, ConnectionManuallyClosedException(__FILE__, __LINE__, true));
     }
     else
     {
+        assert(mode == ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
+
         //
-        // If we do a graceful shutdown, then we wait until all
-        // outstanding requests have been completed. Otherwise, the
-        // CloseConnectionException will cause all outstanding
-        // requests to be retried, regardless of whether the server
-        // has processed them or not.
+        // Wait until all outstanding requests have been completed.
         //
         while(!_asyncRequests.empty())
         {
             wait();
         }
 
-        setState(StateClosing, CloseConnectionException(__FILE__, __LINE__));
+        setState(StateClosing, ConnectionManuallyClosedException(__FILE__, __LINE__, true));
     }
 }
 
@@ -550,21 +636,22 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
     //
     // We send a heartbeat if there was no activity in the last
     // (timeout / 4) period. Sending a heartbeat sooner than really
-    // needed is safer to ensure that the receiver will receive in
-    // time the heartbeat. Sending the heartbeat if there was no
+    // needed is safer to ensure that the receiver will receive the
+    // heartbeat in time. Sending the heartbeat if there was no
     // activity in the last (timeout / 2) period isn't enough since
     // monitor() is called only every (timeout / 2) period.
     //
     // Note that this doesn't imply that we are sending 4 heartbeats
-    // per timeout period because the monitor() method is sill only
+    // per timeout period because the monitor() method is still only
     // called every (timeout / 2) period.
     //
-    if(acm.heartbeat == HeartbeatAlways ||
-       (acm.heartbeat != HeartbeatOff && _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
+    if(acm.heartbeat == ICE_ENUM(ACMHeartbeat, HeartbeatAlways) ||
+       (acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOff) &&
+        _writeStream.b.empty() && now >= (_acmLastActivity + acm.timeout / 4)))
     {
-        if(acm.heartbeat != HeartbeatOnInvocation || _dispatchCount > 0)
+        if(acm.heartbeat != ICE_ENUM(ACMHeartbeat, HeartbeatOnDispatch) || _dispatchCount > 0)
         {
-            heartbeat();
+            sendHeartbeatNow();
         }
     }
 
@@ -579,9 +666,10 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
         return;
     }
 
-    if(acm.close != CloseOff && now >= (_acmLastActivity + acm.timeout))
+    if(acm.close != ICE_ENUM(ACMClose, CloseOff) && now >= (_acmLastActivity + acm.timeout))
     {
-        if(acm.close == CloseOnIdleForceful || (acm.close != CloseOnIdle && !_asyncRequests.empty()))
+        if(acm.close == ICE_ENUM(ACMClose, CloseOnIdleForceful) ||
+           (acm.close != ICE_ENUM(ACMClose, CloseOnIdle) && !_asyncRequests.empty()))
         {
             //
             // Close the connection if we didn't receive a heartbeat in
@@ -589,8 +677,8 @@ Ice::ConnectionI::monitor(const IceUtil::Time& now, const ACMConfig& acm)
             //
             setState(StateClosed, ConnectionTimeoutException(__FILE__, __LINE__));
         }
-        else if(acm.close != CloseOnInvocation && _dispatchCount == 0 && _batchRequestQueue->isEmpty() &&
-                _asyncRequests.empty())
+        else if(acm.close != ICE_ENUM(ACMClose, CloseOnInvocation) &&
+                _dispatchCount == 0 && _batchRequestQueue->isEmpty() && _asyncRequests.empty())
         {
             //
             // The connection is idle, close it.
@@ -695,14 +783,9 @@ Ice::ConnectionI::getBatchRequestQueue() const
 }
 
 #ifdef ICE_CPP11_MAPPING
-void
-Ice::ConnectionI::flushBatchRequests()
-{
-    Connection::flushBatchRequestsAsync().get();
-}
-
 std::function<void()>
-Ice::ConnectionI::flushBatchRequestsAsync(::std::function<void(::std::exception_ptr)> ex,
+Ice::ConnectionI::flushBatchRequestsAsync(CompressBatch compress,
+                                          ::std::function<void(::std::exception_ptr)> ex,
                                           ::std::function<void(bool)> sent)
 {
     class ConnectionFlushBatchLambda : public ConnectionFlushBatchAsync, public LambdaInvoke
@@ -718,37 +801,42 @@ Ice::ConnectionI::flushBatchRequestsAsync(::std::function<void(::std::exception_
         }
     };
     auto outAsync = make_shared<ConnectionFlushBatchLambda>(ICE_SHARED_FROM_THIS, _instance, ex, sent);
-    outAsync->invoke(__flushBatchRequests_name);
+    outAsync->invoke(flushBatchRequests_name, compress);
     return [outAsync]() { outAsync->cancel(); };
 }
 #else
 void
-Ice::ConnectionI::flushBatchRequests()
+Ice::ConnectionI::flushBatchRequests(CompressBatch compress)
 {
-    end_flushBatchRequests(begin_flushBatchRequests());
+    end_flushBatchRequests(begin_flushBatchRequests(compress));
 }
 
 AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests()
+Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress)
 {
-    return __begin_flushBatchRequests(__dummyCallback, 0);
+    return _iceI_begin_flushBatchRequests(compress, dummyCallback, 0);
 }
 
 AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(const CallbackPtr& cb, const LocalObjectPtr& cookie)
-{
-    return __begin_flushBatchRequests(cb, cookie);
-}
-
-AsyncResultPtr
-Ice::ConnectionI::begin_flushBatchRequests(const Callback_Connection_flushBatchRequestsPtr& cb,
+Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress,
+                                           const CallbackPtr& cb,
                                            const LocalObjectPtr& cookie)
 {
-    return __begin_flushBatchRequests(cb, cookie);
+    return _iceI_begin_flushBatchRequests(compress, cb, cookie);
 }
 
 AsyncResultPtr
-Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
+Ice::ConnectionI::begin_flushBatchRequests(CompressBatch compress,
+                                           const Callback_Connection_flushBatchRequestsPtr& cb,
+                                           const LocalObjectPtr& cookie)
+{
+    return _iceI_begin_flushBatchRequests(compress, cb, cookie);
+}
+
+AsyncResultPtr
+Ice::ConnectionI::_iceI_begin_flushBatchRequests(CompressBatch compress,
+                                                 const CallbackBasePtr& cb,
+                                                 const LocalObjectPtr& cookie)
 {
     class ConnectionFlushBatchAsyncWithCallback : public ConnectionFlushBatchAsync, public CallbackCompletion
     {
@@ -780,7 +868,7 @@ Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const Lo
         virtual const std::string&
         getOperation() const
         {
-            return __flushBatchRequests_name;
+            return flushBatchRequests_name;
         }
 
     private:
@@ -789,28 +877,204 @@ Ice::ConnectionI::__begin_flushBatchRequests(const CallbackBasePtr& cb, const Lo
         Ice::ConnectionPtr _connection;
     };
 
-    ConnectionFlushBatchAsyncPtr result = new ConnectionFlushBatchAsyncWithCallback(this, _communicator, _instance, cb, cookie);
-    result->invoke(__flushBatchRequests_name);
+    ConnectionFlushBatchAsyncPtr result = new ConnectionFlushBatchAsyncWithCallback(this,
+                                                                                    _communicator,
+                                                                                    _instance,
+                                                                                    cb,
+                                                                                    cookie);
+    result->invoke(flushBatchRequests_name, compress);
     return result;
 }
 
 void
 Ice::ConnectionI::end_flushBatchRequests(const AsyncResultPtr& r)
 {
-    AsyncResult::__check(r, this, __flushBatchRequests_name);
-    r->__wait();
+    AsyncResult::_check(r, this, flushBatchRequests_name);
+    r->_waitForResponse();
+}
+#endif
+
+namespace
+{
+
+const ::std::string heartbeat_name = "heartbeat";
+
+class HeartbeatAsync : public OutgoingAsyncBase
+{
+public:
+
+    HeartbeatAsync(const ConnectionIPtr& connection,
+                   const CommunicatorPtr& communicator,
+                   const InstancePtr& instance) :
+        OutgoingAsyncBase(instance),
+        _communicator(communicator),
+        _connection(connection)
+    {
+    }
+
+    virtual CommunicatorPtr getCommunicator() const
+    {
+        return _communicator;
+    }
+
+    virtual ConnectionPtr getConnection() const
+    {
+        return _connection;
+    }
+
+    virtual const string& getOperation() const
+    {
+        return heartbeat_name;
+    }
+
+    void invoke()
+    {
+        _observer.attach(_instance.get(), heartbeat_name);
+        try
+        {
+            _os.write(magic[0]);
+            _os.write(magic[1]);
+            _os.write(magic[2]);
+            _os.write(magic[3]);
+            _os.write(currentProtocol);
+            _os.write(currentProtocolEncoding);
+            _os.write(validateConnectionMsg);
+            _os.write(static_cast<Byte>(0)); // Compression status (always zero for validate connection).
+            _os.write(headerSize); // Message size.
+            _os.i = _os.b.begin();
+
+            AsyncStatus status = _connection->sendAsyncRequest(ICE_SHARED_FROM_THIS, false, false, 0);
+            if(status & AsyncStatusSent)
+            {
+                _sentSynchronously = true;
+                if(status & AsyncStatusInvokeSentCallback)
+                {
+                    invokeSent();
+                }
+            }
+        }
+        catch(const RetryException& ex)
+        {
+            if(exception(*ex.get()))
+            {
+                invokeExceptionAsync();
+            }
+        }
+        catch(const Exception& ex)
+        {
+            if(exception(ex))
+            {
+                invokeExceptionAsync();
+            }
+        }
+    }
+
+private:
+
+    CommunicatorPtr _communicator;
+    ConnectionIPtr _connection;
+};
+typedef IceUtil::Handle<HeartbeatAsync> HeartbeatAsyncPtr;
+
+}
+
+#ifdef ICE_CPP11_MAPPING
+void
+Ice::ConnectionI::heartbeat()
+{
+    Connection::heartbeatAsync().get();
+}
+
+std::function<void()>
+Ice::ConnectionI::heartbeatAsync(::std::function<void(::std::exception_ptr)> ex, ::std::function<void(bool)> sent)
+{
+    class HeartbeatLambda : public HeartbeatAsync, public LambdaInvoke
+    {
+    public:
+
+        HeartbeatLambda(std::shared_ptr<Ice::ConnectionI>&& connection,
+                        std::shared_ptr<Ice::Communicator>& communicator,
+                        const InstancePtr& instance,
+                        std::function<void(std::exception_ptr)> ex,
+                        std::function<void(bool)> sent) :
+            HeartbeatAsync(connection, communicator, instance), LambdaInvoke(std::move(ex), std::move(sent))
+        {
+        }
+    };
+    auto outAsync = make_shared<HeartbeatLambda>(ICE_SHARED_FROM_THIS, _communicator, _instance, ex, sent);
+    outAsync->invoke();
+    return [outAsync]() { outAsync->cancel(); };
+}
+#else
+void
+Ice::ConnectionI::heartbeat()
+{
+    end_heartbeat(begin_heartbeat());
+}
+
+AsyncResultPtr
+Ice::ConnectionI::begin_heartbeat()
+{
+    return _iceI_begin_heartbeat(dummyCallback, 0);
+}
+
+AsyncResultPtr
+Ice::ConnectionI::begin_heartbeat(const CallbackPtr& cb, const LocalObjectPtr& cookie)
+{
+    return _iceI_begin_heartbeat(cb, cookie);
+}
+
+AsyncResultPtr
+Ice::ConnectionI::begin_heartbeat(const Callback_Connection_heartbeatPtr& cb, const LocalObjectPtr& cookie)
+{
+    return _iceI_begin_heartbeat(cb, cookie);
+}
+
+AsyncResultPtr
+Ice::ConnectionI::_iceI_begin_heartbeat(const CallbackBasePtr& cb, const LocalObjectPtr& cookie)
+{
+    class HeartbeatCallback : public HeartbeatAsync, public CallbackCompletion
+    {
+    public:
+
+        HeartbeatCallback(const ConnectionIPtr& connection,
+                          const CommunicatorPtr& communicator,
+                          const InstancePtr& instance,
+                          const CallbackBasePtr& callback,
+                          const LocalObjectPtr& cookie) :
+            HeartbeatAsync(connection, communicator, instance),
+            CallbackCompletion(callback, cookie)
+        {
+            _cookie = cookie;
+        }
+    };
+
+    HeartbeatAsyncPtr result = new HeartbeatCallback(this, _communicator, _instance, cb, cookie);
+    result->invoke();
+    return result;
+}
+
+void
+Ice::ConnectionI::end_heartbeat(const AsyncResultPtr& r)
+{
+    AsyncResult::_check(r, this, heartbeat_name);
+    r->_waitForResponse();
 }
 #endif
 
 void
-Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_HEARTBEAT_CALLBACK) callback)
+Ice::ConnectionI::setHeartbeatCallback(ICE_IN(ICE_DELEGATE(HeartbeatCallback)) callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_state >= StateClosed)
+    {
+        return;
+    }
     _heartbeatCallback = callback;
 }
 
 void
-Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_CLOSE_CALLBACK) callback)
+Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_DELEGATE(CloseCallback)) callback)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
@@ -821,7 +1085,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_CLOSE_CALLBACK) callback)
             {
             public:
 
-                CallbackWorkItem(const ConnectionIPtr& connection, ICE_IN(ICE_CLOSE_CALLBACK) callback) :
+                CallbackWorkItem(const ConnectionIPtr& connection, ICE_IN(ICE_DELEGATE(CloseCallback)) callback) :
                     _connection(connection),
 #ifdef ICE_CPP11_MAPPING
                     _callback(move(callback))
@@ -839,7 +1103,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_CLOSE_CALLBACK) callback)
             private:
 
                 const ConnectionIPtr _connection;
-                const ICE_CLOSE_CALLBACK _callback;
+                const ICE_DELEGATE(CloseCallback) _callback;
             };
 #ifdef ICE_CPP11_MAPPING
             _threadPool->dispatch(new CallbackWorkItem(ICE_SHARED_FROM_THIS, move(callback)));
@@ -855,7 +1119,7 @@ Ice::ConnectionI::setCloseCallback(ICE_IN(ICE_CLOSE_CALLBACK) callback)
 }
 
 void
-Ice::ConnectionI::closeCallback(const ICE_CLOSE_CALLBACK& callback)
+Ice::ConnectionI::closeCallback(const ICE_DELEGATE(CloseCallback)& callback)
 {
     try
     {
@@ -883,6 +1147,14 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
                          const IceUtil::Optional<Ice::ACMHeartbeat>& heartbeat)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(timeout && *timeout < 0)
+    {
+#ifdef ICE_CPP11_MAPPING
+        throw invalid_argument("invalid negative ACM timeout value");
+#else
+        throw IceUtil::IllegalArgumentException(__FILE__, __LINE__, "invalid negative ACM timeout value");
+#endif
+    }
     if(!_monitor || _state >= StateClosed)
     {
         return;
@@ -910,13 +1182,13 @@ Ice::ConnectionI::setACM(const IceUtil::Optional<int>& timeout,
 }
 
 ACM
-Ice::ConnectionI::getACM()
+Ice::ConnectionI::getACM() ICE_NOEXCEPT
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     ACM acm;
     acm.timeout = 0;
-    acm.close = CloseOff;
-    acm.heartbeat = HeartbeatOff;
+    acm.close = ICE_ENUM(ACMClose, CloseOff);
+    acm.heartbeat = ICE_ENUM(ACMHeartbeat, HeartbeatOff);
     return _monitor ? _monitor->getACM() : acm;
 }
 
@@ -1145,25 +1417,21 @@ Ice::ConnectionI::connector() const
 void
 Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 {
-    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
-
-    if(_state <= StateNotValidated || _state >= StateClosing)
+    if(adapter)
     {
-        return;
-    }
-
-    _adapter = adapter;
-
-    if(_adapter)
-    {
-        _servantManager = dynamic_cast<ObjectAdapterI*>(_adapter.get())->getServantManager();
-        if(!_servantManager)
-        {
-            _adapter = 0;
-        }
+        // Go through the adapter to set the adapter and servant manager on this connection
+        // to ensure the object adapter is still active.
+        dynamic_cast<ObjectAdapterI*>(adapter.get())->setAdapterOnConnection(ICE_SHARED_FROM_THIS);
     }
     else
     {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+        if(_state <= StateNotValidated || _state >= StateClosing)
+        {
+            return;
+        }
+
+        _adapter = 0;
         _servantManager = 0;
     }
 
@@ -1174,14 +1442,14 @@ Ice::ConnectionI::setAdapter(const ObjectAdapterPtr& adapter)
 }
 
 ObjectAdapterPtr
-Ice::ConnectionI::getAdapter() const
+Ice::ConnectionI::getAdapter() const ICE_NOEXCEPT
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     return _adapter;
 }
 
 EndpointPtr
-Ice::ConnectionI::getEndpoint() const
+Ice::ConnectionI::getEndpoint() const ICE_NOEXCEPT
 {
     return _endpoint; // No mutex protection necessary, _endpoint is immutable.
 }
@@ -1197,7 +1465,21 @@ Ice::ConnectionI::createProxy(const Identity& ident) const
         _instance->referenceFactory()->create(ident, ICE_SHARED_FROM_CONST_THIS(ConnectionI)));
 }
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+void
+Ice::ConnectionI::setAdapterAndServantManager(const ObjectAdapterPtr& adapter,
+                                              const IceInternal::ServantManagerPtr& servantManager)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_state <= StateNotValidated || _state >= StateClosing)
+    {
+        return;
+    }
+    assert(adapter); // Called by ObjectAdapterI::setAdapterOnConnection
+    _adapter = adapter;
+    _servantManager = servantManager;
+}
+
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
 bool
 Ice::ConnectionI::startAsync(SocketOperation operation)
 {
@@ -1308,7 +1590,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
     ServantManagerPtr servantManager;
     ObjectAdapterPtr adapter;
     OutgoingAsyncBasePtr outAsync;
-    ICE_HEARTBEAT_CALLBACK heartbeatCallback;
+    ICE_DELEGATE(HeartbeatCallback) heartbeatCallback;
     int dispatchCount = 0;
 
     ThreadPoolMessage<ConnectionI> msg(current, *this);
@@ -1387,9 +1669,7 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
                     _readStream.readBlob(m, static_cast<Int>(sizeof(magic)));
                     if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
                     {
-                        BadMagicException ex(__FILE__, __LINE__);
-                        ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(magic));
-                        throw ex;
+                        throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
                     }
                     ProtocolVersion pv;
                     _readStream.read(pv);
@@ -1578,7 +1858,7 @@ void
 ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMessage>& sentCBs,
                       Byte compress, Int requestId, Int invokeNum, const ServantManagerPtr& servantManager,
                       const ObjectAdapterPtr& adapter, const OutgoingAsyncBasePtr& outAsync,
-                      const ICE_HEARTBEAT_CALLBACK& heartbeatCallback, InputStream& stream)
+                      const ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback, InputStream& stream)
 {
     int dispatchedCount = 0;
 
@@ -1599,7 +1879,7 @@ ConnectionI::dispatch(const StartCallbackPtr& startCB, const vector<OutgoingMess
     {
         for(vector<OutgoingMessage>::const_iterator p = sentCBs.begin(); p != sentCBs.end(); ++p)
         {
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
             if(p->invokeSent)
             {
                 p->outAsync->invokeSent();
@@ -1755,7 +2035,7 @@ Ice::ConnectionI::finish(bool close)
             out << "closed " << _endpoint->protocol() << " connection\n" << toString();
 
             if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
-                 dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
+                 dynamic_cast<const ConnectionManuallyClosedException*>(_exception.get()) ||
                  dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
                  dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
                  dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get())))
@@ -1797,7 +2077,7 @@ Ice::ConnectionI::finish(bool close)
             OutgoingMessage* message = &_sendStreams.front();
             _writeStream.swap(*message->stream);
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
             //
             // The current message might be sent but not yet removed from _sendStreams. If
             // the response has been received in the meantime, we remove the message from
@@ -1821,7 +2101,6 @@ Ice::ConnectionI::finish(bool close)
             }
 #endif
         }
-
 
         for(deque<OutgoingMessage>::iterator o = _sendStreams.begin(); o != _sendStreams.end(); ++o)
         {
@@ -1877,7 +2156,7 @@ Ice::ConnectionI::finish(bool close)
 }
 
 string
-Ice::ConnectionI::toString() const
+Ice::ConnectionI::toString() const ICE_NOEXCEPT
 {
     return _desc; // No mutex lock, _desc is immutable.
 }
@@ -1907,13 +2186,13 @@ Ice::ConnectionI::timedOut()
 }
 
 string
-Ice::ConnectionI::type() const
+Ice::ConnectionI::type() const ICE_NOEXCEPT
 {
     return _type; // No mutex lock, _type is immutable.
 }
 
 Ice::Int
-Ice::ConnectionI::timeout() const
+Ice::ConnectionI::timeout() const ICE_NOEXCEPT
 {
     return _endpoint->timeout(); // No mutex lock, _endpoint is immutable.
 }
@@ -2076,7 +2355,7 @@ Ice::ConnectionI::setState(State state, const LocalException& ex)
             // Don't warn about certain expected exceptions.
             //
             if(!(dynamic_cast<const CloseConnectionException*>(&ex) ||
-                 dynamic_cast<const ForcedCloseConnectionException*>(&ex) ||
+                 dynamic_cast<const ConnectionManuallyClosedException*>(&ex) ||
                  dynamic_cast<const ConnectionTimeoutException*>(&ex) ||
                  dynamic_cast<const CommunicatorDestroyedException*>(&ex) ||
                  dynamic_cast<const ObjectAdapterDeactivatedException*>(&ex) ||
@@ -2255,7 +2534,7 @@ Ice::ConnectionI::setState(State state)
         if(_observer && state == StateClosed && _exception)
         {
             if(!(dynamic_cast<const CloseConnectionException*>(_exception.get()) ||
-                 dynamic_cast<const ForcedCloseConnectionException*>(_exception.get()) ||
+                 dynamic_cast<const ConnectionManuallyClosedException*>(_exception.get()) ||
                  dynamic_cast<const ConnectionTimeoutException*>(_exception.get()) ||
                  dynamic_cast<const CommunicatorDestroyedException*>(_exception.get()) ||
                  dynamic_cast<const ObjectAdapterDeactivatedException*>(_exception.get()) ||
@@ -2285,8 +2564,7 @@ Ice::ConnectionI::setState(State state)
 void
 Ice::ConnectionI::initiateShutdown()
 {
-    assert(_state == StateClosing);
-    assert(_dispatchCount == 0);
+    assert(_state == StateClosing && _dispatchCount == 0);
 
     if(_shutdownInitiated)
     {
@@ -2316,7 +2594,7 @@ Ice::ConnectionI::initiateShutdown()
             setState(StateClosingPending);
 
             //
-            // Notify the the transceiver of the graceful connection closure.
+            // Notify the transceiver of the graceful connection closure.
             //
             SocketOperation op = _transceiver->closing(true, *_exception);
             if(op)
@@ -2329,7 +2607,7 @@ Ice::ConnectionI::initiateShutdown()
 }
 
 void
-Ice::ConnectionI::heartbeat()
+Ice::ConnectionI::sendHeartbeatNow()
 {
     assert(_state == StateActive);
 
@@ -2460,9 +2738,7 @@ Ice::ConnectionI::validate(SocketOperation operation)
             _readStream.read(m[3]);
             if(m[0] != magic[0] || m[1] != magic[1] || m[2] != magic[2] || m[3] != magic[3])
             {
-                BadMagicException ex(__FILE__, __LINE__);
-                ex.badMagic = Ice::ByteSeq(&m[0], &m[0] + sizeof(magic));
-                throw ex;
+                throw BadMagicException(__FILE__, __LINE__, "", Ice::ByteSeq(&m[0], &m[0] + sizeof(magic)));
             }
             ProtocolVersion pv;
             _readStream.read(pv);
@@ -2876,9 +3152,7 @@ Ice::ConnectionI::doCompress(OutputStream& uncompressed, OutputStream& compresse
                                            _compressionLevel, 0, 0);
     if(bzError != BZ_OK)
     {
-        CompressionException ex(__FILE__, __LINE__);
-        ex.reason = "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError);
-        throw ex;
+        throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
     }
     compressed.b.resize(headerSize + sizeof(Int) + compressedLen);
 
@@ -2939,9 +3213,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
                                              0, 0);
     if(bzError != BZ_OK)
     {
-        CompressionException ex(__FILE__, __LINE__);
-        ex.reason = "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError);
-        throw ex;
+        throw CompressionException(__FILE__, __LINE__, "BZ2_bzBuffToBuffCompress failed" + getBZ2Error(bzError));
     }
 
     copy(compressed.b.begin(), compressed.b.begin() + headerSize, uncompressed.b.begin());
@@ -2951,7 +3223,7 @@ Ice::ConnectionI::doUncompress(InputStream& compressed, InputStream& uncompresse
 SocketOperation
 Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& requestId, Byte& compress,
                                ServantManagerPtr& servantManager, ObjectAdapterPtr& adapter,
-                               OutgoingAsyncBasePtr& outAsync, ICE_HEARTBEAT_CALLBACK& heartbeatCallback,
+                               OutgoingAsyncBasePtr& outAsync, ICE_DELEGATE(HeartbeatCallback)& heartbeatCallback,
                                int& dispatchCount)
 {
     assert(_state > StateNotValidated && _state < StateClosed);
@@ -2991,9 +3263,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
             doUncompress(stream, ustream);
             stream.b.swap(ustream.b);
 #else
-            FeatureNotSupportedException ex(__FILE__, __LINE__);
-            ex.unsupportedFeature = "Cannot uncompress compressed message";
-            throw ex;
+            throw FeatureNotSupportedException(__FILE__, __LINE__, "Cannot uncompress compressed message");
 #endif
         }
         stream.i = stream.b.begin() + headerSize;
@@ -3016,7 +3286,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
                     setState(StateClosingPending, CloseConnectionException(__FILE__, __LINE__));
 
                     //
-                    // Notify the the transceiver of the graceful connection closure.
+                    // Notify the transceiver of the graceful connection closure.
                     //
                     SocketOperation op = _transceiver->closing(false, *_exception);
                     if(op)
@@ -3107,7 +3377,7 @@ Ice::ConnectionI::parseMessage(InputStream& stream, Int& invokeNum, Int& request
 
                     stream.swap(*outAsync->getIs());
 
-#if defined(ICE_USE_IOCP) || defined(ICE_OS_WINRT)
+#if defined(ICE_USE_IOCP) || defined(ICE_OS_UWP)
                     //
                     // If we just received the reply of a request which isn't acknowledge as
                     // sent yet, we queue the reply instead of processing it right away. It

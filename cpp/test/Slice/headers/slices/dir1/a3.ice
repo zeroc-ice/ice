@@ -5,6 +5,6 @@ module Test
 
 class A3
 {
-};
+}
 
-};
+}

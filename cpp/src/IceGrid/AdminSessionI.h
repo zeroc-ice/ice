@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -35,7 +35,7 @@ public:
 
     virtual void keepAlive(const Ice::Current& current) { BaseSessionI::keepAlive(current); }
 
-    virtual AdminPrx getAdmin(const Ice::Current& = Ice::noExplicitCurrent) const;
+    virtual AdminPrx getAdmin(const Ice::Current&) const;
     virtual Ice::ObjectPrx getAdminCallbackTemplate(const Ice::Current&) const;
 
     virtual void setObservers(const RegistryObserverPrx&, const NodeObserverPrx&, const ApplicationObserverPrx&,
@@ -86,7 +86,7 @@ class AdminSessionFactory : public virtual IceUtil::Shared
 public:
 
     AdminSessionFactory(const SessionServantManagerPtr&, const DatabasePtr&, const ReapThreadPtr&, const RegistryIPtr&);
-    
+
     Glacier2::SessionPrx createGlacier2Session(const std::string&, const Glacier2::SessionControlPrx&);
     AdminSessionIPtr createSessionServant(const std::string&);
 
@@ -108,11 +108,11 @@ class AdminSessionManagerI : public virtual Glacier2::SessionManager
 public:
 
     AdminSessionManagerI(const AdminSessionFactoryPtr&);
-    
+
     virtual Glacier2::SessionPrx create(const std::string&, const Glacier2::SessionControlPrx&, const Ice::Current&);
 
 private:
-    
+
     const AdminSessionFactoryPtr _factory;
 };
 
@@ -121,11 +121,11 @@ class AdminSSLSessionManagerI : public virtual Glacier2::SSLSessionManager
 public:
 
     AdminSSLSessionManagerI(const AdminSessionFactoryPtr&);
-    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&, 
+    virtual Glacier2::SessionPrx create(const Glacier2::SSLInfo&, const Glacier2::SessionControlPrx&,
                                         const Ice::Current&);
 
 private:
-    
+
     const AdminSessionFactoryPtr _factory;
 };
 

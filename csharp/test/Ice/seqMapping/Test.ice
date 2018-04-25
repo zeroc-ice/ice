@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,109 +17,125 @@ sequence<byte> AByteS;
 ["clr:generic:LinkedList"] sequence<byte> KByteS;
 ["clr:generic:Queue"] sequence<byte> QByteS;
 ["clr:generic:Stack"] sequence<byte> SByteS;
+["clr:generic:Custom"] sequence<byte> CByteS;
 
 sequence<bool> ABoolS;
 ["clr:generic:List"] sequence<bool> LBoolS;
 ["clr:generic:LinkedList"] sequence<bool> KBoolS;
 ["clr:generic:Queue"] sequence<bool> QBoolS;
 ["clr:generic:Stack"] sequence<bool> SBoolS;
+["clr:generic:Custom"] sequence<bool> CBoolS;
 
 sequence<short> AShortS;
 ["clr:generic:List"] sequence<short> LShortS;
 ["clr:generic:LinkedList"] sequence<short> KShortS;
 ["clr:generic:Queue"] sequence<short> QShortS;
 ["clr:generic:Stack"] sequence<short> SShortS;
+["clr:generic:Custom"] sequence<short> CShortS;
 
 sequence<int> AIntS;
 ["clr:generic:List"] sequence<int> LIntS;
 ["clr:generic:LinkedList"] sequence<int> KIntS;
 ["clr:generic:Queue"] sequence<int> QIntS;
 ["clr:generic:Stack"] sequence<int> SIntS;
+["clr:generic:Custom"] sequence<int> CIntS;
 
 sequence<long> ALongS;
 ["clr:generic:List"] sequence<long> LLongS;
 ["clr:generic:LinkedList"] sequence<long> KLongS;
 ["clr:generic:Queue"] sequence<long> QLongS;
 ["clr:generic:Stack"] sequence<long> SLongS;
+["clr:generic:Custom"] sequence<long> CLongS;
 
 sequence<float> AFloatS;
 ["clr:generic:List"] sequence<float> LFloatS;
 ["clr:generic:LinkedList"] sequence<float> KFloatS;
 ["clr:generic:Queue"] sequence<float> QFloatS;
 ["clr:generic:Stack"] sequence<float> SFloatS;
+["clr:generic:Custom"] sequence<float> CFloatS;
 
 sequence<double> ADoubleS;
 ["clr:generic:List"] sequence<double> LDoubleS;
 ["clr:generic:LinkedList"] sequence<double> KDoubleS;
 ["clr:generic:Queue"] sequence<double> QDoubleS;
 ["clr:generic:Stack"] sequence<double> SDoubleS;
+["clr:generic:Custom"] sequence<double> CDoubleS;
 
 sequence<string> AStringS;
 ["clr:generic:List"] sequence<string> LStringS;
 ["clr:generic:LinkedList"] sequence<string> KStringS;
 ["clr:generic:Queue"] sequence<string> QStringS;
 ["clr:generic:Stack"] sequence<string> SStringS;
+["clr:generic:Custom"] sequence<string> CStringS;
 
 sequence<Object> AObjectS;
 ["clr:generic:List"] sequence<Object> LObjectS;
+["clr:generic:Custom"] sequence<Object> CObjectS;
 
 sequence<Object*> AObjectPrxS;
 ["clr:generic:List"] sequence<Object*> LObjectPrxS;
 ["clr:generic:LinkedList"] sequence<Object*> KObjectPrxS;
 ["clr:generic:Queue"] sequence<Object*> QObjectPrxS;
 ["clr:generic:Stack"] sequence<Object*> SObjectPrxS;
+["clr:generic:Custom"] sequence<Object*> CObjectPrxS;
 
 struct S
 {
     int i;
-};
+}
 
 sequence<S> AStructS;
 ["clr:generic:List"] sequence<S> LStructS;
 ["clr:generic:LinkedList"] sequence<S> KStructS;
 ["clr:generic:Queue"] sequence<S> QStructS;
 ["clr:generic:Stack"] sequence<S> SStructS;
+["clr:generic:Custom"] sequence<S> CStructS;
 
 struct SD
 {
     int i = 1;
-};
+}
 
 sequence<SD> AStructSD;
 ["clr:generic:List"] sequence<SD> LStructSD;
 ["clr:generic:LinkedList"] sequence<SD> KStructSD;
 ["clr:generic:Queue"] sequence<SD> QStructSD;
 ["clr:generic:Stack"] sequence<SD> SStructSD;
+["clr:generic:Custom"] sequence<SD> CStructSD;
 
 class CV
 {
     int i;
-};
+}
 
 sequence<CV> ACVS;
 ["clr:generic:List"] sequence<CV> LCVS;
 
-sequence<CV*> ACVPrxS;
-["clr:generic:List"] sequence<CV*> LCVPrxS;
-["clr:generic:LinkedList"] sequence<CV*> KCVPrxS;
-["clr:generic:Queue"] sequence<CV*> QCVPrxS;
-["clr:generic:Stack"] sequence<CV*> SCVPrxS;
+interface I {}
+sequence<I*> AIPrxS;
+["clr:generic:List"] sequence<I*> LIPrxS;
+["clr:generic:LinkedList"] sequence<I*> KIPrxS;
+["clr:generic:Queue"] sequence<I*> QIPrxS;
+["clr:generic:Stack"] sequence<I*> SIPrxS;
+["clr:generic:Custom"] sequence<I*> CIPrxS;
 
 class CR
 {
     CV v;
-};
+}
 
 sequence<CR> ACRS;
 ["clr:generic:List"] sequence<CR> LCRS;
+["clr:generic:Custom"] sequence<CR> CCRS;
 
-enum En { A, B, C };
+enum En { A, B, C }
 
 sequence<En> AEnS;
 ["clr:generic:List"] sequence<En> LEnS;
 ["clr:generic:LinkedList"] sequence<En> KEnS;
 ["clr:generic:Queue"] sequence<En> QEnS;
 ["clr:generic:Stack"] sequence<En> SEnS;
+["clr:generic:Custom"] sequence<En> CEnS;
 
 ["clr:generic:Custom"] sequence<int> CustomIntS;
 ["clr:generic:Custom"] sequence<CV> CustomCVS;
@@ -131,7 +147,7 @@ sequence<En> AEnS;
 ["clr:serializable:Serialize.Large"] sequence<byte> SerialLarge;
 ["clr:serializable:Serialize.Struct"] sequence<byte> SerialStruct;
 
-class MyClass
+interface MyClass
 {
     void shutdown();
 
@@ -216,11 +232,11 @@ class MyClass
     QEnS opQEnS(QEnS i, out QEnS o);
     SEnS opSEnS(SEnS i, out SEnS o);
 
-    ACVPrxS opACVPrxS(ACVPrxS i, out ACVPrxS o);
-    LCVPrxS opLCVPrxS(LCVPrxS i, out LCVPrxS o);
-    KCVPrxS opKCVPrxS(KCVPrxS i, out KCVPrxS o);
-    QCVPrxS opQCVPrxS(QCVPrxS i, out QCVPrxS o);
-    SCVPrxS opSCVPrxS(SCVPrxS i, out SCVPrxS o);
+    AIPrxS opAIPrxS(AIPrxS i, out AIPrxS o);
+    LIPrxS opLIPrxS(LIPrxS i, out LIPrxS o);
+    KIPrxS opKIPrxS(KIPrxS i, out KIPrxS o);
+    QIPrxS opQIPrxS(QIPrxS i, out QIPrxS o);
+    SIPrxS opSIPrxS(SIPrxS i, out SIPrxS o);
 
     CustomIntS opCustomIntS(CustomIntS i, out CustomIntS o);
     CustomCVS opCustomCVS(CustomCVS i, out CustomCVS o);
@@ -230,7 +246,7 @@ class MyClass
     SerialSmall opSerialSmallCSharp(SerialSmall i, out SerialSmall o);
     SerialLarge opSerialLargeCSharp(SerialLarge i, out SerialLarge o);
     SerialStruct opSerialStructCSharp(SerialStruct i, out SerialStruct o);
-};
+}
 
 // Remaining type definitions are there to verify that the generated
 // code compiles correctly.
@@ -242,18 +258,18 @@ struct Foo
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
 exception Bar
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
 class Baz
 {
     SerialLarge SLmem;
     SLS SLSmem;
-};
+}
 
-};
+}

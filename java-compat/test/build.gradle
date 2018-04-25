@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -10,11 +10,15 @@
 ext.testDir = "${projectDir}/src/main/java/test"
 apply from: "slice.gradle"
 
+def hasLambda = org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString().toFloat() >= 1.8f
+
 sourceSets {
     main {
         java {
+            if(!hasLambda) {
+                exclude '**/lambda'
+            }
             exclude 'plugins'
-            exclude 'controller'
             exclude 'ejb'
         }
     }
@@ -29,9 +33,11 @@ dependencies {
     compile localDependency('icestorm-compat')
     compile localDependency('icegrid-compat')
     compile project(':testPlugins')
-    compile project(':testController')
-    if(!gradle.startParameter.isOffline()) {
-        runtime "org.apache.tools:bzip2:1.0"
+}
+
+if(!gradle.startParameter.isOffline()) {
+    dependencies {
+        runtime "org.apache.commons:commons-compress:1.14"
     }
 }
 

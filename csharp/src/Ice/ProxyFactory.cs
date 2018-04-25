@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,7 +17,7 @@ namespace IceInternal
     {
         public Ice.ObjectPrx stringToProxy(string str)
         {
-            Reference r = instance_.referenceFactory().create(str, null);
+            Reference r = _instance.referenceFactory().create(str, null);
             return referenceToProxy(r);
         }
 
@@ -26,7 +26,7 @@ namespace IceInternal
             if(proxy != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
-                return h.reference__().ToString();
+                return h.iceReference().ToString();
             }
             else
             {
@@ -36,8 +36,8 @@ namespace IceInternal
 
         public Ice.ObjectPrx propertyToProxy(string prefix)
         {
-            string proxy = instance_.initializationData().properties.getProperty(prefix);
-            Reference r = instance_.referenceFactory().create(proxy, prefix);
+            string proxy = _instance.initializationData().properties.getProperty(prefix);
+            Reference r = _instance.referenceFactory().create(proxy, prefix);
             return referenceToProxy(r);
         }
 
@@ -46,7 +46,7 @@ namespace IceInternal
             if(proxy != null)
             {
                 Ice.ObjectPrxHelperBase h = (Ice.ObjectPrxHelperBase) proxy;
-                return h.reference__().toProperty(prefix);
+                return h.iceReference().toProperty(prefix);
             }
             else
             {
@@ -57,9 +57,9 @@ namespace IceInternal
         public Ice.ObjectPrx streamToProxy(Ice.InputStream s)
         {
             Ice.Identity ident = new Ice.Identity();
-            ident.read__(s);
+            ident.ice_readMembers(s);
 
-            Reference r = instance_.referenceFactory().create(ident, s);
+            Reference r = _instance.referenceFactory().create(ident, s);
             return referenceToProxy(r);
         }
 
@@ -79,8 +79,8 @@ namespace IceInternal
 
         public int checkRetryAfterException(Ice.LocalException ex, Reference @ref, ref int cnt)
         {
-            TraceLevels traceLevels = instance_.traceLevels();
-            Ice.Logger logger = instance_.initializationData().logger;
+            TraceLevels traceLevels = _instance.traceLevels();
+            Ice.Logger logger = _instance.initializationData().logger;
 
             //
             // We don't retry batch requests because the exception might have caused
@@ -170,12 +170,13 @@ namespace IceInternal
                 throw ex;
             }
 
-
             //
-            // Don't retry if the communicator is destroyed or object adapter
-            // deactivated.
+            // Don't retry if the communicator is destroyed, object adapter is deactivated,
+            // or connection is manually closed.
             //
-            if(ex is Ice.CommunicatorDestroyedException || ex is Ice.ObjectAdapterDeactivatedException)
+            if(ex is Ice.CommunicatorDestroyedException ||
+               ex is Ice.ObjectAdapterDeactivatedException ||
+               ex is Ice.ConnectionManuallyClosedException)
             {
                 throw ex;
             }
@@ -233,9 +234,9 @@ namespace IceInternal
         //
         internal ProxyFactory(Instance instance)
         {
-            instance_ = instance;
+            _instance = instance;
 
-            string[] arr = instance_.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
+            string[] arr = _instance.initializationData().properties.getPropertyAsList("Ice.RetryIntervals");
 
             if(arr.Length > 0)
             {
@@ -247,7 +248,7 @@ namespace IceInternal
 
                     try
                     {
-                        v = System.Int32.Parse(arr[i], CultureInfo.InvariantCulture);
+                        v = int.Parse(arr[i], CultureInfo.InvariantCulture);
                     }
                     catch(System.FormatException)
                     {
@@ -273,7 +274,7 @@ namespace IceInternal
             }
         }
 
-        private Instance instance_;
+        private Instance _instance;
         private int[] _retryIntervals;
     }
 

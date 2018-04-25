@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -215,9 +215,18 @@ final class OpaqueEndpointI extends EndpointI
     // was specified on client side.
     //
     @Override
-    public java.util.List<EndpointI> expand()
+    public java.util.List<EndpointI> expandIfWildcard()
     {
-        java.util.List<EndpointI> endps = new java.util.ArrayList<EndpointI>();
+        java.util.List<EndpointI> endps = new java.util.ArrayList<>();
+        endps.add(this);
+        return endps;
+    }
+
+    @Override
+    public java.util.List<EndpointI> expandHost(Ice.Holder<EndpointI> publish)
+    {
+        publish.value = null;
+        java.util.List<EndpointI> endps = new java.util.ArrayList<>();
         endps.add(this);
         return endps;
     }

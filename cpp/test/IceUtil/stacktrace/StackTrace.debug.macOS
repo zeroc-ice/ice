@@ -1,0 +1,11 @@
+  0 IceUtil::Exception::Exception(char const*, int) in libIce.3.7.1.dylib
+  1 IceUtil::ExceptionHelper<IceUtil::NullHandleException>::ExceptionHelper(char const*, int) in libIce.3.7.1.dylib
+  2 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7.1.dylib
+  3 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7.1.dylib
+  4 (anonymous namespace)::Thrower::fifth() in client
+  5 (anonymous namespace)::Thrower::forth() in client
+  6 (anonymous namespace)::Thrower::third() in client
+  7 (anonymous namespace)::Thrower::second() in client
+  8 (anonymous namespace)::Thrower::first() in client
+  9 main in client
+ 10 start in libdyld.dylib

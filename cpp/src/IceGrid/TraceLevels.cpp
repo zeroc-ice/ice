@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -15,6 +15,8 @@ using namespace std;
 using namespace IceGrid;
 
 TraceLevels::TraceLevels(const Ice::CommunicatorPtr& communicator, const string& prefix) :
+    admin(0),
+    adminCat("Admin"),
     application(0),
     applicationCat("Application"),
     node(0),
@@ -35,11 +37,14 @@ TraceLevels::TraceLevels(const Ice::CommunicatorPtr& communicator, const string&
     locatorCat("Locator"),
     session(0),
     sessionCat("Session"),
+    discovery(0),
+    discoveryCat("Discovery"),
     logger(communicator->getLogger())
 {
     Ice::PropertiesPtr properties = communicator->getProperties();
 
     string keyBase = prefix + ".Trace.";
+    const_cast<int&>(admin) = properties->getPropertyAsInt(keyBase + adminCat);
     const_cast<int&>(application) = properties->getPropertyAsInt(keyBase + applicationCat);
     const_cast<int&>(node) = properties->getPropertyAsInt(keyBase + nodeCat);
     const_cast<int&>(replica) = properties->getPropertyAsInt(keyBase + replicaCat);
@@ -50,6 +55,7 @@ TraceLevels::TraceLevels(const Ice::CommunicatorPtr& communicator, const string&
     const_cast<int&>(patch) = properties->getPropertyAsInt(keyBase + patchCat);
     const_cast<int&>(locator) = properties->getPropertyAsInt(keyBase + locatorCat);
     const_cast<int&>(session) = properties->getPropertyAsInt(keyBase + sessionCat);
+    const_cast<int&>(discovery) = properties->getPropertyAsInt(keyBase + discoveryCat);
 }
 
 TraceLevels::~TraceLevels()

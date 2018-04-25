@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -291,7 +291,6 @@ public:
             }
         }
 
-
         for(LocatorAdapterInfoSeq::const_iterator p = adapters.begin(); p != adapters.end(); ++p)
         {
             if(_locator->getDirectProxy(*p, this))
@@ -454,7 +453,7 @@ private:
     unsigned int _count;
     LocatorAdapterInfoSeq::const_iterator _lastAdapter;
     std::map<std::string, Ice::ObjectPrx> _proxies;
-    IceUtil::UniquePtr<Ice::Exception> _exception;
+    IceInternal::UniquePtr<Ice::Exception> _exception;
 };
 
 class RoundRobinRequest : public LocatorI::Request, SynchronizationCallback, public IceUtil::Mutex
@@ -752,7 +751,7 @@ private:
     bool _waitForActivation;
     set<string> _failed;
     set<string> _activatingOrFailed;
-    IceUtil::UniquePtr<Ice::Exception> _exception;
+    IceInternal::UniquePtr<Ice::Exception> _exception;
 };
 
 class FindAdapterByIdCallback : public SynchronizationCallback
@@ -810,7 +809,6 @@ private:
 };
 
 };
-
 
 LocatorI::LocatorI(const Ice::CommunicatorPtr& communicator,
                    const DatabasePtr& database,

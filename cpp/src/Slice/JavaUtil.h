@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -97,9 +97,8 @@ protected:
                                   const std::string& = std::string(),
                                   const std::string& = std::string()) const;
 
-
     //
-    // Returns the package prefix for a give Slice file.
+    // Returns the package prefix of a Contained entity.
     //
     std::string getPackagePrefix(const ContainedPtr&) const;
 
@@ -108,6 +107,7 @@ protected:
     //
     std::string getPackage(const ContainedPtr&) const;
 
+    std::string getAbsolute(const std::string&, const std::string&) const;
     //
     // Returns the Java name for a Contained entity. If the optional
     // package argument matches the entity's package name, then the
@@ -145,7 +145,7 @@ protected:
         TypeModeReturn
     };
     std::string typeToString(const TypePtr&, TypeMode, const std::string& = std::string(),
-                             const StringList& = StringList(), bool = true, bool = false) const;
+                             const StringList& = StringList(), bool = true, bool = false, bool = false) const;
 
     //
     // Get the Java object name for a type. For primitive types, this returns the
@@ -168,21 +168,22 @@ protected:
     };
 
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
-                                   bool, int, const std::string&, bool, int&, bool = false,
-                                   const StringList& = StringList(), const std::string& patchParams = "");
+                                   bool, int, const std::string&, bool, int&, bool = false, const std::string& = "",
+                                   const StringList& = StringList(), const std::string& = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type.
     //
     void writeDictionaryMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const DictionaryPtr&,
-                                           const std::string&, bool, int&, bool,
-                                           const StringList& = StringList());
+                                             const std::string&, bool, int&, bool,
+                                             const std::string& = "", const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a sequence type.
     //
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
-                                           const std::string&, bool, int&, bool, const StringList& = StringList());
+                                           const std::string&, bool, int&, bool,
+                                           const std::string& = "", const StringList& = StringList());
 
     //
     // Search metadata for an entry with the given prefix and return the entire string.
@@ -222,7 +223,6 @@ private:
 
     std::string _dir;
     ::IceUtilInternal::Output* _out;
-    mutable std::map<std::string, std::string> _filePackagePrefix;
 };
 
 class JavaGenerator : private ::IceUtil::noncopyable
@@ -263,9 +263,8 @@ protected:
                                   const std::string& = std::string(),
                                   const std::string& = std::string()) const;
 
-
     //
-    // Returns the package prefix for a give Slice file.
+    // Returns the package prefix of a Contained entity.
     //
     std::string getPackagePrefix(const ContainedPtr&) const;
 
@@ -273,6 +272,12 @@ protected:
     // Returns the Java package of a Contained entity.
     //
     std::string getPackage(const ContainedPtr&) const;
+
+    //
+    // Returns the Java type without a package if the package
+    // matches the current package
+    //
+    std::string getAbsolute(const std::string&, const std::string&) const;
 
     //
     // Returns the Java name for a Contained entity. If the optional
@@ -333,22 +338,26 @@ protected:
         OptionalMember
     };
 
+    std::string getWriteFunction(const std::string&, const TypePtr&);
+    std::string getReadFunction(const std::string&, const TypePtr&);
+
     void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const TypePtr&, OptionalMode,
-                                   bool, int, const std::string&, bool, int&, const StringList& = StringList(),
-                                   const std::string& patchParams = "");
+                                   bool, int, const std::string&, bool, int&, const std::string& = "",
+                                   const StringList& = StringList(), const std::string& = "");
 
     //
     // Generate code to marshal or unmarshal a dictionary type.
     //
     void writeDictionaryMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const DictionaryPtr&,
                                              const std::string&, bool, int&, bool,
-                                             const StringList& = StringList());
+                                             const std::string& = "", const StringList& = StringList());
 
     //
     // Generate code to marshal or unmarshal a sequence type.
     //
     void writeSequenceMarshalUnmarshalCode(::IceUtilInternal::Output&, const std::string&, const SequencePtr&,
-                                           const std::string&, bool, int&, bool, const StringList& = StringList());
+                                           const std::string&, bool, int&, bool,
+                                           const std::string& = "", const StringList& = StringList());
 
     //
     // Search metadata for an entry with the given prefix and return the entire string.
@@ -387,7 +396,6 @@ private:
 
     std::string _dir;
     ::IceUtilInternal::Output* _out;
-    mutable std::map<std::string, std::string> _filePackagePrefix;
 };
 
 }

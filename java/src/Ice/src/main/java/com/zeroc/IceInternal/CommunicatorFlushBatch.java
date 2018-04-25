@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -28,17 +28,14 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
     }
 
     @Override
-    protected void __sent()
+    protected void markCompleted()
     {
-        super.__sent();
-
-        assert((_state & StateOK) != 0);
         complete(null);
     }
 
-    public void flushConnection(final com.zeroc.Ice.ConnectionI con)
+    public void flushConnection(final com.zeroc.Ice.ConnectionI con, final com.zeroc.Ice.CompressBatch compressBatch)
     {
-        class FlushBatch extends OutgoingAsyncBase<Void>
+        class FlushBatch extends OutgoingAsyncBaseI<Void>
         {
             public FlushBatch()
             {
@@ -48,19 +45,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
             }
 
             @Override
-            protected void __sent()
-            {
-                assert(false);
-            }
-
-            @Override
-            protected boolean __needCallback()
-            {
-                return false;
-            }
-
-            @Override
-            protected void __completed()
+            protected void markCompleted()
             {
                 assert(false);
             }
@@ -77,7 +62,6 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
                 return false;
             }
 
-            // TODO: MJN: This is missing a test.
             @Override
             public boolean completed(com.zeroc.Ice.Exception ex)
             {
@@ -106,8 +90,8 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         try
         {
             final FlushBatch flushBatch = new FlushBatch();
-            final int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs());
-            if(batchRequestNum == 0)
+            final BatchRequestQueue.SwapResult r = con.getBatchRequestQueue().swap(flushBatch.getOs());
+            if(r == null)
             {
                 flushBatch.sent();
             }
@@ -118,14 +102,40 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
                     @Override
                     public Void call() throws RetryException
                     {
-                        con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
+                        boolean comp = false;
+                        if(compressBatch == com.zeroc.Ice.CompressBatch.Yes)
+                        {
+                            comp = true;
+                        }
+                        else if(compressBatch == com.zeroc.Ice.CompressBatch.No)
+                        {
+                            comp = false;
+                        }
+                        else
+                        {
+                            comp = r.compress;
+                        }
+                        con.sendAsyncRequest(flushBatch, comp, false, r.batchRequestNum);
                         return null;
                     }
                 });
             }
             else
             {
-                con.sendAsyncRequest(flushBatch, false, false, batchRequestNum);
+                boolean comp = false;
+                if(compressBatch == com.zeroc.Ice.CompressBatch.Yes)
+                {
+                    comp = true;
+                }
+                else if(compressBatch == com.zeroc.Ice.CompressBatch.No)
+                {
+                    comp = false;
+                }
+                else
+                {
+                    comp = r.compress;
+                }
+                con.sendAsyncRequest(flushBatch, comp, false, r.batchRequestNum);
             }
         }
         catch(RetryException ex)
@@ -145,9 +155,9 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         doCheck(true);
     }
 
-    public void __wait()
+    public void waitForResponse()
     {
-        if(Thread.currentThread().interrupted())
+        if(Thread.interrupted())
         {
             throw new com.zeroc.Ice.OperationInterruptedException();
         }
@@ -164,7 +174,7 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         {
             try
             {
-                throw ee.getCause();
+                throw ee.getCause().fillInStackTrace();
             }
             catch(RuntimeException ex) // Includes LocalException
             {

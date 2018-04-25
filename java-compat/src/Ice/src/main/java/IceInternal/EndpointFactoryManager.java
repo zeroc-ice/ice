@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -16,11 +16,18 @@ public final class EndpointFactoryManager
         _instance = instance;
     }
 
+    public void initialize()
+    {
+        for(EndpointFactory f : _factories)
+        {
+            f.initialize();
+        }
+    }
+
     public synchronized void add(EndpointFactory factory)
     {
-        for(int i = 0; i < _factories.size(); i++)
+        for(EndpointFactory f : _factories)
         {
-            EndpointFactory f = _factories.get(i);
             if(f.type() == factory.type())
             {
                 assert(false);
@@ -31,9 +38,8 @@ public final class EndpointFactoryManager
 
     public synchronized EndpointFactory get(short type)
     {
-        for(int i = 0; i < _factories.size(); i++)
+        for(EndpointFactory f : _factories)
         {
-            EndpointFactory f = _factories.get(i);
             if(f.type() == type)
             {
                 return f;
@@ -70,9 +76,8 @@ public final class EndpointFactoryManager
 
         EndpointFactory factory = null;
 
-        for(int i = 0; i < _factories.size(); i++)
+        for(EndpointFactory f : _factories)
         {
-            EndpointFactory f = _factories.get(i);
             if(f.protocol().equals(protocol))
             {
                 factory = f;
@@ -158,7 +163,13 @@ public final class EndpointFactoryManager
         {
             e = factory.read(s);
         }
-        else
+        //
+        // If the factory failed to read the endpoint, return an opaque endpoint. This can
+        // occur if for example the factory delegates to another factory and this factory
+        // isn't available. In this case, the factory needs to make sure the stream position
+        // is preserved for reading the opaque endpoint.
+        //
+        if(e == null)
         {
             e = new OpaqueEndpointI(type, s);
         }
@@ -170,9 +181,8 @@ public final class EndpointFactoryManager
 
     void destroy()
     {
-        for(int i = 0; i < _factories.size(); i++)
+        for(EndpointFactory f : _factories)
         {
-            EndpointFactory f = _factories.get(i);
             f.destroy();
         }
         _factories.clear();

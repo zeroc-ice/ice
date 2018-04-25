@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -17,16 +17,16 @@ module Test
 class PreservedClass extends BaseClass
 {
     string pc;
-};
+}
 
 exception Preserved1 extends KnownPreservedDerived
 {
     BaseClass p1;
-};
+}
 
 exception Preserved2 extends Preserved1
 {
     BaseClass p2;
-};
+}
 
-};
+}

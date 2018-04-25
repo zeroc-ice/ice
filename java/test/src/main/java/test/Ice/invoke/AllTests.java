@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,9 +31,11 @@ public class AllTests
         }
     }
 
-    public static MyClassPrx allTests(com.zeroc.Ice.Communicator communicator, PrintWriter out)
+    public static MyClassPrx allTests(test.Util.Application app)
     {
-        String ref = "test:default -p 12010";
+        com.zeroc.Ice.Communicator communicator=app.communicator();
+        PrintWriter out = app.getWriter();
+        String ref = "test:" + app.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrx.checkedCast(base);
         MyClassPrx oneway = cl.ice_oneway();

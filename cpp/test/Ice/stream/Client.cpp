@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -32,13 +32,13 @@ public:
         called = false;
     }
 
-    virtual void __write(Ice::OutputStream* out) const
+    virtual void _iceWrite(Ice::OutputStream* out) const
     {
-        obj->__write(out);
+        obj->_iceWrite(out);
         const_cast<TestObjectWriter*>(this)->called = true;
     }
 
-    virtual void __read(Ice::InputStream*)
+    virtual void _iceRead(Ice::InputStream*)
     {
         assert(false);
     }
@@ -61,15 +61,15 @@ public:
         called = false;
     }
 
-    virtual void __write(Ice::OutputStream*) const
+    virtual void _iceWrite(Ice::OutputStream*) const
     {
         assert(false);
     }
 
-    virtual void __read(Ice::InputStream* in)
+    virtual void _iceRead(Ice::InputStream* in)
     {
         obj = ICE_MAKE_SHARED(MyClass);
-        obj->__read(in);
+        obj->_iceRead(in);
         called = true;
     }
 
@@ -78,29 +78,29 @@ public:
 };
 ICE_DEFINE_PTR(TestObjectReaderPtr, TestObjectReader);
 
-// Required for ValueHelper<>'s __readImpl and __writeIpml
+// Required for ValueHelper<>'s _iceReadImpl and _iceWriteIpml
 #ifdef ICE_CPP11_MAPPING
 namespace Ice
 {
 template<class S>
 struct StreamWriter<TestObjectWriter, S>
 {
-    static void write(S* __os, const TestObjectWriter&) { assert(false); }
+    static void write(S* ostr, const TestObjectWriter&) { assert(false); }
 };
 template<class S>
 struct StreamReader<TestObjectWriter, S>
 {
-    static void read(S* __is, TestObjectWriter&) { assert(false); }
+    static void read(S* istr, TestObjectWriter&) { assert(false); }
 };
 template<class S>
 struct StreamWriter<TestObjectReader, S>
 {
-    static void write(S* __os, const TestObjectReader&) { assert(false); }
+    static void write(S* ostr, const TestObjectReader&) { assert(false); }
 };
 template<class S>
 struct StreamReader<TestObjectReader, S>
 {
-    static void read(S* __is, TestObjectReader&) { assert(false); }
+    static void read(S* istr, TestObjectReader&) { assert(false); }
 };
 }
 #endif
@@ -853,7 +853,11 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out.write(arr);
         out.writePendingValues();
         out.finished(data);
+
         Ice::InputStream in(communicator, data);
+#ifndef ICE_CPP11_MAPPING
+        in.setCollectObjects(true);
+#endif
         MyClassS arr2;
         in.read(arr2);
         in.readPendingValues();
@@ -886,12 +890,39 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out2.finished(data);
 
         Ice::InputStream in2(communicator, data);
+#ifndef ICE_CPP11_MAPPING
+        in2.setCollectObjects(true);
+#endif
         MyClassSS arr2S;
         in2.read(arr2S);
         test(arr2S.size() == arrS.size());
         test(arr2S[0].size() == arrS[0].size());
         test(arr2S[1].size() == arrS[1].size());
         test(arr2S[2].size() == arrS[2].size());
+
+#ifdef ICE_CPP11_MAPPING
+        auto clearS = [](MyClassS& arr) {
+            for(MyClassS::iterator p = arr.begin(); p != arr.end(); ++p)
+            {
+                if(*p)
+                {
+                    (*p)->c = nullptr;
+                    (*p)->o = nullptr;
+                    (*p)->d["hi"] = nullptr;
+                }
+            }
+        };
+        auto clearSS = [clearS](MyClassSS& arr) {
+            for(MyClassSS::iterator p = arr.begin(); p != arr.end(); ++p)
+            {
+                clearS(*p);
+            }
+        };
+        clearS(arr);
+        clearS(arr2);
+        clearSS(arrS);
+        clearSS(arr2S);
+#endif
     }
 
 #ifndef ICE_CPP11_MAPPING
@@ -1032,6 +1063,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
         out.finished(data);
 
         Ice::InputStream in(communicator, data);
+#ifndef ICE_CPP11_MAPPING
+        in.setCollectObjects(true);
+#endif
         try
         {
             in.throwException();
@@ -1049,7 +1083,16 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
             test(ex1.c->seq7 == c->seq7);
             test(ex1.c->seq8 == c->seq8);
             test(ex1.c->seq9 == c->seq9);
+
+#ifdef ICE_CPP11_MAPPING
+            ex1.c->c = nullptr;
+            ex1.c->o = nullptr;
+#endif
         }
+#ifdef ICE_CPP11_MAPPING
+        c->c = nullptr;
+        c->o = nullptr;
+#endif
     }
 
     {
@@ -1298,7 +1341,8 @@ int
 main(int argc, char* argv[])
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
+    Ice::registerIceSSL(false);
+    Ice::registerIceWS(true);
 #endif
 
     int status;
@@ -1306,7 +1350,8 @@ main(int argc, char* argv[])
 
     try
     {
-        communicator = Ice::initialize(argc, argv);
+        Ice::InitializationData initData = getTestInitData(argc, argv);
+        communicator = Ice::initialize(argc, argv, initData);
         status = run(argc, argv, communicator);
     }
     catch(const Ice::Exception& ex)
@@ -1317,15 +1362,7 @@ main(int argc, char* argv[])
 
     if(communicator)
     {
-        try
-        {
-            communicator->destroy();
-        }
-        catch(const Ice::Exception& ex)
-        {
-            cerr << ex << endl;
-            status = EXIT_FAILURE;
-        }
+        communicator->destroy();
     }
 
     return status;

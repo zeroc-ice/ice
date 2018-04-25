@@ -1,13 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
 
-#include <IceUtil/ArgVector.h>
+#include <Ice/ArgVector.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <IceGrid/Activator.h>
@@ -38,7 +38,7 @@
 #endif
 
 #if defined(__linux) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)
-#   include <grp.h> // for initgroups
+#   include <grp.h> // for setgroups
 #endif
 
 using namespace std;
@@ -302,25 +302,22 @@ Activator::Activator(const TraceLevelsPtr& traceLevels) :
 {
 #ifdef _WIN32
     _hIntr = CreateEvent(
-        NULL,  // Security attributes
+        ICE_NULLPTR,  // Security attributes
         TRUE,  // Manual reset
         FALSE, // Initial state is nonsignaled
-        NULL   // Unnamed
+        ICE_NULLPTR   // Unnamed
     );
 
-    if(_hIntr == NULL)
+    if(_hIntr == ICE_NULLPTR)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
+
     }
 #else
     int fds[2];
     if(pipe(fds) != 0)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
     _fdIntrRead = fds[0];
     _fdIntrWrite = fds[1];
@@ -329,7 +326,6 @@ Activator::Activator(const TraceLevelsPtr& traceLevels) :
     fcntl(_fdIntrRead, F_SETFL, flags);
 #endif
 
-
 }
 
 Activator::~Activator()
@@ -337,7 +333,7 @@ Activator::~Activator()
     assert(!_thread);
 
 #ifdef _WIN32
-    if(_hIntr != NULL)
+    if(_hIntr != ICE_NULLPTR)
     {
         CloseHandle(_hIntr);
     }
@@ -363,13 +359,13 @@ Activator::activate(const string& name,
 
     if(_deactivating)
     {
-        throw string("The node is being shutdown.");
+        throw runtime_error("The node is being shutdown.");
     }
 
     string path = exePath;
     if(path.empty())
     {
-        throw string("The server executable path is empty.");
+        throw invalid_argument("The server executable path is empty.");
     }
 
     string pwd = IcePatch2Internal::simplify(pwdPath);
@@ -389,14 +385,14 @@ Activator::activate(const string& name,
             // IceGrid doesn't support to use string converters, so don't need to use
             // any string converter in wstringToString conversions.
             //
-            if(SearchPathW(NULL, stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
+            if(SearchPathW(ICE_NULLPTR, stringToWstring(path).c_str(), ext.c_str(), _MAX_PATH, absbuf, &fPart) == 0)
             {
                 if(_traceLevels->activator > 0)
                 {
                     Trace out(_traceLevels->logger, _traceLevels->activatorCat);
                     out << "couldn't find `" << path << "' executable.";
                 }
-                throw string("Couldn't find `" + path + "' executable.");
+                throw runtime_error("Couldn't find `" + path + "' executable.");
             }
             path = wstringToString(absbuf);
         }
@@ -416,14 +412,14 @@ Activator::activate(const string& name,
     if(!pwd.empty())
     {
         wchar_t absbuf[_MAX_PATH];
-        if(_wfullpath(absbuf, stringToWstring(pwd).c_str(), _MAX_PATH) == NULL)
+        if(_wfullpath(absbuf, stringToWstring(pwd).c_str(), _MAX_PATH) == ICE_NULLPTR)
         {
             if(_traceLevels->activator > 0)
             {
                 Trace out(_traceLevels->logger, _traceLevels->activatorCat);
                 out << "cannot convert `" << pwd << "' into an absolute path";
             }
-            throw string("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
+            throw runtime_error("The server working directory path `" + pwd + "' can't be converted into an absolute path.");
         }
         pwd = wstringToString(absbuf);
     }
@@ -505,7 +501,7 @@ Activator::activate(const string& name,
     // any string converter in stringToWstring conversions.
     //
     wstring wpwd = stringToWstring(pwd);
-    const wchar_t* dir = !wpwd.empty() ? wpwd.c_str() : NULL;
+    const wchar_t* dir = !wpwd.empty() ? wpwd.c_str() : ICE_NULLPTR;
 
     //
     // Make a copy of the command line.
@@ -518,7 +514,7 @@ Activator::activate(const string& name,
     // Since Windows is case insensitive wrt environment variables we convert the keys to
     // uppercase to ensure matches are found.
     //
-    const wchar_t* env = NULL;
+    const wchar_t* env = ICE_NULLPTR;
     wstring envbuf;
     if(!envs.empty())
     {
@@ -582,10 +578,10 @@ Activator::activate(const string& name,
     PROCESS_INFORMATION pi;
     ZeroMemory(&pi, sizeof(pi));
     BOOL b = CreateProcessW(
-        NULL,                     // Executable
+        ICE_NULLPTR,                     // Executable
         cmdbuf,                   // Command line
-        NULL,                     // Process attributes
-        NULL,                     // Thread attributes
+        ICE_NULLPTR,                     // Process attributes
+        ICE_NULLPTR,                     // Thread attributes
         FALSE,                    // Do NOT inherit handles
         CREATE_NEW_PROCESS_GROUP | CREATE_UNICODE_ENVIRONMENT, // Process creation flags
         (LPVOID)env,              // Process environment
@@ -598,7 +594,7 @@ Activator::activate(const string& name,
 
     if(!b)
     {
-        throw IceUtilInternal::lastErrorToString();
+        throw runtime_error(IceUtilInternal::lastErrorToString());
     }
 
     //
@@ -631,28 +627,59 @@ Activator::activate(const string& name,
 
     return static_cast<Ice::Int>(process.pid);
 #else
+    struct passwd pwbuf;
+    vector<char> buffer(4096); // 4KB initial buffer size
+    struct passwd *pw;
+    int err = getpwuid_r(uid, &pwbuf, &buffer[0], buffer.size(), &pw);
+    while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
+    {
+        buffer.resize(buffer.size() * 2);
+    }
+    if(err != 0)
+    {
+        throw SyscallException(__FILE__, __LINE__, err);
+    }
+    else if(pw == 0)
+    {
+        ostringstream os;
+        os << uid;
+        throw runtime_error("unknown user id `" + os.str() + "'");
+    }
+
+    vector<gid_t> groups;
+    groups.resize(20);
+    int ngroups = static_cast<int>(groups.size());
+#if defined(__APPLE__)
+    if(getgrouplist(pw->pw_name, gid, reinterpret_cast<int*>(&groups[0]), &ngroups) < 0)
+#else
+    if(getgrouplist(pw->pw_name, gid, &groups[0], &ngroups) < 0)
+#endif
+    {
+        groups.resize(ngroups);
+#if defined(__APPLE__)
+        getgrouplist(pw->pw_name, gid, reinterpret_cast<int*>(&groups[0]), &ngroups);
+#else
+        getgrouplist(pw->pw_name, gid, &groups[0], &ngroups);
+#endif
+    }
+
     int fds[2];
     if(pipe(fds) != 0)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
 
     int errorFds[2];
     if(pipe(errorFds) != 0)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
-
 
     //
     // Convert to standard argc/argv.
     //
-    IceUtilInternal::ArgVector av(args);
-    IceUtilInternal::ArgVector env(envs);
+    IceInternal::ArgVector av(args);
+    IceInternal::ArgVector env(envs);
 
     //
     // Current directory
@@ -662,9 +689,7 @@ Activator::activate(const string& name,
     pid_t pid = fork();
     if(pid == -1)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
 
     if(pid == 0) // Child process.
@@ -694,33 +719,15 @@ Activator::activate(const string& name,
                              _traceLevels);
         }
 
-        errno = 0;
-        struct passwd* pw = getpwuid(uid);
-        if(!pw)
-        {
-            if(errno)
-            {
-                reportChildError(getSystemErrno(), errorFds[1], "cannot read the password database", "",
-                                 _traceLevels);
-            }
-            else
-            {
-                ostringstream os;
-                os << uid;
-                reportChildError(getSystemErrno(), errorFds[1], "unknown user uid"  , os.str().c_str(),
-                                 _traceLevels);
-            }
-        }
-
         //
         // Don't initialize supplementary groups if we are not running as root.
         //
-        if(getuid() == 0 && initgroups(pw->pw_name, gid) == -1)
+        if(getuid() == 0 && setgroups(groups.size(), &groups[0]) == -1)
         {
             ostringstream os;
             os << pw->pw_name;
-            reportChildError(getSystemErrno(), errorFds[1], "cannot initialize process supplementary group access list for user",
-                             os.str().c_str(), _traceLevels);
+            reportChildError(getSystemErrno(), errorFds[1], "cannot set process supplementary groups", os.str().c_str(),
+                                                             _traceLevels);
         }
 
         if(setuid(uid) == -1)
@@ -821,7 +828,7 @@ Activator::activate(const string& name,
             close(fds[0]);
             close(errorFds[0]);
             waitPid(pid);
-            throw message;
+            throw runtime_error(message);
         }
 
         //
@@ -938,7 +945,6 @@ Activator::kill(const string& name)
     sendSignal(name, SIGKILL);
 }
 
-
 void
 Activator::sendSignal(const string& name, const string& signal)
 {
@@ -973,19 +979,15 @@ Activator::sendSignal(const string& name, int signal)
         }
         else if(GetLastError() != ERROR_INVALID_PARAMETER) // Process with pid doesn't exist anymore.
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
     }
     else if(signal == SIGKILL)
     {
         HANDLE hnd = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
-        if(hnd == NULL)
+        if(hnd == ICE_NULLPTR)
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
 
         TerminateProcess(hnd, 0); // We use 0 for the exit code to make sure it's not considered as a crash.
@@ -1006,9 +1008,7 @@ Activator::sendSignal(const string& name, int signal)
     int ret = ::kill(static_cast<pid_t>(pid), signal);
     if(ret != 0 && getSystemErrno() != ESRCH)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
     }
 
     if(_traceLevels->activator > 1)
@@ -1057,6 +1057,11 @@ void
 Activator::shutdown()
 {
     IceUtil::Monitor< IceUtil::Mutex>::Lock sync(*this);
+    if(_deactivating)
+    {
+        return;
+    }
+
     //
     // Deactivation has been initiated. Set _deactivating to true to
     // prevent activation of new processes. This will also cause the
@@ -1090,7 +1095,7 @@ Activator::destroy()
         //
         try
         {
-            p->second.server->stop_async(0);
+            p->second.server->stop_async(0, Ice::emptyCurrent);
         }
         catch(const ServerStopException&)
         {
@@ -1164,9 +1169,7 @@ Activator::terminationListener()
         DWORD ret = WaitForSingleObject(_hIntr, INFINITE);
         if(ret == WAIT_FAILED)
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
         clearInterrupt();
 
@@ -1269,9 +1272,7 @@ Activator::terminationListener()
             }
 #endif
 
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
 
         vector<Process> terminated;
@@ -1323,9 +1324,7 @@ Activator::terminationListener()
                 {
                     if(errno != EAGAIN || message.empty())
                     {
-                        SyscallException ex(__FILE__, __LINE__);
-                        ex.error = getSystemErrno();
-                        throw ex;
+                        throw SyscallException(__FILE__, __LINE__, getSystemErrno());
                     }
 
                     ++p;
@@ -1411,9 +1410,7 @@ Activator::setInterrupt()
     ssize_t sz = write(_fdIntrWrite, &c, 1);
     if(sz == -1)
     {
-        SyscallException ex(__FILE__, __LINE__);
-        ex.error = IceInternal::getSystemErrno();
-        throw ex;
+        throw SyscallException(__FILE__, __LINE__, IceInternal::getSystemErrno());
     }
 #endif
 }
@@ -1445,9 +1442,7 @@ Activator::waitPid(pid_t processPid)
                     ++nRetry;
                     continue;
                 }
-                SyscallException ex(__FILE__, __LINE__);
-                ex.error = getSystemErrno();
-                throw ex;
+                throw SyscallException(__FILE__, __LINE__, getSystemErrno());
             }
             assert(pid == processPid);
             break;
@@ -1456,9 +1451,7 @@ Activator::waitPid(pid_t processPid)
         pid_t pid = waitpid(processPid, &status, 0);
         if(pid < 0)
         {
-            SyscallException ex(__FILE__, __LINE__);
-            ex.error = getSystemErrno();
-            throw ex;
+            throw SyscallException(__FILE__, __LINE__, getSystemErrno());
         }
         assert(pid == processPid);
 #endif

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -38,17 +38,17 @@ struct st1
 {
     long x;
     long y;
-};
+}
 dictionary<st1, long> d8;               // OK
 
 struct st2
 {
     long x;
     float y;
-};
+}
 dictionary<st2, long> b8;               // Bad
 
-enum e { e1, e2 };
+enum e { e1, e2 }
 dictionary<e, long> d9;                 // OK
 
 sequence<e> s4;
@@ -56,4 +56,4 @@ dictionary<s4, long> d10;               // Deprecated
 
 dictionary<d9, long> b9;                // Bad
 
-};
+}

@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -76,7 +76,7 @@ Ice::OutputStream::OutputStream() :
     _instance(0),
     _closure(0),
     _encoding(currentEncoding),
-    _format(CompactFormat),
+    _format(ICE_ENUM(FormatType, CompactFormat)),
     _currentEncaps(0)
 {
 }
@@ -216,7 +216,7 @@ Ice::OutputStream::startEncapsulation()
     }
     else
     {
-        startEncapsulation(_encoding, Ice::DefaultFormat);
+        startEncapsulation(_encoding, Ice::ICE_ENUM(FormatType, DefaultFormat));
     }
 }
 
@@ -800,7 +800,7 @@ Ice::OutputStream::write(const ObjectPrx& v)
 {
     if(v)
     {
-        v->__write(*this);
+        v->_write(*this);
     }
     else
     {
@@ -898,7 +898,7 @@ Ice::OutputStream::initEncaps()
         _currentEncaps->encoding = _encoding;
     }
 
-    if(_currentEncaps->format == Ice::DefaultFormat)
+    if(_currentEncaps->format == Ice::ICE_ENUM(FormatType, DefaultFormat))
     {
         _currentEncaps->format = _format;
     }
@@ -963,9 +963,9 @@ Ice::OutputStream::EncapsEncoder10::write(const UserException& v)
     // This allows reading the pending instances even if some part of
     // the exception was sliced.
     //
-    bool usesClasses = v.__usesClasses();
+    bool usesClasses = v._usesClasses();
     _stream->write(usesClasses);
-    v.__write(_stream);
+    v._write(_stream);
     if(usesClasses)
     {
         writePendingValues();
@@ -1076,7 +1076,7 @@ Ice::OutputStream::EncapsEncoder10::writePendingValues()
                 out << "unknown exception raised by ice_preMarshal";
             }
 
-            p->first->__write(_stream);
+            p->first->_iceWrite(_stream);
         }
     }
     _stream->writeSize(0); // Zero marker indicates end of sequence of sequences of instances.
@@ -1120,7 +1120,7 @@ Ice::OutputStream::EncapsEncoder11::write(const ValuePtr& v)
     {
         _stream->writeSize(0); // Nil reference.
     }
-    else if(_current && _encaps->format == SlicedFormat)
+    else if(_current && _encaps->format == ICE_ENUM(FormatType, SlicedFormat))
     {
         //
         // If writing an instance within a slice and using the sliced
@@ -1151,7 +1151,7 @@ Ice::OutputStream::EncapsEncoder11::write(const ValuePtr& v)
 void
 Ice::OutputStream::EncapsEncoder11::write(const UserException& v)
 {
-    v.__write(_stream);
+    v._write(_stream);
 }
 
 void
@@ -1188,7 +1188,7 @@ Ice::OutputStream::EncapsEncoder11::startSlice(const string& typeId, int compact
     _current->sliceFlagsPos = _stream->b.size();
 
     _current->sliceFlags = 0;
-    if(_encaps->format == SlicedFormat)
+    if(_encaps->format == ICE_ENUM(FormatType, SlicedFormat))
     {
         _current->sliceFlags |= FLAG_HAS_SLICE_SIZE; // Encode the slice size if using the sliced format.
     }
@@ -1210,7 +1210,7 @@ Ice::OutputStream::EncapsEncoder11::startSlice(const string& typeId, int compact
         // Encode the type ID (only in the first slice for the compact
         // encoding).
         //
-        if(_encaps->format == SlicedFormat || _current->firstSlice)
+        if(_encaps->format == ICE_ENUM(FormatType, SlicedFormat) || _current->firstSlice)
         {
             if(compactId >= 0)
             {
@@ -1275,7 +1275,7 @@ Ice::OutputStream::EncapsEncoder11::endSlice()
     //
     if(!_current->indirectionTable.empty())
     {
-        assert(_encaps->format == SlicedFormat);
+        assert(_encaps->format == ICE_ENUM(FormatType, SlicedFormat));
         _current->sliceFlags |= FLAG_HAS_INDIRECTION_TABLE;
 
         //
@@ -1330,7 +1330,7 @@ Ice::OutputStream::EncapsEncoder11::writeSlicedData(const SlicedDataPtr& slicedD
     // essentially "slices" the instance into the most-derived type
     // known by the sender.
     //
-    if(_encaps->format != SlicedFormat)
+    if(_encaps->format != ICE_ENUM(FormatType, SlicedFormat))
     {
         return;
     }
@@ -1395,5 +1395,5 @@ Ice::OutputStream::EncapsEncoder11::writeInstance(const ValuePtr& v)
     }
 
     _stream->writeSize(1); // Object instance marker.
-    v->__write(_stream);
+    v->_iceWrite(_stream);
 }

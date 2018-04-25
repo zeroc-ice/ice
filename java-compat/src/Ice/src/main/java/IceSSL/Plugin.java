@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ public interface Plugin extends Ice.Plugin
      * plug-in is initialized. Therefore, the application must set
      * the property <code>Ice.InitPlugins</code> to zero, call
      * <code>setContext</code> to set the context, and finally
-     * invoke {@link PluginManager#initializePlugins}.
+     * invoke PluginManager.initializePlugins().
      * <p>
      * If an application supplies its own SSL context, the
      * plug-in skips its normal property-based configuration.

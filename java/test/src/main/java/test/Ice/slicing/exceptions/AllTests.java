@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -105,12 +105,14 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx allTests(com.zeroc.Ice.Communicator communicator, boolean collocated,
-                                       java.io.PrintWriter out)
+    public static TestIntfPrx allTests(test.Util.Application app, boolean collocated)
     {
+        java.io.PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = app.communicator();
+
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "Test:default -p 12010 -t 10000";
+        String ref = "Test:" + app.getTestEndpoint(0) + " -t 10000";
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -650,9 +652,53 @@ public class AllTests
         out.print("preserved exceptions... ");
         out.flush();
         {
-            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("Relay", "default");
+            try
+            {
+                test.unknownPreservedAsBase();
+                test(false);
+            }
+            catch(Base ex)
+            {
+                if(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0))
+                {
+                    test(ex.ice_getSlicedData() == null);
+                }
+                else
+                {
+                    com.zeroc.Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                    test(slicedData != null);
+                    test(slicedData.slices.length == 2);
+                    test(slicedData.slices[1].typeId.equals("::Test::SPreserved1"));
+                    test(slicedData.slices[0].typeId.equals("::Test::SPreserved2"));
+                }
+            }
+
+            try
+            {
+                test.unknownPreservedAsKnownPreserved();
+                test(false);
+            }
+            catch(KnownPreserved ex)
+            {
+                test(ex.kp.equals("preserved"));
+                if(test.ice_getEncodingVersion().equals(com.zeroc.Ice.Util.Encoding_1_0))
+                {
+                    test(ex.ice_getSlicedData() == null);
+                }
+                else
+                {
+                    com.zeroc.Ice.SlicedData slicedData = ex.ice_getSlicedData();
+                    test(slicedData != null);
+                    test(slicedData.slices.length == 2);
+                    test(slicedData.slices[1].typeId.equals("::Test::SPreserved1"));
+                    test(slicedData.slices[0].typeId.equals("::Test::SPreserved2"));
+                }
+            }
+
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
             RelayPrx relay = RelayPrx.uncheckedCast(adapter.addWithUUID(new RelayI()));
             adapter.activate();
+            test.ice_getConnection().setAdapter(adapter);
 
             try
             {

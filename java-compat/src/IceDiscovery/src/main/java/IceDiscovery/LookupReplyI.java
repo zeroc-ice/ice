@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,16 +20,15 @@ class LookupReplyI extends _LookupReplyDisp
     public void
     foundObjectById(Ice.Identity id, Ice.ObjectPrx proxy, Ice.Current current)
     {
-        _lookup.foundObject(id, proxy);
+        _lookup.foundObject(id, current.id.name, proxy);
     }
 
     @Override
     public void
     foundAdapterById(String adapterId, Ice.ObjectPrx proxy, boolean isReplicaGroup, Ice.Current current)
     {
-        _lookup.foundAdapter(adapterId, proxy, isReplicaGroup);
+        _lookup.foundAdapter(adapterId, current.id.name, proxy, isReplicaGroup);
     }
 
     private final LookupI _lookup;
 }
-

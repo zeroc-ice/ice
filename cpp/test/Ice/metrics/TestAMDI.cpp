@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -22,7 +22,7 @@ MetricsI::opAsync(function<void()> response, function<void(exception_ptr)>, cons
 void
 MetricsI::failAsync(function<void()> response, function<void(exception_ptr)>, const Ice::Current& current)
 {
-    current.con->close(true);
+    current.con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
     response();
 }
 
@@ -87,7 +87,7 @@ MetricsI::op_async(const Test::AMD_Metrics_opPtr& cb, const Ice::Current&)
 void
 MetricsI::fail_async(const Test::AMD_Metrics_failPtr& cb, const Ice::Current& current)
 {
-    current.con->close(true);
+    current.con->close(Ice::ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
     cb->ice_response();
 }
 
@@ -98,7 +98,7 @@ MetricsI::opWithUserException_async(const Test::AMD_Metrics_opWithUserExceptionP
 }
 
 void
-MetricsI::opWithRequestFailedException_async(const Test::AMD_Metrics_opWithRequestFailedExceptionPtr& cb, 
+MetricsI::opWithRequestFailedException_async(const Test::AMD_Metrics_opWithRequestFailedExceptionPtr& cb,
                                              const Ice::Current&)
 {
     cb->ice_exception(Ice::ObjectNotExistException(__FILE__, __LINE__));

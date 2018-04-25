@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,6 +19,7 @@ import test.Ice.ami.Test.Callback_TestIntf_op;
 import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
 import test.Ice.ami.Test.Callback_TestIntf_opWithUE;
 import test.Ice.ami.Test.Callback_TestIntf_opWithPayload;
+import test.Ice.ami.Test.CloseMode;
 import test.Util.Application;
 
 public class AMI
@@ -546,6 +547,18 @@ public class AMI
         }
     }
 
+    static class CloseCallback extends CallbackBase implements Ice.CloseCallback
+    {
+        CloseCallback()
+        {
+        }
+
+        public void closed(Ice.Connection con)
+        {
+            called();
+        }
+    }
+
     enum ThrowType { LocalException, OtherException };
 
     static class Thrower extends CallbackBase
@@ -616,7 +629,7 @@ public class AMI
     run(Application app, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
         TestIntfControllerPrx testController)
     {
-
+        final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
         PrintWriter out = app.getWriter();
 
         out.print("testing begin/end invocation... ");
@@ -1180,7 +1193,6 @@ public class AMI
             {
             }
 
-
             try
             {
                 r = ((TestIntfPrx)p.ice_oneway()).begin_opWithResult();
@@ -1199,7 +1211,7 @@ public class AMI
                 initData.properties = communicator.getProperties()._clone();
                 Ice.Communicator ic = app.initialize(initData);
                 Ice.ObjectPrx o = ic.stringToProxy(p.toString());
-                TestIntfPrx p2 = TestIntfPrxHelper.checkedCast(o);
+                TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(o);
                 ic.destroy();
 
                 try
@@ -1809,7 +1821,7 @@ public class AMI
                 test(r2.isCompleted());
             }
 
-            if(p.ice_getConnection() != null)
+            if(p.ice_getConnection() != null && !bluetooth)
             {
                 //
                 // AsyncResult exception.
@@ -1817,7 +1829,7 @@ public class AMI
                 test(p.opBatchCount() == 0);
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.opBatch();
-                b1.ice_getConnection().close(false);
+                b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     new Ice.Callback()
@@ -1870,7 +1882,7 @@ public class AMI
                 test(p.waitForBatch(2));
             }
 
-            if(p.ice_getConnection() != null)
+            if(p.ice_getConnection() != null && !bluetooth)
             {
                 //
                 // Type-safe exception.
@@ -1879,7 +1891,7 @@ public class AMI
                 TestIntfPrx b1 = (TestIntfPrx)p.ice_batchOneway();
                 b1.ice_getConnection();
                 b1.opBatch();
-                b1.ice_getConnection().close(false);
+                b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                 final FlushCallback cb = new FlushCallback();
                 Ice.AsyncResult r = b1.begin_ice_flushBatchRequests(
                     new Ice.Callback_Object_ice_flushBatchRequests()
@@ -1920,6 +1932,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -1940,6 +1953,7 @@ public class AMI
                     test(p.waitForBatch(2));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult exception.
@@ -1948,9 +1962,10 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushExCallback cb = new FlushExCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -1982,6 +1997,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Connection_flushBatchRequests()
                         {
                             @Override
@@ -2002,6 +2018,7 @@ public class AMI
                     test(p.waitForBatch(2));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // Type-safe exception.
@@ -2010,9 +2027,10 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushExCallback cb = new FlushExCallback();
                     Ice.AsyncResult r = b1.ice_getConnection().begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Connection_flushBatchRequests()
                         {
                             @Override
@@ -2049,6 +2067,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2069,6 +2088,7 @@ public class AMI
                     test(p.waitForBatch(2));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult exception - 1 connection.
@@ -2077,9 +2097,10 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(p.ice_getConnection().createProxy(
                                                                          p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2100,6 +2121,7 @@ public class AMI
                     test(p.opBatchCount() == 0);
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult - 2 connections.
@@ -2116,6 +2138,7 @@ public class AMI
                     b2.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2136,6 +2159,7 @@ public class AMI
                     test(p.waitForBatch(4));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult exception - 2 connections - 1 failure.
@@ -2151,9 +2175,10 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2174,6 +2199,7 @@ public class AMI
                     test(p.waitForBatch(1));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // AsyncResult exception - 2 connections - 2 failures.
@@ -2188,10 +2214,11 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(false);
-                    b2.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    b2.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback()
                         {
                             @Override
@@ -2223,6 +2250,7 @@ public class AMI
                     b1.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2243,6 +2271,7 @@ public class AMI
                     test(p.waitForBatch(2));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // Type-safe exception - 1 connection.
@@ -2251,9 +2280,10 @@ public class AMI
                     TestIntfPrx b1 = TestIntfPrxHelper.uncheckedCast(
                         p.ice_getConnection().createProxy(p.ice_getIdentity()).ice_batchOneway());
                     b1.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2274,6 +2304,7 @@ public class AMI
                     test(p.opBatchCount() == 0);
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // 2 connections.
@@ -2290,6 +2321,7 @@ public class AMI
                     b2.opBatch();
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2310,6 +2342,7 @@ public class AMI
                     test(p.waitForBatch(4));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // Exception - 2 connections - 1 failure.
@@ -2325,9 +2358,10 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2348,6 +2382,7 @@ public class AMI
                     test(p.waitForBatch(1));
                 }
 
+                if(!bluetooth)
                 {
                     //
                     // Exception - 2 connections - 2 failures.
@@ -2362,10 +2397,11 @@ public class AMI
                     b2.ice_getConnection(); // Ensure connection is established.
                     b1.opBatch();
                     b2.opBatch();
-                    b1.ice_getConnection().close(false);
-                    b2.ice_getConnection().close(false);
+                    b1.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
+                    b2.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
                     final FlushCallback cb = new FlushCallback();
                     Ice.AsyncResult r = communicator.begin_flushBatchRequests(
+                        Ice.CompressBatch.BasedOnProxy,
                         new Ice.Callback_Communicator_flushBatchRequests()
                         {
                             @Override
@@ -2487,7 +2523,7 @@ public class AMI
                     Ice.Connection con = p.ice_getConnection();
                     p2 = (TestIntfPrx)p.ice_batchOneway();
                     p2.ice_ping();
-                    r = con.begin_flushBatchRequests();
+                    r = con.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     test(r.getConnection() == con);
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
@@ -2498,7 +2534,7 @@ public class AMI
                     //
                     p2 = (TestIntfPrx)p.ice_batchOneway();
                     p2.ice_ping();
-                    r = communicator.begin_flushBatchRequests();
+                    r = communicator.begin_flushBatchRequests(Ice.CompressBatch.BasedOnProxy);
                     test(r.getConnection() == null); // Expected
                     test(r.getCommunicator() == communicator);
                     test(r.getProxy() == null); // Expected
@@ -2586,11 +2622,35 @@ public class AMI
         }
         out.println("ok");
 
-        if(p.ice_getConnection() != null)
+        if(p.ice_getConnection() != null && p.supportsAMD() && !bluetooth)
         {
-            out.print("testing close connection with sending queue... ");
+            out.print("testing graceful close connection with wait... ");
             out.flush();
             {
+                //
+                // Local case: begin a request, close the connection gracefully, and make sure it waits
+                // for the request to complete.
+                //
+                CloseCallback cb = new CloseCallback();
+                Ice.Connection con = p.ice_getConnection();
+                con.setCloseCallback(cb);
+                Ice.AsyncResult r = p.begin_sleep(100);
+                con.close(Ice.ConnectionClose.GracefullyWithWait); // Blocks until the request completes.
+                r.waitForCompleted(); // Should complete successfully.
+                try
+                {
+                    r.throwLocalException();
+                }
+                catch(Throwable ex)
+                {
+                    test(false);
+                }
+                cb.check();
+            }
+            {
+                //
+                // Remote case.
+                //
                 byte[] seq = new byte[1024 * 10];
 
                 //
@@ -2604,12 +2664,12 @@ public class AMI
                 {
                     done = true;
                     p.ice_ping();
-                    java.util.List<Ice.AsyncResult> results = new java.util.ArrayList<Ice.AsyncResult>();
+                    java.util.List<Ice.AsyncResult> results = new java.util.ArrayList<>();
                     for(int i = 0; i < maxQueue; ++i)
                     {
                         results.add(p.begin_opWithPayload(seq));
                     }
-                    if(!p.begin_close(false).isSent())
+                    if(!p.begin_close(CloseMode.GracefullyWithWait).isSent())
                     {
                         for(int i = 0; i < maxQueue; i++)
                         {
@@ -2640,6 +2700,94 @@ public class AMI
                             test(false);
                         }
                     }
+                }
+            }
+            out.println("ok");
+
+            out.print("testing graceful close connection without wait... ");
+            out.flush();
+            {
+                //
+                // Local case: start an operation and then close the connection gracefully on the client side
+                // without waiting for the pending invocation to complete. There will be no retry and we expect the
+                // invocation to fail with ConnectionManuallyClosedException.
+                //
+                p = (TestIntfPrx)p.ice_connectionId("CloseGracefully"); // Start with a new connection.
+                Ice.Connection con = p.ice_getConnection();
+                Ice.AsyncResult r = p.begin_startDispatch();
+                r.waitForSent(); // Ensure the request was sent before we close the connection.
+                con.close(Ice.ConnectionClose.Gracefully);
+                r.waitForCompleted();
+                try
+                {
+                    r.throwLocalException();
+                    test(false);
+                }
+                catch(Ice.ConnectionManuallyClosedException ex)
+                {
+                    test(ex.graceful);
+                }
+                p.finishDispatch();
+
+                //
+                // Remote case: the server closes the connection gracefully, which means the connection
+                // will not be closed until all pending dispatched requests have completed.
+                //
+                con = p.ice_getConnection();
+                CloseCallback cb = new CloseCallback();
+                con.setCloseCallback(cb);
+                r = p.begin_sleep(100);
+                p.close(CloseMode.Gracefully); // Close is delayed until sleep completes.
+                cb.check(); // Ensure connection was closed.
+                r.waitForCompleted();
+                try
+                {
+                    r.throwLocalException();
+                }
+                catch(Ice.LocalException ex)
+                {
+                    test(false);
+                }
+            }
+            out.println("ok");
+
+            out.print("testing forceful close connection... ");
+            out.flush();
+            {
+                //
+                // Local case: start an operation and then close the connection forcefully on the client side.
+                // There will be no retry and we expect the invocation to fail with ConnectionManuallyClosedException.
+                //
+                p.ice_ping();
+                Ice.Connection con = p.ice_getConnection();
+                Ice.AsyncResult r = p.begin_startDispatch();
+                r.waitForSent(); // Ensure the request was sent before we close the connection.
+                con.close(Ice.ConnectionClose.Forcefully);
+                r.waitForCompleted();
+                try
+                {
+                    r.throwLocalException();
+                    test(false);
+                }
+                catch(Ice.ConnectionManuallyClosedException ex)
+                {
+                    test(!ex.graceful);
+                }
+                p.finishDispatch();
+
+                //
+                // Remote case: the server closes the connection forcefully. This causes the request to fail
+                // with a ConnectionLostException. Since the close() operation is not idempotent, the client
+                // will not retry.
+                //
+                try
+                {
+                    p.close(CloseMode.Forcefully);
+                    test(false);
+                }
+                catch(Ice.ConnectionLostException ex)
+                {
+                    // Expected.
                 }
             }
             out.println("ok");

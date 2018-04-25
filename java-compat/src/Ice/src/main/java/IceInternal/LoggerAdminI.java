@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -20,12 +20,12 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         {
             return; // can't send this null RemoteLogger anything!
         }
-        
+
         Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(prx.ice_twoway());
-       
+
         Filters filters = new Filters(messageTypes, categories);
         java.util.List<Ice.LogMessage> initLogMessages = null;
-       
+
         synchronized(this)
         {
             if(_sendLogCommunicator == null)
@@ -35,12 +35,12 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                     throw new Ice.ObjectNotExistException();
                 }
 
-                _sendLogCommunicator = 
+                _sendLogCommunicator =
                     createSendLogCommunicator(current.adapter.getCommunicator(), _logger.getLocalLogger());
             }
-            
+
             Ice.Identity remoteLoggerId = remoteLogger.ice_getIdentity();
-            
+
             if(_remoteLoggerMap.containsKey(remoteLoggerId))
             {
                 if(_traceLevel > 0)
@@ -48,13 +48,13 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                     _logger.trace(_traceCategory, "rejecting `" + remoteLogger.toString() +
                                                   "' with RemoteLoggerAlreadyAttachedException");
                 }
-                
+
                 throw new Ice.RemoteLoggerAlreadyAttachedException();
             }
 
-            _remoteLoggerMap.put(remoteLoggerId, 
+            _remoteLoggerMap.put(remoteLoggerId,
                                  new RemoteLoggerData(changeCommunicator(remoteLogger, _sendLogCommunicator), filters));
-            
+
             if(messageMax != 0)
             {
                 initLogMessages = new java.util.LinkedList<Ice.LogMessage>(_queue); // copy
@@ -64,7 +64,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                 initLogMessages = new java.util.LinkedList<Ice.LogMessage>();
             }
         }
-        
+
         if(_traceLevel > 0)
         {
             _logger.trace(_traceCategory, "attached `" + remoteLogger.toString() + "'");
@@ -74,18 +74,18 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         {
             filterLogMessages(initLogMessages, filters.messageTypes, filters.traceCategories, messageMax);
         }
-        
+
         final Ice.Callback initCompletedCb = new Ice.Callback()
             {
                 @Override
                 public void completed(Ice.AsyncResult r)
                 {
                     Ice.RemoteLoggerPrx remoteLogger = Ice.RemoteLoggerPrxHelper.uncheckedCast(r.getProxy());
-                    
+
                     try
                     {
                         remoteLogger.end_init(r);
-                        
+
                         if(_traceLevel > 1)
                         {
                             _logger.trace(_traceCategory, r.getOperation() + " on `" + remoteLogger.toString() +
@@ -98,19 +98,19 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                     }
                 }
             };
-   
+
         try
         {
-            remoteLogger.begin_init(_logger.getPrefix(), initLogMessages.toArray(new Ice.LogMessage[0]), 
+            remoteLogger.begin_init(_logger.getPrefix(), initLogMessages.toArray(new Ice.LogMessage[0]),
                                     initCompletedCb);
         }
         catch(Ice.LocalException ex)
         {
             deadRemoteLogger(remoteLogger, _logger, ex, "init");
             throw ex;
-        }    
+        }
     }
-    
+
     @Override
     public boolean detachRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Current current)
     {
@@ -118,7 +118,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         {
             return false;
         }
-        
+
         //
         // No need to convert the proxy as we only use its identity
         //
@@ -138,7 +138,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
 
         return found;
     }
-    
+
     @Override
     public Ice.LogMessage[] getLog(Ice.LogMessageType[] messageTypes, String[] categories, int messageMax,
             Ice.StringHolder prefix, Ice.Current current)
@@ -155,9 +155,9 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                 logMessages = new java.util.LinkedList<Ice.LogMessage>();
             }
         }
-        
+
         prefix.value = _logger.getPrefix();
-    
+
         if(!logMessages.isEmpty())
         {
             Filters filters = new Filters(messageTypes, categories);
@@ -166,7 +166,6 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         return logMessages.toArray(new Ice.LogMessage[0]);
     }
 
-
     LoggerAdminI(Ice.Properties props, LoggerAdminLoggerI logger)
     {
         _maxLogCount = props.getPropertyAsIntWithDefault("Ice.Admin.Logger.KeepLogs", 100);
@@ -174,7 +173,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         _traceLevel = props.getPropertyAsInt("Ice.Trace.Admin.Logger");
         _logger = logger;
     }
-    
+
     void destroy()
     {
         Ice.Communicator sendLogCommunicator = null;
@@ -188,9 +187,9 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                 _sendLogCommunicator = null;
             }
         }
-         
-        // 
-        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to 
+
+        //
+        // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
         // remote logggers
         //
         if(sendLogCommunicator != null)
@@ -206,11 +205,11 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         //
         // Put message in _queue
         //
-        if((logMessage.type != Ice.LogMessageType.TraceMessage && _maxLogCount > 0) || 
-           (logMessage.type == Ice.LogMessageType.TraceMessage && _maxTraceCount > 0)) 
+        if((logMessage.type != Ice.LogMessageType.TraceMessage && _maxLogCount > 0) ||
+           (logMessage.type == Ice.LogMessageType.TraceMessage && _maxTraceCount > 0))
         {
-            _queue.add(logMessage); // add at the end 
-            
+            _queue.add(logMessage); // add at the end
+
             if(logMessage.type != Ice.LogMessageType.TraceMessage)
             {
                 assert(_maxLogCount > 0);
@@ -222,7 +221,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                     assert(_oldestLog != -1);
                     _queue.remove(_oldestLog);
                     int qs = _queue.size();
-                    
+
                     while(_oldestLog < qs && _queue.get(_oldestLog).type == Ice.LogMessageType.TraceMessage)
                     {
                         _oldestLog++;
@@ -266,18 +265,18 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                     }
                 }
             }
-        
+
             //
             // Queue updated, now find which remote loggers want this message
-            //        
+            //
             for(RemoteLoggerData p : _remoteLoggerMap.values())
             {
                 Filters filters = p.filters;
-                
+
                 if(filters.messageTypes.isEmpty() || filters.messageTypes.contains(logMessage.type))
                 {
                     if(logMessage.type != Ice.LogMessageType.TraceMessage || filters.traceCategories.isEmpty() ||
-                       filters.traceCategories.contains(logMessage.traceCategory)) 
+                       filters.traceCategories.contains(logMessage.traceCategory))
                     {
                         if(remoteLoggers == null)
                         {
@@ -288,10 +287,10 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                 }
             }
         }
-   
+
         return remoteLoggers;
     }
-   
+
     void deadRemoteLogger(Ice.RemoteLoggerPrx remoteLogger, Ice.Logger logger, Ice.LocalException ex, String operation)
     {
         //
@@ -301,28 +300,28 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         {
             if(_traceLevel > 0)
             {
-                logger.trace(_traceCategory,  "detached `" + remoteLogger.toString() + "' because " 
+                logger.trace(_traceCategory,  "detached `" + remoteLogger.toString() + "' because "
                              + operation + " raised:\n" + ex.toString());
             }
         }
     }
-    
+
     int getTraceLevel()
     {
         return _traceLevel;
     }
-   
+
     private synchronized boolean removeRemoteLogger(Ice.RemoteLoggerPrx remoteLogger)
     {
-        return _remoteLoggerMap.remove(remoteLogger.ice_getIdentity()) != null; 
+        return _remoteLoggerMap.remove(remoteLogger.ice_getIdentity()) != null;
     }
-    
+
     private static void filterLogMessages(java.util.List<Ice.LogMessage> logMessages,
                                           java.util.Set<Ice.LogMessageType> messageTypes,
                                           java.util.Set<String> traceCategories, int messageMax)
     {
         assert(!logMessages.isEmpty() && messageMax != 0);
-        
+
         //
         // Filter only if one of the 3 filters is set; messageMax < 0 means "give me all"
         // that match the other filters, if any.
@@ -343,7 +342,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
                         keepIt = true;
                     }
                 }
-                
+
                 if(keepIt)
                 {
                     ++count;
@@ -404,7 +403,7 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         copyProperties("IceSSL.", mainProps, initData.properties);
 
         String[] extraProps = mainProps.getPropertyAsList("Ice.Admin.Logger.Properties");
-    
+
         if(extraProps.length > 0)
         {
             for(int i = 0; i < extraProps.length; ++i)
@@ -420,7 +419,6 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         return Ice.Util.initialize(initData);
     }
 
-     
     private final java.util.List<Ice.LogMessage> _queue = new java.util.LinkedList<Ice.LogMessage>();
     private int _logCount = 0; // non-trace messages
     private final int _maxLogCount;
@@ -455,9 +453,9 @@ final class LoggerAdminI extends Ice._LoggerAdminDisp
         final Filters filters;
     }
 
-    private final java.util.Map<Ice.Identity, RemoteLoggerData> _remoteLoggerMap 
-        = new java.util.HashMap<Ice.Identity, RemoteLoggerData>(); 
-    
+    private final java.util.Map<Ice.Identity, RemoteLoggerData> _remoteLoggerMap
+        = new java.util.HashMap<Ice.Identity, RemoteLoggerData>();
+
     private final LoggerAdminLoggerI _logger;
     private Ice.Communicator _sendLogCommunicator = null;
     private boolean _destroyed = false;

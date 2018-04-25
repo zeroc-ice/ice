@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -29,7 +29,7 @@ public final class AMDMetricsI implements Metrics
     @Override
     public CompletionStage<Void> failAsync(com.zeroc.Ice.Current current)
     {
-        current.con.close(true);
+        current.con.close(com.zeroc.Ice.ConnectionClose.Forcefully);
         return CompletableFuture.completedFuture((Void)null);
     }
 

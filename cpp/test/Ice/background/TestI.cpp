@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -66,13 +66,13 @@ BackgroundControllerI::holdAdapter(const Ice::Current&)
 {
     _adapter->hold();
 }
-    
+
 void
 BackgroundControllerI::resumeAdapter(const Ice::Current&)
 {
     _adapter->activate();
 }
-    
+
 void
 BackgroundControllerI::initializeSocketOperation(int status, const Ice::Current&)
 {
@@ -96,7 +96,7 @@ BackgroundControllerI::readException(bool enable, const Ice::Current&)
 {
     _configuration->readException(enable ? new Ice::SocketException(__FILE__, __LINE__) : 0);
 }
-    
+
 void
 BackgroundControllerI::writeReady(bool enable, const Ice::Current&)
 {
@@ -108,14 +108,14 @@ BackgroundControllerI::writeException(bool enable, const Ice::Current&)
 {
     _configuration->writeException(enable ? new Ice::SocketException(__FILE__, __LINE__) : 0);
 }
-    
+
 void
 BackgroundControllerI::buffered(bool enable, const Ice::Current&)
 {
     _configuration->buffered(enable);
 }
 
-BackgroundControllerI::BackgroundControllerI(const Ice::ObjectAdapterPtr& adapter, 
+BackgroundControllerI::BackgroundControllerI(const Ice::ObjectAdapterPtr& adapter,
                                              const ConfigurationPtr& configuration) :
     _adapter(adapter),
     _configuration(configuration)

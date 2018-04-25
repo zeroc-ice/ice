@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -14,7 +14,7 @@ using namespace std;
 using namespace Ice;
 
 TestIntfI::TestIntfI() :
-    _batchCount(0)
+    _batchCount(0), _shutdown(false)
 {
 }
 
@@ -93,21 +93,109 @@ TestIntfI::waitForBatch(Ice::Int count, const Ice::Current&)
 }
 
 void
-TestIntfI::close(bool force, const Ice::Current& current)
+TestIntfI::close(Test::CloseMode mode, const Ice::Current& current)
 {
-    current.con->close(force);
+    current.con->close(static_cast<ConnectionClose>(mode));
+}
+
+void
+TestIntfI::sleep(Ice::Int ms, const Ice::Current& current)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    timedWait(IceUtil::Time::milliSeconds(ms));
+}
+
+#ifdef ICE_CPP11_MAPPING
+void
+TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)> ex,
+                              const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_shutdown)
+    {
+        response();
+        return;
+    }
+    else if(_pending)
+    {
+        _pending();
+    }
+    _pending = move(response);
+}
+#else
+void
+TestIntfI::startDispatch_async(const Test::AMD_TestIntf_startDispatchPtr& cb, const Ice::Current&)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_shutdown)
+    {
+        // Ignore, this can occur with the forcefull connection close test, shutdown can be dispatch
+        // before start dispatch.
+        cb->ice_response();
+        return;
+    }
+    else if(_pending)
+    {
+        _pending->ice_response();
+    }
+    _pending = cb;
+}
+#endif
+
+void
+TestIntfI::finishDispatch(const Ice::Current& current)
+{
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    if(_shutdown)
+    {
+        return;
+    }
+    else if(_pending) // Pending might not be set yet if startDispatch is dispatch out-of-order
+    {
+#ifdef ICE_CPP11_MAPPING
+        _pending();
+        _pending = nullptr;
+#else
+        _pending->ice_response();
+        _pending = 0;
+#endif
+    }
 }
 
 void
 TestIntfI::shutdown(const Ice::Current& current)
 {
+    IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+    _shutdown = true;
+    if(_pending)
+    {
+#ifdef ICE_CPP11_MAPPING
+        _pending();
+        _pending = nullptr;
+#else
+        _pending->ice_response();
+        _pending = 0;
+#endif
+    }
     current.adapter->getCommunicator()->shutdown();
+}
+
+bool
+TestIntfI::supportsAMD(const Ice::Current&)
+{
+    return true;
 }
 
 bool
 TestIntfI::supportsFunctionalTests(const Ice::Current&)
 {
     return false;
+}
+
+void
+TestIntfI::pingBiDir(ICE_IN(Ice::Identity) id, const Ice::Current& current)
+{
+    ICE_UNCHECKED_CAST(Test::PingReplyPrx, current.con->createProxy(id))->reply();
 }
 
 void
@@ -126,3 +214,9 @@ TestIntfControllerI::TestIntfControllerI(const Ice::ObjectAdapterPtr& adapter) :
 {
 }
 
+Ice::Int
+TestIntfII::op(Ice::Int i, Ice::Int& j, const Ice::Current&)
+{
+    j = i;
+    return i;
+}

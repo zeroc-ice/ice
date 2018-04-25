@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -31,14 +31,14 @@ public:
     //
     // Create a direct reference.
     //
-    ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&, 
+    ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&,
                         const ::std::vector<EndpointIPtr>&);
-    
+
     //
     // Create an indirect reference.
     //
     ReferencePtr create(const ::Ice::Identity&, const ::std::string&, const ReferencePtr&, const std::string&);
-    
+
     //
     // Create a fixed reference.
     //
@@ -66,7 +66,7 @@ private:
     friend class Instance;
 
     void checkForUnknownProperties(const std::string&);
-    RoutableReferencePtr create(const ::Ice::Identity&, const ::std::string&, Reference::Mode, bool, 
+    RoutableReferencePtr create(const ::Ice::Identity&, const ::std::string&, Reference::Mode, bool,
                                 const Ice::ProtocolVersion&, const Ice::EncodingVersion&,
                                 const std::vector<EndpointIPtr>&, const std::string&, const std::string&);
 

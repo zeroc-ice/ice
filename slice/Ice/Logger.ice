@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "objc:header-dir:objc"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
@@ -32,6 +32,7 @@ local interface Logger
      * Print a message. The message is printed literally, without
      * any decorations such as executable name or time stamp.
      *
+     * @param message The message to log.
      **/
     void print(string message);
 
@@ -67,7 +68,7 @@ local interface Logger
      *
      **/
     void error(string message);
-    
+
     /**
      *
      * Returns this logger's prefix.
@@ -82,9 +83,10 @@ local interface Logger
      * Returns a clone of the logger with a new prefix.
      *
      * @param prefix The new prefix for the logger.
+     * @return A logger instance.
      *
      */
     Logger cloneWithPrefix(string prefix);
-};
+}
 
-};
+}

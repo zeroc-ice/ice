@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2016 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -8,7 +8,7 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice.__M.require(module,
+Ice._ModuleRegistry.require(module,
     [
         "../Ice/Debug",
         "../Ice/LocalException",
@@ -55,11 +55,11 @@ class ServantManager
             if(m.has(facet))
             {
                 const ex = new Ice.AlreadyRegisteredException();
-                ex.id = Ice.identityToString(ident);
+                ex.id = Ice.identityToString(ident, this._instance.toStringMode());
                 ex.kindOfObject = "servant";
                 if(facet.length > 0)
                 {
-                    ex.id += " -f " + StringUtil.escapeString(facet, "");
+                    ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
                 }
                 throw ex;
             }
@@ -96,11 +96,11 @@ class ServantManager
         if(m === undefined || !m.has(facet))
         {
             const ex = new Ice.NotRegisteredException();
-            ex.id = Ice.identityToString(ident);
+            ex.id = Ice.identityToString(ident, this._instance.toStringMode());
             ex.kindOfObject = "servant";
             if(facet.length > 0)
             {
-                ex.id += " -f " + StringUtil.escapeString(facet, "");
+                ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
             }
             throw ex;
         }
@@ -141,7 +141,7 @@ class ServantManager
         if(m === undefined)
         {
             const ex = new Ice.NotRegisteredException();
-            ex.id = Ice.identityToString(ident);
+            ex.id = Ice.identityToString(ident, this._instance.toStringMode());
             ex.kindOfObject = "servant";
             throw ex;
         }
@@ -234,7 +234,7 @@ class ServantManager
         if(this._locatorMap.has(category))
         {
             const ex = new Ice.AlreadyRegisteredException();
-            ex.id = StringUtil.escapeString(category, "");
+            ex.id = StringUtil.escapeString(category, "", this._instance.toStringMode());
             ex.kindOfObject = "servant locator";
             throw ex;
         }
@@ -250,7 +250,7 @@ class ServantManager
         if(l === undefined)
         {
             const ex = new Ice.NotRegisteredException();
-            ex.id = StringUtil.escapeString(category, "");
+            ex.id = StringUtil.escapeString(category, "", this._instance.toStringMode());
             ex.kindOfObject = "servant locator";
             throw ex;
         }
@@ -287,7 +287,7 @@ class ServantManager
         this._locatorMap.clear();
         this._instance = null;
 
-        for(let [key, locator] of locatorMap)
+        for(const [key, locator] of locatorMap)
         {
             try
             {
