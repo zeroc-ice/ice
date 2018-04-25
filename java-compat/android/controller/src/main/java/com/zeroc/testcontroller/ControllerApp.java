@@ -15,8 +15,6 @@ import java.util.*;
 import Ice.Logger;
 import Ice.Communicator;
 
-import dalvik.system.DexClassLoader;
-
 import android.content.Context;
 import android.os.Build;
 import android.util.Log;
@@ -37,55 +35,14 @@ public class ControllerApp extends Application
     private String _ipv4Address;
     private String _ipv6Address;
 
-    private ClassLoader getDEXClassLoader(String classDir, ClassLoader parent) throws IOException
-    {
-        ClassLoader classLoader = _classLoaders.get(classDir);
-        if(classLoader == null)
-        {
-            if(parent == null)
-            {
-                parent = getClassLoader();
-            }
-
-            File dexInternalStoragePath = new java.io.File(getDir("dex", Context.MODE_PRIVATE), classDir);
-            BufferedInputStream bis = new BufferedInputStream(getAssets().open(classDir));
-            OutputStream dexWriter = new BufferedOutputStream(new FileOutputStream(dexInternalStoragePath));
-            final int sz = 8 * 1024;
-            byte[] buf = new byte[sz];
-            int len;
-            while((len = bis.read(buf, 0, sz)) > 0)
-            {
-                dexWriter.write(buf, 0, len);
-            }
-            dexWriter.close();
-            bis.close();
-
-            // Internal storage where the DexClassLoader writes the optimized dex file to
-            final File optimizedDexOutputPath = getDir("outdex", Context.MODE_PRIVATE);
-
-            classLoader = new DexClassLoader(
-                    dexInternalStoragePath.getAbsolutePath(),
-                    optimizedDexOutputPath.getAbsolutePath(),
-                    null,
-                    parent);
-            _classLoaders.put(classDir, classLoader);
-        }
-        return classLoader;
-    }
 
     static private class TestSuiteBundle
     {
         @SuppressWarnings("unchecked")
-        TestSuiteBundle(String name, ClassLoader loader)
+        TestSuiteBundle(String name, ClassLoader loader) throws ClassNotFoundException
         {
             _loader = loader;
-            try
-            {
-                _class = (Class<? extends test.Util.Application>)_loader.loadClass(name);
-            }
-            catch(ClassNotFoundException e)
-            {
-            }
+            _class = (Class<? extends test.Util.Application>)_loader.loadClass(name);
         }
 
         test.Util.Application newInstance()
@@ -247,6 +204,8 @@ public class ControllerApp extends Application
             initData.properties = Ice.Util.createProperties();
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
+            //initData.properties.setProperty("Ice.Trace.Network", "3");
+            //initData.properties.setProperty("Ice.Trace.Protocol", "1");
             initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
@@ -341,9 +300,9 @@ public class ControllerApp extends Application
                                     final ProcessControllerRegistryPrx registry,
                                     final ProcessControllerPrx processController)
         {
-            if(ex instanceof Ice.ConnectFailedException || ex instanceof  Ice.TimeoutException)
+            if(ex instanceof Ice.ConnectFailedException || ex instanceof Ice.TimeoutException)
             {
-                while (true)
+                while(true)
                 {
                     try
                     {
@@ -532,15 +491,14 @@ public class ControllerApp extends Application
         {
             println("starting " + testsuite + " " + exe + "... ");
             String className = "test." + testsuite.replace("/", ".") + "." + exe.substring(0, 1).toUpperCase() + exe.substring(1);
-            String dexFile = "test_" + testsuite.replace("/", "_") + ".dex";
             try
             {
-                TestSuiteBundle bundle = new TestSuiteBundle(className, getDEXClassLoader(dexFile, null));
+                TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
                 MainHelperI mainHelper = new MainHelperI(bundle, args, exe);
                 mainHelper.start();
                 return Test.Common.ProcessPrxHelper.uncheckedCast(current.adapter.addWithUUID(new ProcessI(mainHelper)));
             }
-            catch(IOException ex)
+            catch(ClassNotFoundException ex)
             {
                 throw new Test.Common.ProcessFailedException(
                     "testsuite `" + testsuite + "' exe ` " + exe + "' start failed:\n" + ex.toString());

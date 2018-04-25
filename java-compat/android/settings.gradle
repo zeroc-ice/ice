@@ -9,12 +9,6 @@
 
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
 
-tests.each {
-    def name = it.replace('/', '_')
-    include ":test_${name}"
-    project(":test_${name}").projectDir = new File("test/src/test_${name}")
-}
-
 // Main source
 include ':ice-compat'
 project(':ice-compat').projectDir = new File('src/Ice')
@@ -38,4 +32,9 @@ project(':icegrid-compat').projectDir = new File('src/IceGrid')
 include ':test', ':testController'
 
 project(':test').projectDir = new File('test')
-project(':testController').projectDir = new File('test/controller')
+project(':testController').projectDir = new File('controller')
+tests.each {
+    def name = it.replace('/', '_')
+    include ":test_${name}"
+    project(":test_${name}").projectDir = new File("test/src/test_${name}")
+}

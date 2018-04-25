@@ -19,17 +19,18 @@ slice {
 }
 
 repositories {
-    mavenCentral()
+    jcenter()
+    google()
 }
 
 android {
     compileSdkVersion ice_compileSdkVersion.toInteger()
-    buildToolsVersion ice_buildToolsVersion
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"
         minSdkVersion ice_minSdkVersion.toInteger()
         targetSdkVersion ice_targetSdkVersion.toInteger()
+        multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_7
             targetCompatibility JavaVersion.VERSION_1_7
@@ -54,22 +55,6 @@ idea.module {
     buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
 }
 
-tests.each {
-    def name = it.replace("/", "_")
-    def taskName = "copyTask-${name}"
-    def testName = ":test_${name}"
-    def dexName = "test_${name}.dex"
-    task "${taskName}"(type: Copy, dependsOn: "${testName}:dexClasses") {
-        from "${rootProject.projectDir}/test/src/test_${name}/build/classes/java/main/${dexName}"
-        into "src/main/assets"
-    }
-    preBuild.dependsOn(tasks[taskName])
-
-    clean {
-        delete("src/main/assets/${dexName}")
-    }
-}
-
 task copyBksTask(type: Copy) {
     from "${project.ext.topSrcDir}/certs/client.bks"
     from "${project.ext.topSrcDir}/certs/server.bks"
@@ -83,9 +68,13 @@ clean {
 }
 
 dependencies {
-    compile localDependency('ice-compat')
-    compile localDependency('icediscovery-compat')
-    compile localDependency('icebt-compat')
-    compile project(':test')
+    implementation localDependency('ice-compat')
+    implementation localDependency('icediscovery-compat')
+    implementation localDependency('icebt-compat')
+    implementation project(':test')
+    tests.each {
+        def name = it.replace('/', '_')
+        implementation project(":test_${name}")
+    }
     runtimeOnly "org.apache.commons:commons-compress:1.14"
 }

@@ -3216,7 +3216,7 @@ class AndroidCompatMapping(JavaCompatMapping):
 
             parseOptions(self, options)
             self.androidemulator = self.androidemulator or self.avd
-            self.apk = "test/controller/build/outputs/apk/debug/testController-debug.apk"
+            self.apk = "controller/build/outputs/apk/debug/testController-debug.apk"
 
     def getSSLProps(self, process, current):
         props = JavaCompatMapping.getSSLProps(self, process, current)
