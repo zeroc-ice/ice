@@ -13,9 +13,19 @@
     public static void main(java.lang.String[]);
 }
 
-# Following options are useful for debugging. 
+# Following options are useful for debugging.
 # -printseeds
 # -verbose
+
+-dontnote jdk.internal.jimage.**
+-dontnote jdk.internal.jrtfs.**
+-dontnote module-info
+
+#
+# This classes are not longer part of JDK 10 on non Windows platforms
+# and will cause a build error
+#
+-dontwarn com.jgoodies.looks.windows.*
 
 # Preserve all annotations.
 
@@ -60,7 +70,7 @@
     java.lang.Object readResolve();
 }
 
-# Your application may contain more items that need to be preserved; 
+# Your application may contain more items that need to be preserved;
 # typically classes that are dynamically created using Class.forName:
 
 -keep,includedescriptorclasses public class Ice.** {
@@ -78,7 +88,7 @@
 
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticXPLookAndFeel
 -keep,includedescriptorclasses class com.jgoodies.looks.plastic.PlasticFieldCaret
--keep,includedescriptorclasses class com.jgoodies.looks.windows.WindowsFieldCaret 
+-keep,includedescriptorclasses class com.jgoodies.looks.windows.WindowsFieldCaret
 
 #
 # Without this directive, the menus on Windows don't look good
@@ -93,4 +103,3 @@
 -keep,includedescriptorclasses public class * {
     public protected *;
 }
-
