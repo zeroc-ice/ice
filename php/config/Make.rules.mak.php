@@ -43,7 +43,7 @@ USE_NAMESPACES		= no
 # Set PHP_HOME to your PHP source directory.
 #
 !if "$(PHP_HOME)" == ""
-PHP_HOME		= C:\php-5.6.31
+PHP_HOME		= C:\php-5.6.35
 !endif
 
 #
