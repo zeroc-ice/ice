@@ -6,10 +6,10 @@ assert project.plugins.findPlugin(JavaPlugin):
 assert project.plugins.findPlugin(ApplicationPlugin):
         "The Application plugin must be applied before using javafx7.gradle."
 
-def javafxJar = searchFile([{System.env['JFXRT_HOME']}, {System.env['JAVA_HOME']}, {System.properties['java.home']}],
+def javafxJar = searchFile([System.env['JFXRT_HOME'], System.env['JAVA_HOME'], System.properties['java.home']],
                     ['jfxrt.jar', 'lib/jfxrt.jar', 'lib/ext/jfxrt.jar', 'jre/lib/jfxrt.jar', 'jre/lib/ext/jfxrt.jar'])
 
-def antJavafxJar = searchFile([{System.env['JFXRT_HOME']}, {System.env['JAVA_HOME']}, {System.properties['java.home']}],
+def antJavafxJar = searchFile([System.env['JFXRT_HOME'], System.env['JAVA_HOME'], System.properties['java.home']],
                     ['ant-javafx.jar', 'lib/ant-javafx.jar', '../lib/ant-javafx.jar'])
 
 if (!javafxJar) {

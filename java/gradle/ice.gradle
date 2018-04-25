@@ -112,7 +112,7 @@ ext.libDir = "$rootProject.projectDir/lib"
 ext.iceSourceCompatibility = 1.7
 ext.iceTargetCompatibility = 1.7
 
-ext.searchFile = { List<Closure> places, List<String> searchPaths ->
+ext.searchFile = { places, searchPaths ->
     def dirs = []
     places.each {
         def dir = it
