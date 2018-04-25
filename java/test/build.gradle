@@ -35,7 +35,6 @@ dependencies {
     compile localDependency('icestorm')
     compile localDependency('icegrid')
     compile project(':testPlugins')
-    compile project(':testController')
     compile files(dbJar)
 }
 
