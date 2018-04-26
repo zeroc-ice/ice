@@ -23,14 +23,18 @@ project.ext.javafxJar = ['jfxrt.jar',
 
 project.ext.hasJavaFx = javafxJar != null
 
-if (project.ext.hasJavaFx) {
-    apply plugin: 'application'
-    apply from: 'javafx.gradle'
-} else {
-    sourceSets {
-        main {
-            java {
-                exclude '**/LiveDeployment/GraphView.java'
+if(JavaVersion.current() == JavaVersion.VERSION_1_8 ||
+   JavaVersion.current() == JavaVersion.VERSION_1_7)
+{
+    if (project.ext.hasJavaFx) {
+        apply plugin: 'application'
+        apply from: 'javafx.gradle'
+    } else {
+        sourceSets {
+            main {
+                java {
+                    exclude '**/LiveDeployment/GraphView.java'
+                }
             }
         }
     }
@@ -78,7 +82,8 @@ jar {
 project.ext.jarBuilder = "plain-jar.gradle"
 project.ext.libJars = []
 if(icegridguiProguard.toBoolean()) {
-    if(JavaVersion.current() == JavaVersion.VERSION_1_8) {
+    if(JavaVersion.current() == JavaVersion.VERSION_1_8 ||
+       JavaVersion.current() == JavaVersion.VERSION_1_7) {
         ['rt.jar',
          'jsse.jar',
          'i386/default/jclSC170/vm.jar',
