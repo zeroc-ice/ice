@@ -221,12 +221,12 @@ Parser.transverse = function(object, depend, srcDir)
 
 var StringBuffer = function()
 {
-    this.buffer = new Buffer(0);
+    this.buffer = Buffer.alloc(0);
 };
 
 StringBuffer.prototype.write = function(data)
 {
-    this.buffer = Buffer.concat([this.buffer, new Buffer(data, "utf8")]);
+    this.buffer = Buffer.concat([this.buffer, Buffer.from(data, "utf8")]);
 };
 
 function sourceMapRelativePath(file)
