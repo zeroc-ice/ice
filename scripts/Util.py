@@ -2249,6 +2249,12 @@ class AndroidProcessController(RemoteProcessController):
         print(" ok")
 
     def startControllerApp(self, current, ident):
+
+        # Stop previous controller app before starting new one
+        for ident in self.controllerApps:
+            self.stopControllerApp(ident)
+        self.controllerApps = []
+
         if current.config.avd:
             self.startEmulator(current.config.avd)
         elif current.config.androidemulator:
@@ -2264,7 +2270,8 @@ class AndroidProcessController(RemoteProcessController):
         elif not self.device:
             raise RuntimeError("no Android device specified to run the controller application")
 
-        apk = os.path.join(current.testcase.getMapping.getPath(), "controller/build/outputs/apk/debug/testController-debug.apk")
+        apk = os.path.join(current.testcase.getMapping().getPath(),
+                           "controller/build/outputs/apk/debug/testController-debug.apk")
         run("{} install -t -r {}".format(self.adb(), apk))
         run("{} shell am start -n com.zeroc.testcontroller/.ControllerActivity".format(self.adb()))
 

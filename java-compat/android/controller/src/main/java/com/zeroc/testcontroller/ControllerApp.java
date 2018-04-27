@@ -35,7 +35,6 @@ public class ControllerApp extends Application
     private String _ipv4Address;
     private String _ipv6Address;
 
-
     static private class TestSuiteBundle
     {
         @SuppressWarnings("unchecked")
