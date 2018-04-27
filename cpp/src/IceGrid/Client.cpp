@@ -371,8 +371,10 @@ Client::run(StringSeq& originalArgs)
 
     if(opts.isSet("server"))
     {
+        string endpoints =
+            communicator()->getProperties()->getPropertyWithDefault("FileParser.Endpoints", "tcp -h localhost");
         ObjectAdapterPtr adapter =
-            communicator()->createObjectAdapterWithEndpoints("FileParser", "tcp -h localhost");
+            communicator()->createObjectAdapterWithEndpoints("FileParser", endpoints);
         adapter->activate();
         ObjectPrx proxy = adapter->add(new FileParserI, stringToIdentity("FileParser"));
         consoleOut << proxy << endl;
