@@ -2191,7 +2191,10 @@ class AndroidProcessController(RemoteProcessController):
         return "Android"
 
     def getControllerIdentity(self, current):
-        return "Android/ProcessController"
+        if isinstance(current.testcase.getMapping(), AndroidMapping):
+            return "Android/ProcessController"
+        else:
+            return "AndroidCompat/ProcessController"
 
     def adb(self):
         return "adb -s {}".format(self.device) if self.device else "adb"
@@ -2238,9 +2241,9 @@ class AndroidProcessController(RemoteProcessController):
             except RuntimeError:
                 pass # expected if device is offline
             #
-            # If the emulator doesn't complete boot in 60 seconds give up
+            # If the emulator doesn't complete boot in 240 seconds give up
             #
-            if (time.time() - t) > 60:
+            if (time.time() - t) > 240:
                 raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
             time.sleep(2)
         print(" ok")
@@ -2261,7 +2264,8 @@ class AndroidProcessController(RemoteProcessController):
         elif not self.device:
             raise RuntimeError("no Android device specified to run the controller application")
 
-        run("{} install -t -r {}".format(self.adb(), current.config.apk))
+        apk = os.path.join(current.testcase.getMapping.getPath(), "controller/build/outputs/apk/debug/testController-debug.apk")
+        run("{} install -t -r {}".format(self.adb(), apk))
         run("{} shell am start -n com.zeroc.testcontroller/.ControllerActivity".format(self.adb()))
 
     def stopControllerApp(self, ident):
@@ -3170,7 +3174,6 @@ class AndroidMapping(JavaMapping):
 
             parseOptions(self, options)
             self.androidemulator = self.androidemulator or self.avd
-            self.apk = "controller/build/outputs/apk/debug/testController-debug.apk"
 
     def getSSLProps(self, process, current):
         props = JavaMapping.getSSLProps(self, process, current)
@@ -3216,7 +3219,6 @@ class AndroidCompatMapping(JavaCompatMapping):
 
             parseOptions(self, options)
             self.androidemulator = self.androidemulator or self.avd
-            self.apk = "controller/build/outputs/apk/debug/testController-debug.apk"
 
     def getSSLProps(self, process, current):
         props = JavaCompatMapping.getSSLProps(self, process, current)

@@ -220,7 +220,7 @@ public class ControllerApp extends Application
             _communicator = Ice.Util.initialize(initData);
             Ice.ObjectAdapter adapter = _communicator.createObjectAdapter("ControllerAdapter");
             ProcessControllerPrx processController = ProcessControllerPrxHelper.uncheckedCast(
-                    adapter.add(new ProcessControllerI(), Ice.Util.stringToIdentity("Android/ProcessController")));
+                    adapter.add(new ProcessControllerI(), Ice.Util.stringToIdentity("AndroidCompat/ProcessController")));
             adapter.activate();
             if(isEmulator())
             {
@@ -228,7 +228,7 @@ public class ControllerApp extends Application
                         _communicator.stringToProxy("Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001"));
                 registerProcessController(adapter, registry, processController);
             }
-            println("Android/ProcessController");
+            println("AndroidCompat/ProcessController");
         }
 
         public void
