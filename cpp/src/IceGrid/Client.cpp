@@ -241,8 +241,10 @@ Client::main(StringSeq& args)
     try
     {
         _appName = args[0];
+        PropertiesPtr defaultProps = createProperties();
+        defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
         InitializationData id;
-        id.properties = createProperties(args);
+        id.properties = createProperties(args, defaultProps);
         id.properties->setProperty("Ice.Warn.Endpoints", "0");
         _communicator = initialize(id);
 
@@ -371,10 +373,8 @@ Client::run(StringSeq& originalArgs)
 
     if(opts.isSet("server"))
     {
-        string endpoints =
-            communicator()->getProperties()->getPropertyWithDefault("FileParser.Endpoints", "tcp -h localhost");
         ObjectAdapterPtr adapter =
-            communicator()->createObjectAdapterWithEndpoints("FileParser", endpoints);
+            communicator()->createObjectAdapter("IceGridAdmin.Server");
         adapter->activate();
         ObjectPrx proxy = adapter->add(new FileParserI, stringToIdentity("FileParser"));
         consoleOut << proxy << endl;
