@@ -22,27 +22,27 @@
 
     class AMDThrowerI extends Test.Thrower
     {
-        async shutdown(current)
+        shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
         }
 
-        async supportsUndeclaredExceptions(current)
+        supportsUndeclaredExceptions(current)
         {
             return true;
         }
 
-        async supportsAssertException(current)
+        supportsAssertException(current)
         {
             return false;
         }
 
-        async throwAasA(a, current)
+        throwAasA(a, current)
         {
             throw new Test.A(a);
         }
 
-        async throwAorDasAorD(a, current)
+        throwAorDasAorD(a, current)
         {
             if(a > 0)
             {
@@ -59,7 +59,7 @@
             return this.throwBasB(a, b, current);
         }
 
-        async throwBasB(a, b, current)
+        throwBasB(a, b, current)
         {
             throw new Test.B(a, b);
         }
@@ -74,64 +74,61 @@
             return this.throwCasC(a, b, c, current);
         }
 
-        async throwCasC(a, b, c, current)
+        throwCasC(a, b, c, current)
         {
             throw new Test.C(a, b, c);
         }
 
-        async throwUndeclaredA(a, current)
+        throwUndeclaredA(a, current)
         {
             throw new Test.A(a);
         }
 
-        async throwUndeclaredB(a, b, current)
+        throwUndeclaredB(a, b, current)
         {
             throw new Test.B(a, b);
         }
 
-        async throwUndeclaredC(a, b, c, current)
+        throwUndeclaredC(a, b, c, current)
         {
             throw new Test.C(a, b, c);
         }
 
-        async throwLocalException(current)
+        throwLocalException(current)
         {
             throw new Ice.TimeoutException();
         }
 
-        async throwLocalExceptionIdempotent(current)
+        throwLocalExceptionIdempotent(current)
         {
             throw new Ice.TimeoutException();
         }
 
-        async throwNonIceException(current)
+        throwNonIceException(current)
         {
             throw new Error();
         }
 
-        async throwAssertException(current)
+        throwAssertException(current)
         {
             test(false);
         }
 
-        async throwMemoryLimitException(seq, current)
+        throwMemoryLimitException(seq, current)
         {
             return new Uint8Array(1024 * 20); // 20KB is over the configured 10KB message size max.
         }
 
-        async throwAfterResponse(current)
+        throwAfterResponse(current)
         {
-            //throw new Error();
         }
 
-        async throwAfterException(current)
+        throwAfterException(current)
         {
             throw new Test.A();
-            //throw new Error();
         }
     }
     exports.AMDThrowerI = AMDThrowerI;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

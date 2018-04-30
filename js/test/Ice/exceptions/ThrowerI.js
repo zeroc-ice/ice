@@ -135,7 +135,6 @@
         }
     }
     exports.ThrowerI = ThrowerI;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

@@ -454,7 +454,7 @@ class ReferenceFactory
                             }
                             else
                             {
-                                quote = s.indexOf('\"', ++quote);
+                                quote = s.indexOf("\"", ++quote);
                                 if(quote == -1)
                                 {
                                     break;
@@ -1329,6 +1329,12 @@ class Reference
                 s.push(" -D");
                 break;
             }
+
+            default:
+            {
+                Debug.assert(false);
+                break;
+            }
         }
 
         if(this._secure)
@@ -1632,6 +1638,12 @@ class FixedReference extends Reference
                 {
                     throw new Ice.NoEndpointException(this.toString());
                 }
+                break;
+            }
+
+            default:
+            {
+                Debug.assert(false);
                 break;
             }
         }
@@ -1992,8 +2004,8 @@ class RoutableReference extends Reference
         properties.set(prefix + ".EndpointSelection",
                        this._endpointSelection === EndpointSelectionType.Random ? "Random" : "Ordered");
 
-        properties.set(prefix + ".LocatorCacheTimeout", "" + this._locatorCacheTimeout);
-        properties.set(prefix + ".InvocationTimeout", "" + this.getInvocationTimeout());
+        properties.set(prefix + ".LocatorCacheTimeout", String(this._locatorCacheTimeout));
+        properties.set(prefix + ".InvocationTimeout", String(this.getInvocationTimeout()));
 
         if(this._routerInfo !== null)
         {
@@ -2265,6 +2277,12 @@ class RoutableReference extends Reference
                 endpoints = endpoints.filter(e => e.datagram());
                 break;
             }
+
+            default:
+            {
+                Debug.assert(false);
+                break;
+            }
         }
 
         //
@@ -2361,7 +2379,7 @@ class RoutableReference extends Reference
             // connection for one of the endpoints.
             //
             const cb = new CreateConnectionCallback(this, endpoints, promise);
-            factory.create([ endpoints[0] ], true, this.getEndpointSelection()).then(
+            factory.create([endpoints[0]], true, this.getEndpointSelection()).then(
                 connection => cb.setConnection(connection)).catch(ex => cb.setException(ex));
         }
         return promise;
@@ -2410,9 +2428,9 @@ class CreateConnectionCallback
         }
 
         this.ref.getInstance().outgoingConnectionFactory().create(
-            [ this.endpoints[this.i] ],
+            [this.endpoints[this.i]],
             this.i != this.endpoints.length - 1,
-            this.ref.getEndpointSelection()).then(connection => this.setConnection(connection))
-                                            .catch(ex => this.setException(ex));
+            this.ref.getEndpointSelection()).then(
+                connection => this.setConnection(connection)).catch(ex => this.setException(ex));
     }
 }

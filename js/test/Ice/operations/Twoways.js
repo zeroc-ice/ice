@@ -10,7 +10,6 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
-    const Test = require("Test").Test;
 
     async function run(communicator, prx, Test, bidir)
     {
@@ -27,7 +26,7 @@
             }
         }
 
-        let literals = await prx.opStringLiterals();
+        const literals = await prx.opStringLiterals();
 
         test(Test.s0 == "\\" &&
              Test.s0 == Test.sw0 &&
@@ -84,7 +83,7 @@
              Test.s10 == literals[10] &&
              Test.s10 == literals[21]);
 
-        test(Test.ss0 == "\'\"\?\\\u0007\b\f\n\r\t\v\u0006" &&
+        test(Test.ss0 == "'\"?\\\u0007\b\f\n\r\t\v\u0006" &&
              Test.ss0 == Test.ss1 &&
              Test.ss0 == Test.ss2 &&
              Test.ss0 == literals[22] &&
@@ -117,20 +116,20 @@
         await prx.opVoid();
 
         {
-            let [retval, p3] = await prx.opByte(0xff, 0x0f);
+            const [retval, p3] = await prx.opByte(0xff, 0x0f);
             test(p3 === 0xf0);
             test(retval === 0xff);
         }
 
         {
-            let [retval, p3] = await prx.opBool(true, false);
+            const [retval, p3] = await prx.opBool(true, false);
             test(p3);
             test(!retval);
         }
 
         {
-            let lo = new Ice.Long(0, 12);
-            let [retval, s, i, l] = await prx.opShortIntLong(10, 11, lo);
+            const lo = new Ice.Long(0, 12);
+            const [retval, s, i, l] = await prx.opShortIntLong(10, 11, lo);
 
             test(s === 10);
             test(i === 11);
@@ -139,7 +138,7 @@
         }
 
         {
-            let [retval, f, d] = await prx.opFloatDouble(3.14, 1.1E10);
+            const [retval, f, d] = await prx.opFloatDouble(3.14, 1.1E10);
             test((f - 3.14) <= 0.01);
             test(d == 1.1E10);
             test(retval == 1.1E10);
@@ -261,45 +260,45 @@
         await prx.opFloatDouble(Number.NEGATIVE_INFINITY, Number.NEGATIVE_INFINITY);
 
         {
-            let [retval, p3] = await prx.opString("hello", "world");
+            const [retval, p3] = await prx.opString("hello", "world");
             test(p3 === "world hello");
             test(retval === "hello world");
         }
 
         {
-            let [retval, p2] = await prx.opMyEnum(Test.MyEnum.enum2);
+            const [retval, p2] = await prx.opMyEnum(Test.MyEnum.enum2);
             test(p2 === Test.MyEnum.enum2);
             test(retval === Test.MyEnum.enum3);
         }
 
         {
             // Test null enum
-            let [retval, p2] = await prx.opMyEnum(null);
+            const [retval, p2] = await prx.opMyEnum(null);
             test(p2 === Test.MyEnum.enum1);
             test(retval === Test.MyEnum.enum3);
         }
 
         {
-             let [retval, p2, p3] = await prx.opMyClass(prx);
+             const [retval, p2, p3] = await prx.opMyClass(prx);
 
             test(p2.ice_getIdentity().equals(Ice.stringToIdentity("test")));
             test(p3.ice_getIdentity().equals(Ice.stringToIdentity("noSuchIdentity")));
             test(retval.ice_getIdentity().equals(Ice.stringToIdentity("test")));
+        }
 
-            si1 = new Test.Structure();
+        {
+            const si1 = new Test.Structure();
             si1.p = prx;
             si1.e = Test.MyEnum.enum3;
             si1.s = new Test.AnotherStruct();
             si1.s.s = "abc";
-            si2 = new Test.Structure();
+            const si2 = new Test.Structure();
             si2.p = null;
             si2.e = Test.MyEnum.enum2;
             si2.s = new Test.AnotherStruct();
             si2.s.s = "def";
-        }
 
-        {
-            let [retval, p3] = await prx.opStruct(si1, si2);;
+            const [retval, p3] = await prx.opStruct(si1, si2);
             test(retval.p === null);
             test(retval.e === Test.MyEnum.enum2);
             test(retval.s.s === "def");
@@ -309,9 +308,9 @@
         }
 
         {
-            let si1 = new Test.Structure();
+            const si1 = new Test.Structure();
             // Test null struct
-            let [retval, p3] = await prx.opStruct(si1, null);
+            const [retval, p3] = await prx.opStruct(si1, null);
 
             test(retval.p === null);
             test(retval.e === Test.MyEnum.enum1);
@@ -322,10 +321,10 @@
         }
 
         {
-            let bsi1 = new Uint8Array([ 0x01, 0x11, 0x12, 0x22 ]);
-            let bsi2 = new Uint8Array([ 0xf1, 0xf2, 0xf3, 0xf4 ]);
+            const bsi1 = new Uint8Array([0x01, 0x11, 0x12, 0x22]);
+            const bsi2 = new Uint8Array([0xf1, 0xf2, 0xf3, 0xf4]);
 
-            let [retval, p3] = await prx.opByteS(bsi1, bsi2);
+            const [retval, p3] = await prx.opByteS(bsi1, bsi2);
 
             test(p3.length === 4);
             test(p3[0] === 0x22);
@@ -344,9 +343,9 @@
         }
 
         {
-            let bsi1 = [ true, true, false ];
-            let bsi2 = [ false ];
-            let [retval, p3] = await prx.opBoolS(bsi1, bsi2);
+            const bsi1 = [true, true, false];
+            const bsi2 = [false];
+            const [retval, p3] = await prx.opBoolS(bsi1, bsi2);
 
             test(p3.length == 4);
             test(p3[0]);
@@ -360,13 +359,13 @@
         }
 
         {
-            let ssi = [ 1, 2, 3 ];
-            let isi = [ 5, 6, 7, 8 ];
-            let l1 = new Ice.Long(0, 10);
-            let l2 = new Ice.Long(0, 30);
-            let l3 = new Ice.Long(0, 20);
-            let lsi = [ l1, l2, l3 ];
-            let [retval, sso, iso, lso] = await prx.opShortIntLongS(ssi, isi, lsi);
+            const ssi = [1, 2, 3];
+            const isi = [5, 6, 7, 8];
+            const l1 = new Ice.Long(0, 10);
+            const l2 = new Ice.Long(0, 30);
+            const l3 = new Ice.Long(0, 20);
+            const lsi = [l1, l2, l3];
+            const [retval, sso, iso, lso] = await prx.opShortIntLongS(ssi, isi, lsi);
 
             test(sso.length === 3);
             test(sso[0] === 1);
@@ -391,9 +390,9 @@
         }
 
         {
-            let fsi = [ 3.14, 1.11 ];
-            let dsi = [ 1.1E10, 1.2E10, 1.3E10 ];
-            let [retval, fso, dso] = await prx.opFloatDoubleS(fsi, dsi);
+            const fsi = [3.14, 1.11];
+            const dsi = [1.1E10, 1.2E10, 1.3E10];
+            const [retval, fso, dso] = await prx.opFloatDoubleS(fsi, dsi);
 
             test(fso.length === 2);
             test((fso[0] - 3.14) <= 0.01);
@@ -411,9 +410,9 @@
         }
 
         {
-            let ssi1 = [ "abc", "de", "fghi" ];
-            let ssi2 = [ "xyz" ];
-            let [retval, sso] = await prx.opStringS(ssi1, ssi2);
+            const ssi1 = ["abc", "de", "fghi"];
+            const ssi2 = ["xyz"];
+            const [retval, sso] = await prx.opStringS(ssi1, ssi2);
 
             test(sso.length === 4);
             test(sso[0] === "abc");
@@ -427,17 +426,19 @@
         }
 
         {
-            let bsi1 =
+            const bsi1 =
                 [
-                    new Uint8Array([ 0x01, 0x11, 0x12 ]),
-                    new Uint8Array([ 0xff ])
+                    new Uint8Array([0x01, 0x11, 0x12]),
+                    new Uint8Array([0xff])
                 ];
-            let bsi2 =
+
+            const bsi2 =
                 [
-                    new Uint8Array([ 0x0e ]),
-                    new Uint8Array([ 0xf2, 0xf1 ])
+                    new Uint8Array([0x0e]),
+                    new Uint8Array([0xf2, 0xf1])
                 ];
-            let [retval, bso] = await prx.opByteSS(bsi1, bsi2);
+
+            const [retval, bso] = await prx.opByteSS(bsi1, bsi2);
 
             test(bso.length === 2);
             test(bso[0].length === 1);
@@ -461,18 +462,19 @@
         }
 
         {
-            let bsi1 =
+            const bsi1 =
                 [
-                    [ true ],
-                    [ false ],
-                    [ true, true ]
-                ];
-            let bsi2 =
-                [
-                    [ false, false, true ]
+                    [true],
+                    [false],
+                    [true, true]
                 ];
 
-            let [retval, bso] = await prx.opBoolSS(bsi1, bsi2);
+            const bsi2 =
+                [
+                    [false, false, true]
+                ];
+
+            const [retval, bso] = await prx.opBoolSS(bsi1, bsi2);
 
             test(bso.length === 4);
             test(bso[0].length === 1);
@@ -497,25 +499,28 @@
         }
 
         {
-            let ssi =
+            const ssi =
                 [
-                    [ 1, 2, 5 ],
-                    [ 13 ],
-                    [ ]
-                ];
-            let isi =
-                [
-                    [ 24, 98 ],
-                    [ 42 ]
-                ];
-            let l1 = new Ice.Long(0, 496);
-            let l2 = new Ice.Long(0, 1729);
-            let lsi =
-                [
-                    [ l1, l2 ]
+                    [1, 2, 5],
+                    [13],
+                    []
                 ];
 
-            let [retval, sso, iso, lso] = await prx.opShortIntLongSS(ssi, isi, lsi);
+            const isi =
+                [
+                    [24, 98],
+                    [42]
+                ];
+
+            const l1 = new Ice.Long(0, 496);
+            const l2 = new Ice.Long(0, 1729);
+
+            const lsi =
+                [
+                    [l1, l2]
+                ];
+
+            const [retval, sso, iso, lso] = await prx.opShortIntLongSS(ssi, isi, lsi);
 
             test(retval.length === 1);
             test(retval[0].length === 2);
@@ -545,18 +550,19 @@
         }
 
         {
-            let fsi =
+            const fsi =
                 [
-                    [ 3.14 ],
-                    [ 1.11 ],
-                    [ ],
-                ];
-            let dsi =
-                [
-                    [ 1.1E10, 1.2E10, 1.3E10 ]
+                    [3.14],
+                    [1.11],
+                    []
                 ];
 
-            let [retval, fso, dso] = await prx.opFloatDoubleSS(fsi, dsi);
+            const dsi =
+                [
+                    [1.1E10, 1.2E10, 1.3E10]
+                ];
+
+            const [retval, fso, dso] = await prx.opFloatDoubleSS(fsi, dsi);
 
             test(fso.length === 3);
             test(fso[0].length === 1);
@@ -581,20 +587,20 @@
         }
 
         {
-            let ssi1 =
+            const ssi1 =
                 [
-                    [ "abc" ],
-                    [ "de", "fghi" ]
+                    ["abc"],
+                    ["de", "fghi"]
                 ];
 
-            let ssi2 =
+            const ssi2 =
                 [
-                    [ ],
-                    [ ],
-                    [ "xyz" ]
+                    [],
+                    [],
+                    ["xyz"]
                 ];
-            let [retval, sso] = await prx.opStringSS(ssi1, ssi2);
 
+            const [retval, sso] = await prx.opStringSS(ssi1, ssi2);
             test(sso.length === 5);
             test(sso[0].length === 1);
             test(sso[0][0] === "abc");
@@ -613,7 +619,7 @@
         }
 
         {
-            let sssi1 =
+            const sssi1 =
                 [
                     [
                         ["abc", "de"],
@@ -624,7 +630,7 @@
                     ]
                 ];
 
-            let sssi2 =
+            const sssi2 =
                 [
                     [
                         ["", ""],
@@ -636,7 +642,7 @@
                     []
                 ];
 
-            let [retval, ssso] = await prx.opStringSSS(sssi1, sssi2);
+            const [retval, ssso] = await prx.opStringSSS(sssi1, sssi2);
 
             test(ssso.length === 5);
             test(ssso[0].length === 2);
@@ -673,17 +679,16 @@
         }
 
         {
-            let di1 = new Test.ByteBoolD();
+            const di1 = new Test.ByteBoolD();
             di1.set(10, true);
             di1.set(100, false);
 
-            let di2 = new Test.ByteBoolD();
+            const di2 = new Test.ByteBoolD();
             di2.set(10, true);
             di2.set(11, false);
             di2.set(101, true);
 
-            let [retval, p3] = await prx.opByteBoolD(di1, di2);
-
+            const [retval, p3] = await prx.opByteBoolD(di1, di2);
             test(Ice.MapUtil.equals(p3, di1));
             test(retval.size === 4);
             test(retval.get(10) === true);
@@ -693,17 +698,16 @@
         }
 
         {
-            let di1 = new Test.ShortIntD();
+            const di1 = new Test.ShortIntD();
             di1.set(110, -1);
             di1.set(1100, 123123);
 
-            let di2 = new Test.ShortIntD();
+            const di2 = new Test.ShortIntD();
             di2.set(110, -1);
             di2.set(111, -100);
             di2.set(1101, 0);
 
-            let [retval, p3] = await prx.opShortIntD(di1, di2);
-
+            const [retval, p3] = await prx.opShortIntD(di1, di2);
             test(Ice.MapUtil.equals(p3, di1));
             test(retval.size === 4);
             test(retval.get(110) === -1);
@@ -713,16 +717,16 @@
         }
 
         {
-            let di1 = new Test.LongFloatD();
+            const di1 = new Test.LongFloatD();
             di1.set(new Ice.Long(0, 999999110), -1.1);
             di1.set(new Ice.Long(0, 999999111), 123123.2);
 
-            let di2 = new Test.LongFloatD();
+            const di2 = new Test.LongFloatD();
             di2.set(new Ice.Long(0, 999999110), -1.1);
             di2.set(new Ice.Long(0, 999999120), -100.4);
             di2.set(new Ice.Long(0, 999999130), 0.5);
 
-            let [retval, p3] = await prx.opLongFloatD(di1, di2);
+            const [retval, p3] = await prx.opLongFloatD(di1, di2);
 
             test(p3.equals(di1, (v1, v2) => (Math.abs(v1) - Math.abs(v2)) <= 0.01));
             test(retval.size === 4);
@@ -733,17 +737,16 @@
         }
 
         {
-            let di1 = new Test.StringStringD();
+            const di1 = new Test.StringStringD();
             di1.set("foo", "abc -1.1");
             di1.set("bar", "abc 123123.2");
 
-            let di2 = new Test.StringStringD();
+            const di2 = new Test.StringStringD();
             di2.set("foo", "abc -1.1");
             di2.set("FOO", "abc -100.4");
             di2.set("BAR", "abc 0.5");
 
-            let [retval, p3] = await prx.opStringStringD(di1, di2);
-
+            const [retval, p3] = await prx.opStringStringD(di1, di2);
             test(Ice.MapUtil.equals(p3, di1));
             test(retval.size == 4);
             test(retval.get("foo") === "abc -1.1");
@@ -753,16 +756,16 @@
         }
 
         {
-            let di1 = new Test.StringMyEnumD();
+            const di1 = new Test.StringMyEnumD();
             di1.set("abc", Test.MyEnum.enum1);
             di1.set("", Test.MyEnum.enum2);
 
-            let di2 = new Test.StringMyEnumD();
+            const di2 = new Test.StringMyEnumD();
             di2.set("abc", Test.MyEnum.enum1);
             di2.set("qwerty", Test.MyEnum.enum3);
             di2.set("Hello!!", Test.MyEnum.enum2);
 
-            let [retval, p3] = await prx.opStringMyEnumD(di1, di2);
+            const [retval, p3] = await prx.opStringMyEnumD(di1, di2);
 
             test(Ice.MapUtil.equals(p3, di1));
             test(retval.size === 4);
@@ -773,14 +776,14 @@
         }
 
         {
-            let di1 = new Test.MyEnumStringD();
+            const di1 = new Test.MyEnumStringD();
             di1.set(Test.MyEnum.enum1, "abc");
 
-            let di2 = new Test.MyEnumStringD();
+            const di2 = new Test.MyEnumStringD();
             di2.set(Test.MyEnum.enum2, "Hello!!");
             di2.set(Test.MyEnum.enum3, "qwerty");
 
-            let [retval, p3] = await prx.opMyEnumStringD(di1, di2);
+            const [retval, p3] = await prx.opMyEnumStringD(di1, di2);
 
             test(Ice.MapUtil.equals(p3, di1));
             test(retval.size === 3);
@@ -790,19 +793,19 @@
         }
 
         {
-            let s11 = new Test.MyStruct(1, 1);
-            let s12 = new Test.MyStruct(1, 2);
-            let di1 = new Test.MyStructMyEnumD();
+            const s11 = new Test.MyStruct(1, 1);
+            const s12 = new Test.MyStruct(1, 2);
+            const di1 = new Test.MyStructMyEnumD();
             di1.set(s11, Test.MyEnum.enum1);
             di1.set(s12, Test.MyEnum.enum2);
-            let s22 = new Test.MyStruct(2, 2);
-            let s23 = new Test.MyStruct(2, 3);
-            let di2 = new Test.MyStructMyEnumD();
+            const s22 = new Test.MyStruct(2, 2);
+            const s23 = new Test.MyStruct(2, 3);
+            const di2 = new Test.MyStructMyEnumD();
             di2.set(s11, Test.MyEnum.enum1);
             di2.set(s22, Test.MyEnum.enum3);
             di2.set(s23, Test.MyEnum.enum2);
 
-            let [retval, p3] = await prx.opMyStructMyEnumD(di1, di2);
+            const [retval, p3] = await prx.opMyStructMyEnumD(di1, di2);
             test(p3.equals(di1));
 
             test(retval.size === 4);
@@ -813,19 +816,18 @@
         }
 
         {
-            let ds1 = new Test.ByteBoolD();
+            const ds1 = new Test.ByteBoolD();
             ds1.set(10, true);
             ds1.set(100, false);
-            let ds2 = new Test.ByteBoolD();
+            const ds2 = new Test.ByteBoolD();
             ds2.set(10, true);
             ds2.set(11, false);
             ds2.set(101, true);
-            let ds3 = new Test.ByteBoolD();
+            const ds3 = new Test.ByteBoolD();
             ds3.set(100, false);
             ds3.set(101, false);
 
-            let [retval, p3] = await prx.opByteBoolDS([ds1, ds2], [ds3]);
-
+            const [retval, p3] = await prx.opByteBoolDS([ds1, ds2], [ds3]);
             test(retval.length == 2);
             test(retval[0].size == 3);
             test(retval[0].get(10) === true);
@@ -848,18 +850,17 @@
         }
 
         {
-            let di1 = new Test.ShortIntD();
+            const di1 = new Test.ShortIntD();
             di1.set(110, -1);
             di1.set(1100, 123123);
-            let di2 = new Test.ShortIntD();
+            const di2 = new Test.ShortIntD();
             di2.set(110, -1);
             di2.set(111, -100);
             di2.set(1101, 0);
-            let di3 = new Test.ShortIntD();
+            const di3 = new Test.ShortIntD();
             di3.set(100, -1001);
 
-            let [retval, p3] = await prx.opShortIntDS([di1, di2], [di3]);
-
+            const [retval, p3] = await prx.opShortIntDS([di1, di2], [di3]);
             test(retval.length == 2);
             test(retval[0].size == 3);
             test(retval[0].get(110) === -1);
@@ -882,17 +883,17 @@
         }
 
         {
-            let di1 = new Test.LongFloatD();
+            const di1 = new Test.LongFloatD();
             di1.set(new Ice.Long(0, 999999110), -1.1);
             di1.set(new Ice.Long(0, 999999111), 123123.2);
-            let di2 = new Test.LongFloatD();
+            const di2 = new Test.LongFloatD();
             di2.set(new Ice.Long(0, 999999110), -1.1);
             di2.set(new Ice.Long(0, 999999120), -100.4);
             di2.set(new Ice.Long(0, 999999130), 0.5);
-            let di3 = new Test.LongFloatD();
+            const di3 = new Test.LongFloatD();
             di3.set(new Ice.Long(0, 999999140), 3.14);
 
-            let[retval, p3] = await prx.opLongFloatDS([di1, di2], [di3]);
+            const [retval, p3] = await prx.opLongFloatDS([di1, di2], [di3]);
             test(retval.length == 2);
             test(retval[0].size == 3);
             test(retval[0].get(new Ice.Long(0, 999999110)) - Math.abs(-1.1) <= 0.1);
@@ -915,18 +916,17 @@
         }
 
         {
-            let di1 = new Test.StringStringD();
+            const di1 = new Test.StringStringD();
             di1.set("foo", "abc -1.1");
             di1.set("bar", "abc 123123.2");
-            let di2 = new Test.StringStringD();
+            const di2 = new Test.StringStringD();
             di2.set("foo", "abc -1.1");
             di2.set("FOO", "abc -100.4");
             di2.set("BAR", "abc 0.5");
-            let di3 = new Test.StringStringD();
+            const di3 = new Test.StringStringD();
             di3.set("f00", "ABC -3.14");
 
-            let [retval, p3] = await prx.opStringStringDS([di1, di2], [di3]);
-
+            const [retval, p3] = await prx.opStringStringDS([di1, di2], [di3]);
             test(retval.length === 2);
             test(retval[0].size === 3);
             test(retval[0].get("foo") === "abc -1.1");
@@ -949,17 +949,17 @@
         }
 
         {
-            let di1 = new Test.StringMyEnumD();
+            const di1 = new Test.StringMyEnumD();
             di1.set("abc", Test.MyEnum.enum1);
             di1.set("", Test.MyEnum.enum2);
-            let di2 = new Test.StringMyEnumD();
+            const di2 = new Test.StringMyEnumD();
             di2.set("abc", Test.MyEnum.enum1);
             di2.set("qwerty", Test.MyEnum.enum3);
             di2.set("Hello!!", Test.MyEnum.enum2);
-            let di3 = new Test.StringMyEnumD();
+            const di3 = new Test.StringMyEnumD();
             di3.set("Goodbye", Test.MyEnum.enum1);
 
-            let [retval, p3] = await prx.opStringMyEnumDS([di1, di2], [di3]);
+            const [retval, p3] = await prx.opStringMyEnumDS([di1, di2], [di3]);
 
             test(retval.length == 2);
             test(retval[0].size == 3);
@@ -983,16 +983,15 @@
         }
 
         {
-            let di1 = new Test.MyEnumStringD();
+            const di1 = new Test.MyEnumStringD();
             di1.set(Test.MyEnum.enum1, "abc");
-            let di2 = new Test.MyEnumStringD();
+            const di2 = new Test.MyEnumStringD();
             di2.set(Test.MyEnum.enum2, "Hello!!");
             di2.set(Test.MyEnum.enum3, "qwerty");
-            let di3 = new Test.MyEnumStringD();
+            const di3 = new Test.MyEnumStringD();
             di3.set(Test.MyEnum.enum1, "Goodbye");
 
-            let [retval, p3] = await prx.opMyEnumStringDS([di1, di2], [di3]);
-
+            const [retval, p3] = await prx.opMyEnumStringDS([di1, di2], [di3]);
             test(retval.length == 2);
             test(retval[0].size == 2);
             test(retval[0].get(Test.MyEnum.enum2) === "Hello!!");
@@ -1011,24 +1010,23 @@
         }
 
         {
-            let s11 = new Test.MyStruct(1, 1);
-            let s12 = new Test.MyStruct(1, 2);
-            let di1 = new Test.MyStructMyEnumD();
+            const s11 = new Test.MyStruct(1, 1);
+            const s12 = new Test.MyStruct(1, 2);
+            const di1 = new Test.MyStructMyEnumD();
             di1.set(s11, Test.MyEnum.enum1);
             di1.set(s12, Test.MyEnum.enum2);
 
-            let s22 = new Test.MyStruct(2, 2);
-            let s23 = new Test.MyStruct(2, 3);
-            let di2 = new Test.MyStructMyEnumD();
+            const s22 = new Test.MyStruct(2, 2);
+            const s23 = new Test.MyStruct(2, 3);
+            const di2 = new Test.MyStructMyEnumD();
             di2.set(s11, Test.MyEnum.enum1);
             di2.set(s22, Test.MyEnum.enum3);
             di2.set(s23, Test.MyEnum.enum2);
 
-            let di3 = new Test.MyStructMyEnumD();
+            const di3 = new Test.MyStructMyEnumD();
             di3.set(s23, Test.MyEnum.enum3);
 
-            let [retval, p3] = await prx.opMyStructMyEnumDS([di1, di2], [di3]);
-
+            const [retval, p3] = await prx.opMyStructMyEnumDS([di1, di2], [di3]);
             test(retval.length == 2);
             test(retval[0].size == 3);
             test(retval[0].get(s11) === Test.MyEnum.enum1);
@@ -1051,14 +1049,13 @@
         }
 
         {
-            let sdi1 = new Test.ByteByteSD();
+            const sdi1 = new Test.ByteByteSD();
             sdi1.set(0x01, new Uint8Array([0x01, 0x11]));
             sdi1.set(0x22, new Uint8Array([0x12]));
-            let sdi2 = new Test.ByteByteSD();
+            const sdi2 = new Test.ByteByteSD();
             sdi2.set(0xf1, new Uint8Array([0xf2, 0xf3]));
 
-            let [retval, p3] = await prx.opByteByteSD(sdi1, sdi2);
-
+            const [retval, p3] = await prx.opByteByteSD(sdi1, sdi2);
             test(p3.size == 1);
             test(p3.get(0xf1).length === 2);
             test(p3.get(0xf1)[0] === 0xf2);
@@ -1075,17 +1072,15 @@
         }
 
         {
-            let si1 = [true, false];
-            let si2 = [false, true, true];
-
-            let sdi1 = new Test.BoolBoolSD();
+            const si1 = [true, false];
+            const si2 = [false, true, true];
+            const sdi1 = new Test.BoolBoolSD();
             sdi1.set(false, si1);
             sdi1.set(true, si2);
-            let sdi2 = new Test.BoolBoolSD();
+            const sdi2 = new Test.BoolBoolSD();
             sdi2.set(false, si1);
 
-            let [retval, p3] = await prx.opBoolBoolSD(sdi1, sdi2);
-
+            const [retval, p3] = await prx.opBoolBoolSD(sdi1, sdi2);
             test(p3.size === 1);
             test(p3.get(false).length === 2);
             test(p3.get(false)[0] === true);
@@ -1101,19 +1096,18 @@
         }
 
         {
-            let sdi1 = new Test.ShortShortSD();
-            let sdi2 = new Test.ShortShortSD();
+            const sdi1 = new Test.ShortShortSD();
+            const sdi2 = new Test.ShortShortSD();
 
-            let si1 = [1, 2, 3];
-            let si2 = [4, 5];
-            let si3 = [6, 7];
+            const si1 = [1, 2, 3];
+            const si2 = [4, 5];
+            const si3 = [6, 7];
 
             sdi1.set(1, si1);
             sdi1.set(2, si2);
             sdi2.set(4, si3);
 
-            let [retval, p3] = await prx.opShortShortSD(sdi1, sdi2);
-
+            const [retval, p3] = await prx.opShortShortSD(sdi1, sdi2);
             test(p3.size === 1);
             test(p3.get(4).length === 2);
             test(p3.get(4)[0] === 6);
@@ -1132,19 +1126,18 @@
         }
 
         {
-            let sdi1 = new Test.IntIntSD();
-            let sdi2 = new Test.IntIntSD();
+            const sdi1 = new Test.IntIntSD();
+            const sdi2 = new Test.IntIntSD();
 
-            let si1 = [100, 200, 300];
-            let si2 = [400, 500];
-            let si3 = [600, 700];
+            const si1 = [100, 200, 300];
+            const si2 = [400, 500];
+            const si3 = [600, 700];
 
             sdi1.set(100, si1);
             sdi1.set(200, si2);
             sdi2.set(400, si3);
 
-            let [retval, p3] = await prx.opIntIntSD(sdi1, sdi2);
-
+            const [retval, p3] = await prx.opIntIntSD(sdi1, sdi2);
             test(p3.size === 1);
             test(p3.get(400).length === 2);
             test(p3.get(400)[0] === 600);
@@ -1163,19 +1156,18 @@
         }
 
         {
-            let sdi1 = new Test.LongLongSD();
-            let sdi2 = new Test.LongLongSD();
+            const sdi1 = new Test.LongLongSD();
+            const sdi2 = new Test.LongLongSD();
 
-            let si1 = [new Ice.Long(0, 999999110), new Ice.Long(0, 999999111), new Ice.Long(0, 999999110)];
-            let si2 = [new Ice.Long(0, 999999120), new Ice.Long(0, 999999130)];
-            let si3 = [new Ice.Long(0, 999999110), new Ice.Long(0, 999999120)];
+            const si1 = [new Ice.Long(0, 999999110), new Ice.Long(0, 999999111), new Ice.Long(0, 999999110)];
+            const si2 = [new Ice.Long(0, 999999120), new Ice.Long(0, 999999130)];
+            const si3 = [new Ice.Long(0, 999999110), new Ice.Long(0, 999999120)];
 
             sdi1.set(new Ice.Long(0, 999999990), si1);
             sdi1.set(new Ice.Long(0, 999999991), si2);
             sdi2.set(new Ice.Long(0, 999999992), si3);
 
-            let [retval, p3] = await prx.opLongLongSD(sdi1, sdi2);
-
+            const [retval, p3] = await prx.opLongLongSD(sdi1, sdi2);
             test(p3.size == 1);
             test(p3.get(new Ice.Long(0, 999999992)).length === 2);
             test(p3.get(new Ice.Long(0, 999999992))[0].equals(new Ice.Long(0, 999999110)));
@@ -1194,18 +1186,18 @@
         }
 
         {
-            let sdi1 = new Test.StringFloatSD();
-            let sdi2 = new Test.StringFloatSD();
+            const sdi1 = new Test.StringFloatSD();
+            const sdi2 = new Test.StringFloatSD();
 
-            let si1 = [-1.1, 123123.2, 100.0];
-            let si2 = [42.24, -1.61];
-            let si3 = [-3.14, 3.14];
+            const si1 = [-1.1, 123123.2, 100.0];
+            const si2 = [42.24, -1.61];
+            const si3 = [-3.14, 3.14];
 
             sdi1.set("abc", si1);
             sdi1.set("ABC", si2);
             sdi2.set("aBc", si3);
 
-            let [retval, p3] = await prx.opStringFloatSD(sdi1, sdi2);
+            const [retval, p3] = await prx.opStringFloatSD(sdi1, sdi2);
 
             test(p3.size === 1);
             test(p3.get("aBc").length === 2);
@@ -1225,24 +1217,24 @@
         }
 
         {
-            let sdi1 = new Test.StringDoubleSD();
-            let sdi2 = new Test.StringDoubleSD();
+            const sdi1 = new Test.StringDoubleSD();
+            const sdi2 = new Test.StringDoubleSD();
 
-            let si1 = [1.1E10, 1.2E10, 1.3E10];
-            let si2 = [1.4E10, 1.5E10];
-            let si3 = [1.6E10, 1.7E10];
+            const si1 = [1.1E10, 1.2E10, 1.3E10];
+            const si2 = [1.4E10, 1.5E10];
+            const si3 = [1.6E10, 1.7E10];
 
             sdi1.set("Hello!!", si1);
-            sdi1.set("Goodbye",  si2);
+            sdi1.set("Goodbye", si2);
             sdi2.set("", si3);
 
-            let [retval, p3] = await prx.opStringDoubleSD(sdi1, sdi2);
+            const [retval, p3] = await prx.opStringDoubleSD(sdi1, sdi2);
 
             test(p3.size === 1);
             test(p3.get("").length === 2);
             test(p3.get("")[0] === 1.6E10);
             test(p3.get("")[1] === 1.7E10);
-            test(retval.size=== 3);
+            test(retval.size === 3);
             test(retval.get("Hello!!").length === 3);
             test(retval.get("Hello!!")[0] === 1.1E10);
             test(retval.get("Hello!!")[1] === 1.2E10);
@@ -1250,27 +1242,27 @@
             test(retval.get("Goodbye").length === 2);
             test(retval.get("Goodbye")[0] === 1.4E10);
             test(retval.get("Goodbye")[1] === 1.5E10);
-            test(retval.get("").length=== 2);
+            test(retval.get("").length === 2);
             test(retval.get("")[0] === 1.6E10);
             test(retval.get("")[1] === 1.7E10);
         }
 
         {
-            let sdi1 = new Test.StringStringSD();
-            let sdi2 = new Test.StringStringSD();
+            const sdi1 = new Test.StringStringSD();
+            const sdi2 = new Test.StringStringSD();
 
-            let si1 = ["abc", "de", "fghi"];
-            let si2 = ["xyz", "or"];
-            let si3 = ["and", "xor"];
+            const si1 = ["abc", "de", "fghi"];
+            const si2 = ["xyz", "or"];
+            const si3 = ["and", "xor"];
 
             sdi1.set("abc", si1);
             sdi1.set("def", si2);
             sdi2.set("ghi", si3);
 
-            let [retval, p3] = await prx.opStringStringSD(sdi1, sdi2);
+            const [retval, p3] = await prx.opStringStringSD(sdi1, sdi2);
 
             test(p3.size === 1);
-            test(p3.get("ghi").length ===2);
+            test(p3.get("ghi").length === 2);
             test(p3.get("ghi")[0] === "and");
             test(p3.get("ghi")[1] === "xor");
             test(retval.size === 3);
@@ -1287,24 +1279,23 @@
         }
 
         {
-            let sdi1 = new Test.MyEnumMyEnumSD();
-            let sdi2 = new Test.MyEnumMyEnumSD();
+            const sdi1 = new Test.MyEnumMyEnumSD();
+            const sdi2 = new Test.MyEnumMyEnumSD();
 
-            let si1 = [Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2];
-            let si2 = [Test.MyEnum.enum1, Test.MyEnum.enum2];
-            let si3 = [Test.MyEnum.enum3, Test.MyEnum.enum3];
+            const si1 = [Test.MyEnum.enum1, Test.MyEnum.enum1, Test.MyEnum.enum2];
+            const si2 = [Test.MyEnum.enum1, Test.MyEnum.enum2];
+            const si3 = [Test.MyEnum.enum3, Test.MyEnum.enum3];
 
             sdi1.set(Test.MyEnum.enum3, si1);
             sdi1.set(Test.MyEnum.enum2, si2);
             sdi2.set(Test.MyEnum.enum1, si3);
 
-            let [retval, p3] = await prx.opMyEnumMyEnumSD(sdi1, sdi2);
-
+            const [retval, p3] = await prx.opMyEnumMyEnumSD(sdi1, sdi2);
             test(p3.size == 1);
             test(p3.get(Test.MyEnum.enum1).length == 2);
             test(p3.get(Test.MyEnum.enum1)[0] == Test.MyEnum.enum3);
             test(p3.get(Test.MyEnum.enum1)[1] == Test.MyEnum.enum3);
-            test(retval.size== 3);
+            test(retval.size === 3);
             test(retval.get(Test.MyEnum.enum3).length == 3);
             test(retval.get(Test.MyEnum.enum3)[0] == Test.MyEnum.enum1);
             test(retval.get(Test.MyEnum.enum3)[1] == Test.MyEnum.enum1);
@@ -1318,17 +1309,17 @@
         }
 
         {
-            let lengths = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000];
+            const lengths = [0, 1, 2, 126, 127, 128, 129, 253, 254, 255, 256, 257, 1000];
 
-            for(let l of lengths)
+            for(const l of lengths)
             {
-                let s = new Array(l);
+                const s = new Array(l);
                 for(let i = 0; i < l; ++i)
                 {
                     s[i] = i;
                 }
 
-                let r = await prx.opIntS(s);
+                const r = await prx.opIntS(s);
                 test(r.length == l);
                 for(let j = 0; j < r.length; ++j)
                 {
@@ -1338,24 +1329,24 @@
         }
 
         {
-            let ctx = new Ice.Context();
+            const ctx = new Ice.Context();
             ctx.set("one", "ONE");
             ctx.set("two", "TWO");
             ctx.set("three", "THREE");
             {
                 test(prx.ice_getContext().size === 0);
-                let r = await prx.opContext();
+                const r = await prx.opContext();
                 test(!Ice.MapUtil.equals(r, ctx));
             }
 
             {
-                let r = await prx.opContext(ctx);
+                const r = await prx.opContext(ctx);
                 test(prx.ice_getContext().size === 0);
                 test(Ice.MapUtil.equals(r, ctx));
             }
 
             {
-                let p2 = await Test.MyClassPrx.checkedCast(prx.ice_context(ctx));
+                const p2 = await Test.MyClassPrx.checkedCast(prx.ice_context(ctx));
                 test(Ice.MapUtil.equals(p2.ice_getContext(), ctx));
                 let r = await p2.opContext();
                 test(Ice.MapUtil.equals(r, ctx));
@@ -1369,12 +1360,11 @@
             //
             // Test implicit context propagation
             //
-
-            let initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             initData.properties.setProperty("Ice.ImplicitContext", "Shared");
 
-            let ic = Ice.initialize(initData);
+            const ic = Ice.initialize(initData);
 
             let ctx = new Ice.Context();
             ctx.set("one", "ONE");
@@ -1388,19 +1378,19 @@
             test(Ice.MapUtil.equals(await p3.opContext(), ctx));
 
             test(ic.getImplicitContext().containsKey("zero") == false);
-            let r = ic.getImplicitContext().put("zero", "ZERO");
+            const r = ic.getImplicitContext().put("zero", "ZERO");
             test(r === undefined);
             test(ic.getImplicitContext().get("zero") == "ZERO");
 
             ctx = ic.getImplicitContext().getContext();
             test(Ice.MapUtil.equals(await p3.opContext(), ctx));
 
-            let prxContext = new Ice.Context();
+            const prxContext = new Ice.Context();
             prxContext.set("one", "UN");
             prxContext.set("four", "QUATRE");
 
-            let combined = new Ice.Context(prxContext);
-            for(let [key, value] of ctx)
+            const combined = new Ice.Context(prxContext);
+            for(const [key, value] of ctx)
             {
                 if(!combined.has(key))
                 {
@@ -1424,21 +1414,15 @@
         }
 
         {
-            let d = 1278312346.0 / 13.0;
-            let ds = [];
+            const d = 1278312346.0 / 13.0;
+            const ds = [];
             for(let i = 0; i < 5; i++)
             {
                 ds[i] = d;
             }
 
             await prx.opDoubleMarshaling(d, ds);
-        }
-
-        {
             await prx.opIdempotent();
-        }
-
-        {
             await prx.opNonmutating();
         }
 
@@ -1456,14 +1440,14 @@
             test((await prx.opStringS2(null)).length === 0);
             test((await prx.opByteBoolD2(null)).size === 0);
 
-            let d = Test.MyDerivedClassPrx.uncheckedCast(prx);
+            const d = Test.MyDerivedClassPrx.uncheckedCast(prx);
             let s = new Test.MyStruct1();
             s.tesT = "Test.MyStruct1.s";
             s.myClass = null;
             s.myStruct1 = "Test.MyStruct1.myStruct1";
             s = await d.opMyStruct1(s);
             test(s.tesT == "Test.MyStruct1.s");
-            test(s.myClass == null);
+            test(s.myClass === null);
             test(s.myStruct1 == "Test.MyStruct1.myStruct1");
             let c = new Test.MyClass1();
             c.tesT = "Test.MyClass1.testT";
@@ -1471,36 +1455,34 @@
             c.myClass1 = "Test.MyClass1.myClass1";
             c = await d.opMyClass1(c);
             test(c.tesT == "Test.MyClass1.testT");
-            test(c.myClass == null);
+            test(c.myClass === null);
             test(c.myClass1 == "Test.MyClass1.myClass1");
         }
 
         {
-            let p1 = await prx.opMStruct1();
+            const p1 = await prx.opMStruct1();
             p1.e = Test.MyEnum.enum3;
-            let [p2, p3] = await prx.opMStruct2(p1);
+            const [p2, p3] = await prx.opMStruct2(p1);
             test(p2.equals(p1) && p3.equals(p1));
         }
 
         {
             await prx.opMSeq1();
-
-            let p1 = ["test"];
-            let [p2, p3] = await prx.opMSeq2(p1);
+            const p1 = ["test"];
+            const [p2, p3] = await prx.opMSeq2(p1);
             test(Ice.ArrayUtil.equals(p2, p1) && Ice.ArrayUtil.equals(p3, p1));
         }
 
         {
             await prx.opMDict1();
-
-            let p1 = new Map();
+            const p1 = new Map();
             p1.set("test", "test");
-            let [p2, p3] = await prx.opMDict2(p1);
+            const [p2, p3] = await prx.opMDict2(p1);
             test(Ice.MapUtil.equals(p2, p1) && Ice.MapUtil.equals(p3, p1));
         }
 
         {
-            let ds = [];
+            const ds = [];
             for(let i = 0; i < 5; i++)
             {
                 ds[i] = 1278312346.0 / 13.0;
@@ -1509,8 +1491,7 @@
         }
     }
 
-    exports.Twoways = { run: run };
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+    exports.Twoways = {run: run};
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

@@ -43,7 +43,7 @@ class Properties
             //
             for(const [key, property] of defaults._properties)
             {
-                this._properties.set(key, { 'value': property.value, 'used': false });
+                this._properties.set(key, {value: property.value, used: false});
             }
         }
 
@@ -212,7 +212,7 @@ class Properties
                         {
                             mismatchCase = true;
                             otherKey = pattern.substr(2);
-                            otherKey = otherKey.substr(0, otherKey.length -1);
+                            otherKey = otherKey.substr(0, otherKey.length - 1);
                             otherKey = otherKey.replace(/\\/g, "");
                             break;
                         }
@@ -242,7 +242,7 @@ class Properties
             }
             else
             {
-                this._properties.set(key, { 'value': value, 'used': false });
+                this._properties.set(key, {value: value, used: false});
             }
         }
         else
@@ -450,6 +450,12 @@ class Properties
                             value += c;
                             break;
                     }
+                    break;
+                }
+
+                default:
+                {
+                    Debug.assert(false);
                     break;
                 }
             }

@@ -91,10 +91,6 @@ Slice.defineEnum = function(enumerators)
 {
     const type = class extends EnumBase
     {
-        constructor(n, v)
-        {
-            super(n, v);
-        }
     };
 
     const enums = [];
@@ -121,9 +117,7 @@ Slice.defineEnum = function(enumerators)
         }
     }
 
-    Object.defineProperty(type, "minWireSize", {
-        get: function(){ return 1; }
-    });
+    Object.defineProperty(type, "minWireSize", {get: () => 1});
 
     type._write = function(os, v)
     {
@@ -136,10 +130,12 @@ Slice.defineEnum = function(enumerators)
             os.writeEnum(firstEnum);
         }
     };
+
     type._read = function(is)
     {
         return is.readEnum(type);
     };
+
     type._writeOpt = function(os, tag, v)
     {
         if(v !== undefined)
@@ -150,6 +146,7 @@ Slice.defineEnum = function(enumerators)
             }
         }
     };
+
     type._readOpt = function(is, tag)
     {
         return is.readOptionalEnum(tag, type);

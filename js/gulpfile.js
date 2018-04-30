@@ -134,7 +134,8 @@ gulp.task("common:slice-babel", ["common:slice"],
                       "test/Common/ControllerWorker.js",
                       "test/Common/TestRunner.js",
                       "test/Common/TestSuite.js",
-                      "test/Common/Worker.js"]),
+                      "test/Common/Worker.js",
+                      "test/Common/run.js"]),
             babel({compact: false}),
             gulp.dest("test/es5/Common")], cb);
     });

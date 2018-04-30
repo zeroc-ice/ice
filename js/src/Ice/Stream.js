@@ -163,7 +163,7 @@ class EncapsDecoder
         const obj = this._unmarshaledMap.get(index);
         if(obj !== undefined && obj !== null)
         {
-            cb.call(null, obj);
+            cb(obj);
             return;
         }
 
@@ -303,7 +303,7 @@ class EncapsDecoder10 extends EncapsDecoder
 
         if(index === 0)
         {
-            cb.call(null, null);
+            cb(null);
         }
         else
         {
@@ -384,7 +384,7 @@ class EncapsDecoder10 extends EncapsDecoder
         this._skipFirstSlice = true;
     }
 
-    endInstance(/*preserve*/)
+    endInstance(preserve)
     {
         //
         // Read the Ice::Object slice.
@@ -558,7 +558,7 @@ class EncapsDecoder11 extends EncapsDecoder
         {
             if(cb !== null)
             {
-                cb.call(null, null);
+                cb(null);
             }
         }
         else if(this._current !== null && (this._current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE) !== 0)
@@ -793,25 +793,19 @@ class EncapsDecoder11 extends EncapsDecoder
             Debug.assert(this._current.sliceSize >= 4);
             this._stream.skip(this._current.sliceSize - 4);
         }
+        else if(this._current.sliceType === SliceType.ValueSlice)
+        {
+            throw new Ice.NoValueFactoryException("no value factory found and compact format prevents slicing " +
+                                                  "(the sender should use the sliced format instead)",
+                                                  this._current.typeId);
+        }
+        else if(this._current.typeId.indexOf("::") === 0)
+        {
+            throw new Ice.UnknownUserException(this._current.typeId.substring(2));
+        }
         else
         {
-            if(this._current.sliceType === SliceType.ValueSlice)
-            {
-                throw new Ice.NoValueFactoryException("no value factory found and compact format prevents slicing " +
-                                                       "(the sender should use the sliced format instead)",
-                                                       this._current.typeId);
-            }
-            else
-            {
-                if(this._current.typeId.indexOf("::") === 0)
-                {
-                    throw new Ice.UnknownUserException(this._current.typeId.substring(2));
-                }
-                else
-                {
-                    throw new Ice.UnknownUserException(this._current.typeId);
-                }
-            }
+            throw new Ice.UnknownUserException(this._current.typeId);
         }
 
         //
@@ -998,7 +992,7 @@ class EncapsDecoder11 extends EncapsDecoder
 
         if(cb !== null)
         {
-            cb.call(null, v);
+            cb(v);
         }
 
         return index;
@@ -1067,7 +1061,7 @@ EncapsDecoder11.InstanceData = class
         // Instance attributes
         this.sliceType = null;
         this.skipFirstSlice = false;
-        this.slices = null;     // Preserved slices. Ice.SliceInfo[]
+        this.slices = null; // Preserved slices. Ice.SliceInfo[]
         this.indirectionTables = null; // int[][]
 
         // Slice attributes
@@ -1832,14 +1826,7 @@ class InputStream
     readValue(cb, T)
     {
         this.initEncaps();
-        //
-        // BUGFIX:
-        // With Chrome on Linux the invocation of readValue on the decoder sometimes
-        // calls InputStream.readValue with the decoder object as this param.
-        // Use call instead of directly invoking the method to workaround this bug.
-        //
-        this._encapsStack.decoder.readValue.call(
-            this._encapsStack.decoder,
+        this._encapsStack.decoder.readValue(
             cb === null ? null : obj =>
             {
                 if(obj !== null && !(obj instanceof T))
@@ -1923,29 +1910,50 @@ class InputStream
         switch(format)
         {
             case OptionalFormat.F1:
+            {
                 this.skip(1);
                 break;
+            }
             case OptionalFormat.F2:
+            {
                 this.skip(2);
                 break;
+            }
             case OptionalFormat.F4:
+            {
                 this.skip(4);
                 break;
+            }
             case OptionalFormat.F8:
+            {
                 this.skip(8);
                 break;
+            }
             case OptionalFormat.Size:
+            {
                 this.skipSize();
                 break;
+            }
             case OptionalFormat.VSize:
+            {
                 this.skip(this.readSize());
                 break;
+            }
             case OptionalFormat.FSize:
+            {
                 this.skip(this.readInt());
                 break;
+            }
             case OptionalFormat.Class:
+            {
                 this.readValue(null, Ice.Value);
                 break;
+            }
+            default:
+            {
+                Debug.assert(false);
+                break;
+            }
         }
     }
 
@@ -2027,8 +2035,7 @@ class InputStream
 
     createUserException(id)
     {
-        let userEx = null, Class;
-
+        let userEx = null;
         try
         {
             const typeId = id.length > 2 ? id.substr(2).replace(/::/g, ".") : "";
@@ -2261,7 +2268,7 @@ class EncapsEncoder10 extends EncapsEncoder
     {
         super(stream, encaps);
         this._sliceType = SliceType.NoSlice;
-        this._writeSlice = 0;        // Position of the slice data members
+        this._writeSlice = 0; // Position of the slice data members
         this._valueIdIndex = 0;
         this._toBeMarshaledMap = new Map(); // Map<Ice.Value, Integer>();
     }
@@ -2746,7 +2753,7 @@ EncapsEncoder11.InstanceData = class
 
         // Slice attributes
         this.sliceFlags = 0;
-        this.writeSlice = 0;    // Position of the slice data members
+        this.writeSlice = 0; // Position of the slice data members
         this.sliceFlagsPos = 0; // Position of the slice flags
         this.indirectionTable = null; // Ice.Value[]
         this.indirectionMap = null; // Map<Ice.Value, int>
@@ -3487,7 +3494,10 @@ Ice.ObjectHelper = class
     static read(is)
     {
         let o;
-        is.readValue(v => o = v, Ice.Value);
+        is.readValue(v =>
+                     {
+                         o = v;
+                     }, Ice.Value);
         return o;
     }
 
@@ -3499,7 +3509,10 @@ Ice.ObjectHelper = class
     static readOptional(is, tag)
     {
         let o;
-        is.readOptionalValue(tag, v => o = v, Ice.Value);
+        is.readOptionalValue(tag, v =>
+                             {
+                                 o = v;
+                             }, Ice.Value);
         return o;
     }
 

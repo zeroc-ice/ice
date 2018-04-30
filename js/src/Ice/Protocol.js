@@ -40,10 +40,9 @@ Ice.Protocol_1_0 = new Ice.ProtocolVersion(1, 0);
 Protocol.headerSize = 14;
 
 //
-// The magic number at the front of each message
+// The magic number at the front of each message ['I', 'c', 'e', 'P']
 //
-//Protocol.magic = [ 0x49, 0x63, 0x65, 0x50 ];      // 'I', 'c', 'e', 'P'
-Protocol.magic = new Uint8Array([ 0x49, 0x63, 0x65, 0x50 ]);      // 'I', 'c', 'e', 'P'
+Protocol.magic = new Uint8Array([0x49, 0x63, 0x65, 0x50]);
 
 //
 // The current Ice protocol and encoding version
@@ -89,7 +88,7 @@ Protocol.requestHdr = new Uint8Array([
     Protocol.requestMsg,
     0, // Compression status.
     0, 0, 0, 0, // Message size (placeholder).
-    0, 0, 0, 0  // Request ID (placeholder).
+    0, 0, 0, 0 // Request ID (placeholder).
 ]);
 
 Protocol.requestBatchHdr = new Uint8Array([
@@ -104,7 +103,7 @@ Protocol.requestBatchHdr = new Uint8Array([
     Protocol.requestBatchMsg,
     0, // Compression status.
     0, 0, 0, 0, // Message size (placeholder).
-    0, 0, 0, 0  // Number of requests in batch (placeholder).
+    0, 0, 0, 0 // Number of requests in batch (placeholder).
 ]);
 
 Protocol.replyHdr = new Uint8Array([
@@ -242,25 +241,25 @@ Ice.protocolVersionToString = function(v)
 };
 
 /**
-* Converts an encoding version to a string.
-*
-* @param v The encoding version to convert.
-*
-* @return The converted string.
-**/
+ * Converts an encoding version to a string.
+ *
+ * @param v The encoding version to convert.
+ *
+ * @return The converted string.
+ **/
 Ice.encodingVersionToString = function(v)
 {
     return majorMinorToString(v.major, v.minor);
 };
 
-Protocol.OPTIONAL_END_MARKER        = 0xFF;
-Protocol.FLAG_HAS_TYPE_ID_STRING    = (1<<0);
-Protocol.FLAG_HAS_TYPE_ID_INDEX     = (1<<1);
-Protocol.FLAG_HAS_TYPE_ID_COMPACT   = (1<<1 | 1<<0);
-Protocol.FLAG_HAS_OPTIONAL_MEMBERS  = (1<<2);
-Protocol.FLAG_HAS_INDIRECTION_TABLE = (1<<3);
-Protocol.FLAG_HAS_SLICE_SIZE        = (1<<4);
-Protocol.FLAG_IS_LAST_SLICE         = (1<<5);
+Protocol.OPTIONAL_END_MARKER = 0xFF;
+Protocol.FLAG_HAS_TYPE_ID_STRING = (1 << 0);
+Protocol.FLAG_HAS_TYPE_ID_INDEX = (1 << 1);
+Protocol.FLAG_HAS_TYPE_ID_COMPACT = (1 << 1 | 1 << 0);
+Protocol.FLAG_HAS_OPTIONAL_MEMBERS = (1 << 2);
+Protocol.FLAG_HAS_INDIRECTION_TABLE = (1 << 3);
+Protocol.FLAG_HAS_SLICE_SIZE = (1 << 4);
+Protocol.FLAG_IS_LAST_SLICE = (1 << 5);
 
 Ice.Protocol = Protocol;
 module.exports.Ice = Ice;

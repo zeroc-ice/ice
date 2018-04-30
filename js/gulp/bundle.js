@@ -221,12 +221,16 @@ Parser.transverse = function(object, depend, srcDir)
 
 var StringBuffer = function()
 {
-    this.buffer = new Buffer(0);
+    // Use new Buffer.alloc(string, encoding) if available, Buffer constructor are deprecated.
+    this.buffer = typeof(Buffer.alloc) === 'function' ? Buffer.alloc(0) : new Buffer(0);
 };
 
 StringBuffer.prototype.write = function(data)
 {
-    this.buffer = Buffer.concat([this.buffer, new Buffer(data, "utf8")]);
+    // Use new Buffer.from(string, encoding) if Buffer.alloc is avilable, Buffer constructors are deprecated.
+    // NOTE: we don't check for Buffer.from which already exists but only accepts array.
+    this.buffer = Buffer.concat([this.buffer,
+                    typeof(Buffer.alloc) === 'function' ? Buffer.from(data, "utf8") : new Buffer(data, "utf8")]);
 };
 
 function sourceMapRelativePath(file)

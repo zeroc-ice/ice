@@ -213,21 +213,11 @@ class WSEndpoint extends EndpointI
         }
         return true;
     }
-}
 
-if(typeof(Ice.WSTransceiver) !== "undefined")
-{
-    WSEndpoint.prototype.connectable = function()
+    connectable()
     {
-        return true;
-    };
-}
-else
-{
-    WSEndpoint.prototype.connectable = function()
-    {
-        return false;
-    };
+        return typeof Ice.WSTransceiver !== "undefined";
+    }
 }
 
 Ice.WSEndpoint = WSEndpoint;

@@ -18,12 +18,12 @@ slice {
 }
 
 repositories {
-    mavenCentral()
+    jcenter()
+    google()
 }
 
 android {
     compileSdkVersion ice_compileSdkVersion.toInteger()
-    buildToolsVersion ice_buildToolsVersion
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"

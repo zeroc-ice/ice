@@ -124,7 +124,7 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
             {
                 try
                 {
-                    this._sent  = false;
+                    this._sent = false;
                     this._handler = this._proxy._getRequestHandler();
                     if((this._handler.sendAsyncRequest(this) & AsyncStatus.Sent) > 0)
                     {
@@ -184,7 +184,7 @@ class ProxyOutgoingAsyncBase extends OutgoingAsyncBase
 
     handleException(ex)
     {
-        const interval = { value: 0 };
+        const interval = {value: 0};
         this._cnt = this._proxy._handleException(ex, this._handler, this._mode, this._sent, interval, this._cnt);
         return interval.value;
     }
@@ -232,7 +232,7 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
         }
         else
         {
-            Ice.StringSeqHelper.write(this._os, [ facet ]);
+            Ice.StringSeqHelper.write(this._os, [facet]);
         }
 
         this._os.writeString(this._operation);
@@ -525,11 +525,6 @@ class ProxyFlushBatch extends ProxyOutgoingAsyncBase
 
 class ProxyGetConnection extends ProxyOutgoingAsyncBase
 {
-    constructor(prx, operation)
-    {
-        super(prx, operation);
-    }
-
     invokeRemote(connection, response)
     {
         this.markFinished(true, r => r.resolve(connection));

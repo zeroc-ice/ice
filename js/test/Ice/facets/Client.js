@@ -23,8 +23,8 @@
         }
 
         out.write("testing stringToProxy... ");
-        let ref = "d:default -p 12010";
-        let db = communicator.stringToProxy(ref);
+        const ref = "d:default -p 12010";
+        const db = communicator.stringToProxy(ref);
         test(db !== null);
         out.writeLine("ok");
 
@@ -62,7 +62,7 @@
         test(df.ice_getFacet() == "facetABCD");
         df2 = await Test.DPrx.checkedCast(df);
         test(df2.ice_getFacet() == "facetABCD");
-        def3 = await Test.DPrx.checkedCast(df, "");
+        df3 = await Test.DPrx.checkedCast(df, "");
         test(df3.ice_getFacet().length === 0);
         out.writeLine("ok");
 
@@ -86,19 +86,19 @@
         out.writeLine("ok");
 
         out.write("testing facets E and F... ");
-        let ff = await Test.FPrx.checkedCast(d, "facetEF");
+        const ff = await Test.FPrx.checkedCast(d, "facetEF");
         test(await ff.callE() == "E");
         test(await ff.callF() == "F");
         out.writeLine("ok");
 
         out.write("testing facet G... ");
-        let gf = await Test.GPrx.checkedCast(ff, "facetGH");
+        const gf = await Test.GPrx.checkedCast(ff, "facetGH");
         test(gf !== null);
         test(await gf.callG() == "G");
         out.writeLine("ok");
 
         out.write("testing whether casting preserves the facet... ");
-        let hf = await Test.HPrx.checkedCast(gf);
+        const hf = await Test.HPrx.checkedCast(gf);
         test(hf !== null);
         test(await hf.callG() == "G");
         test(await hf.callH() == "H");
@@ -126,7 +126,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

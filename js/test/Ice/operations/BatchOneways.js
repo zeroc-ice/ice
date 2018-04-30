@@ -10,7 +10,6 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
-    const Test = require("Test").Test;
 
     async function run(communicator, prx, Test, bidir)
     {
@@ -22,13 +21,13 @@
             }
         }
 
-        let bs1 = new Uint8Array(10 * 1024);
+        const bs1 = new Uint8Array(10 * 1024);
         for(let i = 0; i < bs1.length; ++i)
         {
             bs1[i] = 0;
         }
 
-        let batch = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
+        const batch = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
         await batch.ice_flushBatchRequests();
 
         test(batch.ice_flushBatchRequests().isCompleted()); // Empty flush
@@ -47,10 +46,10 @@
             await Ice.Promise.delay(10);
         }
 
-        if(batch.ice_getConnection() != null)
+        if(batch.ice_getConnection() !== null)
         {
-            let batch1 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
-            let batch2 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
+            const batch1 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
+            const batch2 = Test.MyClassPrx.uncheckedCast(prx.ice_batchOneway());
 
             batch1.ice_ping();
             batch2.ice_ping();
@@ -69,9 +68,9 @@
             batch2.ice_ping();
         }
 
-        let identity = new Ice.Identity();
+        const identity = new Ice.Identity();
         identity.name = "invalid";
-        let batch3 = batch.ice_identity(identity);
+        const batch3 = batch.ice_identity(identity);
         batch3.ice_ping();
         await batch3.ice_flushBatchRequests();
 
@@ -80,10 +79,8 @@
         batch.ice_ping();
         await batch.ice_flushBatchRequests();
         await batch.ice_ping();
-    };
-
-    exports.BatchOneways = { run: run };
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+    }
+    exports.BatchOneways = {run: run};
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

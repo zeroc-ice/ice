@@ -15,7 +15,7 @@ Ice._ModuleRegistry.require(module,
         "../Ice/Debug",
         "../Ice/RetryException",
         "../Ice/ReferenceMode",
-        "../Ice/Exception",
+        "../Ice/Exception"
     ]);
 
 const AsyncStatus = Ice.AsyncStatus;
@@ -125,12 +125,14 @@ class ConnectRequestHandler
         const ri = this._reference.getRouterInfo();
         if(ri !== null)
         {
-                                                                                  //
-            ri.addProxy(this._proxy).then(() => this.flushRequests(),             // The proxy was added to the router
-                                                                                  // info, we're now ready to send the
-                                                                                  // queued requests.
-                                                                                  //
-                                          ex => this.setException(ex));
+            ri.addProxy(this._proxy).then(
+                //
+                // The proxy was added to the router
+                // info, we're now ready to send the
+                // queued requests.
+                //
+                () => this.flushRequests(),
+                ex => this.setException(ex));
             return; // The request handler will be initialized once addProxy completes.
         }
 
@@ -180,26 +182,23 @@ class ConnectRequestHandler
             Debug.assert(this._connection !== null);
             return true;
         }
+        else if(this._exception !== null)
+        {
+            if(this._connection !== null)
+            {
+                //
+                // Only throw if the connection didn't get established. If
+                // it died after being established, we allow the caller to
+                // retry the connection establishment by not throwing here
+                // (the connection will throw RetryException).
+                //
+                return true;
+            }
+            throw this._exception;
+        }
         else
         {
-            if(this._exception !== null)
-            {
-                if(this._connection !== null)
-                {
-                    //
-                    // Only throw if the connection didn't get established. If
-                    // it died after being established, we allow the caller to
-                    // retry the connection establishment by not throwing here
-                    // (the connection will throw RetryException).
-                    //
-                    return true;
-                }
-                throw this._exception;
-            }
-            else
-            {
-                return this._initialized;
-            }
+            return this._initialized;
         }
     }
 
@@ -222,7 +221,6 @@ class ConnectRequestHandler
 
                         // Remove the request handler before retrying.
                         this._reference.getInstance().requestHandlerFactory().removeRequestHandler(this._reference, this);
-
                         request.retryException(ex.inner);
                     }
                     else

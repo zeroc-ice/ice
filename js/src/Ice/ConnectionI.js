@@ -26,7 +26,7 @@ Ice._ModuleRegistry.require(module,
         "../Ice/Version",
         "../Ice/Exception",
         "../Ice/LocalException",
-        "../Ice/BatchRequestQueue",
+        "../Ice/BatchRequestQueue"
     ]);
 
 const AsyncStatus = Ice.AsyncStatus;
@@ -96,7 +96,7 @@ class ConnectionI
         this._readTimeoutId = 0;
         this._readTimeoutScheduled = false;
 
-        this._hasMoreData = { value: false };
+        this._hasMoreData = {value: false};
 
         this._warn = initData.properties.getPropertyAsInt("Ice.Warn.Connections") > 0;
         this._warnUdp = instance.initializationData().properties.getPropertyAsInt("Ice.Warn.Datagrams") > 0;
@@ -159,9 +159,9 @@ class ConnectionI
 
             this._startPromise = new Ice.Promise();
             this._transceiver.setCallbacks(
-                () => { this.message(SocketOperation.Write); }, // connected callback
-                () => { this.message(SocketOperation.Read); },  // read callback
-                () => { this.message(SocketOperation.Write); }  // write callback
+                () => this.message(SocketOperation.Write), // connected callback
+                () => this.message(SocketOperation.Read), // read callback
+                () => this.message(SocketOperation.Write) // write callback
             );
             this.initialize();
         }
@@ -211,6 +211,12 @@ class ConnectionI
             case ConnectionI.CommunicatorDestroyed:
             {
                 this.setState(StateClosing, new Ice.CommunicatorDestroyedException());
+                break;
+            }
+
+            default:
+            {
+                Debug.assert(false);
                 break;
             }
         }
@@ -322,7 +328,7 @@ class ConnectionI
         //
         if(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatAlways ||
            (acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOff && this._writeStream.isEmpty() &&
-           now >= (this._acmLastActivity + acm.timeout / 4)))
+            now >= (this._acmLastActivity + (acm.timeout / 4))))
         {
             if(acm.heartbeat != Ice.ACMHeartbeat.HeartbeatOnDispatch || this._dispatchCount > 0)
             {
@@ -903,7 +909,7 @@ class ConnectionI
 
         if(this._hasMoreData.value)
         {
-            Timer.setImmediate(() => { this.message(SocketOperation.Read); }); // Don't tie up the thread.
+            Timer.setImmediate(() => this.message(SocketOperation.Read)); // Don't tie up the thread.
         }
     }
 
@@ -1010,31 +1016,28 @@ class ConnectionI
                 this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
             }
         }
-        else
+        else if(traceLevels.network >= 1)
         {
-            if(traceLevels.network >= 1)
+            const s = [];
+            s.push("closed ");
+            s.push(this._endpoint.protocol());
+            s.push(" connection\n");
+            s.push(this.toString());
+
+            //
+            // Trace the cause of unexpected connection closures
+            //
+            if(!(this._exception instanceof Ice.CloseConnectionException ||
+                 this._exception instanceof Ice.ConnectionManuallyClosedException ||
+                 this._exception instanceof Ice.ConnectionTimeoutException ||
+                 this._exception instanceof Ice.CommunicatorDestroyedException ||
+                 this._exception instanceof Ice.ObjectAdapterDeactivatedException))
             {
-                const s = [];
-                s.push("closed ");
-                s.push(this._endpoint.protocol());
-                s.push(" connection\n");
-                s.push(this.toString());
-
-                //
-                // Trace the cause of unexpected connection closures
-                //
-                if(!(this._exception instanceof Ice.CloseConnectionException ||
-                     this._exception instanceof Ice.ConnectionManuallyClosedException ||
-                     this._exception instanceof Ice.ConnectionTimeoutException ||
-                     this._exception instanceof Ice.CommunicatorDestroyedException ||
-                     this._exception instanceof Ice.ObjectAdapterDeactivatedException))
-                {
-                    s.push("\n");
-                    s.push(this._exception.toString());
-                }
-
-                this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
+                s.push("\n");
+                s.push(this._exception.toString());
             }
+
+            this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
         }
 
         if(this._startPromise !== null)
@@ -1272,100 +1275,106 @@ class ConnectionI
         {
             switch(state)
             {
-            case StateNotInitialized:
-            {
-                Debug.assert(false);
-                break;
-            }
+                case StateNotInitialized:
+                {
+                    Debug.assert(false);
+                    break;
+                }
 
-            case StateNotValidated:
-            {
-                if(this._state !== StateNotInitialized)
+                case StateNotValidated:
+                {
+                    if(this._state !== StateNotInitialized)
+                    {
+                        Debug.assert(this._state === StateClosed);
+                        return;
+                    }
+                    //
+                    // Register to receive validation message.
+                    //
+                    if(!this._endpoint.datagram() && !this._incoming)
+                    {
+                        //
+                        // Once validation is complete, a new connection starts out in the
+                        // Holding state. We only want to register the transceiver now if we
+                        // need to receive data in order to validate the connection.
+                        //
+                        this._transceiver.register();
+                    }
+                    break;
+                }
+
+                case StateActive:
+                {
+                    //
+                    // Can only switch from holding or not validated to
+                    // active.
+                    //
+                    if(this._state !== StateHolding && this._state !== StateNotValidated)
+                    {
+                        return;
+                    }
+                    this._transceiver.register();
+                    break;
+                }
+
+                case StateHolding:
+                {
+                    //
+                    // Can only switch from active or not validated to
+                    // holding.
+                    //
+                    if(this._state !== StateActive && this._state !== StateNotValidated)
+                    {
+                        return;
+                    }
+                    if(this._state === StateActive)
+                    {
+                        this._transceiver.unregister();
+                    }
+                    break;
+                }
+
+                case StateClosing:
+                {
+                    //
+                    // Can't change back from closed.
+                    //
+                    if(this._state >= StateClosed)
+                    {
+                        return;
+                    }
+                    if(this._state === StateHolding)
+                    {
+                        // We need to continue to read in closing state.
+                        this._transceiver.register();
+                    }
+                    break;
+                }
+
+                case StateClosed:
+                {
+                    if(this._state === StateFinished)
+                    {
+                        return;
+                    }
+                    this._batchRequestQueue.destroy(this._exception);
+                    this._transceiver.unregister();
+                    break;
+                }
+
+                case StateFinished:
                 {
                     Debug.assert(this._state === StateClosed);
-                    return;
+                    this._transceiver.close();
+                    this._communicator = null;
+                    break;
                 }
-                //
-                // Register to receive validation message.
-                //
-                if(!this._endpoint.datagram() && !this._incoming)
-                {
-                    //
-                    // Once validation is complete, a new connection starts out in the
-                    // Holding state. We only want to register the transceiver now if we
-                    // need to receive data in order to validate the connection.
-                    //
-                    this._transceiver.register();
-                }
-                break;
-            }
 
-            case StateActive:
-            {
-                //
-                // Can only switch from holding or not validated to
-                // active.
-                //
-                if(this._state !== StateHolding && this._state !== StateNotValidated)
+                default:
                 {
-                    return;
+                    Debug.assert(false);
+                    break;
                 }
-                this._transceiver.register();
-                break;
-            }
-
-            case StateHolding:
-            {
-                //
-                // Can only switch from active or not validated to
-                // holding.
-                //
-                if(this._state !== StateActive && this._state !== StateNotValidated)
-                {
-                    return;
-                }
-                if(this._state === StateActive)
-                {
-                    this._transceiver.unregister();
-                }
-                break;
-            }
-
-            case StateClosing:
-            {
-                //
-                // Can't change back from closed.
-                //
-                if(this._state >= StateClosed)
-                {
-                    return;
-                }
-                if(this._state === StateHolding)
-                {
-                    // We need to continue to read in closing state.
-                    this._transceiver.register();
-                }
-                break;
-            }
-
-            case StateClosed:
-            {
-                if(this._state === StateFinished)
-                {
-                    return;
-                }
-                this._batchRequestQueue.destroy(this._exception);
-                this._transceiver.unregister();
-                break;
-            }
-
-            case StateFinished:
-            {
-                Debug.assert(this._state === StateClosed);
-                this._transceiver.close();
-                this._communicator = null;
-                break;
-            }
             }
         }
         catch(ex)
@@ -1567,7 +1576,7 @@ class ConnectionI
                     throw new Ice.ConnectionNotValidatedException();
                 }
                 this._readStream.readByte(); // Ignore compression status for validate connection.
-                if( this._readStream.readInt() !== Protocol.headerSize)
+                if(this._readStream.readInt() !== Protocol.headerSize)
                 {
                     throw new Ice.IllegalMessageSizeException();
                 }
@@ -1692,7 +1701,7 @@ class ConnectionI
         // If all the messages were sent and we are in the closing state, we schedule
         // the close timeout to wait for the peer to close the connection.
         //
-        if(this._state === StateClosing && _shutdownInitiated)
+        if(this._state === StateClosing && this._shutdownInitiated)
         {
             this.scheduleTimeout(SocketOperation.Read);
         }

@@ -64,7 +64,7 @@ class ProxyFactory
         }
         else
         {
-            this._retryIntervals = [ 0 ];
+            this._retryIntervals = [0];
         }
     }
 

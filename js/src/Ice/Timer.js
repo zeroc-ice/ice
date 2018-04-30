@@ -37,7 +37,7 @@ class Timer
         }
         const token = this._tokenId++;
         const id = Timer.setTimeout(() => this.handleTimeout(token), delay);
-        this._tokens.set(token, { callback: callback, id: id, isInterval: false });
+        this._tokens.set(token, {callback: callback, id: id, isInterval: false});
         return token;
     }
 
@@ -49,7 +49,7 @@ class Timer
         }
         const token = this._tokenId++;
         const id = Timer.setInterval(() => this.handleInterval(token), period);
-        this._tokens.set(token, { callback: callback, id: id, isInterval: true });
+        this._tokens.set(token, {callback: callback, id: id, isInterval: true});
         return token;
     }
 

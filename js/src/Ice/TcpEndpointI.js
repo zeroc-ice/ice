@@ -24,7 +24,7 @@ const IceSSL = Ice._ModuleRegistry.require(module, ["../Ice/EndpointInfo"]).IceS
 const Debug = Ice.Debug;
 const HashUtil = Ice.HashUtil;
 const StringUtil = Ice.StringUtil;
-const TcpTransceiver = typeof(Ice.TcpTransceiver) !== "undefined" ? Ice.TcpTransceiver : null;
+const TcpTransceiver = typeof Ice.TcpTransceiver !== "undefined" ? Ice.TcpTransceiver : null;
 
 class TcpEndpointI extends Ice.IPEndpointI
 {

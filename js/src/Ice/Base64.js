@@ -9,8 +9,6 @@
 
 const Ice = require("../Ice/Buffer").Ice;
 
-const Buffer = Ice.Buffer;
-
 const _codeA = "A".charCodeAt(0);
 const _codea = "a".charCodeAt(0);
 const _code0 = "0".charCodeAt(0);
@@ -170,7 +168,7 @@ class Base64
         // Figure out how long the final sequence is going to be.
         const totalBytes = (newStr.length * 3 / 4) + 1;
 
-        const retval = new Buffer();
+        const retval = new Ice.Buffer();
         retval.resize(totalBytes);
 
         let by1;

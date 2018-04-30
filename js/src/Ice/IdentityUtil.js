@@ -8,7 +8,12 @@
 // **********************************************************************
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
-Ice._ModuleRegistry.require(module, [ "../Ice/StringUtil", "../Ice/Identity", "../Ice/LocalException"]);
+Ice._ModuleRegistry.require(module,
+                            [
+                                "../Ice/StringUtil",
+                                "../Ice/Identity",
+                                "../Ice/LocalException"
+                            ]);
 
 const StringUtil = Ice.StringUtil;
 const Identity = Ice.Identity;
