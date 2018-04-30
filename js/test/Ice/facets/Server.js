@@ -40,7 +40,7 @@
                 out.write("testing facet registration exceptions... ");
                 let adapter = await communicator.createObjectAdapter("");
 
-                let obj = new EmptyI();
+                const obj = new EmptyI();
                 adapter.add(obj, Ice.stringToIdentity("d"));
                 adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD");
                 try
@@ -66,11 +66,11 @@
                 out.writeLine("ok");
 
                 out.write("testing removeAllFacets... ");
-                let obj1 = new EmptyI();
-                let obj2 = new EmptyI();
+                const obj1 = new EmptyI();
+                const obj2 = new EmptyI();
                 adapter.addFacet(obj1, Ice.stringToIdentity("id1"), "f1");
                 adapter.addFacet(obj2, Ice.stringToIdentity("id1"), "f2");
-                let obj3 = new EmptyI();
+                const obj3 = new EmptyI();
                 adapter.addFacet(obj1, Ice.stringToIdentity("id2"), "f1");
                 adapter.addFacet(obj2, Ice.stringToIdentity("id2"), "f2");
                 adapter.addFacet(obj3, Ice.stringToIdentity("id2"), "");
@@ -97,12 +97,12 @@
                 await adapter.deactivate();
                 adapter = await communicator.createObjectAdapter("");
 
-                let di = new DI();
+                const di = new DI();
                 adapter.add(di, Ice.stringToIdentity("d"));
                 adapter.addFacet(di, Ice.stringToIdentity("d"), "facetABCD");
-                let fi = new FI();
+                const fi = new FI();
                 adapter.addFacet(fi, Ice.stringToIdentity("d"), "facetEF");
-                let hi = new HI();
+                const hi = new HI();
                 adapter.addFacet(hi, Ice.stringToIdentity("d"), "facetGH");
                 await echo.setConnection();
                 echo.ice_getCachedConnection().setAdapter(adapter);
@@ -131,7 +131,6 @@
     }
 
     exports._server = run;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

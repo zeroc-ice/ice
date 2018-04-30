@@ -10,7 +10,6 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
-    const Test = require("Test").Test;
 
     async function run(communicator, prx, Test, bidir)
     {
@@ -21,7 +20,7 @@
                 let message = "test failed";
                 if(ex)
                 {
-                    message + "\n" + ex.toString();
+                    message += "\n" + ex.toString();
                 }
                 throw new Error(message);
             }
@@ -64,10 +63,8 @@
         }
 
         await prx.opVoid();
-
         await prx.opIdempotent();
-
-        await prx.opNonmutating()
+        await prx.opNonmutating();
 
         try
         {
@@ -81,8 +78,7 @@
         }
     }
 
-    exports.Oneways = { run: run };
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+    exports.Oneways = {run: run};
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

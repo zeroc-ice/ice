@@ -11,7 +11,6 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
-    const ArrayUtil = Ice.ArrayUtil;
 
     async function allTests(out, communicator)
     {
@@ -26,7 +25,7 @@
 
         function PreservedFactoryI(id)
         {
-            return id === Test.Preserved.ice_staticId() ?  new PreservedI() : null;
+            return id === Test.Preserved.ice_staticId() ? new PreservedI() : null;
         }
 
         function test(value, ex)
@@ -43,20 +42,20 @@
         }
 
         out.write("testing stringToProxy... ");
-        let ref = "Test:default -p 12010 -t 10000";
-        let base = communicator.stringToProxy(ref);
+        const ref = "Test:default -p 12010 -t 10000";
+        const base = communicator.stringToProxy(ref);
         test(base !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        let prx = await Test.TestIntfPrx.checkedCast(base);
+        const prx = await Test.TestIntfPrx.checkedCast(base);
         test(prx !== null);
         test(prx.equals(base));
         out.writeLine("ok");
 
         out.write("base as Object... ");
         {
-            let sb = await prx.SBaseAsObject();
+            const sb = await prx.SBaseAsObject();
             test(sb !== null);
             test(sb.ice_id() == "::Test::SBase");
             test(sb.sb == "SBase.sb");
@@ -65,14 +64,14 @@
 
         out.write("base as base... ");
         {
-            let sb = await prx.SBaseAsSBase();
+            const sb = await prx.SBaseAsSBase();
             test(sb.sb == "SBase.sb");
         }
         out.writeLine("ok");
 
         out.write("base with known derived as base... ");
         {
-            let sb = await prx.SBSKnownDerivedAsSBase();
+            const sb = await prx.SBSKnownDerivedAsSBase();
             test(sb !== null);
             test(sb.sb == "SBSKnownDerived.sb");
             test(sb.sbskd == "SBSKnownDerived.sbskd");
@@ -81,14 +80,14 @@
 
         out.write("base with known derived as known derived... ");
         {
-            let sb = await prx.SBSKnownDerivedAsSBSKnownDerived();
+            const sb = await prx.SBSKnownDerivedAsSBSKnownDerived();
             test(sb.sbskd == "SBSKnownDerived.sbskd");
         }
         out.writeLine("ok");
 
         out.write("base with unknown derived as base... ");
         {
-            let sb = await prx.SBSUnknownDerivedAsSBase();
+            const sb = await prx.SBSUnknownDerivedAsSBase();
             test(sb.sb == "SBSUnknownDerived.sb");
         }
 
@@ -96,7 +95,7 @@
         {
             try
             {
-                let sb = await prx.SBSUnknownDerivedAsSBaseCompact();
+                const sb = await prx.SBSUnknownDerivedAsSBaseCompact();
                 test(sb.sb == "SBSUnknownDerived.sb");
             }
             catch(ex)
@@ -122,7 +121,7 @@
         out.write("unknown with Object as Object... ");
         try
         {
-            let obj = await prx.SUnknownAsObject();
+            const obj = await prx.SUnknownAsObject();
             test(!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0));
             test(obj instanceof Ice.UnknownSlicedValue);
             test(obj.ice_id() == "::Test::SUnknown");
@@ -138,7 +137,7 @@
 
         out.write("one-element cycle... ");
         {
-            let b = await prx.oneElementCycle();
+            const b = await prx.oneElementCycle();
             test(b !== null);
             test(b.ice_id() == "::Test::B");
             test(b.sb == "B1.sb");
@@ -148,12 +147,12 @@
 
         out.write("two-element cycle... ");
         {
-            let b1 = await prx.twoElementCycle();
+            const b1 = await prx.twoElementCycle();
             test(b1 !== null);
             test(b1.ice_id() == "::Test::B");
             test(b1.sb == "B1.sb");
 
-            let b2 = b1.pb;
+            const b2 = b1.pb;
             test(b2 !== null);
             test(b2.ice_id() == "::Test::B");
             test(b2.sb == "B2.sb");
@@ -163,7 +162,7 @@
 
         out.write("known derived pointer slicing as derived... ");
         {
-            let d1 = await prx.D1AsD1();
+            const d1 = await prx.D1AsD1();
 
             test(d1 !== null);
             test(d1.ice_id() == "::Test::D1");
@@ -171,7 +170,7 @@
             test(d1.pb !== null);
             test(d1.pb !== d1);
 
-            let b2 = d1.pb;
+            const b2 = d1.pb;
             test(b2 !== null);
             test(b2.ice_id() == "::Test::B");
             test(b2.sb == "D2.sb");
@@ -181,7 +180,7 @@
 
         out.write("unknown derived pointer slicing as base... ");
         {
-            let b2 = await prx.D2AsB();
+            const b2 = await prx.D2AsB();
 
             test(b2 !== null);
             test(b2.ice_id() == "::Test::B");
@@ -189,7 +188,7 @@
             test(b2.pb !== null);
             test(b2.pb !== b2);
 
-            let b1 = b2.pb;
+            const b1 = b2.pb;
             test(b1 !== null);
             test(b1.ice_id() == "::Test::D1");
             test(b1.sb == "D1.sb");
@@ -201,7 +200,7 @@
 
         out.write("param ptr slicing with known first... ");
         {
-            let [b1, b2] = await prx.paramTest1();
+            const [b1, b2] = await prx.paramTest1();
             test(b1 !== null);
             test(b1.ice_id() == "::Test::D1");
             test(b1.sb == "D1.sb");
@@ -211,7 +210,7 @@
             test(b1.pd1 === b2);
 
             test(b2 !== null);
-            test(b2.ice_id() == "::Test::B");    // No factory, must be sliced
+            test(b2.ice_id() == "::Test::B"); // No factory, must be sliced
             test(b2.sb == "D2.sb");
             test(b2.pb === b1);
         }
@@ -219,7 +218,7 @@
 
         out.write("param ptr slicing with unknown first... ");
         {
-            let [b2, b1] = await prx.paramTest2();
+            const [b2, b1] = await prx.paramTest2();
             test(b1 !== null);
             test(b1.ice_id() == "::Test::D1");
             test(b1.sb == "D1.sb");
@@ -229,7 +228,7 @@
             test(b1.pd1 == b2);
 
             test(b2 !== null);
-            test(b2.ice_id() == "::Test::B");    // No factory, must be sliced
+            test(b2.ice_id() == "::Test::B"); // No factory, must be sliced
             test(b2.sb == "D2.sb");
             test(b2.pb == b1);
         }
@@ -237,24 +236,24 @@
 
         out.write("return value identity with known first... ");
         {
-            let [ret, p1, p2] = await prx.returnTest1();
+            const [ret, p1] = await prx.returnTest1();
             test(ret === p1);
         }
         out.writeLine("ok");
 
         out.write("return value identity with unknown first... ");
         {
-            let[ret, p1, p2] = await prx.returnTest2();
+            const [ret, p1] = await prx.returnTest2();
             test(ret == p1);
         }
         out.writeLine("ok");
 
         out.write("return value identity for input params known first... ");
         {
-            let d1 = new Test.D1();
+            const d1 = new Test.D1();
             d1.sb = "D1.sb";
             d1.sd1 = "D1.sd1";
-            let d3 = new Test.D3();
+            const d3 = new Test.D3();
             d3.pb = d1;
             d3.sb = "D3.sb";
             d3.sd3 = "D3.sd3";
@@ -262,19 +261,19 @@
             d1.pb = d3;
             d1.pd1 = d3;
 
-            let b1 = await prx.returnTest3(d1, d3);
+            const b1 = await prx.returnTest3(d1, d3);
             test(b1 !== null);
             test(b1.sb == "D1.sb");
             test(b1.ice_id() == "::Test::D1");
-            let p1 = b1;
+            const p1 = b1;
             test(p1 !== null);
             test(p1.sd1 == "D1.sd1");
             test(p1.pd1 == b1.pb);
 
-            let b2 = b1.pb;
+            const b2 = b1.pb;
             test(b2 !== null);
             test(b2.sb == "D3.sb");
-            test(b2.ice_id() == "::Test::B");  // Sliced by server
+            test(b2.ice_id() == "::Test::B"); // Sliced by server
             test(b2.pb == b1);
 
             test(!(b2 instanceof Test.D3));
@@ -287,10 +286,10 @@
 
         out.write("return value identity for input params unknown first... ");
         {
-            let d1 = new Test.D1();
+            const d1 = new Test.D1();
             d1.sb = "D1.sb";
             d1.sd1 = "D1.sd1";
-            let d3 = new Test.D3();
+            const d3 = new Test.D3();
             d3.pb = d1;
             d3.sb = "D3.sb";
             d3.sd3 = "D3.sd3";
@@ -298,20 +297,20 @@
             d1.pb = d3;
             d1.pd1 = d3;
 
-            let b1 = await prx.returnTest3(d3, d1);
+            const b1 = await prx.returnTest3(d3, d1);
 
             test(b1 !== null);
             test(b1.sb == "D3.sb");
-            test(b1.ice_id() == "::Test::B");  // Sliced by server
+            test(b1.ice_id() == "::Test::B"); // Sliced by server
             test(!(b1 instanceof Test.D3));
 
-            let b2 = b1.pb;
+            const b2 = b1.pb;
             test(b2 !== null);
             test(b2.sb == "D1.sb");
             test(b2.ice_id() == "::Test::D1");
             test(b2.pb == b1);
 
-            let p3 = b2;
+            const p3 = b2;
             test(p3 !== null);
             test(p3.sd1 == "D1.sd1");
             test(p3.pd1 === b1);
@@ -325,7 +324,7 @@
 
         out.write("remainder unmarshaling (3 instances)... ");
         {
-            let [ret, p1, p2] = await prx.paramTest3();
+            const [ret, p1, p2] = await prx.paramTest3();
             test(p1 !== null);
             test(p1.sb == "D2.sb (p1 1)");
             test(p1.pb === null);
@@ -345,7 +344,7 @@
 
         out.write("remainder unmarshaling (4 instances)... ");
         {
-            let [ret, b] = await prx.paramTest4();
+            const [ret, b] = await prx.paramTest4();
             test(b !== null);
             test(b.sb == "D4.sb (1)");
             test(b.pb === null);
@@ -360,22 +359,21 @@
 
         out.write("param ptr slicing, instance marshaled in unknown derived as base... ");
         {
-            let b1 = new Test.B();
+            const b1 = new Test.B();
             b1.sb = "B.sb(1)";
             b1.pb = b1;
 
-            let d3 = new Test.D3();
+            const d3 = new Test.D3();
             d3.sb = "D3.sb";
             d3.pb = d3;
             d3.sd3 = "D3.sd3";
             d3.pd3 = b1;
 
-            let b2 = new Test.B();
+            const b2 = new Test.B();
             b2.sb = "B.sb(2)";
             b2.pb = b1;
 
-            let ret = await prx.returnTest3(d3, b2);
-
+            const ret = await prx.returnTest3(d3, b2);
             test(ret !== null);
             test(ret.ice_id() == "::Test::B");
             test(ret.sb == "D3.sb");
@@ -385,25 +383,24 @@
 
         out.write("param ptr slicing, instance marshaled in unknown derived as derived... ");
         {
-            let d11 = new Test.D1();
+            const d11 = new Test.D1();
             d11.sb = "D1.sb(1)";
             d11.pb = d11;
             d11.sd1 = "D1.sd1(1)";
 
-            let d3 = new Test.D3();
+            const d3 = new Test.D3();
             d3.sb = "D3.sb";
             d3.pb = d3;
             d3.sd3 = "D3.sd3";
             d3.pd3 = d11;
 
-            let d12 = new Test.D1();
+            const d12 = new Test.D1();
             d12.sb = "D1.sb(2)";
             d12.pb = d12;
             d12.sd1 = "D1.sd1(2)";
             d12.pd1 = d11;
 
-            let ret = await prx.returnTest3(d3, d12);
-
+            const ret = await prx.returnTest3(d3, d12);
             test(ret !== null);
             test(ret.ice_id() == "::Test::B");
             test(ret.sb == "D3.sb");
@@ -447,19 +444,19 @@
             ss2d1.pd1 = ss1d3;
             ss2d3.pd3 = ss1d1;
 
-            let ss1 = new Test.SS1();
+            const ss1 = new Test.SS1();
             ss1.s = [];
             ss1.s[0] = ss1b;
             ss1.s[1] = ss1d1;
             ss1.s[2] = ss1d3;
 
-            let ss2 = new Test.SS2();
+            const ss2 = new Test.SS2();
             ss2.s = [];
             ss2.s[0] = ss2b;
             ss2.s[1] = ss2d1;
             ss2.s[2] = ss2d3;
 
-            let ss = await prx.sequenceTest(ss1, ss2);
+            const ss = await prx.sequenceTest(ss1, ss2);
 
             test(ss.c1 !== null);
             ss1b = ss.c1.s[0];
@@ -492,24 +489,24 @@
 
         out.write("dictionary slicing... ");
         {
-            let bin = new Map();
+            const bin = new Map();
             for(let i = 0; i < 10; ++i)
             {
-                let s = `D1.${i}`;
-                let d1 = new Test.D1();
+                const s = `D1.${i}`;
+                const d1 = new Test.D1();
                 d1.sb = s;
                 d1.pb = d1;
                 d1.sd1 = s;
                 bin.set(i, d1);
             }
 
-            let [ret, boutH] = await prx.dictionaryTest(bin);
+            const [ret, boutH] = await prx.dictionaryTest(bin);
             test(boutH.size === 10);
             for(let i = 0; i < 10; ++i)
             {
-                let b = boutH.get(i * 10);
+                const b = boutH.get(i * 10);
                 test(b !== null);
-                let s = `D1.${i}`;
+                const s = `D1.${i}`;
                 test(b.sb == s);
                 test(b.pb !== null);
                 test(b.pb !== b);
@@ -520,9 +517,9 @@
             test(ret.size === 10);
             for(let i = 0; i < 10; ++i)
             {
-                let b = ret.get(i * 20);
+                const b = ret.get(i * 20);
                 test(b !== null);
-                let s = "D1." + (i * 20);
+                const s = "D1." + (i * 20);
                 test(b.sb == s);
                 test(b.pb === (i === 0 ? null : ret.get((i - 1) * 20)));
                 test(b.sd1 == s);
@@ -613,168 +610,163 @@
 
         out.write("forward-declared class... ");
         {
-            let f = await prx.useForward();
+            const f = await prx.useForward();
             test(f !== null);
         }
         out.writeLine("ok");
 
         out.write("preserved classes... ");
+        //
+        // Register a factory in order to substitute our own subclass of Preserved. This provides
+        // an easy way to determine how many unmarshaled instances currently exist.
+        //
+        // TODO: We have to install this now (even though it's not necessary yet), because otherwise
+        // the Ice run time will install its own internal factory for Preserved upon receiving the
+        // first instance.
+        //
+        communicator.getValueFactoryManager().add(PreservedFactoryI, Test.Preserved.ice_staticId());
         {
             //
-            // Register a factory in order to substitute our own subclass of Preserved. This provides
-            // an easy way to determine how many unmarshaled instances currently exist.
+            // Server knows the most-derived class PDerived.
             //
-            // TODO: We have to install this now (even though it's not necessary yet), because otherwise
-            // the Ice run time will install its own internal factory for Preserved upon receiving the
-            // first instance.
+            const pd = new Test.PDerived();
+            pd.pi = 3;
+            pd.ps = "preserved";
+            pd.pb = pd;
+
+            const p2 = await prx.exchangePBase(pd);
+
+            test(p2.pi === 3);
+            test(p2.ps == "preserved");
+            test(p2.pb === p2);
+        }
+
+        {
             //
-            communicator.getValueFactoryManager().add(PreservedFactoryI, Test.Preserved.ice_staticId());
+            // Server only knows the base (non-preserved) type, so the object is sliced.
+            //
+            const pu = new Test.PCUnknown();
+            pu.pi = 3;
+            pu.pu = "preserved";
+
+            const r = await prx.exchangePBase(pu);
+
+            test(!(r instanceof Test.PCUnknown));
+            test(r.pi == 3);
+        }
+
+        {
+            //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            const pcd = new Test.PCDerived();
+            pcd.pi = 3;
+            pcd.pbs = [pcd];
+
+            const r = await prx.exchangePBase(pcd);
+            if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
             {
-                //
-                // Server knows the most-derived class PDerived.
-                //
-                let pd = new Test.PDerived();
-                pd.pi = 3;
-                pd.ps = "preserved";
-                pd.pb = pd;
+                test(!(r instanceof Test.PCDerived));
+                test(r.pi === 3);
+            }
+            else
+            {
+                test(r.pi === 3);
+                test(r.pbs[0] === r);
+            }
+        }
 
-                let p2 = await prx.exchangePBase(pd);
+        {
+            //
+            // Server only knows the intermediate type Preserved. The object will be sliced to
+            // Preserved for the 1.0 encoding; otherwise it should be returned intact.
+            //
+            const pcd = new Test.CompactPCDerived();
+            pcd.pi = 3;
+            pcd.pbs = [pcd];
 
+            const r = await prx.exchangePBase(pcd);
+            if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
+            {
+                test(!(r instanceof Test.CompactPCDerived));
+                test(r.pi === 3);
+            }
+            else
+            {
+                const p2 = r;
                 test(p2.pi === 3);
-                test(p2.ps == "preserved");
-                test(p2.pb === p2);
+                test(p2.pbs[0] === p2);
             }
+        }
 
+        {
+            //
+            // Send an object that will have multiple preserved slices in the server.
+            // The object will be sliced to Preserved for the 1.0 encoding.
+            //
+            const pcd = new Test.PCDerived3();
+            pcd.pi = 3;
+
+            //
+            // Sending more than 254 objects exercises the encoding for object ids.
+            //
+            pcd.pbs = new Array(300);
+            for(let i = 0; i < 300; ++i)
             {
-                //
-                // Server only knows the base (non-preserved) type, so the object is sliced.
-                //
-                let pu = new Test.PCUnknown();
-                pu.pi = 3;
-                pu.pu = "preserved";
-
-                let r = await prx.exchangePBase(pu);
-
-                test(!(r instanceof Test.PCUnknown));
-                test(r.pi == 3);
+                const p2 = new Test.PCDerived2();
+                p2.pi = i;
+                p2.pbs = [null]; // Nil reference. This slice should not have an indirection table.
+                p2.pcd2 = i;
+                pcd.pbs[i] = p2;
             }
+            pcd.pcd2 = pcd.pi;
+            pcd.pcd3 = pcd.pbs[10];
 
+            const r = await prx.exchangePBase(pcd);
+            if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
             {
-                //
-                // Server only knows the intermediate type Preserved. The object will be sliced to
-                // Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                //
-                let pcd = new Test.PCDerived();
-                pcd.pi = 3;
-                pcd.pbs = [ pcd ];
-
-                let r = await prx.exchangePBase(pcd);
-
-                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
-                {
-                    test(!(r instanceof Test.PCDerived));
-                    test(r.pi === 3);
-                }
-                else
-                {
-                    test(r.pi === 3);
-                    test(r.pbs[0] === r);
-                }
+                test(!(r instanceof Test.PCDerived3));
+                test(r instanceof Test.Preserved);
+                test(r.pi === 3);
             }
-
+            else
             {
-                //
-                // Server only knows the intermediate type Preserved. The object will be sliced to
-                // Preserved for the 1.0 encoding; otherwise it should be returned intact.
-                //
-                let pcd = new Test.CompactPCDerived();
-                pcd.pi = 3;
-                pcd.pbs = [ pcd ];
-
-                let r = await prx.exchangePBase(pcd);
-
-                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
-                {
-                    test(!(r instanceof Test.CompactPCDerived));
-                    test(r.pi === 3);
-                }
-                else
-                {
-                    p2 = r;
-                    test(p2.pi === 3);
-                    test(p2.pbs[0] === p2);
-                }
-            }
-
-            {
-                //
-                // Send an object that will have multiple preserved slices in the server.
-                // The object will be sliced to Preserved for the 1.0 encoding.
-                //
-                let pcd = new Test.PCDerived3();
-                pcd.pi = 3;
-
-                //
-                // Sending more than 254 objects exercises the encoding for object ids.
-                //
-                pcd.pbs = new Array(300);
+                const p3 = r;
+                test(p3.pi === 3);
                 for(let i = 0; i < 300; ++i)
                 {
-                    let p2 = new Test.PCDerived2();
-                    p2.pi = i;
-                    p2.pbs = [ null ]; // Nil reference. This slice should not have an indirection table.
-                    p2.pcd2 = i;
-                    pcd.pbs[i] = p2;
+                    const p2 = p3.pbs[i];
+                    test(p2.pi === i);
+                    test(p2.pbs.length === 1);
+                    test(p2.pbs[0] === null);
+                    test(p2.pcd2 === i);
                 }
-                pcd.pcd2 = pcd.pi;
-                pcd.pcd3 = pcd.pbs[10];
-
-                let r = await prx.exchangePBase(pcd);
-
-                if(prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
-                {
-                    test(!(r instanceof Test.PCDerived3));
-                    test(r instanceof Test.Preserved);
-                    test(r.pi === 3);
-                }
-                else
-                {
-                    let p3 = r;
-                    test(p3.pi === 3);
-                    for(let i = 0; i < 300; ++i)
-                    {
-                        let p2 = p3.pbs[i];
-                        test(p2.pi === i);
-                        test(p2.pbs.length === 1);
-                        test(p2.pbs[0] === null);
-                        test(p2.pcd2 === i);
-                    }
-                    test(p3.pcd2 === p3.pi);
-                    test(p3.pcd3 === p3.pbs[10]);
-                }
+                test(p3.pcd2 === p3.pi);
+                test(p3.pcd3 === p3.pbs[10]);
             }
+        }
 
+        {
+            //
+            // Obtain an object with preserved slices and send it back to the server.
+            // The preserved slices should be excluded for the 1.0 encoding, otherwise
+            // they should be included.
+            //
+            const p = await prx.PBSUnknownAsPreserved();
+            await prx.checkPBSUnknown(p);
+
+            if(!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
             {
-                //
-                // Obtain an object with preserved slices and send it back to the server.
-                // The preserved slices should be excluded for the 1.0 encoding, otherwise
-                // they should be included.
-                //
-                let p = await prx.PBSUnknownAsPreserved();
-                await  prx.checkPBSUnknown(p);
-
-                if(!prx.ice_getEncodingVersion().equals(Ice.Encoding_1_0))
-                {
-                    let slicedData = p.ice_getSlicedData();
-                    test(slicedData !== null);
-                    test(slicedData.slices.length === 1);
-                    test(slicedData.slices[0].typeId == "::Test::PSUnknown");
-                    await prx.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p);
-                }
-                else
-                {
-                    test(p.ice_getSlicedData() === null);
-                }
+                const slicedData = p.ice_getSlicedData();
+                test(slicedData !== null);
+                test(slicedData.slices.length === 1);
+                test(slicedData.slices[0].typeId == "::Test::PSUnknown");
+                await prx.ice_encodingVersion(Ice.Encoding_1_0).checkPBSUnknown(p);
+            }
+            else
+            {
+                test(p.ice_getSlicedData() === null);
             }
         }
         out.writeLine("ok");
@@ -800,7 +792,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

@@ -11,7 +11,6 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
-    const ArrayUtil = Ice.ArrayUtil;
 
     async function allTests(out, communicator)
     {
@@ -29,13 +28,13 @@
         }
 
         out.write("testing stringToProxy... ");
-        let ref = "Test:default -p 12010 -t 10000";
-        let base = communicator.stringToProxy(ref);
+        const ref = "Test:default -p 12010 -t 10000";
+        const base = communicator.stringToProxy(ref);
         test(base !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        let prx = await Test.TestIntfPrx.checkedCast(base);
+        const prx = await Test.TestIntfPrx.checkedCast(base);
         test(prx !== null);
         test(prx.equals(base));
         out.writeLine("ok");
@@ -130,7 +129,7 @@
         out.write("slicing of known most derived as base... ");
         try
         {
-            await  prx.knownMostDerivedAsBase();
+            await prx.knownMostDerivedAsBase();
             test(false);
         }
         catch(ex)
@@ -146,7 +145,7 @@
         out.write("non-slicing of known intermediate as intermediate... ");
         try
         {
-            await  prx.knownIntermediateAsKnownIntermediate();
+            await prx.knownIntermediateAsKnownIntermediate();
             test(false);
         }
         catch(ex)
@@ -259,6 +258,7 @@
             }
             else if(ex instanceof Ice.OperationNotExistException)
             {
+                // Ignore
             }
             else
             {
@@ -267,7 +267,7 @@
         }
         out.writeLine("ok");
 
-        out.write("preserved exceptions...")
+        out.write("preserved exceptions...");
         try
         {
             await prx.unknownPreservedAsBase();
@@ -282,7 +282,7 @@
             }
             else
             {
-                let slicedData = ex.ice_getSlicedData();
+                const slicedData = ex.ice_getSlicedData();
                 test(slicedData !== null);
                 test(slicedData.slices.length == 2);
                 test(slicedData.slices[1].typeId == "::Test::SPreserved1");
@@ -293,7 +293,7 @@
         try
         {
             await prx.unknownPreservedAsKnownPreserved();
-            test(false)
+            test(false);
         }
         catch(ex)
         {
@@ -305,7 +305,7 @@
             }
             else
             {
-                let slicedData = ex.ice_getSlicedData();
+                const slicedData = ex.ice_getSlicedData();
                 test(slicedData !== null);
                 test(slicedData.slices.length == 2);
                 test(slicedData.slices[1].typeId == "::Test::SPreserved1");
@@ -335,7 +335,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

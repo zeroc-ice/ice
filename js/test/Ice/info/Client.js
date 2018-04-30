@@ -10,7 +10,6 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
-    const IceSSL = require("ice").IceSSL;
     const Test = require("Test").Test;
 
     function getTCPEndpointInfo(info)
@@ -54,9 +53,9 @@
               "test -t:default -h tcphost -p 10000 -t 1200 -z --sourceAddress 10.10.10.10:opaque -e 1.8 -t 100 -v ABCD";
         const p1 = communicator.stringToProxy(ref);
 
-        let endps = p1.ice_getEndpoints();
-        let endpoint = endps[0].getInfo();
-        let ipEndpoint = getTCPEndpointInfo(endpoint);
+        const endps = p1.ice_getEndpoints();
+        const endpoint = endps[0].getInfo();
+        const ipEndpoint = getTCPEndpointInfo(endpoint);
         test(ipEndpoint.host == "tcphost");
         test(ipEndpoint.port == 10000);
         test(ipEndpoint.timeout == 1200);
@@ -71,13 +70,13 @@
              ipEndpoint.type() == Ice.WSEndpointType && endpoint instanceof Ice.WSEndpointInfo ||
              ipEndpoint.type() == Ice.WSSEndpointType && endpoint instanceof Ice.WSEndpointInfo);
 
-        let opaqueEndpoint = endps[1].getInfo();
+        const opaqueEndpoint = endps[1].getInfo();
         test(opaqueEndpoint.rawEncoding.equals(new Ice.EncodingVersion(1, 8)));
         out.writeLine("ok");
 
         out.write("testing connection endpoint information... ");
-        let base = communicator.stringToProxy("test:default -p 12010");
-        let testIntf = Test.TestIntfPrx.uncheckedCast(base);
+        const base = communicator.stringToProxy("test:default -p 12010");
+        const testIntf = Test.TestIntfPrx.uncheckedCast(base);
 
         let conn = await base.ice_getConnection();
         let ipinfo = getTCPEndpointInfo(conn.getEndpoint().getInfo());
@@ -96,7 +95,7 @@
         conn = await base.ice_getConnection();
         conn.setBufferSize(1024, 2048);
 
-        info = conn.getInfo();
+        const info = conn.getInfo();
         ipinfo = getTCPConnectionInfo(info);
         test(!info.incoming);
         test(info.adapterName.length === 0);
@@ -113,7 +112,6 @@
                 test(ipinfo.localAddress == defaultHost);
             }
         }
-        //test(info.rcvSize >= 1024);
         test(info.sndSize >= 2048);
         ctx = await testIntf.getConnectionInfoAsContext();
 
@@ -123,17 +121,12 @@
         {
             test(ctx.get("remoteAddress") == info.localAddress);
             test(ctx.get("localAddress") == info.remoteAddress);
-            test(parseInt(ctx.get("remotePort")) == info.localPort);
-            test(parseInt(ctx.get("localPort")) == info.remotePort);
+            test(parseInt(ctx.get("remotePort")) === info.localPort);
+            test(parseInt(ctx.get("localPort")) === info.remotePort);
         }
 
         if(conn.type() == "ws" || conn.type() == "wss")
         {
-            //test(info.headers["Upgrade"] == "websocket");
-            //test(info.headers.get("Connection") == "Upgrade");
-            //test(info.headers.get("Sec-WebSocket-Protocol") == "ice.zeroc.com");
-            //test(info.headers.get("Sec-WebSocket-Accept") != null);
-
             test(ctx.get("ws.Upgrade").toLowerCase() == "websocket");
             test(ctx.get("ws.Connection").indexOf("Upgrade") >= 0);
             test(ctx.get("ws.Sec-WebSocket-Protocol") == "ice.zeroc.com");
@@ -164,7 +157,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

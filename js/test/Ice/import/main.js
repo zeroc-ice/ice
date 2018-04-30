@@ -8,12 +8,13 @@
 // **********************************************************************
 
 import ice from "ice";
+
 const Ice = ice.Ice;
 
-import { Demo } from "./Demo/Point";
+import {Demo} from "./Demo/Point";
+import "./Demo/Canvas";
 import "./Demo/Circle";
 import "./Demo/Square";
-import "./Demo/Canvas";
 
 function test(value)
 {
@@ -24,16 +25,16 @@ function test(value)
 }
 
 console.log("testing import/export modules");
-let point = new Demo.gx.Point(10, 10);
+const point = new Demo.gx.Point(10, 10);
 test(point.x === 10);
 test(point.y === 10);
 
-let circle = new Demo.gx.Circle(new Demo.gx.Point(10, 10), 100);
+const circle = new Demo.gx.Circle(new Demo.gx.Point(10, 10), 100);
 test(circle.center.x == 10);
 test(circle.center.y == 10);
 test(circle.radius == 100);
 
-let square = new Demo.gx.Square(
+const square = new Demo.gx.Square(
     new Demo.gx.Point(0, 0),
     new Demo.gx.Point(10, 0),
     new Demo.gx.Point(10, 10),
@@ -51,11 +52,11 @@ test(square.p3.y === 10);
 test(square.p4.x === 0);
 test(square.p4.y === 10);
 
-let communicator = Ice.initialize();
-let session = Demo.gx.SessionPrx.uncheckedCast(communicator.stringToProxy("demo:default -h 127.0.0.1"));
+const communicator = Ice.initialize();
+const session = Demo.gx.SessionPrx.uncheckedCast(communicator.stringToProxy("demo:default -h 127.0.0.1"));
 test(session !== undefined);
 
-let canvas = Demo.gx.CanvasPrx.uncheckedCast(communicator.stringToProxy("demo:default -h 127.0.0.1"));
+const canvas = Demo.gx.CanvasPrx.uncheckedCast(communicator.stringToProxy("demo:default -h 127.0.0.1"));
 test(canvas !== undefined);
 
 communicator.destroy().then(() => console.log("ok"));

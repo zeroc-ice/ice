@@ -28,15 +28,15 @@
         }
 
         out.write("testing stringToProxy... ");
-        let ref = "retry:default -p 12010";
-        let base1 = communicator.stringToProxy(ref);
+        const ref = "retry:default -p 12010";
+        const base1 = communicator.stringToProxy(ref);
         test(base1 !== null);
-        let base2 = communicator.stringToProxy(ref);
+        const base2 = communicator.stringToProxy(ref);
         test(base2 !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        let retry1 = await Test.RetryPrx.checkedCast(base1);
+        const retry1 = await Test.RetryPrx.checkedCast(base1);
         test(retry1 !== null);
         test(retry1.equals(base1));
         let retry2 = await Test.RetryPrx.checkedCast(base2);
@@ -56,7 +56,7 @@
         }
         catch(ex)
         {
-            if(typeof(window) === 'undefined' && typeof(WorkerGlobalScope) === 'undefined') // Nodejs
+            if(typeof window === 'undefined' && typeof WorkerGlobalScope === 'undefined') // Nodejs
             {
                 test(ex instanceof Ice.ConnectionLostException, ex);
             }
@@ -72,7 +72,7 @@
         out.writeLine("ok");
 
         out.write("testing idempotent operation... ");
-        let count = await retry1.opIdempotent(4);
+        const count = await retry1.opIdempotent(4);
         test(count === 4);
         out.writeLine("ok");
 
@@ -128,7 +128,7 @@
             // + retry test, we need to configure a large retry interval
             // to avoid time-sensitive failures.
             //
-            let initData2 = new Ice.InitializationData();
+            const initData2 = new Ice.InitializationData();
             initData2.properties = communicator.getProperties().clone();
             initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
             communicator2 = Ice.initialize(initData2);
@@ -151,7 +151,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

@@ -7,19 +7,11 @@
 //
 // **********************************************************************
 
-/* global
-   _runEchoServerOptions : false,
-   _test : false,
-   Test : false,
-   URI : false,
-   current : false,
-   TestSuites : false,
-   runTest: false
-*/
+/* eslint-env jquery, browser */
+/* global URI, current, TestSuites, runTest */
 
 $(document).foundation();
-$(document).ready(
-    function()
+$(document).ready(() =>
     {
         const es5 = document.location.pathname.indexOf("/es5/") !== -1;
         let worker;
@@ -41,7 +33,7 @@ $(document).ready(
             }
         }
 
-        let query = new URI(document.location.href).search(true);
+        const query = new URI(document.location.href).search(true);
 
         $("#language").val(query.language !== undefined ? query.language : "cpp");
         $("#protocol").val(document.location.protocol == "http:" ? "ws" : "wss");
@@ -57,16 +49,17 @@ $(document).ready(
                 path = path.replace("/test/", "/test/es5/");
             }
 
-            document.location.assign(new URI()
-                                     .host(document.location.host)
-                                     .pathname(path)
-                                     .search(
-                                         {
-                                             language: $("#language").val(),
-                                             worker: $("#worker").is(":checked"),
-                                             loop: $("#loop").is(":checked"),
-                                             next:"true"
-                                         }).toString());
+            document.location.assign(
+                new URI()
+                    .host(document.location.host)
+                    .pathname(path)
+                    .search(
+                        {
+                            language: $("#language").val(),
+                            worker: $("#worker").is(":checked"),
+                            loop: $("#loop").is(":checked"),
+                            next: "true"
+                        }).toString());
         }
 
         function next(success)
@@ -113,18 +106,18 @@ $(document).ready(
                 path = path.replace("/test/", "/test/es5/");
             }
 
-            document.location.assign(new URI()
-                                     .host(document.location.host)
-                                     .pathname(path)
-                                     .search(
-                                         {
-                                             language: $("#language").val(),
-                                             worker: $("#worker").is(":checked"),
-                                             loop: $("#loop").is(":checked")
-                                         }).toString());
+            document.location.assign(
+                new URI()
+                    .host(document.location.host)
+                    .pathname(path).search(
+                        {
+                            language: $("#language").val(),
+                            worker: $("#worker").is(":checked"),
+                            loop: $("#loop").is(":checked")
+                        }).toString());
         }
 
-        $("#run").click((e) =>
+        $("#run").click(e =>
                         {
                             if(!$(e.currentTarget).hasClass("disabled"))
                             {
@@ -215,7 +208,7 @@ $(document).ready(
 
         $("#protocol").on("change", e =>
                           {
-                              let protocol = $(e.currentTarget).val();
+                              const protocol = $(e.currentTarget).val();
                               console.log(`protocol change: ${protocol}`);
                               if((document.location.protocol == "http:" && protocol == "wss") ||
                                  (document.location.protocol == "https:" && protocol == "ws"))

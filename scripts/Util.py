@@ -3653,7 +3653,7 @@ class JavaScriptMapping(Mapping):
 
     def getCommandLine(self, current, process, exe, args):
         if current.config.es5:
-            return "node {0}/test/Common/run.js --es5 {1} {2}".format(self.path, exe, args)
+            return "node {0}/test/es5/Common/run.js --es5 {1} {2}".format(self.path, exe, args)
         else:
             return "node {0}/test/Common/run.js {1} {2}".format(self.path, exe, args)
 

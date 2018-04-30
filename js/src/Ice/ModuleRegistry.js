@@ -13,11 +13,11 @@ class _ModuleRegistry
 {
     static module(name)
     {
-        let m =  modules[name];
+        let m = modules[name];
         if(m === undefined)
         {
             m = {};
-            modules[name] =  m;
+            modules[name] = m;
         }
         return m;
     }

@@ -7,6 +7,8 @@
 //
 // **********************************************************************
 
+/* eslint-env jquery */
+
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
@@ -45,22 +47,24 @@
         props.set("AServer", "\\\\server\\dir");
         props.set("BServer", "\\server\\dir");
 
-        let properties = Ice.createProperties();
-        if(typeof(require("fs").readFileSync) == "function")
+        const properties = Ice.createProperties();
+        /* eslint-disable no-sync */
+        if(typeof require("fs").readFileSync == "function")
         {
             //
             // We are runing with NodeJS we load the properties file from the file system.
             //
             properties.parse(require("fs").readFileSync(args[3] + "/config/escapes.cfg", {encoding: "utf8"}));
-            for(let [key, value] of props)
+            for(const [key, value] of props)
             {
                 test(properties.getProperty(key) == value);
             }
         }
+        /* eslint-enable no-sync */
         else if(typeof window !== 'undefined')
         {
             //
-            //Skiped when running in a worker, we don't load JQuery in the workers
+            // Skiped when running in a worker, we don't load JQuery in the workers
             //
 
             //
@@ -69,8 +73,6 @@
             await new Promise(
                 (resolve, reject) =>
                     {
-                        /*jshint jquery: true */
-
                         //
                         // Use text data type to avoid problems interpreting the data.
                         //
@@ -78,7 +80,7 @@
                             data =>
                                 {
                                     properties.parse(data);
-                                    for(let [key, value] of props)
+                                    for(const [key, value] of props)
                                     {
                                             test(properties.getProperty(key) == value);
                                     }
@@ -90,7 +92,6 @@
     }
 
     exports._test = run;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

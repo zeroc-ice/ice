@@ -52,7 +52,7 @@ class WSTransceiver
     writeReadyTimeout()
     {
         const t = Math.round(this._writeReadyTimeout);
-        this._writeReadyTimeout +=  (this._writeReadyTimeout >= 5 ? 5 : 0.2);
+        this._writeReadyTimeout += (this._writeReadyTimeout >= 5 ? 5 : 0.2);
         return Math.min(t, 25);
     }
 
@@ -62,6 +62,7 @@ class WSTransceiver
         this._bytesAvailableCallback = bytesAvailableCallback;
         this._bytesWrittenCallback = bytesWrittenCallback;
     }
+
     //
     // Returns SocketOperation.None when initialization is complete.
     //

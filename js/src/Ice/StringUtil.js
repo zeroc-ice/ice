@@ -30,6 +30,7 @@ Ice.StringUtil = class
         }
         return -1;
     }
+
     //
     // Return the index of the first character in str which does
     // not appear in match, starting from start. Returns -1 if none is
@@ -48,6 +49,7 @@ Ice.StringUtil = class
         }
         return -1;
     }
+
     //
     // Add escape sequences (such as "\n", or "\123") to s
     //
@@ -113,6 +115,7 @@ Ice.StringUtil = class
         }
         return result.join("");
     }
+
     //
     // Remove escape sequences added by escapeString. Throws Error
     // for an invalid input string.
@@ -157,6 +160,7 @@ Ice.StringUtil = class
             return arr.join("");
         }
     }
+
     //
     // Split string helper; returns null for unmatched quotes
     //
@@ -220,6 +224,7 @@ Ice.StringUtil = class
 
         return v;
     }
+
     //
     // If a single or double quotation mark is found at the start position,
     // then the position of the matching closing quote is returned. If no
@@ -247,6 +252,7 @@ Ice.StringUtil = class
         }
         return 0; // Not quoted
     }
+
     static hashCode(s)
     {
         let hash = 0;
@@ -256,6 +262,7 @@ Ice.StringUtil = class
         }
         return hash;
     }
+
     static toInt(s)
     {
         const n = parseInt(s, 10);
@@ -347,54 +354,51 @@ function encodeChar(c, sb, special, toStringMode)
                 sb.push('\\');
                 sb.push(s);
             }
-            else
+            else if(c < 32 || c > 126)
             {
-                if(c < 32 || c > 126)
+                if(toStringMode === Ice.ToStringMode.Compat)
                 {
-                    if(toStringMode === Ice.ToStringMode.Compat)
+                    //
+                    // When ToStringMode=Compat, c is a UTF-8 byte
+                    //
+                    Debug.assert(c < 256);
+                    sb.push('\\');
+                    const octal = c.toString(8);
+                    //
+                    // Add leading zeroes so that we avoid problems during
+                    // decoding. For example, consider the encoded string
+                    // \0013 (i.e., a character with value 1 followed by
+                    // the character '3'). If the leading zeroes were omitted,
+                    // the result would be incorrectly interpreted by the
+                    // decoder as a single character with value 11.
+                    //
+                    for(let j = octal.length; j < 3; j++)
                     {
-                        //
-                        // When ToStringMode=Compat, c is a UTF-8 byte
-                        //
-                        Debug.assert(c < 256);
-                        sb.push('\\');
-                        const octal = c.toString(8);
-                        //
-                        // Add leading zeroes so that we avoid problems during
-                        // decoding. For example, consider the encoded string
-                        // \0013 (i.e., a character with value 1 followed by
-                        // the character '3'). If the leading zeroes were omitted,
-                        // the result would be incorrectly interpreted by the
-                        // decoder as a single character with value 11.
-                        //
-                        for(let j = octal.length; j < 3; j++)
-                        {
-                            sb.push('0');
-                        }
-                        sb.push(octal);
+                        sb.push('0');
                     }
-                    else if(c < 32 || c == 127 || toStringMode === Ice.ToStringMode.ASCII)
+                    sb.push(octal);
+                }
+                else if(c < 32 || c == 127 || toStringMode === Ice.ToStringMode.ASCII)
+                {
+                    // append \\unnnn
+                    sb.push("\\u");
+                    const hex = c.toString(16);
+                    for(let j = hex.length; j < 4; j++)
                     {
-                        // append \\unnnn
-                        sb.push("\\u");
-                        const hex = c.toString(16);
-                        for(let j = hex.length; j < 4; j++)
-                        {
-                            sb.push('0');
-                        }
-                        sb.push(hex);
+                        sb.push('0');
                     }
-                    else
-                    {
-                        // keep as is
-                        sb.push(s);
-                    }
+                    sb.push(hex);
                 }
                 else
                 {
-                    // printable ASCII character
+                    // keep as is
                     sb.push(s);
                 }
+            }
+            else
+            {
+                // printable ASCII character
+                sb.push(s);
             }
             break;
         }

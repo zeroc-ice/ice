@@ -89,18 +89,16 @@
             initData.properties.setProperty("Ice.ACM.Timeout", "2");
             if(this._clientACMTimeout >= 0)
             {
-                initData.properties.setProperty("Ice.ACM.Client.Timeout", "" + this._clientACMTimeout);
+                initData.properties.setProperty("Ice.ACM.Client.Timeout", String(this._clientACMTimeout));
             }
             if(this._clientACMClose >= 0)
             {
-                initData.properties.setProperty("Ice.ACM.Client.Close", "" + this._clientACMClose);
+                initData.properties.setProperty("Ice.ACM.Client.Close", String(this._clientACMClose));
             }
             if(this._clientACMHeartbeat >= 0)
             {
-                initData.properties.setProperty("Ice.ACM.Client.Heartbeat", "" + this._clientACMHeartbeat);
+                initData.properties.setProperty("Ice.ACM.Client.Heartbeat", String(this._clientACMHeartbeat));
             }
-            //initData.properties.setProperty("Ice.Trace.Protocol", "2");
-            //initData.properties.setProperty("Ice.Trace.Network", "2");
             this._communicator = Ice.initialize(initData);
 
             this._adapter = await this._com.createObjectAdapter(this._serverACMTimeout,
@@ -135,10 +133,12 @@
             {
                 let prx = await this._adapter.getTestIntf();
                 prx = Test.TestIntfPrx.uncheckedCast(this._communicator.stringToProxy(prx.toString()));
-                let con = await prx.ice_getConnection();
-                con.setCloseCallback(connection => this._closed = true);
+                const con = await prx.ice_getConnection();
+                con.setCloseCallback(connection =>
+                                     {
+                                         this._closed = true;
+                                     });
                 con.setHeartbeatCallback(connection => ++this._heartbeat);
-
                 await this.runTestCase(this._adapter, prx);
             }
             catch(ex)
@@ -354,7 +354,7 @@
         async runTestCase(adapter, proxy)
         {
             await Ice.Promise.delay(3000);
-            await this._heartbeat >= 3;
+            return this._heartbeat >= 3;
         }
     }
 
@@ -413,7 +413,7 @@
 
         async runTestCase(adapter, proxy)
         {
-            let con = proxy.ice_getCachedConnection();
+            const con = proxy.ice_getCachedConnection();
 
             try
             {
@@ -470,7 +470,7 @@
         // Skip some tests with IE it opens too many connections and
         // IE doesn't allow more than 6 connections.
         //
-        if(typeof(navigator) !== "undefined" &&
+        if(typeof navigator !== "undefined" &&
            ["MSIE", "Trident/7.0", "Edge/12", "Edge/13"].some(value => navigator.userAgent.indexOf(value) !== -1))
         {
             tests.push(new HeartbeatOnIdleTest(com, out));
@@ -496,7 +496,7 @@
 
         await Promise.all(tests.map(test => test.init()));
         await Promise.all(tests.map(test => test.start()));
-        for(let test of tests)
+        for(const test of tests)
         {
             test.join(out);
         }
@@ -527,7 +527,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

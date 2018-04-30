@@ -27,44 +27,40 @@ function createTimerObject()
     {
         static setTimeout(cb, ms)
         {
-            return setTimeout.apply(null, arguments);
+            return setTimeout(cb, ms);
         }
 
         static clearTimeout(id)
         {
-            return clearTimeout.apply(null, arguments);
+            return clearTimeout(id);
         }
 
-        static setInterval()
+        static setInterval(cb, ms)
         {
-            return setInterval.apply(null, arguments);
+            return setInterval(cb, ms);
         }
 
-        static clearInterval()
+        static clearInterval(id)
         {
-            return clearInterval.apply(null, arguments);
+            return clearInterval(id);
+        }
+
+        static setImmediate(cb)
+        {
+            if(typeof setImmediate == "function")
+            {
+                return setImmediate(cb);
+            }
+            else
+            {
+                return setTimeout(cb);
+            }
         }
     };
-
-    if(typeof(setImmediate) == "function")
-    {
-        Timer.setImmediate = function()
-        {
-            return setImmediate.apply(null, arguments);
-        };
-    }
-    else
-    {
-        Timer.setImmediate = function()
-        {
-            return setTimeout.apply(null, arguments);
-        };
-    }
-
     return Timer;
 }
 
-const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER  || 9007199254740991;
+const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
 
 const _timers = new Map();
 
@@ -204,7 +200,7 @@ else if(typeof WorkerGlobalScope !== 'undefined' && this instanceof WorkerGlobal
 }
 else if(worker === undefined)
 {
-    const url = URL.createObjectURL(new Blob([workerCode()], {type : 'text/javascript'}));
+    const url = URL.createObjectURL(new Blob([workerCode()], {type: 'text/javascript'}));
     worker = new Worker(url);
     worker.onmessage = Timer.onmessage;
     Ice.Timer = Timer;

@@ -147,7 +147,7 @@ class Buffer
 
     putArray(v)
     {
-        //Expects an Uint8Array
+        // Expects an Uint8Array
         if(!(v instanceof Uint8Array))
         {
             throw new TypeError('argument is not a Uint8Array');
@@ -286,8 +286,9 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        length = length === undefined ? (this.b.byteLength - position) : length;
-        return new Uint8Array(this.b.slice(position, position + length));
+        return new Uint8Array(
+            this.b.slice(position, position + length === undefined ?
+                         (this.b.byteLength - position) : length));
     }
 
     getShort()

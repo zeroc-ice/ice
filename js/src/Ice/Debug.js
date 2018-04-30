@@ -7,6 +7,9 @@
 //
 // **********************************************************************
 
+/* eslint no-sync: "off" */
+/* eslint no-process-exit: "off" */
+
 const Ice = require("../Ice/ModuleRegistry").Ice;
 const fs = require("fs");
 

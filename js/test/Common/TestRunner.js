@@ -7,17 +7,12 @@
 //
 // **********************************************************************
 
- /* global
-    _test : false,
-    _runServer : false,
-    _server: false,
-    Test : false,
-    WorkerGlobalScope: false
-*/
+/* global _test, _runServer, _server, Test, WorkerGlobalScope, Ice */
+/* eslint no-unused-vars: ["error", { "varsIgnorePattern": "isSafari|isChrome|isWorker|isWindows|runTest" }] */
 
 function isSafari()
 {
-    return /^((?!chrome).)*safari/i.test(navigator.userAgent);
+    return (/^((?!chrome).)*safari/i).test(navigator.userAgent);
 }
 
 function isChrome()
@@ -31,7 +26,7 @@ function isChrome()
 
 function isWorker()
 {
-    return typeof(WorkerGlobalScope) !== 'undefined' && this instanceof WorkerGlobalScope;
+    return typeof WorkerGlobalScope !== 'undefined' && this instanceof WorkerGlobalScope;
 }
 
 function isWindows()
@@ -56,7 +51,6 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
         trace(category, message)
         {
             const s = [];
-            const d = new Date();
             s.push("-- ");
             s.push(this.timestamp());
             s.push(' ');
@@ -70,7 +64,6 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
         warning(message)
         {
             const s = [];
-            const d = new Date();
             s.push("-! ");
             s.push(this.timestamp());
             s.push(' ');
@@ -83,7 +76,6 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
         error(message)
         {
             const s = [];
-            const d = new Date();
             s.push("!! ");
             s.push(this.timestamp());
             s.push(' ');
@@ -98,7 +90,7 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
             return "";
         }
 
-        cloneWithPrefix(prefix)
+        cloneWithPrefix()
         {
             return Logger;
         }
@@ -113,95 +105,95 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
     let communicator;
     try
     {
-        let initData = new Ice.InitializationData();
-        let port = protocol == "ws" ? 15002 : 15003;
+        const initData = new Ice.InitializationData();
+        const port = protocol == "ws" ? 15002 : 15003;
         initData.logger = new Logger();
         initData.properties = Ice.createProperties();
         initData.properties.setProperty("Ice.Default.Host", host);
         initData.properties.setProperty("Ice.Default.Protocol", protocol);
-        //initData.properties.setProperty("Ice.Trace.Protocol", "1");
-        //initData.properties.setProperty("Ice.Trace.Network", "3");
+        // initData.properties.setProperty("Ice.Trace.Protocol", "1");
+        // initData.properties.setProperty("Ice.Trace.Network", "3");
 
-        if(typeof(_runServer) === "undefined")
+        if(typeof _runServer === "undefined")
         {
             await _test(out, initData);
         }
         else
         {
             communicator = Ice.initialize();
-            let controller = Test.Common.ControllerPrx.uncheckedCast(
+            const controller = Test.Common.ControllerPrx.uncheckedCast(
                 communicator.stringToProxy(`controller:${protocol} -h ${host} -p ${port}`));
 
-            testcases = testcases || [ { name: "client/server" } ];
+            testcases = testcases || [{name: "client/server"}];
 
-            async function run(testcase, client)
-            {
-                let serverTestCase;
-                try
-                {
-                    if(testcase.langs && testcase.langs.indexOf(language) == -1)
-                    {
-                        return;
-                    }
+            const run = async (testcase, client) =>
+                  {
+                      let serverTestCase;
+                      try
+                      {
+                          if(testcase.langs && testcase.langs.indexOf(language) == -1)
+                          {
+                              return;
+                          }
 
-                    out.writeLine(`[ running ${testcase.name} test]`);
-                    out.write("starting server side... ");
-                    serverTestCase = (language === "js") ?
-                        await controller.runTestCase("cpp", "Ice/echo", "server", "") :
-                        await controller.runTestCase("js", testsuite, testcase.name, language);
+                          out.writeLine(`[ running ${testcase.name} test]`);
+                          out.write("starting server side... ");
+                          serverTestCase = (language === "js") ?
+                              await controller.runTestCase("cpp", "Ice/echo", "server", "") :
+                              await controller.runTestCase("js", testsuite, testcase.name, language);
 
-                    serverTestCase = Test.Common.TestCasePrx.uncheckedCast(
-                        controller.ice_getCachedConnection().createProxy(serverTestCase.ice_getIdentity()));
+                          serverTestCase = Test.Common.TestCasePrx.uncheckedCast(
+                              controller.ice_getCachedConnection().createProxy(serverTestCase.ice_getIdentity()));
 
-                    let config = new Test.Common.Config();
-                    config.protocol = protocol;
-                    await serverTestCase.startServerSide(config);
-                    out.writeLine("ok");
+                          const config = new Test.Common.Config();
+                          config.protocol = protocol;
+                          await serverTestCase.startServerSide(config);
+                          out.writeLine("ok");
 
-                    let server;
-                    if(language === "js")
-                    {
-                        let id = initData.clone();
-                        if(testcase.args !== undefined)
-                        {
-                            id.properties = Ice.createProperties(testcase.args, initData.properties);
-                        }
-                        let ready = new Ice.Promise();
-                        server = _server(out, id, ready, testcase.args);
-                        await ready;
-                    }
+                          let server;
+                          if(language === "js")
+                          {
+                              const id = initData.clone();
+                              if(testcase.args !== undefined)
+                              {
+                                  id.properties = Ice.createProperties(testcase.args, initData.properties);
+                              }
+                              const ready = new Ice.Promise();
+                              server = _server(out, id, ready, testcase.args);
+                              await ready;
+                          }
 
-                    {
-                        let id = initData.clone();
-                        if(testcase.args !== undefined)
-                        {
-                            initData.properties = Ice.createProperties(testcase.args, id.properties);
-                        }
-                        await client(out, id, testcase.args);
-                    }
+                          {
+                              const id = initData.clone();
+                              if(testcase.args !== undefined)
+                              {
+                                  initData.properties = Ice.createProperties(testcase.args, id.properties);
+                              }
+                              await client(out, id, testcase.args);
+                          }
 
-                    if(server)
-                    {
-                        await server; // Wait for server to terminate
-                    }
+                          if(server)
+                          {
+                              await server; // Wait for server to terminate
+                          }
 
-                    await serverTestCase.stopServerSide(true);
-                }
-                catch(ex)
-                {
-                    out.writeLine("failed! (" + ex + ")");
-                    throw ex;
-                }
-                finally
-                {
-                    if(serverTestCase)
-                    {
-                        await serverTestCase.destroy();
-                    }
-                }
-            }
+                          await serverTestCase.stopServerSide(true);
+                      }
+                      catch(ex)
+                      {
+                          out.writeLine("failed! (" + ex + ")");
+                          throw ex;
+                      }
+                      finally
+                      {
+                          if(serverTestCase)
+                          {
+                              await serverTestCase.destroy();
+                          }
+                      }
+                  };
 
-            for(let testcase of testcases)
+            for(const testcase of testcases)
             {
                 await run(testcase, _test);
             }
@@ -223,7 +215,7 @@ async function runTest(testsuite, language, host, protocol, testcases, out)
                 out.writeLine(ex.stack);
             }
         }
-        return false
+        return false;
     }
     finally
     {

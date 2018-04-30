@@ -18,29 +18,36 @@
         {
             throw new Error("test failed");
         }
-    };
+    }
 
-    async function run(out)
+    function run(out)
     {
-        out.write("testing Slice predefined macros... ");
+        try
+        {
+            out.write("testing Slice predefined macros... ");
 
-        let d = new Test._Default();
-        test(d.x == 10);
-        test(d.y == 10);
+            const d = new Test._Default();
+            test(d.x == 10);
+            test(d.y == 10);
 
-        let nd = new Test.NoDefault();
-        test(nd.x != 10);
-        test(nd.y != 10);
+            const nd = new Test.NoDefault();
+            test(nd.x != 10);
+            test(nd.y != 10);
 
-        let c = new Test.JsOnly();
-        test(c.lang == "js");
-        test(c.version == Ice.intVersion());
+            const c = new Test.JsOnly();
+            test(c.lang == "js");
+            test(c.version == Ice.intVersion());
 
-        out.writeLine("ok");
+            out.writeLine("ok");
+            return Promise.resolve();
+        }
+        catch(ex)
+        {
+            return Promise.reject(ex);
+        }
     }
 
     exports._test = run;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

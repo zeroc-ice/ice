@@ -96,7 +96,7 @@ class EndpointFactoryManager
                 throw new EndpointParseException("unrecognized argument `" + arr[0] + "' in endpoint `" + str + "'");
             }
 
-            for(let i = 0, length =  this._factories.length; i < length; ++i)
+            for(let i = 0, length = this._factories.length; i < length; ++i)
             {
                 if(this._factories[i].type() == ue.type())
                 {

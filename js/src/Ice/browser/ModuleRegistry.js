@@ -10,9 +10,9 @@
 /* global
     self : false
 */
-const root = typeof(window) !== "undefined" ? window :
-             typeof(global) !== "undefined" ? global :
-             typeof(self) !== "undefined" ? self : {};
+const root = typeof window !== "undefined" ? window :
+             typeof global !== "undefined" ? global :
+             typeof self !== "undefined" ? self : {};
 /* global
     self : true
 */
@@ -25,7 +25,7 @@ class _ModuleRegistry
         if(m === undefined)
         {
             m = {};
-            root[name] =  m;
+            root[name] = m;
         }
         return m;
     }

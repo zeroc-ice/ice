@@ -79,7 +79,7 @@ class RouterInfo
         }
         else
         {
-            this._router.getClientProxy().then((result) =>
+            this._router.getClientProxy().then(result =>
                            this.setClientEndpoints(result[0],
                                                    result[1] !== undefined ? result[1] : true,
                                                    promise)).catch(promise.reject);
@@ -115,7 +115,7 @@ class RouterInfo
         }
         else
         {
-            return this._router.addProxies([ proxy ]).then(
+            return this._router.addProxies([proxy]).then(
                 evictedProxies =>
                 {
                     this.addAndEvictProxies(proxy, evictedProxies);

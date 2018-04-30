@@ -10,17 +10,12 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
-    const IceSSL = require("ice").IceSSL;
     const Test = require("Test").Test;
 
     async function allTests(communicator, out)
     {
         class TestError extends Error
         {
-            constructor(message)
-            {
-                super(message);
-            }
         }
 
         function test(value, ex)
@@ -36,14 +31,14 @@
             }
         }
 
-        let defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        const defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
 
         out.write("testing stringToProxy... ");
-        ref = "test:default -p 12010";
-        base = communicator.stringToProxy(ref);
+        const ref = "test:default -p 12010";
+        const base = communicator.stringToProxy(ref);
         test(base !== null);
 
-        b1 = communicator.stringToProxy("test");
+        let b1 = communicator.stringToProxy("test");
         test(b1.ice_getIdentity().name === "test" && b1.ice_getIdentity().category.length === 0 &&
              b1.ice_getAdapterId().length === 0 && b1.ice_getFacet().length === 0);
         b1 = communicator.stringToProxy("test ");
@@ -116,7 +111,7 @@
         test(b1.ice_getIdentity().name === "test\x494test");
 
         b1 = communicator.stringToProxy("test\\b\\f\\n\\r\\t\\'\\\"\\\\test");
-        test(b1.ice_getIdentity().name === "test\b\f\n\r\t\'\"\\test" &&
+        test(b1.ice_getIdentity().name === "test\b\f\n\r\t'\"\\test" &&
              b1.ice_getIdentity().category.length === 0);
 
         b1 = communicator.stringToProxy("category/test");
@@ -204,7 +199,7 @@
 
         try
         {
-            b1 = communicator.stringToProxy("id -f \'facet x");
+            b1 = communicator.stringToProxy("id -f 'facet x");
             test(false);
         }
         catch(ex)
@@ -278,16 +273,6 @@
             test(ex instanceof Ice.EndpointParseException, ex);
         }
 
-        // This is an unknown endpoint warning, not a parse exception.
-        //
-        //try
-        //{
-        //   b1 = communicator.stringToProxy("test -f the:facet:tcp");
-        //   test(false);
-        //}
-        //catch(ex:Ice.EndpointParseException)
-        //{
-        //}
         try
         {
             b1 = communicator.stringToProxy("test::" + defaultProtocol);
@@ -386,8 +371,8 @@
         out.writeLine("ok");
 
         out.write("testing propertyToProxy... ");
-        let prop = communicator.getProperties();
-        let propertyPrefix = "Foo.Proxy";
+        const prop = communicator.getProperties();
+        const propertyPrefix = "Foo.Proxy";
         prop.setProperty(propertyPrefix, "test:default -p 12010");
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getIdentity().name === "test" && b1.ice_getIdentity().category.length === 0 &&
@@ -421,14 +406,6 @@
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getLocatorCacheTimeout() === 1);
         prop.setProperty(property, "");
-
-        // This cannot be tested so easily because the property is cached
-        // on communicator initialization.
-        //
-        //prop.setProperty("Ice.Default.LocatorCacheTimeout", "60");
-        //b1 = communicator.propertyToProxy(propertyPrefix);
-        //test(b1.ice_getLocatorCacheTimeout() === 60);
-        //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
         prop.setProperty(propertyPrefix, "test:default -p 12010");
 
@@ -499,7 +476,7 @@
         locator = locator.ice_router(Ice.RouterPrx.uncheckedCast(router));
         b1 = b1.ice_locator(Ice.LocatorPrx.uncheckedCast(locator));
 
-        let proxyProps = communicator.proxyToProperty(b1, "Test");
+        const proxyProps = communicator.proxyToProperty(b1, "Test");
         test(proxyProps.size === 21);
         test(proxyProps.get("Test") === "test -t -e 1.0");
         test(proxyProps.get("Test.CollocationOptimized") === "0");
@@ -575,7 +552,7 @@
         try
         {
             base.ice_timeout(-2);
-            test(false, ex);
+            test(false);
         }
         catch(ex)
         {
@@ -646,7 +623,7 @@
         test(communicator.stringToProxy("foo").equals(communicator.stringToProxy("foo")));
         test(!communicator.stringToProxy("foo").equals(communicator.stringToProxy("foo2")));
 
-        let compObj = communicator.stringToProxy("foo");
+        const compObj = communicator.stringToProxy("foo");
 
         test(compObj.ice_facet("facet").equals(compObj.ice_facet("facet")));
         test(!compObj.ice_facet("facet").equals(compObj.ice_facet("facet1")));
@@ -671,10 +648,6 @@
         test(compObj.ice_connectionId("id1").ice_getConnectionId() === "id1");
         test(compObj.ice_connectionId("id2").ice_getConnectionId() === "id2");
 
-        // Proxy doesn't support ice_compress
-        //test(compObj.ice_compress(true).equals(compObj.ice_compress(true)));
-        //test(!compObj.ice_compress(false).equals(compObj.ice_compress(true)));
-
         test(compObj.ice_timeout(20).equals(compObj.ice_timeout(20)));
         test(!compObj.ice_timeout(10).equals(compObj.ice_timeout(20)));
 
@@ -682,25 +655,25 @@
         test(compObj.ice_timeout(10).ice_getTimeout() == 10);
         test(compObj.ice_timeout(20).ice_getTimeout() == 20);
 
-        let loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
-        let loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
+        const loc1 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc1:default -p 10000"));
+        const loc2 = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("loc2:default -p 10000"));
         test(compObj.ice_locator(null).equals(compObj.ice_locator(null)));
         test(compObj.ice_locator(loc1).equals(compObj.ice_locator(loc1)));
         test(!compObj.ice_locator(loc1).equals(compObj.ice_locator(null)));
         test(!compObj.ice_locator(null).equals(compObj.ice_locator(loc2)));
         test(!compObj.ice_locator(loc1).equals(compObj.ice_locator(loc2)));
 
-        let rtr1 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("rtr1:default -p 10000"));
-        let rtr2 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("rtr2:default -p 10000"));
+        const rtr1 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("rtr1:default -p 10000"));
+        const rtr2 = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("rtr2:default -p 10000"));
         test(compObj.ice_router(null).equals(compObj.ice_router(null)));
         test(compObj.ice_router(rtr1).equals(compObj.ice_router(rtr1)));
         test(!compObj.ice_router(rtr1).equals(compObj.ice_router(null)));
         test(!compObj.ice_router(null).equals(compObj.ice_router(rtr2)));
         test(!compObj.ice_router(rtr1).equals(compObj.ice_router(rtr2)));
 
-        let ctx1 = new Map();
+        const ctx1 = new Map();
         ctx1.set("ctx1", "v1");
-        let ctx2 = new Map();
+        const ctx2 = new Map();
         ctx2.set("ctx2", "v2");
         test(compObj.ice_context(null).equals(compObj.ice_context(null)));
         test(compObj.ice_context(ctx1).equals(compObj.ice_context(ctx1)));
@@ -729,18 +702,18 @@
         compObj2 = communicator.stringToProxy("foo@MyAdapter1");
         test(!compObj1.equals(compObj2));
 
-        let endpts1 = communicator.stringToProxy("foo:" + defaultProtocol + " -h 127.0.0.1 -p 10000").ice_getEndpoints();
-        let endpts2 = communicator.stringToProxy("foo:" + defaultProtocol + " -h 127.0.0.1 -p 10001").ice_getEndpoints();
+        const endpts1 = communicator.stringToProxy(`foo:${defaultProtocol} -h 127.0.0.1 -p 10000`).ice_getEndpoints();
+        const endpts2 = communicator.stringToProxy(`foo:${defaultProtocol} -h 127.0.0.1 -p 10001`).ice_getEndpoints();
         test(!endpts1[0].equals(endpts2[0]));
-        test(endpts1[0].equals(communicator.stringToProxy("foo:" + defaultProtocol + " -h 127.0.0.1 -p 10000").ice_getEndpoints()[0]));
+        test(endpts1[0].equals(communicator.stringToProxy(`foo:${defaultProtocol} -h 127.0.0.1 -p 10000`).ice_getEndpoints()[0]));
 
         test(compObj1.ice_encodingVersion(Ice.Encoding_1_0).equals(compObj1.ice_encodingVersion(Ice.Encoding_1_0)));
         test(!compObj1.ice_encodingVersion(Ice.Encoding_1_0).equals(compObj1.ice_encodingVersion(Ice.Encoding_1_1)));
 
-        let baseConnection = await base.ice_getConnection();
+        const baseConnection = await base.ice_getConnection();
         if(baseConnection !== null)
         {
-            let baseConnection2 = await base.ice_connectionId("base2").ice_getConnection();
+            const baseConnection2 = await base.ice_connectionId("base2").ice_getConnection();
             compObj1 = compObj1.ice_fixed(baseConnection);
             compObj2 = compObj2.ice_fixed(baseConnection2);
             test(!compObj1.equals(compObj2));
@@ -748,7 +721,7 @@
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        let cl = await Test.MyClassPrx.checkedCast(base);
+        const cl = await Test.MyClassPrx.checkedCast(base);
         test(cl !== null);
         let derived = await Test.MyDerivedClassPrx.checkedCast(cl);
         test(derived !== null);
@@ -759,19 +732,19 @@
 
         out.write("testing checked cast with context... ");
         let c = await cl.getContext();
-        test(c == null || c.size == 0);
+        test(c === null || c.size == 0);
         c = new Map();
         c.set("one", "hello");
         c.set("two", "world");
-        clc = await Test.MyClassPrx.checkedCast(base, undefined, c);
-        let c2 = await clc.getContext();
-        test(Ice.MapUtil.equals(c, c2))
+        const clc = await Test.MyClassPrx.checkedCast(base, undefined, c);
+        const c2 = await clc.getContext();
+        test(Ice.MapUtil.equals(c, c2));
         out.writeLine("ok");
 
         out.write("testing ice_fixed... ");
         {
             const connection = await cl.ice_getConnection();
-            if(connection != null)
+            if(connection !== null)
             {
                 await cl.ice_fixed(connection).getContext();
                 test(cl.ice_secure(true).ice_fixed(connection).ice_isSecure());
@@ -1020,16 +993,14 @@
 
         if(communicator.getProperties().getPropertyAsInt("Ice.IPv6") === 0)
         {
-            let ref = "test:default -p 12010";
-            let base = communicator.stringToProxy(ref);
+            const ref = "test:default -p 12010";
 
-            let ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") === "ssl";
-            /* TODO: p1 contains 127.0.0.1 - OK to invoke?
-               if(!ssl)
-               {
-               p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
-               }
-            */
+            const ssl = communicator.getProperties().getProperty("Ice.Default.Protocol") === "ssl";
+            // TODO: p1 contains 127.0.0.1 - OK to invoke?
+            //   if(!ssl)
+            //   {
+            //       p1.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
+            //   }
 
             // Two legal TCP endpoints expressed as opaque endpoints
             p1 = communicator.stringToProxy("test -e 1.0:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -e 1.0 -t 1 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");
@@ -1119,14 +1090,14 @@
 
             out.write("testing proxyToString... ");
             b1 = communicator.stringToProxy(ref);
-            b2 = communicator.stringToProxy(communicator.proxyToString(b1));
+            let b2 = communicator.stringToProxy(communicator.proxyToString(b1));
             test(b1.equals(b2));
 
             con = await b1.ice_getConnection();
             b2 = con.createProxy(Ice.stringToIdentity("fixed"));
-            str = communicator.proxyToString(b2);
+            const str = communicator.proxyToString(b2);
             test(b2.toString() === str);
-            str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
+            const str2 = b1.ice_identity(b2.ice_getIdentity()).ice_secure(b2.ice_isSecure()).toString();
 
             // Verify that the stringified fixed proxy is the same as a regular stringified proxy
             // but without endpoints
@@ -1198,7 +1169,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

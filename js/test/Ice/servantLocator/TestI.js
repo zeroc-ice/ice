@@ -51,7 +51,7 @@
         {
             if(throwEx)
             {
-                throw new TestImpossibleException();
+                throw new Test.TestImpossibleException();
             }
 
             //
@@ -65,7 +65,7 @@
         {
             if(throwEx)
             {
-                throw new TestIntfUserException();
+                throw new Test.TestIntfUserException();
             }
 
             //
@@ -92,7 +92,6 @@
     }
 
     exports.TestI = TestI;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

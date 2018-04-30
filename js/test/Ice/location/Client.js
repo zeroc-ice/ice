@@ -27,27 +27,27 @@
             }
         }
 
-        let manager = Test.ServerManagerPrx.uncheckedCast(communicator.stringToProxy("ServerManager:default -p 12010"));
+        const manager = Test.ServerManagerPrx.uncheckedCast(communicator.stringToProxy("ServerManager:default -p 12010"));
         test(manager !== null);
 
-        let locator = Test.TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
+        const locator = Test.TestLocatorPrx.uncheckedCast(communicator.getDefaultLocator());
         test(locator !== null);
 
-        let registry = Test.TestLocatorRegistryPrx.uncheckedCast(await locator.getRegistry());
+        const registry = Test.TestLocatorRegistryPrx.uncheckedCast(await locator.getRegistry());
         test(registry !== null);
 
         out.write("testing stringToProxy... ");
         let base = communicator.stringToProxy("test @ TestAdapter");
-        let base2 = communicator.stringToProxy("test @ TestAdapter");
-        let base3 = communicator.stringToProxy("test");
-        let base4 = communicator.stringToProxy("ServerManager");
-        let base5 = communicator.stringToProxy("test2");
-        let base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
+        const base2 = communicator.stringToProxy("test @ TestAdapter");
+        const base3 = communicator.stringToProxy("test");
+        const base4 = communicator.stringToProxy("ServerManager");
+        const base5 = communicator.stringToProxy("test2");
+        const base6 = communicator.stringToProxy("test @ ReplicatedAdapter");
         out.writeLine("ok");
 
         out.write("testing ice_locator and ice_getLocator... ");
         test(Ice.proxyIdentityCompare(base.ice_getLocator(), communicator.getDefaultLocator()) === 0);
-        let anotherLocator = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
+        const anotherLocator = Ice.LocatorPrx.uncheckedCast(communicator.stringToProxy("anotherLocator"));
         base = base.ice_locator(anotherLocator);
         test(Ice.proxyIdentityCompare(base.ice_getLocator(), anotherLocator) === 0);
         communicator.setDefaultLocator(null);
@@ -64,10 +64,10 @@
         // test/Ice/router test?)
         //
         test(base.ice_getRouter() === null);
-        anotherRouter = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
+        const anotherRouter = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("anotherRouter"));
         base = base.ice_router(anotherRouter);
         test(Ice.proxyIdentityCompare(base.ice_getRouter(), anotherRouter) === 0);
-        router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
+        const router = Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("dummyrouter"));
         communicator.setDefaultRouter(router);
         base = communicator.stringToProxy("test @ TestAdapter");
         test(Ice.proxyIdentityCompare(base.ice_getRouter(), communicator.getDefaultRouter()) === 0);
@@ -84,19 +84,19 @@
         let obj = await Test.TestIntfPrx.checkedCast(base);
         test(obj !== null);
 
-        let obj2 = await Test.TestIntfPrx.checkedCast(base2);
+        const obj2 = await Test.TestIntfPrx.checkedCast(base2);
         test(obj2 !== null);
 
-        let obj3 = await Test.TestIntfPrx.checkedCast(base3);
+        const obj3 = await Test.TestIntfPrx.checkedCast(base3);
         test(obj3 !== null);
 
-        let obj4 = await Test.ServerManagerPrx.checkedCast(base4);
+        const obj4 = await Test.ServerManagerPrx.checkedCast(base4);
         test(obj4 !== null);
 
-        let obj5 = await Test.TestIntfPrx.checkedCast(base5);
+        const obj5 = await Test.TestIntfPrx.checkedCast(base5);
         test(obj5 !== null);
 
-        let obj6 = await Test.TestIntfPrx.checkedCast(base6);
+        const obj6 = await Test.TestIntfPrx.checkedCast(base6);
         test(obj6 !== null);
         out.writeLine("ok");
 
@@ -219,7 +219,7 @@
         for(let i = 0; i < 1000; i++)
         {
             results.push(hello.sayHello().catch(
-                (ex) =>
+                ex =>
                     {
                         test(false);
                     }));
@@ -243,7 +243,7 @@
                     {
                         test(false);
                     },
-                (ex) =>
+                ex =>
                     {
                         test(ex instanceof Ice.NotRegisteredException, ex);
                     }));
@@ -412,10 +412,10 @@
 
         out.write("testing locator cache background updates... ");
         {
-            let initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties().clone();
             initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-            let ic = Ice.initialize(initData);
+            const ic = Ice.initialize(initData);
 
             await registry.setAdapterDirectProxy("TestAdapter5", await locator.findAdapterById("TestAdapter"));
             await registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
@@ -478,7 +478,7 @@
         out.write("testing object migration... ");
         hello = await Test.HelloPrx.checkedCast(communicator.stringToProxy("hello"));
         await obj.migrateHello();
-        let conn = await hello.ice_getConnection();
+        const conn = await hello.ice_getConnection();
         await conn.close(Ice.ConnectionClose.GracefullyWithWait);
         await hello.sayHello();
         await obj.migrateHello();
@@ -523,7 +523,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

@@ -92,11 +92,13 @@ Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
     let helper = null;
     Object.defineProperty(module, name,
         {
-            get: function()
+            get: () =>
                 {
                     if(helper === null)
                     {
-                        helper = Ice.StreamHelpers.generateSeqHelper(_ModuleRegistry.type(valueHelper), fixed, _ModuleRegistry.type(elementType));
+                        helper = Ice.StreamHelpers.generateSeqHelper(_ModuleRegistry.type(valueHelper),
+                                                                     fixed,
+                                                                     _ModuleRegistry.type(elementType));
                     }
                     return helper;
                 }

@@ -10,17 +10,12 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
-    const IceSSL = require("ice").IceSSL;
     const Test = require("Test").Test;
 
     async function allTests(communicator, out)
     {
         class TestError extends Error
         {
-            constructor(message)
-            {
-                super(message);
-            }
         }
 
         function test(value, ex)
@@ -36,12 +31,10 @@
             }
         }
 
-        let defaultProtocol = communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-
         out.write("testing stringToProxy... ");
         const ref = "test:default -p 12010";
         const base = communicator.stringToProxy(ref);
-        test(base != null);
+        test(base !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
@@ -77,31 +70,29 @@
         await obj.transient();
         out.writeLine("ok");
 
+        out.write("testing connection closure... ");
+        for(let i = 0; i < 10; ++i)
         {
-            out.write("testing connection closure... ");
-            for(i = 0; i < 10; ++i)
-            {
-                let initData = new Ice.InitializationData();
-                initData.properties = communicator.getProperties().clone();
-                let comm = Ice.initialize(initData);
-                comm.stringToProxy("test:default -p 12010").ice_ping().catch(ex => {});
-                await comm.destroy();
-            }
-            out.writeLine("ok");
+            const initData = new Ice.InitializationData();
+            initData.properties = communicator.getProperties().clone();
+            const comm = Ice.initialize(initData);
+            comm.stringToProxy("test:default -p 12010").ice_ping().catch(ex => {});
+            await comm.destroy();
         }
+        out.writeLine("ok");
 
         out.write("testing object adapter published endpoints... ");
         {
             communicator.getProperties().setProperty("PAdapter.PublishedEndpoints", "tcp -h localhost -p 12345 -t 30000");
-            let adapter = await communicator.createObjectAdapter("PAdapter");
+            const adapter = await communicator.createObjectAdapter("PAdapter");
             test(adapter.getPublishedEndpoints().length === 1);
-            let endpt = adapter.getPublishedEndpoints()[0];
+            const endpt = adapter.getPublishedEndpoints()[0];
             test(endpt.toString() == "tcp -h localhost -p 12345 -t 30000");
-            let prx =
+            const prx =
                 communicator.stringToProxy("dummy:tcp -h localhost -p 12346 -t 20000:tcp -h localhost -p 12347 -t 10000");
             adapter.setPublishedEndpoints(prx.ice_getEndpoints());
             test(adapter.getPublishedEndpoints().length === 2);
-            let id = new Ice.Identity();
+            const id = new Ice.Identity();
             id.name = "dummy";
             test(Ice.ArrayUtil.equals(adapter.createProxy(id).ice_getEndpoints(), prx.ice_getEndpoints()));
             test(Ice.ArrayUtil.equals(adapter.getPublishedEndpoints(), prx.ice_getEndpoints()));
@@ -117,7 +108,7 @@
         }
         out.writeLine("ok");
 
-        test(obj.ice_getConnection() != null)
+        test(obj.ice_getConnection() !== null);
         {
             out.write("testing object adapter with bi-dir connection... ");
             const adapter = await communicator.createObjectAdapter("");
@@ -197,7 +188,10 @@
             test(!adpt.isDeactivated());
 
             let isHolding = false;
-            adpt.waitForHold().then(() => { isHolding = true; });
+            adpt.waitForHold().then(() =>
+                                    {
+                                        isHolding = true;
+                                    });
             test(!isHolding);
             adpt.hold();
             await adpt.waitForHold();
@@ -205,10 +199,16 @@
             test(isHolding);
 
             isHolding = false;
-            adpt.waitForHold().then(() => isHolding = true);
+            adpt.waitForHold().then(() =>
+                                    {
+                                        isHolding = true;
+                                    });
 
             let isDeactivated = false;
-            adpt.waitForDeactivate().then(() => isDeactivated = true);
+            adpt.waitForDeactivate().then(() =>
+                                          {
+                                              isDeactivated = true;
+                                          });
             test(!isDeactivated);
             await adpt.deactivate();
             await adpt.waitForDeactivate();
@@ -223,7 +223,7 @@
         try
         {
             await obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-            throw new RuntimeException();
+            throw new Error();
         }
         catch(ex)
         {
@@ -251,7 +251,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

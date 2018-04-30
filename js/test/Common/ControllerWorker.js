@@ -7,32 +7,26 @@
 //
 // **********************************************************************
 
-/* global
-    self : false,
-    runTest : false,
-    _server : false,
-    _serveramd : false,
-    _test : false
-*/
+/* global self, _server, _serveramd, _test, Ice */
 
 class Output
 {
     static write(message)
     {
-        self.postMessage({type:"write", message:message});
+        self.postMessage({type: "write", message: message});
     }
 
     static writeLine(message)
     {
-        self.postMessage({type:"writeLine", message:message});
+        self.postMessage({type: "writeLine", message: message});
     }
 }
 
-self.onmessage = async (e) =>
+self.onmessage = async e =>
     {
         try
         {
-            for(let script of e.data.scripts)
+            for(const script of e.data.scripts)
             {
                 self.importScripts(script);
             }
@@ -50,16 +44,16 @@ self.onmessage = async (e) =>
             }
 
             let promise;
-            let initData = new Ice.InitializationData();
+            const initData = new Ice.InitializationData();
             initData.properties = Ice.createProperties(e.data.args);
             initData.logger = new Logger();
             if(e.data.exe === "Server" || e.data.exe === "ServerAMD")
             {
-                let ready = new Ice.Promise();
-                let test = e.data.exe === "Server" ? _server : _serveramd;
+                const ready = new Ice.Promise();
+                const test = e.data.exe === "Server" ? _server : _serveramd;
                 promise = test(Output, initData, ready, e.data.args);
                 await ready;
-                self.postMessage({type:"ready"});
+                self.postMessage({type: "ready"});
             }
             else
             {
@@ -67,10 +61,10 @@ self.onmessage = async (e) =>
             }
 
             await promise;
-            self.postMessage({ type: "finished" });
+            self.postMessage({type: "finished"});
         }
         catch(ex)
         {
-            self.postMessage({ type: "finished", exception:ex.toString() });
+            self.postMessage({type: "finished", exception: ex.toString()});
         }
     };
