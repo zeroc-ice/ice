@@ -466,6 +466,7 @@ generated from the section label.
         <property name="Host" />
         <property name="Port" />
         <property name="InstanceName" />
+        <property name="Server" class="objectadapter" />
         <property name="Discovery.Address" />
         <property name="Discovery.Interface" />
         <property name="Discovery.Lookup" />
