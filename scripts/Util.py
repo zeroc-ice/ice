@@ -26,15 +26,17 @@ toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 def run(cmd, cwd=None, err=False):
     p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
-    out = p.stdout.read().decode('UTF-8').strip()
-    if(not err and p.wait() != 0) or (err and p.wait() == 0) :
-        raise RuntimeError(cmd + " failed:\n" + out)
-    #
-    # Without this we get warnings when running with python_d on Windows
-    #
-    # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
-    #
-    p.stdout.close()
+    try:
+        out = p.stdout.read().decode('UTF-8').strip()
+        if(not err and p.wait() != 0) or (err and p.wait() == 0) :
+            raise RuntimeError(cmd + " failed:\n" + out)
+    finally:
+        #
+        # Without this we get warnings when running with python_d on Windows
+        #
+        # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
+        #
+        p.stdout.close()
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
@@ -1838,6 +1840,8 @@ class TestSuite:
             # TODO: WORKAROUND for ICE-8175
             if self.id.startswith("IceStorm"):
                 return True
+            elif isinstance(self.mapping, AndroidMapping) or isinstance(self.mapping, AndroidCompatMapping):
+                return True
             elif isinstance(self.mapping, m):
                 if "iphone" in config.buildPlatform or config.uwp:
                     return True # Not supported yet for tests that require a remote process controller
@@ -2241,9 +2245,9 @@ class AndroidProcessController(RemoteProcessController):
             except RuntimeError:
                 pass # expected if device is offline
             #
-            # If the emulator doesn't complete boot in 240 seconds give up
+            # If the emulator doesn't complete boot in 300 seconds give up
             #
-            if (time.time() - t) > 240:
+            if (time.time() - t) > 300:
                 raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
             time.sleep(2)
         print(" ok")
