@@ -426,6 +426,15 @@ CreateSession::CreateSession(const SessionRouterIPtr& sessionRouter, const strin
     _user(user),
     _current(current)
 {
+    // Clear reserved contexts potentially set by client
+    _context.erase("_con.type");
+    _context.erase("_con.remotePort");
+    _context.erase("_con.remoteAddress");
+    _context.erase("_con.localPort");
+    _context.erase("_con.localAddress");
+    _context.erase("_con.cipher");
+    _context.erase("_con.peerCert");
+
     if(_instance->properties()->getPropertyAsInt("Glacier2.AddConnectionContext") > 0)
     {
         _context["_con.type"] = current.con->type();
