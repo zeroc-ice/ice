@@ -41,7 +41,6 @@ const id = new Ice.InitializationData();
 id.properties = Ice.createProperties(process.argv);
 const exe = process.argv[2];
 let test = module.require(exe);
-console.log(test);
 if(exe === "Server" || exe === "ServerAMD")
 {
     const ready = new Ice.Promise();
