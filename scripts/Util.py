@@ -3545,28 +3545,30 @@ class PhpMapping(CppBasedClientMapping):
         mappingName = "php"
         mappingDesc = "PHP"
 
-    def getEnv(self, process, current):
-        env = CppBasedMapping.getEnv(self, process, current)
-        if (isinstance(platform, Windows) and
-            (current.driver.useIceBinDist(self) or "cpp" in os.environ.get("ICE_BIN_DIST", "").split())):
-                env[platform.getLdPathEnvName()] = self.getBinDir(process, current)
-        return env
-
     def getCommandLine(self, current, process, exe, args):
         phpArgs = []
+        php = "php"
         #
         # If Ice is not installed in the system directory, specify its location with PHP
         # configuration arguments.
         #
-        if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
-            useBinDist = current.driver.useIceBinDist(self)
+        if isinstance(platform, Windows):
+            systemInstall = current.driver.useIceBinDist(self)
+        else:
+            systemInstall = current.driver.getIceDir(self, current) == platform.getIceInstallDir(self, current)
+
+        if systemInstall:
             if isinstance(platform, Windows):
-
                 buildPlatform = current.driver.configs[self].buildPlatform
-                config = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
+                buildConfig = current.driver.configs[self].buildConfig
+                packageName = "php-7.1-ts.7.1.17" if buildConfig in ["Debug", "Release"] else "php-7.1-nts.7.1.17"
+                extension = "php_ice.dll" if buildConfig in ["Debug", "Release"] else "php_ice_nts.dll"
+                buildConfig = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
 
-                extension = "php_ice_nts.dll" if "NTS" in run("php -v") else "php_ice.dll"
-                extensionDir = os.path.join(self.path, "lib", buildPlatform, config)
+                php = os.path.join(self.path, "msbuild", "packages", packageName, "build", "native", "bin",
+                                   buildPlatform, buildConfig, "php.exe")
+
+                extensionDir = os.path.join(self.path, "lib", buildPlatform, buildConfig)
                 includePath = self.getLibDir(process, current)
             else:
                 extension = "ice.so"
@@ -3579,7 +3581,7 @@ class PhpMapping(CppBasedClientMapping):
             phpArgs += ["-d", "include_path='{0}'".format(includePath)]
         if hasattr(process, "getPhpArgs"):
             phpArgs += process.getPhpArgs(current)
-        return "php {0} -f {1} -- {2}".format(" ".join(phpArgs), exe, args)
+        return "{0} {1} -f {2} -- {3}".format(php, " ".join(phpArgs), exe, args)
 
     def getDefaultSource(self, processType):
         return { "client" : "Client.php" }[processType]
