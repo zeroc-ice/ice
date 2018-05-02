@@ -3577,6 +3577,7 @@ class PhpMapping(CppBasedClientMapping):
                 extensionDir = os.path.join(self.path, "lib", buildPlatform, buildConfig)
                 includePath = self.getLibDir(process, current)
             else:
+                useBinDist = current.driver.useIceBinDist(self)
                 extension = "ice.so"
                 extensionDir = self.getLibDir(process, current)
                 includePath = "{0}/{1}".format(current.driver.getIceDir(self, current), "php" if useBinDist else "lib")
