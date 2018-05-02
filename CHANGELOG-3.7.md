@@ -8,9 +8,11 @@ We recommend that you use the release notes as a guide for migrating your
 applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
+- [Changes in Ice 3.7.2](#changes-in-ice-372-pre-release-snapshot)
+  * [C++ Changes](#c-changes)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
   * [General Changes](#general-changes)
-  * [C++ Changes](#c-changes)
+  * [C++ Changes](#c-changes-1)
   * [C# Changes](#c%23-changes)
   * [Java Changes](#java-changes)
   * [JavaScript Changes](#javascript-changes)
@@ -21,7 +23,7 @@ particular aspect of Ice.
   * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   * [General Changes](#general-changes-1)
-  * [C++ Changes](#c-changes-1)
+  * [C++ Changes](#c-changes-2)
   * [C# Changes](#c%23-changes-1)
   * [Java Changes](#java-changes-1)
   * [JavaScript Changes](#javascript-changes-1)
@@ -29,6 +31,17 @@ particular aspect of Ice.
   * [PHP Changes](#php-changes-1)
   * [Python Changes](#python-changes-1)
   * [Ruby Changes](#ruby-changes-1)
+
+# Changes in Ice 3.7.2 (Pre-Release Snapshot)
+
+These are the changes since Ice 3.7.1 included in this pre-release.
+
+## C++ Changes
+
+- Fixed a debug assert in the Windows SChannel IceSSL implementation which would
+  occur in rare circumstances where SChannel returned SEC_E_INCOMPLETE_MESSAGE
+  with a cbBuffer value of 0. This occurred when running the JavaScript tests
+  with Firefox and using a C++ debug build.
 
 # Changes in Ice 3.7.1
 

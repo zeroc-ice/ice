@@ -315,7 +315,7 @@ SChannel::TransceiverI::sslHandshake()
             {
                 SecBuffer* missing = getSecBufferWithType(inBufferDesc, SECBUFFER_MISSING);
                 size_t pos = _readBuffer.i - _readBuffer.b.begin();
-                _readBuffer.b.resize(missing ? (pos + missing->cbBuffer) : (pos * 2));
+                _readBuffer.b.resize((missing && missing->cbBuffer > 0) ? (pos + missing->cbBuffer) : (pos * 2));
                 _readBuffer.i = _readBuffer.b.begin() + pos;
                 return IceInternal::SocketOperationRead;
             }
