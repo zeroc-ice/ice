@@ -120,9 +120,11 @@ class Platform:
         # to be overriden by specializations
         return "lib"
 
-    def getBuildSubDir(self, name, current):
+    def getBuildSubDir(self, mapping, name, current):
         # Return the build sub-directory, to be overriden by specializations
-        return os.path.join("build", current.config.buildPlatform, current.config.buildConfig)
+        buildPlatform = current.driver.configs[mapping].buildPlatform
+        buildConfig = current.driver.configs[mapping].buildConfig
+        return os.path.join("build", buildPlatform, buildConfig)
 
     def getLdPathEnvName(self):
         return "LD_LIBRARY_PATH"
@@ -239,11 +241,13 @@ class Linux(Platform):
             return os.path.join("lib", self.multiArch[buildPlatform])
         return "lib"
 
-    def getBuildSubDir(self, name, current):
+    def getBuildSubDir(self, mapping, name, current):
+        buildPlatform = current.driver.configs[mapping].buildPlatform
+        buildConfig = current.driver.configs[mapping].buildConfig
         if self.linuxId in ["ubuntu", "debian"]:
-            return os.path.join("build", self.multiArch[current.config.buildPlatform], current.config.buildConfig)
+            return os.path.join("build", self.multiArch[buildPlatform], buildConfig)
         else:
-            return os.path.join("build", current.config.buildPlatform, current.config.buildConfig)
+            return os.path.join("build", buildPlatform, buildConfig)
 
     def getDefaultExe(self, name, config):
         if name == "icebox":
@@ -382,11 +386,13 @@ class Windows(Platform):
             return "php" if current.driver.useIceBinDist(mapping) else "lib"
         return self.getBinSubDir(mapping, process, current)
 
-    def getBuildSubDir(self, name, current):
+    def getBuildSubDir(self, mapping, name, current):
+        buildPlatform = current.driver.configs[mapping].buildPlatform
+        buildConfig = current.driver.configs[mapping].buildConfig
         if os.path.exists(os.path.join(current.testcase.getPath(), "msbuild", name)):
-            return os.path.join("msbuild", name, current.config.buildPlatform, current.config.buildConfig)
+            return os.path.join("msbuild", name, buildPlatform, buildConfig)
         else:
-            return os.path.join("msbuild", current.config.buildPlatform, current.config.buildConfig)
+            return os.path.join("msbuild", buildPlatform, buildConfig)
 
     def getLdPathEnvName(self):
         return "PATH"
@@ -937,7 +943,7 @@ class Mapping:
         return os.path.join(current.driver.getIceDir(self, current), platform.getLibSubDir(self, process, current))
 
     def getBuildDir(self, name, current):
-        return platform.getBuildSubDir(name, current)
+        return platform.getBuildSubDir(self, name, current)
 
     def getCommandLine(self, current, process, exe, args):
         cmd = ""
