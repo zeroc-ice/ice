@@ -3557,7 +3557,7 @@ class PhpMapping(CppBasedClientMapping):
         else:
             systemInstall = current.driver.getIceDir(self, current) == platform.getIceInstallDir(self, current)
 
-        if systemInstall:
+        if not systemInstall:
             if isinstance(platform, Windows):
                 buildPlatform = current.driver.configs[self].buildPlatform
                 buildConfig = current.driver.configs[self].buildConfig
