@@ -9,35 +9,36 @@ applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
 - [Changes in Ice 3.6.5 (Pre-Release Snapshot)](#changes-in-ice-365-pre-release-snapshot)
+  - [C++ Changes](#c-changes)
   - [Objective-C Changes](#objective-c-changes)
 - [Changes in Ice 3.6.4](#changes-in-ice-364)
   - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes)
+  - [C++ Changes](#c-changes-1)
   - [Java Changes](#java-changes)
   - [JavaScript Changes](#javascript-changes)
   - [C# Changes](#csharp-changes)
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
   - [General Changes](#general-changes)
-  - [C++ Changes](#c-changes)
+  - [C++ Changes](#c-changes-2)
   - [Objective-C Changes](#objective-c-changes-1)
   - [PHP Changes](#php-changes)
   - [Python Changes](#python-changes)
 - [Changes in Ice 3.6.2](#changes-in-ice-362)
   - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-1)
-  - [C# Changes](#c-changes-2)
+  - [C++ Changes](#c-changes-3)
+  - [C# Changes](#c-changes-4)
   - [Java Changes](#java-changes)
   - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
   - [General Changes](#general-changes-1)
-  - [C++ Changes](#c-changes-3)
+  - [C++ Changes](#c-changes-5)
   - [JavaScript Changes](#javascript-changes)
   - [PHP Changes](#php-changes-1)
 - [Changes in Ice 3.6.0](#changes-in-ice-360)
   - [General Changes](#general-changes-3)
-  - [C++ Changes](#c-changes-4)
-  - [C# Changes](#c-changes-5)
+  - [C++ Changes](#c-changes-6)
+  - [C# Changes](#c-changes-7)
   - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes-1)
   - [Objective-C Changes](#objective-c-changes-2)
@@ -53,6 +54,13 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 
 - Fixed bug where the `IceGrid.Registry.Client.ACM.Timeout` property setting
   was ignored.
+
+## C++ Changes
+
+- Fixed a debug assert in the Windows SChannel IceSSL implementation which would
+  occur in rare circumstances where SChannel returned SEC_E_INCOMPLETE_MESSAGE
+  with a cbBuffer value of 0. This occurred when running the JavaScript tests
+  with Firefox and using a C++ debug build.
 
 ## Objective-C Changes
 
