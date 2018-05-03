@@ -944,7 +944,7 @@ ZEND_FUNCTION(Ice_register)
     zval* comm;
     char* s;
     size_t sLen;
-    long expires = 0;
+    zend_long expires = 0;
     if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("Os|l"), &comm, communicatorClassEntry, &s,
                              &sLen, &expires) != SUCCESS)
     {

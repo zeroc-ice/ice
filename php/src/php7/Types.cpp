@@ -3619,7 +3619,7 @@ ZEND_FUNCTION(IcePHP_defineClass)
     size_t idLen;
     char* name;
     size_t nameLen;
-    long compactId;
+    zend_long compactId;
     zend_bool isAbstract;
     zend_bool preserve;
     zval* base;
