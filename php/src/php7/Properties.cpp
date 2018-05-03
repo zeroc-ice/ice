@@ -162,7 +162,7 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
 {
     char* name;
     size_t nameLen;
-    long def;
+    zend_long def;
 
     if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("sl"), &name, &nameLen, &def) == FAILURE)
     {
@@ -175,8 +175,9 @@ ZEND_METHOD(Ice_Properties, getPropertyAsIntWithDefault)
     string propName(name, nameLen);
     try
     {
-        Ice::Int val = _this->getPropertyAsIntWithDefault(propName, def);
-        RETURN_LONG(static_cast<long>(val));
+        // TODO: Range check
+        Ice::Int val = _this->getPropertyAsIntWithDefault(propName, static_cast<Ice::Int>(def));
+        RETURN_LONG(val);
     }
     catch(const IceUtil::Exception& ex)
     {

@@ -13,6 +13,11 @@
         <IceToolsPath>$(IceHome)\cpp\bin\$(Platform)\$(Configuration)</IceToolsPath>
     </PropertyGroup>
 
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+    <PropertyGroup>
+        <CppDistTargets>c++98\slice2py;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery;c++98\glacier2router;c++98\glacier2cryptpermissionsverifier</CppDistTargets>
+    </PropertyGroup>
+
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
     <!-- Restore NuGet packages -->
@@ -43,7 +48,15 @@
         <PythonGenerated Include="$(MSBuildThisFileDirectory)\..\python\**\*_ice.py"/>
     </ItemGroup>
 
-    <Target Name="Build" DependsOnTargets="NuGetRestore">
+    <Target Name="BuildCppDist" DependsOnTargets="NuGetRestore">
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+                 Targets="$(CppDistTargets)"
+                 BuildInParallel="true"
+                 Properties="Platform=$(Platform);Configuration=$(Configuration)" />
+    </Target>
+
+    <Target Name="Build" DependsOnTargets="BuildCppDist;NuGetRestore">
         <MSBuild Projects="ice.sln"
                  Properties="Configuration=$(Configuration);Platform=$(Platform)" />
     </Target>
