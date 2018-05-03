@@ -462,7 +462,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locatorCacheTimeout)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    long l;
+    zend_long l;
     if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
     {
         RETURN_NULL();
@@ -470,7 +470,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_locatorCacheTimeout)
 
     try
     {
-        if(!_this->clone(return_value, _this->proxy->ice_locatorCacheTimeout(l)))
+        if(!_this->clone(return_value, _this->proxy->ice_locatorCacheTimeout(static_cast<Ice::Int>(l))))
         {
             RETURN_NULL();
         }
@@ -556,7 +556,7 @@ ZEND_METHOD(Ice_ObjectPrx, ice_endpointSelection)
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
-    long l;
+    zend_long l;
     if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
     {
         RETURN_NULL();
@@ -1190,13 +1190,13 @@ ZEND_METHOD(Ice_ObjectPrx, ice_timeout)
 
     try
     {
-        long l;
+        zend_long l;
         if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
         {
             RETURN_NULL();
         }
         // TODO: range check?
-        if(!_this->clone(return_value, _this->proxy->ice_timeout(l)))
+        if(!_this->clone(return_value, _this->proxy->ice_timeout(static_cast<Ice::Int>(l))))
         {
             RETURN_NULL();
         }
@@ -1237,20 +1237,20 @@ ZEND_METHOD(Ice_ObjectPrx, ice_getTimeout)
     }
 }
 
-ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout )
+ZEND_METHOD(Ice_ObjectPrx, ice_invocationTimeout)
 {
     ProxyPtr _this = Wrapper<ProxyPtr>::value(getThis());
     assert(_this);
 
     try
     {
-        long l;
+        zend_long l;
         if(zend_parse_parameters(ZEND_NUM_ARGS(), const_cast<char*>("l"), &l) != SUCCESS)
         {
             RETURN_NULL();
         }
         // TODO: range check?
-        if(!_this->clone(return_value, _this->proxy->ice_invocationTimeout (l)))
+        if(!_this->clone(return_value, _this->proxy->ice_invocationTimeout(static_cast<Ice::Int>(l))))
         {
             RETURN_NULL();
         }
