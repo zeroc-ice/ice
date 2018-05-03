@@ -1965,7 +1965,10 @@ class LocalProcessController(ProcessController):
                     programName = process.exe or current.testcase.getProcessType(process)
                 traceFile = os.path.join(current.testsuite.getPath(),
                                          "{0}-{1}.log".format(programName, time.strftime("%m%d%y-%H%M")))
-                traceProps["Ice.StdErr"] = traceFile
+                if isinstance(process.getMapping(current), ObjCMapping):
+                    traceProps["Ice.StdErr"] = traceFile
+                else:
+                    traceProps["Ice.LogFile"] = traceFile
             props.update(traceProps)
 
         args = ["--{0}={1}".format(k, val(v)) for k,v in props.items()] + [val(a) for a in args]
