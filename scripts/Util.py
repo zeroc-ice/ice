@@ -1783,8 +1783,8 @@ class Result:
                     last = last[len(last) - 1]
                 if hostname:
                     last = "Failed on {0}\n{1}".format(hostname, last)
-                out.write('      <failure message="{1}">{0}</failure>\n'.format(escapeXml(self._failed[k]),
-                                                                                escapeXml(last, True)))
+                out.write('      <failure message={1}>{0}</failure>\n'.format(escapeXml(self._failed[k]),
+                                                                                ml(last, True)))
             # elif k in self._skipped:
             #     out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[k], True)))
             out.write('      <system-out>\n')
