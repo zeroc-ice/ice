@@ -16,7 +16,6 @@
     <AssemblyName>servertie</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputPath>$(MSBuildThisFileDirectory)</OutputPath>
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>

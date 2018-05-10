@@ -10,7 +10,6 @@
     <ProjectGuid>{6479EE9D-5730-44BC-B564-97211E1B54C5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>IcePatch2</AssemblyName>
-    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <DocumentationFile>..\..\..\Assemblies\IcePatch2.XML</DocumentationFile>
     <NoWarn>1591;618</NoWarn>
   </PropertyGroup>
