@@ -52,12 +52,13 @@ def val(v, escapeQuotes=False, quoteValue=True):
     else:
         return str(v)
 
-def escapeXml(s):
+def escapeXml(s, attribute=False):
     # Remove backspace characters from the output (they aren't accepted by Jenkins XML parser)
     if isPython2:
-        return xml.sax.saxutils.escape("".join(ch for ch in unicode(s.decode("utf-8")) if ch != u"\u0008").encode("utf-8"))
+        s = "".join(ch for ch in unicode(s.decode("utf-8")) if ch != u"\u0008").encode("utf-8")
     else:
-        return xml.sax.saxutils.escape("".join(ch for ch in s if ch != u"\u0008"))
+        s = "".join(ch for ch in s if ch != u"\u0008")
+    return xml.sax.saxutils.quoteattr(s) if attribute else xml.sax.saxutils.escape(s)
 
 def getIceSoVersion():
     config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
@@ -1782,10 +1783,10 @@ class Result:
                     last = last[len(last) - 1]
                 if hostname:
                     last = "Failed on {0}\n{1}".format(hostname, last)
-                out.write('      <failure message="{1}">{0}</failure>\n'.format(escapeXml(self._failed[k]),
-                                                                                escapeXml(last)))
+                out.write('      <failure message={1}>{0}</failure>\n'.format(escapeXml(self._failed[k]),
+                                                                              escapeXml(last, True)))
             # elif k in self._skipped:
-            #     out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[k])))
+            #     out.write('      <skipped message="{0}"/>\n'.format(escapeXml(self._skipped[k], True)))
             out.write('      <system-out>\n')
             if hostname:
                 out.write('Running on {0}\n'.format(hostname))
@@ -2266,7 +2267,6 @@ class AndroidProcessController(RemoteProcessController):
         # Stop previous controller app before starting new one
         for ident in self.controllerApps:
             self.stopControllerApp(ident)
-        self.controllerApps = []
 
         if current.config.avd:
             self.startEmulator(current.config.avd)

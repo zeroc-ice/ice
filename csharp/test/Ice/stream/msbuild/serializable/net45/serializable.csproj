@@ -3,7 +3,6 @@
   <Import Project="..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props" Condition="Exists('..\..\..\..\..\..\msbuild\packages\zeroc.icebuilder.msbuild.5.0.4\build\zeroc.icebuilder.msbuild.props')"/>
   <Import Condition="Exists('..\..\..\..\..\..\msbuild\\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props') and '$(ICE_BIN_DIST)' == 'all'" Project="..\..\..\..\..\..\msbuild\packages\zeroc.ice.net.3.7.1\build\zeroc.ice.net.props"/>
   <PropertyGroup Label="Globals">
-    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
   </PropertyGroup>
   <Import Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"/>
   <PropertyGroup>
