@@ -52,12 +52,15 @@ def val(v, escapeQuotes=False, quoteValue=True):
     else:
         return str(v)
 
+illegalXMLChars = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+
 def escapeXml(s, attribute=False):
     # Remove backspace characters from the output (they aren't accepted by Jenkins XML parser)
     if isPython2:
         s = "".join(ch for ch in unicode(s.decode("utf-8")) if ch != u"\u0008").encode("utf-8")
     else:
         s = "".join(ch for ch in s if ch != u"\u0008")
+    s = illegalXMLChars.sub("?", s) # Strip invalid XML characters
     return xml.sax.saxutils.quoteattr(s) if attribute else xml.sax.saxutils.escape(s)
 
 def getIceSoVersion():
