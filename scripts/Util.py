@@ -3252,7 +3252,7 @@ class CppBasedMapping(Mapping):
 
     def getEnv(self, process, current):
         env = Mapping.getEnv(self, process, current)
-        if not isinstance(platform, Darwin) and component.getInstallDir(self, current) != platform.getInstallDir():
+        if component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
             # the C++ library directory to the library path
             env[platform.getLdPathEnvName()] = component.getLibDir(process, Mapping.getByName("cpp"), current)

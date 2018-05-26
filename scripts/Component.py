@@ -108,7 +108,7 @@ class Ice(Component):
     def canRun(self, testId, mapping, current):
         parent = re.match(r'^([\w]*).*', testId).group(1)
         if isinstance(platform, Linux):
-            if self.linuxId in ["centos", "rhel", "fedora"] and current.config.buildPlatform == "x86":
+            if platform.getLinuxId() in ["centos", "rhel", "fedora"] and current.config.buildPlatform == "x86":
                 #
                 # Don't test Glacier2/IceStorm/IceGrid services with multilib platforms. We only
                 # build services for the native platform.
@@ -246,7 +246,7 @@ if isinstance(platform, Windows):
         Mapping.remove("php")
 elif not platform.hasDotNet():
     # Remove C# if Dot Net Core isn't supported
-    Mapping.remove("csharp", CSharpMapping())
+    Mapping.remove("csharp")
 
 #
 # Check if the Android SDK is installed and eventually add the Android mappings
