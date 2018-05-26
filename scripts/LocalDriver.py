@@ -9,6 +9,7 @@
 
 import sys, os, time, threading
 from Util import *
+from Component import component
 
 isPython2 = sys.version_info[0] == 2
 
@@ -239,6 +240,8 @@ class RemoteTestCaseRunner(TestCaseRunner):
         return mapping.getTestSuites(testSuiteIds)
 
     def filterOptions(self, options):
+        if options is None:
+            return None
         import Ice
         options = options.copy()
         for (key, values) in options.items():
@@ -407,7 +410,7 @@ class LocalDriver(Driver):
                     #
                     # Sort the test suites to run tests in the following order.
                     #
-                    runOrder = mapping.getRunOrder()
+                    runOrder = component.getRunOrder()
                     def testsuiteKey(testsuite):
                         for k in runOrder:
                             if testsuite.getId().startswith(k + '/'):
@@ -415,15 +418,12 @@ class LocalDriver(Driver):
                         return testsuite.getId()
                     testsuites = sorted(testsuites, key=testsuiteKey)
 
-                    #
-                    # Create the executor to run the test suites on multiple workers thread is requested.
-                    #
                     for testsuite in testsuites:
                         if mapping.filterTestSuite(testsuite.getId(), self.configs[mapping], self.filters, self.rfilters):
                             continue
                         if testsuite.getId() == "Ice/echo":
                             continue
-                        elif (self.cross or self.allCross) and not testsuite.isCross():
+                        elif (self.cross or self.allCross) and not component.isCross(testsuite.getId()):
                             continue
                         elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
                             continue
@@ -550,7 +550,7 @@ class LocalDriver(Driver):
             if cross:
                 current.writeln("- Mappings: {0},{1}".format(client.getMapping(), server.getMapping()))
                 current.desc += (" " if current.desc else "") + "cross={0}".format(server.getMapping())
-            if not current.config.canRun(current) or not current.testcase.canRun(current):
+            if not current.config.canRun(current.testsuite.getId(), current) or not current.testcase.canRun(current):
                 current.result.skipped(current, "not supported with this configuration")
                 return
 
@@ -587,7 +587,7 @@ class LocalDriver(Driver):
             if confStr:
                 current.writeln("- Config: {0}".format(confStr))
                 current.desc = confStr
-            if not current.config.canRun(current) or not current.testcase.canRun(current):
+            if not current.config.canRun(current.testsuite.getId(), current) or not current.testcase.canRun(current):
                 current.result.skipped(current, "not supported with this configuration")
                 return
 
@@ -622,7 +622,7 @@ class LocalDriver(Driver):
     def getMappings(self):
         return Mapping.getAll(self) if self.allCross else [self.cross] if self.cross else []
 
-    def filterOptions(self, testcase, options):
+    def filterOptions(self, options):
         return self.runner.filterOptions(options)
 
 Driver.add("local", LocalDriver)

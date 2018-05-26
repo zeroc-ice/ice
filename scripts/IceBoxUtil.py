@@ -12,45 +12,71 @@ from Util import *
 
 class IceBox(ProcessFromBinDir, Server):
 
-    processType = "icebox"
-
-    def __init__(self, *args, **kargs):
+    def __init__(self, configFile=None, *args, **kargs):
         Server.__init__(self, *args, **kargs)
-
-        # Find config file
-        if 'args' in kargs:
-            for v in kargs['args']:
-                if "--Ice.Config=" in v:
-                    self.config = v.replace("--Ice.Config=", "")
-                    break
+        self.configFile = configFile
 
     def setup(self, current):
-        mapping = self.mapping or current.testcase.getMapping()
+        mapping = self.getMapping(current)
+
         #
         # If running IceBox tests with .NET Core we need to generate a config
         # file that use the service for the .NET Framework used to build the
         # tests
         #
-        if isinstance(mapping, CSharpMapping) and current.config.netframework:
+        if self.configFile:
+            if isinstance(mapping, CSharpMapping) and current.config.netframework:
+                configFile = self.configFile.format(testdir=current.testsuite.getPath())
+                netframework ="\\netstandard2.0\\{0}\\".format(current.config.netframework)
+                with open(configFile, 'r') as source:
+                    with open(configFile + ".{0}".format(current.config.netframework), 'w') as target:
+                        for line in source.readlines():
+                            target.write(line.replace("\\net45\\", netframework))
+                        current.files.append(configFile + ".{0}".format(current.config.netframework))
 
-            targetConfig = os.path.abspath(
-                self.config.strip('"').format(testdir=current.testsuite.getPath(),
-                                   iceboxconfigext=".{0}".format(current.config.netframework)))
-            baseConfig = targetConfig.rstrip(".{0}".format(current.config.netframework))
-            with open(baseConfig, 'r') as config:
-                with open(targetConfig, 'w') as target:
-                    for line in config.readlines():
-                        target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(current.config.netframework)))
-                    current.files.append(targetConfig)
+    def getExe(self, current):
+        mapping = self.getMapping(current)
+        if isinstance(mapping, JavaCompatMapping):
+            return "IceBox.Server"
+        elif isinstance(mapping, JavaMapping):
+            return "com.zeroc.IceBox.Server"
+        elif isinstance(mapping, CSharpMapping):
+            return "iceboxnet"
+        else:
+            name = "icebox"
+            if isinstance(platform, Linux) and \
+               platform.getLinuxId() in ["centos", "rhel", "fedora"] and \
+               current.config.buildPlatform == "x86":
+                name += "32" # Multilib platform
+            if current.config.cpp11:
+                name += "++11"
+            return name
 
-class IceBoxAdmin(ProcessFromBinDir, Client):
+    def getEffectiveArgs(self, current, args):
+        args = Server.getEffectiveArgs(self, current, args)
+        if self.configFile:
+            mapping = self.getMapping(current)
+            if isinstance(mapping, CSharpMapping) and current.config.netframework:
+                args.append("--Ice.Config={0}".format(self.configFile + ".{0}".format(current.config.netframework)))
+            else:
+                args.append("--Ice.Config={0}".format(self.configFile))
+        return args
 
-    processType = "iceboxadmin"
+class IceBoxAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, Client):
 
     def getMapping(self, current):
         # IceBox admin is only provided with the C++/Java, not C#
-        mapping = self.mapping or current.testcase.getMapping()
+        mapping = Client.getMapping(self, current)
         if isinstance(mapping, CppMapping) or isinstance(mapping, JavaMapping):
             return mapping
         else:
             return Mapping.getByName("cpp")
+
+    def getExe(self, current):
+        mapping = self.getMapping(current)
+        if isinstance(mapping, JavaCompatMapping):
+            return "IceBox.Admin"
+        elif isinstance(mapping, JavaMapping):
+            return "com.zeroc.IceBox.Admin"
+        else:
+            return "iceboxadmin"
