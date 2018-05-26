@@ -280,7 +280,7 @@ class Linux(Platform):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return Platform._getLibDir(self, installDir, process, mapping, current)
+            return Platform._getLibDir(self, component, process, mapping, current)
 
         buildPlatform = current.driver.configs[mapping].buildPlatform
 
