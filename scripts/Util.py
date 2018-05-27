@@ -270,7 +270,7 @@ class Linux(Platform):
     def _getBinDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return Platform._getBinDir(self, installDir, process, mapping, current)
+            return Platform._getBinDir(self, component, process, mapping, current)
 
         buildPlatform = current.driver.configs[mapping].buildPlatform
         if self.linuxId in ["ubuntu", "debian"] and buildPlatform in self.foreignPlatforms:
