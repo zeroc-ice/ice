@@ -3085,7 +3085,7 @@ class AndroidMappingMixin():
         self.baseclass = baseclass
 
     def getSSLProps(self, process, current):
-        props = super(baseclass, self).getSSLProps(self, process, current)
+        props = super(self.baseclass, self).getSSLProps(self, process, current)
         props.update({
             "IceSSL.KeystoreType" : "BKS",
             "IceSSL.TruststoreType" : "BKS",
