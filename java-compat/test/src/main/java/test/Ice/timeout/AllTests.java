@@ -199,8 +199,8 @@ public class AllTests
             // Expect success.
             //
             timeout.op(); // Ensure adapter is active.
-            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000 * mult));
-            controller.holdAdapter(200 * mult);
+            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(2000 * mult));
+            controller.holdAdapter(100 * mult);
             try
             {
                 to.op();

@@ -122,8 +122,8 @@ public class AllTests
             //
             // Expect success.
             //
-            TimeoutPrx to = timeout.ice_timeout(1000 * mult);
-            controller.holdAdapter(200 * mult);
+            TimeoutPrx to = timeout.ice_timeout(2000 * mult);
+            controller.holdAdapter(100 * mult);
             try
             {
                 to.op();
