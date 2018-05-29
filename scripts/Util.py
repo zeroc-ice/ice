@@ -66,7 +66,7 @@ def escapeXml(s, attribute=False):
 Component abstract class. The driver and mapping classes rely on the component
 class to provide component specific information.
 """
-class Component:
+class Component(object):
 
     def __init__(self):
         pass
@@ -160,7 +160,7 @@ class Component:
         else:
             return toplevel
 
-class Platform:
+class Platform(object):
 
     def __init__(self):
         self.parseBuildVariables({
@@ -467,11 +467,11 @@ Mapping abstract class. The mapping class provides mapping specific information.
 Multiple components can share the same mapping rules as long as the layout is
 similar.
 """
-class Mapping:
+class Mapping(object):
 
     mappings = OrderedDict()
 
-    class Config:
+    class Config(object):
 
         @classmethod
         def getSupportedArgs(self):
@@ -962,7 +962,7 @@ class Mapping:
 # A Runnable can be used as a "client" for in test cases, it provides
 # implements run, setup and teardown methods.
 #
-class Runnable:
+class Runnable(object):
 
     def __init__(self, desc=None):
         self.desc = desc
@@ -1758,7 +1758,7 @@ class Result:
 
         out.write(  '</testsuite>\n')
 
-class TestSuite:
+class TestSuite(object):
 
     def __init__(self, path, testcases=None, options=None, libDirs=None, runOnMainThread=False, chdir=False,
                  multihost=True, mapping=None):
@@ -3085,7 +3085,7 @@ class AndroidMappingMixin():
         self.baseclass = baseclass
 
     def getSSLProps(self, process, current):
-        props = super(self.baseclass, self).getSSLProps(self, process, current)
+        props = super(self.baseclass, self).getSSLProps(process, current)
         props.update({
             "IceSSL.KeystoreType" : "BKS",
             "IceSSL.TruststoreType" : "BKS",

@@ -147,7 +147,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Expect success.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(2000));
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(-1));
         controller->holdAdapter(100);
         try
         {

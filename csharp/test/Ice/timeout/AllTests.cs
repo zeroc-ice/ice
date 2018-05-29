@@ -101,7 +101,7 @@ public class AllTests : TestCommon.AllTests
             //
             // Expect success.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(2000));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(-1));
             controller.holdAdapter(100);
             try
             {
