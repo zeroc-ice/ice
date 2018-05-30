@@ -276,7 +276,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "testing locator cache timeout... " << flush;
 
     int count = locator->getRequestCount();
-    Ice::ObjectPrx basencc = communicator->stringToProxy("test@TestAdapter")->ice_connectionCached(false);
+    Ice::ObjectPrxPtr basencc = communicator->stringToProxy("test@TestAdapter")->ice_connectionCached(false);
     basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     test(++count == locator->getRequestCount());
     basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
