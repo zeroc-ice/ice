@@ -276,14 +276,15 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "testing locator cache timeout... " << flush;
 
     int count = locator->getRequestCount();
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
+    Ice::ObjectPrx basencc = communicator->stringToProxy("test@TestAdapter")->ice_connectionCached(false);
+    basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     test(++count == locator->getRequestCount());
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
+    basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     test(++count == locator->getRequestCount());
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+    basencc->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(count == locator->getRequestCount());
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+    basencc->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(++count == locator->getRequestCount());
 
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.

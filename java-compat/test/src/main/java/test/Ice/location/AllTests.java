@@ -268,15 +268,16 @@ public class AllTests
         out.print("testing locator cache timeout... ");
         out.flush();
 
+        Ice.ObjectPrx basencc = communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
         int count = locator.getRequestCount();
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(count == locator.getRequestCount());
         Thread.sleep(1200);
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
 
         communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
