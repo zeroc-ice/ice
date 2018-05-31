@@ -38,7 +38,9 @@ class Ice(Component):
         return Component._useBinDist(self, mapping, current, "ICE_BIN_DIST")
 
     def getInstallDir(self, mapping, current):
-        return Component._getInstallDir(self, mapping, current, "ICE_HOME")
+        # On Windows, the Ice MSI installation can only be used for C++
+        envHomeName = None if isinstance(platform, Windows) and not isinstance(mapping, CppMapping) else "ICE_HOME"
+        return Component._getInstallDir(self, mapping, current, envHomeName)
 
     def getPhpExtension(self, mapping, current):
         if isinstance(platform, Windows):

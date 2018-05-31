@@ -144,12 +144,13 @@ class Component(object):
 
     def _getInstallDir(self, mapping, current, envHomeName):
         if self.useBinDist(mapping, current):
+            # On Windows or for the C# mapping we first look for Nuget packages rather than the binary installation
             if isinstance(platform, Windows) or isinstance(mapping, CSharpMapping):
                 packageDir = platform.getNugetPackageDir(self, mapping, current)
-                if isinstance(mapping, CppMapping) and not os.path.exists(packageDir):
+                if envHomeName and not os.path.exists(packageDir):
                     home = os.environ.get(envHomeName, "")
                     if not home or not os.path.exists(home):
-                        raise RuntimeError("Cannot detect a valid C++ distribution")
+                        raise RuntimeError("Cannot detect a valid distribution in `" + envHomeName + "'")
                     return home
                 else:
                     return packageDir
