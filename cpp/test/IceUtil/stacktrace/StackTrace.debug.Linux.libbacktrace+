@@ -6,5 +6,6 @@
   5 third at
   6 second at
   7 first at
-  8 main at
-  9
+  8 Client::run(int, char**) at
+  9 int Test::runTest<Client>(int, char**) at
+ 10 main at
