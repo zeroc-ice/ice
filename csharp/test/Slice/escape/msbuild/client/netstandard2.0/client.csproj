@@ -10,6 +10,7 @@
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="../../../../../TestCommon/TestHelper.cs"/>
     <Compile Include="../../../Client.cs"/>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4"/>
     <SliceCompile Include="../../../Clash.ice"/>
