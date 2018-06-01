@@ -11,7 +11,6 @@
 #define TESTI_H
 
 #include <ServerPrivate.h>
-#include <TestCommon.h>
 
 class TestI : public virtual Test::TestIntf
 {

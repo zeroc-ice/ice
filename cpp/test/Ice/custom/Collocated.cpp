@@ -8,59 +8,36 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
 #include <WstringI.h>
 #include <StringConverterI.h>
 
 using namespace std;
 
-DEFINE_TEST("collocated")
-
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Collocated : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
+public:
+
+    void run(int, char**);
+};
+
+void
+Collocated::run(int argc, char** argv)
+{
+    setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
+    setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    adapter->add(ICE_MAKE_SHARED(TestIntfI, communicator), Ice::stringToIdentity("TEST"));
+    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("TEST"));
     adapter->add(ICE_MAKE_SHARED(Test1::WstringClassI), Ice::stringToIdentity("WSTRING1"));
     adapter->add(ICE_MAKE_SHARED(Test2::WstringClassI), Ice::stringToIdentity("WSTRING2"));
 
-    Test::TestIntfPrxPtr allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
-
-    return EXIT_SUCCESS;
+    Test::TestIntfPrxPtr allTests(Test::TestHelper*);
+    allTests(this);
 }
 
-int
-main(int argc, char** argv)
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
-        setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
-
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Collocated)

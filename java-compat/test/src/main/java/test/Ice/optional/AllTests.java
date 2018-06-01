@@ -24,17 +24,17 @@ public class AllTests
     }
 
     public static InitialPrx
-    allTests(test.Util.Application app, boolean collocated)
+    allTests(test.TestHelper helper, boolean collocated)
     {
-        PrintWriter out = app.getWriter();
-        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = helper.getWriter();
+        Ice.Communicator communicator = helper.communicator();
 
         FactoryI factory = new FactoryI();
         communicator.getValueFactoryManager().add(factory, "");
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:" + app.getTestEndpoint(0);
+        String ref = "initial:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -2350,8 +2350,8 @@ public class AllTests
             if(cls != null)
             {
                 java.lang.reflect.Method allTests = cls.getDeclaredMethod("allTests",
-                    new Class<?>[]{test.Util.Application.class});
-                allTests.invoke(null, app);
+                    new Class<?>[]{test.TestHelper.class});
+                allTests.invoke(null, helper);
             }
         }
         catch(java.lang.NoSuchMethodException ex)

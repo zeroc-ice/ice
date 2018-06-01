@@ -12,7 +12,7 @@
 #include <stdio.h>
 
 #include <StartTest.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace IceUtil;

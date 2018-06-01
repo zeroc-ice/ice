@@ -67,7 +67,7 @@ public class OnewaysLambdaAMI
     }
 
     public static void
-    onewaysLambdaAMI(test.Util.Application app, MyClassPrx proxy)
+    onewaysLambdaAMI(test.TestHelper helper, MyClassPrx proxy)
     {
         MyClassPrx p = (MyClassPrx)proxy.ice_oneway();
 

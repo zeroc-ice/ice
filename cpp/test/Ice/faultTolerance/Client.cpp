@@ -8,73 +8,44 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 
-void
-usage(const char* n)
+class Client : public Test::TestHelper
 {
-    cerr << "Usage: " << n << " port...\n";
-}
+public:
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
 {
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0"); // test aborts
+    Ice::CommunicatorHolder ich = initialize(argc, argv, properties);
+
     vector<int> ports;
     for(int i = 1; i < argc; ++i)
     {
         if(argv[i][0] == '-')
         {
-            cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-            usage(argv[0]);
-            return EXIT_FAILURE;
+            ostringstream os;
+            os << "unknown option `" << argv[i] << "'";
+            throw invalid_argument(os.str());
         }
-
         ports.push_back(atoi(argv[i]));
     }
 
     if(ports.empty())
     {
-        cerr << argv[0] << ": no ports specified" << endl;
-        usage(argv[0]);
-        return EXIT_FAILURE;
+        throw runtime_error("no ports specified");
     }
 
-    try
-    {
-        void allTests(const Ice::CommunicatorPtr&, const vector<int>&);
-        allTests(communicator, ports);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cout << ex << endl;
-        test(false);
-    }
-
-    return EXIT_SUCCESS;
+    void allTests(Test::TestHelper*, const vector<int>&);
+    allTests(this, ports);
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.Connections", "0"); // test aborts
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

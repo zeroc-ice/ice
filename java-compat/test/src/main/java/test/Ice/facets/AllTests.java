@@ -32,10 +32,10 @@ public class AllTests
     }
 
     public static GPrx
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
         out.print("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").length == 0);
         communicator.getProperties().setProperty("Ice.Admin.Facets", "foobar");
@@ -115,7 +115,7 @@ public class AllTests
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "d:" + app.getTestEndpoint(0);
+        String ref = "d:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx db = communicator.stringToProxy(ref);
         test(db != null);
         out.println("ok");

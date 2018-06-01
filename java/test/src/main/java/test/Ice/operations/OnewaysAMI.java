@@ -60,7 +60,7 @@ class OnewaysAMI
         private boolean _called;
     }
 
-    static void onewaysAMI(test.Util.Application app, MyClassPrx proxy)
+    static void onewaysAMI(test.TestHelper helper, MyClassPrx proxy)
     {
         MyClassPrx p = proxy.ice_oneway();
 

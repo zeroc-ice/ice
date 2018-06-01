@@ -10,49 +10,42 @@
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <Test.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class SessionControlClient : public Application
+class SessionControlClient : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+SessionControlClient::run(int argc, char** argv)
 {
-    SessionControlClient app;
-
-    Ice::InitializationData initData = getTestInitData(argc, argv);
-
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     //
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
     //
-    initData.properties->setProperty("Ice.RetryIntervals", "-1");
-    initData.properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.RetryIntervals", "-1");
+    properties->setProperty("Ice.Warn.Connections", "0");
 
-    return app.main(argc, argv, initData);
-}
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-int
-SessionControlClient::run(int argc, char* argv[])
-{
     //
     // We initialize the controller on a separate port because we want
     // to bypass the router for test control operations.
     //
     cout << "accessing test controller... " << flush;
     Ice::InitializationData initData;
-    initData.properties = communicator()->getProperties();
+    initData.properties = communicator->getProperties();
     Ice::CommunicatorPtr controlComm = Ice::initialize(argc, argv, initData);
     TestControllerPrx controller = TestControllerPrx::checkedCast(
-        controlComm->stringToProxy("testController:" + getTestEndpoint(communicator(), 2, "tcp")));
+        controlComm->stringToProxy("testController:" + getTestEndpoint(2, "tcp")));
     test(controller);
     TestToken currentState;
     TestToken newState;
@@ -65,10 +58,10 @@ SessionControlClient::run(int argc, char* argv[])
     cout << "ok" << endl;
 
     cout << "getting router... " << flush;
-    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator(), 50));
+    ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
     test(router);
-    communicator()->setDefaultRouter(router);
+    communicator->setDefaultRouter(router);
     cout << "ok" << endl;
 
     Glacier2::SessionPrx sessionBase = router->createSession("userid", "abc123");
@@ -104,7 +97,7 @@ SessionControlClient::run(int argc, char* argv[])
 
         if(currentState.expectedResult)
         {
-            BackendPrx prx = BackendPrx::uncheckedCast(communicator()->stringToProxy(currentState.testReference));
+            BackendPrx prx = BackendPrx::uncheckedCast(communicator->stringToProxy(currentState.testReference));
             try
             {
                 prx->check();
@@ -117,7 +110,7 @@ SessionControlClient::run(int argc, char* argv[])
         }
         else
         {
-            BackendPrx prx = BackendPrx::uncheckedCast(communicator()->stringToProxy(currentState.testReference));
+            BackendPrx prx = BackendPrx::uncheckedCast(communicator->stringToProxy(currentState.testReference));
             try
             {
                 prx->check();
@@ -158,9 +151,8 @@ SessionControlClient::run(int argc, char* argv[])
     //
     // Shut down the router.
     //
-    communicator()->setDefaultRouter(0);
-    ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                          getTestEndpoint(communicator(), 51));
+    communicator->setDefaultRouter(0);
+    ObjectPrx processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
     test(process);
     process->shutdown();
@@ -183,6 +175,6 @@ SessionControlClient::run(int argc, char* argv[])
         cerr << ex << endl;
         test(false);
     }
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(SessionControlClient)

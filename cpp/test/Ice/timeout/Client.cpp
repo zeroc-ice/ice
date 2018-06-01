@@ -8,64 +8,52 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 using namespace Test;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    void allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
-    return EXIT_SUCCESS;
-}
+public:
 
-int
-main(int argc, char* argv[])
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
 
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-
-        //
-        // For this test, we want to disable retries.
-        //
-        initData.properties->setProperty("Ice.RetryIntervals", "-1");
+    //
+    // For this test, we want to disable retries.
+    //
+    properties->setProperty("Ice.RetryIntervals", "-1");
 
 #if TARGET_OS_IPHONE != 0
-        //
-        // COMPILERFIX: Disable connect timeout introduced for
-        // workaround to iOS device hangs when using SSL
-        //
-        initData.properties->setProperty("Ice.Override.ConnectTimeout", "");
+    //
+    // COMPILERFIX: Disable connect timeout introduced for
+    // workaround to iOS device hangs when using SSL
+    //
+    properties->setProperty("Ice.Override.ConnectTimeout", "");
 #endif
 
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
+    //
+    // This test kills connections, so we don't want warnings.
+    //
+    properties->setProperty("Ice.Warn.Connections", "0");
 
-        //
-        // Limit the send buffer size, this test relies on the socket
-        // send() blocking after sending a given amount of data.
-        //
-        initData.properties->setProperty("Ice.TCP.SndSize", "50000");
+    //
+    // Limit the send buffer size, this test relies on the socket
+    // send() blocking after sending a given amount of data.
+    //
+    properties->setProperty("Ice.TCP.SndSize", "50000");
 
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+
+    void allTests(Test::TestHelper*);
+    allTests(this);
 }
+
+DEFINE_TEST(Client)

@@ -9,41 +9,38 @@
 
 package test.Ice.dispatcher;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
-
-        assert(_dispatcher != null);
-        adapter.add(new TestI(_dispatcher), com.zeroc.Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-        adapter2.add(new TestControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("testController"));
-        adapter2.activate();
-
-        return WAIT;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
         assert(_dispatcher == null);
         _dispatcher = new Dispatcher();
+        initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("ControllerAdapter.Endpoints",
-                                          getTestEndpoint(initData.properties, 1, "tcp"));
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
         initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
         initData.dispatcher = _dispatcher;
-        return initData;
+        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
+            com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+            com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
+
+            assert(_dispatcher != null);
+            adapter.add(new TestI(_dispatcher), com.zeroc.Ice.Util.stringToIdentity("test"));
+            adapter.activate();
+            adapter2.add(new TestControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("testController"));
+            adapter2.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 
     public void terminate()
@@ -52,15 +49,6 @@ public class Server extends test.Util.Application
         {
             _dispatcher.terminate();
         }
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        app.terminate();
-        System.gc();
-        System.exit(result);
     }
 
     //

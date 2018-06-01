@@ -10,7 +10,7 @@ package test.Ice.background;
 
 import test.Ice.background.PluginFactory.PluginI;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
     static public class LocatorI extends Ice._LocatorDisp
     {
@@ -82,66 +82,54 @@ public class Server extends test.Util.Application
         final private BackgroundControllerI _controller;
     }
 
-    @Override
-    public int
+    public void
     run(String[] args)
     {
-        PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
-        Configuration configuration = plugin.getConfiguration();
-
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
-
-        BackgroundControllerI backgroundController = new BackgroundControllerI(configuration, adapter);
-
-        adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
-        adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));
-        adapter.add(new RouterI(backgroundController), Ice.Util.stringToIdentity("router"));
-        adapter.activate();
-
-        adapter2.add(backgroundController, Ice.Util.stringToIdentity("backgroundController"));
-        adapter2.activate();
-
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
+        Ice.Properties properties = createTestProperties(args);
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.MessageSizeMax", "50000");
 
         // This test relies on filling the TCP send/recv buffer, so
         // we rely on a fixed value for these buffers.
-        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+        properties.setProperty("Ice.TCP.RcvSize", "50000");
 
         //
         // Setup the test transport plug-in.
         //
-        initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
-        String defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-        initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
+        properties.setProperty("Ice.Plugin.Test", "test.Ice.background.PluginFactory");
+        String defaultProtocol = properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+        properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.background");
+        properties.setProperty("Ice.Package.Test", "test.Ice.background");
 
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1, "tcp"));
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-        return initData;
-    }
+            PluginI plugin = (PluginI)communicator().getPluginManager().getPlugin("Test");
+            Configuration configuration = plugin.getConfiguration();
 
-    public static void
-    main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+
+            BackgroundControllerI backgroundController = new BackgroundControllerI(configuration, adapter);
+
+            adapter.add(new BackgroundI(backgroundController), Ice.Util.stringToIdentity("background"));
+            adapter.add(new LocatorI(backgroundController), Ice.Util.stringToIdentity("locator"));
+            adapter.add(new RouterI(backgroundController), Ice.Util.stringToIdentity("router"));
+            adapter.activate();
+
+            Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+            adapter2.add(backgroundController, Ice.Util.stringToIdentity("backgroundController"));
+            adapter2.activate();
+
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

@@ -22,14 +22,14 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx allTests(test.Util.Application app)
+    public static TestIntfPrx allTests(test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
-        java.io.PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        java.io.PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:" + app.getTestEndpoint(0);
+        String ref = "test:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -74,11 +74,10 @@ public class AllTests
             out.flush();
             for(int i = 0; i < 10; ++i)
             {
-                com.zeroc.Ice.InitializationData initData = app.createInitializationData();
-                initData.properties = communicator.getProperties()._clone();
-                com.zeroc.Ice.Communicator comm = app.initialize(initData);
-                comm.stringToProxy("test:" + app.getTestEndpoint(0)).ice_pingAsync();
-                comm.destroy();
+                try(com.zeroc.Ice.Communicator comm = helper.initialize(communicator.getProperties()._clone()))
+                {
+                    comm.stringToProxy("test:" + helper.getTestEndpoint(0)).ice_pingAsync();
+                }
             }
             out.println("ok");
         }
@@ -168,8 +167,8 @@ public class AllTests
 
             try
             {
-                router =
-                    com.zeroc.Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(1)));
+                router = com.zeroc.Ice.RouterPrx.uncheckedCast(communicator.stringToProxy("test:" +
+                                                                                          helper.getTestEndpoint(1)));
                 communicator.createObjectAdapterWithRouter("", router);
                 test(false);
             }
@@ -183,10 +182,10 @@ public class AllTests
         out.flush();
         {
             com.zeroc.Ice.ObjectAdapter adapter1 =
-                communicator.createObjectAdapterWithEndpoints("Adpt1", app.getTestEndpoint(10));
+                communicator.createObjectAdapterWithEndpoints("Adpt1", helper.getTestEndpoint(10));
             try
             {
-                communicator.createObjectAdapterWithEndpoints("Adpt2", app.getTestEndpoint(10));
+                communicator.createObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
                 test(false);
             }
             catch(com.zeroc.Ice.LocalException ex)
@@ -207,11 +206,12 @@ public class AllTests
         try
         {
             obj.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-            throw new RuntimeException();
+            test(false);
         }
         catch(com.zeroc.Ice.LocalException ex)
         {
             out.println("ok");
+            out.flush();
         }
 
         return obj;

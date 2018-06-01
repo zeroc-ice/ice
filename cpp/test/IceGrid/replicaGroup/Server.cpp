@@ -9,30 +9,30 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 
-class Server : public Ice::Application
+class Server : public Test::TestHelper
 {
 public:
 
-    virtual int run(int argc, char* argv[]);
+    void run(int, char**);
 };
 
-int
-Server::run(int, char**)
+void
+Server::run(int argc, char** argv)
 {
-    Ice::ObjectAdapterPtr adpt = communicator()->createObjectAdapter("ReplicatedAdapter");
-    Ice::PropertiesPtr properties = communicator()->getProperties();
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::ObjectAdapterPtr adpt = communicator->createObjectAdapter("ReplicatedAdapter");
+    Ice::PropertiesPtr properties = communicator->getProperties();
     Ice::ObjectPtr object = new TestI(properties);
     adpt->add(object, Ice::stringToIdentity(properties->getProperty("Ice.ProgramName")));
     adpt->add(object, Ice::stringToIdentity(properties->getProperty("Identity")));
-    shutdownOnInterrupt();
     try
     {
         adpt->activate();
-        communicator()->getAdmin();
+        communicator->getAdmin();
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
@@ -44,14 +44,7 @@ Server::run(int, char**)
         // servant.
         //
     }
-    communicator()->waitForShutdown();
-    ignoreInterrupt();
-    return EXIT_SUCCESS;
+    communicator->waitForShutdown();
 }
 
-int
-main(int argc, char* argv[])
-{
-    Server app;
-    return app.main(argc, argv);
-}
+DEFINE_TEST(Server)

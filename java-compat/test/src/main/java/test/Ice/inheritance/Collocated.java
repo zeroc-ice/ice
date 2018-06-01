@@ -9,37 +9,20 @@
 
 package test.Ice.inheritance;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new InitialI(adapter);
-        adapter.add(object, Ice.Util.stringToIdentity("initial"));
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.inheritance");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.Object object = new InitialI(adapter);
+            adapter.add(object, Ice.Util.stringToIdentity("initial"));
 
-        AllTests.allTests(this);
-
-        return 0;
+            AllTests.allTests(this);
+        }
     }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.inheritance");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Collocated c = new Collocated();
-        int status = c.main("Collocated", args);
-
-        System.gc();
-        System.exit(status);
-    }
-
 }

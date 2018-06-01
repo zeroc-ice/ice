@@ -11,13 +11,13 @@ using System;
 using Test;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-                                        communicator.stringToProxy("ServerManager :" + app.getTestEndpoint(0)));
+                                        communicator.stringToProxy("ServerManager :" + helper.getTestEndpoint(0)));
         test(manager != null);
         TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
         test(locator != null);

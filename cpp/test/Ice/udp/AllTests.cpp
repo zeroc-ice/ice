@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -60,8 +60,9 @@ private:
 ICE_DEFINE_PTR(PingReplyIPtr, PingReplyI);
 
 void
-allTests(const CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     communicator->getProperties()->setProperty("ReplyAdapter.Endpoints", "udp");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ReplyAdapter");
     PingReplyIPtr replyI = ICE_MAKE_SHARED(PingReplyI);
@@ -69,7 +70,7 @@ allTests(const CommunicatorPtr& communicator)
     adapter->activate();
 
     cout << "testing udp... " << flush;
-    ObjectPrxPtr base = communicator->stringToProxy("test -d:" + getTestEndpoint(communicator, 0, "udp"));
+    ObjectPrxPtr base = communicator->stringToProxy("test -d:" + helper->getTestEndpoint("udp"));
     TestIntfPrxPtr obj = ICE_UNCHECKED_CAST(TestIntfPrx, base);
 
     int nRetry = 5;
@@ -137,14 +138,14 @@ allTests(const CommunicatorPtr& communicator)
     ostringstream endpoint;
     if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
     {
-        endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(communicator->getProperties(), 10);
+        endpoint << "udp -h \"ff15::1:1\" -p " << helper->getTestPort(10);
 #if defined(__APPLE__) || defined(_WIN32)
         endpoint << " --interface \"::1\""; // Use loopback to prevent other machines to answer. the multicast requests.
 #endif
     }
     else
     {
-        endpoint << "udp -h 239.255.1.1 -p " << getTestPort(communicator->getProperties(), 10);
+        endpoint << "udp -h 239.255.1.1 -p " << helper->getTestPort(10);
 #if defined(__APPLE__) || defined(_WIN32)
         endpoint << " --interface 127.0.0.1"; // Use loopback to prevent other machines to answer.
 #endif

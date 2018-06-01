@@ -16,26 +16,25 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        if(args.Length < 1)
+        using(var communicator = initialize(ref args))
         {
-            Console.Error.WriteLine("Usage: client testdir");
-            return 1;
+            if(args.Length < 1)
+            {
+                throw new ArgumentException("Usage: client testdir");
+            }
+
+            Test.ServerFactoryPrx factory;
+            factory = AllTests.allTests(this, args[0]);
+            factory.shutdown();
         }
-
-        Test.ServerFactoryPrx factory;
-        factory = AllTests.allTests(this, args[0]);
-        factory.shutdown();
-
-        return 0;
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

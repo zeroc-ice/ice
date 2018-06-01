@@ -9,19 +9,19 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol ViewController
+@protocol ControllerView
 -(void) print:(NSString*)msg;
 -(void) println:(NSString*)msg;
 @end
 
-@interface ViewController : UIViewController<ViewController, UIPickerViewDataSource, UIPickerViewDelegate>
+@interface ControllerView : UIViewController<ControllerView, UIPickerViewDataSource, UIPickerViewDelegate>
 {
 @private
     IBOutlet UIPickerView* interfaceIPv4;
     IBOutlet UIPickerView* interfaceIPv6;
     IBOutlet UITextView* output;
-    void (*startController)(id<ViewController>, NSString*, NSString*);
-    void (*stopController)(id<ViewController>);
+    void (*startController)(id<ControllerView>, NSString*, NSString*);
+    void (*stopController)(id<ControllerView>);
     NSMutableArray* interfacesIPv4;
     NSMutableArray* interfacesIPv6;
 }

@@ -9,34 +9,22 @@
 
 package test.Ice.proxy;
 
-public class AMDServer extends test.Util.Application
+public class AMDServer extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new AMDMyDerivedClassI(), Ice.Util.stringToIdentity("test"));
-        adapter.activate();
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.proxy.AMD");
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new AMDMyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+            adapter.activate();
 
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy.AMD");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        AMDServer app = new AMDServer();
-        int result = app.main("AMDServer", args);
-        System.gc();
-        System.exit(result);
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

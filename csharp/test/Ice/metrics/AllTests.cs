@@ -13,7 +13,7 @@ using System.Threading;
 
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     static IceMX.ConnectionMetrics
     getServerConnectionMetrics(IceMX.MetricsAdminPrx metrics, long expected)
@@ -81,7 +81,7 @@ public class AllTests : TestCommon.AllTests
     static string
     getPort(Ice.PropertiesAdminPrx p)
     {
-        return TestCommon.Application.getTestPort(p.ice_getCommunicator().getProperties(), 0).ToString();
+        return Test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), 0).ToString();
     }
 
     static private Dictionary<string, string>
@@ -389,14 +389,14 @@ public class AllTests : TestCommon.AllTests
         return m;
     }
 
-    public static MetricsPrx allTests(TestCommon.Application app, CommunicatorObserverI obsv)
+    public static MetricsPrx allTests(Test.TestHelper helper, CommunicatorObserverI obsv)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
 
-        string host = app.getTestHost();
-        string port = app.getTestPort(0).ToString();
+        string host = helper.getTestHost();
+        string port = helper.getTestPort(0).ToString();
         string hostAndPort = host + ":" + port;
-        string protocol = app.getTestProtocol();
+        string protocol = helper.getTestProtocol();
         string endpoint = protocol + " -h " + host + " -p " + port;
         string timeout = communicator.getProperties().getPropertyWithDefault("Ice.Default.Timeout", "60000");
 
@@ -584,7 +584,7 @@ public class AllTests : TestCommon.AllTests
             test(map["active"].current == 1);
 
             ControllerPrx controller = ControllerPrxHelper.checkedCast(
-                communicator.stringToProxy("controller:" + app.getTestEndpoint(1)));
+                communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
             controller.hold();
 
             map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Connection"]);

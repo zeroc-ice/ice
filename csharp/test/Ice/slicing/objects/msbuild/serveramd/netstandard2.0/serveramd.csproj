@@ -15,7 +15,7 @@
     </SliceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Compile Include="../../../../../../TestCommon/TestApp.cs"/>
+    <Compile Include="../../../../../../TestCommon/TestHelper.cs"/>
     <Compile Include="../../../TestAMDI.cs"/>
     <Compile Include="../../../ServerAMD.cs"/>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4"/>

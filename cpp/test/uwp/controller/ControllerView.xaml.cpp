@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include "ViewController.xaml.h"
+#include "ControllerView.xaml.h"
 
 #include <Ice/Ice.h>
 #include <Controller.h>
@@ -19,7 +19,7 @@
 #include <condition_variable>
 
 using namespace std;
-using namespace Controller;
+using namespace Test;
 using namespace Test::Common;
 
 using namespace Platform;
@@ -41,36 +41,34 @@ using namespace Platform::Collections;
 namespace
 {
 
-typedef int(*MAIN_ENTRY_POINT)(int, char**, Test::MainHelper*);
-typedef int(*SHUTDOWN_ENTRY_POINT)();
+typedef Test::TestHelper* (*CREATE_HELPER_ENTRY_POINT)();
 
-class MainHelperI : public Test::MainHelper
+class ControllerHelperI : public Test::ControllerHelper,
+                          public enable_shared_from_this<Test::ControllerHelper>
 {
 public:
 
-    MainHelperI(ViewController^, const string&, const StringSeq&);
+    ControllerHelperI(const string&, const StringSeq&);
 
+    virtual bool redirect() const;
+
+    virtual std::string getOutput() const;
+    virtual std::string loggerPrefix() const;
+    virtual void join();
+    virtual void print(const std::string&);
     virtual void serverReady();
     virtual void shutdown();
-    virtual void waitForCompleted()
-    {
-    }
-    virtual bool redirect();
-    virtual void print(const std::string&);
 
-    virtual void run();
-    void join();
+    virtual int waitSuccess(int) const;
+    virtual void waitReady(int) const;
+
+    void run();
     void completed(int);
-    void waitReady(int) const;
-    int waitSuccess(int) const;
-    string getOutput() const;
 
 private:
 
-    ViewController^ _controller;
     string _dll;
     StringSeq _args;
-    FARPROC _dllTestShutdown;
     bool _ready;
     bool _completed;
     int _status;
@@ -78,13 +76,22 @@ private:
     thread _thread;
     mutable mutex _mutex;
     mutable condition_variable _condition;
+    //
+    // DLL cache
+    //
+    static std::map<std::string, HINSTANCE> _dlls;
+    HINSTANCE loadDll(const string&);
+
+    unique_ptr<Test::TestHelper> _helper;
 };
+
+std::map<std::string, HINSTANCE> ControllerHelperI::_dlls;
 
 class ProcessI : public Process
 {
 public:
 
-    ProcessI(ViewController^, shared_ptr<MainHelperI>);
+    ProcessI(const Test::ControllerHelperPtr&);
 
     void waitReady(int, const Ice::Current&);
     int waitSuccess(int, const Ice::Current&);
@@ -92,33 +99,32 @@ public:
 
 private:
 
-    ViewController^ _controller;
-    shared_ptr<MainHelperI> _helper;
+    Test::ControllerHelperPtr _controllerHelper;
 };
 
 class ProcessControllerI : public ProcessController
 {
 public:
 
-    ProcessControllerI(ViewController^);
+    ProcessControllerI(ControllerView^);
     shared_ptr<ProcessPrx> start(string, string, StringSeq, const Ice::Current&);
     virtual string getHost(string, bool, const Ice::Current&);
 
 private:
 
-    ViewController^ _controller;
+    ControllerView^ _controller;
     string _host;
 };
 
-class ControllerHelper
+class ControllerI
 {
 public:
 
-    ControllerHelper(ViewController^);
-    virtual ~ControllerHelper();
+    ControllerI(ControllerView^);
+    virtual ~ControllerI();
 
     void
-    registerProcessController(ViewController^,
+    registerProcessController(ControllerView^,
                               const Ice::ObjectAdapterPtr&,
                               const shared_ptr<ProcessControllerRegistryPrx>&,
                               const shared_ptr<ProcessControllerPrx>&);
@@ -131,8 +137,7 @@ private:
 
 }
 
-MainHelperI::MainHelperI(ViewController^ controller, const string& dll, const StringSeq& args) :
-    _controller(controller),
+ControllerHelperI::ControllerHelperI(const string& dll, const StringSeq& args) :
     _dll(dll),
     _args(args),
     _ready(false),
@@ -142,74 +147,50 @@ MainHelperI::MainHelperI(ViewController^ controller, const string& dll, const St
 }
 
 void
-MainHelperI::serverReady()
+ControllerHelperI::serverReady()
 {
     unique_lock<mutex> lock(_mutex);
     _ready = true;
     _condition.notify_all();
 }
 
-void
-MainHelperI::shutdown()
-{
-    unique_lock<mutex> lock(_mutex);
-    if(_completed)
-    {
-        return;
-    }
-
-    if(_dllTestShutdown)
-    {
-        _dllTestShutdown();
-    }
-}
-
 bool
-MainHelperI::redirect()
+ControllerHelperI::redirect() const
 {
     return _dll.find("client") != string::npos || _dll.find("collocated") != string::npos;
 }
 
 void
 
-MainHelperI::print(const std::string& msg)
+ControllerHelperI::print(const std::string& msg)
 {
     _out << msg;
-    //_controller->println(msg);
 }
 
 void
-MainHelperI::run()
+ControllerHelperI::run()
 {
     thread t([this]()
     {
-        HINSTANCE hnd = _controller->loadDll(_dll);
+        HINSTANCE hnd = loadDll(_dll);
         if(hnd == 0)
         {
             ostringstream os;
             os << "failed to load `" << _dll << "': error code: " << GetLastError();
             print(os.str());
-            completed(EXIT_FAILURE);
+            completed(1);
             return;
         }
 
-        _dllTestShutdown = GetProcAddress(hnd, "dllTestShutdown");
-        if(_dllTestShutdown == 0)
-        {
-            print("failed to find dllTestShutdown function from `" + _dll + "'");
-            completed(EXIT_FAILURE);
-            return;
-        }
-
-        FARPROC sym = GetProcAddress(hnd, "dllMain");
+        FARPROC sym = GetProcAddress(hnd, "createHelper");
         if(sym == 0)
         {
-            print("failed to find dllMain function from `" + _dll + "'");
-            completed(EXIT_FAILURE);
+            print("failed to find createHelper function from `" + _dll + "'");
+            completed(1);
             return;
         }
 
-        MAIN_ENTRY_POINT dllMain = reinterpret_cast<MAIN_ENTRY_POINT>(sym);
+        CREATE_HELPER_ENTRY_POINT createHelper = reinterpret_cast<CREATE_HELPER_ENTRY_POINT>(sym);
         char** argv = new char*[_args.size() + 1];
         for(unsigned int i = 0; i < _args.size(); ++i)
         {
@@ -218,17 +199,21 @@ MainHelperI::run()
         argv[_args.size()] = 0;
         try
         {
-            completed(dllMain(static_cast<int>(_args.size()), argv, this));
+            StreamHelper streamHelper(shared_from_this(), redirect());
+            _helper.reset(createHelper());
+            _helper->setControllerHelper(shared_from_this());
+            _helper->run(static_cast<int>(_args.size()), argv);
+            completed(0);
         }
         catch(const std::exception& ex)
         {
             print("unexpected exception while running `" + _args[0] + "':\n" + ex.what());
-            completed(EXIT_FAILURE);
+            completed(1);
         }
         catch(...)
         {
             print("unexpected unknown exception while running `" + _args[0] + "'");
-            completed(EXIT_FAILURE);
+            completed(1);
         }
         delete[] argv;
     });
@@ -236,13 +221,13 @@ MainHelperI::run()
 }
 
 void
-MainHelperI::join()
+ControllerHelperI::join()
 {
     _thread.join();
 }
 
 void
-MainHelperI::completed(int status)
+ControllerHelperI::completed(int status)
 {
     unique_lock<mutex> lock(_mutex);
     _completed = true;
@@ -251,12 +236,11 @@ MainHelperI::completed(int status)
 }
 
 void
-MainHelperI::waitReady(int timeout) const
+ControllerHelperI::waitReady(int timeout) const
 {
     unique_lock<mutex> lock(_mutex);
     while(!_ready && !_completed)
     {
-
         if(_condition.wait_for(lock, chrono::seconds(timeout)) == cv_status::timeout)
         {
             throw ProcessFailedException("timed out waiting for the process to be ready");
@@ -269,7 +253,7 @@ MainHelperI::waitReady(int timeout) const
 }
 
 int
-MainHelperI::waitSuccess(int timeout) const
+ControllerHelperI::waitSuccess(int timeout) const
 {
     unique_lock<mutex> lock(_mutex);
     while(!_completed)
@@ -283,38 +267,77 @@ MainHelperI::waitSuccess(int timeout) const
 }
 
 string
-MainHelperI::getOutput() const
+ControllerHelperI::getOutput() const
 {
     assert(_completed);
     return _out.str();
 }
 
-ProcessI::ProcessI(ViewController^ controller, shared_ptr<MainHelperI> helper) : _controller(controller), _helper(helper)
+string
+ControllerHelperI::loggerPrefix() const
+{
+    return _dll;
+}
+
+void
+ControllerHelperI::shutdown()
+{
+    unique_lock<mutex> lock(_mutex);
+    if(_completed)
+    {
+        return;
+    }
+
+    if(_helper)
+    {
+        Ice::CommunicatorPtr communicator = _helper->communicator();
+        if(communicator)
+        {
+            communicator->shutdown();
+        }
+    }
+}
+
+HINSTANCE
+ControllerHelperI::loadDll(const string& name)
+{
+    unique_lock<mutex> lock(_mutex);
+    map<string, HINSTANCE>::iterator p = _dlls.find(name);
+    if (p == _dlls.end())
+    {
+        HINSTANCE hnd = LoadPackagedLibrary(Ice::stringToWstring(name).c_str(), 0);
+        p = _dlls.insert(make_pair(name, hnd)).first;
+    }
+    return p->second;
+}
+
+ProcessI::ProcessI(const ControllerHelperPtr& controllerHelper) :
+    _controllerHelper(controllerHelper)
 {
 }
 
 void
 ProcessI::waitReady(int timeout, const Ice::Current&)
 {
-    _helper->waitReady(timeout);
+    _controllerHelper->waitReady(timeout);
 }
 
 int
 ProcessI::waitSuccess(int timeout, const Ice::Current&)
 {
-    return _helper->waitSuccess(timeout);
+    return _controllerHelper->waitSuccess(timeout);
 }
 
 string
 ProcessI::terminate(const Ice::Current& current)
 {
-    _helper->shutdown();
+    _controllerHelper->shutdown();
     current.adapter->remove(current.id);
-    _helper->join();
-    return _helper->getOutput();
+    _controllerHelper->join();
+    return _controllerHelper->getOutput();
 }
 
-ProcessControllerI::ProcessControllerI(ViewController^ controller) :
+ProcessControllerI::ProcessControllerI(ControllerView^ controller) :
     _controller(controller),
     _host(_controller->getHost())
 {
@@ -328,9 +351,9 @@ ProcessControllerI::start(string testSuite, string exe, StringSeq args, const Ic
     _controller->println(os.str());
     replace(testSuite.begin(), testSuite.end(), '/', '_');
     args.insert(args.begin(), testSuite + '_' + exe + ".dll");
-    auto helper = make_shared<MainHelperI>(_controller, testSuite + '_' + exe + ".dll", args);
+    auto helper = make_shared<ControllerHelperI>(testSuite + '_' + exe + ".dll", args);
     helper->run();
-    return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(_controller, helper)));
+    return Ice::uncheckedCast<ProcessPrx>(c.adapter->addWithUUID(make_shared<ProcessI>(helper)));
 }
 
 string
@@ -339,7 +362,7 @@ ProcessControllerI::getHost(string, bool, const Ice::Current&)
     return _host;
 }
 
-ControllerHelper::ControllerHelper(ViewController^ controller)
+ControllerI::ControllerI(ControllerView^ controller)
 {
     Ice::InitializationData initData = Ice::InitializationData();
     initData.properties = Ice::createProperties();
@@ -364,10 +387,10 @@ ControllerHelper::ControllerHelper(ViewController^ controller)
 }
 
 void
-ControllerHelper::registerProcessController(ViewController^ controller,
-                                            const Ice::ObjectAdapterPtr& adapter,
-                                            const shared_ptr<ProcessControllerRegistryPrx>& registry,
-                                            const shared_ptr<ProcessControllerPrx>& processController)
+ControllerI::registerProcessController(ControllerView^ controller,
+                                       const Ice::ObjectAdapterPtr& adapter,
+                                       const shared_ptr<ProcessControllerRegistryPrx>& registry,
+                                       const shared_ptr<ProcessControllerPrx>& processController)
 {
     registry->ice_pingAsync(
         [this, controller, adapter, registry, processController]()
@@ -428,14 +451,14 @@ ControllerHelper::registerProcessController(ViewController^ controller,
         });
 }
 
-ControllerHelper::~ControllerHelper()
+ControllerI::~ControllerI()
 {
     _communicator->destroy();
 }
 
-static ControllerHelper* controllerHelper = 0;
+static ControllerI* controllerI = 0;
 
-ViewController::ViewController()
+ControllerView::ControllerView()
 {
     InitializeComponent();
     auto hostnames = NetworkInformation::GetHostNames();
@@ -452,56 +475,43 @@ ViewController::ViewController()
 }
 
 string
-ViewController::getHost() const
+ControllerView::getHost() const
 {
     return Ice::wstringToString(ipv4Addresses->SelectedItem->ToString()->Data());
 }
 
 void
-ViewController::Hostname_SelectionChanged(Platform::Object^, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^)
+ControllerView::Hostname_SelectionChanged(Platform::Object^, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^)
 {
-    if(controllerHelper)
+    if(controllerI)
     {
-        delete controllerHelper;
-        controllerHelper = 0;
+        delete controllerI;
+        controllerI = 0;
     }
-    controllerHelper = new ControllerHelper(this);
+    controllerI = new ControllerI(this);
 }
 
 void
-ViewController::println(const string& s)
+ControllerView::println(const string& s)
 {
-    if(s.empty())
+    if(!s.empty())
     {
-        return;
+        Dispatcher->RunAsync(
+            CoreDispatcherPriority::Normal,
+            ref new DispatchedHandler([=]()
+                                      {
+                                          Output->Items->Append(ref new String(Ice::stringToWstring(s).c_str()));
+                                          Output->SelectedIndex = Output->Items->Size - 1;
+                                          Output->ScrollIntoView(Output->SelectedItem);
+                                      }));
     }
-    this->Dispatcher->RunAsync(CoreDispatcherPriority::Normal, ref new DispatchedHandler(
-        [=]()
-        {
-            Output->Items->Append(ref new String(Ice::stringToWstring(s).c_str()));
-            Output->SelectedIndex = Output->Items->Size - 1;
-            Output->ScrollIntoView(Output->SelectedItem);
-        }));
 }
 
-HINSTANCE
-ViewController::loadDll(const string& name)
+ControllerView::~ControllerView()
 {
-    unique_lock<mutex> lock(_mutex);
-    map<string, HINSTANCE>::iterator p = _dlls.find(name);
-    if(p == _dlls.end())
+    if(controllerI)
     {
-        HINSTANCE hnd = LoadPackagedLibrary(Ice::stringToWstring(name).c_str(), 0);
-        p = _dlls.insert(make_pair(name, hnd)).first;
-    }
-    return p->second;
-}
-
-ViewController::~ViewController()
-{
-    if(controllerHelper)
-    {
-        delete controllerHelper;
-        controllerHelper = 0;
+        delete controllerI;
+        controllerI = 0;
     }
 }

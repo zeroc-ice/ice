@@ -9,48 +9,20 @@
 
 package test.Ice.location;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        try
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.location");
+        properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties, 0));
+        try(Ice.Communicator communicator = initialize(properties))
         {
             AllTests.allTests(this);
         }
-        catch(Ice.AdapterAlreadyActiveException ex)
+        catch(Exception ex)
         {
-            ex.printStackTrace();
-            throw new RuntimeException();
+            throw new RuntimeException(ex);
         }
-        catch(Ice.AdapterNotFoundException ex)
-        {
-            ex.printStackTrace();
-            throw new RuntimeException();
-        }
-        catch(InterruptedException ex)
-        {
-            ex.printStackTrace();
-            throw new RuntimeException();
-        }
-
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
-        initData.properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(initData.properties, 0));
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
     }
 }

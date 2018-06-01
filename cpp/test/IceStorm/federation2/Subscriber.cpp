@@ -12,9 +12,10 @@
 #include <Event.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #include <fcntl.h>
+
 #ifdef _WIN32
 #   include <io.h>
 #else
@@ -31,27 +32,20 @@ class EventI : public Event
 {
 public:
 
-    EventI(const CommunicatorPtr& communicator) :
-        _communicator(communicator)
-    {
-    }
-
     virtual void
-    pub(const string&, const Ice::Current&)
+    pub(const string&, const Ice::Current& current)
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_countMutex);
 
         if(++_count == 10)
         {
-            _communicator->shutdown();
+            current.adapter->getCommunicator()->shutdown();
         }
     }
 
     static IceUtil::Mutex* _countMutex;
 
 private:
-
-    CommunicatorPtr _communicator;
 
     static int _count;
 };
@@ -95,9 +89,17 @@ usage(const char* appName)
         ;
 }
 
-int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+class Subscriber : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Subscriber::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     bool batch = false;
 
     int idx = 1;
@@ -116,40 +118,41 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
         {
             usage(argv[0]);
-            return EXIT_SUCCESS;
+            return;
         }
         else if(argv[idx][0] == '-')
         {
-            cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
             usage(argv[0]);
-            return EXIT_FAILURE;
+            ostringstream os;
+            os << argv[0] << ": unknown option `" << argv[idx] << "'";
+            throw invalid_argument(os.str());
         }
     }
 
     PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
-    string managerProxy = properties->getProperty(managerProxyProperty);
+    const string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
-        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
+        throw invalid_argument(os.str());
     }
 
     ObjectPrx base = communicator->stringToProxy(managerProxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": `" << managerProxy << "' is not running";
+        throw invalid_argument(os.str());
     }
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
-    EventIPtr eventFed1 = new EventI(communicator);
 
     //
     // Activate the servants.
     //
-    ObjectPrx obj = adapter->addWithUUID(eventFed1);
+    ObjectPrx obj = adapter->addWithUUID(new EventI());
 
     IceStorm::QoS qos;
     if(batch)
@@ -161,17 +164,7 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         obj = obj->ice_oneway();
     }
 
-    TopicPrx fed1;
-
-    try
-    {
-        fed1 = manager->retrieve("fed1");
-    }
-    catch(const IceStorm::NoSuchTopic& e)
-    {
-        cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-        return EXIT_FAILURE;
-    }
+    TopicPrx fed1 = manager->retrieve("fed1");
 
     fed1->subscribeAndGetPublisher(qos, obj);
 
@@ -180,31 +173,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     communicator->waitForShutdown();
 
     fed1->unsubscribe(obj);
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-    InitializationData initData = getTestInitData(argc, argv);
-    try
-    {
-        communicator = initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Subscriber)

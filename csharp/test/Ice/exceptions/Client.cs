@@ -17,27 +17,23 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        ThrowerPrx thrower = AllTests.allTests(this);
-        thrower.shutdown();
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        return initData;
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        using(var communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            ThrowerPrx thrower = AllTests.allTests(this);
+            thrower.shutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

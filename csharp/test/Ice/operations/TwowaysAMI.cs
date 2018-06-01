@@ -997,9 +997,9 @@ public class TwowaysAMI
         private Dictionary<string, string> _d;
     }
 
-    internal static void twowaysAMI(TestCommon.Application app, Test.MyClassPrx p)
+    internal static void twowaysAMI(Test.TestHelper helper, Test.MyClassPrx p)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
 
         {
             p.ice_pingAsync().Wait();
@@ -3250,8 +3250,8 @@ public class TwowaysAMI
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
 
-                Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                                        ic.stringToProxy("test:" + app.getTestEndpoint(0)));
+                Test.MyClassPrx p3 =
+                    Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));
@@ -3320,8 +3320,8 @@ public class TwowaysAMI
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
 
-                Test.MyClassPrx p3 = Test.MyClassPrxHelper.uncheckedCast(
-                                        ic.stringToProxy("test:" + app.getTestEndpoint(0)));
+                Test.MyClassPrx p3 =
+                    Test.MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint(0)));
 
                 ic.getImplicitContext().setContext(ctx);
                 test(Ice.CollectionComparer.Equals(ic.getImplicitContext().getContext(), ctx));

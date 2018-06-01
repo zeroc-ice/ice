@@ -11,47 +11,25 @@ package test.Ice.udp;
 
 import test.Ice.udp.Test.*;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        AllTests.allTests(this);
-
-        int num;
-        try
+        Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+        Ice.Properties properties = createTestProperties(argsH);
+        properties.setProperty("Ice.Package.Test", "test.Ice.udp");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.UDP.RcvSize", "16384");
+        properties.setProperty("Ice.UDP.SndSize", "16384");
+        try(Ice.Communicator communicator = initialize(properties))
         {
-            num = args.length == 1 ? Integer.parseInt(args[0]) : 1;
+            AllTests.allTests(this);
+            int num = argsH.value.length == 1 ? Integer.parseInt(argsH.value[0]) : 1;
+            for(int i = 0; i < num; ++i)
+            {
+                Ice.ObjectPrx prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
+                TestIntfPrxHelper.uncheckedCast(prx).shutdown();
+            }
         }
-        catch(NumberFormatException ex)
-        {
-            num = 1;
-        }
-        for(int i = 0; i < num; ++i)
-        {
-            TestIntfPrxHelper.uncheckedCast(communicator().stringToProxy("control:" +
-                                                                         getTestEndpoint(i, "tcp"))).shutdown();
-        }
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
-        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
     }
 }

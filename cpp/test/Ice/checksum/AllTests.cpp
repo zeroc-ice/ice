@@ -8,15 +8,16 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 
 Test::ChecksumPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator, bool)
+allTests(Test::TestHelper* helper)
 {
-    string ref = "test:" + getTestEndpoint(communicator, 0);
+    Ice::CommunicatorPtr communicator = helper->communicator();
+    string ref = "test:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
 

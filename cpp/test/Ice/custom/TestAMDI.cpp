@@ -10,11 +10,6 @@
 #include <Ice/Communicator.h>
 #include <TestAMDI.h>
 
-TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)
-    : _communicator(communicator)
-{
-}
-
 #ifdef ICE_CPP11_MAPPING
 
 void
@@ -343,9 +338,10 @@ TestIntfI::opBufferStructAsync(Test::BufferStruct in,
 
 void
 TestIntfI::shutdownAsync(std::function<void()> response,
-                         std::function<void(std::exception_ptr)>, const Ice::Current&)
+                         std::function<void(std::exception_ptr)>,
+                         const Ice::Current& current)
 {
-    _communicator->shutdown();
+    current.adapter->getCommunicator()->shutdown();
     response();
 }
 
@@ -694,9 +690,9 @@ TestIntfI::opBufferStruct_async(const Test::AMD_TestIntf_opBufferStructPtr& cb,
 
 void
 TestIntfI::shutdown_async(const Test::AMD_TestIntf_shutdownPtr& shutdownCB,
-                          const Ice::Current&)
+                          const Ice::Current& current)
 {
-    _communicator->shutdown();
+    current.adapter->getCommunicator()->shutdown();
     shutdownCB->ice_response();
 }
 #endif

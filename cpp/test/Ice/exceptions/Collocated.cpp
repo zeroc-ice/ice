@@ -8,49 +8,36 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
-
-DEFINE_TEST("collocated");
 
 using namespace std;
 using namespace Test;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Collocated : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
+public:
+
+    void run(int, char**);
+};
+
+void
+Collocated::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.Warn.Dispatch", "0");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = ICE_MAKE_SHARED(ThrowerI);
     adapter->add(object, Ice::stringToIdentity("thrower"));
 
-    ThrowerPrxPtr allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
-
-    return EXIT_SUCCESS;
+    ThrowerPrxPtr allTests(Test::TestHelper*);
+    allTests(this);
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Collocated)

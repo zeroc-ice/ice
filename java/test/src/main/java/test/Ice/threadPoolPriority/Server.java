@@ -9,33 +9,20 @@
 
 package test.Ice.threadPoolPriority;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new PriorityI(), com.zeroc.Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-
-        return WAIT;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "10");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "10");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
+            com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+            adapter.add(new PriorityI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+            adapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

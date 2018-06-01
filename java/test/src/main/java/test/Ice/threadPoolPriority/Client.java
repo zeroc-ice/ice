@@ -11,38 +11,21 @@ package test.Ice.threadPoolPriority;
 
 import test.Ice.threadPoolPriority.Test.PriorityPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
         java.io.PrintWriter out = getWriter();
-        com.zeroc.Ice.ObjectPrx object = communicator().stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
-        PriorityPrx priority = PriorityPrx.checkedCast(object);
-        out.print("testing thread priority... ");
-        out.flush();
-        int prio = priority.getPriority();
-        test(prio == 10);
-        out.println("ok");
-
-        priority.shutdown();
-        return 0;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
+        try(com.zeroc.Ice.Communicator communicator = initialize(args))
+        {
+            com.zeroc.Ice.ObjectPrx object = communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
+            PriorityPrx priority = PriorityPrx.checkedCast(object);
+            out.print("testing thread priority... ");
+            out.flush();
+            int prio = priority.getPriority();
+            test(prio == 10);
+            out.println("ok");
+            priority.shutdown();
+        }
     }
 }

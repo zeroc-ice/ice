@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
 #include <TestI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 HoldI::HoldI(const IceUtil::TimerPtr& timer, const Ice::ObjectAdapterPtr& adapter) :
     _last(0), _timer(timer), _adapter(adapter)

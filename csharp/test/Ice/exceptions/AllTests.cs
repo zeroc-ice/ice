@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private class Callback
     {
@@ -47,9 +47,9 @@ public class AllTests : TestCommon.AllTests
         private bool _called;
     }
 
-    public static ThrowerPrx allTests(TestCommon.Application app)
+    public static ThrowerPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         {
             Write("testing object adapter registration exceptions... ");
             Ice.ObjectAdapter first;
@@ -175,7 +175,7 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing stringToProxy... ");
         Flush();
-        String @ref = "thrower:" + app.getTestEndpoint(0);
+        String @ref = "thrower:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -437,7 +437,7 @@ public class AllTests : TestCommon.AllTests
             try
             {
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
-                    communicator.stringToProxy("thrower:" + app.getTestEndpoint(1)));
+                    communicator.stringToProxy("thrower:" + helper.getTestEndpoint(1)));
                 try
                 {
                     thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
@@ -446,7 +446,7 @@ public class AllTests : TestCommon.AllTests
                 {
                 }
                 ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
-                    communicator.stringToProxy("thrower:" + app.getTestEndpoint(2)));
+                    communicator.stringToProxy("thrower:" + helper.getTestEndpoint(2)));
                 try
                 {
                     thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit

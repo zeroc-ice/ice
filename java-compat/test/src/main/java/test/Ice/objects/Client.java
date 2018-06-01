@@ -11,7 +11,7 @@ package test.Ice.objects;
 
 import test.Ice.objects.Test.InitialPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
     private static class MyValueFactory implements Ice.ValueFactory
     {
@@ -74,41 +74,27 @@ public class Client extends test.Util.Application
     }
 
     @SuppressWarnings("deprecation")
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ValueFactory factory = new MyValueFactory();
-        communicator.getValueFactoryManager().add(factory, "::Test::B");
-        communicator.getValueFactoryManager().add(factory, "::Test::C");
-        communicator.getValueFactoryManager().add(factory, "::Test::D");
-        communicator.getValueFactoryManager().add(factory, "::Test::E");
-        communicator.getValueFactoryManager().add(factory, "::Test::F");
-        communicator.getValueFactoryManager().add(factory, "::Test::I");
-        communicator.getValueFactoryManager().add(factory, "::Test::J");
-        communicator.getValueFactoryManager().add(factory, "::Test::H");
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            Ice.ValueFactory factory = new MyValueFactory();
+            communicator.getValueFactoryManager().add(factory, "::Test::B");
+            communicator.getValueFactoryManager().add(factory, "::Test::C");
+            communicator.getValueFactoryManager().add(factory, "::Test::D");
+            communicator.getValueFactoryManager().add(factory, "::Test::E");
+            communicator.getValueFactoryManager().add(factory, "::Test::F");
+            communicator.getValueFactoryManager().add(factory, "::Test::I");
+            communicator.getValueFactoryManager().add(factory, "::Test::J");
+            communicator.getValueFactoryManager().add(factory, "::Test::H");
 
-        communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
+            communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
-        InitialPrx initial = AllTests.allTests(this);
-        initial.shutdown();
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
-        initData.properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
+            InitialPrx initial = AllTests.allTests(this);
+            initial.shutdown();
+        }
     }
 }

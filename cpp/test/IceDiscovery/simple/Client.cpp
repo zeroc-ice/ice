@@ -8,55 +8,32 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 using namespace Test;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    int num = argc == 2 ? atoi(argv[1]) : 1;
+public:
 
-    void allTests(const Ice::CommunicatorPtr&, int);
-    allTests(communicator, num);
-    return EXIT_SUCCESS;
-}
+    void run(int, char**);
+};
 
-int
-main(int argc, char* argv[])
+void
+Client::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL();
-    Ice::registerIceWS();
-#endif
     //
     // Explicitly register the IceDiscovery plugin to test registerIceDiscovery.
     //
     Ice::registerIceDiscovery();
 
-    int status;
-    Ice::CommunicatorPtr communicator;
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    int num = argc == 2 ? atoi(argv[1]) : 1;
 
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
+    void allTests(Test::TestHelper*, int);
+    allTests(this, num);
 }
+
+DEFINE_TEST(Client)

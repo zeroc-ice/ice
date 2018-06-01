@@ -11,29 +11,16 @@ package test.Ice.proxy;
 
 import test.Ice.proxy.Test.MyClassPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        MyClassPrx myClass = AllTests.allTests(this);
-        myClass.shutdown();
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            MyClassPrx myClass = AllTests.allTests(this);
+            myClass.shutdown();
+        }
     }
 }

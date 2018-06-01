@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
 
 //
@@ -21,15 +21,10 @@
 //
 #include <DerivedEx.h>
 
-DEFINE_TEST("client")
-
-#ifdef _MSC_VER
 // For 'Ice::Communicator::addObjectFactory()' deprecation
-#pragma warning( disable : 4996 )
-#endif
-
-#if defined(__GNUC__)
-// For 'Ice::Communicator::addObjectFactory()' deprecation
+#if defined(_MSC_VER)
+#   pragma warning( disable : 4996 )
+#elif defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -84,13 +79,13 @@ public:
         {
             return new HI;
         }
-
         assert(false); // Should never be reached
         return 0;
     }
 
 };
 #endif
+
 class MyObjectFactory : public Ice::ObjectFactory
 {
 public:
@@ -117,9 +112,23 @@ private:
     bool _destroyed;
 };
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+
+#ifndef ICE_CPP11_MAPPING
+    properties->setProperty("Ice.CollectObjects", "1");
+#endif
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 #ifdef ICE_CPP11_MAPPING
     communicator->getValueFactoryManager()->add(makeFactory<BI>(), "::Test::B");
     communicator->getValueFactoryManager()->add(makeFactory<CI>(), "::Test::C");
@@ -143,35 +152,9 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
 #endif
 
-    InitialPrxPtr allTests(const Ice::CommunicatorPtr&);
-    InitialPrxPtr initial = allTests(communicator);
+    InitialPrxPtr allTests(Test::TestHelper*);
+    InitialPrxPtr initial = allTests(this);
     initial->shutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#   ifdef ICE_HAS_BT
-    Ice::registerIceBT(false);
-#   endif
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-#ifndef ICE_CPP11_MAPPING
-        initData.properties->setProperty("Ice.CollectObjects", "1");
-#endif
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

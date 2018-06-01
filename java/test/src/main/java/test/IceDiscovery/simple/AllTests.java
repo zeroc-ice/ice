@@ -27,9 +27,9 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app, int num)
+    public static void allTests(test.TestHelper helper, int num)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
 
         List<ControllerPrx> proxies = new ArrayList<>();
         List<ControllerPrx> indirectProxies = new ArrayList<>();

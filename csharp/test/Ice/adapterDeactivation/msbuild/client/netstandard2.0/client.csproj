@@ -11,7 +11,7 @@
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../../../../TestCommon/TestApp.cs"/>
+    <Compile Include="../../../../../TestCommon/TestHelper.cs"/>
     <Compile Include="../../../AllTests.cs"/>
     <Compile Include="../../../Client.cs"/>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4"/>

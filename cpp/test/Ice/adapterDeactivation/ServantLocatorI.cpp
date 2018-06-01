@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <ServantLocatorI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
 
 using namespace std;

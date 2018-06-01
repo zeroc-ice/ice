@@ -9,57 +9,45 @@
 
 package test.Ice.timeout;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new TimeoutI(), com.zeroc.Ice.Util.stringToIdentity("timeout"));
-        adapter.activate();
-
-        com.zeroc.Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-        controllerAdapter.add(new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
-        controllerAdapter.activate();
-
-        return WAIT;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1));
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.timeout");
 
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+        properties.setProperty("Ice.TCP.RcvSize", "50000");
 
         //
         // The client sends large messages to cause the transport
         // buffers to fill up.
         //
-        initData.properties.setProperty("Ice.MessageSizeMax", "20000");
+        properties.setProperty("Ice.MessageSizeMax", "20000");
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
-    }
+        properties.setProperty("Ice.Warn.Connections", "0");
 
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new TimeoutI(), com.zeroc.Ice.Util.stringToIdentity("timeout"));
+            adapter.activate();
+
+            com.zeroc.Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+            controllerAdapter.add(new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
+            controllerAdapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

@@ -16,23 +16,23 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated : TestCommon.Application
+public class Collocated : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new MyClassI(), Ice.Util.stringToIdentity("test"));
-        //adapter.activate(); // Don't activate OA to ensure collocation is used.
+        using(var communicator = initialize(ref args))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new MyClassI(), Ice.Util.stringToIdentity("test"));
+            //adapter.activate(); // Don't activate OA to ensure collocation is used.
 
-        AllTests.allTests(this, true);
-
-        return 0;
+            AllTests.allTests(this, true);
+        }
     }
 
     public static int Main(String[] args)
     {
-        Collocated app = new Collocated();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Collocated>(args);
     }
 }

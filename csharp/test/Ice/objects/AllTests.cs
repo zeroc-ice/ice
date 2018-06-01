@@ -60,7 +60,7 @@ namespace Test
     }
 }
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     public static Ice.Value MyValueFactory(string type)
     {
@@ -126,9 +126,9 @@ public class AllTests : TestCommon.AllTests
         private bool _destroyed;
     }
 
-    public static InitialPrx allTests(TestCommon.Application app)
+    public static InitialPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::B");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::C");
         communicator.getValueFactoryManager().add(MyValueFactory, "::Test::D");
@@ -145,7 +145,7 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing stringToProxy... ");
         Flush();
-        String @ref = "initial:" + app.getTestEndpoint(0);
+        String @ref = "initial:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -388,7 +388,7 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing UnexpectedObjectException...");
         Flush();
-        @ref = "uoet:" + app.getTestEndpoint(0);
+        @ref = "uoet:" + helper.getTestEndpoint(0);
         @base = communicator.stringToProxy(@ref);
         test(@base != null);
         UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrxHelper.uncheckedCast(@base);

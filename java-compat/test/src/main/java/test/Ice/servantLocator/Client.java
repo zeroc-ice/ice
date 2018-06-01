@@ -11,29 +11,16 @@ package test.Ice.servantLocator;
 
 import test.Ice.servantLocator.Test.TestIntfPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        TestIntfPrx obj = AllTests.allTests(this);
-        obj.shutdown();
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.servantLocator");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.servantLocator");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            TestIntfPrx obj = AllTests.allTests(this);
+            obj.shutdown();
+        }
     }
 }

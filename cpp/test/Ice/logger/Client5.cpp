@@ -8,29 +8,19 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 
-namespace
+void
+runTest(const Ice::CommunicatorPtr& communicator)
 {
-
-class Client : public Ice::Application
-{
-public:
-    virtual int
-    run(int, char*[])
+    int count = communicator->getProperties()->getPropertyAsInt("Client.Iterations");
+    const string message = communicator->getProperties()->getProperty("Client.Message");
+    for(int i = 0; i < count; ++i)
     {
-        int count = communicator()->getProperties()->getPropertyAsInt("Client.Iterations");
-        const string message = communicator()->getProperties()->getProperty("Client.Message");
-        for(int i = 0; i < count; ++i)
-        {
-            communicator()->getLogger()->print(message);
-        }
-        return EXIT_SUCCESS;
-    };
-};
-
+        communicator->getLogger()->print(message);
+    }
 }
 
 //
@@ -47,14 +37,16 @@ const string message = "Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                        "Fusce dictum turpis ante, sit amet finibus eros commodo vel. Sed amet.";
 #endif
 
-int
-main(int argc, char* argv[])
+class Client5 : public Test::TestHelper
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
+public:
 
+    void run(int, char**);
+};
+
+void
+Client5::run(int argc, char** argv)
+{
     //
     // Run Client application 20 times, each times it generate 512 bytes of log messages,
     // the application logger is configured to archive log files larger than 512 bytes.
@@ -71,11 +63,9 @@ main(int argc, char* argv[])
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "client5-0.log");
         id.properties->setProperty("Ice.LogFile.SizeMax", "512");
-        Client c;
-        if(c.main(argc, argv, id) != EXIT_SUCCESS)
-        {
-            return EXIT_FAILURE;
-        }
+
+        Ice::CommunicatorHolder ich = Ice::initialize(id);
+        runTest(ich.communicator());
     }
 
     //
@@ -91,11 +81,9 @@ main(int argc, char* argv[])
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "client5-1.log");
         id.properties->setProperty("Ice.LogFile.SizeMax", "0");
-        Client c;
-        if(c.main(argc, argv, id) != EXIT_SUCCESS)
-        {
-            return EXIT_FAILURE;
-        }
+
+        Ice::CommunicatorHolder ich = Ice::initialize(id);
+        runTest(ich.communicator());
     }
 
     //
@@ -111,11 +99,9 @@ main(int argc, char* argv[])
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "client5-2.log");
         id.properties->setProperty("Ice.LogFile.SizeMax", "128");
-        Client c;
-        if(c.main(argc, argv, id) != EXIT_SUCCESS)
-        {
-            return EXIT_FAILURE;
-        }
+
+        Ice::CommunicatorHolder ich = Ice::initialize(id);
+        runTest(ich.communicator());
     }
 
     //
@@ -130,11 +116,9 @@ main(int argc, char* argv[])
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "client5-3.log");
         id.properties->setProperty("Ice.LogFile.SizeMax", "64");
-        Client c;
-        if(c.main(argc, argv, id) != EXIT_SUCCESS)
-        {
-            return EXIT_FAILURE;
-        }
+
+        Ice::CommunicatorHolder ich = Ice::initialize(id);
+        runTest(ich.communicator());
     }
 
     //
@@ -151,10 +135,10 @@ main(int argc, char* argv[])
         id.properties->setProperty("Client.Message", message);
         id.properties->setProperty("Ice.LogFile", "log/client5-4.log");
         id.properties->setProperty("Ice.LogFile.SizeMax", "512");
-        Client c;
-        if(c.main(argc, argv, id) != EXIT_SUCCESS)
-        {
-            return EXIT_FAILURE;
-        }
+
+        Ice::CommunicatorHolder ich = Ice::initialize(id);
+        runTest(ich.communicator());
     }
 }
+
+DEFINE_TEST(Client5)

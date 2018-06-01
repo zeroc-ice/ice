@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <Configuration.h>
 
@@ -26,64 +26,49 @@ Ice::Plugin* createTestTransport(const Ice::CommunicatorPtr&, const std::string&
 
 };
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    BackgroundPrxPtr allTests(const Ice::CommunicatorPtr&);
-    BackgroundPrxPtr background = allTests(communicator);
-    background->shutdown();
-    return EXIT_SUCCESS;
-}
+public:
 
-int
-main(int argc, char* argv[])
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
 {
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
     Ice::registerPluginFactory("Test", createTestTransport, false);
 #endif
 
-    int status;
-    Ice::CommunicatorPtr communicator;
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
 
-        //
-        // For this test, we want to disable retries.
-        //
-        initData.properties->setProperty("Ice.RetryIntervals", "-1");
+    //
+    // For this test, we want to disable retries.
+    //
+    properties->setProperty("Ice.RetryIntervals", "-1");
 
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
+    //
+    // This test kills connections, so we don't want warnings.
+    //
+    properties->setProperty("Ice.Warn.Connections", "0");
 
-        // This test relies on filling the TCP send/recv buffer, so
-        // we rely on a fixed value for these buffers.
-        initData.properties->setProperty("Ice.TCP.SndSize", "50000");
+    //
+    // This test relies on filling the TCP send/recv buffer, so
+    // we rely on a fixed value for these buffers.
+    //
+    properties->setProperty("Ice.TCP.SndSize", "50000");
 
-        //
-        // Setup the test transport plug-in.
-        //
-        initData.properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
-        string defaultProtocol = initData.properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-        initData.properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
+    //
+    // Setup the test transport plug-in.
+    //
+    properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
+    string defaultProtocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
 
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << " " << ex.ice_stackTrace() << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    BackgroundPrxPtr allTests(Test::TestHelper*);
+    BackgroundPrxPtr background = allTests(this);
+    background->shutdown();
 }
+
+DEFINE_TEST(Client)

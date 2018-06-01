@@ -9,27 +9,17 @@
 
 package test.Ice.acm;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        AllTests.allTests(this);
-        return 0;
-    }
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.acm");
+        properties.setProperty("Ice.Warn.Connections", "0");
 
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.acm");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            AllTests.allTests(this);
+        }
     }
 }

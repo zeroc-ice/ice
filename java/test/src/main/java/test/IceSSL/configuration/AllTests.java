@@ -109,12 +109,12 @@ public class AllTests
         return d;
     }
 
-    public static ServerFactoryPrx allTests(test.Util.Application app, String testDir)
+    public static ServerFactoryPrx allTests(test.TestHelper helper, String testDir)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        final String factoryRef = "factory:" + app.getTestEndpoint(0, "tcp");
+        final String factoryRef = "factory:" + helper.getTestEndpoint(0, "tcp");
         com.zeroc.Ice.ObjectPrx b = communicator.stringToProxy(factoryRef);
         test(b != null);
         ServerFactoryPrx factory = ServerFactoryPrx.checkedCast(b);

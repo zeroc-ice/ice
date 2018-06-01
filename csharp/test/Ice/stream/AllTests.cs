@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     //
     // There does not appear to be any way to compare collections
@@ -130,9 +130,9 @@ public class AllTests : TestCommon.AllTests
         private Ice.ValueFactory _factory;
     }
 
-    static public int allTests(TestCommon.Application app)
+    static public int allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         MyClassFactoryWrapper factoryWrapper = new MyClassFactoryWrapper();
 
         communicator.getValueFactoryManager().add(factoryWrapper.create, MyClass.ice_staticId());

@@ -722,11 +722,11 @@ public class AllTests
     }
 
     public static ThrowerPrx
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
-        PrintWriter out = app.getWriter();
+        PrintWriter out = helper.getWriter();
         {
             out.print("testing object adapter registration exceptions... ");
             Ice.ObjectAdapter first;
@@ -846,7 +846,7 @@ public class AllTests
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "thrower:" + app.getTestEndpoint(0);
+        String ref = "thrower:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -1150,7 +1150,7 @@ public class AllTests
             try
             {
                 ThrowerPrx thrower2 = ThrowerPrxHelper.uncheckedCast(
-                    communicator.stringToProxy("thrower:" + app.getTestEndpoint(1)));
+                    communicator.stringToProxy("thrower:" + helper.getTestEndpoint(1)));
                 try
                 {
                     thrower2.throwMemoryLimitException(new byte[2 * 1024 * 1024]); // 2MB (no limits)
@@ -1159,7 +1159,7 @@ public class AllTests
                 {
                 }
                 ThrowerPrx thrower3 = ThrowerPrxHelper.uncheckedCast(
-                    communicator.stringToProxy("thrower:" + app.getTestEndpoint(2)));
+                    communicator.stringToProxy("thrower:" + helper.getTestEndpoint(2)));
                 try
                 {
                     thrower3.throwMemoryLimitException(new byte[1024]); // 1KB limit

@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Threading;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private class Callback
     {
@@ -90,12 +90,12 @@ public class AllTests : TestCommon.AllTests
         }
     }
 
-    public static TestIntfPrx allTests(TestCommon.Application app, bool collocated)
+    public static TestIntfPrx allTests(Test.TestHelper helper, bool collocated)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        String @ref = "Test:" + app.getTestEndpoint(0) + " -t 2000";
+        String @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");

@@ -15,7 +15,7 @@ $(project)_caninstall   := no
 # which don't support something like @loader_path.
 #
 TestCommon[shared]_targetdir    := lib
-TestCommon_dependencies         := Ice
+TestCommon_dependencies         := IceSSL Ice
 TestCommon_cppflags             := -DTEST_API_EXPORTS -I$(includedir) -I$(project) -Itest/include
 
 projects += $(project)

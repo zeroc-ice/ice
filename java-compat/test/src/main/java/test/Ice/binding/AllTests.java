@@ -16,7 +16,6 @@ import test.Ice.binding.Test.RemoteCommunicatorPrxHelper;
 import test.Ice.binding.Test.RemoteObjectAdapterPrx;
 import test.Ice.binding.Test.TestIntfPrx;
 import test.Ice.binding.Test.TestIntfPrxHelper;
-import test.Util.Application;
 
 public class AllTests
 {
@@ -98,12 +97,12 @@ public class AllTests
     }
 
     public static void
-    allTests(Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        String ref = "communicator:" + app.getTestEndpoint(0);
+        String ref = "communicator:" + helper.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(ref));
 
         out.print("testing binding with single endpoint... ");
@@ -905,7 +904,7 @@ public class AllTests
             clientProps.add(bothPreferIPv4);
             clientProps.add(bothPreferIPv6);
 
-            String endpoint = "tcp -p " + app.getTestPort(2);
+            String endpoint = "tcp -p " + helper.getTestPort(2);
 
             Ice.Properties anyipv4 = ipv4._clone();
             anyipv4.setProperty("Adapter.Endpoints", endpoint);
@@ -937,68 +936,66 @@ public class AllTests
             boolean ipv6NotSupported = false;
             for(Ice.Properties p : serverProps)
             {
-                Ice.InitializationData serverInitData = app.createInitializationData();
-                serverInitData.properties = p;
-                Ice.Communicator serverCommunicator = app.initialize(serverInitData);
-                Ice.ObjectAdapter oa;
-                try
+                try(Ice.Communicator serverCommunicator = helper.initialize(p))
                 {
-                    oa = serverCommunicator.createObjectAdapter("Adapter");
-                    oa.activate();
-                }
-                catch(Ice.DNSException ex)
-                {
-                    serverCommunicator.destroy();
-                    continue; // IP version not supported.
-                }
-                catch(Ice.SocketException ex)
-                {
-                    if(p == ipv6)
-                    {
-                        ipv6NotSupported = true;
-                    }
-                    serverCommunicator.destroy();
-                    continue; // IP version not supported.
-                }
-
-                String strPrx = oa.createProxy(Ice.Util.stringToIdentity("dummy")).toString();
-                for(Ice.Properties q : clientProps)
-                {
-                    Ice.InitializationData clientInitData = app.createInitializationData();
-                    clientInitData.properties = q;
-                    Ice.Communicator clientCommunicator = app.initialize(clientInitData);
-                    Ice.ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);
+                    Ice.ObjectAdapter oa;
                     try
                     {
-                        prx.ice_ping();
-                        test(false);
-                    }
-                    catch(Ice.ObjectNotExistException ex)
-                    {
-                        // Expected, no object registered.
+                        oa = serverCommunicator.createObjectAdapter("Adapter");
+                        oa.activate();
                     }
                     catch(Ice.DNSException ex)
                     {
-                        // Expected if no IPv4 or IPv6 address is
-                        // associated to localhost or if trying to connect
-                        // to an any endpoint with the wrong IP version,
-                        // e.g.: resolving an IPv4 address when only IPv6
-                        // is enabled fails with a DNS exception.
+                        serverCommunicator.destroy();
+                        continue; // IP version not supported.
                     }
                     catch(Ice.SocketException ex)
                     {
-                        test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
-                             (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
-                             (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
-                             (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
-                             (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4) ||
-                             (p == ipv6 && q == bothPreferIPv4) || (p == bothPreferIPv6 && q == ipv6) ||
-                             (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
-                             (p == bothPreferIPv6 && q == ipv6));
+                        if(p == ipv6)
+                        {
+                            ipv6NotSupported = true;
+                        }
+                        serverCommunicator.destroy();
+                        continue; // IP version not supported.
                     }
-                    clientCommunicator.destroy();
+
+                    String strPrx = oa.createProxy(Ice.Util.stringToIdentity("dummy")).toString();
+                    for(Ice.Properties q : clientProps)
+                    {
+                        try(Ice.Communicator clientCommunicator = helper.initialize(q))
+                        {
+                            Ice.ObjectPrx prx = clientCommunicator.stringToProxy(strPrx);
+                            try
+                            {
+                                prx.ice_ping();
+                                test(false);
+                            }
+                            catch(Ice.ObjectNotExistException ex)
+                            {
+                                // Expected, no object registered.
+                            }
+                            catch(Ice.DNSException ex)
+                            {
+                                // Expected if no IPv4 or IPv6 address is
+                                // associated to localhost or if trying to connect
+                                // to an any endpoint with the wrong IP version,
+                                // e.g.: resolving an IPv4 address when only IPv6
+                                // is enabled fails with a DNS exception.
+                            }
+                            catch(Ice.SocketException ex)
+                            {
+                                test((p == ipv4 && q == ipv6) || (p == ipv6 && q == ipv4) ||
+                                     (p == bothPreferIPv4 && q == ipv6) || (p == bothPreferIPv6 && q == ipv4) ||
+                                     (p == bothPreferIPv6 && q == ipv6 && ipv6NotSupported) ||
+                                     (p == anyipv4 && q == ipv6) || (p == anyipv6 && q == ipv4) ||
+                                     (p == localipv4 && q == ipv6) || (p == localipv6 && q == ipv4) ||
+                                     (p == ipv6 && q == bothPreferIPv4) || (p == bothPreferIPv6 && q == ipv6) ||
+                                     (p == ipv6 && q == bothPreferIPv4) || (p == ipv6 && q == bothPreferIPv6) ||
+                                     (p == bothPreferIPv6 && q == ipv6));
+                            }
+                        }
+                    }
                 }
-                serverCommunicator.destroy();
             }
 
             out.println("ok");

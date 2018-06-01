@@ -9,35 +9,21 @@
 
 package test.Ice.slicing.exceptions;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.Object object = new TestI();
-        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("Test"));
-        adapter.activate();
-        return WAIT;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.slicing.exceptions.server");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("TestAdapter.Endpoints",
-                                          getTestEndpoint(initData.properties, 0) + " -t 2000");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.slicing.exceptions.server");
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 2000");
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("Test"));
+            adapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

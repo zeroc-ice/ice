@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <BlobjectI.h>
 #include <Test.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 
@@ -135,7 +135,7 @@ BlobjectArrayAsyncI::ice_invokeAsync(pair<const Ice::Byte*, const Ice::Byte*> in
 #else
 void
 BlobjectAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, const vector<Ice::Byte>& inEncaps,
-                                const Ice::Current& current)
+                                 const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     vector<Ice::Byte> outEncaps;
@@ -145,8 +145,8 @@ BlobjectAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb, const 
 
 void
 BlobjectArrayAsyncI::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& cb,
-                                     const pair<const Ice::Byte*, const Ice::Byte*>& inEncaps,
-                                     const Ice::Current& current)
+                                      const pair<const Ice::Byte*, const Ice::Byte*>& inEncaps,
+                                      const Ice::Current& current)
 {
     Ice::InputStream in(current.adapter->getCommunicator(), current.encoding, inEncaps);
     vector<Ice::Byte> outEncaps;

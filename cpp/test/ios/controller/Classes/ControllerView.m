@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-#import "ViewController.h"
+#import "ControllerView.h"
 
 #include <ifaddrs.h>
 #include <arpa/inet.h>
 #include <net/if.h>
 
-@implementation ViewController
+@implementation ControllerView
 
 - (void)viewDidLoad
 {
@@ -123,7 +123,7 @@
     [output scrollRangeToVisible:NSMakeRange([output.text length] - 1, 1)];
 }
 
-#pragma mark ViewController
+#pragma mark ControllerView
 
 -(void) print:(NSString*)msg
 {

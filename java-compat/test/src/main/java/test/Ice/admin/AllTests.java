@@ -100,9 +100,9 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        PrintWriter out = app.getWriter();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing communicator operations... ");
         out.flush();
@@ -110,81 +110,84 @@ public class AllTests
             //
             // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
             //
-            Ice.InitializationData init = app.createInitializationData();
+            Ice.InitializationData init = new Ice.InitializationData();
             init.properties = Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-            Ice.Communicator com = Ice.Util.initialize(init);
-            testFacets(com, true);
-            com.destroy();
+            try(Ice.Communicator com = Ice.Util.initialize(init))
+            {
+                testFacets(com, true);
+            }
         }
         {
             //
             // Test: Verify that the operations work correctly in the presence of facet filters.
             //
-            Ice.InitializationData init = app.createInitializationData();
+            Ice.InitializationData init = new Ice.InitializationData();
             init.properties = Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
-            Ice.Communicator com = Ice.Util.initialize(init);
-            testFacets(com, false);
-            com.destroy();
+            try(Ice.Communicator com = Ice.Util.initialize(init))
+            {
+                testFacets(com, false);
+            }
         }
         {
             //
             // Test: Verify that the operations work correctly with the Admin object disabled.
             //
-            Ice.Communicator com = Ice.Util.initialize();
-            testFacets(com, false);
-            com.destroy();
+            try(Ice.Communicator com = Ice.Util.initialize())
+            {
+                testFacets(com, false);
+            }
         }
         {
             //
             // Test: Verify that the operations work correctly when Ice.Admin.Enabled is set
             //
-            Ice.InitializationData init = app.createInitializationData();
+            Ice.InitializationData init = new Ice.InitializationData();
             init.properties = Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Enabled", "1");
-            Ice.Communicator com = Ice.Util.initialize(init);
-
-            test(com.getAdmin() == null);
-            Ice.Identity id = Ice.Util.stringToIdentity("test-admin");
-            try
+            try(Ice.Communicator com = Ice.Util.initialize(init))
             {
-                com.createAdmin(null, id);
-                test(false);
+                test(com.getAdmin() == null);
+                Ice.Identity id = Ice.Util.stringToIdentity("test-admin");
+                try
+                {
+                    com.createAdmin(null, id);
+                    test(false);
+                }
+                catch(Ice.InitializationException ex)
+                {
+                }
+                Ice.ObjectAdapter adapter = com.createObjectAdapter("");
+                test(com.createAdmin(adapter, id) != null);
+                test(com.getAdmin() != null);
+                testFacets(com, true);
             }
-            catch(Ice.InitializationException ex)
-            {
-            }
-
-            Ice.ObjectAdapter adapter = com.createObjectAdapter("");
-            test(com.createAdmin(adapter, id) != null);
-            test(com.getAdmin() != null);
-            testFacets(com, true);
-            com.destroy();
         }
         {
             //
             // Test: Verify that the operations work correctly when creation of the Admin object is delayed.
             //
-            Ice.InitializationData init = app.createInitializationData();
+            Ice.InitializationData init = new Ice.InitializationData();
             init.properties = Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.DelayCreation", "1");
-            Ice.Communicator com = Ice.Util.initialize(init);
-            testFacets(com, true);
-            com.getAdmin();
-            testFacets(com, true);
-            com.destroy();
+            try(Ice.Communicator com = Ice.Util.initialize(init))
+            {
+                testFacets(com, true);
+                com.getAdmin();
+                testFacets(com, true);
+            }
         }
         out.println("ok");
 
-        String ref = "factory:" + app.getTestEndpoint(0) + " -t 10000";
+        String ref = "factory:" + helper.getTestEndpoint(0) + " -t 10000";
         RemoteCommunicatorFactoryPrx factory =
-            RemoteCommunicatorFactoryPrxHelper.uncheckedCast(app.communicator().stringToProxy(ref));
+            RemoteCommunicatorFactoryPrxHelper.uncheckedCast(helper.communicator().stringToProxy(ref));
 
         out.print("testing process facet... ");
         out.flush();
@@ -352,7 +355,7 @@ public class AllTests
             // Now, test RemoteLogger
             //
             Ice.ObjectAdapter adapter =
-                app.communicator().createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
+                helper.communicator().createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
 
             RemoteLoggerI remoteLogger = new RemoteLoggerI();
 

@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <Ice/Router.h>
 #include <IceUtil/IceUtil.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <list>
 
@@ -60,8 +60,9 @@ public:
 typedef IceUtil::Handle<AMICallback> AMICallbackPtr;
 
 void
-allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
+allTests(Test::TestHelper* helper, const string& ref)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     ServerManagerPrxPtr manager = ICE_CHECKED_CAST(ServerManagerPrx, communicator->stringToProxy(ref));
     TestLocatorPrxPtr locator = ICE_UNCHECKED_CAST(TestLocatorPrx, communicator->getDefaultLocator());
     test(manager);

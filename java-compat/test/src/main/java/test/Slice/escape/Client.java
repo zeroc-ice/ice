@@ -30,7 +30,7 @@ import test.Slice.escape._abstract.finalizePrx;
 import test.Slice.escape._abstract.forHolder;
 import test.Slice.escape._abstract.gotoHolder;
 
-public class Client
+public class Client extends test.TestHelper
 {
     static public class catchI extends _catchDisp
     {
@@ -149,65 +149,37 @@ public class Client
         assert _switch.value == 0;
     }
 
-    private static int
-    run(String[] args, Ice.Communicator communicator)
+    public void
+    run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new defaultI(), Ice.Util.stringToIdentity("test"));
-        adapter.activate();
+        //
+        // In this test, we need at least two threads in the
+        // client side thread pool for nested AMI.
+        //
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package._abstract", "test.Slice.escape");
+        properties.setProperty("Ice.ThreadPool.Client.Size", "2");
+        properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+        properties.setProperty("TestAdapter.Endpoints", "default");
 
-        System.out.print("Testing operation name... ");
-        System.out.flush();
-        defaultPrx p = defaultPrxHelper.uncheckedCast(
-            adapter.createProxy(Ice.Util.stringToIdentity("test")));
-        p._do();
-        System.out.println("ok");
+        //
+        // We must set MessageSizeMax to an explicit values,
+        // because we run tests to check whether
+        // Ice.MemoryLimitException is raised as expected.
+        //
+        properties.setProperty("Ice.MessageSizeMax", "100");
 
-        return 0;
-    }
-
-    public static void
-    main(String[] args)
-    {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
+        try(Ice.Communicator communicator = initialize(properties))
         {
-            //
-            // In this test, we need at least two threads in the
-            // client side thread pool for nested AMI.
-            //
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(argsH);
-            initData.properties.setProperty("Ice.Package._abstract", "test.Slice.escape");
-            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-            initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-            initData.properties.setProperty("TestAdapter.Endpoints", "default");
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new defaultI(), Ice.Util.stringToIdentity("test"));
+            adapter.activate();
 
-            //
-            // We must set MessageSizeMax to an explicit values,
-            // because we run tests to check whether
-            // Ice.MemoryLimitException is raised as expected.
-            //
-            initData.properties.setProperty("Ice.MessageSizeMax", "100");
-
-            communicator = Ice.Util.initialize(argsH, initData);
-            status = run(argsH.value, communicator);
+            System.out.print("Testing operation name... ");
+            System.out.flush();
+            defaultPrx p = defaultPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
+            p._do();
+            System.out.println("ok");
         }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            communicator.destroy();
-        }
-
-        System.gc();
-        System.exit(status);
     }
 }

@@ -14,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     public class PingReplyI : Test.PingReplyDisp_
     {
@@ -743,15 +743,15 @@ public class AllTests : TestCommon.AllTests
         ThrowType _t;
     }
 
-    public static void allTests(TestCommon.Application app, bool collocated)
+    public static void allTests(Test.TestHelper helper, bool collocated)
     {
-        Ice.Communicator communicator = app.communicator();
-        string sref = "test:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        string sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.uncheckedCast(obj);
-        sref = "testController:" + app.getTestEndpoint(1);
+        sref = "testController:" + helper.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -3860,7 +3860,7 @@ public class AllTests : TestCommon.AllTests
         Flush();
         {
             var q = Test.Outer.Inner.TestIntfPrxHelper.uncheckedCast(
-                communicator.stringToProxy("test2:" + app.getTestEndpoint(0)));
+                communicator.stringToProxy("test2:" + helper.getTestEndpoint(0)));
             q.opAsync(1).ContinueWith(t =>
                 {
                     var r = t.Result;

@@ -8,44 +8,29 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <fstream>
 
 using namespace std;
 
-namespace
-{
-
-class Client : public Ice::Application
+class Client1 : public Test::TestHelper
 {
 public:
-    virtual int
-    run(int, char*[])
-    {
-        communicator()->getLogger()->trace("info", "XXX");
-        return EXIT_SUCCESS;
-    };
+
+    void run(int, char**);
 };
 
-}
-
-int
-main(int argc, char* argv[])
+void
+Client1::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-
     cout << "testing logger encoding with Ice.LogFile... " << flush;
-    Ice::InitializationData id;
-    id.properties = Ice::createProperties();
-    id.properties->load("config.client");
-    id.properties->setProperty("Ice.LogFile", "log.txt");
-    const string programName = id.properties->getProperty("Ice.ProgramName");
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->load("config.client");
+    properties->setProperty("Ice.LogFile", "log.txt");
+    const string programName = properties->getProperty("Ice.ProgramName");
 
-    Client c;
-    c.main(argc, argv, id);
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    communicator->getLogger()->trace("info", "XXX");
 
     ifstream in("log.txt");
     if(!in)
@@ -61,5 +46,6 @@ main(int argc, char* argv[])
     in.close();
     remove("log.txt");
     cout << "ok" << endl;
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client1)

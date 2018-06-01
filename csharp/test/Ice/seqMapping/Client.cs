@@ -17,22 +17,22 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        Test.MyClassPrx myClass = AllTests.allTests(this, false);
-
-        Console.Out.Write("shutting down server... ");
-        Console.Out.Flush();
-        myClass.shutdown();
-        Console.Out.WriteLine("ok");
-        return 0;
+        using(var communicator = initialize(ref args))
+        {
+            Test.MyClassPrx myClass = AllTests.allTests(this, false);
+            Console.Out.Write("shutting down server... ");
+            Console.Out.Flush();
+            myClass.shutdown();
+            Console.Out.WriteLine("ok");
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

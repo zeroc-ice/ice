@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <fstream>
 
 using namespace std;
@@ -18,9 +18,10 @@ namespace
 
 string configPath;
 
-class Client : public Ice::Application
+class TestApplication : public Ice::Application
 {
 public:
+
     virtual int
     run(int, char*[])
     {
@@ -31,19 +32,21 @@ public:
         test(properties->getProperty("Ice.ProgramName") == "PropertiesClient");
         test(appName() == properties->getProperty("Ice.ProgramName"));
         return EXIT_SUCCESS;
-    };
+    }
 };
 
 }
 
-int
-main(int argc, char* argv[])
+class Client : public Test::TestHelper
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
+public:
 
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
     ifstream in("./config/configPath");
     if(!in)
     {
@@ -54,7 +57,7 @@ main(int argc, char* argv[])
     {
         test(false);
     }
-    try
+
     {
         cout << "testing load properties from UTF-8 path... " << flush;
         Ice::PropertiesPtr properties = Ice::createProperties();
@@ -65,22 +68,15 @@ main(int argc, char* argv[])
         test(properties->getProperty("Ice.ProgramName") == "PropertiesClient");
         cout << "ok" << endl;
     }
-    catch(const Ice::Exception& ex)
+
     {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
+        cout << "testing load properties from UTF-8 path using Ice::Application... " << flush;
+        TestApplication app;
+        app.main(argc, argv, configPath.c_str());
+        cout << "ok" << endl;
     }
 
-    cout << "testing load properties from UTF-8 path using Ice::Application... " << flush;
-    Client c;
-    c.main(argc, argv, configPath.c_str());
-    cout << "ok" << endl;
-
-    try
     {
-        //
-        // Try to load multiple config files.
-        //
         cout << "testing using Ice.Config with multiple config files... " << flush;
         Ice::PropertiesPtr properties;
         Ice::StringSeq args;
@@ -91,13 +87,7 @@ main(int argc, char* argv[])
         test(properties->getProperty("Config3") == "Config3");
         cout << "ok" << endl;
     }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
 
-    try
     {
         cout << "testing configuration file escapes... " << flush;
         Ice::PropertiesPtr properties;
@@ -105,42 +95,37 @@ main(int argc, char* argv[])
         args.push_back("--Ice.Config=config/escapes.cfg");
         properties = Ice::createProperties(args);
 
-        string props[] = { "Foo\tBar", "3",
-                           "Foo\\tBar", "4",
-                           "Escape\\ Space", "2",
-                           "Prop1", "1",
-                           "Prop2", "2",
-                           "Prop3", "3",
-                           "My Prop1", "1",
-                           "My Prop2", "2",
-                           "My.Prop1", "a property",
-                           "My.Prop2", "a     property",
-                           "My.Prop3", "  a     property  ",
-                           "My.Prop4", "  a     property  ",
-                           "My.Prop5", "a \\ property",
-                           "foo=bar", "1",
-                           "foo#bar", "2",
-                           "foo bar", "3",
-                           "A", "1",
-                           "B", "2 3 4",
-                           "C", "5=#6",
-                           "AServer", "\\\\server\\dir",
-                           "BServer", "\\server\\dir",
-                           ""
-        } ;
+        string props[] = {
+            "Foo\tBar", "3",
+            "Foo\\tBar", "4",
+            "Escape\\ Space", "2",
+            "Prop1", "1",
+            "Prop2", "2",
+            "Prop3", "3",
+            "My Prop1", "1",
+            "My Prop2", "2",
+            "My.Prop1", "a property",
+            "My.Prop2", "a     property",
+            "My.Prop3", "  a     property  ",
+            "My.Prop4", "  a     property  ",
+            "My.Prop5", "a \\ property",
+            "foo=bar", "1",
+            "foo#bar", "2",
+            "foo bar", "3",
+            "A", "1",
+            "B", "2 3 4",
+            "C", "5=#6",
+            "AServer", "\\\\server\\dir",
+            "BServer", "\\server\\dir",
+            ""
+        };
 
         for(size_t i = 0; props[i] != ""; i += 2)
         {
             test(properties->getProperty(props[i]) == props[i + 1]);
         }
-
         cout << "ok" << endl;
     }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client)

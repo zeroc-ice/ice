@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private static string getAdapterNameWithAMI(TestIntfPrx testIntf)
     {
@@ -89,10 +89,10 @@ public class AllTests : TestCommon.AllTests
         }
     };
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        string @ref = "communicator:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        string @ref = "communicator:" + helper.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         System.Random rand = new System.Random(unchecked((int)System.DateTime.Now.Ticks));
@@ -836,7 +836,7 @@ public class AllTests : TestCommon.AllTests
             clientProps.Add(bothPreferIPv4);
             clientProps.Add(bothPreferIPv6);
 
-            string endpoint = "tcp -p " + app.getTestPort(2).ToString();
+            string endpoint = "tcp -p " + helper.getTestPort(2).ToString();
 
             Ice.Properties anyipv4 = ipv4.ice_clone_();
             anyipv4.setProperty("Adapter.Endpoints", endpoint);

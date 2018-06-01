@@ -11,7 +11,7 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <CallbackI.h>
 
 using namespace std;
@@ -82,7 +82,8 @@ public:
     void run()
     {
         CommunicatorPtr communicator = initialize(initData);
-        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator, 50));
+        ObjectPrx routerBase = communicator->stringToProxy(
+            "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
         Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
         communicator->setDefaultRouter(router);
 
@@ -109,7 +110,8 @@ public:
         ident.category = category;
         CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
 
-        ObjectPrx base = communicator->stringToProxy("c1/callback:" + getTestEndpoint(communicator, 0));
+        ObjectPrx base = communicator->stringToProxy(
+            "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
         base = base->ice_oneway();
         CallbackPrx callback = CallbackPrx::uncheckedCast(base);
 
@@ -188,7 +190,8 @@ public:
     void run()
     {
         CommunicatorPtr communicator = initialize(initData);
-        ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator, 50));
+        ObjectPrx routerBase = communicator->stringToProxy(
+            "Glacier2/router:" + TestHelper::getTestEndpoint(communicator->getProperties(), 50));
         _router = Glacier2::RouterPrx::checkedCast(routerBase);
         communicator->setDefaultRouter(_router);
 
@@ -206,7 +209,8 @@ public:
         ident.category = category;
         CallbackReceiverPrx receiver = CallbackReceiverPrx::uncheckedCast(adapter->add(_callbackReceiver, ident));
 
-        ObjectPrx base = communicator->stringToProxy("c1/callback:" + getTestEndpoint(communicator, 0));
+        ObjectPrx base = communicator->stringToProxy(
+            "c1/callback:" + TestHelper::getTestEndpoint(communicator->getProperties()));
         base = base->ice_oneway();
         CallbackPrx callback = CallbackPrx::uncheckedCast(base);
 
@@ -408,36 +412,29 @@ public:
     }
 };
 
-class CallbackClient : public Application
+class CallbackClient : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+CallbackClient::run(int argc, char** argv)
 {
     //
     // We must disable connection warnings, because we attempt to ping
     // the router before session establishment, as well as after
     // session destruction. Both will cause a ConnectionLostException.
     //
-    initData = getTestInitData(argc, argv);
+    initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
 
-    CallbackClient app;
-    return app.main(argc, argv, initData);
-}
-
-int
-CallbackClient::run(int argc, char* argv[])
-{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
     ObjectPrx routerBase;
-
     {
         cout << "testing stringToProxy for router... " << flush;
-        routerBase = communicator()->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator(), 50));
+        routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
         cout << "ok" << endl;
     }
 
@@ -453,15 +450,14 @@ CallbackClient::run(int argc, char* argv[])
     {
         cout << "testing router finder... " << flush;
         Ice::RouterFinderPrx finder =
-            RouterFinderPrx::uncheckedCast(communicator()->stringToProxy("Ice/RouterFinder:" +
-                                                                         getTestEndpoint(communicator(), 50)));
+            RouterFinderPrx::uncheckedCast(communicator->stringToProxy("Ice/RouterFinder:" + getTestEndpoint(50)));
         test(finder->getRouter()->ice_getIdentity() == router->ice_getIdentity());
         cout << "ok" << endl;
     }
 
     {
         cout << "installing router with communicator... " << flush;
-        communicator()->setDefaultRouter(router);
+        communicator->setDefaultRouter(router);
         cout << "ok" << endl;
     }
 
@@ -476,7 +472,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
         cout << "testing stringToProxy for server object... " << flush;
-        base = communicator()->stringToProxy("c1/callback:" + getTestEndpoint(communicator(), 0));
+        base = communicator->stringToProxy("c1/callback:" + getTestEndpoint());
         cout << "ok" << endl;
     }
 
@@ -556,7 +552,7 @@ CallbackClient::run(int argc, char* argv[])
 
     {
         cout << "pinging object with client endpoint... " << flush;
-        Ice::ObjectPrx baseC = communicator()->stringToProxy("collocated:" + getTestEndpoint(communicator(), 50));
+        Ice::ObjectPrx baseC = communicator->stringToProxy("collocated:" + getTestEndpoint(50));
         try
         {
             baseC->ice_ping();
@@ -580,8 +576,8 @@ CallbackClient::run(int argc, char* argv[])
 
     {
         cout << "creating and activating callback receiver adapter with router... " << flush;
-        communicator()->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
-        adapter = communicator()->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+        communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
+        adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
         adapter->activate();
         cout << "ok" << endl;
     }
@@ -910,7 +906,7 @@ CallbackClient::run(int argc, char* argv[])
     {
         {
             cout << "uninstalling router with communicator... " << flush;
-            communicator()->setDefaultRouter(0);
+            communicator->setDefaultRouter(0);
             cout << "ok" << endl;
         }
 
@@ -918,8 +914,7 @@ CallbackClient::run(int argc, char* argv[])
 
         {
             cout << "testing stringToProxy for admin process facet... " << flush;
-            processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                        getTestEndpoint(communicator(), 51));
+            processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
             cout << "ok" << endl;
         }
 
@@ -944,6 +939,6 @@ CallbackClient::run(int argc, char* argv[])
             cout << "ok" << endl;
         }
     }
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(CallbackClient)

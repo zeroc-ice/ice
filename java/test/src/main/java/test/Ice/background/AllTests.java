@@ -161,18 +161,18 @@ public class AllTests
         private BackgroundPrx _background = null;
     }
 
-    public static BackgroundPrx allTests(Configuration configuration, test.Util.Application app)
+    public static BackgroundPrx allTests(Configuration configuration, test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        String sref = "background:" + app.getTestEndpoint(0);
+        String sref = "background:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         BackgroundPrx background = BackgroundPrx.uncheckedCast(obj);
 
-        sref = "backgroundController:" + app.getTestEndpoint(1, "tcp");
+        sref = "backgroundController:" + helper.getTestEndpoint(1, "tcp");
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -210,7 +210,7 @@ public class AllTests
         out.flush();
         {
             com.zeroc.Ice.LocatorPrx locator;
-            obj = communicator.stringToProxy("locator:" + app.getTestEndpoint(0)).ice_invocationTimeout(250);
+            obj = communicator.stringToProxy("locator:" + helper.getTestEndpoint(0)).ice_invocationTimeout(250);
             locator = com.zeroc.Ice.LocatorPrx.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_locator(locator).ice_oneway();
 
@@ -225,7 +225,7 @@ public class AllTests
             }
             backgroundController.resumeCall("findAdapterById");
 
-            obj = communicator.stringToProxy("locator:" + app.getTestEndpoint(0));
+            obj = communicator.stringToProxy("locator:" + helper.getTestEndpoint(0));
             locator = com.zeroc.Ice.LocatorPrx.uncheckedCast(obj);
             obj = obj.ice_locator(locator);
             obj.ice_ping();
@@ -251,7 +251,7 @@ public class AllTests
         {
             com.zeroc.Ice.RouterPrx router;
 
-            obj = communicator.stringToProxy("router:" + app.getTestEndpoint(0)).ice_invocationTimeout(250);
+            obj = communicator.stringToProxy("router:" + helper.getTestEndpoint(0)).ice_invocationTimeout(250);
             router = com.zeroc.Ice.RouterPrx.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router).ice_oneway();
 
@@ -266,7 +266,7 @@ public class AllTests
             }
             backgroundController.resumeCall("getClientProxy");
 
-            obj = communicator.stringToProxy("router:" + app.getTestEndpoint(0));
+            obj = communicator.stringToProxy("router:" + helper.getTestEndpoint(0));
             router = com.zeroc.Ice.RouterPrx.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router);
             BackgroundPrx bg = BackgroundPrx.uncheckedCast(obj);

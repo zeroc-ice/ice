@@ -11,7 +11,7 @@
 
 #include "App.g.h"
 
-namespace Controller
+namespace Test
 {
 /// <summary>
 /// Provides application-specific behavior to supplement the default Application class.

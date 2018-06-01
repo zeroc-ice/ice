@@ -8,81 +8,66 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
-
-DEFINE_TEST("server")
 
 using namespace std;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class Server : public Test::TestHelper
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
+public:
+
+    void run(int, char**);
+};
+
+void
+Server::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.UDP.SndSize", "16384");
+    properties->setProperty("Ice.UDP.RcvSize", "16384");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
     int num = argc == 2 ? atoi(argv[1]) : 0;
 
-    properties->setProperty("ControlAdapter.Endpoints", getTestEndpoint(communicator, num, "tcp"));
+    communicator->getProperties()->setProperty("ControlAdapter.Endpoints", getTestEndpoint(num, "tcp"));
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("ControlAdapter");
     adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("control"));
     adapter->activate();
 
     if(num == 0)
     {
-        properties->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, num, "udp"));
+        communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(num, "udp"));
         Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter");
         adapter2->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
         adapter2->activate();
     }
 
     ostringstream endpoint;
-    if(properties->getProperty("Ice.IPv6") == "1")
+    if(communicator->getProperties()->getProperty("Ice.IPv6") == "1")
     {
-        endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(properties, 10);
+        endpoint << "udp -h \"ff15::1:1\" -p " << getTestPort(10);
 #if defined(__APPLE__) || defined(_WIN32)
         endpoint << " --interface \"::1\""; // Use loopback to prevent other machines to answer.
 #endif
     }
     else
     {
-        endpoint << "udp -h 239.255.1.1 -p " << getTestPort(properties, 10);
+        endpoint << "udp -h 239.255.1.1 -p " << getTestPort(10);
 #if defined(__APPLE__) || defined(_WIN32)
         endpoint << " --interface 127.0.0.1"; // Use loopback to prevent other machines to answer.
 #endif
     }
-    properties->setProperty("McastTestAdapter.Endpoints", endpoint.str());
+    communicator->getProperties()->setProperty("McastTestAdapter.Endpoints", endpoint.str());
     Ice::ObjectAdapterPtr mcastAdapter = communicator->createObjectAdapter("McastTestAdapter");
     mcastAdapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
     mcastAdapter->activate();
 
-    TEST_READY
+    serverReady();
 
     communicator->waitForShutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-    Ice::registerIceUDP(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-        initData.properties->setProperty("Ice.UDP.SndSize", "16384");
-        initData.properties->setProperty("Ice.UDP.RcvSize", "16384");
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Server)

@@ -9,41 +9,29 @@
 
 package test.Ice.ami;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.ami");
+        properties.setProperty("Ice.Warn.AMICallback", "0");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-        adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("test"));
-        adapter.add(new TestII(), com.zeroc.Ice.Util.stringToIdentity("test2"));
-        //adapter.activate(); // Collocated test doesn't need to activate the OA
-        adapter2.add(new TestControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("testController"));
-        //adapter2.activate(); // Collocated test doesn't need to activate the OA
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            com.zeroc.Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
 
-        AllTests.allTests(this, true);
-        return 0;
-    }
+            adapter.add(new TestI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+            adapter.add(new TestII(), com.zeroc.Ice.Util.stringToIdentity("test2"));
+            //adapter.activate(); // Collocated test doesn't need to activate the OA
+            adapter2.add(new TestControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("testController"));
+            //adapter2.activate(); // Collocated test doesn't need to activate the OA
 
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1));
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-        initData.properties.setProperty("Ice.Warn.AMICallback", "0");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Collocated app = new Collocated();
-        int result = app.main("Collocated", args);
-        System.gc();
-        System.exit(result);
+            AllTests.allTests(this, true);
+        }
     }
 }

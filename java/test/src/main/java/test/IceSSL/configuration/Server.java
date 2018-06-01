@@ -9,41 +9,27 @@
 
 package test.IceSSL.configuration;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        if(args.length < 1)
+        java.util.List<String> rargs = new java.util.ArrayList<String>();
+        com.zeroc.Ice.Properties properties = createTestProperties(args, rargs);
+        if(rargs.size() < 1)
         {
-            System.out.println("Usage: server testdir");
-            return 1;
+            throw new RuntimeException("Usage: server testdir");
         }
-        com.zeroc.Ice.Communicator communicator = communicator();
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("factory");
-        adapter.add(new ServerFactoryI(args[0] + "/../certs"), id);
-        adapter.activate();
 
-        communicator.waitForShutdown();
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
+        properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0, "tcp"));
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("factory");
+            adapter.add(new ServerFactoryI(rargs.get(0) + "/../certs"), id);
+            adapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

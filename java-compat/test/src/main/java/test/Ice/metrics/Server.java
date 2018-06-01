@@ -9,44 +9,32 @@
 
 package test.Ice.metrics;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
-        adapter.activate();
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.retry");
+        properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        properties.setProperty("Ice.Admin.InstanceName", "server");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        properties.setProperty("Ice.MessageSizeMax", "50000");
+        properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
+            adapter.activate();
 
-        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-        Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-        controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
-        controllerAdapter.activate();
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+            controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
+            controllerAdapter.activate();
 
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        initData.properties.setProperty("Ice.Admin.InstanceName", "server");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

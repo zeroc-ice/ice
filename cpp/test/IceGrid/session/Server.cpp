@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceSSL/Plugin.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -53,25 +53,25 @@ public:
     }
 };
 
-class Server : public Ice::Application
+class Server : public Test::TestHelper
 {
 public:
 
-    virtual int run(int argc, char* argv[]);
+    void run(int, char**);
 };
 
-int
-Server::run(int, char**)
+void
+Server::run(int argc, char** argv)
 {
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("Server");
-    if(communicator()->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("Server");
+    if(communicator->getProperties()->getPropertyAsInt("AddPermissionsVerifiers") > 0)
     {
         adapter->add(new ClientPermissionsVerifierI(), Ice::stringToIdentity("ClientPermissionsVerifier"));
         adapter->add(new SSLPermissionsVerifierI(), Ice::stringToIdentity("SSLPermissionsVerifier"));
     }
     adapter->activate();
 
-    shutdownOnInterrupt();
     try
     {
         adapter->activate();
@@ -79,15 +79,7 @@ Server::run(int, char**)
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-    communicator()->waitForShutdown();
-    ignoreInterrupt();
-    return EXIT_SUCCESS;
+    communicator->waitForShutdown();
 }
 
-int
-main(int argc, char* argv[])
-{
-    Server app;
-    int rc = app.main(argc, argv);
-    return rc;
-}
+DEFINE_TEST(Server)

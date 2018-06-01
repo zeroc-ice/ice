@@ -9,37 +9,22 @@
 
 package test.IceBox.configuration;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        AllTests.allTests(this);
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.IceBox.configuration");
+        properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        //
-        // Shutdown the IceBox server.
-        //
-        Ice.ProcessPrxHelper.uncheckedCast(communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))
-                .shutdown();
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.IceBox.configuration");
-        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            AllTests.allTests(this);
+            //
+            // Shutdown the IceBox server.
+            //
+            Ice.ObjectPrx prx = communicator.stringToProxy("DemoIceBox/admin -f Process:default -p 9996");
+            Ice.ProcessPrxHelper.uncheckedCast(prx).shutdown();
+        }
     }
 }

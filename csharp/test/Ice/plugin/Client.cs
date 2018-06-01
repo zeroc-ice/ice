@@ -17,17 +17,14 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : Test.TestHelper
 {
-    private static void test(bool b)
+    public static int Main(string[] args)
     {
-        if(!b)
-        {
-            throw new Exception();
-        }
+        return Test.TestDriver.runTest<Client>(args);
     }
 
-    public static int Main(string[] args)
+    public override void run(string[] args)
     {
 #if NET45
         string pluginPath = "msbuild/plugin/net45/Plugin.dll";
@@ -36,125 +33,99 @@ public class Client
             String.Format("msbuild/plugin/netstandard2.0/{0}/Plugin.dll",
                           Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
 #endif
-        Ice.Communicator communicator = null;
-        Console.Write("testing a simple plug-in... ");
-        Console.Out.Flush();
-        try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.Test",
-                                            pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
-                                            "'C:\\Program Files\\Application\\db'");
-            communicator = Ice.Util.initialize(ref args, initData);
-            communicator.destroy();
+            Console.Write("testing a simple plug-in... ");
+            Console.Out.Flush();
+            Ice.Properties properties = Ice.Util.createProperties();
+            properties.setProperty("Ice.Plugin.Test",
+                pluginPath + ":PluginFactory 'C:\\Program Files\\' --DatabasePath " +
+                "'C:\\Program Files\\Application\\db'");
+            using(var communicator = initialize(properties))
+            {
+            }
+            Console.WriteLine("ok");
         }
-        catch(Ice.LocalException ex)
+
         {
-            Console.WriteLine(ex.ToString());;
-            test(false);
+            Console.Write("testing a simple plug-in that fails to initialize... ");
+            Console.Out.Flush();
+            try
+            {
+                Ice.Properties properties = Ice.Util.createProperties();
+                properties.setProperty("Ice.Plugin.Test", pluginPath + ":PluginInitializeFailFactory");
+                initialize(properties);
+                test(false);
+            }
+            catch(Ice.PluginInitializationException ex)
+            {
+                test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
+            }
+            Console.WriteLine("ok");
         }
-        Console.WriteLine("ok");
 
-        Console.Write("testing a simple plug-in that fails to initialize... ");
-        Console.Out.Flush();
-        communicator = null;
-        try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.Test", pluginPath + ":PluginInitializeFailFactory");
-            communicator = Ice.Util.initialize(ref args, initData);
-            test(false);
+            Console.Write("testing plug-in load order... ");
+            Console.Out.Flush();
+            Ice.Properties properties = Ice.Util.createProperties();
+            properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
+            properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
+            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
+            properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
+            using(var communicator = initialize(properties))
+            {
+            }
+            Console.WriteLine("ok");
         }
-        catch(Ice.PluginInitializationException ex)
+
         {
-            test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
-        }
-        test(communicator == null);
-        Console.WriteLine("ok");
+            Console.Write("testing plug-in manager... ");
+            Console.Out.Flush();
 
-        Console.Write("testing plug-in load order... ");
-        Console.Out.Flush();
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
-            initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            communicator = Ice.Util.initialize(ref args, initData);
-            communicator.destroy();
-        }
-        catch(Ice.LocalException ex)
-        {
-            Console.WriteLine(ex.ToString());;
-            test(false);
-        }
-        Console.WriteLine("ok");
+            Ice.Properties properties = Ice.Util.createProperties();
+            properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
+            properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
+            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
+            properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
+            properties.setProperty("Ice.InitPlugins", "0");
 
-        Console.Write("testing plug-in manager... ");
-        Console.Out.Flush();
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.PluginOne", pluginPath + ":PluginOneFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwo", pluginPath + ":PluginTwoFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThree", pluginPath + ":PluginThreeFactory");
-            initData.properties.setProperty("Ice.InitPlugins", "0");
-            communicator = Ice.Util.initialize(ref args, initData);
+            MyPlugin p4 = null;
+            using(var communicator = initialize(properties))
+            {
+                Ice.PluginManager pm = communicator.getPluginManager();
+                test(pm.getPlugin("PluginOne") != null);
+                test(pm.getPlugin("PluginTwo") != null);
+                test(pm.getPlugin("PluginThree") != null);
 
-            Ice.PluginManager pm = communicator.getPluginManager();
-            test(pm.getPlugin("PluginOne") != null);
-            test(pm.getPlugin("PluginTwo") != null);
-            test(pm.getPlugin("PluginThree") != null);
+                p4 = new MyPlugin();
+                pm.addPlugin("PluginFour", p4);
+                test(pm.getPlugin("PluginFour") != null);
 
-            MyPlugin p4 = new MyPlugin();
-            pm.addPlugin("PluginFour", p4);
-            test(pm.getPlugin("PluginFour") != null);
+                pm.initializePlugins();
 
-            pm.initializePlugins();
-
-            test(p4.isInitialized());
-
-            communicator.destroy();
-
+                test(p4.isInitialized());
+            }
             test(p4.isDestroyed());
+            Console.WriteLine("ok");
         }
-        catch(Ice.LocalException ex)
-        {
-            Console.WriteLine(ex.ToString());;
-            test(false);
-        }
-        Console.WriteLine("ok");
 
-        Console.Write("testing destroy when a plug-in fails to initialize... ");
-        Console.Out.Flush();
-        communicator = null;
-        try
         {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Plugin.PluginOneFail",
-                                            pluginPath + ":PluginOneFailFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwoFail",
-                                            pluginPath + ":PluginTwoFailFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThreeFail",
-                                            pluginPath + ":PluginThreeFailFactory");
-            initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
-            communicator = Ice.Util.initialize(ref args, initData);
+            Console.Write("testing destroy when a plug-in fails to initialize... ");
+            Console.Out.Flush();
+            try
+            {
+                Ice.Properties properties = Ice.Util.createProperties();
+                properties.setProperty("Ice.Plugin.PluginOneFail", pluginPath + ":PluginOneFailFactory");
+                properties.setProperty("Ice.Plugin.PluginTwoFail", pluginPath + ":PluginTwoFailFactory");
+                properties.setProperty("Ice.Plugin.PluginThreeFail", pluginPath + ":PluginThreeFailFactory");
+                properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
+                initialize(properties);
+            }
+            catch(Ice.PluginInitializationException ex)
+            {
+                test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
+            }
+            Console.WriteLine("ok");
         }
-        catch(Ice.PluginInitializationException ex)
-        {
-            test(ex.InnerException.Message.Equals("PluginInitializeFailException"));
-        }
-        test(communicator == null);
-        Console.WriteLine("ok");
-
-        return 0;
     }
 
     internal class MyPlugin : Ice.Plugin

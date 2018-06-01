@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -262,25 +262,18 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 }
 
-int
-run(const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    allTests(communicator);
+public:
 
-    return EXIT_SUCCESS;
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder ich = initialize(argc, argv);
+    allTests(ich.communicator());
 }
 
-int
-main(int argc, char* argv[])
-{
-    try
-    {
-        Ice::CommunicatorHolder ich(argc, argv);
-        return run(ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

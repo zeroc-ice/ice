@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 ICE_DECLSPEC_IMPORT void
 allTests(const Ice::ObjectAdapterPtr&);
@@ -17,28 +17,24 @@ allTests(const Ice::ObjectAdapterPtr&);
 #   pragma comment(lib, ICE_LIBNAME("alltests"))
 #endif
 
-DEFINE_TEST("client")
-
 using namespace std;
 
-int
-main(int argc, char* argv[])
+class Client : public Test::TestHelper
 {
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        Ice::CommunicatorHolder ich(argc, argv, initData);
+public:
 
-        // Collocated-only OA
-        Ice::ObjectAdapterPtr oa = ich->createObjectAdapter("");
+    void run(int, char**);
+};
 
-        oa->activate();
-        allTests(oa);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
-    return EXIT_SUCCESS;
+void
+Client::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    // Collocated-only OA
+    Ice::ObjectAdapterPtr oa = communicator->createObjectAdapter("");
+
+    oa->activate();
+    allTests(oa);
 }
+
+DEFINE_TEST(Client)

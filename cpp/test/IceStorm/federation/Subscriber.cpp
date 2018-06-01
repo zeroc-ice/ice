@@ -12,7 +12,7 @@
 #include <Event.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Ice;
@@ -23,27 +23,20 @@ class EventI : public Event
 {
 public:
 
-    EventI(const CommunicatorPtr& communicator) :
-        _communicator(communicator)
-    {
-    }
-
     virtual void
-    pub(const string&, const Ice::Current&)
+    pub(const string&, const Ice::Current& current)
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_countMutex);
 
         if(++_count == 30 + 40 + 30)
         {
-            _communicator->shutdown();
+            current.adapter->getCommunicator()->shutdown();
         }
     }
 
     static IceUtil::Mutex* _countMutex;
 
 private:
-
-    CommunicatorPtr _communicator;
 
     static int _count;
 };
@@ -83,13 +76,20 @@ usage(const char* appName)
     cerr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
-        "-b                   Use batch reliability.\n"
-        ;
+        "-b                   Use batch reliability.\n";
 }
 
-int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+class Subscriber : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Subscriber::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     bool batch = false;
 
     int idx = 1;
@@ -108,44 +108,40 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         else if(strcmp(argv[idx], "-h") == 0 || strcmp(argv[idx], "--help") == 0)
         {
             usage(argv[0]);
-            return EXIT_SUCCESS;
+            return;
         }
         else if(argv[idx][0] == '-')
         {
-            cerr << argv[0] << ": unknown option `" << argv[idx] << "'" << endl;
             usage(argv[0]);
-            return EXIT_FAILURE;
+            ostringstream os;
+            os << argv[0] <<": unknown option `" << argv[idx] << "'";
+            throw invalid_argument(os.str());
         }
     }
 
     PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
-    string managerProxy = properties->getProperty(managerProxyProperty);
+    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
-        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-        return EXIT_FAILURE;
+        throw runtime_error("property `IceStormAdmin.TopicManager.Default' is not set");
     }
 
     ObjectPrx base = communicator->stringToProxy(managerProxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": `" << managerProxy << "' is not running";
+        throw runtime_error(os.str());
     }
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SubscriberAdapter", "default");
-    EventIPtr eventFed1 = new EventI(communicator);
-    EventIPtr eventFed2 = new EventI(communicator);
-    EventIPtr eventFed3 = new EventI(communicator);
-
     //
     // Activate the servants.
     //
-    ObjectPrx objFed1 = adapter->addWithUUID(eventFed1);
-    ObjectPrx objFed2 = adapter->addWithUUID(eventFed2);
-    ObjectPrx objFed3 = adapter->addWithUUID(eventFed3);
+    ObjectPrx objFed1 = adapter->addWithUUID(new EventI());
+    ObjectPrx objFed2 = adapter->addWithUUID(new EventI());
+    ObjectPrx objFed3 = adapter->addWithUUID(new EventI());
 
     IceStorm::QoS qos;
     if(batch)
@@ -161,21 +157,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         objFed3 = objFed1->ice_oneway();
     }
 
-    TopicPrx fed1;
-    TopicPrx fed2;
-    TopicPrx fed3;
-
-    try
-    {
-        fed1 = manager->retrieve("fed1");
-        fed2 = manager->retrieve("fed2");
-        fed3 = manager->retrieve("fed3");
-    }
-    catch(const IceStorm::NoSuchTopic& e)
-    {
-        cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-        return EXIT_FAILURE;
-    }
+    TopicPrx fed1 = manager->retrieve("fed1");
+    TopicPrx fed2 = manager->retrieve("fed2");
+    TopicPrx fed3 = manager->retrieve("fed3");
 
     fed1->subscribeAndGetPublisher(qos, objFed1);
     fed2->subscribeAndGetPublisher(qos, objFed2);
@@ -187,31 +171,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     fed1->unsubscribe(objFed1);
     fed2->unsubscribe(objFed2);
     fed3->unsubscribe(objFed3);
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-    InitializationData initData = getTestInitData(argc, argv);
-    try
-    {
-        communicator = initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Subscriber)

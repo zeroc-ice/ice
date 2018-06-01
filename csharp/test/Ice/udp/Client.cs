@@ -17,40 +17,38 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        AllTests.allTests(this);
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.UDP.SndSize", "16384");
 
-        int num;
-        try
+        using(var communicator = initialize(properties))
         {
-            num = args.Length == 1 ? Int32.Parse(args[0]) : 0;
-        }
-        catch(FormatException)
-        {
-            num = 0;
-        }
-        for(int i = 0; i < num; ++i)
-        {
-            string endpoint = getTestEndpoint(i, "tcp");
-            TestIntfPrxHelper.uncheckedCast(communicator().stringToProxy("control:" + endpoint)).shutdown();
-        }
-        return 0;
-    }
+            AllTests.allTests(this);
 
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
-        return initData;
+            int num;
+            try
+            {
+                num = args.Length == 1 ? Int32.Parse(args[0]) : 0;
+            }
+            catch(FormatException)
+            {
+                num = 0;
+            }
+
+            for(int i = 0; i < num; ++i)
+            {
+                Ice.ObjectPrx prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
+                TestIntfPrxHelper.uncheckedCast(prx).shutdown();
+            }
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

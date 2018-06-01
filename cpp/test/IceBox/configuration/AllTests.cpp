@@ -8,19 +8,20 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 using namespace Test;
 
 void
-allTests(const Ice::CommunicatorPtr& com)
+allTests(Test::TestHelper* helper)
 {
-    TestIntfPrxPtr service1 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + getTestEndpoint(com, 0)));
-    TestIntfPrxPtr service2 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + getTestEndpoint(com, 1)));
-    TestIntfPrxPtr service3 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + getTestEndpoint(com, 2)));
-    TestIntfPrxPtr service4 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + getTestEndpoint(com, 3)));
+    Ice::CommunicatorPtr com = helper->communicator();
+    TestIntfPrxPtr service1 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + helper->getTestEndpoint(0)));
+    TestIntfPrxPtr service2 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + helper->getTestEndpoint(1)));
+    TestIntfPrxPtr service3 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + helper->getTestEndpoint(2)));
+    TestIntfPrxPtr service4 = ICE_UNCHECKED_CAST(TestIntfPrx, com->stringToProxy("test:" + helper->getTestEndpoint(3)));
 
     if(service1->getProperty("IceBox.InheritProperties") == "")
     {

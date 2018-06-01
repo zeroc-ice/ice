@@ -10,17 +10,17 @@
 using System;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static Test.InitialPrx allTests(TestCommon.Application app)
+    public static Test.InitialPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         FactoryI factory = new FactoryI();
         communicator.getValueFactoryManager().add(factory.create, "");
 
         Write("testing stringToProxy... ");
         Flush();
-        string @ref = "initial:" + app.getTestEndpoint(0);
+        string @ref = "initial:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");

@@ -14,7 +14,7 @@ using System.Threading;
 
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     static void
     testFacets(Ice.Communicator com, bool builtInFacets)
@@ -92,9 +92,9 @@ public class AllTests : TestCommon.AllTests
         }
     }
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing communicator operations... ");
         Flush();
         {
@@ -173,7 +173,7 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
-        string @ref = "factory:" + app.getTestEndpoint(0) + " -t 10000";
+        string @ref = "factory:" + helper.getTestEndpoint(0) + " -t 10000";
         RemoteCommunicatorFactoryPrx factory =
             RemoteCommunicatorFactoryPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 

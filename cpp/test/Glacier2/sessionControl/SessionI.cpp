@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <SessionI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Test;

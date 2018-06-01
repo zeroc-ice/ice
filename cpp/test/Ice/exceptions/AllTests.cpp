@@ -9,7 +9,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -402,8 +402,9 @@ endsWith(const string& s, const string& findme)
 }
 
 ThrowerPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
 
     cout << "testing ice_print()/what()... " << flush;
@@ -691,7 +692,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing stringToProxy... " << flush;
-    string ref = "thrower:" + getTestEndpoint(communicator, 0);
+    string ref = "thrower:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
@@ -1002,7 +1003,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         try
         {
             ThrowerPrxPtr thrower2 =
-                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + getTestEndpoint(communicator, 1)));
+                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + helper->getTestEndpoint(1)));
             try
             {
                 thrower2->throwMemoryLimitException(Ice::ByteSeq(2 * 1024 * 1024)); // 2MB (no limits)
@@ -1011,7 +1012,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             {
             }
             ThrowerPrxPtr thrower3 =
-                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + getTestEndpoint(communicator, 2)));
+                ICE_UNCHECKED_CAST(ThrowerPrx, communicator->stringToProxy("thrower:" + helper->getTestEndpoint(2)));
             try
             {
                 thrower3->throwMemoryLimitException(Ice::ByteSeq(1024)); // 1KB limit

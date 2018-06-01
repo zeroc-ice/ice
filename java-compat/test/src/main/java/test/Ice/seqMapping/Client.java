@@ -11,37 +11,22 @@ package test.Ice.seqMapping;
 
 import test.Ice.seqMapping.Test.*;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int
+    public void
     run(String[] args)
     {
-        java.io.PrintWriter out = getWriter();
-        MyClassPrx myClass = AllTests.allTests(this, false);
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.seqMapping");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            java.io.PrintWriter out = getWriter();
+            MyClassPrx myClass = AllTests.allTests(this, false);
 
-        out.print("shutting down server... ");
-        out.flush();
-        myClass.shutdown();
-        out.println("ok");
-
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.seqMapping");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
+            out.print("shutting down server... ");
+            out.flush();
+            myClass.shutdown();
+            out.println("ok");
+        }
     }
 }

@@ -9,7 +9,7 @@
 
 package test.Ice.echo;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
     class EchoI extends test.Ice.echo.Test._EchoDisp
     {
@@ -39,32 +39,20 @@ public class Server extends test.Util.Application
         final private BlobjectI _blob;
     };
 
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        BlobjectI blob = new BlobjectI();
-        adapter.addDefaultServant(blob, "");
-        adapter.add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
-        adapter.activate();
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.echo");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.echo");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            BlobjectI blob = new BlobjectI();
+            adapter.addDefaultServant(blob, "");
+            adapter.add(new EchoI(blob), Ice.Util.stringToIdentity("__echo"));
+            adapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

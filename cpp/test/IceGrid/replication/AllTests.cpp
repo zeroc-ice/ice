@@ -12,7 +12,7 @@
 #include <Ice/Locator.h>
 #include <IceGrid/IceGrid.h>
 #include <IceUtil/Thread.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -247,14 +247,17 @@ createAdminSession(const Ice::LocatorPrx& locator, const string& replica)
 }
 
 void
-allTests(const Ice::CommunicatorPtr& comm)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr comm = helper->communicator();
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
         comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
 
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+    session->ice_getConnection()->setACM(registry->getACMTimeout(),
+                                         IceUtil::None,
+                                         Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
     AdminPrx admin = session->getAdmin();
     test(admin);

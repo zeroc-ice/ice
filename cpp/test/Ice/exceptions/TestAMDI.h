@@ -11,7 +11,6 @@
 #define TEST_I_H
 
 #include <TestAMD.h>
-#include <TestCommon.h>
 
 bool
 endsWith(const std::string&, const std::string&);

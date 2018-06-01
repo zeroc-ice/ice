@@ -20,7 +20,6 @@ import test.Ice.ami.Test.Callback_TestIntf_op;
 import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
 import test.Ice.ami.Test.Callback_TestIntf_opWithUE;
 import test.Ice.ami.Test.Callback_TestIntf_opWithPayload;
-import test.Util.Application;
 
 public class AMI
 {
@@ -587,11 +586,11 @@ public class AMI
     }
 
     public static void
-    run(Application app, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
+    run(test.TestHelper helper, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
         TestIntfControllerPrx testController)
     {
 
-        PrintWriter out = app.getWriter();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing response callback... ");
         out.flush();

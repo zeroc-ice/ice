@@ -9,20 +9,22 @@
 
 #include <Ice/Ice.h>
 #include <IceSSL/IceSSL.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <fstream>
 #include <algorithm>
 
 #include <Ice/UniqueRef.h>
+
 #if defined(__APPLE__)
-#  include <sys/sysctl.h>
-#  if TARGET_OS_IPHONE != 0
-#    include <IceSSL/SecureTransportUtil.h> // For loadCertificateChain
-#  endif
+#   include <sys/sysctl.h>
+#   if TARGET_OS_IPHONE != 0
+#       include <IceSSL/SecureTransportUtil.h> // For loadCertificateChain
+#   endif
 #elif defined(ICE_OS_UWP)
-#  include <ppltasks.h>
-#  include <nserror.h>
+#   include <ppltasks.h>
+#   include <nserror.h>
+
 using namespace concurrency;
 using namespace Platform;
 using namespace Windows::Foundation;
@@ -31,6 +33,7 @@ using namespace Windows::Storage;
 using namespace Windows::Storage::Streams;
 using namespace Windows::Security::Cryptography;
 using namespace Windows::Security::Cryptography::Certificates;
+
 #endif
 
 #ifdef ICE_CPP11_MAPPING
@@ -40,22 +43,22 @@ using namespace Windows::Security::Cryptography::Certificates;
 #endif
 
 #if defined(__APPLE__)
-#  define ICE_USE_SECURE_TRANSPORT 1
-#if defined(__APPLE__) && TARGET_OS_IPHONE != 0
-#  define ICE_USE_SECURE_TRANSPORT_IOS 1
-#else
-#  define ICE_USE_SECURE_TRANSPORT_MACOS 1
-#endif
+#   define ICE_USE_SECURE_TRANSPORT 1
+#   if defined(__APPLE__) && TARGET_OS_IPHONE != 0
+#       define ICE_USE_SECURE_TRANSPORT_IOS 1
+#   else
+#       define ICE_USE_SECURE_TRANSPORT_MACOS 1
+#   endif
 #elif defined(_WIN32)
-#  if !defined(ICE_OS_UWP) && !defined(ICE_USE_OPENSSL)
-#    define ICE_USE_SCHANNEL 1
-#  endif
+#   if !defined(ICE_OS_UWP) && !defined(ICE_USE_OPENSSL)
+#       define ICE_USE_SCHANNEL 1
+#   endif
 #else
-#  define ICE_USE_OPENSSL 1
+#   define ICE_USE_OPENSSL 1
 #endif
 
 #if defined(_WIN32) && defined(ICE_USE_OPENSSL)
-#  include <IceSSL/OpenSSL.h>
+#   include <IceSSL/OpenSSL.h>
 #endif
 
 using namespace std;
@@ -685,8 +688,9 @@ void verify(const IceSSL::CertificatePtr& cert, const IceSSL::CertificatePtr& ca
 }
 
 Test::ServerFactoryPrxPtr
-allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
+allTests(Test::TestHelper* helper, const string& testDir, bool p12)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     bool elCapitanUpdate2OrLower = false;
 #ifdef __APPLE__
     bool isElCapitanOrGreater = false;
@@ -706,7 +710,7 @@ allTests(const CommunicatorPtr& communicator, const string& testDir, bool p12)
         elCapitanUpdate2OrLower = (majorVersion == 15) && (minorVersion <= 2);
     }
 #endif
-    string factoryRef = "factory:" + getTestEndpoint(communicator, 0, "tcp");
+    string factoryRef = "factory:" + helper->getTestEndpoint("tcp");
     ObjectPrxPtr base = communicator->stringToProxy(factoryRef);
     test(base);
     Test::ServerFactoryPrxPtr factory = ICE_CHECKED_CAST(Test::ServerFactoryPrx, base);

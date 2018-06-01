@@ -11,16 +11,24 @@
 #include <IceUtil/Options.h>
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+class Publisher : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Publisher::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     IceUtilInternal::Options opts;
     opts.addOpt("", "events", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "oneway");
@@ -32,8 +40,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": " << e.reason;
+        throw invalid_argument(os.str());
     }
 
     int events = 1000;
@@ -44,8 +53,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     if(events <= 0)
     {
-        cerr << argv[0] << ": events must be > 0." << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": events must be > 0.";
+        throw invalid_argument(os.str());
     }
 
     bool oneway = opts.isSet("oneway");
@@ -56,29 +66,21 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     string managerProxy = properties->getProperty(managerProxyProperty);
     if(managerProxy.empty())
     {
-        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": property `" << managerProxyProperty << "' is not set";
+        throw invalid_argument(os.str());
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
         communicator->stringToProxy(managerProxy));
     if(!manager)
     {
-        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": `" << managerProxy << "' is not running";
+        throw invalid_argument(os.str());
     }
 
-    TopicPrx topic;
-    try
-    {
-        topic = manager->retrieve("fed1");
-    }
-    catch(const NoSuchTopic& e)
-    {
-        cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-        return EXIT_FAILURE;
-
-    }
+    TopicPrx topic = manager->retrieve("fed1");
 
     EventPrx twowayProxy = EventPrx::uncheckedCast(topic->getPublisher()->ice_twoway());
     EventPrx proxy;
@@ -109,31 +111,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         //
         twowayProxy->ice_ping();
     }
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-    InitializationData initData = getTestInitData(argc, argv);
-    try
-    {
-        communicator = initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Publisher)

@@ -23,7 +23,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion ice_compileSdkVersion.toInteger()
+    compileSdkVersion 25
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"

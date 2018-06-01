@@ -13,38 +13,23 @@ import java.io.PrintWriter;
 
 import test.IceSSL.configuration.Test.ServerFactoryPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
+        Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+        Ice.Properties properties = createTestProperties(argsH);
+        properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
         PrintWriter out = getWriter();
-        if(args.length < 1)
+        if(argsH.value.length < 1)
         {
-            out.println("Usage: client testdir");
-            return 1;
+            throw new RuntimeException("Usage: client testdir");
         }
 
-        ServerFactoryPrx factory = AllTests.allTests(this, args[0]);
-        factory.shutdown();
-
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            ServerFactoryPrx factory = AllTests.allTests(this, argsH.value[0]);
+            factory.shutdown();
+        }
     }
 }

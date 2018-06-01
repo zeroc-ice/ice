@@ -8,54 +8,28 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <StringConverterI.h>
 
 using namespace std;
 
-DEFINE_TEST("client")
-
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    Test::TestIntfPrxPtr allTests(const Ice::CommunicatorPtr&);
-    Test::TestIntfPrxPtr test = allTests(communicator);
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
+    setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Test::TestIntfPrxPtr allTests(Test::TestHelper*);
+    Test::TestIntfPrxPtr test = allTests(this);
     test->shutdown();
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char** argv)
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        setProcessStringConverter(ICE_MAKE_SHARED(Test::StringConverterI));
-        setProcessWstringConverter(ICE_MAKE_SHARED(Test::WstringConverterI));
-
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << ": " << ex.ice_stackTrace() << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-
-}
+DEFINE_TEST(Client)

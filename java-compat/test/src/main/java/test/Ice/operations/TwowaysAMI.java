@@ -1909,9 +1909,9 @@ class TwowaysAMI
     }
 
     static void
-    twowaysAMI(test.Util.Application app, MyClassPrx p)
+    twowaysAMI(test.TestHelper helper, MyClassPrx p)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
 
         {
@@ -2682,61 +2682,60 @@ class TwowaysAMI
             String[] impls = {"Shared", "PerThread"};
             for(int i = 0; i < 2; i++)
             {
-                Ice.InitializationData initData = app.createInitializationData();
-                initData.properties = communicator.getProperties()._clone();
-                initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
+                Ice.Properties properties = communicator.getProperties()._clone();
+                properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                Ice.Communicator ic = app.initialize(initData);
-
-                java.util.Map<String, String> ctx = new java.util.HashMap<>();
-                ctx.put("one", "ONE");
-                ctx.put("two", "TWO");
-                ctx.put("three", "THREE");
-
-                MyClassPrx p3 = MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + app.getTestEndpoint(0)));
-
-                ic.getImplicitContext().setContext(ctx);
-                test(ic.getImplicitContext().getContext().equals(ctx));
+                try(Ice.Communicator ic = helper.initialize(properties))
                 {
-                    Ice.AsyncResult r = p3.begin_opContext();
-                    java.util.Map<String, String> c = p3.end_opContext(r);
-                    test(c.equals(ctx));
+                    java.util.Map<String, String> ctx = new java.util.HashMap<>();
+                    ctx.put("one", "ONE");
+                    ctx.put("two", "TWO");
+                    ctx.put("three", "THREE");
+
+                    MyClassPrx p3 =
+                        MyClassPrxHelper.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint(0)));
+
+                    ic.getImplicitContext().setContext(ctx);
+                    test(ic.getImplicitContext().getContext().equals(ctx));
+                    {
+                        Ice.AsyncResult r = p3.begin_opContext();
+                        java.util.Map<String, String> c = p3.end_opContext(r);
+                        test(c.equals(ctx));
+                    }
+
+                    ic.getImplicitContext().put("zero", "ZERO");
+
+                    ctx = ic.getImplicitContext().getContext();
+                    {
+                        Ice.AsyncResult r = p3.begin_opContext();
+                        java.util.Map<String, String> c = p3.end_opContext(r);
+                        test(c.equals(ctx));
+                    }
+
+                    java.util.Map<String, String> prxContext = new java.util.HashMap<>();
+                    prxContext.put("one", "UN");
+                    prxContext.put("four", "QUATRE");
+
+                    java.util.Map<String, String> combined = new java.util.HashMap<>(ctx);
+                    combined.putAll(prxContext);
+                    test(combined.get("one").equals("UN"));
+
+                    p3 = MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
+
+                    ic.getImplicitContext().setContext(null);
+                    {
+                        Ice.AsyncResult r = p3.begin_opContext();
+                        java.util.Map<String, String> c = p3.end_opContext(r);
+                        test(c.equals(prxContext));
+                    }
+
+                    ic.getImplicitContext().setContext(ctx);
+                    {
+                        Ice.AsyncResult r = p3.begin_opContext();
+                        java.util.Map<String, String> c = p3.end_opContext(r);
+                        test(c.equals(combined));
+                    }
                 }
-
-                ic.getImplicitContext().put("zero", "ZERO");
-
-                ctx = ic.getImplicitContext().getContext();
-                {
-                    Ice.AsyncResult r = p3.begin_opContext();
-                    java.util.Map<String, String> c = p3.end_opContext(r);
-                    test(c.equals(ctx));
-                }
-
-                java.util.Map<String, String> prxContext = new java.util.HashMap<>();
-                prxContext.put("one", "UN");
-                prxContext.put("four", "QUATRE");
-
-                java.util.Map<String, String> combined = new java.util.HashMap<>(ctx);
-                combined.putAll(prxContext);
-                test(combined.get("one").equals("UN"));
-
-                p3 = MyClassPrxHelper.uncheckedCast(p3.ice_context(prxContext));
-
-                ic.getImplicitContext().setContext(null);
-                {
-                    Ice.AsyncResult r = p3.begin_opContext();
-                    java.util.Map<String, String> c = p3.end_opContext(r);
-                    test(c.equals(prxContext));
-                }
-
-                ic.getImplicitContext().setContext(ctx);
-                {
-                    Ice.AsyncResult r = p3.begin_opContext();
-                    java.util.Map<String, String> c = p3.end_opContext(r);
-                    test(c.equals(combined));
-                }
-
-                ic.destroy();
             }
         }
 

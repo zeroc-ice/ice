@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -16,10 +16,11 @@ using namespace Ice;
 using namespace Test;
 
 TestIntfPrxPtr
-allTests(const CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
-    ObjectPrxPtr base = communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0));
+    ObjectPrxPtr base = communicator->stringToProxy("test:" + helper->getTestEndpoint());
     test(base);
     cout << "ok" << endl;
 
@@ -41,7 +42,7 @@ allTests(const CommunicatorPtr& communicator)
 
     {
         if(!uwp || (communicator->getProperties()->getProperty("Ice.Default.Protocol") != "ssl" &&
-                      communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
+                    communicator->getProperties()->getProperty("Ice.Default.Protocol") != "wss"))
         {
             cout << "creating/destroying/recreating object adapter... " << flush;
             ObjectAdapterPtr adpt = communicator->createObjectAdapterWithEndpoints("TransientTestAdapter", "default");
@@ -78,9 +79,9 @@ allTests(const CommunicatorPtr& communicator)
             initData.properties = communicator->getProperties()->clone();
             Ice::CommunicatorHolder comm(initData);
 #ifdef ICE_CPP11_MAPPING
-            comm->stringToProxy("test:" + getTestEndpoint(communicator, 0))->ice_pingAsync();
+            comm->stringToProxy("test:" + helper->getTestEndpoint())->ice_pingAsync();
 #else
-            comm->stringToProxy("test:" + getTestEndpoint(communicator, 0))->begin_ice_ping();
+            comm->stringToProxy("test:" + helper->getTestEndpoint())->begin_ice_ping();
 #endif
         }
         cout << "ok" << endl;
@@ -172,7 +173,7 @@ allTests(const CommunicatorPtr& communicator)
         try
         {
             router = ICE_UNCHECKED_CAST(Ice::RouterPrx,
-                                        communicator->stringToProxy("test:" + getTestEndpoint(communicator, 1)));
+                                        communicator->stringToProxy("test:" + helper->getTestEndpoint(1)));
             communicator->createObjectAdapterWithRouter("", router);
             test(false);
         }
@@ -185,10 +186,10 @@ allTests(const CommunicatorPtr& communicator)
     cout << "testing object adapter creation with port in use... " << flush;
     {
         Ice::ObjectAdapterPtr adapter1 =
-            communicator->createObjectAdapterWithEndpoints("Adpt1", getTestEndpoint(communicator, 10));
+            communicator->createObjectAdapterWithEndpoints("Adpt1", helper->getTestEndpoint(10));
         try
         {
-            communicator->createObjectAdapterWithEndpoints("Adpt2", getTestEndpoint(communicator, 10));
+            communicator->createObjectAdapterWithEndpoints("Adpt2", helper->getTestEndpoint(10));
             test(false);
         }
         catch(const Ice::LocalException&)

@@ -71,9 +71,9 @@ public class OnewaysAMI
         }
     }
 
-    internal static void onewaysAMI(TestCommon.Application app, Test.MyClassPrx proxy)
+    internal static void onewaysAMI(Test.TestHelper helper, Test.MyClassPrx proxy)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Test.MyClassPrx p = Test.MyClassPrxHelper.uncheckedCast(proxy.ice_oneway());
 
         {

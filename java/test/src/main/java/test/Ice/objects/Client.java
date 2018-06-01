@@ -11,7 +11,7 @@ package test.Ice.objects;
 
 import test.Ice.objects.Test.InitialPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
     private static class MyValueFactory implements com.zeroc.Ice.ValueFactory
     {
@@ -73,40 +73,26 @@ public class Client extends test.Util.Application
     }
 
     @SuppressWarnings("deprecation")
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
-        communicator.getValueFactoryManager().add(factory, "::Test::B");
-        communicator.getValueFactoryManager().add(factory, "::Test::C");
-        communicator.getValueFactoryManager().add(factory, "::Test::D");
-        communicator.getValueFactoryManager().add(factory, "::Test::E");
-        communicator.getValueFactoryManager().add(factory, "::Test::F");
-        communicator.getValueFactoryManager().add(factory, "::Test::I");
-        communicator.getValueFactoryManager().add(factory, "::Test::J");
-        communicator.getValueFactoryManager().add(factory, "::Test::H");
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        try( com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
+            communicator.getValueFactoryManager().add(factory, "::Test::B");
+            communicator.getValueFactoryManager().add(factory, "::Test::C");
+            communicator.getValueFactoryManager().add(factory, "::Test::D");
+            communicator.getValueFactoryManager().add(factory, "::Test::E");
+            communicator.getValueFactoryManager().add(factory, "::Test::F");
+            communicator.getValueFactoryManager().add(factory, "::Test::I");
+            communicator.getValueFactoryManager().add(factory, "::Test::J");
+            communicator.getValueFactoryManager().add(factory, "::Test::H");
 
-        communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
+            communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
-        InitialPrx initial = AllTests.allTests(this);
-        initial.shutdown();
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
+            InitialPrx initial = AllTests.allTests(this);
+            initial.shutdown();
+        }
     }
 }

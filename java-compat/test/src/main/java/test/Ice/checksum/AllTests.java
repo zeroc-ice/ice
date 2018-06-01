@@ -24,12 +24,12 @@ public class AllTests
     }
 
     public static ChecksumPrx
-    allTests(test.Util.Application app, boolean collocated)
+    allTests(test.TestHelper helper, boolean collocated)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        String ref = "test:" + app.getTestEndpoint(0);
+        String ref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
 

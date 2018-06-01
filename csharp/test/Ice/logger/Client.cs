@@ -17,17 +17,9 @@ using System.IO;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : Test.TestHelper
 {
-    public static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
-    public static int Main(string[] args)
+    public override void run(string[] args)
     {
         Console.Out.Write("testing Ice.LogFile... ");
         Console.Out.Flush();
@@ -36,9 +28,9 @@ public class Client
             File.Delete("log.txt");
         }
         var initData = new Ice.InitializationData();
-        initData.properties = Ice.Util.createProperties();
+        initData.properties = createTestProperties(ref args);
         initData.properties.setProperty("Ice.LogFile", "log.txt");
-        using(var communicator = Ice.Util.initialize(initData))
+        using(var communicator = initialize(initData))
         {
             communicator.getLogger().trace("info", "my logger");
         }
@@ -46,6 +38,10 @@ public class Client
         test(File.ReadAllText("log.txt").Contains("my logger"));
         File.Delete("log.txt");
         Console.Out.WriteLine("ok");
-        return 0;
+    }
+
+    public static int Main(string[] args)
+    {
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

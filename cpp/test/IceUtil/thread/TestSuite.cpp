@@ -7,7 +7,8 @@
 //
 // **********************************************************************
 
-#include <TestSuite.h>
+#include <TestBase.h>
+#include <list>
 #include <CountDownLatchTest.h>
 #include <MutexTest.h>
 #include <RecMutexTest.h>

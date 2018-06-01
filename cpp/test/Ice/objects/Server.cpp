@@ -8,10 +8,8 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
-
-DEFINE_TEST("server")
 
 using namespace std;
 using namespace Test;
@@ -52,9 +50,21 @@ public:
 };
 #endif
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Server : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Server::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Dispatch", "0");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+
 #ifdef ICE_CPP11_MAPPING
     communicator->getValueFactoryManager()->add(makeFactory<II>(), "::Test::I");
     communicator->getValueFactoryManager()->add(makeFactory<JI>(), "::Test::J");
@@ -66,36 +76,15 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     communicator->getValueFactoryManager()->add(factory, "::Test::H");
 #endif
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(ICE_MAKE_SHARED(InitialI, adapter), Ice::stringToIdentity("initial"));
     adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
 
     adapter->add(ICE_MAKE_SHARED(UnexpectedObjectExceptionTestI), Ice::stringToIdentity("uoet"));
     adapter->activate();
-    TEST_READY
+    serverReady();
     communicator->waitForShutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Server)

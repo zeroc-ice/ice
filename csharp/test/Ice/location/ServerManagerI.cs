@@ -12,15 +12,11 @@ using Test;
 
 public class ServerManagerI : ServerManagerDisp_
 {
-    internal ServerManagerI(ServerLocatorRegistry registry, Ice.InitializationData initData, TestCommon.Application app)
+    internal ServerManagerI(ServerLocatorRegistry registry, Test.TestHelper helper)
     {
         _registry = registry;
         _communicators = new ArrayList();
-        _initData = initData;
-        _app = app;
-        _initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
-        _initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
-        _initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+        _helper = helper;
     }
 
     public override void startServer(Ice.Current current)
@@ -40,7 +36,13 @@ public class ServerManagerI : ServerManagerDisp_
         // its endpoints with the locator and create references containing
         // the adapter id instead of the endpoints.
         //
-        Ice.Communicator serverCommunicator = Ice.Util.initialize(_initData);
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = _helper.communicator().getProperties().ice_clone_();
+        initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
+        initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+        initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+
+        Ice.Communicator serverCommunicator = Ice.Util.initialize(initData);
         _communicators.Add(serverCommunicator);
 
         //
@@ -55,14 +57,14 @@ public class ServerManagerI : ServerManagerDisp_
             try
             {
                 serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints",
-                                                               _app.getTestEndpoint(_nextPort++));
+                                                               _helper.getTestEndpoint(_nextPort++));
                 serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints",
-                                                               _app.getTestEndpoint(_nextPort++));
+                                                               _helper.getTestEndpoint(_nextPort++));
 
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
-                Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:" + _app.getTestEndpoint(0));
+                Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:" + _helper.getTestEndpoint(0));
                 adapter.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
                 adapter2.setLocator(Ice.LocatorPrxHelper.uncheckedCast(locator));
 
@@ -108,7 +110,6 @@ public class ServerManagerI : ServerManagerDisp_
 
     private ServerLocatorRegistry _registry;
     private ArrayList _communicators;
-    private Ice.InitializationData _initData;
-    private TestCommon.Application _app;
+    private Test.TestHelper _helper;
     private int _nextPort = 1;
 }

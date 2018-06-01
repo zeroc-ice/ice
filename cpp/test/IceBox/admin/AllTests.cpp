@@ -8,15 +8,16 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 using namespace Test;
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     string ref = "DemoIceBox/admin:default -p 9996 -t 10000";
     Ice::ObjectPrxPtr admin = communicator->stringToProxy(ref);
 

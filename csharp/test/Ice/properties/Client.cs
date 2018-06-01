@@ -16,16 +16,8 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : Test.TestHelper
 {
-    public static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
     class PropertiesClient : Ice.Application
     {
         public override int
@@ -41,10 +33,8 @@ public class Client
         }
     }
 
-    public static int Main(string[] args)
+    public override void run(string[] args)
     {
-        int status = 0;
-        try
         {
             Console.Out.Write("testing load properties from UTF-8 path... ");
             Console.Out.Flush();
@@ -61,16 +51,10 @@ public class Client
             c.main(args, "./config/中国_client.config");
             Console.Out.WriteLine("ok");
         }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
 
         //
         // Try to load multiple config files.
         //
-        try
         {
             Console.Out.Write("testing using Ice.Config with multiple config files... ");
             Console.Out.Flush();
@@ -81,13 +65,7 @@ public class Client
             test(properties.getProperty("Config3").Equals("Config3"));
             Console.Out.WriteLine("ok");
         }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
 
-        try
         {
             Console.Out.Write("testing configuration file escapes... ");
             Console.Out.Flush();
@@ -123,12 +101,10 @@ public class Client
             }
             Console.Out.WriteLine("ok");
         }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
+    }
 
-        return status;
+    public static int Main(string[] args)
+    {
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

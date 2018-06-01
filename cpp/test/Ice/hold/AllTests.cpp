@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/Random.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -78,13 +78,14 @@ typedef IceUtil::Handle<SetCB> SetCBPtr;
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
-    string ref = "hold:" + getTestEndpoint(communicator, 0);
+    string ref = "hold:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
-    string refSerialized = "hold:" + getTestEndpoint(communicator, 1);
+    string refSerialized = "hold:" + helper->getTestEndpoint(1);
     Ice::ObjectPrxPtr baseSerialized = communicator->stringToProxy(refSerialized);
     test(base);
     cout << "ok" << endl;

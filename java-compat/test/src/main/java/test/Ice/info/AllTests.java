@@ -51,10 +51,10 @@ public class AllTests
         return null;
     }
 
-    public static void allTests(test.Util.Application app)
+    public static void allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator=app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
         out.print("testing proxy endpoint information... ");
         out.flush();
         {
@@ -132,7 +132,7 @@ public class AllTests
 
             adapter.destroy();
 
-            int port = app.getTestPort(1);
+            int port = helper.getTestPort(1);
             communicator.getProperties().setProperty("TestAdapter.Endpoints", "tcp -h * -p " + port);
             communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "tcp -h dummy -p " + port);
             adapter = communicator.createObjectAdapter("TestAdapter");
@@ -157,10 +157,10 @@ public class AllTests
         out.println("ok");
 
         Ice.ObjectPrx base = communicator.stringToProxy("test:" +
-                                                        app.getTestEndpoint(0) + ":" +
-                                                        app.getTestEndpoint(0, "udp"));
+                                                        helper.getTestEndpoint(0) + ":" +
+                                                        helper.getTestEndpoint(0, "udp"));
         TestIntfPrx testIntf = TestIntfPrxHelper.checkedCast(base);
-        int endpointPort = app.getTestPort(0);
+        int endpointPort = helper.getTestPort(0);
 
         final String defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");
         out.print("test connection endpoint information... ");

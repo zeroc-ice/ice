@@ -8,16 +8,13 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
 
-#ifdef _MSC_VER
 // For 'Ice::Communicator::addObjectFactory()' deprecation
-#pragma warning( disable : 4996 )
-#endif
-
-#if defined(__GNUC__)
-// For 'Ice::Communicator::addObjectFactory()' deprecation
+#if defined(_MSC_VER)
+#   pragma warning( disable : 4996 )
+#elif defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
@@ -39,7 +36,7 @@ public:
 void
 testUOE(const Ice::CommunicatorPtr& communicator)
 {
-    string ref = "uoet:" + getTestEndpoint(communicator, 0);
+    string ref = "uoet:" + TestHelper::getTestEndpoint(communicator->getProperties());
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     UnexpectedObjectExceptionTestPrxPtr uoet = ICE_UNCHECKED_CAST(UnexpectedObjectExceptionTestPrx, base);
@@ -116,10 +113,11 @@ clear(const DPtr& d)
 }
 
 InitialPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
-    string ref = "initial:" + getTestEndpoint(communicator, 0);
+    string ref = "initial:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;
@@ -471,8 +469,10 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     try
     {
-        TestIntfPrxPtr p = ICE_CHECKED_CAST(TestIntfPrx,
-                                            communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
+        Ice::PropertiesPtr properties = communicator->getProperties();
+        TestIntfPrxPtr p =
+            ICE_CHECKED_CAST(TestIntfPrx,
+                             communicator->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
 
         cout << "testing Object factory registration... " << flush;
         {

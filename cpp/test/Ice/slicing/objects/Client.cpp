@@ -8,48 +8,32 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <ClientPrivate.h>
 
 using namespace std;
 using namespace Test;
 
-DEFINE_TEST("client")
-
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    TestIntfPrxPtr allTests(const Ice::CommunicatorPtr&);
-    TestIntfPrxPtr Test = allTests(communicator);
-    Test->shutdown();
-    return EXIT_SUCCESS;
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    //
+    // For this test, we enable object collection.
+    //
+    properties->setProperty("Ice.CollectObjects", "1");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    TestIntfPrxPtr allTests(Test::TestHelper*);
+    TestIntfPrxPtr prx = allTests(this);
+    prx->shutdown();
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#   ifdef ICE_HAS_BT
-    Ice::registerIceBT(false);
-#   endif
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        //
-        // For this test, we enable object collection.
-        //
-        initData.properties->setProperty("Ice.CollectObjects", "1");
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

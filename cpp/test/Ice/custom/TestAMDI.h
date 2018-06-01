@@ -16,8 +16,6 @@ class TestIntfI : public virtual Test::TestIntf
 {
 public:
 
-    TestIntfI(const Ice::CommunicatorPtr&);
-
 #ifdef ICE_CPP11_MAPPING
 
     void opDoubleArrayAsync(std::pair<const ::Ice::Double*, const ::Ice::Double*>,
@@ -343,10 +341,6 @@ public:
     virtual void shutdown_async(const Test::AMD_TestIntf_shutdownPtr&,
                                 const Ice::Current&);
 #endif
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
 };
 
 #endif

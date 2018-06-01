@@ -8,53 +8,25 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 
-int
-run(int, char**,
-    const Ice::CommunicatorPtr& communicator,
-    const Ice::InitializationData&)
+class Client : public Test::TestHelper
 {
-    Test::MyClassPrxPtr allTests(const Ice::CommunicatorPtr&);
-    Test::MyClassPrxPtr myClass = allTests(communicator);
+public:
 
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder holder = initialize(argc, argv);
+    Test::MyClassPrxPtr allTests(Test::TestHelper*);
+    Test::MyClassPrxPtr myClass = allTests(this);
     myClass->shutdown();
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator, initData);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Client)

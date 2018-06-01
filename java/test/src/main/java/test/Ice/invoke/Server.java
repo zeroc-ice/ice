@@ -9,41 +9,23 @@
 
 package test.Ice.invoke;
 
-public class Server extends test.Util.Application
+import java.util.stream.Stream;
+
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        boolean async = false;
-        for(int i = 0; i < args.length; ++i)
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.invoke");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
-            if(args[i].equals("--async"))
-            {
-               async = true;
-            }
+            boolean async = Stream.of(args).anyMatch(v -> v.equals("--async"));
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.addServantLocator(new ServantLocatorI(async), "");
+            adapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
         }
-
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.addServantLocator(new ServantLocatorI(async), "");
-        adapter.activate();
-        return WAIT;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.invoke");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
     }
 }

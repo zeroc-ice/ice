@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <ViewController.g.h>
+#include <ControllerView.g.h>
 #include <collection.h>
 #include <map>
 #include <string>
@@ -18,35 +18,28 @@
 
 namespace
 {
-class MainHelperI;
+class ControllerI;
 class ProcessControllerI;
-class ControllerHelper;
 }
 
-namespace Controller
+namespace Test
 {
 
 [Windows::Foundation::Metadata::WebHostHidden]
-public ref class ViewController sealed
+public ref class ControllerView sealed
 {
 public:
 
-    ViewController();
-    virtual ~ViewController();
+    ControllerView();
+    virtual ~ControllerView();
 
 private:
 
-    friend class MainHelperI;
+    friend class ControllerI;
     friend class ProcessControllerI;
-    friend class ControllerHelper;
-    HINSTANCE loadDll(const std::string&);
-    void unloadDll(const std::string&);
     void println(const std::string&);
     std::string getHost() const;
-    void Hostname_SelectionChanged(Platform::Object^ sender, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^ e);
-
-    std::map<std::string, HINSTANCE> _dlls;
-    std::mutex _mutex;
+    void Hostname_SelectionChanged(Platform::Object^, Windows::UI::Xaml::Controls::SelectionChangedEventArgs^);
 };
 
 }

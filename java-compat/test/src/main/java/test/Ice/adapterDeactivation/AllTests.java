@@ -25,14 +25,14 @@ public class AllTests
     }
 
     public static TestIntfPrx
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        java.io.PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        java.io.PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:" + app.getTestEndpoint(0);
+        String ref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -77,11 +77,12 @@ public class AllTests
             out.flush();
             for(int i = 0; i < 10; ++i)
             {
-                Ice.InitializationData initData = app.createInitializationData();
+                Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties()._clone();
-                Ice.Communicator comm = app.initialize(initData);
-                comm.stringToProxy("test:" + app.getTestEndpoint(0)).begin_ice_ping();
-                comm.destroy();
+                try(Ice.Communicator comm = helper.initialize(initData, false))
+                {
+                    comm.stringToProxy("test:" + helper.getTestEndpoint(0)).begin_ice_ping();
+                }
             }
             out.println("ok");
         }
@@ -170,7 +171,8 @@ public class AllTests
 
             try
             {
-                router = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(1)));
+                router =
+                    Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(1)));
                 communicator.createObjectAdapterWithRouter("", router);
                 test(false);
             }
@@ -184,10 +186,10 @@ public class AllTests
         out.flush();
         {
             Ice.ObjectAdapter adapter1 =
-                communicator.createObjectAdapterWithEndpoints("Adpt1", app.getTestEndpoint(10));
+                communicator.createObjectAdapterWithEndpoints("Adpt1", helper.getTestEndpoint(10));
             try
             {
-                communicator.createObjectAdapterWithEndpoints("Adpt2", app.getTestEndpoint(10));
+                communicator.createObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
                 test(false);
             }
             catch(Ice.LocalException ex)

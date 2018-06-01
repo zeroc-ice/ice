@@ -13,7 +13,7 @@
 #include <IceUtil/Thread.h>
 #include <IceUtil/Mutex.h>
 #include <IceUtil/MutexPtrLock.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <set>
 #include <vector>
 
@@ -178,7 +178,15 @@ runTest(int threadCount, GenerateFunc func, long howMany, bool verbose, string n
     }
 }
 
-int main(int argc, char* argv[])
+class Client : public Test::TestHelper
+{
+public:
+
+    virtual void run(int argc, char* argv[]);
+};
+
+void
+Client::run(int argc, char* argv[])
 {
     long howMany = 300000;
     int threadCount = 3;
@@ -187,36 +195,33 @@ int main(int argc, char* argv[])
     if(argc > 3)
     {
         usage(argv[0]);
-        return EXIT_FAILURE;
+        throw std::invalid_argument("too many arguments");
     }
-    else if(argc == 3)
+
+    if(argc > 1)
     {
         howMany = atol(argv[1]);
-        if (howMany == 0)
+        if(howMany == 0)
         {
             usage(argv[0]);
-            return EXIT_FAILURE;
+            throw invalid_argument("argv[1] howMany is not a number");
         }
+    }
+
+    if(argc > 2)
+    {
+
         threadCount = atoi(argv[2]);
         if(threadCount <= 0)
         {
             usage(argv[0]);
-            return EXIT_FAILURE;
+            throw invalid_argument("argv[2] threadCount is not a number");
         }
         verbose = true;
-    }
-    else if(argc == 2)
-    {
-        howMany = atol(argv[1]);
-        if (howMany == 0)
-        {
-            usage(argv[0]);
-            return EXIT_FAILURE;
-        }
     }
 
     runTest<string, GenerateUUID>(threadCount, GenerateUUID(), howMany, verbose, "UUID");
     runTest<string, GenerateRandomString>(threadCount, GenerateRandomString(), howMany, verbose, "string");
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client);

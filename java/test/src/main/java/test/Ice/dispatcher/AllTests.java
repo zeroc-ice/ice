@@ -60,12 +60,12 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app, final Dispatcher dispatcher)
+    public static void allTests(test.TestHelper helper, final Dispatcher dispatcher)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        String sref = "test:" + app.getTestEndpoint(0);
+        String sref = "test:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -77,7 +77,7 @@ public class AllTests
 
         TestIntfPrx p = TestIntfPrx.uncheckedCast(obj);
 
-        sref = "testController:" + app.getTestEndpoint(1, "tcp");
+        sref = "testController:" + helper.getTestEndpoint(1, "tcp");
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 

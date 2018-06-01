@@ -21,7 +21,7 @@ sourceSets {
     main {
         java {
             srcDir "$project.ext.topSrcDir/java-compat/test/src/main/java"
-            include 'test/Util/**'
+            include 'test/TestHelper.java'
             exclude 'test/Ice/**/lambda'
         }
     }

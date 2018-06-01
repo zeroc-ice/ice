@@ -14,17 +14,16 @@ import test.Ice.location.Test.ServerManager;
 
 public class ServerManagerI implements ServerManager
 {
-    ServerManagerI(ServerLocatorRegistry registry, com.zeroc.Ice.InitializationData initData, test.Util.Application app)
+    ServerManagerI(ServerLocatorRegistry registry, test.TestHelper helper)
     {
         _registry = registry;
         _communicators = new java.util.ArrayList<com.zeroc.Ice.Communicator>();
 
-        _app = app;
-        _initData = initData;
-
-        _initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
-        _initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
-        _initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
+        _helper = helper;
+        _properties = _helper.communicator().getProperties()._clone();
+        _properties.setProperty("TestAdapter.AdapterId", "TestAdapter");
+        _properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter");
+        _properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2");
     }
 
     @Override
@@ -45,7 +44,7 @@ public class ServerManagerI implements ServerManager
         // its endpoints with the locator and create references containing
         // the adapter id instead of the endpoints.
         //
-        com.zeroc.Ice.Communicator serverCommunicator = _app.initialize(_initData);
+        com.zeroc.Ice.Communicator serverCommunicator = _helper.initialize(_properties);
         _communicators.add(serverCommunicator);
 
         //
@@ -60,15 +59,15 @@ public class ServerManagerI implements ServerManager
             try
             {
                 serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints",
-                                                               _app.getTestEndpoint(_nextPort++));
+                                                               _helper.getTestEndpoint(_nextPort++));
                 serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints",
-                                                               _app.getTestEndpoint(_nextPort++));
+                                                               _helper.getTestEndpoint(_nextPort++));
 
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter");
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2");
 
                 com.zeroc.Ice.ObjectPrx locator = serverCommunicator.stringToProxy("locator:"  +
-                                                                                   _app.getTestEndpoint(0));
+                                                                                   _helper.getTestEndpoint(0));
                 adapter.setLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
                 adapter2.setLocator(com.zeroc.Ice.LocatorPrx.uncheckedCast(locator));
 
@@ -114,7 +113,7 @@ public class ServerManagerI implements ServerManager
 
     private ServerLocatorRegistry _registry;
     private java.util.List<com.zeroc.Ice.Communicator> _communicators;
-    private com.zeroc.Ice.InitializationData _initData;
-    private test.Util.Application _app;
+    private com.zeroc.Ice.Properties _properties;
+    private test.TestHelper _helper;
     private int _nextPort = 1;
 }

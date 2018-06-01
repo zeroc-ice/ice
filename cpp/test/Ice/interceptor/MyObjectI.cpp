@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <MyObjectI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <IceUtil/IceUtil.h>
 
 using namespace IceUtil;

@@ -12,7 +12,7 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Ice;
@@ -72,9 +72,17 @@ private:
 };
 typedef IceUtil::Handle<SingleI> SingleIPtr;
 
-int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+class Subscriber : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Subscriber::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     IceUtilInternal::Options opts;
     opts.addOpt("", "ordered");
     opts.addOpt("", "twoway");
@@ -86,25 +94,27 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": " << e.reason;
+        throw invalid_argument(os.str());
     }
 
     PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
-    string managerProxy = properties->getProperty(managerProxyProperty);
+    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
-        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
+        throw invalid_argument(os.str());
     }
 
     ObjectPrx base = communicator->stringToProxy(managerProxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": `" << managerProxy << "' is not running";
+        throw invalid_argument(os.str());
     }
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default");
@@ -125,8 +135,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         }
         catch(const IceStorm::NoSuchTopic& e)
         {
-            cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-            return EXIT_FAILURE;
+            ostringstream os;
+            os << argv[0] << ": NoSuchTopic: " << e.name;
+            throw invalid_argument(os.str());
         }
     }
 
@@ -142,12 +153,12 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     IceStorm::QoS qos;
     if(opts.isSet("ordered"))
     {
-        sub = new SingleI(communicator, "twoway ordered", events);
+        sub = new SingleI(communicator.communicator(), "twoway ordered", events);
         qos["reliability"] = "ordered";
     }
     else
     {
-        sub = new SingleI(communicator, "twoway", events);
+        sub = new SingleI(communicator.communicator(), "twoway", events);
     }
 
     Ice::ObjectPrx prx = adapter->addWithUUID(sub);
@@ -177,31 +188,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     sub->waitForEvents();
 
     topic->unsubscribe(prx);
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-    InitializationData initData = getTestInitData(argc, argv);
-    try
-    {
-        communicator = initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Subscriber)
