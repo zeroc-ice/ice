@@ -65,7 +65,7 @@ namespace Test
         public Ice.Properties createTestProperties(ref string[] args)
         {
             Ice.Properties properties = Ice.Util.createProperties(ref args);
-            properties.parseCommandLineOptions("Test", args);
+            args = properties.parseCommandLineOptions("Test", args);
             return properties;
         }
 
