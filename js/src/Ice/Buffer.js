@@ -98,7 +98,7 @@ class Buffer
         {
             this._shrinkCounter = 0;
         }
-        this._limit = 0;
+        this._limit = this.capacity();
         this._position = 0;
     }
 
