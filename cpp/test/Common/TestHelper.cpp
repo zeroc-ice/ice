@@ -11,7 +11,10 @@ namespace
 
 IceUtil::Mutex* globalMutex = 0;
 Test::TestHelper* instance = 0;
+
+#ifndef ICE_OS_UWP
 IceUtil::CtrlCHandler* ctrlCHandler = 0;
+#endif
 
 class Init
 {
@@ -26,11 +29,13 @@ public:
     {
         delete globalMutex;
         globalMutex = 0;
+#ifndef ICE_OS_UWP
         if(ctrlCHandler)
         {
             delete ctrlCHandler;
             ctrlCHandler = 0;
         }
+#endif
     }
 };
 
@@ -258,6 +263,7 @@ Test::TestHelper::shutdownOnInterruptCallback(int)
 void
 Test::TestHelper::shutdownOnInterrupt()
 {
+#ifndef ICE_OS_UWP
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         assert(!ctrlCHandler);
@@ -267,4 +273,5 @@ Test::TestHelper::shutdownOnInterrupt()
         }
     }
     ctrlCHandler->setCallback(shutdownOnInterruptCallback);
+#endif
 }
