@@ -228,7 +228,7 @@ public abstract class TestHelper
         _classLoader = classLoader;
     }
 
-    public void ClassLoader getClassLoader()
+    public ClassLoader getClassLoader()
     {
         return _classLoader;
     }
