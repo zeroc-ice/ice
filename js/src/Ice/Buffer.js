@@ -121,7 +121,7 @@ class Buffer
         }
         else if(n < this.capacity)
         {
-            this.b = this.b.slice(0, this.capacity);
+            this.b = this.b.slice(0, n);
             this.v = new DataView(this.b);
         }
     }
