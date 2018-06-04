@@ -41,6 +41,10 @@ Client::run(int argc, char** argv)
     Ice::registerIceSSL();
 #endif
 
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceWS(true);
+#endif
+
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     string testdir;
 #if TARGET_OS_IPHONE == 0
