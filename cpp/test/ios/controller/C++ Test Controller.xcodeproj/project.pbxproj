@@ -557,7 +557,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
 					"-L../../Common/build/$(PLATFORM_NAME)/cpp11-xcodesdk",
-					"-lTetsCommon++11",
+					"-lTestCommon++11",
 					"-lIceDiscovery++11",
 					"-lIceSSL++11",
 					"-lIce++11",
