@@ -11,7 +11,6 @@ namespace
 
 IceUtil::Mutex* globalMutex = 0;
 Test::TestHelper* instance = 0;
-
 #ifndef ICE_OS_UWP
 IceUtil::CtrlCHandler* ctrlCHandler = 0;
 #endif
@@ -45,6 +44,7 @@ Init init;
 
 Test::TestHelper::TestHelper(bool registerPlugins)
 {
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         if(instance != 0)
@@ -53,6 +53,7 @@ Test::TestHelper::TestHelper(bool registerPlugins)
         }
         instance = this;
     }
+#endif
 
     if(registerPlugins)
     {
@@ -85,7 +86,7 @@ Test::TestHelper::~TestHelper()
 }
 
 void
-Test::TestHelper::setControllerHelper(const ControllerHelperPtr& controllerHelper)
+Test::TestHelper::setControllerHelper(ControllerHelper* controllerHelper)
 {
     assert(!_controllerHelper);
     _controllerHelper = controllerHelper;
@@ -235,13 +236,6 @@ Test::TestHelper::serverReady()
 }
 
 void
-Test::TestHelper::completed()
-{
-    IceUtil::Mutex::Lock lock(_mutex);
-    _communicator = ICE_NULLPTR;
-}
-
-void
 Test::TestHelper::shutdown()
 {
     IceUtil::Mutex::Lock lock(_mutex);
@@ -251,6 +245,12 @@ Test::TestHelper::shutdown()
     }
 }
 
+#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
+void
+Test::TestHelper::shutdownOnInterrupt()
+{
+}
+#else
 void
 Test::TestHelper::shutdownOnInterruptCallback(int)
 {
@@ -263,7 +263,6 @@ Test::TestHelper::shutdownOnInterruptCallback(int)
 void
 Test::TestHelper::shutdownOnInterrupt()
 {
-#ifndef ICE_OS_UWP
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         assert(!ctrlCHandler);
@@ -273,5 +272,5 @@ Test::TestHelper::shutdownOnInterrupt()
         }
     }
     ctrlCHandler->setCallback(shutdownOnInterruptCallback);
-#endif
 }
+#endif

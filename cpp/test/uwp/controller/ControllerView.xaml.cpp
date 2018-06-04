@@ -199,9 +199,9 @@ ControllerHelperI::run()
         argv[_args.size()] = 0;
         try
         {
-            StreamHelper streamHelper(shared_from_this(), redirect());
+            StreamHelper streamHelper(this, redirect());
             _helper.reset(createHelper());
-            _helper->setControllerHelper(shared_from_this());
+            _helper->setControllerHelper(this);
             _helper->run(static_cast<int>(_args.size()), argv);
             completed(0);
         }

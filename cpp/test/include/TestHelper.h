@@ -80,7 +80,7 @@ class StreamHelper : public std::streambuf
 {
 public:
 
-    StreamHelper(ControllerHelperPtr controllerHelper, bool redirect) : _controllerHelper(controllerHelper)
+    StreamHelper(ControllerHelper* controllerHelper, bool redirect) : _controllerHelper(controllerHelper)
     {
         setp(&data[0], &data[sizeof(data) - 1]);
         if(redirect)
@@ -146,7 +146,7 @@ private:
         return std::streambuf::sputc(c);
     }
 
-    ControllerHelperPtr _controllerHelper;
+    ControllerHelper* _controllerHelper;
     char data[1024];
     Ice::LoggerPtr _previousLogger;
     std::streambuf* _previousCoutBuffer;
@@ -161,7 +161,7 @@ public:
     TestHelper(bool registerPlugins = true);
     virtual ~TestHelper();
 
-    void setControllerHelper(const ControllerHelperPtr&);
+    void setControllerHelper(ControllerHelper*);
 
     std::string getTestEndpoint(const std::string&);
     std::string getTestEndpoint(int num = 0, const std::string& prot = "");
@@ -187,7 +187,6 @@ public:
     Ice::CommunicatorPtr communicator() const;
 
     void serverReady();
-    void completed();
     void shutdown();
 
     static void shutdownOnInterrupt();
@@ -197,7 +196,7 @@ public:
 
 private:
 
-    ControllerHelperPtr _controllerHelper;
+    ControllerHelper* _controllerHelper;
     Ice::CommunicatorPtr _communicator;
     IceUtil::Mutex _mutex;
 };
