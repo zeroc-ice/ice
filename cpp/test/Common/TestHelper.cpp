@@ -10,8 +10,8 @@ namespace
 {
 
 IceUtil::Mutex* globalMutex = 0;
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
 Test::TestHelper* instance = 0;
-#ifndef ICE_OS_UWP
 IceUtil::CtrlCHandler* ctrlCHandler = 0;
 #endif
 
@@ -28,7 +28,7 @@ public:
     {
         delete globalMutex;
         globalMutex = 0;
-#ifndef ICE_OS_UWP
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
         if(ctrlCHandler)
         {
             delete ctrlCHandler;
