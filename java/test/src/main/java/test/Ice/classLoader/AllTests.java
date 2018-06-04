@@ -66,7 +66,7 @@ public class AllTests
             out.flush();
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
-            MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
+            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
             try(com.zeroc.Ice.Communicator ic = helper.initialize(initData))
             {
@@ -84,7 +84,7 @@ public class AllTests
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
-            MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
+            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
             try(com.zeroc.Ice.Communicator ic = helper.initialize(initData))
             {
@@ -104,7 +104,7 @@ public class AllTests
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("IceSSL.CertVerifier", "test.Ice.classLoader.CertificateVerifierI");
             initData.properties.setProperty("IceSSL.PasswordCallback", "test.Ice.classLoader.PasswordCallbackI");
-            MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
+            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
             try(com.zeroc.Ice.Communicator ic = helper.initialize(initData))
             {
@@ -120,7 +120,7 @@ public class AllTests
         {
             com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
-            MyClassLoader classLoader = new MyClassLoader(initData.classLoader);
+            MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
             try(com.zeroc.Ice.Communicator ic = helper.initialize(initData))
             {

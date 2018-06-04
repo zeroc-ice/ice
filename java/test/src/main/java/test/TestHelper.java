@@ -230,6 +230,11 @@ public abstract class TestHelper
         _classLoader = classLoader;
     }
 
+    public ClassLoader getClassLoader()
+    {
+        return _classLoader;
+    }
+
     public Communicator communicator()
     {
         return _communicator;
