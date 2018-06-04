@@ -121,11 +121,7 @@ var Buffer = Ice.Class({
         }
         else if(n < this.capacity)
         {
-            this.b = this.b.slice(0, this.capacity);
-        }
-        else
-        {
-            return;
+            this.b = this.b.slice(0, n);
         }
     },
     put: function(v)
