@@ -8,7 +8,7 @@
 # **********************************************************************
 
 top_srcdir      := ..
-lang_srcdir     := $(top_srcdir)/cpp
+lang_srcdir     := $(top_srcdir)/$(notdir $(patsubst %/,%,$(dir $(lastword $(abspath $(MAKEFILE_LIST))))))
 
 include $(top_srcdir)/config/Make.rules
 include $(lang_srcdir)/config/Make.rules
