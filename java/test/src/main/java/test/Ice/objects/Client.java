@@ -77,6 +77,7 @@ public class Client extends test.TestHelper
     {
         com.zeroc.Ice.Properties properties = createTestProperties(args);
         properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
         try( com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
