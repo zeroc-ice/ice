@@ -3003,7 +3003,7 @@ class JavaMapping(Mapping):
         package = "test." + current.testcase.getPath()[len(self.getTestsPath()) + 1:].replace(os.sep, ".")
         javaArgs = self.getJavaArgs(process, current)
         if javaArgs:
-            return "{0} -Dtest.class={1} test.TestDriver {2}.{3} {4}".format(java, " ".join(javaArgs), package, exe, args)
+            return "{0} {1} -Dtest.class={2}.{3} test.TestDriver {4}".format(java, " ".join(javaArgs), package, exe, args)
         else:
             return "{0} -Dtest.class={1}.{2} test.TestDriver {3}".format(java, package, exe, args)
 
