@@ -239,9 +239,9 @@ ControllerHelperI::run()
     argv[_args.size()] = 0;
     try
     {
-        Test::StreamHelper streamHelper(ICE_SHARED_FROM_THIS, redirect());
+        Test::StreamHelper streamHelper(this, redirect());
         _helper.reset(createHelper());
-        _helper->setControllerHelper(ICE_SHARED_FROM_THIS);
+        _helper->setControllerHelper(this);
         _helper->run(static_cast<int>(_args.size()), argv);
         completed(0);
     }
