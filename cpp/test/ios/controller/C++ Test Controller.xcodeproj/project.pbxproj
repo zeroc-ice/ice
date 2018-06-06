@@ -41,6 +41,7 @@
 		14E398391E01B30E00A89291 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14E398371E01B30500A89291 /* CFNetwork.framework */; };
 		8267256920A9EF6E0089EA2D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8267256820A9EF6E0089EA2D /* Security.framework */; };
 		8267256A20A9F0210089EA2D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8267256820A9EF6E0089EA2D /* Security.framework */; };
+		828491FE20C82DAB00B4B721 /* ControllerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 82A1B91620C0081200B3535B /* ControllerView.m */; };
 		82A1B91820C0081200B3535B /* ControllerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 82A1B91620C0081200B3535B /* ControllerView.m */; };
 /* End PBXBuildFile section */
 
@@ -477,6 +478,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				828491FE20C82DAB00B4B721 /* ControllerView.m in Sources */,
 				148ABA441DFEEAEE00594F70 /* AppDelegate.m in Sources */,
 				148ABA451DFEEAEE00594F70 /* main.m in Sources */,
 			);

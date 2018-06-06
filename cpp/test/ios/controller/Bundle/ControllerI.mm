@@ -31,9 +31,6 @@ namespace
     class ControllerHelperI : public Test::ControllerHelper,
                               private IceUtil::Monitor<IceUtil::Mutex>,
                               public IceUtil::Thread
-#ifdef ICE_CPP11_MAPPING
-                              , public enable_shared_from_this<ControllerHelperI>
-#endif
     {
     public:
 
@@ -67,7 +64,6 @@ namespace
         std::ostringstream _out;
         IceInternal::UniquePtr<Test::TestHelper> _helper;
     };
-    ICE_DEFINE_PTR(ControllerHelperIPtr, ControllerHelperI);
 
     class ProcessI : public Process
     {
@@ -133,6 +129,11 @@ _status(0)
 
 ControllerHelperI::~ControllerHelperI()
 {
+    if(_helper)
+    {
+        _helper.release();
+    }
+
     if(_handle)
     {
         CFBundleUnloadExecutable(_handle);
@@ -311,7 +312,9 @@ ControllerHelperI::getOutput() const
     return _out.str();
 }
 
-ProcessI::ProcessI(id<ControllerView> controller, ControllerHelperI* helper) : _controller(controller), _helper(helper)
+ProcessI::ProcessI(id<ControllerView> controller, ControllerHelperI* helper) :
+    _controller(controller),
+    _helper(helper)
 {
 }
 
@@ -356,7 +359,7 @@ ProcessControllerI::start(const string& testSuite, const string& exe, const Stri
     std::string prefix = std::string("test/") + testSuite;
     replace(prefix.begin(), prefix.end(), '/', '_');
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
-    ControllerHelperIPtr helper = ICE_MAKE_SHARED(ControllerHelperI, _controller, prefix + '/' + exe + ".bundle", args);
+    IceUtil::Handle<ControllerHelperI> helper(new ControllerHelperI(_controller, prefix + '/' + exe + ".bundle", args));
 
     //
     // Use a 768KB thread stack size for the objects test. This is necessary when running the
