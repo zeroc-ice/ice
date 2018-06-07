@@ -5080,7 +5080,7 @@ public class SessionKeeper
     }
 
     public void loginSuccess(final JDialog parent, final long sessionTimeout, final int acmTimeout,
-                             final AdminSessionPrx adminSession, final ConnectionInfo info)
+                             final AdminSessionPrx adminSession, final String replicaName, final ConnectionInfo info)
     {
         try
         {
@@ -5105,21 +5105,8 @@ public class SessionKeeper
         }
 
         assert adminSession != null;
-        try
-        {
-            _replicaName = adminSession.getReplicaName();
-        }
-        catch(com.zeroc.Ice.LocalException e)
-        {
-            logout(true);
-            JOptionPane.showMessageDialog(
-                parent,
-                "Could not retrieve replica name: " + e.toString(),
-                "Login failed",
-                JOptionPane.ERROR_MESSAGE);
-            return;
-        }
 
+        _replicaName = replicaName;
         _coordinator.setConnected(true);
 
         _connectedToMaster = _replicaName.equals("Master");

@@ -1699,6 +1699,11 @@ public class Coordinator
                 _acmTimeout = acmTimeout;
             }
 
+            synchronized public void setReplicaName(String replicaName)
+            {
+                _replicaName = replicaName;
+            }
+
             synchronized public void loginSuccess()
             {
                 _logout.setEnabled(true);
@@ -1711,7 +1716,7 @@ public class Coordinator
                 _newApplicationWithDefaultTemplates.setEnabled(true);
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
-                _sessionKeeper.loginSuccess(parent, _sessionTimeout, _acmTimeout, _session, info);
+                _sessionKeeper.loginSuccess(parent, _sessionTimeout, _acmTimeout, _session, _replicaName, info);
             }
 
             synchronized public void loginFailed()
@@ -1734,6 +1739,7 @@ public class Coordinator
             private AdminSessionPrx _session;
             private long _sessionTimeout = 0;
             private int _acmTimeout = 0;
+            private String _replicaName;
             private boolean _failed = false;
         }
 
@@ -1813,6 +1819,7 @@ public class Coordinator
                                catch(com.zeroc.Ice.OperationNotExistException ex)
                                {
                                }
+                               cb.setReplicaName(cb.getSession().getReplicaName());
                                SwingUtilities.invokeLater(() -> cb.loginSuccess());
                            }
                            catch(final com.zeroc.Glacier2.PermissionDeniedException e)
@@ -2133,6 +2140,7 @@ public class Coordinator
                                    }
                                } while(cb.getSession() == null);
 
+                               cb.setReplicaName(cb.getSession().getReplicaName());
                                SwingUtilities.invokeLater(() -> cb.loginSuccess());
                            }
                        });
