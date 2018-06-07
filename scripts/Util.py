@@ -3515,7 +3515,11 @@ from LocalDriver import *
 from Component import *
 
 def runTestsWithPath(path):
-    runTests([Mapping.getByPath(path)])
+    mapping = Mapping.getByPath(path)
+    if not mapping:
+        print("couldn't find mapping for `{0}' (is this mapping supported on this platform?)".format(path))
+        sys.exit(0)
+    runTests([mapping])
 
 def runTests(mappings=None, drivers=None):
     if not mappings:
