@@ -223,7 +223,7 @@ public class SessionKeeper
                         {
                             SwingUtilities.invokeLater(() ->
                                 {
-                                    sessionLost("Failed to contact the IceGrid registry: " + ex.toString());
+                                    sessionLost();
                                 });
                         }
                     });
@@ -238,7 +238,7 @@ public class SessionKeeper
                                 {
                                     SwingUtilities.invokeLater(() ->
                                         {
-                                            sessionLost("Failed to contact the IceGrid registry: " + ex.toString());
+                                            sessionLost();
                                         });
                                 }
                             });
@@ -5404,11 +5404,11 @@ public class SessionKeeper
         _authDialog.showDialog();
     }
 
-    void sessionLost(String message)
+    void sessionLost()
     {
         JOptionPane.showMessageDialog(
             _coordinator.getMainFrame(),
-            message,
+            "The connection with the registry has been closed.",
             "Session lost",
             JOptionPane.ERROR_MESSAGE);
 
