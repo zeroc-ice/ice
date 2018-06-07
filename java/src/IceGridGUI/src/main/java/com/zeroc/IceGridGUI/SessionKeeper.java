@@ -5202,6 +5202,12 @@ public class SessionKeeper
 
     public void permissionDenied(final JDialog parent, final ConnectionInfo info, final String msg)
     {
+        if(_authDialog != null)
+        {
+            _authDialog.dispose();
+            _authDialog = null;
+        }
+
         class PermissionDeniedAuthDialog extends AuthDialog
         {
             PermissionDeniedAuthDialog()
@@ -5355,8 +5361,9 @@ public class SessionKeeper
                             }
                         }
                     };
+                okButton.setAction(okAction);
 
-                AbstractAction editAction = new AbstractAction("Edit Connection")
+                AbstractAction editConnectionAction = new AbstractAction("Edit Connection")
                     {
                         @Override
                         public void actionPerformed(ActionEvent e)
@@ -5370,6 +5377,7 @@ public class SessionKeeper
                             dialog.setVisible(true);
                         }
                     };
+                editConnectionButton.setAction(editConnectionAction);
 
                 AbstractAction cancelAction = new AbstractAction("Cancel")
                     {
@@ -5381,6 +5389,7 @@ public class SessionKeeper
                             _authDialog = null;
                         }
                     };
+                cancelButton.setAction(cancelAction);
 
                 JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton,
                     cancelButton).addGlue().build();
