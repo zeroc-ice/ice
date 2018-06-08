@@ -619,6 +619,8 @@
         }
 
         out.writeLine("ok");
+
+        return Promise.resolve();
     }
 
     exports._test = run;
