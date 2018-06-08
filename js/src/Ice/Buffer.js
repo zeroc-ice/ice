@@ -26,14 +26,15 @@ class Buffer
         {
             this.b = buffer;
             this.v = new DataView(this.b);
+            this._limit = this.b.byteLength;
         }
         else
         {
             this.b = null; // ArrayBuffer
             this.v = null; // DataView
+            this._limit = 0;
         }
         this._position = 0;
-        this._limit = 0;
         this._shrinkCounter = 0;
     }
 

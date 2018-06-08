@@ -1170,9 +1170,13 @@ class InputStream
                     {
                         args.buffer = arg;
                     }
-                    else if(arg.constructor === Array)
+                    else if(arg.constructor === ArrayBuffer)
                     {
                         args.bytes = arg;
+                    }
+                    else if(arg.constructor === Uint8Array)
+                    {
+                        args.bytes = arg.buffer;
                     }
                     else
                     {
@@ -2289,7 +2293,7 @@ class EncapsEncoder10 extends EncapsEncoder
         }
     }
 
-    writeUserException(v)
+    writeException(v)
     {
         Debug.assert(v !== null && v !== undefined);
         //
@@ -2494,7 +2498,7 @@ class EncapsEncoder11 extends EncapsEncoder
         return undefined;
     }
 
-    writeUserException(v)
+    writeException(v)
     {
         Debug.assert(v !== null && v !== undefined);
         v._write(this._stream);
@@ -3258,10 +3262,18 @@ class OutputStream
         }
     }
 
-    writeUserException(e)
+    writeException(e)
     {
         this.initEncaps();
-        this._encapsStack.encoder.writeUserException(e);
+        this._encapsStack.encoder.writeException(e);
+    }
+
+    //
+    // Keep for compatibility with 3.7.0 remove with next major version
+    //
+    writeUserException(e)
+    {
+        this.WriteException(e);
     }
 
     writeOptImpl(tag, format)

@@ -111,6 +111,7 @@ var tests = [
     "test/Ice/servantLocator",
     "test/Ice/slicing/exceptions",
     "test/Ice/slicing/objects",
+    "test/Ice/stream",
     "test/Ice/timeout",
     "test/Ice/number",
     "test/Glacier2/router",

@@ -166,6 +166,10 @@
     {
         "files": ["Client.js"]
     },
+    "Ice/stream":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
     "Glacier2/router":
     {
         "files": ["/lib/Glacier2.js", "Callback.js", "Client.js"],
