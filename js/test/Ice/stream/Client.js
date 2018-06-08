@@ -22,7 +22,7 @@
         }
     }
 
-    function run(out, initData, args)
+    async function run(out, initData, args)
     {
         const communicator = Ice.initialize(initData);
 
@@ -619,8 +619,6 @@
         }
 
         out.writeLine("ok");
-
-        return Promise.resolve();
     }
 
     exports._test = run;
