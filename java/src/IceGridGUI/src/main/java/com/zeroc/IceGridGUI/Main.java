@@ -119,7 +119,7 @@ public class Main extends JFrame
             });
 
         _coordinator = new Coordinator(this, args, Preferences.userRoot().node("IceGridGUI"));
-
+        _coordinator.tryMigrateDataDirectory();
         _coordinator.showMainFrame();
     }
 
