@@ -10,6 +10,8 @@
 #ifndef ICESSL_SECURE_TRANSPORT_ENGINE_H
 #define ICESSL_SECURE_TRANSPORT_ENGINE_H
 
+#ifdef __APPLE__
+
 #include <IceSSL/SSLEngine.h>
 #include <Ice/UniqueRef.h>
 
@@ -56,5 +58,7 @@ private:
 } // SecureTransport namespace end
 
 } // IceSSL namespace end
+
+#endif
 
 #endif
