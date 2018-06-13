@@ -2074,10 +2074,10 @@ class RemoteProcessController(ProcessController):
                 self.processControllerProxies[ident] = proxy
                 return self.processControllerProxies[ident]
         else:
-            # Wait 10 seconds for a process controller to be registered with the ProcessControllerRegistry
+            # Wait 30 seconds for a process controller to be registered with the ProcessControllerRegistry
             with self.cond:
                 if not ident in self.processControllerProxies:
-                    self.cond.wait(10)
+                    self.cond.wait(30)
                 if ident in self.processControllerProxies:
                     return self.processControllerProxies[ident]
             raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
