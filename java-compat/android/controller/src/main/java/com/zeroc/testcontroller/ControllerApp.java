@@ -25,9 +25,6 @@ import Test.Common.ProcessControllerRegistryPrx;
 import Test.Common.ProcessControllerPrx;
 import Test.Common.ProcessControllerPrxHelper;
 
-import  test.TestHelper.CommunicatorListener;
-import  test.TestHelper.ServerReadyListener;
-
 public class ControllerApp extends Application
 {
     private final String TAG = "ControllerApp";
@@ -327,12 +324,27 @@ public class ControllerApp extends Application
         private Ice.Communicator _communicator;
     }
 
-    class ControllerHelperI extends Thread implements test.TestHelper.ServerReadyListener
+    class ControllerHelperI extends Thread implements test.TestHelper.ControllerHelper
     {
         public ControllerHelperI(TestSuiteBundle bundle, String[] args, String exe)
         {
             _bundle = bundle;
             _args = args;
+        }
+
+        public void communicatorInitialized(Communicator communicator)
+        {
+            if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").equals("IceSSL.PluginFactory"))
+            {
+                IceSSL.Plugin plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
+                String keystore = communicator.getProperties().getProperty("IceSSL.Keystore");
+                communicator.getProperties().setProperty("IceSSL.Keystore", "");
+                java.io.InputStream certs = getResources().openRawResource(
+                        keystore.equals("client.bks") ? R.raw.client : R.raw.server);
+                plugin.setKeystoreStream(certs);
+                plugin.setTruststoreStream(certs);
+                communicator.getPluginManager().initializePlugins();
+            }
         }
 
         public void run()
@@ -341,23 +353,7 @@ public class ControllerApp extends Application
             {
                 _helper = _bundle.newInstance();
                 _helper.setClassLoader(_bundle.getClassLoader());
-                _helper.setCommunicatorListener(new CommunicatorListener()
-                {
-                    public void communicatorInitialized(Communicator communicator)
-                    {
-                        if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").equals("IceSSL.PluginFactory"))
-                        {
-                            IceSSL.Plugin plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
-                            String keystore = communicator.getProperties().getProperty("IceSSL.Keystore");
-                            communicator.getProperties().setProperty("IceSSL.Keystore", "");
-                            java.io.InputStream certs = getResources().openRawResource(
-                                keystore.equals("client.bks") ? R.raw.client : R.raw.server);
-                            plugin.setKeystoreStream(certs);
-                            plugin.setTruststoreStream(certs);
-                            communicator.getPluginManager().initializePlugins();
-                        }
-                    }
-                });
+                _helper.setControllerHelper(this);
                 _helper.setWriter(new Writer()
                     {
                         @Override
@@ -377,7 +373,6 @@ public class ControllerApp extends Application
                             _out.append(buf, offset, count);
                         }
                     });
-                _helper.setServerReadyListener(this);
 
                 _helper.run(_args);
                 synchronized(this)

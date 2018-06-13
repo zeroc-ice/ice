@@ -22,7 +22,6 @@ import android.app.Application;
 
 import Test.Common.ProcessControllerRegistryPrx;
 import Test.Common.ProcessControllerPrx;
-import test.TestHelper.CommunicatorListener;
 
 public class ControllerApp extends Application
 {
@@ -196,8 +195,8 @@ public class ControllerApp extends Application
             initData.properties = com.zeroc.Ice.Util.createProperties();
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
-            //initData.properties.setProperty("Ice.Trace.Network", "3");
-            //initData.properties.setProperty("Ice.Trace.Protocol", "1");
+            initData.properties.setProperty("Ice.Trace.Network", "3");
+            initData.properties.setProperty("Ice.Trace.Protocol", "1");
             initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
@@ -307,12 +306,29 @@ public class ControllerApp extends Application
         private com.zeroc.Ice.Communicator _communicator;
     }
 
-    class ControllerHelperI extends Thread implements test.TestHelper.ServerReadyListener
+    class ControllerHelperI extends Thread implements test.TestHelper.ControllerHelper
     {
         public ControllerHelperI(TestSuiteBundle bundle, String[] args, String exe)
         {
             _bundle = bundle;
             _args = args;
+        }
+
+        public void communicatorInitialized(Communicator communicator)
+        {
+            com.zeroc.Ice.Properties properties = communicator.getProperties();
+            if(properties.getProperty("Ice.Plugin.IceSSL").equals("com.zeroc.IceSSL.PluginFactory"))
+            {
+                com.zeroc.IceSSL.Plugin plugin =
+                        (com.zeroc.IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
+                String keystore = communicator.getProperties().getProperty("IceSSL.Keystore");
+                properties.setProperty("IceSSL.Keystore", "");
+                int resource = keystore.equals("client.bks") ? R.raw.client : R.raw.server;
+                java.io.InputStream certs = getResources().openRawResource(resource);
+                plugin.setKeystoreStream(certs);
+                plugin.setTruststoreStream(certs);
+                communicator.getPluginManager().initializePlugins();
+            }
         }
 
         public void run()
@@ -321,25 +337,7 @@ public class ControllerApp extends Application
             {
                 _helper = _bundle.newInstance();
                 _helper.setClassLoader(_bundle.getClassLoader());
-                _helper.setCommunicatorListener(new CommunicatorListener()
-                {
-                    public void communicatorInitialized(Communicator communicator)
-                    {
-                        com.zeroc.Ice.Properties properties = communicator.getProperties();
-                        if(properties.getProperty("Ice.Plugin.IceSSL").equals("com.zeroc.IceSSL.PluginFactory"))
-                        {
-                            com.zeroc.IceSSL.Plugin plugin =
-                                (com.zeroc.IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
-                            String keystore = communicator.getProperties().getProperty("IceSSL.Keystore");
-                            properties.setProperty("IceSSL.Keystore", "");
-                            int resource = keystore.equals("client.bks") ? R.raw.client : R.raw.server;
-                            java.io.InputStream certs = getResources().openRawResource(resource);
-                            plugin.setKeystoreStream(certs);
-                            plugin.setTruststoreStream(certs);
-                            communicator.getPluginManager().initializePlugins();
-                        }
-                    }
-                });
+                _helper.setControllerHelper(this);
 
                 _helper.setWriter(new Writer()
                     {
@@ -360,8 +358,6 @@ public class ControllerApp extends Application
                             _out.append(buf, offset, count);
                         }
                     });
-
-                _helper.setServerReadyListener(this);
 
                 _helper.run(_args);
                 synchronized(this)

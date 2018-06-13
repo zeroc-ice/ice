@@ -23,13 +23,9 @@ public abstract class TestHelper
 
     public abstract void run(String args[]);
 
-    public interface CommunicatorListener
+    public interface ControllerHelper
     {
         void communicatorInitialized(Communicator c);
-    }
-
-    public interface ServerReadyListener
-    {
         void serverReady();
     }
 
@@ -182,29 +178,24 @@ public abstract class TestHelper
             _communicator = communicator;
         }
 
-        if(_communicatorListener != null)
+        if(_controllerHelper != null)
         {
-            _communicatorListener.communicatorInitialized(communicator);
+            _controllerHelper.communicatorInitialized(communicator);
         }
 
         return  communicator;
     }
 
-    synchronized public  void setServerReadyListener(ServerReadyListener listener)
+    synchronized public void setControllerHelper(ControllerHelper controllerHelper)
     {
-        _serverListener = listener;
-    }
-
-    synchronized public  void setCommunicatorListener(CommunicatorListener listener)
-    {
-        _communicatorListener = listener;
+        _controllerHelper = controllerHelper;
     }
 
     public void serverReady()
     {
-        if(_serverListener != null)
+        if(_controllerHelper != null)
         {
-            _serverListener.serverReady();
+            _controllerHelper.serverReady();
         }
     }
 
@@ -246,8 +237,7 @@ public abstract class TestHelper
         }
     }
 
-    private ServerReadyListener _serverListener;
-    private CommunicatorListener _communicatorListener;
+    private ControllerHelper _controllerHelper;
     private ClassLoader _classLoader;
     private Communicator _communicator;
     private java.io.PrintWriter _printWriter = new java.io.PrintWriter(new java.io.OutputStreamWriter(System.out));
