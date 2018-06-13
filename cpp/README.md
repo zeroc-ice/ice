@@ -131,6 +131,13 @@ with the `srcs` target, or only the tests with the `tests` target. For example:
 make V=1 -j8 srcs
 ```
 
+The build system supports specifying additional preprocessor, compiler and
+linker options with the `CPPFLAGS`, `CXXFLAGS` and `LDFLAGS` variables. For
+example, to build the Ice C++98 mapping with `-std=c++11`, you can use:
+```
+make CXXFLAGS=-std=c++11
+```
+
 ### Build configurations and platforms
 
 The C++ source tree supports multiple build configurations and platforms. To
