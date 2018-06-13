@@ -24,16 +24,8 @@
 #include <Ice/CommunicatorF.h>
 #include <Ice/ProxyF.h>
 #include <Ice/Initialize.h>
-
-#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
-#   include <Ice/Logger.h>
-#   include <Ice/LocalException.h>
-
-#   include <cassert>
-#   include <cstdlib>
-#   include <string>
-#   include <iostream>
-#endif
+#include <Ice/Logger.h>
+#include <Ice/LocalException.h>
 
 #include <IceUtil/IceUtil.h>
 
@@ -189,8 +181,7 @@ public:
     void serverReady();
     void shutdown();
 
-    static void shutdownOnInterrupt();
-    static void shutdownOnInterruptCallback(int);
+    void shutdownOnInterrupt();
 
     virtual void run(int argc, char* argv[]) = 0;
 
@@ -198,7 +189,9 @@ private:
 
     ControllerHelper* _controllerHelper;
     Ice::CommunicatorPtr _communicator;
-    IceUtil::Mutex _mutex;
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+    IceUtil::CtrlCHandler* _ctrlCHandler;
+#endif
 };
 
 #if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)

@@ -1,3 +1,11 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
 
 #include <TestHelper.h>
 #include <Ice/RegisterPlugins.h>
@@ -9,50 +17,29 @@ using namespace Test;
 namespace
 {
 
-IceUtil::Mutex* globalMutex = 0;
 #if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
 Test::TestHelper* instance = 0;
-IceUtil::CtrlCHandler* ctrlCHandler = 0;
-#endif
 
-class Init
+void
+shutdownOnInterruptCallback(int)
 {
-public:
-
-    Init()
+    if(instance)
     {
-        globalMutex = new IceUtil::Mutex;
+        instance->shutdown();
     }
+}
 
-    ~Init()
-    {
-        delete globalMutex;
-        globalMutex = 0;
-#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
-        if(ctrlCHandler)
-        {
-            delete ctrlCHandler;
-            ctrlCHandler = 0;
-        }
 #endif
-    }
-};
-
-Init init;
 
 }
 
 Test::TestHelper::TestHelper(bool registerPlugins)
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+    : _ctrlCHandler(0)
+#endif
 {
 #if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
-    {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
-        if(instance != 0)
-        {
-            throw runtime_error("only one instance of the Test::TestHelper class can be used");
-        }
-        instance = this;
-    }
+    instance = this;
 #endif
 
     if(registerPlugins)
@@ -83,6 +70,13 @@ Test::TestHelper::TestHelper(bool registerPlugins)
 
 Test::TestHelper::~TestHelper()
 {
+#if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
+    if(_ctrlCHandler)
+    {
+        delete _ctrlCHandler;
+        _ctrlCHandler = 0;
+    }
+#endif
 }
 
 void
@@ -215,7 +209,6 @@ Test::TestHelper::initialize(int& argc, char* argv[], const Ice::PropertiesPtr& 
 Ice::CommunicatorPtr
 Test::TestHelper::initialize(int& argc, char* argv[], Ice::InitializationData initData)
 {
-    IceUtil::Mutex::Lock lock(_mutex);
     _communicator = Ice::initialize(argc, argv, initData);
     return _communicator;
 }
@@ -238,7 +231,6 @@ Test::TestHelper::serverReady()
 void
 Test::TestHelper::shutdown()
 {
-    IceUtil::Mutex::Lock lock(_mutex);
     if(_communicator)
     {
         _communicator->shutdown();
@@ -252,25 +244,13 @@ Test::TestHelper::shutdownOnInterrupt()
 }
 #else
 void
-Test::TestHelper::shutdownOnInterruptCallback(int)
-{
-    if(instance)
-    {
-        instance->shutdown();
-    }
-}
-
-void
 Test::TestHelper::shutdownOnInterrupt()
 {
+    assert(!_ctrlCHandler);
+    if(_ctrlCHandler == 0)
     {
-        IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
-        assert(!ctrlCHandler);
-        if(ctrlCHandler == 0)
-        {
-            ctrlCHandler = new IceUtil::CtrlCHandler();
-        }
+        _ctrlCHandler = new IceUtil::CtrlCHandler();
     }
-    ctrlCHandler->setCallback(shutdownOnInterruptCallback);
+    _ctrlCHandler->setCallback(shutdownOnInterruptCallback);
 }
 #endif
