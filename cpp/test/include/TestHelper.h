@@ -174,7 +174,7 @@ public:
     Ice::CommunicatorPtr
     initialize(int& argc, char* argv[], const Ice::PropertiesPtr& properties = ICE_NULLPTR);
 
-    Ice::CommunicatorPtr initialize(int& argc, char* argv[], Ice::InitializationData initData);
+    Ice::CommunicatorPtr initialize(int&, char*[], const Ice::InitializationData&);
 
     Ice::CommunicatorPtr communicator() const;
 
