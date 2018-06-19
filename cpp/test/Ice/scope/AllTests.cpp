@@ -14,6 +14,240 @@
 
 using namespace std;
 
+namespace Test
+{
+
+class Callback : public IceUtil::Shared
+{
+public:
+
+    Callback() : _called(false)
+    {
+    }
+
+    void opS(const Test::S& s2, const Test::S& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opSSeq(const Test::SSeq& s2, const Test::SSeq& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opSMap(const Test::SMap& s2, const Test::SMap& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opC(const Test::CPtr& c2, const Test::CPtr& c3)
+    {
+        test(c2 == c3);
+        called();
+    }
+
+    void opCSeq(const Test::CSeq& c2, const Test::CSeq& c3)
+    {
+        test(c2 == c3);
+        called();
+    }
+
+    void opCMap(const Test::CMap& c2, const Test::CMap& c3)
+    {
+        test(c2 == c3);
+        called();
+    }
+
+    void error(const Ice::Exception& ex)
+    {
+        test(false);
+    }
+
+    void called()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        assert(!_called);
+        _called = true;
+        _m.notify();
+    }
+
+    void check()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        while (!_called)
+        {
+            _m.wait();
+        }
+        _called = false;
+    }
+
+private:
+
+    IceUtil::Monitor<IceUtil::Mutex> _m;
+    bool _called;
+};
+
+namespace Inner
+{
+
+class Callback : public IceUtil::Shared
+{
+public:
+
+    Callback() : _called(false)
+    {
+    }
+
+    void opS(const Test::Inner::Inner2::S& s2, const Test::Inner::Inner2::S& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opSSeq(const Test::Inner::Inner2::SSeq& s2, const Test::Inner::Inner2::SSeq& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opSMap(const Test::Inner::Inner2::SMap& s2, const Test::Inner::Inner2::SMap& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opC(const Test::Inner::Inner2::CPtr& c2, const Test::Inner::Inner2::CPtr& c3)
+    {
+        test(c2 == c3);
+        called();
+    }
+
+    void opCSeq(const Test::Inner::Inner2::CSeq& c2, const Test::Inner::Inner2::CSeq& c3)
+    {
+        test(c2 == c3);
+        called();
+    }
+
+    void opCMap(const Test::Inner::Inner2::CMap& c2, const Test::Inner::Inner2::CMap& c3)
+    {
+        test(c2 == c3);
+        called();
+    }
+
+    void error(const Ice::Exception& ex)
+    {
+        test(false);
+    }
+
+    void called()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        assert(!_called);
+        _called = true;
+        _m.notify();
+    }
+
+    void check()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        while (!_called)
+        {
+            _m.wait();
+        }
+        _called = false;
+    }
+
+private:
+
+    IceUtil::Monitor<IceUtil::Mutex> _m;
+    bool _called;
+};
+
+namespace Inner2
+{
+
+class Callback : public IceUtil::Shared
+{
+public:
+
+    Callback() : _called(false)
+    {
+    }
+
+    void opS(const Test::Inner::Inner2::S& s2, const Test::Inner::Inner2::S& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opSSeq(const Test::Inner::Inner2::SSeq& s2, const Test::Inner::Inner2::SSeq& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opSMap(const Test::Inner::Inner2::SMap& s2, const Test::Inner::Inner2::SMap& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opC(const Test::Inner::Inner2::CPtr& s2, const Test::Inner::Inner2::CPtr& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opCSeq(const Test::Inner::Inner2::CSeq& s2, const Test::Inner::Inner2::CSeq& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void opCMap(const Test::Inner::Inner2::CMap& s2, const Test::Inner::Inner2::CMap& s3)
+    {
+        test(s2 == s3);
+        called();
+    }
+
+    void error(const Ice::Exception& ex)
+    {
+        test(false);
+    }
+
+    void called()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        assert(!_called);
+        _called = true;
+        _m.notify();
+    }
+
+    void check()
+    {
+        IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
+        while (!_called)
+        {
+            _m.wait();
+        }
+        _called = false;
+    }
+
+private:
+
+    IceUtil::Monitor<IceUtil::Mutex> _m;
+    bool _called;
+};
+
+}
+
+}
+
+}
+
 void
 allTests(Test::TestHelper* helper)
 {
@@ -351,114 +585,46 @@ allTests(Test::TestHelper* helper)
     {
         Test::IPrxPtr i =
             ICE_CHECKED_CAST(Test::IPrx, communicator->stringToProxy("i1:" + helper->getTestEndpoint()));
-        class Callback : public IceUtil::Shared
-        {
-        public:
-
-            Callback() : _called(false)
-            {
-            }
-
-            void opS(const Test::S& s2, const Test::S& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opSSeq(const Test::SSeq& s2, const Test::SSeq& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opSMap(const Test::SMap& s2, const Test::SMap& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opC(const Test::CPtr& c2, const Test::CPtr& c3)
-            {
-                test(c2 == c3);
-                called();
-            }
-
-            void opCSeq(const Test::CSeq& c2, const Test::CSeq& c3)
-            {
-                test(c2 == c3);
-                called();
-            }
-
-            void opCMap(const Test::CMap& c2, const Test::CMap& c3)
-            {
-                test(c2 == c3);
-                called();
-            }
-
-            void error(const Ice::Exception& ex)
-            {
-                test(false);
-            }
-
-            void called()
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-                assert(!_called);
-                _called = true;
-                _m.notify();
-            }
-
-            void check()
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-                while (!_called)
-                {
-                    _m.wait();
-                }
-                _called = false;
-            }
-
-        private:
-
-            IceUtil::Monitor<IceUtil::Mutex> _m;
-            bool _called;
-        };
-        ICE_DEFINE_PTR(CallbackPtr, Callback);
-
-        CallbackPtr cb = new Callback;
+        IceUtil::Handle<Test::Callback> cb = new Test::Callback();
 
         Test::S s1;
         s1.v = 0;
-        Test::Callback_I_opSPtr opSCB = Test::newCallback_I_opS(cb, &Callback::opS, &Callback::error);
+        Test::Callback_I_opSPtr opSCB =
+            Test::newCallback_I_opS(cb, &Test::Callback::opS, &Test::Callback::error);
         i->begin_opS(s1, opSCB);
         cb->check();
 
         Test::SSeq sseq1;
         sseq1.push_back(s1);
-        Test::Callback_I_opSSeqPtr opSSeqCB = Test::newCallback_I_opSSeq(cb, &Callback::opSSeq, &Callback::error);
+        Test::Callback_I_opSSeqPtr opSSeqCB =
+            Test::newCallback_I_opSSeq(cb, &Test::Callback::opSSeq, &Test::Callback::error);
         i->begin_opSSeq(sseq1, opSSeqCB);
         cb->check();
 
         Test::SMap smap1;
         smap1["a"] = s1;
-        Test::Callback_I_opSMapPtr opSMapCB = Test::newCallback_I_opSMap(cb, &Callback::opSMap, &Callback::error);
+        Test::Callback_I_opSMapPtr opSMapCB =
+            Test::newCallback_I_opSMap(cb, &Test::Callback::opSMap, &Test::Callback::error);
         i->begin_opSMap(smap1, opSMapCB);
         cb->check();
 
         Test::CPtr c1 = new Test::C(s1);
-        Test::Callback_I_opCPtr opCCB = Test::newCallback_I_opC(cb, &Callback::opC, &Callback::error);
+        Test::Callback_I_opCPtr opCCB =
+            Test::newCallback_I_opC(cb, &Test::Callback::opC, &Test::Callback::error);
         i->begin_opC(c1, opCCB);
         cb->check();
 
         Test::CSeq cseq1;
         cseq1.push_back(c1);
-        Test::Callback_I_opCSeqPtr opCSeqCB = Test::newCallback_I_opCSeq(cb, &Callback::opCSeq, &Callback::error);
+        Test::Callback_I_opCSeqPtr opCSeqCB =
+            Test::newCallback_I_opCSeq(cb, &Test::Callback::opCSeq, &Test::Callback::error);
         i->begin_opCSeq(cseq1, opCSeqCB);
         cb->check();
 
         Test::CMap cmap1;
         cmap1["a"] = c1;
-        Test::Callback_I_opCMapPtr opCMapCB = Test::newCallback_I_opCMap(cb, &Callback::opCMap, &Callback::error);
+        Test::Callback_I_opCMapPtr opCMapCB =
+            Test::newCallback_I_opCMap(cb, &Test::Callback::opCMap, &Test::Callback::error);
         i->begin_opCMap(cmap1, opCMapCB);
         cb->check();
 
@@ -804,120 +970,56 @@ allTests(Test::TestHelper* helper)
             ICE_CHECKED_CAST(Test::Inner::Inner2::IPrx,
                              communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
 
-        class Callback : public IceUtil::Shared
-        {
-        public:
-
-            Callback() : _called(false)
-            {
-            }
-
-            void opS(const Test::Inner::Inner2::S& s2, const Test::Inner::Inner2::S& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opSSeq(const Test::Inner::Inner2::SSeq& s2, const Test::Inner::Inner2::SSeq& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opSMap(const Test::Inner::Inner2::SMap& s2, const Test::Inner::Inner2::SMap& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opC(const Test::Inner::Inner2::CPtr& c2, const Test::Inner::Inner2::CPtr& c3)
-            {
-                test(c2 == c3);
-                called();
-            }
-
-            void opCSeq(const Test::Inner::Inner2::CSeq& c2, const Test::Inner::Inner2::CSeq& c3)
-            {
-                test(c2 == c3);
-                called();
-            }
-
-            void opCMap(const Test::Inner::Inner2::CMap& c2, const Test::Inner::Inner2::CMap& c3)
-            {
-                test(c2 == c3);
-                called();
-            }
-
-            void error(const Ice::Exception& ex)
-            {
-                test(false);
-            }
-
-            void called()
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-                assert(!_called);
-                _called = true;
-                _m.notify();
-            }
-
-            void check()
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-                while (!_called)
-                {
-                    _m.wait();
-                }
-                _called = false;
-            }
-
-        private:
-
-            IceUtil::Monitor<IceUtil::Mutex> _m;
-            bool _called;
-        };
-        ICE_DEFINE_PTR(CallbackPtr, Callback);
-
-        CallbackPtr cb = new Callback;
+        IceUtil::Handle<Test::Inner::Callback> cb = new Test::Inner::Callback();
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
         Test::Inner::Inner2::Callback_I_opSPtr opSCB =
-            Test::Inner::Inner2::newCallback_I_opS(cb, &Callback::opS, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opS(cb, &Test::Inner::Callback::opS, &Test::Inner::Callback::error);
         i->begin_opS(s1, opSCB);
         cb->check();
 
         Test::Inner::Inner2::SSeq sseq1;
         sseq1.push_back(s1);
         Test::Inner::Inner2::Callback_I_opSSeqPtr opSSeqCB =
-            Test::Inner::Inner2::newCallback_I_opSSeq(cb, &Callback::opSSeq, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opSSeq(cb,
+                                                      &Test::Inner::Callback::opSSeq,
+                                                      &Test::Inner::Callback::error);
         i->begin_opSSeq(sseq1, opSSeqCB);
         cb->check();
 
         Test::Inner::Inner2::SMap smap1;
         smap1["a"] = s1;
         Test::Inner::Inner2::Callback_I_opSMapPtr opSMapCB =
-            Test::Inner::Inner2::newCallback_I_opSMap(cb, &Callback::opSMap, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opSMap(cb,
+                                                      &Test::Inner::Callback::opSMap,
+                                                      &Test::Inner::Callback::error);
         i->begin_opSMap(smap1, opSMapCB);
         cb->check();
 
         Test::Inner::Inner2::CPtr c1 = new Test::Inner::Inner2::C(s1);
         Test::Inner::Inner2::Callback_I_opCPtr opCCB =
-            Test::Inner::Inner2::newCallback_I_opC(cb, &Callback::opC, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opC(cb,
+                                                   &Test::Inner::Callback::opC,
+                                                   &Test::Inner::Callback::error);
         i->begin_opC(c1, opCCB);
         cb->check();
 
         Test::Inner::Inner2::CSeq cseq1;
         cseq1.push_back(c1);
         Test::Inner::Inner2::Callback_I_opCSeqPtr opCSeqCB =
-            Test::Inner::Inner2::newCallback_I_opCSeq(cb, &Callback::opCSeq, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opCSeq(cb,
+                                                      &Test::Inner::Callback::opCSeq,
+                                                      &Test::Inner::Callback::error);
         i->begin_opCSeq(cseq1, opCSeqCB);
         cb->check();
 
         Test::Inner::Inner2::CMap cmap1;
         cmap1["a"] = c1;
         Test::Inner::Inner2::Callback_I_opCMapPtr opCMapCB =
-            Test::Inner::Inner2::newCallback_I_opCMap(cb, &Callback::opCMap, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opCMap(cb,
+                                                      &Test::Inner::Callback::opCMap,
+                                                      &Test::Inner::Callback::error);
         i->begin_opCMap(cmap1, opCMapCB);
         cb->check();
     }
@@ -1259,120 +1361,58 @@ allTests(Test::TestHelper* helper)
             ICE_CHECKED_CAST(Test::Inner::Inner2::IPrx,
                              communicator->stringToProxy("i2:" + helper->getTestEndpoint()));
 
-        class Callback : public IceUtil::Shared
-        {
-        public:
-
-            Callback() : _called(false)
-            {
-            }
-
-            void opS(const Test::Inner::Inner2::S& s2, const Test::Inner::Inner2::S& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opSSeq(const Test::Inner::Inner2::SSeq& s2, const Test::Inner::Inner2::SSeq& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opSMap(const Test::Inner::Inner2::SMap& s2, const Test::Inner::Inner2::SMap& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opC(const Test::Inner::Inner2::CPtr& s2, const Test::Inner::Inner2::CPtr& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opCSeq(const Test::Inner::Inner2::CSeq& s2, const Test::Inner::Inner2::CSeq& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void opCMap(const Test::Inner::Inner2::CMap& s2, const Test::Inner::Inner2::CMap& s3)
-            {
-                test(s2 == s3);
-                called();
-            }
-
-            void error(const Ice::Exception& ex)
-            {
-                test(false);
-            }
-
-            void called()
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-                assert(!_called);
-                _called = true;
-                _m.notify();
-            }
-
-            void check()
-            {
-                IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_m);
-                while (!_called)
-                {
-                    _m.wait();
-                }
-                _called = false;
-            }
-
-        private:
-
-            IceUtil::Monitor<IceUtil::Mutex> _m;
-            bool _called;
-        };
-        ICE_DEFINE_PTR(CallbackPtr, Callback);
-
-        CallbackPtr cb = new Callback;
+        IceUtil::Handle<Test::Inner::Inner2::Callback> cb = new Test::Inner::Inner2::Callback();
 
         Test::Inner::Inner2::S s1;
         s1.v = 0;
         Test::Inner::Inner2::Callback_I_opSPtr opSCB =
-            Test::Inner::Inner2::newCallback_I_opS(cb, &Callback::opS, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opS(cb,
+                                                   &Test::Inner::Inner2::Callback::opS,
+                                                   &Test::Inner::Inner2::Callback::error);
         i->begin_opS(s1, opSCB);
         cb->check();
 
         Test::Inner::Inner2::SSeq sseq1;
         sseq1.push_back(s1);
         Test::Inner::Inner2::Callback_I_opSSeqPtr opSSeqCB =
-            Test::Inner::Inner2::newCallback_I_opSSeq(cb, &Callback::opSSeq, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opSSeq(cb,
+                                                      &Test::Inner::Inner2::Callback::opSSeq,
+                                                      &Test::Inner::Inner2::Callback::error);
         i->begin_opSSeq(sseq1, opSSeqCB);
         cb->check();
 
         Test::Inner::Inner2::SMap smap1;
         smap1["a"] = s1;
         Test::Inner::Inner2::Callback_I_opSMapPtr opSMapCB =
-            Test::Inner::Inner2::newCallback_I_opSMap(cb, &Callback::opSMap, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opSMap(cb,
+                                                      &Test::Inner::Inner2::Callback::opSMap,
+                                                      &Test::Inner::Inner2::Callback::error);
         i->begin_opSMap(smap1, opSMapCB);
         cb->check();
 
         Test::Inner::Inner2::CPtr c1 = new Test::Inner::Inner2::C(s1);
         Test::Inner::Inner2::Callback_I_opCPtr opCCB =
-            Test::Inner::Inner2::newCallback_I_opC(cb, &Callback::opC, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opC(cb,
+                                                   &Test::Inner::Inner2::Callback::opC,
+                                                   &Test::Inner::Inner2::Callback::error);
         i->begin_opC(c1, opCCB);
         cb->check();
 
         Test::Inner::Inner2::CSeq cseq1;
         cseq1.push_back(c1);
         Test::Inner::Inner2::Callback_I_opCSeqPtr opCSeqCB =
-            Test::Inner::Inner2::newCallback_I_opCSeq(cb, &Callback::opCSeq, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opCSeq(cb,
+                                                      &Test::Inner::Inner2::Callback::opCSeq,
+                                                      &Test::Inner::Inner2::Callback::error);
         i->begin_opCSeq(cseq1, opCSeqCB);
         cb->check();
 
         Test::Inner::Inner2::CMap cmap1;
         cmap1["a"] = c1;
         Test::Inner::Inner2::Callback_I_opCMapPtr opCMapCB =
-            Test::Inner::Inner2::newCallback_I_opCMap(cb, &Callback::opCMap, &Callback::error);
+            Test::Inner::Inner2::newCallback_I_opCMap(cb,
+                                                      &Test::Inner::Inner2::Callback::opCMap,
+                                                      &Test::Inner::Inner2::Callback::error);
         i->begin_opCMap(cmap1, opCMapCB);
         cb->check();
     }
