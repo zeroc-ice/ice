@@ -14,6 +14,8 @@
 
 using namespace std;
 
+#ifndef ICE_CPP11_MAPPING
+
 namespace Test
 {
 
@@ -247,6 +249,8 @@ private:
 }
 
 }
+
+#endif
 
 void
 allTests(Test::TestHelper* helper)
