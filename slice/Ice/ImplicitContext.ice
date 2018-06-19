@@ -24,8 +24,9 @@ module Ice
  *
  * When you make a remote invocation without an explicit context parameter,
  * Ice uses the per-proxy context (if any) combined with the <tt>ImplicitContext</tt>
- * associated with the communicator.</p>
- * <p>Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
+ * associated with the communicator.
+ *
+ * Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
  * used depends on the value of the <tt>Ice.ImplicitContext</tt> property.
  * <dl>
  * <dt><tt>None</tt> (default)</dt>
@@ -34,7 +35,7 @@ module Ice
  * <dd>The implementation maintains a context per thread.</dd>
  * <dt><tt>Shared</tt></dt>
  * <dd>The implementation maintains a single context shared by all threads.</dd>
- * </dl><p>
+ * </dl>
  *  
  * <tt>ImplicitContext</tt> also provides a number of operations to create, update or retrieve
  * an entry in the underlying context without first retrieving a copy of the entire

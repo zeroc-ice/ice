@@ -92,7 +92,7 @@ local interface Service
      * also be used by other services, depending on the service
      * configuration.
      *
-     * <p class="Note">The {@link ServiceManager} owns this communicator, and is
+     * The {@link ServiceManager} owns this communicator, and is
      * responsible for destroying it.
      *
      * @param name The service's name, as determined by the
@@ -103,7 +103,7 @@ local interface Service
      * @param args The service arguments that were not converted into
      * properties.
      *
-     * @throws FailureException Raised if {@link #start} failed.
+     * @throws FailureException Raised if start failed.
      *
      **/
     void start(string name, Ice::Communicator communicator, Ice::StringSeq args);
@@ -183,8 +183,7 @@ interface ServiceManager
 
     /**
      *
-     * Shut down all services. This causes {@link Service#stop} to be
-     * invoked on all configured services.
+     * Shut down all services. This causes stop to be invoked on all configured services.
      *
      **/
     void shutdown();

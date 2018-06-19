@@ -58,7 +58,7 @@ local exception PluginInitializationException
  * supported with collocation optimization.
  *
  **/
-["cpp:ice_print", "deprecate:this exception isn't used anymore by the Ice runtime"]
+["cpp:ice_print", "deprecate:This exception is no longer used by the Ice run time"]
 local exception CollocationOptimizationException
 {
 };
@@ -661,8 +661,7 @@ local exception InvocationTimeoutException extends TimeoutException
 /**
  *
  * This exception indicates that an asynchronous invocation failed
- * because it was canceled explicitly by the user using the
- * <tt>Ice::AsyncResult::cancel</tt> method.
+ * because it was canceled explicitly by the user.
  *
  **/
 ["cpp:ice_print"]

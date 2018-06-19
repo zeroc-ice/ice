@@ -32,8 +32,7 @@ dictionary<string, string> Context;
 
 /**
  *
- * The {@link OperationMode} determines the retry behavior an
- * invocation in case of a (potentially) recoverable error.
+ * Determines the retry behavior of an invocation in case of a (potentially) recoverable error.
  *
  **/
 //
@@ -60,7 +59,7 @@ enum OperationMode
      * the failure to the application only if the second attempt
      * fails.
      *
-     * <p class="Deprecated"><tt>Nonmutating</tt> is deprecated; Use the
+     * <tt>Nonmutating</tt> is deprecated; Use the
      * <tt>idempotent</tt> keyword instead. For C++, to retain the mapping
      * of <tt>nonmutating</tt> operations to C++ <tt>const</tt>
      * member functions, use the <tt>\["cpp:const"]</tt> metadata
@@ -154,7 +153,7 @@ local struct Current
      * The encoding version used to encode the input and output parameters.
      *
      **/
-    Ice::EncodingVersion encoding;
+    EncodingVersion encoding;
 };
 
 };

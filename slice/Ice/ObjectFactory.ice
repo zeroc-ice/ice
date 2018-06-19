@@ -32,9 +32,9 @@ local interface ObjectFactory
      * absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute
      * Slice type id for interfaces of type <tt>Bar</tt> in the module
-     * <tt>Foo</tt> is <tt>::Foo::Bar</tt>.
+     * <tt>Foo</tt> is <tt>"::Foo::Bar"</tt>.
      *
-     * <p class="Note">The leading "<tt>::</tt>" is required.
+     * The leading "<tt>::</tt>" is required.
      *
      * @param type The object type.
      *

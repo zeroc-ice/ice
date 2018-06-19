@@ -67,14 +67,13 @@ local interface Communicator
     /**
      *
      * Shuts down this communicator's server functionality, which
-     * includes the deactivation of all object adapters. (Attempts to use
-     * a deactivated object adapter raise {@link ObjectAdapterDeactivatedException}.)
-     * Subsequent calls to {@link #shutdown} are ignored.</p>
+     * includes the deactivation of all object adapters. Attempts to use
+     * a deactivated object adapter raise ObjectAdapterDeactivatedException.
+     * Subsequent calls to shutdown are ignored.
      *
-     * <p class="Note"> After {@link #shutdown} returns, no new requests are
-     * processed. However, requests that have been started before
-     * {@link #shutdown} was called might still be active. You can use
-     * {@link #waitForShutdown} to wait for the completion of all
+     * After shutdown returns, no new requests are processed. However, requests
+     * that have been started before shutdown was called might still be active.
+     * You can use {@link #waitForShutdown} to wait for the completion of all
      * requests.
      *
      * @see #destroy
@@ -92,12 +91,11 @@ local interface Communicator
      * On the client side, the operation simply block until another
      * thread has called {@link #shutdown} or {@link #destroy}.
      *
-     * <p>A typical use of this operation is to call it
-     * from the main thread, which then waits until some other thread
-     * calls {@link #shutdown}. After shut-down is complete, the main thread
-     * returns and can do some cleanup work before it finally calls
-     * {@link #destroy} to shut down the client functionality, and then
-     * exits the application.
+     * A typical use of this operation is to call it from the main thread,
+     * which then waits until some other thread calls {@link #shutdown}.
+     * After shut-down is complete, the main thread returns and can do some
+     * cleanup work before it finally calls {@link #destroy} to shut down
+     * the client functionality, and then exits the application.
      *
      * @see #shutdown
      * @see #destroy
@@ -125,10 +123,9 @@ local interface Communicator
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000. If the stringified proxy does not parse correctly, the
-     * operation throws one of {@link ProxyParseException},
-     * {@link EndpointParseException}, or {@link IdentityParseException}.
-     * An appendix in the Ice manual provides a detailed description
-     * of the syntax supported by stringified proxies.
+     * operation throws one of ProxyParseException, EndpointParseException,
+     * or IdentityParseException. Refer to the Ice manual for a detailed
+     * description of the syntax supported by stringified proxies.
      *
      * @param str The stringified proxy to convert into a proxy.
      *
@@ -161,7 +158,7 @@ local interface Communicator
      * <tt>MyProxy=id:tcp -h localhost -p 10000</tt>. Additional
      * properties configure local settings for the proxy, such as
      * <tt>MyProxy.PreferSecure=1</tt>. The "Properties"
-     * appendix in the Ice manual describes each of the supported
+     * section in the Ice manual describes each of the supported
      * proxy properties.
      *
      * @param property The base property name.
@@ -187,7 +184,7 @@ local interface Communicator
     /**
      *
      * Convert a string into an identity. If the string does not parse
-     * correctly, the operation throws {@link IdentityParseException}.
+     * correctly, the operation throws IdentityParseException.
      *
      * @param str The string to convert into an identity.
      *
@@ -214,15 +211,15 @@ local interface Communicator
     /**
      *
      * Create a new object adapter. The endpoints for the object
-     * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.</p>
+     * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.
      *
-     * <p>It is legal to create an object adapter with the empty string as
+     * It is legal to create an object adapter with the empty string as
      * its name. Such an object adapter is accessible via bidirectional
      * connections or by collocated invocations that originate from the
-     * same communicator as is used by the adapter.</p>
+     * same communicator as is used by the adapter.
      *
-     * <p>Attempts to create a named object adapter for which no configuration
-     * can be found raise {@link InitializationException}.
+     * Attempts to create a named object adapter for which no configuration
+     * can be found raise InitializationException.
      *
      * @param name The object adapter name.
      *
@@ -240,9 +237,9 @@ local interface Communicator
      * Create a new object adapter with endpoints. This operation sets
      * the property <tt><em>name</em>.Endpoints</tt>,
      * and then calls {@link #createObjectAdapter}. It is provided as a
-     * convenience function.</p>
+     * convenience function.
      *
-     * <p>Calling this operation with an empty name will result in a
+     * Calling this operation with an empty name will result in a
      * UUID being generated for the name.
      *
      * @param name The object adapter name.
@@ -261,9 +258,9 @@ local interface Communicator
     /**
      *
      * Create a new object adapter with a router. This operation
-     * creates a routed object adapter.</p>
+     * creates a routed object adapter.
      *
-     * <p>Calling this operation with an empty name will result in a
+     * Calling this operation with an empty name will result in a
      * UUID being generated for the name.
      *
      * @param name The object adapter name.
@@ -281,27 +278,26 @@ local interface Communicator
 
     /**
      *
-     * <p>Add an object factory to this communicator. Installing a
+     * Add an object factory to this communicator. Installing a
      * factory with an id for which a factory is already registered
-     * throws {@link AlreadyRegisteredException}.</p>
+     * throws AlreadyRegisteredException.
      *
-     * <p>When unmarshaling an Ice object, the Ice run time reads the
+     * When unmarshaling an Ice object, the Ice run time reads the
      * most-derived type id off the wire and attempts to create an
      * instance of the type using a factory. If no instance is created,
      * either because no factory was found, or because all factories
      * returned nil, the behavior of the Ice run time depends on the
-     * format with which the object was marshaled:</p>
+     * format with which the object was marshaled:
      *
-     * <p>If the object uses the "sliced" format, Ice ascends the class
+     * If the object uses the "sliced" format, Ice ascends the class
      * hierarchy until it finds a type that is recognized by a factory,
      * or it reaches the least-derived type. If no factory is found that
-     * can create an instance, the run time throws
-     * {@link NoObjectFactoryException}.</p>
+     * can create an instance, the run time throws NoObjectFactoryException.
      *
-     * <p>If the object uses the "compact" format, Ice immediately raises
-     * {@link NoObjectFactoryException}.</p>
+     * If the object uses the "compact" format, Ice immediately raises
+     * NoObjectFactoryException.
      *
-     * <p>The following order is used to locate a factory for a type:</p>
+     * The following order is used to locate a factory for a type:
      *
      * <ol>
      *
@@ -404,9 +400,9 @@ local interface Communicator
      * Set a default router for this communicator. All newly
      * created proxies will use this default router. To disable the
      * default router, null can be used. Note that this
-     * operation has no effect on existing proxies.</p>
+     * operation has no effect on existing proxies.
      *
-     * <p class="Note">You can also set a router for an individual proxy
+     * You can also set a router for an individual proxy
      * by calling the operation <tt>ice_router</tt> on the proxy.
      *
      * @param rtr The default router to use for this communicator.
@@ -436,12 +432,11 @@ local interface Communicator
      * created proxy and object adapters will use this default
      * locator. To disable the default locator, null can be used.
      * Note that this operation has no effect on existing proxies or
-     * object adapters.</p>
+     * object adapters.
      *
-     * <p class="Note"> You can also set a locator for an individual proxy
-     * by calling the operation <tt>ice_locator</tt> on the proxy, or for an
-     * object adapter by calling the operation {@link ObjectAdapter#setLocator}
-     * on the object adapter.
+     * You can also set a locator for an individual proxy by calling the
+     * operation <tt>ice_locator</tt> on the proxy, or for an object adapter
+     * by calling {@link ObjectAdapter#setLocator} on the object adapter.
      *
      * @param loc The default locator to use for this communicator.
      *
@@ -479,7 +474,7 @@ local interface Communicator
      * If Ice.Admin.ServerId is set and the provided object adapter has a {@link Locator},
      * createAdmin registers the Admin's Process facet with the {@link Locator}'s {@link LocatorRegistry}.
      *
-     * <p>createAdmin call only be called once; subsequent calls raise {@link InitializationException}.</p>
+     * createAdmin call only be called once; subsequent calls raise InitializationException.
      *
      * @param adminAdapter The object adapter used to host the Admin object; if null and
      * Ice.Admin.Endpoints is set, create, activate and use the Ice.Admin object adapter.
@@ -500,11 +495,11 @@ local interface Communicator
      *
      * getAdmin also creates the Admin object and creates and activates the Ice.Admin object
      * adapter to host this Admin object if Ice.Admin.Enpoints is set. The identity of the Admin
-     * object created by getAdmin is <value of Ice.Admin.InstanceName>/admin, or <UUID>/admin
+     * object created by getAdmin is {value of Ice.Admin.InstanceName}/admin, or {UUID}/admin
      * when Ice.Admin.InstanceName is not set.
      *
-     * <p>If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
-     * initialization, after initialization of all plugins.</p>
+     * If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
+     * initialization, after initialization of all plugins.
 
      * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no
      * Admin object is configured.
@@ -517,7 +512,7 @@ local interface Communicator
      *
      * Add a new facet to the Admin object.
      * Adding a servant with a facet that is already registered
-     * throws {@link AlreadyRegisteredException}.
+     * throws AlreadyRegisteredException.
      *
      * @param servant The servant that implements the new Admin facet.
      * @param facet The name of the new Admin facet.
@@ -528,8 +523,8 @@ local interface Communicator
     /**
      *
      * Remove the following facet to the Admin object.
-     * Removing a facet that was not previously registered throws
-     * {@link NotRegisteredException}.
+     * Removing a facet that was not previously registered
+     * throws NotRegisteredException.
      *
      * @param facet The name of the Admin facet.
      * @return The servant associated with this Admin facet.

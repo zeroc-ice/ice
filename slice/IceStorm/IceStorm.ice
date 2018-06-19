@@ -174,7 +174,7 @@ interface Topic
     /**
      *
      * Get a proxy to a publisher object for this topic. To publish
-     * data to a topic, the publisher calls {@link #getPublisher} and then
+     * data to a topic, the publisher calls getPublisher and then
      * casts to the topic type. An unchecked cast must be used on this
      * proxy. If a replicated IceStorm deployment is used this call
      * may return a replicated proxy.
@@ -188,14 +188,13 @@ interface Topic
      *
      * Get a non-replicated proxy to a publisher object for this
      * topic. To publish data to a topic, the publisher calls
-     * {@link #getPublisher} and then casts to the topic type. An unchecked
+     * getPublisher and then casts to the topic type. An unchecked
      * cast must be used on this proxy.
      *
      * @return A proxy to publish data on this topic.
      *
      **/
     ["nonmutating", "cpp:const"] idempotent Object* getNonReplicatedPublisher();
-
 
     /**
      *
@@ -336,8 +335,7 @@ interface TopicManager
 {
     /**
      *
-     * Create a new topic. The topic name must be unique, otherwise
-     * {@link TopicExists} is raised.
+     * Create a new topic. The topic name must be unique.
      *
      * @param name The name of the topic.
      *

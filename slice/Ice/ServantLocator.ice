@@ -42,12 +42,12 @@ local interface ServantLocator
      * is marshaled back to the client. If the Slice definition for the
      * corresponding operation includes that user exception, the client
      * receives that user exception; otherwise, the client receives
-     * {@link UnknownUserException}.
+     * UnknownUserException.
      *
      * If <tt>locate</tt> throws any exception, the Ice run time does <em>not</em>
      * call <tt>finished</tt>.
      *
-     * <p class="Note">If you call <tt>locate</tt> from your own code, you
+     * If you call <tt>locate</tt> from your own code, you
      * must also call <tt>finished</tt> when you have finished using the
      * servant, provided that <tt>locate</tt> returned a non-null servant;
      * otherwise, you will get undefined behavior if you use
@@ -79,7 +79,7 @@ local interface ServantLocator
      * is marshaled back to the client. If the Slice definition for the
      * corresponding operation includes that user exception, the client
      * receives that user exception; otherwise, the client receives
-     * {@link UnknownUserException}.
+     * UnknownUserException.
      *
      * If both the operation and <tt>finished</tt> throw an exception, the
      * exception thrown by <tt>finished</tt> is marshaled back to the client.
