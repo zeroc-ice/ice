@@ -100,7 +100,7 @@ splitScopedName(const string& scoped)
 }
 
 string
-Slice::CsGenerator::getAbsolute(const string& type, const string& scope)
+Slice::CsGenerator::getUnqualified(const string& type, const string& scope)
 {
     if(type.find(".") != string::npos && type.find(scope) == 0 && type.find(".", scope.size()) == string::npos)
     {
@@ -167,7 +167,7 @@ string
 Slice::CsGenerator::getOptionalFormat(const TypePtr& type, const string& scope)
 {
     BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
-    string prefix = getAbsolute("Ice.OptionalFormat", scope);
+    string prefix = getUnqualified("Ice.OptionalFormat", scope);
     if(bp)
     {
         switch(bp->kind())
@@ -304,7 +304,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& scope, bool 
 
     if(optional)
     {
-        return getAbsolute("Ice.Optional", scope) + "<" + typeToString(type, scope, false, local) + ">";
+        return getUnqualified("Ice.Optional", scope) + "<" + typeToString(type, scope, false, local) + ">";
     }
 
     static const char* builtinTable[] =
@@ -341,11 +341,11 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& scope, bool 
     {
         if(!local && builtin->kind() == Builtin::KindObject)
         {
-            return getAbsolute(builtinTable[Builtin::KindValue], scope);
+            return getUnqualified(builtinTable[Builtin::KindValue], scope);
         }
         else
         {
-            return getAbsolute(builtinTable[builtin->kind()], scope);
+            return getUnqualified(builtinTable[builtin->kind()], scope);
         }
     }
 
@@ -354,11 +354,11 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& scope, bool 
     {
         if(cl->isInterface() && !local)
         {
-            return getAbsolute("Ice.Value", scope);
+            return getUnqualified("Ice.Value", scope);
         }
         else
         {
-            return getAbsolute(fixId(cl->scoped()), scope);
+            return getUnqualified(fixId(cl->scoped()), scope);
         }
     }
 
@@ -368,11 +368,11 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& scope, bool 
         ClassDefPtr def = proxy->_class()->definition();
         if(def->isInterface() || def->allOperations().size() > 0)
         {
-            return getAbsolute(fixId(proxy->_class()->scoped() + "Prx"), scope);
+            return getUnqualified(fixId(proxy->_class()->scoped() + "Prx"), scope);
         }
         else
         {
-            return getAbsolute("Ice.ObjectPrx", scope);
+            return getUnqualified("Ice.ObjectPrx", scope);
         }
     }
 
@@ -426,7 +426,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& scope, bool 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-        return getAbsolute(fixId(contained->scoped()), scope);
+        return getUnqualified(fixId(contained->scoped()), scope);
     }
 
     return "???";
@@ -450,7 +450,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& scope, bool
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
     if(dispatch && op->hasMarshaledResult())
     {
-        return getAbsolute(fixId(cl->scope() + resultStructName(cl->name(), op->name(), true)), scope);
+        return getUnqualified(fixId(cl->scope() + resultStructName(cl->name(), op->name(), true)), scope);
     }
 
     string t;
@@ -464,7 +464,7 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& scope, bool
         else if(op->returnType() || outParams.size() > 1)
         {
             ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-            t = getAbsolute(fixId(cl->scope()) + resultStructName(cl->name(), op->name()), scope);
+            t = getUnqualified(fixId(cl->scope()) + resultStructName(cl->name(), op->name()), scope);
         }
         else
         {
@@ -803,7 +803,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     {
         typeS = typeToString(type, scope);
     }
-    string helperName = getAbsolute(typeS + "Helper", scope);
+    string helperName = getUnqualified(typeS + "Helper", scope);
     if(marshal)
     {
         out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -980,8 +980,8 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                 }
                 else
                 {
-                    out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<"
-                        << getAbsolute("Ice.ObjectPrx", scope) << ">(" << stream << ".readProxy(" << tag << "));";
+                    out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<"
+                        << getUnqualified("Ice.ObjectPrx", scope) << ">(" << stream << ".readProxy(" << tag << "));";
                 }
                 break;
             }
@@ -1000,7 +1000,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         if(marshal)
         {
             out << nl << "if(" << param << ".HasValue && " << stream << ".writeOptional(" << tag
-                << ", " << getAbsolute("Ice.OptionalFormat", scope) << ".FSize))";
+                << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".FSize))";
             out << sb;
             out << nl << "int pos = " << stream << ".startSize();";
             writeMarshalUnmarshalCode(out, type, scope, param + ".Value", marshal, customStream);
@@ -1009,7 +1009,7 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getAbsolute("Ice.OptionalFormat", scope)
+            out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
                 << ".FSize))";
             out << sb;
             out << nl << stream << ".skip(4);";
@@ -1017,11 +1017,11 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
             string typeS = typeToString(type, scope);
             out << nl << typeS << ' ' << tmp << ';';
             writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
-            out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << typeS << ">(" << tmp << ");";
+            out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">(" << tmp << ");";
             out << eb;
             out << nl << "else";
             out << sb;
-            out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << typeS << ">();";
+            out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">();";
             out << eb;
         }
         return;
@@ -1087,11 +1087,11 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
                 out << nl << typeS << ' ' << tmp << " = null;";
             }
             writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
-            out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << typeS << ">(" << tmp << ");";
+            out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">(" << tmp << ");";
             out << eb;
             out << nl << "else";
             out << sb;
-            out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << typeS << ">();";
+            out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">();";
             out << eb;
         }
         return;
@@ -1110,18 +1110,18 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getAbsolute("Ice.OptionalFormat", scope)
+            out << nl << "if(" << stream << ".readOptional(" << tag << ", " << getUnqualified("Ice.OptionalFormat", scope)
                 << ".Size))";
             out << sb;
             string typeS = typeToString(type, scope);
             string tmp = "tmpVal";
             out << nl << typeS << ' ' << tmp << ';';
             writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
-            out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << typeS << ">(" << tmp << ");";
+            out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">(" << tmp << ");";
             out << eb;
             out << nl << "else";
             out << sb;
-            out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << typeS << ">();";
+            out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">();";
             out << eb;
         }
         return;
@@ -1176,11 +1176,11 @@ Slice::CsGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
         string tmp = "tmpVal";
         out << nl << typeS << ' ' << tmp << " = new " << typeS << "();";
         writeMarshalUnmarshalCode(out, type, scope, tmp, marshal, customStream);
-        out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << typeS << ">(" << tmp << ");";
+        out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">(" << tmp << ");";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << typeS << ">();";
+        out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << typeS << ">();";
         out << eb;
     }
 }
@@ -1204,7 +1204,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     assert(cont);
     if(useHelper)
     {
-        string helperName = getAbsolute(fixId(cont->scoped(), DotNet::ICloneable) + "." + seq->name() + "Helper", scope);
+        string helperName = getUnqualified(fixId(cont->scoped(), DotNet::ICloneable) + "." + seq->name() + "Helper", scope);
         if(marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -1292,7 +1292,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                             // If the collection is a stack, write in top-to-bottom order. Stacks
                             // cannot contain Ice.Object.
                             //
-                            out << nl << getAbsolute("Ice.ObjectPrx", scope) << "[] " << param << "_tmp = " << param
+                            out << nl << getUnqualified("Ice.ObjectPrx", scope) << "[] " << param << "_tmp = " << param
                                 << ".ToArray();";
                             out << nl << "for(int ix = 0; ix < " << param << "_tmp.Length; ++ix)";
                             out << sb;
@@ -1770,11 +1770,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     string helperName;
     if(ProxyPtr::dynamicCast(type))
     {
-        helperName = getAbsolute(fixId(ProxyPtr::dynamicCast(type)->_class()->scoped() + "PrxHelper"), scope);
+        helperName = getUnqualified(fixId(ProxyPtr::dynamicCast(type)->_class()->scoped() + "PrxHelper"), scope);
     }
     else
     {
-        helperName = getAbsolute(fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper"), scope);
+        helperName = getUnqualified(fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper"), scope);
     }
 
     string func;
@@ -1912,7 +1912,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
                 if(isSerializable)
                 {
                     out << nl << "if(" << param << ".HasValue && " << stream << ".writeOptional(" << tag
-                        << ", " << getAbsolute("Ice.OptionalFormat", scope) << ".VSize))";
+                        << ", " << getUnqualified("Ice.OptionalFormat", scope) << ".VSize))";
                     out << sb;
                     out << nl << stream << ".writeSerializable(" << param << ".Value);";
                     out << eb;
@@ -1945,12 +1945,12 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
                 string tmp = "tmpVal";
                 out << nl << seqS << ' ' << tmp << ';';
                 writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
-                out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << seqS << ">(" << tmp
+                out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">(" << tmp
                     << ");";
                 out << eb;
                 out << nl << "else";
                 out << sb;
-                out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << seqS << ">();";
+                out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">();";
                 out << eb;
             }
             break;
@@ -1978,12 +1978,12 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
                 string tmp = "tmpVal";
                 out << nl << seqS << ' ' << tmp << ';';
                 writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
-                out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << seqS << ">(" << tmp
+                out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">(" << tmp
                     << ");";
                 out << eb;
                 out << nl << "else";
                 out << sb;
-                out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << seqS << ">();";
+                out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">();";
                 out << eb;
             }
             break;
@@ -2035,11 +2035,11 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
             string tmp = "tmpVal";
             out << nl << seqS << ' ' << tmp << ';';
             writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
-            out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << seqS << ">(" << tmp << ");";
+            out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">(" << tmp << ");";
             out << eb;
             out << nl << "else";
             out << sb;
-            out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << seqS << ">();";
+            out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">();";
             out << eb;
         }
         return;
@@ -2066,11 +2066,11 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         string tmp = "tmpVal";
         out << nl << seqS << ' ' << tmp << ';';
         writeSequenceMarshalUnmarshalCode(out, seq, scope, tmp, marshal, true, stream);
-        out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << seqS << ">(" << tmp << ");";
+        out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">(" << tmp << ");";
         out << eb;
         out << nl << "else";
         out << sb;
-        out << nl << param << " = new " << getAbsolute("Ice.Optional", scope) << "<" << seqS << ">();";
+        out << nl << param << " = new " << getUnqualified("Ice.Optional", scope) << "<" << seqS << ">();";
         out << eb;
     }
 }

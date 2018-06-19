@@ -162,11 +162,11 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
         string abs;
         if(c->isInterface())
         {
-            abs = getAbsolute(c, package);
+            abs = getUnqualified(c, package);
         }
         else
         {
-            abs = getAbsolute(c, package, "", "Disp");
+            abs = getUnqualified(c, package, "", "Disp");
         }
         string name = op->name();
         name[0] = toupper(static_cast<unsigned char>(name[0]));
@@ -176,7 +176,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
     {
         const ContainedPtr c = ContainedPtr::dynamicCast(op->container());
         assert(c);
-        const string abs = getAbsolute(c, package);
+        const string abs = getUnqualified(c, package);
         string name = op->name();
         name[0] = toupper(static_cast<unsigned char>(name[0]));
         return abs + "." + name + "Result";
@@ -397,7 +397,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
         ParamDeclList required, optional;
         op->outParameters(required, optional);
 
-        out << sp << nl << "public void write(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr)";
+        out << sp << nl << "public void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
         out << sb;
 
         int iter = 0;
@@ -441,7 +441,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
 
         out << eb;
 
-        out << sp << nl << "public void read(" << getAbsolute("com.zeroc.Ice.InputStream", package) << " istr)";
+        out << sp << nl << "public void read(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
         out << sb;
 
         iter = 0;
@@ -505,12 +505,12 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     opName[0] = toupper(static_cast<unsigned char>(opName[0]));
 
     out << sp << nl << "public static class " << opName << "MarshaledResult implements "
-        << getAbsolute("com.zeroc.Ice.MarshaledResult", package) << sb;
+        << getUnqualified("com.zeroc.Ice.MarshaledResult", package) << sb;
 
     const ParamDeclList outParams = op->outParameters();
     const string retval = getEscapedParamName(op, "returnValue");
     const string currentParamName = getEscapedParamName(op, "current");
-    const string currentParam = getAbsolute("com.zeroc.Ice.Current", package) + " " + currentParamName;
+    const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " + currentParamName;
 
     out << sp;
 
@@ -559,7 +559,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     }
     out << currentParam << epar;
     out << sb;
-    out << nl << "_ostr = " << getAbsolute("com.zeroc.IceInternal.Incoming", package) << ".createResponseOutputStream("
+    out << nl << "_ostr = " << getUnqualified("com.zeroc.IceInternal.Incoming", package) << ".createResponseOutputStream("
         << currentParamName << ");";
     out << nl << "_ostr.startEncapsulation(" << currentParamName << ".encoding, " << opFormatTypeToString(op) << ");";
 
@@ -690,13 +690,13 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
 
     out << sp;
     out << nl << "@Override"
-        << nl << "public " << getAbsolute("com.zeroc.Ice.OutputStream", package) << " getOutputStream()"
+        << nl << "public " << getUnqualified("com.zeroc.Ice.OutputStream", package) << " getOutputStream()"
         << sb
         << nl << "return _ostr;"
         << eb;
 
     out << sp;
-    out << nl << "private " << getAbsolute("com.zeroc.Ice.OutputStream", package) << " _ostr;";
+    out << nl << "private " << getUnqualified("com.zeroc.Ice.OutputStream", package) << " _ostr;";
     out << eb;
 }
 
@@ -711,11 +711,11 @@ Slice::JavaVisitor::allocatePatcher(Output& out, const TypePtr& type, const stri
     string clsName;
     if(b || cl->isInterface())
     {
-        clsName = getAbsolute("com.zeroc.Ice.Value", package);
+        clsName = getUnqualified("com.zeroc.Ice.Value", package);
     }
     else
     {
-        clsName = getAbsolute(cl, package);
+        clsName = getUnqualified(cl, package);
     }
     if(optionalMapping)
     {
@@ -736,11 +736,11 @@ Slice::JavaVisitor::getPatcher(const TypePtr& type, const string& package, const
         string clsName;
         if(b || cl->isInterface())
         {
-            clsName = getAbsolute("com.zeroc.Ice.Value", package);
+            clsName = getUnqualified("com.zeroc.Ice.Value", package);
         }
         else
         {
-            clsName = getAbsolute(cl, package);
+            clsName = getUnqualified(cl, package);
         }
         ostr << "v -> " << dest << " = v, " << clsName << ".class";
     }
@@ -1000,7 +1000,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
     if(op && (op->hasMetaData("java:UserException") || op->hasMetaData("UserException")))
     {
         out.inc();
-        out << nl << "throws " << getAbsolute("com.zeroc.Ice.UserException", package);
+        out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
         out.dec();
     }
     else if(throws.size() > 0)
@@ -1015,7 +1015,7 @@ Slice::JavaVisitor::writeThrowsClause(const string& package, const ExceptionList
             {
                 out << "," << nl;
             }
-            out << getAbsolute(*r, package);
+            out << getUnqualified(*r, package);
             count++;
         }
         out.restoreIndent();
@@ -1111,7 +1111,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
 
         vector<string> params = getParams(op, package);
-        const string currentParam = getAbsolute("com.zeroc.Ice.Current", package) + " " +
+        const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " +
             getEscapedParamName(op, "current");
 
         const bool amd = p->hasMetaData("amd") || op->hasMetaData("amd");
@@ -1170,13 +1170,13 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     }
     out << eb << ';';
 
-    out << sp << nl << "@Override" << nl << "default String[] ice_ids(" << getAbsolute("com.zeroc.Ice.Current", package)
+    out << sp << nl << "@Override" << nl << "default String[] ice_ids(" << getUnqualified("com.zeroc.Ice.Current", package)
         << " current)";
     out << sb;
     out << nl << "return _iceIds;";
     out << eb;
 
-    out << sp << nl << "@Override" << nl << "default String ice_id(" << getAbsolute("com.zeroc.Ice.Current", package)
+    out << sp << nl << "@Override" << nl << "default String ice_id(" << getUnqualified("com.zeroc.Ice.Current", package)
         << " current)";
     out << sb;
     out << nl << "return ice_staticId();";
@@ -1214,7 +1214,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             out << nl << "@Deprecated";
         }
         out << nl << "static java.util.concurrent.CompletionStage<"
-            << getAbsolute("com.zeroc.Ice.OutputStream", package)
+            << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << "> _iceD_" << opName << '(';
         if(p->isInterface())
         {
@@ -1224,12 +1224,12 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         {
             out << p->name() << "Disp";
         }
-        out << " obj, final " << getAbsolute("com.zeroc.IceInternal.Incoming", package) << " inS, "
-            << getAbsolute("com.zeroc.Ice.Current", package) << " current)";
+        out << " obj, final " << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " inS, "
+            << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
         if(!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
         {
             out.inc();
-            out << nl << "throws " << getAbsolute("com.zeroc.Ice.UserException", package);
+            out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
             out.dec();
         }
         out << sb;
@@ -1241,7 +1241,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         const ParamDeclList inParams = op->inParameters();
         const ParamDeclList outParams = op->outParameters();
 
-        out << nl << getAbsolute("com.zeroc.Ice.Object", package) << "._iceCheckMode(" << sliceModeToIceMode(op->mode())
+        out << nl << getUnqualified("com.zeroc.Ice.Object", package) << "._iceCheckMode(" << sliceModeToIceMode(op->mode())
             << ", current.mode);";
 
         if(!inParams.empty())
@@ -1251,7 +1251,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             //
             // Declare 'in' parameters.
             //
-            out << nl << getAbsolute("com.zeroc.Ice.InputStream", package) << " istr = inS.startReadParams();";
+            out << nl << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr = inS.startReadParams();";
             for(ParamDeclList::const_iterator pli = inParams.begin(); pli != inParams.end(); ++pli)
             {
                 const TypePtr paramType = (*pli)->type();
@@ -1356,7 +1356,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             }
             else if(ret || !outParams.empty())
             {
-                out << nl << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr = inS.startWriteParams();";
+                out << nl << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr = inS.startWriteParams();";
                 writeMarshalServantResults(out, package, op, "ret");
                 out << nl << "inS.endWriteParams(ostr);";
                 out << nl << "return inS.setResult(ostr);";
@@ -1411,18 +1411,18 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             }
         }
         out << nl << "@Override" << nl
-            << "default java.util.concurrent.CompletionStage<" << getAbsolute("com.zeroc.Ice.OutputStream", package)
-            << "> _iceDispatch(" << getAbsolute("com.zeroc.IceInternal.Incoming", package) << " in, "
-            << getAbsolute("com.zeroc.Ice.Current", package) << " current)";
+            << "default java.util.concurrent.CompletionStage<" << getUnqualified("com.zeroc.Ice.OutputStream", package)
+            << "> _iceDispatch(" << getUnqualified("com.zeroc.IceInternal.Incoming", package) << " in, "
+            << getUnqualified("com.zeroc.Ice.Current", package) << " current)";
         out.inc();
-        out << nl << "throws " << getAbsolute("com.zeroc.Ice.UserException", package);
+        out << nl << "throws " << getUnqualified("com.zeroc.Ice.UserException", package);
         out.dec();
         out << sb;
         out << nl << "int pos = java.util.Arrays.binarySearch(_iceOps, current.operation);";
         out << nl << "if(pos < 0)";
         out << sb;
         out << nl << "throw new "
-            << getAbsolute("com.zeroc.Ice.OperationNotExistException", package)
+            << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
             << "(current.id, current.facet, current.operation);";
         out << eb;
         out << sp << nl << "switch(pos)";
@@ -1436,22 +1436,22 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
             out << sb;
             if(opName == "ice_id")
             {
-                out << nl << "return " << getAbsolute("com.zeroc.Ice.Object", package)
+                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
                     << "._iceD_ice_id(this, in, current);";
             }
             else if(opName == "ice_ids")
             {
-                out << nl << "return " << getAbsolute("com.zeroc.Ice.Object", package)
+                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
                     << "._iceD_ice_ids(this, in, current);";
             }
             else if(opName == "ice_isA")
             {
-                out << nl << "return " << getAbsolute("com.zeroc.Ice.Object", package)
+                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
                     << "._iceD_ice_isA(this, in, current);";
             }
             else if(opName == "ice_ping")
             {
-                out << nl << "return " << getAbsolute("com.zeroc.Ice.Object", package)
+                out << nl << "return " << getUnqualified("com.zeroc.Ice.Object", package)
                     << "._iceD_ice_ping(this, in, current);";
             }
             else
@@ -1475,11 +1475,11 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                             string base;
                             if(cl->isInterface())
                             {
-                                base = getAbsolute(cl, package);
+                                base = getUnqualified(cl, package);
                             }
                             else
                             {
-                                base = getAbsolute(cl, package, "", "Disp");
+                                base = getUnqualified(cl, package, "", "Disp");
                             }
                             out << nl << "return " << base << "._iceD_" << opName << "(this, in, current);";
                         }
@@ -1491,7 +1491,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         }
         out << eb;
         out << sp << nl << "assert(false);";
-        out << nl << "throw new " << getAbsolute("com.zeroc.Ice.OperationNotExistException", package)
+        out << nl << "throw new " << getUnqualified("com.zeroc.Ice.OperationNotExistException", package)
             << "(current.id, current.facet, current.operation);";
         out << eb;
     }
@@ -1520,14 +1520,14 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     {
         out << sp;
         out << nl << "@Override";
-        out << nl << "public " << getAbsolute("com.zeroc.Ice.SlicedData", package) << " ice_getSlicedData()";
+        out << nl << "public " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " ice_getSlicedData()";
         out << sb;
         out << nl << "return _iceSlicedData;";
         out << eb;
 
         out << sp;
         out << nl << "@Override";
-        out << nl << "public void _iceWrite(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr)";
+        out << nl << "public void _iceWrite(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
         out << sb;
         out << nl << "ostr.startValue(_iceSlicedData);";
         out << nl << "_iceWriteImpl(ostr);";
@@ -1536,7 +1536,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
 
         out << sp;
         out << nl << "@Override";
-        out << nl << "public void _iceRead(" << getAbsolute("com.zeroc.Ice.InputStream", package) << " istr)";
+        out << nl << "public void _iceRead(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
         out << sb;
         out << nl << "istr.startValue();";
         out << nl << "_iceReadImpl(istr);";
@@ -1546,7 +1546,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
 
     out << sp;
     out << nl << "@Override";
-    out << nl << "protected void _iceWriteImpl(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr_)";
+    out << nl << "protected void _iceWriteImpl(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr_)";
     out << sb;
     out << nl << "ostr_.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     iter = 0;
@@ -1573,7 +1573,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
 
     out << sp;
     out << nl << "@Override";
-    out << nl << "protected void _iceReadImpl(" << getAbsolute("com.zeroc.Ice.InputStream", package) << " istr_)";
+    out << nl << "protected void _iceReadImpl(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr_)";
     out << sb;
     out << nl << "istr_.startSlice();";
 
@@ -1599,7 +1599,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
 
     if(preserved && !basePreserved)
     {
-        out << sp << nl << "protected " << getAbsolute("com.zeroc.Ice.SlicedData", package) << " _iceSlicedData;";
+        out << sp << nl << "protected " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " _iceSlicedData;";
     }
 }
 
@@ -1610,7 +1610,7 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
     ConstPtr constant = ConstPtr::dynamicCast(valueType);
     if(constant)
     {
-        out << getAbsolute(constant, package) << ".value";
+        out << getUnqualified(constant, package) << ".value";
     }
     else
     {
@@ -1663,7 +1663,7 @@ Slice::JavaVisitor::writeConstantValue(Output& out, const TypePtr& type, const S
         {
             EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
             assert(lte);
-            out << getAbsolute(lte, package);
+            out << getUnqualified(lte, package);
         }
         else
         {
@@ -1707,7 +1707,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
             if(en)
             {
                 string firstEnum = fixKwd(en->enumerators().front()->name());
-                out << nl << "this." << fixKwd((*p)->name()) << " = " << getAbsolute(en, package) << '.' << firstEnum << ';';
+                out << nl << "this." << fixKwd((*p)->name()) << " = " << getUnqualified(en, package) << '.' << firstEnum << ';';
             }
 
             StructPtr st = StructPtr::dynamicCast(t);
@@ -2090,7 +2090,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
 
     if(p->hasMetaData("java:UserException") || p->hasMetaData("UserException"))
     {
-        out << nl << " * @throws " << getAbsolute("com.zeroc.Ice.UserException", package);
+        out << nl << " * @throws " << getUnqualified("com.zeroc.Ice.UserException", package);
     }
     else
     {
@@ -2173,7 +2173,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unit, const string&
     {
         ContainedPtr cont = ContainedPtr::dynamicCast(l.front());
         assert(cont);
-        out << getAbsolute(cont) << rest;
+        out << getUnqualified(cont) << rest;
     }
 }
 
@@ -2316,7 +2316,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     string package = getPackage(p);
-    string absolute = getAbsolute(p);
+    string absolute = getUnqualified(p);
     DataMemberList members = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
 
@@ -2366,11 +2366,11 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         out.useCurrentPosAsIndent();
         if(!p->isLocal() && bases.empty())
         {
-            out << getAbsolute("com.zeroc.Ice.Object", package);
+            out << getUnqualified("com.zeroc.Ice.Object", package);
         }
         else if(q != bases.end())
         {
-            out << getAbsolute(*q++, package);
+            out << getUnqualified(*q++, package);
         }
         else if(r != implements.end())
         {
@@ -2379,7 +2379,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         for(;q != bases.end(); ++q)
         {
-            out << ',' << nl << getAbsolute(*q, package);
+            out << ',' << nl << getUnqualified(*q, package);
         }
         for(; r != implements.end(); ++r)
         {
@@ -2399,12 +2399,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         if(baseClass)
         {
-            out << " extends " << getAbsolute(baseClass, package);
+            out << " extends " << getUnqualified(baseClass, package);
             bases.pop_front();
         }
         else if(!p->isLocal())
         {
-            out << " extends " << getAbsolute("com.zeroc.Ice.Value", package);
+            out << " extends " << getUnqualified("com.zeroc.Ice.Value", package);
         }
 
         if(p->isLocal())
@@ -2416,7 +2416,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             for(ClassList::const_iterator q = bases.begin(); q != bases.end(); ++q)
             {
-                implements.push_back(getAbsolute(*q, package));
+                implements.push_back(getUnqualified(*q, package));
             }
         }
 
@@ -2788,7 +2788,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string scoped = p->scoped();
     ExceptionPtr base = p->base();
     string package = getPackage(p);
-    string absolute = getAbsolute(p);
+    string absolute = getUnqualified(p);
     DataMemberList members = p->dataMembers();
     DataMemberList allDataMembers = p->allDataMembers();
 
@@ -2811,16 +2811,16 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     {
         if(p->isLocal())
         {
-            out << getAbsolute("com.zeroc.Ice.LocalException", package);
+            out << getUnqualified("com.zeroc.Ice.LocalException", package);
         }
         else
         {
-            out << getAbsolute("com.zeroc.Ice.UserException", package);
+            out << getUnqualified("com.zeroc.Ice.UserException", package);
         }
     }
     else
     {
-        out << getAbsolute(base, package);
+        out << getUnqualified(base, package);
     }
     out << sb;
 
@@ -3087,14 +3087,14 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         {
             out << sp;
             out << nl << "@Override";
-            out << nl << "public " << getAbsolute("com.zeroc.Ice.SlicedData", package) << " ice_getSlicedData()";
+            out << nl << "public " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " ice_getSlicedData()";
             out << sb;
             out << nl << "return _slicedData;";
             out << eb;
 
             out << sp;
             out << nl << "@Override";
-            out << nl << "public void _write(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr)";
+            out << nl << "public void _write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
             out << sb;
             out << nl << "ostr.startException(_slicedData);";
             out << nl << "_writeImpl(ostr);";
@@ -3103,7 +3103,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
             out << sp;
             out << nl << "@Override";
-            out << nl << "public void _read(" << getAbsolute("com.zeroc.Ice.InputStream", package) << " istr)";
+            out << nl << "public void _read(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
             out << sb;
             out << nl << "istr.startException();";
             out << nl << "_readImpl(istr);";
@@ -3113,7 +3113,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         out << sp;
         out << nl << "@Override";
-        out << nl << "protected void _writeImpl(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr_)";
+        out << nl << "protected void _writeImpl(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr_)";
         out << sb;
         out << nl << "ostr_.startSlice(\"" << scoped << "\", -1, " << (!base ? "true" : "false") << ");";
         iter = 0;
@@ -3140,7 +3140,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         out << sp;
         out << nl << "@Override";
-        out << nl << "protected void _readImpl(" << getAbsolute("com.zeroc.Ice.InputStream", package) << " istr_)";
+        out << nl << "protected void _readImpl(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr_)";
         out << sb;
         out << nl << "istr_.startSlice();";
         iter = 0;
@@ -3177,7 +3177,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            out << sp << nl << "protected " << getAbsolute("com.zeroc.Ice.SlicedData", package) << " _slicedData;";
+            out << sp << nl << "protected " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " _slicedData;";
         }
     }
 
@@ -3229,7 +3229,7 @@ bool
 Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
     string name = fixKwd(p->name());
-    string absolute = getAbsolute(p);
+    string absolute = getUnqualified(p);
 
     open(absolute, p->file());
 
@@ -3454,7 +3454,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void ice_writeMembers(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+        out << sp << nl << "public void ice_writeMembers(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << " ostr)";
         out << sb;
         iter = 0;
@@ -3466,7 +3466,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         DataMemberList classMembers = p->classDataMembers();
 
-        out << sp << nl << "public void ice_readMembers(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+        out << sp << nl << "public void ice_readMembers(" << getUnqualified("com.zeroc.Ice.InputStream", package)
             << " istr)";
         out << sb;
         iter = 0;
@@ -3476,7 +3476,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         }
         out << eb;
 
-        out << sp << nl << "static public void ice_write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+        out << sp << nl << "static public void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << " ostr, " << name << " v)";
         out << sb;
         out << nl << "if(v == null)";
@@ -3489,7 +3489,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
         out << eb;
 
-        out << sp << nl << "static public " << name << " ice_read(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+        out << sp << nl << "static public " << name << " ice_read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
             << " istr)";
         out << sb;
         out << nl << name << " v = new " << name << "();";
@@ -3499,7 +3499,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 
         string optName = "java.util.Optional<" + name + ">";
         out << sp;
-        out << nl << "static public void ice_write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+        out << nl << "static public void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << " ostr, int tag, " << optName << " v)";
         out << sb;
         out << nl << "if(v != null && v.isPresent())";
@@ -3509,7 +3509,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "static public void ice_write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+        out << nl << "static public void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << " ostr, int tag, " << name << " v)";
         out << sb;
         out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
@@ -3529,7 +3529,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "static public " << optName << " ice_read(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+        out << nl << "static public " << optName << " ice_read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
             << " istr, int tag)";
         out << sb;
         out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
@@ -3945,7 +3945,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
     string name = fixKwd(p->name());
     string package = getPackage(p);
-    string absolute = getAbsolute(p);
+    string absolute = getUnqualified(p);
     EnumeratorList enumerators = p->enumerators();
 
     open(absolute, p->file());
@@ -4013,12 +4013,12 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
     if(!p->isLocal())
     {
-        out << sp << nl << "public void ice_write(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr)";
+        out << sp << nl << "public void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
         out << sb;
         out << nl << "ostr.writeEnum(_value, " << p->maxValue() << ");";
         out << eb;
 
-        out << sp << nl << "public static void ice_write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+        out << sp << nl << "public static void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << " ostr, " << name << " v)";
         out << sb;
         out << nl << "if(v == null)";
@@ -4032,7 +4032,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << eb;
         out << eb;
 
-        out << sp << nl << "public static " << name << " ice_read(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+        out << sp << nl << "public static " << name << " ice_read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
             << " istr)";
         out << sb;
         out << nl << "int v = istr.readEnum(" << p->maxValue() << ");";
@@ -4041,7 +4041,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 
         string optName = "java.util.Optional<" + name + ">";
         out << sp;
-        out << nl << "public static void ice_write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+        out << nl << "public static void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << " ostr, int tag, " << optName << " v)";
         out << sb;
         out << nl << "if(v != null && v.isPresent())";
@@ -4051,7 +4051,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "public static void ice_write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+        out << nl << "public static void ice_write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
             << " ostr, int tag, " << name << " v)";
         out << sb;
         out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
@@ -4061,7 +4061,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "public static " << optName << " ice_read(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+        out << nl << "public static " << optName << " ice_read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
             << " istr, int tag)";
         out << sb;
         out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
@@ -4079,7 +4079,7 @@ Slice::Gen::TypesVisitor::visitEnum(const EnumPtr& p)
         out << nl << "final " << name << " e = valueOf(v);";
         out << nl << "if(e == null)";
         out << sb;
-        out << nl << "throw new " << getAbsolute("com.zeroc.Ice.MarshalException", package)
+        out << nl << "throw new " << getUnqualified("com.zeroc.Ice.MarshalException", package)
             << "(\"enumerator value \" + v + \" is out of range\");";
         out << eb;
         out << nl << "return e;";
@@ -4097,7 +4097,7 @@ Slice::Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     string name = fixKwd(p->name());
     string package = getPackage(p);
-    string absolute = getAbsolute(p);
+    string absolute = getUnqualified(p);
     TypePtr type = p->type();
 
     open(absolute, p->file());
@@ -4201,8 +4201,8 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     }
 
     string name = p->name();
-    string absolute = getAbsolute(p);
-    string helper = getAbsolute(p, "", "", "Helper");
+    string absolute = getUnqualified(p);
+    string helper = getUnqualified(p, "", "", "Helper");
     string package = getPackage(p);
     string typeS = typeToString(p, TypeModeIn, package);
 
@@ -4265,7 +4265,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << sp << nl << "public final class " << name << "Helper";
     out << sb;
 
-    out << nl << "public static void write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
         << " ostr, " << typeS << " v)";
     out << sb;
     iter = 0;
@@ -4277,7 +4277,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     {
         out << nl << "@SuppressWarnings(\"unchecked\")";
     }
-    out << nl << "public static " << typeS << " read(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+    out << nl << "public static " << typeS << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
         << " istr)";
     out << sb;
     out << nl << "final " << typeS << " v;";
@@ -4290,7 +4290,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     string optTypeS = "java.util.Optional<" + typeS + ">";
     out << sp;
-    out << nl << "public static void write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
         << " ostr, int tag, " << optTypeS << " v)";
     out << sb;
     if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
@@ -4307,7 +4307,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static void write(" << getAbsolute("com.zeroc.Ice.OutputStream", package)
+    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
         << " ostr, int tag, " << typeS << " v)";
     out << sb;
     if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
@@ -4356,7 +4356,7 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static " << optTypeS << " read(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+    out << nl << "public static " << optTypeS << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
         << " istr, int tag)";
     out << sb;
     if(!hasTypeMetaData(p) && builtin && builtin->kind() < Builtin::KindObject)
@@ -4405,8 +4405,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr value = p->valueType();
 
     string name = p->name();
-    string absolute = getAbsolute(p);
-    string helper = getAbsolute(p, "", "", "Helper");
+    string absolute = getUnqualified(p);
+    string helper = getUnqualified(p, "", "", "Helper");
     string package = getPackage(p);
     StringList metaData = p->getMetaData();
     string formalType = typeToString(p, TypeModeIn, package, StringList(), true);
@@ -4419,14 +4419,14 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << sp << nl << "public final class " << name << "Helper";
     out << sb;
 
-    out << nl << "public static void write(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr, "
+    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr, "
         << formalType << " v)";
     out << sb;
     iter = 0;
     writeDictionaryMarshalUnmarshalCode(out, package, p, "v", true, iter, false);
     out << eb;
 
-    out << sp << nl << "public static " << formalType << " read(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+    out << sp << nl << "public static " << formalType << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
         << " istr)";
     out << sb;
     out << nl << formalType << " v;";
@@ -4437,7 +4437,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     string optTypeS = "java.util.Optional<" + formalType + ">";
     out << sp;
-    out << nl << "public static void write(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr, int tag, "
+    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr, int tag, "
         << optTypeS << " v)";
     out << sb;
     out << nl << "if(v != null && v.isPresent())";
@@ -4447,7 +4447,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static void write(" << getAbsolute("com.zeroc.Ice.OutputStream", package) << " ostr, int tag, "
+    out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr, int tag, "
         << formalType << " v)";
     out << sb;
     out << nl << "if(ostr.writeOptional(tag, " << getOptionalFormat(p) << "))";
@@ -4471,7 +4471,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static " << optTypeS << " read(" << getAbsolute("com.zeroc.Ice.InputStream", package)
+    out << nl << "public static " << optTypeS << " read(" << getUnqualified("com.zeroc.Ice.InputStream", package)
         << " istr, int tag)";
     out << sb;
     out << nl << "if(istr.readOptional(tag, " << getOptionalFormat(p) << "))";
@@ -4523,7 +4523,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "", "Prx");
+    string absolute = getUnqualified(p, "", "", "Prx");
 
     open(absolute, p->file());
 
@@ -4552,7 +4552,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out.useCurrentPosAsIndent();
     if(bases.empty())
     {
-        out << getAbsolute("com.zeroc.Ice.ObjectPrx", package);
+        out << getUnqualified("com.zeroc.Ice.ObjectPrx", package);
     }
     else
     {
@@ -4562,7 +4562,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 out << ',' << nl;
             }
-            out << getAbsolute(*q, package, "", "Prx");
+            out << getUnqualified(*q, package, "", "Prx");
         }
     }
     out.restoreIndent();
@@ -4588,10 +4588,10 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "Raises a local exception if a communication error occurs.\n"
                     "@param obj The untyped proxy.\n"
                     "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(" << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj)";
     out << sb;
-    out << nl << "return " << getAbsolute("com.zeroc.Ice.ObjectPrx", package) << "._checkedCast(obj, ice_staticId(), "
+    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package) << "._checkedCast(obj, ice_staticId(), "
         << p->name() << "Prx.class, _" << p->name() << "PrxI.class);";
     out << eb;
 
@@ -4602,10 +4602,10 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@param obj The untyped proxy.\n"
                     "@param context The Context map to send with the invocation.\n"
                     "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(" << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj, " << contextParam << ')';
     out << sb;
-    out << nl << "return " << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << "._checkedCast(obj, context, ice_staticId(), " << p->name() << "Prx.class, _" << p->name() << "PrxI.class);";
     out << eb;
 
@@ -4616,10 +4616,10 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@param obj The untyped proxy.\n"
                     "@param facet The name of the desired facet.\n"
                     "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(" << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj, String facet)";
     out << sb;
-    out << nl << "return " << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << "._checkedCast(obj, facet, ice_staticId(), " << p->name() << "Prx.class, _" << p->name() << "PrxI.class);";
     out << eb;
 
@@ -4631,10 +4631,10 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@param facet The name of the desired facet.\n"
                     "@param context The Context map to send with the invocation.\n"
                     "@return A proxy for this type, or null if the object does not support this type.");
-    out << nl << "static " << p->name() << "Prx checkedCast(" << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "static " << p->name() << "Prx checkedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj, String facet, " << contextParam << ')';
     out << sb;
-    out << nl << "return " << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << "._checkedCast(obj, facet, context, ice_staticId(), " << p->name()
         << "Prx.class, _" << p->name() << "PrxI.class);";
     out << eb;
@@ -4644,10 +4644,10 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "Downcasts the given proxy to this type without contacting the remote server.\n"
                     "@param obj The untyped proxy.\n"
                     "@return A proxy for this type.");
-    out << nl << "static " << p->name() << "Prx uncheckedCast(" << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "static " << p->name() << "Prx uncheckedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj)";
     out << sb;
-    out << nl << "return " << getAbsolute("com.zeroc.Ice.ObjectPrx", package) << "._uncheckedCast(obj, " << p->name()
+    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package) << "._uncheckedCast(obj, " << p->name()
         << "Prx.class, _" << p->name() << "PrxI.class);";
     out << eb;
 
@@ -4657,10 +4657,10 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@param obj The untyped proxy.\n"
                     "@param facet The name of the desired facet.\n"
                     "@return A proxy for this type.");
-    out << nl << "static " << p->name() << "Prx uncheckedCast(" << getAbsolute("com.zeroc.Ice.ObjectPrx", package)
+    out << nl << "static " << p->name() << "Prx uncheckedCast(" << getUnqualified("com.zeroc.Ice.ObjectPrx", package)
         << " obj, String facet)";
     out << sb;
-    out << nl << "return " << getAbsolute("com.zeroc.Ice.ObjectPrx", package) << "._uncheckedCast(obj, facet, "
+    out << nl << "return " << getUnqualified("com.zeroc.Ice.ObjectPrx", package) << "._uncheckedCast(obj, facet, "
         << p->name() << "Prx.class, _"
         << p->name() << "PrxI.class);";
     out << eb;
@@ -4693,7 +4693,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@param newEndpoints The endpoints for the new proxy.\n"
                     "@return A proxy with the specified endpoints.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_endpoints(" << getAbsolute("com.zeroc.Ice.Endpoint", package) << "[] newEndpoints)";
+    out << nl << "default " << p->name() << "Prx ice_endpoints(" << getUnqualified("com.zeroc.Ice.Endpoint", package) << "[] newEndpoints)";
     out << sb;
     out << nl << "return (" << p->name() << "Prx)_ice_endpoints(newEndpoints);";
     out << eb;
@@ -4738,7 +4738,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@return A proxy with the specified endpoint selection policy.");
     out << nl << "@Override";
     out << nl << "default " << p->name() << "Prx ice_endpointSelection("
-        << getAbsolute("com.zeroc.Ice.EndpointSelectionType", package)
+        << getUnqualified("com.zeroc.Ice.EndpointSelectionType", package)
         << " newType)";
     out << sb;
     out << nl << "return (" << p->name() << "Prx)_ice_endpointSelection(newType);";
@@ -4763,7 +4763,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@param e The encoding version to use to marshal request parameters.\n"
                     "@return A proxy with the specified encoding version.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_encodingVersion(" << getAbsolute("com.zeroc.Ice.EncodingVersion", package)
+    out << nl << "default " << p->name() << "Prx ice_encodingVersion(" << getUnqualified("com.zeroc.Ice.EncodingVersion", package)
         << " e)";
     out << sb;
     out << nl << "return (" << p->name() << "Prx)_ice_encodingVersion(e);";
@@ -4788,7 +4788,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@param router The router for the new proxy.\n"
                     "@return A proxy with the specified router.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_router(" << getAbsolute("com.zeroc.Ice.RouterPrx", package) << " router)";
+    out << nl << "default " << p->name() << "Prx ice_router(" << getUnqualified("com.zeroc.Ice.RouterPrx", package) << " router)";
     out << sb;
     out << nl << "return (" << p->name() << "Prx)_ice_router(router);";
     out << eb;
@@ -4799,7 +4799,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
                     "@param locator The locator for the new proxy.\n"
                     "@return A proxy with the specified locator.");
     out << nl << "@Override";
-    out << nl << "default " << p->name() << "Prx ice_locator(" << getAbsolute("com.zeroc.Ice.LocatorPrx", package)
+    out << nl << "default " << p->name() << "Prx ice_locator(" << getUnqualified("com.zeroc.Ice.LocatorPrx", package)
         << " locator)";
     out << sb;
     out << nl << "return (" << p->name() << "Prx)_ice_locator(locator);";
@@ -4920,7 +4920,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     out << eb;
     close();
 
-    string absolute = getAbsolute(p, "", "_", "PrxI");
+    string absolute = getUnqualified(p, "", "_", "PrxI");
 
     open(absolute, p->file());
 
@@ -4931,7 +4931,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     {
         outi << nl << "@Deprecated";
     }
-    outi << nl << "public class _" << p->name() << "PrxI extends " << getAbsolute("com.zeroc.Ice._ObjectPrxI", package)
+    outi << nl << "public class _" << p->name() << "PrxI extends " << getUnqualified("com.zeroc.Ice._ObjectPrxI", package)
          << " implements " << p->name() << "Prx";
     outi << sb;
     outi << sp << nl << "public static final long serialVersionUID = 0L;";
@@ -5035,15 +5035,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << eb;
         for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
         {
-            string exS = getAbsolute(*t, package);
+            string exS = getUnqualified(*t, package);
             out << nl << "catch(" << exS << " ex)";
             out << sb;
             out << nl << "throw ex;";
             out << eb;
         }
-        out << nl << "catch(" << getAbsolute("com.zeroc.Ice.UserException", package) << " ex)";
+        out << nl << "catch(" << getUnqualified("com.zeroc.Ice.UserException", package) << " ex)";
         out << sb;
-        out << nl << "throw new " << getAbsolute("com.zeroc.Ice.UnknownUserException", package) << "(ex.ice_id(), ex);";
+        out << nl << "throw new " << getUnqualified("com.zeroc.Ice.UnknownUserException", package) << "(ex.ice_id(), ex);";
         out << eb;
     }
     out << eb;
@@ -5101,15 +5101,15 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             out << eb;
             for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
             {
-                string exS = getAbsolute(*t, package);
+                string exS = getUnqualified(*t, package);
                 out << nl << "catch(" << exS << " ex)";
                 out << sb;
                 out << nl << "throw ex;";
                 out << eb;
             }
-            out << nl << "catch(" << getAbsolute("com.zeroc.Ice.UserException", package) << " ex)";
+            out << nl << "catch(" << getUnqualified("com.zeroc.Ice.UserException", package) << " ex)";
             out << sb;
-            out << nl << "throw new " << getAbsolute("com.zeroc.Ice.UnknownUserException", package)
+            out << nl << "throw new " << getUnqualified("com.zeroc.Ice.UnknownUserException", package)
                 << "(ex.ice_id(), ex);";
             out << eb;
         }
@@ -5153,7 +5153,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         << "java.util.Map<String, String> context"
         << "boolean sync" << epar;
     out << sb;
-    out << nl << futureImpl << " f = new " << getAbsolute("com.zeroc.IceInternal.OutgoingAsync", package)
+    out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
         << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", sync, "
         << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
 
@@ -5201,7 +5201,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             {
                 out << ",";
             }
-            out << nl << getAbsolute(*t, package) << ".class";
+            out << nl << getUnqualified(*t, package) << ".class";
         }
         out << eb << ';';
     }
@@ -5240,7 +5240,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
             << "java.util.Map<String, String> context"
             << "boolean sync" << epar;
         out << sb;
-        out << nl << futureImpl << " f = new " << getAbsolute("com.zeroc.IceInternal.OutgoingAsync", package)
+        out << nl << futureImpl << " f = new " << getUnqualified("com.zeroc.IceInternal.OutgoingAsync", package)
             << "<>(this, \"" << p->name() << "\", " << sliceModeToIceMode(p->sendMode()) << ", sync, "
             << (throws.empty() ? "null" : "_iceE_" + p->name()) << ");";
 
@@ -5293,7 +5293,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     const string name = p->name();
-    const string absolute = getAbsolute(p, "", "", "Disp");
+    const string absolute = getUnqualified(p, "", "", "Disp");
     const string package = getPackage(p);
 
     open(absolute, p->file());
@@ -5320,7 +5320,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     if(bases.empty())
     {
-        out << " extends " << getAbsolute("com.zeroc.Ice.Object", package);
+        out << " extends " << getUnqualified("com.zeroc.Ice.Object", package);
     }
     else
     {
@@ -5334,11 +5334,11 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             if(!(*q)->isInterface())
             {
-                out << getAbsolute(*q, package, "", "Disp");
+                out << getUnqualified(*q, package, "", "Disp");
             }
             else
             {
-                out << getAbsolute(*q, package);
+                out << getUnqualified(*q, package);
             }
         }
         out.restoreIndent();
@@ -5369,7 +5369,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
     string name = p->name();
     ClassList bases = p->bases();
     string package = getPackage(p);
-    string absolute = getAbsolute(p, "", "", "I");
+    string absolute = getUnqualified(p, "", "", "I");
 
     open(absolute, p->file());
 
@@ -5490,7 +5490,7 @@ Slice::Gen::ImplVisitor::getDefaultValue(const string& package, const TypePtr& t
             if(en)
             {
                 EnumeratorList enumerators = en->enumerators();
-                return getAbsolute(en, package) + '.' + fixKwd(enumerators.front()->name());
+                return getUnqualified(en, package) + '.' + fixKwd(enumerators.front()->name());
             }
         }
     }
@@ -5577,7 +5577,7 @@ Slice::Gen::ImplVisitor::writeOperation(Output& out, const string& package, cons
     const ClassDefPtr cl = ClassDefPtr::dynamicCast(container);
 
     const vector<string> params = getParams(op, package);
-    const string currentParam = getAbsolute("com.zeroc.Ice.Current", package) + " " + getEscapedParamName(op, "current");
+    const string currentParam = getUnqualified("com.zeroc.Ice.Current", package) + " " + getEscapedParamName(op, "current");
 
     if(local)
     {
