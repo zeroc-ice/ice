@@ -102,23 +102,23 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>Ice_operations_server</TargetName>
+    <TargetName>Ice_scope_server</TargetName>
     <GenerateManifest>true</GenerateManifest>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>Ice_operations_server</TargetName>
+    <TargetName>Ice_scope_server</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>Ice_operations_server</TargetName>
+    <TargetName>Ice_scope_server</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <TargetName>Ice_operations_server</TargetName>
+    <TargetName>Ice_scope_server</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>Ice_operations_server</TargetName>
+    <TargetName>Ice_scope_server</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <TargetName>Ice_operations_server</TargetName>
+    <TargetName>Ice_scope_server</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -168,7 +168,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\Server.cpp" />
-    <ClCompile Include="..\..\..\TestI.cpp" />
     <ClCompile Include="ARM\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

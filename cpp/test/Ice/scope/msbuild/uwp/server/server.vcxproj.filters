@@ -4,9 +4,6 @@
     <ClCompile Include="..\..\..\Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\TestI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Win32\Debug\Test.cpp">
       <Filter>Source Files\Win32\Debug</Filter>
     </ClCompile>
