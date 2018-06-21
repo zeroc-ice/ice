@@ -51,11 +51,16 @@ final class TransceiverI implements IceInternal.Transceiver
             final String host = _incoming ? (ipInfo != null ? ipInfo.remoteAddress : "") : _host;
             final int port = ipInfo != null ? ipInfo.remotePort : -1;
             _engine = _instance.createSSLEngine(_incoming, host, port);
-            _appInput = ByteBuffer.allocateDirect(_engine.getSession().getApplicationBufferSize() * 2);
+            _appInput = ByteBuffer.allocate(_engine.getSession().getApplicationBufferSize() * 2);
+
+            // Require BIG_ENDIAN byte buffers. This is needed for Android >= 8.0 which can read
+            // the SSL messages directly with these buffers.
             int bufSize = _engine.getSession().getPacketBufferSize() * 2;
-            _netInput = new IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2));
-            _netOutput = new IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2));
+            _netInput = new IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
+            _netOutput = new IceInternal.Buffer(ByteBuffer.allocateDirect(bufSize * 2), java.nio.ByteOrder.BIG_ENDIAN);
         }
+
+        assert(_engine != null);
 
         int status = handshakeNonBlocking();
         if(status != IceInternal.SocketOperation.None)
@@ -63,7 +68,6 @@ final class TransceiverI implements IceInternal.Transceiver
             return status;
         }
 
-        assert(_engine != null);
 
         SSLSession session = _engine.getSession();
         _cipher = session.getCipherSuite();
