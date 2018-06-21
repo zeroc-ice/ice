@@ -12,7 +12,7 @@
 #include <IceUtil/MutexPtrLock.h>
 #include <IceUtil/Random.h>
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <fstream>
 
@@ -145,21 +145,8 @@ public:
     }
 };
 
-class MyApplication : public Ice::Application
-{
-public:
-
-    MyApplication();
-    virtual int run(int, char* []);
-};
-
-MyApplication::MyApplication()
-    : Ice::Application(Ice::ICE_ENUM(SignalPolicy, NoSignalHandling))
-{
-}
-
-int
-MyApplication::run(int argc, char* argv[])
+void
+allTests()
 {
     cout << "testing single instance... " << flush;
     {
@@ -528,16 +515,19 @@ MyApplication::run(int argc, char* argv[])
     test(getNum() == 0);
 
     cout << "ok" << endl;
-    return 0;
 }
 
-int
-main(int argc, char* argv[])
+class Client : public Test::TestHelper
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-    MyApplication app;
-    return app.main(argc, argv);
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    allTests();
 }
+
+DEFINE_TEST(Client)

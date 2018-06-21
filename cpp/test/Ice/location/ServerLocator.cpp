@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <Ice/BuiltinSequences.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <ServerLocator.h>
 
 using namespace std;

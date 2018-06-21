@@ -11,7 +11,6 @@
 #define TESTI_H
 
 #include <Test.h>
-#include <TestCommon.h>
 
 class InitialI : public Test::Initial
 {

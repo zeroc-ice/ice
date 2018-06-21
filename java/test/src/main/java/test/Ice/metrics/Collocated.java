@@ -11,40 +11,13 @@ package test.Ice.metrics;
 
 import test.Ice.metrics.Test.MetricsPrx;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new MetricsI(), com.zeroc.Ice.Util.stringToIdentity("metrics"));
-        //adapter.activate(); // Don't activate OA to ensure collocation is used.
-
-        communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-        com.zeroc.Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
-        controllerAdapter.add(new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
-        //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
-
-        try
-        {
-            MetricsPrx metrics = AllTests.allTests(this, _observer);
-            metrics.shutdown();
-        }
-        catch(com.zeroc.Ice.UserException ex)
-        {
-            ex.printStackTrace();
-            assert(false);
-            return 1;
-        }
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        CommunicatorObserverI observer = new CommunicatorObserverI();
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        initData.properties = createTestProperties(args);
         if(initData.properties.getPropertyAsInt("Ice.ThreadInterruptSafe") > 0)
         {
             // With background IO, collocated invocations are
@@ -56,21 +29,30 @@ public class Collocated extends test.Util.Application
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        initData.observer = _observer;
-        return initData;
-    }
+        initData.observer = observer;
 
-    public static void main(String[] args)
-    {
-        Collocated app = new Collocated();
-        int result = app.main("Collocated", args);
-        System.gc();
-        System.exit(result);
-    }
+        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
 
-    private CommunicatorObserverI _observer = new CommunicatorObserverI();
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new MetricsI(), com.zeroc.Ice.Util.stringToIdentity("metrics"));
+            //adapter.activate(); // Don't activate OA to ensure collocation is used.
+
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            com.zeroc.Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+            controllerAdapter.add(new ControllerI(adapter), com.zeroc.Ice.Util.stringToIdentity("controller"));
+            //controllerAdapter.activate(); // Don't activate OA to ensure collocation is used.
+
+            MetricsPrx metrics = AllTests.allTests(this, observer);
+            metrics.shutdown();
+        }
+        catch(com.zeroc.IceMX.UnknownMetricsView ex)
+        {
+            throw new RuntimeException(ex);
+        }
+    }
 }

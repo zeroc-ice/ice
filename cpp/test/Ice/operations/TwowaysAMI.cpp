@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 //
@@ -2475,8 +2475,10 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
 
+                Ice::PropertiesPtr properties = ic->getProperties();
                 Test::MyClassPrxPtr p =
-                    ICE_UNCHECKED_CAST(Test::MyClassPrx, ic->stringToProxy("test:" + getTestEndpoint(ic, 0)));
+                    ICE_UNCHECKED_CAST(Test::MyClassPrx,
+                                       ic->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);
                 {

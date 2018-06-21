@@ -64,10 +64,10 @@ public class AllTests
         private int _replies;
     }
 
-    public static void allTests(test.Util.Application app)
+    public static void allTests(test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
         com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
@@ -78,7 +78,7 @@ public class AllTests
 
         out.print("testing udp... ");
         out.flush();
-        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy("test -d:" + app.getTestEndpoint(0, "udp"));
+        com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy("test -d:" + helper.getTestEndpoint(0, "udp"));
         TestIntfPrx obj = TestIntfPrx.uncheckedCast(base);
 
         int nRetry = 5;
@@ -153,7 +153,7 @@ public class AllTests
             if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
             {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
-                endpoint.append(app.getTestPort(communicator.getProperties(), 10));
+                endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                 if(System.getProperty("os.name").contains("OS X") ||
                    System.getProperty("os.name").startsWith("Windows"))
                 {
@@ -163,7 +163,7 @@ public class AllTests
             else
             {
                 endpoint.append("udp -h 239.255.1.1 -p ");
-                endpoint.append(app.getTestPort(communicator.getProperties(), 10));
+                endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                 if(System.getProperty("os.name").contains("OS X") ||
                    System.getProperty("os.name").startsWith("Windows"))
                 {
@@ -177,7 +177,7 @@ public class AllTests
             // On Android, the test suite driver only starts one server instance. Otherwise, we expect
             // there to be five servers and we expect a response from all of them.
             //
-            final int numServers = app.isAndroid() ? 1 : 5;
+            final int numServers = helper.isAndroid() ? 1 : 5;
 
             nRetry = 5;
             while(nRetry-- > 0)

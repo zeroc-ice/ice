@@ -16,47 +16,45 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated : TestCommon.Application
+public class Collocated : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        communicator().getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-        communicator().getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        Ice.Properties properties = createTestProperties(ref args);
 
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
-
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-        adapter.add(new TestII(), Ice.Util.stringToIdentity("test2"));
-        //adapter.activate(); // Collocated test doesn't need to activate the OA
-        adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-        //adapter2.activate(); // Collocated test doesn't need to activate the OA
-
-        AllTests.allTests(this, true);
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+        properties.setProperty("Ice.Warn.AMICallback", "0");
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        properties.setProperty("Ice.TCP.SndSize", "50000");
         //
         // We use a client thread pool with more than one thread to test
         // that task inlining works.
         //
-        initData.properties.setProperty("Ice.ThreadPool.Client.Size", "5");
-        return initData;
+        properties.setProperty("Ice.ThreadPool.Client.Size", "5");
+
+        using(var communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+
+            adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+            adapter.add(new TestII(), Ice.Util.stringToIdentity("test2"));
+            //adapter.activate(); // Collocated test doesn't need to activate the OA
+            adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+            //adapter2.activate(); // Collocated test doesn't need to activate the OA
+
+            AllTests.allTests(this, true);
+        }
     }
 
     public static int Main(string[] args)
     {
-        Collocated app = new Collocated();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Collocated>(args);
     }
 }

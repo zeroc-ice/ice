@@ -10,6 +10,8 @@
 #ifndef ICESSL_SECURE_TRANSPORT_UTIL_H
 #define ICESSL_SECURE_TRANSPORT_UTIL_H
 
+#ifdef __APPLE__
+
 #include <IceSSL/SecureTransport.h>
 #include <IceSSL/Util.h>
 
@@ -42,5 +44,7 @@ CFArrayRef findCertificateChain(const std::string&, const std::string&, const st
 } // SecureTransport namespace end
 
 } // IceSSL namespace end
+
+#endif
 
 #endif

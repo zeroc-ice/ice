@@ -10,44 +10,33 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <CallbackI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class CallbackClient : public Application
+class CallbackClient : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+CallbackClient::run(int argc, char** argv)
 {
-    //
-    // We must disable connection warnings, because we attempt to ping
-    // the router before session establishment, as well as after
-    // session destruction. Both will cause a ConnectionLostException.
-    //
-    Ice::InitializationData initData = getTestInitData(argc, argv);
-    initData.properties->setProperty("Ice.Warn.Connections", "0");
-    initData.properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.ThreadPool.Client.Serialize", "1");
 
-    CallbackClient app;
-    return app.main(argc, argv, initData);
-}
-
-int
-CallbackClient::run(int, char**)
-{
-    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator(), 50));
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
-    communicator()->setDefaultRouter(router);
+    communicator->setDefaultRouter(router);
 
-    ObjectPrx base = communicator()->stringToProxy("c/callback:" + getTestEndpoint(communicator(), 0));
+    ObjectPrx base = communicator->stringToProxy("c/callback:" + getTestEndpoint());
     Glacier2::SessionPrx session = router->createSession("userid", "abc123");
     base->ice_ping();
 
@@ -55,8 +44,8 @@ CallbackClient::run(int, char**)
     CallbackPrx oneway = twoway->ice_oneway();
     CallbackPrx batchOneway = twoway->ice_batchOneway();
 
-    communicator()->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+    communicator->getProperties()->setProperty("Ice.PrintAdapterReady", "0");
+    ObjectAdapterPtr adapter = communicator->createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
     adapter->activate();
 
     string category = router->getCategoryForClient();
@@ -205,9 +194,8 @@ CallbackClient::run(int, char**)
             test(false);
         }
 
-        communicator()->setDefaultRouter(0);
-        ObjectPrx processBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                              getTestEndpoint(communicator(), 51));
+        communicator->setDefaultRouter(0);
+        ObjectPrx processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
         Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(processBase);
         process->shutdown();
         try
@@ -220,5 +208,6 @@ CallbackClient::run(int, char**)
             cout << "ok" << endl;
         }
     }
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(CallbackClient)

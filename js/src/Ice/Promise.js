@@ -14,7 +14,8 @@ class P extends Promise
 {
     constructor(cb)
     {
-        let res, rej;
+        let res;
+        let rej;
         super((resolve, reject) =>
             {
                 res = resolve;
@@ -33,8 +34,8 @@ class P extends Promise
     finally(cb)
     {
         return this.then(
-            (value) => P.resolve(cb()).then(() => value),
-            (reason) => P.resolve(cb()).then(() => { throw reason; }));
+            value => P.resolve(cb()).then(() => value),
+            reason => P.resolve(cb()).then(() => { throw reason; }));
     }
 
     delay(ms)

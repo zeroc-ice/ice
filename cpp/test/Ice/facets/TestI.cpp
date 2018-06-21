@@ -46,26 +46,16 @@ FI::callF(const Ice::Current&)
     return "F";
 }
 
-GI::GI(const Ice::CommunicatorPtr& communicator) :
-    _communicator(communicator)
-{
-}
-
 void
-GI::shutdown(const Ice::Current&)
+GI::shutdown(const Ice::Current& current)
 {
-    _communicator->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }
 
 std::string
 GI::callG(const Ice::Current&)
 {
     return "G";
-}
-
-HI::HI(const Ice::CommunicatorPtr& communicator) :
-    GI(communicator)
-{
 }
 
 std::string

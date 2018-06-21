@@ -9,15 +9,27 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 using namespace Test;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceLocatorDiscovery(false);
+#endif
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+
     bool withDeploy = false;
 
     for(int i = 1; i < argc; ++i)
@@ -31,46 +43,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     if(!withDeploy)
     {
-        void allTests(const Ice::CommunicatorPtr&);
-        allTests(communicator);
+        void allTests(Test::TestHelper*);
+        allTests(this);
     }
     else
     {
-        void allTestsWithDeploy(const Ice::CommunicatorPtr&);
-        allTestsWithDeploy(communicator);
+        void allTestsWithDeploy(Test::TestHelper*);
+        allTestsWithDeploy(this);
     }
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-    Ice::registerIceLocatorDiscovery(false);
-#endif
-    int status;
-
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Client)

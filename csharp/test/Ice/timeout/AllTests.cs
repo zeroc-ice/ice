@@ -10,7 +10,7 @@
 using System.Diagnostics;
 using System.Threading;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private class Callback
     {
@@ -63,18 +63,18 @@ public class AllTests : TestCommon.AllTests
         return prx.ice_getConnection();
     }
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        string sref = "timeout:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        string sref = "timeout:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         Test.TimeoutPrx timeout = Test.TimeoutPrxHelper.checkedCast(obj);
         test(timeout != null);
 
-        Test.ControllerPrx controller = Test.ControllerPrxHelper.checkedCast(
-            communicator.stringToProxy("controller:" + app.getTestEndpoint(1)));
+        Test.ControllerPrx controller =
+            Test.ControllerPrxHelper.checkedCast(communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
         test(controller != null);
 
         Write("testing connect timeout... ");
@@ -101,7 +101,7 @@ public class AllTests : TestCommon.AllTests
             //
             // Expect success.
             //
-            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(2000));
+            Test.TimeoutPrx to = Test.TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(-1));
             controller.holdAdapter(100);
             try
             {

@@ -10,18 +10,19 @@
 using System;
 using System.Diagnostics;
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        Test.ChecksumPrx checksum = AllTests.allTests(this, false);
-        checksum.shutdown();
-        return 0;
+        using(var communicator = initialize(ref args))
+        {
+            Test.ChecksumPrx checksum = AllTests.allTests(this, false);
+            checksum.shutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

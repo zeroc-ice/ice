@@ -9,24 +9,23 @@
 
 (function(module, require, exports)
 {
-    const Ice = require("ice").Ice;
     const Test = require("Test").Test;
 
     class AMDInitialI extends Test.Initial
     {
-        async shutdown(current)
+        shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
         }
 
-        async pingPong(obj, current)
+        pingPong(obj, current)
         {
             return obj;
         }
 
-        async opOptionalException(a, b, o, current)
+        opOptionalException(a, b, o, current)
         {
-            let ex = new Test.OptionalException();
+            const ex = new Test.OptionalException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -46,9 +45,9 @@
             throw ex;
         }
 
-        async opDerivedException(a, b, o, current)
+        opDerivedException(a, b, o, current)
         {
-            let ex = new Test.DerivedException();
+            const ex = new Test.DerivedException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -74,9 +73,9 @@
             throw ex;
         }
 
-        async opRequiredException(a, b, o, current)
+        opRequiredException(a, b, o, current)
         {
-            let ex = new Test.RequiredException();
+            const ex = new Test.RequiredException();
             if(a !== undefined)
             {
                 ex.a = a;
@@ -98,251 +97,250 @@
             throw ex;
         }
 
-        async opByte(p1, current)
+        opByte(p1, current)
         {
             return [p1, p1];
         }
 
-        async opBool(p1, current)
+        opBool(p1, current)
         {
             return [p1, p1];
         }
 
-        async opShort(p1, current)
+        opShort(p1, current)
         {
             return [p1, p1];
         }
 
-        async opInt(p1, current)
+        opInt(p1, current)
         {
             return [p1, p1];
         }
 
-        async opLong(p1, current)
+        opLong(p1, current)
         {
             return [p1, p1];
         }
 
-        async opFloat(p1, current)
+        opFloat(p1, current)
         {
             return [p1, p1];
         }
 
-        async opDouble(p1, current)
+        opDouble(p1, current)
         {
             return [p1, p1];
         }
 
-        async opString(p1, current)
+        opString(p1, current)
         {
             return [p1, p1];
         }
 
-        async opMyEnum(p1, current)
+        opMyEnum(p1, current)
         {
             return [p1, p1];
         }
 
-        async opSmallStruct(p1, current)
+        opSmallStruct(p1, current)
         {
             return [p1, p1];
         }
 
-        async opFixedStruct(p1, current)
+        opFixedStruct(p1, current)
         {
             return [p1, p1];
         }
 
-        async opVarStruct(p1, current)
+        opVarStruct(p1, current)
         {
             return [p1, p1];
         }
 
-        async opOneOptional(p1, current)
+        opOneOptional(p1, current)
         {
             return [p1, p1];
         }
 
-        async opOneOptionalProxy(p1, current)
+        opOneOptionalProxy(p1, current)
         {
             return [p1, p1];
         }
 
-        async opByteSeq(p1, current)
+        opByteSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opBoolSeq(p1, current)
+        opBoolSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opShortSeq(p1, current)
+        opShortSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opIntSeq(p1, current)
+        opIntSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opLongSeq(p1, current)
+        opLongSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opFloatSeq(p1, current)
+        opFloatSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opDoubleSeq(p1, current)
+        opDoubleSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opStringSeq(p1, current)
+        opStringSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opSmallStructSeq(p1, current)
+        opSmallStructSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opSmallStructList(p1, current)
+        opSmallStructList(p1, current)
         {
             return [p1, p1];
         }
 
-        async opFixedStructSeq(p1, current)
+        opFixedStructSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opFixedStructList(p1, current)
+        opFixedStructList(p1, current)
         {
             return [p1, p1];
         }
 
-        async opVarStructSeq(p1, current)
+        opVarStructSeq(p1, current)
         {
             return [p1, p1];
         }
 
-        async opSerializable(p1, current)
+        opSerializable(p1, current)
         {
             return [p1, p1];
         }
 
-        async opIntIntDict(p1, current)
+        opIntIntDict(p1, current)
         {
             return [p1, p1];
         }
 
-        async opStringIntDict(p1, current)
+        opStringIntDict(p1, current)
         {
             return [p1, p1];
         }
 
-        async opIntOneOptionalDict(p1, current)
+        opIntOneOptionalDict(p1, current)
         {
             return [p1, p1];
         }
 
-        async opClassAndUnknownOptional(p, current)
+        opClassAndUnknownOptional(p, current)
         {
         }
 
-        async sendOptionalClass(req, current)
+        sendOptionalClass(req, current)
         {
         }
 
-        async returnOptionalClass(req, current)
+        returnOptionalClass(req, current)
         {
             return new Test.OneOptional(53);
         }
 
-        async opG(g, current)
+        opG(g, current)
         {
             return g;
         }
 
-        async opVoid(current)
+        opVoid(current)
         {
         }
 
-        async opMStruct1(current)
+        opMStruct1(current)
         {
             return new Test.SmallStruct();
         }
 
-        async opMStruct2(p1, current)
+        opMStruct2(p1, current)
         {
             return [p1, p1];
         }
 
-        async opMSeq1(current)
+        opMSeq1(current)
         {
             return [];
         }
 
-        async opMSeq2(p1, current)
+        opMSeq2(p1, current)
         {
             return [p1, p1];
         }
 
-        async opMDict1(current)
+        opMDict1(current)
         {
             return new Map();
         }
 
-        async opMDict2(p1, current)
+        opMDict2(p1, current)
         {
             return [p1, p1];
         }
 
-        async opMG1(current)
+        opMG1(current)
         {
             return new Test.G();
         }
 
-        async opMG2(p1, current)
+        opMG2(p1, current)
         {
             return [p1, p1];
         }
 
-        async supportsRequiredParams(current)
+        supportsRequiredParams(current)
         {
             return false;
         }
 
-        async supportsJavaSerializable(current)
+        supportsJavaSerializable(current)
         {
             return false;
         }
 
-        async supportsCsharpSerializable(current)
+        supportsCsharpSerializable(current)
         {
             return false;
         }
 
-        async supportsCppStringView(current)
+        supportsCppStringView(current)
         {
             return false;
         }
 
-        async supportsNullOptional(current)
+        supportsNullOptional(current)
         {
             return true;
         }
     }
 
     exports.AMDInitialI = AMDInitialI;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

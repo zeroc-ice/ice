@@ -9,39 +9,26 @@
 
 package test.Ice.acm;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    public int
-    run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Identity id = Ice.Util.stringToIdentity("communicator");
-        adapter.add(new RemoteCommunicatorI(), id);
-        adapter.activate();
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.acm");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.ACM.Timeout", "1");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.Identity id = Ice.Util.stringToIdentity("communicator");
+            adapter.add(new RemoteCommunicatorI(), id);
+            adapter.activate();
 
-        // Disable ready print for further adapters.
-        communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
-
-        return WAIT;
-    }
-
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.acm");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.ACM.Timeout", "1");
-        return initData;
-    }
-
-    public static void
-    main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            // Disable ready print for further adapters.
+            communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

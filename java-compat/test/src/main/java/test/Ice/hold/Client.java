@@ -9,28 +9,15 @@
 
 package test.Ice.hold;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        AllTests.allTests(this);
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.hold");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.hold");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            AllTests.allTests(this);
+        }
     }
 }

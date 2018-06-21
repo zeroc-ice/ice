@@ -11,7 +11,7 @@
 #include <Glacier2/PermissionsVerifier.h>
 #include <IceSSL/Plugin.h>
 #include <Test.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 
@@ -26,30 +26,30 @@ public:
         {
             throw Test::ExtendedPermissionDeniedException("reason");
         }
-        return (userId == "admin1" && passwd == "test1") || (userId == "admin2" && passwd == "test2") ||
-                (userId == "admin3" && passwd == "test3");
+        return (userId == "admin1" && passwd == "test1") ||
+               (userId == "admin2" && passwd == "test2") ||
+               (userId == "admin3" && passwd == "test3");
     }
 };
 
-class PermissionsVerifierServer : public Ice::Application
+class PermissionsVerifierServer : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[])
-    {
-        Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("PermissionsVerifier");
-        adapter->add(new AdminPermissionsVerifierI, Ice::stringToIdentity("AdminPermissionsVerifier"));
-        adapter->activate();
-        communicator()->waitForShutdown();
-        return EXIT_SUCCESS;
-    }
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+PermissionsVerifierServer::run(int argc, char** argv)
 {
-    PermissionsVerifierServer app;
-    Ice::InitializationData initData = getTestInitData(argc, argv);
-    initData.properties->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
-    return app.main(argc, argv, initData);
+    shutdownOnInterrupt();
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->parseCommandLineOptions("", Ice::argsToStringSeq(argc, argv));
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("PermissionsVerifier");
+    adapter->add(new AdminPermissionsVerifierI, Ice::stringToIdentity("AdminPermissionsVerifier"));
+    adapter->activate();
+    communicator->waitForShutdown();
 }
+
+DEFINE_TEST(PermissionsVerifierServer)

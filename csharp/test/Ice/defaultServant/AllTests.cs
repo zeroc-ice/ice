@@ -9,20 +9,12 @@
 
 using System;
 
-public class AllTests
+public class AllTests : Test.AllTests
 {
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
     public static void
-    allTests(TestCommon.Application app)
+    allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost");
         oa.activate();
 

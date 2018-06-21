@@ -234,10 +234,15 @@ class HashMap
             return false;
         }
 
-        const eq = valuesEqual || ((v1, v2) =>
-            {
-                return this._valueComparator.call(this._valueComparator, v1, v2);
-            });
+        let eq;
+        if(valuesEqual)
+        {
+            eq = valuesEqual;
+        }
+        else
+        {
+            eq = (v1, v2) => this._valueComparator.call(this._valueComparator, v1, v2);
+        }
 
         for(let e = this._head; e !== null; e = e._next)
         {
@@ -264,44 +269,53 @@ class HashMap
         // Create a new table entry.
         //
         const e = Object.create(null, {
-            "key": {
+            key:
+            {
                 enumerable: true,
                 get: function() { return this._key; }
             },
-            "value": {
+            value:
+            {
                 enumerable: true,
                 get: function() { return this._value; }
             },
-            "next": {
+            next:
+            {
                 enumerable: true,
                 get: function() { return this._next; }
             },
-            "_key": {
+            _key:
+            {
                 enumerable: false,
                 writable: true,
                 value: key
             },
-            "_value": {
+            _value:
+            {
                 enumerable: false,
                 writable: true,
                 value: value
             },
-            "_prev": {
+            _prev:
+            {
                 enumerable: false,
                 writable: true,
                 value: null
             },
-            "_next": {
+            _next:
+            {
                 enumerable: false,
                 writable: true,
                 value: null
             },
-            "_nextInBucket": {
+            _nextInBucket:
+            {
                 enumerable: false,
                 writable: true,
                 value: null
             },
-            "_hash": {
+            _hash:
+            {
                 enumerable: false,
                 writable: true,
                 value: hash
@@ -366,9 +380,9 @@ class HashMap
 
     computeHash(v)
     {
-        if(v === 0 || v === -0)
+        if(v === 0)
         {
-            return {key:0, hash:0};
+            return {key: 0, hash: 0};
         }
 
         if(v === null)
@@ -376,7 +390,7 @@ class HashMap
             if(HashMap._null === null)
             {
                 const uuid = Ice.generateUUID();
-                HashMap._null = {key:uuid, hash:StringUtil.hashCode(uuid)};
+                HashMap._null = {key: uuid, hash: StringUtil.hashCode(uuid)};
             }
             return HashMap._null;
         }
@@ -386,15 +400,15 @@ class HashMap
             throw new Error("cannot compute hash for undefined value");
         }
 
-        if(typeof(v.hashCode) === "function")
+        if(typeof v.hashCode === "function")
         {
-            return {key:v, hash:v.hashCode()};
+            return {key: v, hash: v.hashCode()};
         }
 
-        const type = typeof(v);
+        const type = typeof v;
         if(type === "string" || v instanceof String)
         {
-            return {key:v, hash:StringUtil.hashCode(v)};
+            return {key: v, hash: StringUtil.hashCode(v)};
         }
         else if(type === "number" || v instanceof Number)
         {
@@ -403,15 +417,15 @@ class HashMap
                 if(HashMap._nan === null)
                 {
                     const uuid = Ice.generateUUID();
-                    HashMap._nan = {key:uuid, hash:StringUtil.hashCode(uuid)};
+                    HashMap._nan = {key: uuid, hash: StringUtil.hashCode(uuid)};
                 }
                 return HashMap._nan;
             }
-            return {key:v, hash:v.toFixed(0)};
+            return {key: v, hash: v.toFixed(0)};
         }
         else if(type === "boolean" || v instanceof Boolean)
         {
-            return {key:v, hash:v ? 1 : 0};
+            return {key: v, hash: v ? 1 : 0};
         }
 
         throw new Error("cannot compute hash for value of type " + type);

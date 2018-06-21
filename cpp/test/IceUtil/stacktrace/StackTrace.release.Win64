@@ -1,4 +1,5 @@
   0 IceUtil::Exception::Exception at
   1 IceUtil::NullHandleException::NullHandleException at
   2 `anonymous namespace'::Thrower::fifth at
-  3 main at
+  3 Client::run at
+  4 Test::runTest<Client> at

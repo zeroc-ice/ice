@@ -97,7 +97,7 @@ function memberHashCode(h, e)
     }
     else
     {
-        const t = typeof(e);
+        const t = typeof e;
         if(e instanceof String || t == "string")
         {
             return Ice.HashUtil.addString(h, e);

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Key.h>
 #include <Clash.h>
 
@@ -176,9 +176,17 @@ testtypes()
     test(_cpp_and::_cpp_xor_eq == 0);
 }
 
-int
-run(const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(ICE_MAKE_SHARED(charI), Ice::stringToIdentity("test"));
@@ -186,24 +194,9 @@ run(const Ice::CommunicatorPtr& communicator)
 
     cout << "Testing operation name... " << flush;
     _cpp_and::charPrxPtr p = ICE_UNCHECKED_CAST(_cpp_and::charPrx,
-        adapter->createProxy(Ice::stringToIdentity("test")));
+                                                adapter->createProxy(Ice::stringToIdentity("test")));
     p->_cpp_explicit();
     cout << "ok" << endl;
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    try
-    {
-        Ice::CommunicatorHolder ich(argc, argv);
-        return run(ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

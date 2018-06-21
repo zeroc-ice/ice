@@ -9,27 +9,16 @@
 
 package test.Ice.acm;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        AllTests.allTests(this);
-        return 0;
-    }
-
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.acm");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.acm");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            AllTests.allTests(this);
+        }
     }
 }

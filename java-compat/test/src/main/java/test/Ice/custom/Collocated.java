@@ -9,37 +9,20 @@
 
 package test.Ice.custom;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object test = new TestI(communicator);
-        adapter.add(test, Ice.Util.stringToIdentity("test"));
-
-        AllTests.allTests(this);
-
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.custom");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("Ice.CacheMessageBuffers", "0");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Collocated c = new Collocated();
-        int status = c.main("Collocated", args);
-
-        System.gc();
-        System.exit(status);
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.custom");
+        properties.setProperty("Ice.CacheMessageBuffers", "0");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.Object test = new TestI(communicator);
+            adapter.add(test, Ice.Util.stringToIdentity("test"));
+            AllTests.allTests(this);
+        }
     }
 }

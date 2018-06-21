@@ -1628,7 +1628,7 @@ Database::updateObject(const Ice::ObjectPrx& proxy)
 
             if(!_objects.get(txn, id, info))
             {
-                ObjectNotRegisteredException(id);
+                throw ObjectNotRegisteredException(id);
             }
             info.proxy = proxy;
             addObject(txn, info, false);

@@ -24,12 +24,12 @@
 
         out.write("testing stringToProxy... ");
         const ref = "test:default -p 12010";
-        let base = communicator.stringToProxy(ref);
+        const base = communicator.stringToProxy(ref);
         test(base !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        let proxy = await Test.TestIntfPrx.checkedCast(base);
+        const proxy = await Test.TestIntfPrx.checkedCast(base);
         test(proxy !== null);
         test(proxy.equals(base));
         out.writeLine("ok");
@@ -50,7 +50,7 @@
         test(Test.ByteEnum.valueOf(0) === Test.ByteEnum.benum1);
         test(Test.ByteEnum.valueOf(1) === Test.ByteEnum.benum2);
         test(Test.ByteEnum.valueOf(Test.ByteConst1) === Test.ByteEnum.benum3);
-        test(Test.ByteEnum.valueOf(Test.ByteConst1+ 1) === Test.ByteEnum.benum4);
+        test(Test.ByteEnum.valueOf(Test.ByteConst1 + 1) === Test.ByteEnum.benum4);
         test(Test.ByteEnum.valueOf(Test.ShortConst1) === Test.ByteEnum.benum5);
         test(Test.ByteEnum.valueOf(Test.ShortConst1 + 1) === Test.ByteEnum.benum6);
         test(Test.ByteEnum.valueOf(Test.IntConst1) === Test.ByteEnum.benum7);
@@ -189,7 +189,6 @@
     }
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

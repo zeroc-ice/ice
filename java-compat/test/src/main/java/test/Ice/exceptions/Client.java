@@ -11,32 +11,18 @@ package test.Ice.exceptions;
 
 import test.Ice.exceptions.Test.ThrowerPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        ThrowerPrx thrower = AllTests.allTests(this);
-        thrower.shutdown();
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.exceptions");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            ThrowerPrx thrower = AllTests.allTests(this);
+            thrower.shutdown();
+        }
     }
 }

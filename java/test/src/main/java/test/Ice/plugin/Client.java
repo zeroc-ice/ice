@@ -11,175 +11,122 @@ package test.Ice.plugin;
 
 import java.io.PrintWriter;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
+        //
         // Under Android the class comes from the communicators classloader which
         // is setup in the android test driver.
-        String jarFile;
-        if(isAndroid())
-        {
-            jarFile = "";
-        }
-        else
-        {
-            jarFile = "../../../../../../../lib/IceTestPlugins.jar";
-        }
-
-        com.zeroc.Ice.Communicator communicator = communicator();
+        //
+        String jarFile = isAndroid() ? "" : "../../../../../../../lib/IceTestPlugins.jar";
         PrintWriter printWriter = getWriter();
-        printWriter.print("testing a simple plug-in... ");
-        printWriter.flush();
-        try
         {
-            com.zeroc.Ice.InitializationData initData = createInitData();
-            initData.properties.setProperty("Ice.Plugin.Test",
-                jarFile + ":test.Ice.plugin.plugins.PluginFactory " +
-                "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
-            communicator = com.zeroc.Ice.Util.initialize(args, initData);
-            communicator.destroy();
+            printWriter.print("testing a simple plug-in... ");
+            printWriter.flush();
+            com.zeroc.Ice.Properties properties = createTestProperties(args);
+            properties.setProperty("Ice.Plugin.Test",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginFactory " +
+                                   "'C:\\Program Files\\' --DatabasePath 'C:\\Program Files\\Application\\db'");
+            try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+            {
+            }
+            printWriter.println("ok");
         }
-        catch(com.zeroc.Ice.LocalException ex)
+
         {
-            ex.printStackTrace();
-            test(false);
+            printWriter.print("testing a simple plug-in that fails to initialize... ");
+            printWriter.flush();
+            com.zeroc.Ice.Properties properties = createTestProperties(args);
+            properties.setProperty("Ice.Plugin.Test",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginInitializeFailFactory");
+            try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+            {
+                test(false);
+            }
+            catch(com.zeroc.Ice.PluginInitializationException ex)
+            {
+                test(ex.getCause().getMessage().equals("PluginInitializeFailException"));
+            }
+            printWriter.println("ok");
         }
-        printWriter.println("ok");
 
-        printWriter.print("testing a simple plug-in that fails to initialize... ");
-        printWriter.flush();
-        communicator = null;
-        try
         {
-            com.zeroc.Ice.InitializationData initData = createInitData();
-            initData.properties.setProperty("Ice.Plugin.Test",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginInitializeFailFactory");
-            communicator = com.zeroc.Ice.Util.initialize(args, initData);
-            test(false);
+            printWriter.print("testing plug-in load order... ");
+            printWriter.flush();
+
+            com.zeroc.Ice.Properties properties = createTestProperties(args);
+            properties.setProperty("Ice.Plugin.PluginOne",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginOneFactory");
+            properties.setProperty("Ice.Plugin.PluginTwo",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginTwoFactory");
+            properties.setProperty("Ice.Plugin.PluginThree",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
+            properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
+            try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+            {
+            }
+            printWriter.println("ok");
         }
-        catch(com.zeroc.Ice.PluginInitializationException ex)
+
         {
-            test(ex.getCause().getMessage().equals("PluginInitializeFailException"));
-        }
-        test(communicator == null);
-        printWriter.println("ok");
+            printWriter.print("testing plug-in manager... ");
+            printWriter.flush();
 
-        printWriter.print("testing plug-in load order... ");
-        printWriter.flush();
-        try
+            com.zeroc.Ice.Properties properties = createTestProperties(args);
+            properties.setProperty("Ice.Plugin.PluginOne",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginOneFactory");
+            properties.setProperty("Ice.Plugin.PluginTwo",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginTwoFactory");
+            properties.setProperty("Ice.Plugin.PluginThree",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
+            properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo");
+            properties.setProperty("Ice.InitPlugins", "0");
+
+            try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+            {
+                com.zeroc.Ice.PluginManager pm = communicator.getPluginManager();
+                test(pm.getPlugin("PluginOne") != null);
+                test(pm.getPlugin("PluginTwo") != null);
+                test(pm.getPlugin("PluginThree") != null);
+
+                MyPlugin p4 = new MyPlugin();
+                pm.addPlugin("PluginFour", p4);
+                test(pm.getPlugin("PluginFour") != null);
+
+                pm.initializePlugins();
+
+                test(p4.isInitialized());
+
+                communicator.destroy();
+
+                test(p4.isDestroyed());
+            }
+            printWriter.println("ok");
+        }
+
         {
-            com.zeroc.Ice.InitializationData initData = createInitData();
-            initData.properties.setProperty("Ice.Plugin.PluginOne",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginOneFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwo",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginTwoFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThree",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
-            initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo"); // Exclude PluginThree
-            communicator = com.zeroc.Ice.Util.initialize(args, initData);
-            communicator.destroy();
+            printWriter.print("testing destroy when a plug-in fails to initialize... ");
+            printWriter.flush();
+
+            com.zeroc.Ice.Properties properties = createTestProperties(args);
+            properties.setProperty("Ice.Plugin.PluginOneFail",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginOneFailFactory");
+            properties.setProperty("Ice.Plugin.PluginTwoFail",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginTwoFailFactory");
+            properties.setProperty("Ice.Plugin.PluginThreeFail",
+                                   jarFile + ":test.Ice.plugin.plugins.PluginThreeFailFactory");
+            properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
+            try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+            {
+                test(false);
+            }
+            catch(com.zeroc.Ice.PluginInitializationException ex)
+            {
+                test(ex.getCause().getMessage().equals("PluginInitializeFailException"));
+            }
+            printWriter.println("ok");
         }
-        catch(com.zeroc.Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            test(false);
-        }
-        printWriter.println("ok");
-
-        printWriter.print("testing plug-in manager... ");
-        printWriter.flush();
-        try
-        {
-            com.zeroc.Ice.InitializationData initData = createInitData();
-            initData.properties.setProperty("Ice.Plugin.PluginOne",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginOneFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwo",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginTwoFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThree",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginThreeFactory");
-            initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOne, PluginTwo");
-            initData.properties.setProperty("Ice.InitPlugins", "0");
-            communicator = com.zeroc.Ice.Util.initialize(args, initData);
-
-            com.zeroc.Ice.PluginManager pm = communicator.getPluginManager();
-            test(pm.getPlugin("PluginOne") != null);
-            test(pm.getPlugin("PluginTwo") != null);
-            test(pm.getPlugin("PluginThree") != null);
-
-            MyPlugin p4 = new MyPlugin();
-            pm.addPlugin("PluginFour", p4);
-            test(pm.getPlugin("PluginFour") != null);
-
-            pm.initializePlugins();
-
-            test(p4.isInitialized());
-
-            communicator.destroy();
-
-            test(p4.isDestroyed());
-        }
-        catch(com.zeroc.Ice.LocalException ex)
-        {
-            ex.printStackTrace();
-            test(false);
-        }
-        printWriter.println("ok");
-
-        printWriter.print("testing destroy when a plug-in fails to initialize... ");
-        printWriter.flush();
-        communicator = null;
-        try
-        {
-            com.zeroc.Ice.InitializationData initData = createInitData();
-            initData.properties.setProperty("Ice.Plugin.PluginOneFail",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginOneFailFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginTwoFail",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginTwoFailFactory");
-            initData.properties.setProperty("Ice.Plugin.PluginThreeFail",
-                                            jarFile + ":test.Ice.plugin.plugins.PluginThreeFailFactory");
-            initData.properties.setProperty("Ice.PluginLoadOrder", "PluginOneFail, PluginTwoFail, PluginThreeFail");
-            communicator = com.zeroc.Ice.Util.initialize(args, initData);
-            test(false);
-        }
-        catch(com.zeroc.Ice.PluginInitializationException ex)
-        {
-            test(ex.getCause().getMessage().equals("PluginInitializeFailException"));
-        }
-        test(communicator == null);
-        printWriter.println("ok");
-
-        System.gc();
-        System.runFinalization();
-        return 0;
-    }
-
-    private com.zeroc.Ice.InitializationData createInitData()
-    {
-        com.zeroc.Ice.InitializationData initData = createInitializationData() ;
-        if(classLoader() != null)
-        {
-            initData.classLoader = classLoader();
-        }
-        initData.properties = com.zeroc.Ice.Util.createProperties();
-        return initData;
-    }
-
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
     }
 
     static class MyPlugin implements com.zeroc.Ice.Plugin

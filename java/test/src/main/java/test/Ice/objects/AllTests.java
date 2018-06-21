@@ -10,6 +10,7 @@
 package test.Ice.objects;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Modifier;
 
 import test.Ice.objects.Test.B;
 import test.Ice.objects.Test.C;
@@ -42,13 +43,13 @@ public class AllTests
     }
 
     @SuppressWarnings("deprecation")
-    public static InitialPrx allTests(test.Util.Application app)
+    public static InitialPrx allTests(test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator=app.communicator();
-        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "initial:" + app.getTestEndpoint(0);
+        String ref = "initial:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
         out.println("ok");
@@ -164,8 +165,9 @@ public class AllTests
             test((E.class.getDeclaredField("i").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
             test((E.class.getDeclaredField("s").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
         }
-        catch(Exception ex)
+        catch(NoSuchFieldException ex)
         {
+            ex.printStackTrace(out);
             test(false);
         }
         F f = initial.getF();
@@ -176,8 +178,9 @@ public class AllTests
             test((F.class.getDeclaredField("e1").getModifiers() & java.lang.reflect.Modifier.PROTECTED) != 0);
             test((F.class.getDeclaredField("e2").getModifiers() & java.lang.reflect.Modifier.PROTECTED) == 0);
         }
-        catch(Exception ex)
+        catch(NoSuchFieldException ex)
         {
+            ex.printStackTrace(out);
             test(false);
         }
         out.println("ok");
@@ -311,7 +314,7 @@ public class AllTests
 
         out.print("testing UnexpectedObjectException...");
         out.flush();
-        ref = "uoet:" + app.getTestEndpoint(0);
+        ref = "uoet:" + helper.getTestEndpoint(0);
         base = communicator.stringToProxy(ref);
         test(base != null);
         UnexpectedObjectExceptionTestPrx uoet = UnexpectedObjectExceptionTestPrx.uncheckedCast(base);

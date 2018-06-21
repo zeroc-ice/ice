@@ -10,7 +10,6 @@
     <ProjectGuid>{CFFB222B-19D5-499E-B833-B0F7E523B16F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>IceDiscovery</AssemblyName>
-    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <DocumentationFile>..\..\..\..\lib\net45\IceDiscovery.XML</DocumentationFile>
     <OutputPath>..\..\..\..\lib\net45\</OutputPath>
     <NoWarn>1591</NoWarn>

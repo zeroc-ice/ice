@@ -156,11 +156,11 @@ public class AllTests
     }
 
     public static MyClassPrx
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
-        String ref = "test:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
+        String ref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
         MyClassPrx oneway = MyClassPrxHelper.uncheckedCast(cl.ice_oneway());

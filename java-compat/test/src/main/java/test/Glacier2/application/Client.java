@@ -16,19 +16,11 @@ import test.Glacier2.application.Test.CallbackReceiverPrx;
 import test.Glacier2.application.Test.CallbackReceiverPrxHelper;
 import test.Glacier2.application.Test._CallbackReceiverDisp;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    Client()
+    public Client()
     {
         out = getWriter();
-    }
-
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
     }
 
     class CallbackReceiverI extends test.Glacier2.application.Test._CallbackReceiverDisp
@@ -137,63 +129,55 @@ public class Client extends test.Util.Application
         private CallbackReceiverI _receiver;
     }
 
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        _initData = super.getInitData(argsH);
-        _initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return _initData;
-    }
-
-    public int run(String[] args)
+    public void run(String[] args)
     {
         Application app = new Application();
 
-        _initData.properties.setProperty("Ice.Default.Router",
-                                         "Glacier2/router:" + getTestEndpoint(_initData.properties, 50));
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Warn.Connections", "0");
 
-        int status = app.main("Client", args, _initData);
-
-        out.print("testing stringToProxy for process object... ");
-        out.flush();
-        Ice.ObjectPrx processBase = communicator().stringToProxy("Glacier2/admin -f Process:" +
-                                                               getTestEndpoint(communicator().getProperties(), 51));
-        out.println("ok");
-
-        out.print("testing checked cast for admin object... ");
-        out.flush();
-        Ice.ProcessPrx process = Ice.ProcessPrxHelper.checkedCast(processBase);
-        test(process != null);
-        out.println("ok");
-
-        out.print("testing Glacier2 shutdown... ");
-        out.flush();
-        process.shutdown();
-        try
+        try(Ice.Communicator communicator = initialize(args))
         {
-            process.ice_ping();
-            test(false);
-        }
-        catch(Ice.LocalException ex)
-        {
+            properties.setProperty("Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(50));
+
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = properties._clone();
+
+            int status = app.main("Client", args, initData);
+            if(status != 0)
+            {
+                test(false);
+            }
+
+            out.print("testing stringToProxy for process object... ");
+            out.flush();
+            Ice.ObjectPrx processBase = communicator.stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
             out.println("ok");
+
+            out.print("testing checked cast for admin object... ");
+            out.flush();
+            Ice.ProcessPrx process = Ice.ProcessPrxHelper.checkedCast(processBase);
+            test(process != null);
+            out.println("ok");
+
+            out.print("testing Glacier2 shutdown... ");
+            out.flush();
+            process.shutdown();
+
+            try
+            {
+                process.ice_ping();
+                test(false);
+            }
+            catch(Ice.LocalException ex)
+            {
+                out.println("ok");
+            }
+
+            test(app._restart == 5);
+            test(app._destroyed);
         }
-
-        test(app._restart == 5);
-        test(app._destroyed);
-
-        return status;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
     }
 
     final public PrintWriter out;
-    private Ice.InitializationData _initData;
 }

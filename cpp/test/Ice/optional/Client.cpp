@@ -8,46 +8,30 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 using namespace Test;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    InitialPrxPtr allTests(const Ice::CommunicatorPtr&, bool);
-    InitialPrxPtr initial = allTests(communicator, false);
-    initial->shutdown();
-    return EXIT_SUCCESS;
-}
+public:
 
-int
-main(int argc, char* argv[])
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#   ifdef ICE_HAS_BT
-    Ice::registerIceBT(false);
-#   endif
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
 #ifndef ICE_CPP11_MAPPING
-        initData.properties->setProperty("Ice.CollectObjects", "1");
+    properties->setProperty("Ice.CollectObjects", "1");
 #endif
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    InitialPrxPtr allTests(Test::TestHelper*, bool);
+    InitialPrxPtr initial = allTests(this, false);
+    initial->shutdown();
 }
+
+DEFINE_TEST(Client)

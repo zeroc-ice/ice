@@ -9,7 +9,7 @@
 
 #include <IceUtil/Random.h>
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <set>
 
@@ -101,9 +101,10 @@ deactivate(const RemoteCommunicatorPrxPtr& com, vector<RemoteObjectAdapterPrxPtr
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
-    string ref = "communicator:" + getTestEndpoint(communicator, 0);
+    Ice::CommunicatorPtr communicator = helper->communicator();
+    string ref = "communicator:" + helper->getTestEndpoint();
     RemoteCommunicatorPrxPtr com = ICE_UNCHECKED_CAST(RemoteCommunicatorPrx, communicator->stringToProxy(ref));
 
     RandomNumberGenerator rng;
@@ -940,7 +941,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         string endpoint;
         {
             ostringstream str;
-            str << "tcp -p " << getTestPort(communicator->getProperties(), 2);
+            str << "tcp -p " << helper->getTestPort(2);
             endpoint = str.str();
         }
 

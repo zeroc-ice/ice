@@ -202,14 +202,18 @@ class OutgoingConnectionFactory
     applyOverrides(endpts)
     {
         const defaultsAndOverrides = this._instance.defaultsAndOverrides();
-        return endpts.map(endpoint =>
-            {
-                //
-                // Modify endpoints with overrides.
-                //
-                return defaultsAndOverrides.overrideTimeout ?
-                    endpoint.changeTimeout(defaultsAndOverrides.overrideTimeoutValue) : endpoint;
-            });
+        return endpts.map(
+            endpoint =>
+                {
+                    if(defaultsAndOverrides.overrideTimeout)
+                    {
+                        return endpoint.changeTimeout(defaultsAndOverrides.overrideTimeoutValue);
+                    }
+                    else
+                    {
+                        return endpoint;
+                    }
+                });
     }
 
     findConnectionByEndpoint(endpoints)
@@ -410,12 +414,9 @@ class OutgoingConnectionFactory
                                     connectionCallbacks.push(cc);
                                 }
                             }
-                            else
+                            else if(callbacks.indexOf(cc) === -1)
                             {
-                                if(callbacks.indexOf(cc) === -1)
-                                {
-                                    callbacks.push(cc);
-                                }
+                                callbacks.push(cc);
                             }
                         });
                 }
@@ -465,12 +466,9 @@ class OutgoingConnectionFactory
                                     failedCallbacks.push(cc);
                                 }
                             }
-                            else
+                            else if(callbacks.indexOf(cc) === -1)
                             {
-                                if(callbacks.indexOf(cc) === -1)
-                                {
-                                    callbacks.push(cc);
-                                }
+                                callbacks.push(cc);
                             }
                         });
                 }
@@ -559,16 +557,13 @@ class OutgoingConnectionFactory
             {
                 s.push("\n");
             }
+            else if(hasMore)
+            {
+                s.push(", trying next endpoint\n");
+            }
             else
             {
-                if(hasMore)
-                {
-                    s.push(", trying next endpoint\n");
-                }
-                else
-                {
-                    s.push(" and no more endpoints to try\n");
-                }
+                s.push(" and no more endpoints to try\n");
             }
             s.push(ex.toString());
             this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
@@ -586,16 +581,13 @@ class OutgoingConnectionFactory
             {
                 s.push("\n");
             }
+            else if(hasMore)
+            {
+                s.push(", trying next endpoint\n");
+            }
             else
             {
-                if(hasMore)
-                {
-                    s.push(", trying next endpoint\n");
-                }
-                else
-                {
-                    s.push(" and no more endpoints to try\n");
-                }
+                s.push(" and no more endpoints to try\n");
             }
             s.push(ex.toString());
             this._instance.initializationData().logger.trace(traceLevels.networkCat, s.join(""));
@@ -831,7 +823,7 @@ class ConnectCallback
     nextEndpoint()
     {
 
-        const start = (connection) =>
+        const start = connection =>
             {
                 connection.start().then(
                     () =>

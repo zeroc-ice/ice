@@ -223,7 +223,7 @@ public class SessionKeeper
                         {
                             SwingUtilities.invokeLater(() ->
                                 {
-                                    sessionLost("Failed to contact the IceGrid registry: " + ex.toString());
+                                    sessionLost();
                                 });
                         }
                     });
@@ -238,7 +238,7 @@ public class SessionKeeper
                                 {
                                     SwingUtilities.invokeLater(() ->
                                         {
-                                            sessionLost("Failed to contact the IceGrid registry: " + ex.toString());
+                                            sessionLost();
                                         });
                                 }
                             });
@@ -5080,7 +5080,7 @@ public class SessionKeeper
     }
 
     public void loginSuccess(final JDialog parent, final long sessionTimeout, final int acmTimeout,
-                             final AdminSessionPrx adminSession, final ConnectionInfo info)
+                             final AdminSessionPrx adminSession, final String replicaName, final ConnectionInfo info)
     {
         try
         {
@@ -5105,21 +5105,8 @@ public class SessionKeeper
         }
 
         assert adminSession != null;
-        try
-        {
-            _replicaName = adminSession.getReplicaName();
-        }
-        catch(com.zeroc.Ice.LocalException e)
-        {
-            logout(true);
-            JOptionPane.showMessageDialog(
-                parent,
-                "Could not retrieve replica name: " + e.toString(),
-                "Login failed",
-                JOptionPane.ERROR_MESSAGE);
-            return;
-        }
 
+        _replicaName = replicaName;
         _coordinator.setConnected(true);
 
         _connectedToMaster = _replicaName.equals("Master");
@@ -5202,6 +5189,12 @@ public class SessionKeeper
 
     public void permissionDenied(final JDialog parent, final ConnectionInfo info, final String msg)
     {
+        if(_authDialog != null)
+        {
+            _authDialog.dispose();
+            _authDialog = null;
+        }
+
         class PermissionDeniedAuthDialog extends AuthDialog
         {
             PermissionDeniedAuthDialog()
@@ -5355,8 +5348,9 @@ public class SessionKeeper
                             }
                         }
                     };
+                okButton.setAction(okAction);
 
-                AbstractAction editAction = new AbstractAction("Edit Connection")
+                AbstractAction editConnectionAction = new AbstractAction("Edit Connection")
                     {
                         @Override
                         public void actionPerformed(ActionEvent e)
@@ -5370,6 +5364,7 @@ public class SessionKeeper
                             dialog.setVisible(true);
                         }
                     };
+                editConnectionButton.setAction(editConnectionAction);
 
                 AbstractAction cancelAction = new AbstractAction("Cancel")
                     {
@@ -5381,6 +5376,7 @@ public class SessionKeeper
                             _authDialog = null;
                         }
                     };
+                cancelButton.setAction(cancelAction);
 
                 JComponent buttonBar = new ButtonBarBuilder().addGlue().addButton(okButton, editConnectionButton,
                     cancelButton).addGlue().build();
@@ -5408,11 +5404,11 @@ public class SessionKeeper
         _authDialog.showDialog();
     }
 
-    void sessionLost(String message)
+    void sessionLost()
     {
         JOptionPane.showMessageDialog(
             _coordinator.getMainFrame(),
-            message,
+            "The connection with the registry has been closed.",
             "Session lost",
             JOptionPane.ERROR_MESSAGE);
 

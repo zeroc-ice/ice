@@ -11,7 +11,7 @@ using System;
 using Test;
 using Ice;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     public static void testExceptions(TestIntfPrx obj)
     {
@@ -195,12 +195,12 @@ public class AllTests : TestCommon.AllTests
         }
     }
 
-    public static TestIntfPrx allTests(TestCommon.Application app)
+    public static TestIntfPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        string @ref = "asm:" + app.getTestEndpoint(0);
+        string @ref = "asm:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -216,7 +216,7 @@ public class AllTests : TestCommon.AllTests
         Flush();
         try
         {
-            Ice.ObjectPrx o = communicator.stringToProxy("category/locate:" + app.getTestEndpoint(0));
+            Ice.ObjectPrx o = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
             o.ice_ids();
             test(false);
         }
@@ -231,7 +231,7 @@ public class AllTests : TestCommon.AllTests
 
         try
         {
-            Ice.ObjectPrx o = communicator.stringToProxy("category/finished:" + app.getTestEndpoint(0));
+            Ice.ObjectPrx o = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
             o.ice_ids();
             test(false);
         }
@@ -247,11 +247,11 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing servant locator...");
         Flush();
-        @base = communicator.stringToProxy("category/locate:" + app.getTestEndpoint(0));
+        @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
         obj = TestIntfPrxHelper.checkedCast(@base);
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:" + app.getTestEndpoint(0)));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
         }
         catch(ObjectNotExistException)
         {
@@ -260,20 +260,20 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing default servant locator...");
         Flush();
-        @base = communicator.stringToProxy("anothercat/locate:" + app.getTestEndpoint(0));
+        @base = communicator.stringToProxy("anothercat/locate:" + helper.getTestEndpoint(0));
         obj = TestIntfPrxHelper.checkedCast(@base);
-        @base = communicator.stringToProxy("locate:" + app.getTestEndpoint(0));
+        @base = communicator.stringToProxy("locate:" + helper.getTestEndpoint(0));
         obj = TestIntfPrxHelper.checkedCast(@base);
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:" + app.getTestEndpoint(0)));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
         }
         catch(ObjectNotExistException)
         {
         }
         try
         {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:" + app.getTestEndpoint(0)));
+            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
         }
         catch(ObjectNotExistException)
         {
@@ -282,14 +282,14 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing locate exceptions... ");
         Flush();
-        @base = communicator.stringToProxy("category/locate:" + app.getTestEndpoint(0));
+        @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
         obj = TestIntfPrxHelper.checkedCast(@base);
         testExceptions(obj);
         WriteLine("ok");
 
         Write("testing finished exceptions... ");
         Flush();
-        @base = communicator.stringToProxy("category/finished:" + app.getTestEndpoint(0));
+        @base = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
         obj = TestIntfPrxHelper.checkedCast(@base);
         testExceptions(obj);
 
@@ -333,7 +333,7 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing servant locator removal... ");
         Flush();
-        @base = communicator.stringToProxy("test/activation:" + app.getTestEndpoint(0));
+        @base = communicator.stringToProxy("test/activation:" + helper.getTestEndpoint(0));
         TestActivationPrx activation = TestActivationPrxHelper.checkedCast(@base);
         activation.activateServantLocator(false);
         try

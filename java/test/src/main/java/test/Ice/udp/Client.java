@@ -11,46 +11,35 @@ package test.Ice.udp;
 
 import test.Ice.udp.Test.*;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        AllTests.allTests(this);
+        java.util.List<String> rargs = new java.util.ArrayList<String>();
+        com.zeroc.Ice.Properties properties = createTestProperties(args, rargs);
+        properties.setProperty("Ice.Package.Test", "test.Ice.udp");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.UDP.RcvSize", "16384");
+        properties.setProperty("Ice.UDP.SndSize", "16384");
 
-        int num;
-        try
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
-            num = args.length == 1 ? Integer.parseInt(args[0]) : 1;
-        }
-        catch(NumberFormatException ex)
-        {
-            num = 1;
-        }
-        for(int i = 0; i < num; ++i)
-        {
-            TestIntfPrx.uncheckedCast(communicator().stringToProxy("control:" + getTestEndpoint(i, "tcp"))).shutdown();
-        }
-        return 0;
-    }
+            AllTests.allTests(this);
+            int num;
+            try
+            {
+                num = rargs.size() == 1 ? Integer.parseInt(rargs.get(0)) : 1;
+            }
+            catch(NumberFormatException ex)
+            {
+                num = 1;
+            }
 
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.udp");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.UDP.RcvSize", "16384");
-        initData.properties.setProperty("Ice.UDP.SndSize", "16384");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
+            for(int i = 0; i < num; ++i)
+            {
+                com.zeroc.Ice.ObjectPrx prx = communicator().stringToProxy("control:" + getTestEndpoint(i, "tcp"));
+                TestIntfPrx.uncheckedCast(prx).shutdown();
+            }
+        }
     }
 }

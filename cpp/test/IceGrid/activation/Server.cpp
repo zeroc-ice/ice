@@ -10,33 +10,40 @@
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
 #include <TestI.h>
+#include <TestHelper.h>
 
 using namespace std;
 
-class Server : public Ice::Application
+class Server : public Test::TestHelper
 {
 public:
 
-    virtual int run(int argc, char* argv[]);
-
+    void run(int, char**);
 };
 
-int
-Server::run(int argc, char* argv[])
+class TestActivationFailure : public std::runtime_error
 {
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-    args = properties->parseCommandLineOptions("", args);
-    Ice::stringSeqToArgs(args, argc, argv);
+public:
+
+    TestActivationFailure(const string& what_arg) :
+        runtime_error(what_arg)
+    {
+    }
+};
+
+void
+Server::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     if(properties->getPropertyAsInt("FailOnStartup") > 0)
     {
-        return EXIT_FAILURE;
+        throw TestActivationFailure("FailOnStartup");
     }
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-    TestI* test = new TestI();
-    Ice::ObjectPtr obj = test;
-    adapter->add(test, Ice::stringToIdentity(properties->getProperty("Ice.Admin.ServerId")));
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    TestIPtr testI = ICE_MAKE_SHARED(TestI);
+    adapter->add(testI, Ice::stringToIdentity(properties->getProperty("Ice.Admin.ServerId")));
 
     int delay = properties->getPropertyAsInt("ActivationDelay");
     if(delay > 0)
@@ -44,7 +51,6 @@ Server::run(int argc, char* argv[])
         IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(delay));
     }
 
-    shutdownOnInterrupt();
     try
     {
         adapter->activate();
@@ -52,8 +58,7 @@ Server::run(int argc, char* argv[])
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-    communicator()->waitForShutdown();
-    ignoreInterrupt();
+    communicator->waitForShutdown();
 
     delay = properties->getPropertyAsInt("DeactivationDelay");
     if(delay > 0)
@@ -61,13 +66,29 @@ Server::run(int argc, char* argv[])
         IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(delay));
     }
 
-    return test->isFailed() ? EXIT_FAILURE : EXIT_SUCCESS;
+    if(testI->isFailed())
+    {
+        throw TestActivationFailure("test failed");
+    }
 }
 
 int
-main(int argc, char* argv[])
+main(int argc, char** argv)
 {
-    Server app;
-    int rc = app.main(argc, argv);
-    return rc;
+    int status = 0;
+    try
+    {
+        Server server;
+        server.run(argc, argv);
+    }
+    catch(const TestActivationFailure&)
+    {
+        status = 1; // excpected failure
+    }
+    catch(const std::exception& ex)
+    {
+        std::cerr << "error: " << ex.what() << std::endl;
+        status = 1;
+    }
+    return status;
 }

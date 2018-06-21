@@ -84,17 +84,17 @@ public class AllTests
     };
 
     public static void
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "hold:" + app.getTestEndpoint(0);
+        String ref = "hold:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         test(base != null);
-        String refSerialized = "hold:" + app.getTestEndpoint(1);
+        String refSerialized = "hold:" + helper.getTestEndpoint(1);
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         out.println("ok");
@@ -196,7 +196,7 @@ public class AllTests
             int value = 0;
             holdSerialized.set(value, 0);
             Ice.AsyncResult result = null;
-            int max = app.isAndroid() ? 5000 : 10000;
+            int max = helper.isAndroid() ? 5000 : 10000;
             for(int i = 0; i < max; ++i)
             {
                 // Create a new proxy for each request

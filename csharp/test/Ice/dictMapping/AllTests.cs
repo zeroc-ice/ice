@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static Test.MyClassPrx allTests(TestCommon.Application app, bool collocated)
+    public static Test.MyClassPrx allTests(Test.TestHelper helper, bool collocated)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Flush();
-        string rf = "test:" + app.getTestEndpoint(0);
+        string rf = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
 

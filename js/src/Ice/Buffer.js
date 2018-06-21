@@ -26,14 +26,15 @@ class Buffer
         {
             this.b = buffer;
             this.v = new DataView(this.b);
+            this._limit = this.b.byteLength;
         }
         else
         {
             this.b = null; // ArrayBuffer
             this.v = null; // DataView
+            this._limit = 0;
         }
         this._position = 0;
-        this._limit = 0;
         this._shrinkCounter = 0;
     }
 
@@ -98,7 +99,7 @@ class Buffer
         {
             this._shrinkCounter = 0;
         }
-        this._limit = 0;
+        this._limit = this.capacity();
         this._position = 0;
     }
 
@@ -121,7 +122,7 @@ class Buffer
         }
         else if(n < this.capacity)
         {
-            this.b = this.b.slice(0, this.capacity);
+            this.b = this.b.slice(0, n);
             this.v = new DataView(this.b);
         }
     }
@@ -147,7 +148,7 @@ class Buffer
 
     putArray(v)
     {
-        //Expects an Uint8Array
+        // Expects an Uint8Array
         if(!(v instanceof Uint8Array))
         {
             throw new TypeError('argument is not a Uint8Array');
@@ -286,8 +287,9 @@ class Buffer
         {
             throw new Error(bufferUnderflowExceptionMsg);
         }
-        length = length === undefined ? (this.b.byteLength - position) : length;
-        return new Uint8Array(this.b.slice(position, position + length));
+        return new Uint8Array(
+            this.b.slice(position, position + length === undefined ?
+                         (this.b.byteLength - position) : length));
     }
 
     getShort()

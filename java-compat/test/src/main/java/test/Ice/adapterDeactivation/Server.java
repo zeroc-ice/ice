@@ -9,36 +9,23 @@
 
 package test.Ice.adapterDeactivation;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    public int
+    public void
     run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ServantLocator locator = new ServantLocatorI();
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.ServantLocator locator = new ServantLocatorI();
 
-        adapter.addServantLocator(locator, "");
-        adapter.activate();
-        serverReady();
-        adapter.waitForDeactivate();
-        return 0;
-    }
-
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        return initData;
-    }
-
-    public static void
-    main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-
-        System.gc();
-        System.exit(result);
+            adapter.addServantLocator(locator, "");
+            adapter.activate();
+            serverReady();
+            adapter.waitForDeactivate();
+        }
     }
 }

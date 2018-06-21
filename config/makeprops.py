@@ -123,6 +123,10 @@ namespace IceInternal
 """
 
 jsPreamble = commonPreamble + """
+/* eslint comma-dangle: "off" */
+/* eslint array-bracket-newline: "off" */
+/* eslint no-useless-escape: "off" */
+
 const Ice = require("../Ice/Property").Ice;
 const %(classname)s = {};
 const Property = Ice.Property;
@@ -560,10 +564,8 @@ class JSPropertyHandler(PropertyHandler):
     def startFiles(self):
         self.srcFile = open(self.className + ".js", "w")
         self.srcFile.write(jsPreamble % {'inputfile' : self.inputfile, 'classname' : self.className})
-        self.srcFile.write("/* jshint -W044*/\n\n");
 
     def closeFiles(self):
-        self.srcFile.write("/* jshint +W044*/\n\n");
         self.srcFile.write("%s.validProps =\n" % (self.className))
         self.srcFile.write("[\n")
         for s in self.sections:

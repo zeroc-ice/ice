@@ -10,7 +10,7 @@
 #include <IceUtil/InputUtil.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Options.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #include <vector>
 
@@ -31,8 +31,15 @@ const Int64 Int64Min = -0x7fffffffffffffffLL-1LL;
 const Int64 Int64Max = 0x7fffffffffffffffLL;
 #endif
 
-int
-main(int, char**)
+class Client : public Test::TestHelper
+{
+public:
+
+    virtual void run(int argc, char* argv[]);
+};
+
+void
+Client::run(int, char**)
 {
     cout << "testing string-to-64-bit integer conversion... " << flush;
 
@@ -242,6 +249,6 @@ main(int, char**)
         test(!IceUtilInternal::splitString("a\"b", ":", ss));
     }
     cout << "ok" << endl;
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client)

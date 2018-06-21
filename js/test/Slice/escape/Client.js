@@ -18,7 +18,7 @@
         {
             throw new Error("test failed");
         }
-    };
+    }
 
     async function run(out, initData)
     {
@@ -32,7 +32,7 @@
             out.writeLine("ok");
 
             out.write("testing structs... ");
-            let s = new _await._break(10);
+            const s = new _await._break(10);
             test(s._while == 10);
             out.writeLine("ok");
 
@@ -69,7 +69,7 @@
 
             out.write("testing classes... ");
 
-            let d = new _await._delete(10, null, 10);
+            const d = new _await._delete(10, null, 10);
             test(d._if === 10);
             test(d._else === null);
             test(d._export === 10);
@@ -100,7 +100,6 @@
     }
 
     exports._test = run;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

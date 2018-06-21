@@ -7,12 +7,9 @@
 //
 // **********************************************************************
 
-#include <Ice/Application.h>
 #include <ServantLocatorI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
-
-DEFINE_TEST("server")
 
 using namespace std;
 using namespace Ice;
@@ -87,10 +84,18 @@ public:
     }
 };
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Server : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
+public:
+
+    void run(int, char**);
+};
+
+void
+Server::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     communicator->getProperties()->setProperty("Ice.Warn.Dispatch", "0");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
@@ -100,28 +105,8 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     adapter->add(ICE_MAKE_SHARED(TestI), Ice::stringToIdentity("asm"));
     adapter->add(ICE_MAKE_SHARED(TestActivationI), Ice::stringToIdentity("test/activation"));
     adapter->activate();
-    TEST_READY
+    serverReady();
     adapter->waitForDeactivate();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-    Ice::registerIceUDP(true);
-#endif
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Server)

@@ -23,22 +23,22 @@
         }
 
         out.write("testing stringToProxy... ");
-        let ref = "initial:default -p 12010";
-        let base = communicator.stringToProxy(ref);
+        const ref = "initial:default -p 12010";
+        const base = communicator.stringToProxy(ref);
         test(base !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        let initial = await Test.InitialPrx.checkedCast(base);
+        const initial = await Test.InitialPrx.checkedCast(base);
         test(initial !== null);
         test(initial.equals(base));
         out.writeLine("ok");
 
         out.write("getting proxies for class hierarchy... ");
-        let ca = await initial.caop();
-        let cb = await initial.cbop();
-        let cc = await initial.ccop();
-        let cd = await initial.cdop();
+        const ca = await initial.caop();
+        const cb = await initial.cbop();
+        const cc = await initial.ccop();
+        const cd = await initial.cdop();
         test(ca != cb);
         test(ca != cc);
         test(ca != cd);
@@ -48,10 +48,10 @@
         out.writeLine("ok");
 
         out.write("getting proxies for interface hierarchy... ");
-        let ia = await initial.iaop();
-        let ib1 = await initial.ib1op();
-        let ib2 = await initial.ib2op();
-        let ic = await initial.icop();
+        const ia = await initial.iaop();
+        const ib1 = await initial.ib1op();
+        const ib2 = await initial.ib2op();
+        const ic = await initial.icop();
         test(ia != ib1);
         test(ia != ib2);
         test(ia != ic);
@@ -60,11 +60,8 @@
         out.writeLine("ok");
 
         out.write("invoking proxy operations on class hierarchy... ");
-        let cao;
-        let cbo;
-        let cco;
 
-        cao = await ca.caop(ca);
+        let cao = await ca.caop(ca);
         test(cao.equals(ca));
         cao = await ca.caop(cb);
         test(cao.equals(cb));
@@ -85,7 +82,7 @@
 
         cao = await cb.cbop(cb);
         test(cao.equals(cb));
-        cbo = await cb.cbop(cb);
+        let cbo = await cb.cbop(cb);
         test(cbo.equals(cb));
         cao = await cb.cbop(cc);
         test(cao.equals(cc));
@@ -104,7 +101,7 @@
         test(cao.equals(cc));
         cbo = await cc.ccop(cc);
         test(cbo.equals(cc));
-        cco = await cc.ccop(cc);
+        let cco = await cc.ccop(cc);
         test(cco.equals(cc));
         out.writeLine("ok");
 
@@ -112,7 +109,6 @@
         let iao;
         let ib1o;
         let ib2o;
-        let ico;
 
         iao = await ia.iaop(ia);
         test(iao.equals(ia));
@@ -187,7 +183,7 @@
         test(ib1o.equals(ic));
         ib2o = await ic.icop(ic);
         test(ib2o.equals(ic));
-        ico = await ic.icop(ic);
+        const ico = await ic.icop(ic);
         test(ico.equals(ic));
         out.writeLine("ok");
 
@@ -222,7 +218,7 @@
         out.writeLine("ok");
 
         await initial.shutdown();
-    };
+    }
 
     async function run(out, initData)
     {
@@ -243,7 +239,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

@@ -11,43 +11,36 @@
 #include <Ice/Ice.h>
 #include <Glacier2/Router.h>
 #include <Backend.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <set>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class AttackClient : public Application
+class AttackClient : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+AttackClient::run(int argc, char** argv)
 {
-    Ice::InitializationData initData = getTestInitData(argc, argv);
-
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
     //
     // We want to check whether the client retries for evicted
     // proxies, even with regular retries disabled.
     //
-    initData.properties->setProperty("Ice.RetryIntervals", "-1");
+    properties->setProperty("Ice.RetryIntervals", "-1");
 
-    AttackClient app;
-    return app.main(argc, argv, initData);
-}
-
-int
-AttackClient::run(int, char**)
-{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     cout << "getting router... " << flush;
-    ObjectPrx routerBase = communicator()->stringToProxy("Glacier2/router:" + getTestEndpoint(communicator(), 50));
+    ObjectPrx routerBase = communicator->stringToProxy("Glacier2/router:" + getTestEndpoint(50));
     Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(routerBase);
     test(router);
-    communicator()->setDefaultRouter(router);
+    communicator->setDefaultRouter(router);
     cout << "ok" << endl;
 
     cout << "creating session... " << flush;
@@ -55,7 +48,7 @@ AttackClient::run(int, char**)
     cout << "ok" << endl;
 
     cout << "making thousands of invocations on proxies... " << flush;
-    ObjectPrx backendBase = communicator()->stringToProxy("dummy:" + getTestEndpoint(communicator(), 0));
+    ObjectPrx backendBase = communicator->stringToProxy("dummy:" + getTestEndpoint());
     BackendPrx backend = BackendPrx::uncheckedCast(backendBase);
     backend->ice_ping();
 
@@ -112,9 +105,8 @@ AttackClient::run(int, char**)
 
     cout << "testing server and router shutdown... " << flush;
     backend->shutdown();
-    communicator()->setDefaultRouter(0);
-    ObjectPrx adminBase = communicator()->stringToProxy("Glacier2/admin -f Process:" +
-                                                        getTestEndpoint(communicator(), 51));
+    communicator->setDefaultRouter(0);
+    ObjectPrx adminBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
     Ice::ProcessPrx process = Ice::ProcessPrx::checkedCast(adminBase);
     test(process);
     process->shutdown();
@@ -127,6 +119,6 @@ AttackClient::run(int, char**)
     {
         cout << "ok" << endl;
     }
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(AttackClient)

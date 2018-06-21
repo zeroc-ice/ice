@@ -25,9 +25,7 @@ Ice._ModuleRegistry.require(module,
 
 const ArrayUtil = Ice.ArrayUtil;
 const AsyncResultBase = Ice.AsyncResultBase;
-const AsyncResult = Ice.AsyncResult;
 const Debug = Ice.Debug;
-const FormatType = Ice.FormatType;
 const OutgoingAsync = Ice.OutgoingAsync;
 const ProxyFlushBatch = Ice.ProxyFlushBatch;
 const ProxyGetConnection = Ice.ProxyGetConnection;
@@ -701,7 +699,7 @@ class ObjectPrx
             else
             {
                 const ostr = r.startWriteParams(fmt);
-                marshalFn.call(null, ostr, args);
+                marshalFn(ostr, args);
                 r.endWriteParams();
             }
             r.invoke();
@@ -738,7 +736,6 @@ class ObjectPrx
         catch(ex)
         {
             this.dispatchLocalException(r, ex);
-            return;
         }
     }
 

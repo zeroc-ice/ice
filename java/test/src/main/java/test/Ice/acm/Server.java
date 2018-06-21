@@ -9,37 +9,27 @@
 
 package test.Ice.acm;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("communicator");
-        adapter.add(new RemoteCommunicatorI(), id);
-        adapter.activate();
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.acm");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.ACM.Timeout", "1");
 
-        // Disable ready print for further adapters.
-        communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("communicator");
+            adapter.add(new RemoteCommunicatorI(), id);
+            adapter.activate();
 
-        return WAIT;
-    }
-
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.acm");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.ACM.Timeout", "1");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            // Disable ready print for further adapters.
+            communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

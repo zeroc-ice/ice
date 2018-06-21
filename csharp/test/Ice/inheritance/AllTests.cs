@@ -9,14 +9,14 @@
 
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static InitialPrx allTests(TestCommon.Application app)
+    public static InitialPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        string ref_Renamed = "initial:" + app.getTestEndpoint(0);
+        string ref_Renamed = "initial:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(ref_Renamed);
         test(@base != null);
         WriteLine("ok");

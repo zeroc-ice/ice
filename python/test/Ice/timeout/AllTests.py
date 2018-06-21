@@ -89,7 +89,7 @@ def allTests(communicator):
     #
     # Expect success.
     #
-    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(2000))
+    to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(-1))
     controller.holdAdapter(100)
     try:
         to.op()

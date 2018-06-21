@@ -34,7 +34,7 @@ public:
 
 protected:
 
-    static std::string getAbsolute(const std::string&, const std::string&);
+    static std::string getUnqualified(const std::string&, const std::string&);
     static std::string resultStructName(const std::string&, const std::string&, bool = false);
     static std::string resultType(const OperationPtr&, const std::string&, bool = false);
     static std::string taskResultType(const OperationPtr&, const std::string&, bool = false);

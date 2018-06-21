@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-var _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
+const _ModuleRegistry = require("../Ice/ModuleRegistry").Ice._ModuleRegistry;
 
 module.exports.IceGrid = _ModuleRegistry.require(module,
     [

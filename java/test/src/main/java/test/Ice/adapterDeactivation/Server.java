@@ -9,34 +9,20 @@
 
 package test.Ice.adapterDeactivation;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.ServantLocator locator = new ServantLocatorI();
-
-        adapter.addServantLocator(locator, "");
-        adapter.activate();
-        serverReady();
-        adapter.waitForDeactivate();
-        return 0;
-    }
-
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-
-        System.gc();
-        System.exit(result);
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.addServantLocator(new ServantLocatorI(), "");
+            adapter.activate();
+            serverReady();
+            adapter.waitForDeactivate();
+        }
     }
 }

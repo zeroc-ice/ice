@@ -15,7 +15,7 @@
 #include <IceUtil/RecMutex.h>
 
 #include <sstream>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <vector>
 #include <map>
 

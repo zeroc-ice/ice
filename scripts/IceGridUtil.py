@@ -9,6 +9,9 @@
 
 import sys, os
 from Util import *
+from IceBoxUtil import *
+from Glacier2Util import *
+from IcePatch2Util import *
 
 class IceGridProcess:
 
@@ -45,7 +48,7 @@ class IceGridClient(IceGridProcess, Client):
 
     getParentProps = Client.getProps # Used by IceGridProcess to get the client properties
 
-class IceGridAdmin(ProcessFromBinDir, IceGridClient):
+class IceGridAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceGridClient):
 
     def __init__(self, replica=None, username="admin1", password="test1", *args, **kargs):
         IceGridClient.__init__(self, replica=replica, exe="icegridadmin", mapping=Mapping.getByName("cpp"),
@@ -238,8 +241,8 @@ class IceGridTestCase(TestCase):
                 "properties-override" : self.icegridnode[0].getPropertiesOverride(current),
             }
 
-            if platform.getDotnetExe():
-                variables["dotnet.exe"] = platform.getDotnetExe()
+            if platform.getDotNetExe():
+                variables["dotnet.exe"] = platform.getDotNetExe()
 
             # Add variables that point to the directories containing the built executables
             for (k, v) in self.exevars.items():

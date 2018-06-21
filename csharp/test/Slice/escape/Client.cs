@@ -11,16 +11,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-public class Client
+public class Client : Test.TestHelper
 {
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
-
     public sealed class caseI : @abstract.caseDisp_
     {
         public override Task<int>
@@ -127,65 +119,45 @@ public class Client
         test(k == 0);
     }
 
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override void run(string[] args)
     {
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));
-        adapter.add(new Test1I(), Ice.Util.stringToIdentity("test1"));
-        adapter.add(new Test2I(), Ice.Util.stringToIdentity("test2"));
-        adapter.activate();
+        using(var communicator = initialize(ref args))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default");
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new decimalI(), Ice.Util.stringToIdentity("test"));
+            adapter.add(new Test1I(), Ice.Util.stringToIdentity("test1"));
+            adapter.add(new Test2I(), Ice.Util.stringToIdentity("test2"));
+            adapter.activate();
 
-        Console.Out.Write("testing operation name... ");
-        Console.Out.Flush();
-        @abstract.@decimalPrx p = @abstract.@decimalPrxHelper.uncheckedCast(
-            adapter.createProxy(Ice.Util.stringToIdentity("test")));
-        p.@default();
-        Console.Out.WriteLine("ok");
+            Console.Out.Write("testing operation name... ");
+            Console.Out.Flush();
+            @abstract.@decimalPrx p =
+                @abstract.@decimalPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test")));
+            p.@default();
+            Console.Out.WriteLine("ok");
 
-        Console.Out.Write("testing System as module name... ");
-        Console.Out.Flush();
-        @abstract.System.TestPrx t1 = @abstract.System.TestPrxHelper.uncheckedCast(
-                adapter.createProxy(Ice.Util.stringToIdentity("test1")));
-        t1.op();
+            Console.Out.Write("testing System as module name... ");
+            Console.Out.Flush();
+            @abstract.System.TestPrx t1 =
+                @abstract.System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test1")));
+            t1.op();
 
-        System.TestPrx t2 = System.TestPrxHelper.uncheckedCast(
-                adapter.createProxy(Ice.Util.stringToIdentity("test2")));
+            System.TestPrx t2 =
+                System.TestPrxHelper.uncheckedCast(adapter.createProxy(Ice.Util.stringToIdentity("test2")));
 
-        t2.op();
-        Console.Out.WriteLine("ok");
+            t2.op();
+            Console.Out.WriteLine("ok");
 
-        Console.Out.Write("testing types... ");
-        Console.Out.Flush();
-        testtypes();
-        Console.Out.WriteLine("ok");
-
-        return 0;
+            Console.Out.Write("testing types... ");
+            Console.Out.Flush();
+            testtypes();
+            Console.Out.WriteLine("ok");
+        }
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            communicator.destroy();
-        }
-
-        return status;
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

@@ -9,6 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <BackendI.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Ice;
@@ -108,33 +109,28 @@ private:
     const BackendPtr _backend;
 };
 
-class BackendServer : public Application
+class BackendServer : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+BackendServer::run(int argc, char** argv)
 {
-    BackendServer app;
-    return app.main(argc, argv);
-}
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    string endpoints = communicator->getProperties()->getPropertyWithDefault("BackendAdapter.Endpoints",
+                                                                             "tcp -p 12010:ssl -p 12011");
 
-int
-BackendServer::run(int, char**)
-{
-    string endpoints = communicator()->getProperties()->getPropertyWithDefault("BackendAdapter.Endpoints",
-                                                                               "tcp -p 12010:ssl -p 12011");
-
-    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", endpoints);
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("BackendAdapter");
+    communicator->getProperties()->setProperty("BackendAdapter.Endpoints", endpoints);
+    ObjectAdapterPtr adapter = communicator->createObjectAdapter("BackendAdapter");
     BackendPtr backend = new BackendI;
     Ice::LocatorPtr locator = new ServerLocatorI(backend, adapter);
     adapter->add(locator, Ice::stringToIdentity("locator"));
     adapter->addServantLocator(new ServantLocatorI(backend), "");
     adapter->activate();
-    communicator()->waitForShutdown();
-    return EXIT_SUCCESS;
+    communicator->waitForShutdown();
 }
+
+DEFINE_TEST(BackendServer)

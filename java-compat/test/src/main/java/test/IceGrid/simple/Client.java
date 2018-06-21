@@ -9,48 +9,32 @@
 
 package test.IceGrid.simple;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        boolean withDeploy = false;
-        for(String arg : args)
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
+        try(Ice.Communicator communicator = initialize(properties))
         {
-            if(arg.equals("--with-deploy"))
+            boolean withDeploy = false;
+            for(String arg : args)
             {
-                withDeploy = true;
-                break;
+                if(arg.equals("--with-deploy"))
+                {
+                    withDeploy = true;
+                    break;
+                }
+            }
+
+            if(!withDeploy)
+            {
+                AllTests.allTests(this);
+            }
+            else
+            {
+                AllTests.allTestsWithDeploy(this);
             }
         }
-
-        if(!withDeploy)
-        {
-            AllTests.allTests(this);
-        }
-        else
-        {
-            AllTests.allTestsWithDeploy(this);
-        }
-
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
     }
 }

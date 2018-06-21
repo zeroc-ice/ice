@@ -9,30 +9,24 @@
 
 package test.IceDiscovery.simple;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        int num;
-        try
+        Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+        Ice.Properties properties = createTestProperties(argsH);
+        try(Ice.Communicator communicator = initialize(properties))
         {
-            num = args.length == 1 ? Integer.parseInt(args[0]) : 0;
+            int num;
+            try
+            {
+                num = argsH.value.length == 1 ? Integer.parseInt(argsH.value[0]) : 0;
+            }
+            catch(NumberFormatException ex)
+            {
+                num = 0;
+            }
+            AllTests.allTests(communicator, num);
         }
-        catch(NumberFormatException ex)
-        {
-            num = 0;
-        }
-        AllTests.allTests(communicator(), num);
-        return 0;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
     }
 }

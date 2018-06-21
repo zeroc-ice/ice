@@ -11,12 +11,12 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static GPrx allTests(TestCommon.Application app)
+    public static GPrx allTests(Test.TestHelper helper)
     {
 
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
 
         Write("testing Ice.Admin.Facets property... ");
         test(communicator.getProperties().getPropertyAsList("Ice.Admin.Facets").Length == 0);
@@ -97,7 +97,7 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing stringToProxy... ");
         Flush();
-        string @ref = "d:" + app.getTestEndpoint(0);
+        string @ref = "d:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx db = communicator.stringToProxy(@ref);
         test(db != null);
         WriteLine("ok");

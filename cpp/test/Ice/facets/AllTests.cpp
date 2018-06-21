@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -20,8 +20,9 @@ class EmptyI : public virtual Empty
 };
 
 GPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
 #ifdef ICE_OS_UWP
     bool uwp = true;
 #else
@@ -122,7 +123,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
 
     cout << "testing stringToProxy... " << flush;
-    string ref = "d:" + getTestEndpoint(communicator, 0);
+    string ref = "d:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr db = communicator->stringToProxy(ref);
     test(db);
     cout << "ok" << endl;

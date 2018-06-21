@@ -77,7 +77,7 @@ class OnewaysAMI
     }
 
     static void
-    onewaysAMI(test.Util.Application app, MyClassPrx proxy)
+    onewaysAMI(test.TestHelper helper, MyClassPrx proxy)
     {
         MyClassPrx p = (MyClassPrx)proxy.ice_oneway();
 

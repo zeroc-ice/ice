@@ -11,12 +11,6 @@ using Test;
 
 public class RemoteCommunicatorI : RemoteCommunicatorDisp_
 {
-
-    public RemoteCommunicatorI(TestCommon.Application app)
-    {
-        _app = app;
-    }
-
     public override RemoteObjectAdapterPrx
     createObjectAdapter(string name, string endpts, Ice.Current current)
     {
@@ -25,15 +19,15 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
         {
             try
             {
+                Ice.Communicator communicator = current.adapter.getCommunicator();
                 string endpoints = endpts;
                 if(endpoints.IndexOf("-p") < 0)
                 {
-                    endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
+                    endpoints = TestHelper.getTestEndpoint(communicator.getProperties(), _nextPort++, endpoints);
                 }
 
-                Ice.Communicator com = current.adapter.getCommunicator();
-                com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
-                Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
+                communicator.getProperties().setProperty(name + ".ThreadPool.Size", "1");
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(name, endpoints);
                 return RemoteObjectAdapterPrxHelper.uncheckedCast(
                     current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
             }
@@ -59,6 +53,5 @@ public class RemoteCommunicatorI : RemoteCommunicatorDisp_
         current.adapter.getCommunicator().shutdown();
     }
 
-    private TestCommon.Application _app;
     private int _nextPort = 10;
 };

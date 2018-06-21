@@ -11,7 +11,7 @@ package test.Ice.objects;
 
 import test.Ice.objects.Test.Initial;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
     private static class MyValueFactory implements Ice.ValueFactory
     {
@@ -73,49 +73,35 @@ public class Collocated extends test.Util.Application
     }
 
     @SuppressWarnings("deprecation")
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ValueFactory factory = new MyValueFactory();
-        communicator.getValueFactoryManager().add(factory, "::Test::B");
-        communicator.getValueFactoryManager().add(factory, "::Test::C");
-        communicator.getValueFactoryManager().add(factory, "::Test::D");
-        communicator.getValueFactoryManager().add(factory, "::Test::E");
-        communicator.getValueFactoryManager().add(factory, "::Test::F");
-        communicator.getValueFactoryManager().add(factory, "::Test::I");
-        communicator.getValueFactoryManager().add(factory, "::Test::J");
-        communicator.getValueFactoryManager().add(factory, "::Test::H");
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            Ice.ValueFactory factory = new MyValueFactory();
+            communicator.getValueFactoryManager().add(factory, "::Test::B");
+            communicator.getValueFactoryManager().add(factory, "::Test::C");
+            communicator.getValueFactoryManager().add(factory, "::Test::D");
+            communicator.getValueFactoryManager().add(factory, "::Test::E");
+            communicator.getValueFactoryManager().add(factory, "::Test::F");
+            communicator.getValueFactoryManager().add(factory, "::Test::I");
+            communicator.getValueFactoryManager().add(factory, "::Test::J");
+            communicator.getValueFactoryManager().add(factory, "::Test::H");
 
-        communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
+            communicator.addObjectFactory(new MyObjectFactory(), "TestOF");
 
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Initial initial = new InitialI(adapter);
-        adapter.add(initial, Ice.Util.stringToIdentity("initial"));
-        UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
-        adapter.add(object, Ice.Util.stringToIdentity("uoet"));
-        AllTests.allTests(this);
-        // We must call shutdown even in the collocated case for cyclic
-        // dependency cleanup
-        initial.shutdown();
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Collocated app = new Collocated();
-        int result = app.main("Collocated", args);
-        System.gc();
-        System.exit(result);
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Initial initial = new InitialI(adapter);
+            adapter.add(initial, Ice.Util.stringToIdentity("initial"));
+            UnexpectedObjectExceptionTestI object = new UnexpectedObjectExceptionTestI();
+            adapter.add(object, Ice.Util.stringToIdentity("uoet"));
+            AllTests.allTests(this);
+            // We must call shutdown even in the collocated case for cyclic
+            // dependency cleanup
+            initial.shutdown();
+        }
     }
 }

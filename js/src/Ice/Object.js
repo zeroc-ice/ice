@@ -21,8 +21,6 @@ Ice._ModuleRegistry.require(module,
         "../Ice/OptionalFormat"
     ]);
 
-const ids = ["::Ice::Object"];
-
 Ice.Object = class
 {
     ice_isA(s, current)

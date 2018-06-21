@@ -8,10 +8,8 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 using namespace Test;
@@ -227,9 +225,10 @@ public:
 };
 #endif
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+void
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
 #ifdef ICE_CPP11_MAPPING
     MyClassFactoryWrapper factoryWrapper;
     function<Ice::ValuePtr(const string&)> f =
@@ -1334,36 +1333,21 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     }
 
     cout << "ok" << endl;
-    return 0;
 }
 
-int
-main(int argc, char* argv[])
+class Client : public Test::TestHelper
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
+public:
 
-    int status;
-    Ice::CommunicatorPtr communicator;
+    void run(int, char**);
+};
 
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
+void
+Client::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    void allTests(Test::TestHelper*);
+    allTests(this);
 }
+
+DEFINE_TEST(Client)

@@ -15,19 +15,10 @@ import test.Ice.interceptor.Test.InvalidInputException;
 import test.Ice.interceptor.Test.MyObjectPrx;
 import test.Ice.interceptor.Test.MyObjectPrxHelper;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    private static void
-    test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
-    private int
-    run(MyObjectPrx prx, InterceptorI interceptor)
+    private void
+    runTest(MyObjectPrx prx, InterceptorI interceptor)
     {
         PrintWriter out = getWriter();
         out.print("testing simple interceptor... ");
@@ -110,12 +101,10 @@ public class Client extends test.Util.Application
         test(interceptor.getLastOperation().equals("amdAdd"));
         test(!interceptor.getLastStatus());
         out.println("ok");
-
-        return 0;
     }
 
-    private int
-    runAmd(MyObjectPrx prx, AMDInterceptorI interceptor, PrintWriter out)
+    private void
+    runAmdTest(MyObjectPrx prx, AMDInterceptorI interceptor, PrintWriter out)
     {
         out.print("testing simple interceptor... ");
         out.flush();
@@ -185,74 +174,45 @@ public class Client extends test.Util.Application
         test(!interceptor.getLastStatus());
         test(interceptor.getException() instanceof MySystemException);
         out.println("ok");
-        return 0;
     }
 
-    @Override
-    public int
-    run(String[] args)
+    public void run(String[] args)
     {
-        //
-        // Create OA and servants
-        //
-        communicator().getProperties().setProperty("MyOA.AdapterId", "myOA");
-
-        Ice.ObjectAdapter oa = communicator().createObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
-
-        Ice.Object servant = new MyObjectI();
-        InterceptorI interceptor = new InterceptorI(servant);
-        AMDInterceptorI amdInterceptor = new AMDInterceptorI(servant);
-
-        MyObjectPrx prx = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
-        MyObjectPrx prxForAMD = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(amdInterceptor));
-
-        PrintWriter out = getWriter();
-        out.println("Collocation optimization on");
-        int rs = run(prx, interceptor);
-        if(rs != 0)
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.interceptor");
+        try(Ice.Communicator communicator = initialize(properties))
         {
-            return rs;
+            //
+            // Create OA and servants
+            //
+            communicator.getProperties().setProperty("MyOA.AdapterId", "myOA");
+
+            Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
+
+            Ice.Object servant = new MyObjectI();
+            InterceptorI interceptor = new InterceptorI(servant);
+            AMDInterceptorI amdInterceptor = new AMDInterceptorI(servant);
+
+            MyObjectPrx prx = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
+            MyObjectPrx prxForAMD = MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(amdInterceptor));
+
+            PrintWriter out = getWriter();
+            out.println("Collocation optimization on");
+            runTest(prx, interceptor);
+
+            out.println("Now with AMD");
+            runAmdTest(prxForAMD, amdInterceptor, out);
+
+            oa.activate(); // Only necessary for non-collocation optimized tests
+
+            out.println("Collocation optimization off");
+            interceptor.clear();
+            prx = MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
+            runTest(prx, interceptor);
+            out.println("Now with AMD");
+            amdInterceptor.clear();
+            prxForAMD = MyObjectPrxHelper.uncheckedCast(prxForAMD.ice_collocationOptimized(false));
+            runAmdTest(prxForAMD, amdInterceptor, out);
         }
-
-        out.println("Now with AMD");
-        rs = runAmd(prxForAMD, amdInterceptor, out);
-        if(rs != 0)
-        {
-            return rs;
-        }
-
-        oa.activate(); // Only necessary for non-collocation optimized tests
-
-        out.println("Collocation optimization off");
-        interceptor.clear();
-        prx = MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
-        rs = run(prx, interceptor);
-        if(rs != 0)
-        {
-            return rs;
-        }
-
-        out.println("Now with AMD");
-        amdInterceptor.clear();
-        prxForAMD = MyObjectPrxHelper.uncheckedCast(prxForAMD.ice_collocationOptimized(false));
-        rs = runAmd(prxForAMD, amdInterceptor, out);
-
-        return rs;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.interceptor");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int status = app.main("Interceptor", args);
-        System.gc();
-        System.exit(status);
     }
 }

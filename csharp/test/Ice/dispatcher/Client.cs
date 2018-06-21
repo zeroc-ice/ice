@@ -16,37 +16,34 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        AllTests.allTests(this);
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.Warn.AMICallback", "0");
-        //
-        // Limit the send buffer size, this test relies on the socket
-        // send() blocking after sending a given amount of data.
-        //
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
-        initData.dispatcher = new Dispatcher().dispatch;
-        return initData;
-    }
-
-    public static int Main(string[] args)
-    {
-        Client app = new Client();
         try
         {
-            return app.runmain(args);
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = createTestProperties(ref args);
+            initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+            //
+            // Limit the send buffer size, this test relies on the socket
+            // send() blocking after sending a given amount of data.
+            //
+            initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+            initData.dispatcher = new Dispatcher().dispatch;
+            using(var communicator = initialize(initData))
+            {
+                AllTests.allTests(this);
+            }
         }
         finally
         {
             Dispatcher.terminate();
         }
+    }
+
+    public static int Main(string[] args)
+    {
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

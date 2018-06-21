@@ -224,7 +224,7 @@ function printRequestHeader(s, stream)
     {
         const key = stream.readString();
         const value = stream.readString();
-        s.push(key + '/'+ value);
+        s.push(key + '/' + value);
         if(sz > 0)
         {
             s.push(", ");
@@ -241,7 +241,7 @@ function printRequestHeader(s, stream)
 
 function printHeader(s, stream)
 {
-    stream.readByte();  // Don't bother printing the magic number
+    stream.readByte(); // Don't bother printing the magic number
     stream.readByte();
     stream.readByte();
     stream.readByte();
@@ -348,7 +348,7 @@ function getMessageTypeAsString(type)
     case Protocol.closeConnectionMsg:
         return "close connection";
     case Protocol.validateConnectionMsg:
-        return  "validate connection";
+        return "validate connection";
     default:
         return "unknown";
     }
@@ -469,7 +469,7 @@ class TraceUtil
                     }
                     else
                     {
-                        s = "" + n;
+                        s = String(n);
                     }
                     buf.push(s + " ");
                 }

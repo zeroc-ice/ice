@@ -95,7 +95,7 @@ class LocatorInfo
 
         Debug.assert(ref.isIndirect());
         let endpoints = null;
-        const cached = { value: false };
+        const cached = {value: false};
         if(!ref.isWellKnown())
         {
             endpoints = this._table.getAdapterEndpoints(ref.getAdapterId(), ttl, cached);
@@ -168,7 +168,7 @@ class LocatorInfo
         }
         else
         {
-            const r =  this._table.removeObjectReference(ref.getIdentity());
+            const r = this._table.removeObjectReference(ref.getIdentity());
             if(r !== null)
             {
                 if(!r.isIndirect())
@@ -323,18 +323,15 @@ class LocatorInfo
                     this.trace("found endpoints for adapter in locator cache", ref, endpoints);
                 }
             }
+            else if(ref.isWellKnown())
+            {
+                this.trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
+                           ref, endpoints);
+            }
             else
             {
-                if(ref.isWellKnown())
-                {
-                    this.trace("retrieved endpoints for well-known proxy from locator, adding to locator cache",
-                               ref, endpoints);
-                }
-                else
-                {
-                    this.trace("retrieved endpoints for adapter from locator, adding to locator cache",
-                               ref, endpoints);
-                }
+                this.trace("retrieved endpoints for adapter from locator, adding to locator cache",
+                           ref, endpoints);
             }
         }
         else

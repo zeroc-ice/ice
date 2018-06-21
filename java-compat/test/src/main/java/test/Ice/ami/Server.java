@@ -9,52 +9,40 @@
 
 package test.Ice.ami;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int
-    run(String[] args)
+    public void run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
-
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-        adapter.add(new TestII(), Ice.Util.stringToIdentity("test2"));
-        adapter.activate();
-        adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-        adapter2.activate();
-
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1));
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.ami");
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.Warn.Connections", "0");
 
         //
         // Limit the recv buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
-        return initData;
-    }
+        properties.setProperty("Ice.TCP.RcvSize", "50000");
 
-    public static void
-    main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+            adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+            adapter.add(new TestII(), Ice.Util.stringToIdentity("test2"));
+            adapter.activate();
+
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+            Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
+            adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+            adapter2.activate();
+
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

@@ -19,13 +19,13 @@
     async function allTests(out, communicator, Test, bidir)
     {
         out.write("testing twoway operations... ");
-        let ref = "test:default -p 12010";
-        let base = communicator.stringToProxy(ref);
-        let cl = await Test.MyClassPrx.checkedCast(base);
-        let derived = await Test.MyDerivedClassPrx.checkedCast(cl);
+        const ref = "test:default -p 12010";
+        const base = communicator.stringToProxy(ref);
+        const cl = await Test.MyClassPrx.checkedCast(base);
+        const derived = await Test.MyDerivedClassPrx.checkedCast(cl);
 
         await Twoways.run(communicator, cl, Test, bidir);
-        await Twoways.run(communicator, derived, Test, bidir)
+        await Twoways.run(communicator, derived, Test, bidir);
         out.writeLine("ok");
 
         out.write("testing oneway operations... ");
@@ -76,7 +76,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

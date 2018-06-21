@@ -19,7 +19,6 @@
 		148ABA1A1DFB12C800594F70 /* client.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA171DFB12C800594F70 /* client.p12 */; };
 		148ABA1B1DFB12C800594F70 /* server.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA181DFB12C800594F70 /* server.p12 */; };
 		148ABA1D1DFB12DB00594F70 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA1C1DFB12DB00594F70 /* certs */; };
-		148ABA431DFEEAEE00594F70 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C5B1DF98FD8002AE61B /* ViewController.m */; };
 		148ABA441DFEEAEE00594F70 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C581DF98FD8002AE61B /* AppDelegate.m */; };
 		148ABA451DFEEAEE00594F70 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C551DF98FD8002AE61B /* main.m */; };
 		148ABA481DFEEAEE00594F70 /* client.p12 in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA171DFB12C800594F70 /* client.p12 */; };
@@ -30,7 +29,6 @@
 		148ABA4E1DFEEAEE00594F70 /* certs in Resources */ = {isa = PBXBuildFile; fileRef = 148ABA1C1DFB12DB00594F70 /* certs */; };
 		14905C561DF98FD8002AE61B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C551DF98FD8002AE61B /* main.m */; };
 		14905C591DF98FD8002AE61B /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C581DF98FD8002AE61B /* AppDelegate.m */; };
-		14905C5C1DF98FD8002AE61B /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C5B1DF98FD8002AE61B /* ViewController.m */; };
 		14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C5D1DF98FD8002AE61B /* Main.storyboard */; };
 		14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		14905C641DF98FD8002AE61B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */; };
@@ -41,6 +39,10 @@
 		14E398361E01B18100A89291 /* Cpp98ControllerBundle.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 14E398311E01B14B00A89291 /* Cpp98ControllerBundle.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		14E398381E01B30500A89291 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14E398371E01B30500A89291 /* CFNetwork.framework */; };
 		14E398391E01B30E00A89291 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14E398371E01B30500A89291 /* CFNetwork.framework */; };
+		8267256920A9EF6E0089EA2D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8267256820A9EF6E0089EA2D /* Security.framework */; };
+		8267256A20A9F0210089EA2D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8267256820A9EF6E0089EA2D /* Security.framework */; };
+		828491FE20C82DAB00B4B721 /* ControllerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 82A1B91620C0081200B3535B /* ControllerView.m */; };
+		82A1B91820C0081200B3535B /* ControllerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 82A1B91620C0081200B3535B /* ControllerView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXBuildRule section */
@@ -126,8 +128,6 @@
 		14905C551DF98FD8002AE61B /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		14905C571DF98FD8002AE61B /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		14905C581DF98FD8002AE61B /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		14905C5A1DF98FD8002AE61B /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		14905C5B1DF98FD8002AE61B /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		14905C5E1DF98FD8002AE61B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		14905C601DF98FD8002AE61B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		14905C631DF98FD8002AE61B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
@@ -135,6 +135,9 @@
 		14B70D0F1E0160FD00118DE3 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		14E398311E01B14B00A89291 /* Cpp98ControllerBundle.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = Cpp98ControllerBundle.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		14E398371E01B30500A89291 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		8267256820A9EF6E0089EA2D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		82A1B91620C0081200B3535B /* ControllerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ControllerView.m; sourceTree = "<group>"; };
+		82A1B91720C0081200B3535B /* ControllerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerView.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -142,6 +145,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8267256920A9EF6E0089EA2D /* Security.framework in Frameworks */,
 				14E398391E01B30E00A89291 /* CFNetwork.framework in Frameworks */,
 				1440D8761E0187BA00CF7ED3 /* UIKit.framework in Frameworks */,
 				1440D88A1E0189F300CF7ED3 /* Foundation.framework in Frameworks */,
@@ -166,6 +170,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8267256A20A9F0210089EA2D /* Security.framework in Frameworks */,
 				14E398381E01B30500A89291 /* CFNetwork.framework in Frameworks */,
 				14E398291E01B14B00A89291 /* UIKit.framework in Frameworks */,
 				14E3982B1E01B14B00A89291 /* Foundation.framework in Frameworks */,
@@ -212,10 +217,10 @@
 		14905C531DF98FD8002AE61B /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				82A1B91720C0081200B3535B /* ControllerView.h */,
+				82A1B91620C0081200B3535B /* ControllerView.m */,
 				14905C571DF98FD8002AE61B /* AppDelegate.h */,
 				14905C581DF98FD8002AE61B /* AppDelegate.m */,
-				14905C5A1DF98FD8002AE61B /* ViewController.h */,
-				14905C5B1DF98FD8002AE61B /* ViewController.m */,
 				14905C5D1DF98FD8002AE61B /* Main.storyboard */,
 				14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */,
 				14905C601DF98FD8002AE61B /* Assets.xcassets */,
@@ -246,6 +251,7 @@
 		14B70D0C1E0160F700118DE3 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8267256820A9EF6E0089EA2D /* Security.framework */,
 				14E398371E01B30500A89291 /* CFNetwork.framework */,
 				1440D8891E0189F300CF7ED3 /* Foundation.framework */,
 				14B70D0F1E0160FD00118DE3 /* UIKit.framework */,
@@ -472,7 +478,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				148ABA431DFEEAEE00594F70 /* ViewController.m in Sources */,
+				828491FE20C82DAB00B4B721 /* ControllerView.m in Sources */,
 				148ABA441DFEEAEE00594F70 /* AppDelegate.m in Sources */,
 				148ABA451DFEEAEE00594F70 /* main.m in Sources */,
 			);
@@ -482,7 +488,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14905C5C1DF98FD8002AE61B /* ViewController.m in Sources */,
+				82A1B91820C0081200B3535B /* ControllerView.m in Sources */,
 				14905C591DF98FD8002AE61B /* AppDelegate.m in Sources */,
 				14905C561DF98FD8002AE61B /* main.m in Sources */,
 			);
@@ -552,7 +558,10 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
+					"-L../../Common/build/$(PLATFORM_NAME)/cpp11-xcodesdk",
+					"-lTestCommon++11",
 					"-lIceDiscovery++11",
+					"-lIceSSL++11",
 					"-lIce++11",
 					"-lbz2",
 					"-liconv",
@@ -583,7 +592,10 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
+					"-L../../Common/build/$(PLATFORM_NAME)/cpp11-xcodesdk",
+					"-lTestCommon++11",
 					"-lIceDiscovery++11",
+					"-lIceSSL++11",
 					"-lIce++11",
 					"-lbz2",
 					"-liconv",
@@ -609,7 +621,10 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
+					"-L../../Common/build/$(PLATFORM_NAME)/cpp11-xcodesdk",
+					"-lTestCommon++11",
 					"-lIce++11",
+					"-lIceSSL++11",
 					"-lIceDiscovery++11",
 					"-lbz2",
 					"-liconv",
@@ -634,8 +649,11 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
+					"-L../../Common/build/$(PLATFORM_NAME)/cpp11-xcodesdk",
+					"-lTestCommon++11",
 					"-lIce++11",
 					"-lIceDiscovery++11",
+					"-lIceSSL++11",
 					"-lbz2",
 					"-liconv",
 				);
@@ -757,6 +775,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
+					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
+					"-lIceSSL",
+					"-lTestCommon",
 					"-lIce",
 					"-lIceDiscovery",
 					"-lbz2",
@@ -778,6 +799,9 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
+					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
+					"-lIceSSL",
+					"-lTestCommon",
 					"-lIce",
 					"-lIceDiscovery",
 					"-lbz2",
@@ -808,6 +832,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
+					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
+					"-lTestCommon",
+					"-lIceSSL",
 					"-lIceDiscovery",
 					"-lIce",
 					"-lbz2",
@@ -836,6 +863,9 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
+					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
+					"-lTestCommon",
+					"-lIceSSL",
 					"-lIceDiscovery",
 					"-lIce",
 					"-lbz2",

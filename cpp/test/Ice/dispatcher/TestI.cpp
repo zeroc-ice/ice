@@ -10,7 +10,7 @@
 #include <TestI.h>
 #include <Ice/Ice.h>
 #include <Dispatcher.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <IceUtil/Thread.h>
 
 using namespace std;

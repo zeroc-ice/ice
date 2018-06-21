@@ -16,33 +16,24 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        Console.Out.Write("testing server priority... ");
-        Console.Out.Flush();
-        Ice.ObjectPrx obj = communicator().stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
-        Test.PriorityPrx priority = Test.PriorityPrxHelper.checkedCast(obj);
-
-        try
+        using(var communicator = initialize(ref args))
         {
+            Console.Out.Write("testing server priority... ");
+            Console.Out.Flush();
+            Ice.ObjectPrx obj = communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
+            Test.PriorityPrx priority = Test.PriorityPrxHelper.checkedCast(obj);
             test("AboveNormal".Equals(priority.getPriority()));
+            Console.Out.WriteLine("ok");
+            priority.shutdown();
         }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex.ToString());
-            test(false);
-        }
-        Console.Out.WriteLine("ok");
-
-        priority.shutdown();
-        return 0;
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

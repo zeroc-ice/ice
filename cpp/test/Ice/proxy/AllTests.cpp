@@ -10,17 +10,18 @@
 #include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <Ice/Router.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 
 Test::MyClassPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
 
-    const string endp = getTestEndpoint(communicator, 0);
+    const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
 
     string ref = "test:" + endp;

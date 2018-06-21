@@ -1009,7 +1009,7 @@ Slice::JavaCompatGenerator::getPackage(const ContainedPtr& cont) const
 }
 
 string
-Slice::JavaCompatGenerator::getAbsolute(const std::string& type, const std::string& package) const
+Slice::JavaCompatGenerator::getUnqualified(const std::string& type, const std::string& package) const
 {
     if(type.find(".") != string::npos && type.find(package) == 0 && type.find(".", package.size() + 1) == string::npos)
     {
@@ -1019,7 +1019,7 @@ Slice::JavaCompatGenerator::getAbsolute(const std::string& type, const std::stri
 }
 
 string
-Slice::JavaCompatGenerator::getAbsolute(const ContainedPtr& cont,
+Slice::JavaCompatGenerator::getUnqualified(const ContainedPtr& cont,
                                         const string& package,
                                         const string& prefix,
                                         const string& suffix) const
@@ -1058,11 +1058,11 @@ Slice::JavaCompatGenerator::getStaticId(const TypePtr& type, const string& packa
     }
     else if(cl->isInterface())
     {
-        return getAbsolute(cl, package, "_", "Disp") + ".ice_staticId()";
+        return getUnqualified(cl, package, "_", "Disp") + ".ice_staticId()";
     }
     else
     {
-        return getAbsolute(cl, package) + ".ice_staticId()";
+        return getUnqualified(cl, package) + ".ice_staticId()";
     }
 }
 
@@ -1291,13 +1291,13 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
     if(cl)
     {
-        return getAbsolute(cl, package, "", mode == TypeModeOut ? "Holder" : "");
+        return getUnqualified(cl, package, "", mode == TypeModeOut ? "Holder" : "");
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        return getAbsolute(proxy->_class(), package, "", mode == TypeModeOut ? "PrxHolder" : "Prx");
+        return getUnqualified(proxy->_class(), package, "", mode == TypeModeOut ? "PrxHolder" : "Prx");
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
@@ -1315,7 +1315,7 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
             getDictionaryTypes(dict, "", StringList(), origInstanceType, origFormalType);
             if(formalType == origFormalType && instanceType == origInstanceType)
             {
-                return getAbsolute(dict, package, "", "Holder");
+                return getUnqualified(dict, package, "", "Holder");
             }
 
             //
@@ -1350,7 +1350,7 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
                 getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType);
                 if(formalType == origFormalType && instanceType == origInstanceType)
                 {
-                    return getAbsolute(seq, package, "", "Holder");
+                    return getUnqualified(seq, package, "", "Holder");
                 }
             }
 
@@ -1374,11 +1374,11 @@ Slice::JavaCompatGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            return getAbsolute(contained, package, "", "Holder");
+            return getUnqualified(contained, package, "", "Holder");
         }
         else
         {
-            return getAbsolute(contained, package);
+            return getUnqualified(contained, package);
         }
     }
 
@@ -2350,7 +2350,7 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
 
     ConstructedPtr constructed = ConstructedPtr::dynamicCast(type);
     assert(constructed);
-    string typeS = getAbsolute(constructed, package, "", "Helper");
+    string typeS = getUnqualified(constructed, package, "", "Helper");
     if(marshal)
     {
         out << nl << typeS << ".write(" << stream << ", " << v << ");";
@@ -2410,7 +2410,7 @@ Slice::JavaCompatGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
     //
     if(useHelper)
     {
-        string typeS = getAbsolute(dict, package, "", "Helper");
+        string typeS = getUnqualified(dict, package, "", "Helper");
         if(marshal)
         {
             out << nl << typeS << ".write(" << stream << ", " << v << ");";
@@ -2718,7 +2718,7 @@ Slice::JavaCompatGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     //
     if(useHelper)
     {
-        string typeS = getAbsolute(seq, package, "", "Helper");
+        string typeS = getUnqualified(seq, package, "", "Helper");
         if(marshal)
         {
             out << nl << typeS << ".write(" << stream << ", " << v << ");";
@@ -2759,7 +2759,7 @@ Slice::JavaCompatGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        string typeS = getAbsolute(seq, package);
+        string typeS = getUnqualified(seq, package);
         ostringstream o;
         o << origContentS;
         int d = depth;
@@ -3489,7 +3489,7 @@ Slice::JavaGenerator::getPackage(const ContainedPtr& cont) const
 }
 
 string
-Slice::JavaGenerator::getAbsolute(const std::string& type, const std::string& package) const
+Slice::JavaGenerator::getUnqualified(const std::string& type, const std::string& package) const
 {
     if(type.find(".") != string::npos && type.find(package) == 0 && type.find(".", package.size() + 1) == string::npos)
     {
@@ -3499,7 +3499,7 @@ Slice::JavaGenerator::getAbsolute(const std::string& type, const std::string& pa
 }
 
 string
-Slice::JavaGenerator::getAbsolute(const ContainedPtr& cont,
+Slice::JavaGenerator::getUnqualified(const ContainedPtr& cont,
                                   const string& package,
                                   const string& prefix,
                                   const string& suffix) const
@@ -3534,15 +3534,15 @@ Slice::JavaGenerator::getStaticId(const TypePtr& type, const string& package) co
 
     if(b && b->kind() == Builtin::KindObject)
     {
-        return getAbsolute("com.zeroc.Ice.Object", package) + ".ice_staticId()";
+        return getUnqualified("com.zeroc.Ice.Object", package) + ".ice_staticId()";
     }
     else if(b && b->kind() == Builtin::KindValue)
     {
-        return getAbsolute("com.zeroc.Ice.Value", package) + ".ice_staticId()";
+        return getUnqualified("com.zeroc.Ice.Value", package) + ".ice_staticId()";
     }
     else
     {
-        return getAbsolute(cl, package) + ".ice_staticId()";
+        return getUnqualified(cl, package) + ".ice_staticId()";
     }
 }
 
@@ -3726,7 +3726,7 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
                 case Builtin::KindFloat:
                 case Builtin::KindDouble:
                 {
-                    return getAbsolute(builtinOptionalTable[builtin->kind()], package);
+                    return getUnqualified(builtinOptionalTable[builtin->kind()], package);
                 }
                 case Builtin::KindString:
                 case Builtin::KindObject:
@@ -3742,11 +3742,11 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         {
             if(!local && builtin->kind() == Builtin::KindObject)
             {
-                return getAbsolute(builtinTable[Builtin::KindValue], package);
+                return getUnqualified(builtinTable[Builtin::KindValue], package);
             }
             else
             {
-                return getAbsolute(builtinTable[builtin->kind()], package);
+                return getUnqualified(builtinTable[builtin->kind()], package);
             }
         }
     }
@@ -3762,11 +3762,11 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(cl->isInterface() && !local)
         {
-            return getAbsolute("com.zeroc.Ice.Value", package);
+            return getUnqualified("com.zeroc.Ice.Value", package);
         }
         else
         {
-            return getAbsolute(cl, package);
+            return getUnqualified(cl, package);
         }
     }
 
@@ -3777,11 +3777,11 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
         assert(def);
         if(def->isAbstract())
         {
-            return getAbsolute(proxy->_class(), package, "", "Prx");
+            return getUnqualified(proxy->_class(), package, "", "Prx");
         }
         else
         {
-            return getAbsolute("com.zeroc.Ice.ObjectPrx", package);
+            return getUnqualified("com.zeroc.Ice.ObjectPrx", package);
         }
     }
 
@@ -3806,11 +3806,11 @@ Slice::JavaGenerator::typeToString(const TypePtr& type,
     {
         if(mode == TypeModeOut)
         {
-            return getAbsolute(contained, package, "", "Holder");
+            return getUnqualified(contained, package, "", "Holder");
         }
         else
         {
-            return getAbsolute(contained, package);
+            return getUnqualified(contained, package);
         }
     }
 
@@ -4087,7 +4087,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 //
                 // If we can use the helper, it's easy.
                 //
-                string helper = getAbsolute(dict, package, "", "Helper");
+                string helper = getUnqualified(dict, package, "", "Helper");
                 if(marshal)
                 {
                     out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
@@ -4221,7 +4221,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 getSequenceTypes(seq, "", StringList(), origInstanceType, origFormalType, false);
                 if(formalType == origFormalType && (marshal || instanceType == origInstanceType))
                 {
-                    string helper = getAbsolute(seq, package, "", "Helper");
+                    string helper = getUnqualified(seq, package, "", "Helper");
                     if(marshal)
                     {
                         out << nl << helper << ".write" << spar << stream << tag << param << epar << ";";
@@ -4401,7 +4401,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
         //
         // If we can use the helper, it's easy.
         //
-        string helper = getAbsolute(dict, package, "", "Helper");
+        string helper = getUnqualified(dict, package, "", "Helper");
         if(marshal)
         {
             out << nl << helper << ".write" << spar << stream << v << epar << ";";
@@ -4630,7 +4630,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         //
         // If we can use the helper, it's easy.
         //
-        string helper = getAbsolute(seq, package, "", "Helper");
+        string helper = getUnqualified(seq, package, "", "Helper");
         if(marshal)
         {
             out << nl << helper << ".write" << spar << stream << v << epar << ";";
@@ -4671,7 +4671,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        string typeS = getAbsolute(seq, package);
+        string typeS = getUnqualified(seq, package);
         ostringstream o;
         o << origContentS;
         int d = depth;

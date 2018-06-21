@@ -111,6 +111,7 @@ var tests = [
     "test/Ice/servantLocator",
     "test/Ice/slicing/exceptions",
     "test/Ice/slicing/objects",
+    "test/Ice/stream",
     "test/Ice/timeout",
     "test/Ice/number",
     "test/Glacier2/router",
@@ -134,7 +135,8 @@ gulp.task("common:slice-babel", ["common:slice"],
                       "test/Common/ControllerWorker.js",
                       "test/Common/TestRunner.js",
                       "test/Common/TestSuite.js",
-                      "test/Common/Worker.js"]),
+                      "test/Common/Worker.js",
+                      "test/Common/run.js"]),
             babel({compact: false}),
             gulp.dest("test/es5/Common")], cb);
     });

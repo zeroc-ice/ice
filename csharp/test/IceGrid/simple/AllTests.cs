@@ -10,11 +10,11 @@
 using System;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
         String rf = "test @ TestAdapter";
@@ -75,7 +75,7 @@ public class AllTests : TestCommon.AllTests
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty("IceLocatorDiscovery.Port", app.getTestPort(99).ToString());
+            initData.properties.setProperty("IceLocatorDiscovery.Port", helper.getTestPort(99).ToString());
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
@@ -173,7 +173,7 @@ public class AllTests : TestCommon.AllTests
                 {
                     intf = " --interface \"" + intf + "\"";
                 }
-                string port = app.getTestPort(99).ToString();
+                string port = helper.getTestPort(99).ToString();
                 initData.properties.setProperty("IceLocatorDiscovery.Lookup",
                                                  "udp -h " + multicast + " --interface unknown:" +
                                                  "udp -h " + multicast + " -p " + port + intf);
@@ -199,9 +199,9 @@ public class AllTests : TestCommon.AllTests
     }
 
     public static void
-    allTestsWithDeploy(TestCommon.Application app)
+    allTestsWithDeploy(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Console.Out.Write("testing stringToProxy... ");
         Console.Out.Flush();
         Ice.ObjectPrx @base = communicator.stringToProxy("test @ TestAdapter");

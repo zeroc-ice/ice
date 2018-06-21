@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/SHA1.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 
@@ -75,7 +75,15 @@ string toHex(const string& data)
 
 }
 
-int main(int argc, char* argv[])
+class Client : public Test::TestHelper
+{
+public:
+
+    virtual void run(int argc, char* argv[]);
+};
+
+void
+Client::run(int argc, char* argv[])
 {
     cout << "Testing sha1 hash computation... ";
     for(int i = 0; i < itemsSize; ++i)
@@ -110,5 +118,6 @@ int main(int argc, char* argv[])
         test(item->digest == digest);
     }
     cout << "ok" << endl;
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client)

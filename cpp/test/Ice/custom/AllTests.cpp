@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/Iterator.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <Wstring.h>
 
@@ -566,9 +566,10 @@ typedef IceUtil::Handle<Callback> CallbackPtr;
 #endif
 
 Test::TestIntfPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
-    const string endp = getTestEndpoint(communicator, 0);
+    Ice::CommunicatorPtr communicator = helper->communicator();
+    const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
     string ref = communicator->getProperties()->getPropertyWithDefault("Custom.Proxy", "test:" + endp);
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);

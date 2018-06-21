@@ -287,7 +287,7 @@ abstract class TestCase
     protected bool _closed;
 }
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     class InvocationHeartbeatTest : TestCase
     {
@@ -573,9 +573,7 @@ public class AllTests : TestCommon.AllTests
             test(acm.close == Ice.ACMClose.CloseOnIdleForceful);
             test(acm.heartbeat == Ice.ACMHeartbeat.HeartbeatOff);
 
-            con.setACM(1,
-                                                   Ice.ACMClose.CloseOnInvocationAndIdle,
-                                                   Ice.ACMHeartbeat.HeartbeatAlways);
+            con.setACM(1, Ice.ACMClose.CloseOnInvocationAndIdle, Ice.ACMHeartbeat.HeartbeatAlways);
             acm = con.getACM();
             test(acm.timeout == 1);
             test(acm.close == Ice.ACMClose.CloseOnInvocationAndIdle);
@@ -607,10 +605,10 @@ public class AllTests : TestCommon.AllTests
         }
     }
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        string @ref = "communicator:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        string @ref = "communicator:" + helper.getTestEndpoint(0);
         RemoteCommunicatorPrx com = RemoteCommunicatorPrxHelper.uncheckedCast(communicator.stringToProxy(@ref));
 
         List<TestCase> tests = new List<TestCase>();

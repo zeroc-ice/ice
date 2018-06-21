@@ -39,13 +39,13 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx allTests(test.Util.Application app)
+    public static TestIntfPrx allTests(test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator=app.communicator();
-        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
-        String ref = "test:" + app.getTestEndpoint(0);
+        String ref = "test:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
         out.println("ok");

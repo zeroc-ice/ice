@@ -19,50 +19,41 @@ using System.Collections.Generic;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : Test.TestHelper
 {
-    public static void test(bool b)
+    public override void run(string[] args)
     {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
+        Console.Out.Write("testing preloading assemblies... ");
+        Console.Out.Flush();
+        User.UserInfo info = new User.UserInfo();
 
-    public static int Main(string[] args)
-    {
-        int status = 0;
-        try
-        {
-            Console.Out.Write("testing preloading assemblies... ");
-            Console.Out.Flush();
-            User.UserInfo info = new User.UserInfo();
-            Ice.InitializationData id = new Ice.InitializationData();
-            id.properties = Ice.Util.createProperties();
-            id.properties.setProperty("Ice.PreloadAssemblies", "0");
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.PreloadAssemblies", "0");
 
-            string assembly =
-                String.Format("{0}/core.dll",
-                              Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
-            Ice.Communicator ic = Ice.Util.initialize(id);
+        string assembly =
+            String.Format("{0}/core.dll",
+                          Path.GetFileName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase)));
+        using(var communicator = initialize(properties))
+        {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
                     {
                         return e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase);
                     }) == null);
-            ic.destroy();
-            id.properties.setProperty("Ice.PreloadAssemblies", "1");
-            ic = Ice.Util.initialize(id);
+        }
+        properties.setProperty("Ice.PreloadAssemblies", "1");
+        using(var communicator = initialize(properties))
+        {
             test(AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault((e) =>
                     {
                         return e.CodeBase.EndsWith(assembly, StringComparison.InvariantCultureIgnoreCase);
                     }) != null);
-            Console.Out.WriteLine("ok");
         }
-        catch(Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-        return status;
+
+        Console.Out.WriteLine("ok");
+    }
+
+    public static int Main(string[] args)
+    {
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

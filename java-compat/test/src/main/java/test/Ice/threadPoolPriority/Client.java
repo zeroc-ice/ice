@@ -12,39 +12,22 @@ package test.Ice.threadPoolPriority;
 import test.Ice.threadPoolPriority.Test.PriorityPrx;
 import test.Ice.threadPoolPriority.Test.PriorityPrxHelper;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    private static void
-    test(boolean b)
+    public void run(String[] args)
     {
-        if(!b)
+        try(Ice.Communicator communicator = initialize(args))
         {
-            throw new RuntimeException();
+            java.io.PrintWriter out = getWriter();
+            Ice.ObjectPrx object = communicator().stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
+            PriorityPrx priority = PriorityPrxHelper.checkedCast(object);
+            out.print("testing thread priority... ");
+            out.flush();
+            int prio = priority.getPriority();
+            test(prio == 10);
+            out.println("ok");
+
+            priority.shutdown();
         }
-    }
-
-    @Override
-    public int run(String[] args)
-    {
-        java.io.PrintWriter out = getWriter();
-        Ice.ObjectPrx object = communicator().stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
-        PriorityPrx priority = PriorityPrxHelper.checkedCast(object);
-        out.print("testing thread priority... ");
-        out.flush();
-        int prio = priority.getPriority();
-        test(prio == 10);
-        out.println("ok");
-
-        priority.shutdown();
-        return 0;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
     }
 }

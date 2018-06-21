@@ -63,15 +63,21 @@ Ice.Value = class
 
     static read(is)
     {
-        const v = { value: null };
-        is.readValue(o => v.value = o, this);
+        const v = {value: null};
+        is.readValue(o =>
+                     {
+                         v.value = o;
+                     }, this);
         return v;
     }
 
     static readOptional(is, tag)
     {
-        const v = { value: undefined };
-        is.readOptionalValue(tag, o => v.value = o, this);
+        const v = {value: undefined};
+        is.readOptionalValue(tag, o =>
+                             {
+                                 v.value = o;
+                             }, this);
         return v;
     }
 };
@@ -123,7 +129,7 @@ const writeImpl = function(obj, os, type)
     }
 
     os.startSlice(type.ice_staticId(),
-                  Object.prototype.hasOwnProperty.call(type, '_iceCompactId') ? type._iceCompactId : -1 ,
+                  Object.prototype.hasOwnProperty.call(type, '_iceCompactId') ? type._iceCompactId : -1,
                   Object.getPrototypeOf(type) === Ice.Value);
     if(type.prototype.hasOwnProperty('_iceWriteMemberImpl'))
     {

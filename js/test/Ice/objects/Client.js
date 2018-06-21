@@ -175,7 +175,7 @@
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        let initial = await Test.InitialPrx.checkedCast(base);
+        const initial = await Test.InitialPrx.checkedCast(base);
         test(initial !== null);
         test(initial.equals(base));
         out.writeLine("ok");
@@ -202,11 +202,6 @@
 
         out.write("checking consistency... ");
         test(b1 !== b2);
-        //test(b1 != c);
-        //test(b1 != d);
-        //test(b2 != c);
-        //test(b2 != d);
-        //test(c != d);
 
         test(b1.theB === b1);
         test(b1.theC === null);
@@ -240,11 +235,6 @@
 
         out.write("checking consistency... ");
         test(b1 !== b2);
-        //test(b1 != c);
-        //test(b1 != d);
-        //test(b2 != c);
-        //test(b2 != d);
-        //test(c != d);
         test(b1.theA === b2);
         test(b1.theB === b1);
         test(b1.theC === null);
@@ -266,28 +256,28 @@
         out.writeLine("ok");
 
         out.write("testing protected members... ");
-        let e = await initial.getE();
+        const e = await initial.getE();
         test(e.checkValues());
 
-        let f = await initial.getF();
+        const f = await initial.getF();
         test(f.checkValues());
         test(f.e2.checkValues());
         out.writeLine("ok");
 
         out.write("getting I, J and H... ");
-        let i = await initial.getI();
+        const i = await initial.getI();
         test(i);
-        let j = await initial.getJ();
+        const j = await initial.getJ();
         test(j);
-        let h = await initial.getH();
+        const h = await initial.getH();
         test(h);
         out.writeLine("ok");
 
         out.write("getting D1... ");
-        let d1 = await initial.getD1(new Test.D1(new Test.A1("a1"),
-                                                 new Test.A1("a2"),
-                                                 new Test.A1("a3"),
-                                                 new Test.A1("a4")));
+        const d1 = await initial.getD1(new Test.D1(new Test.A1("a1"),
+                                                   new Test.A1("a2"),
+                                                   new Test.A1("a3"),
+                                                   new Test.A1("a4")));
 
         test(d1.a1.name == "a1");
         test(d1.a2.name == "a2");
@@ -336,7 +326,7 @@
 
         out.write("testing recursive types... ");
 
-        let top = new Test.Recursive();
+        const top = new Test.Recursive();
         let p = top;
         let depth = 0;
 
@@ -358,9 +348,14 @@
         }
         catch(ex)
         {
-            test((ex instanceof Ice.UnknownLocalException) || // Expected marshal exception from the server (max class graph depth reached)
-                 (ex instanceof Ice.UnknownException) ||      // Expected stack overflow from the server (Java only)
-                 (ex instanceof Error), ex);                  // Expected, JavaScript stack overflow
+            //
+            // Ice.UnknownLocalException: Expected marshal exception from the server (max class graph depth reached)
+            // Ice.UnknownException: Expected stack overflow from the server (Java only)
+            // Error: Expected, JavaScript stack overflow
+            //
+            test((ex instanceof Ice.UnknownLocalException) ||
+                 (ex instanceof Ice.UnknownException) ||
+                 (ex instanceof Error), ex);
         }
         await initial.setRecursive(new Test.Recursive());
         out.writeLine("ok");
@@ -381,7 +376,7 @@
         base = communicator.stringToProxy(ref);
         test(base !== null);
 
-        let uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
+        const uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
         test(uoet !== null);
         try
         {
@@ -458,7 +453,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

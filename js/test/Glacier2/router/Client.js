@@ -63,12 +63,12 @@
     async function allTests(out, communicator, shutdown)
     {
         out.write("testing stringToProxy for router... ");
-        let routerBase = communicator.stringToProxy("Glacier2/router:default -p 12060");
+        const routerBase = communicator.stringToProxy("Glacier2/router:default -p 12060");
         test(routerBase !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast for router... ");
-        let router = await Glacier2.RouterPrx.checkedCast(routerBase);
+        const router = await Glacier2.RouterPrx.checkedCast(routerBase);
         test(router !== null);
         out.writeLine("ok");
 
@@ -77,12 +77,12 @@
         out.writeLine("ok");
 
         out.write("getting the session timeout... ");
-        let timeout = await router.getSessionTimeout();
+        const timeout = await router.getSessionTimeout();
         test(timeout.toNumber() === 30);
         out.writeLine("ok");
 
         out.write("testing stringToProxy for server object... ");
-        base = communicator.stringToProxy("c1/callback:default -p 12010");
+        const base = communicator.stringToProxy("c1/callback:default -p 12010");
         out.writeLine("ok");
 
         out.write("trying to ping server before session creation... ");
@@ -122,7 +122,7 @@
         out.writeLine("ok");
 
         out.write("creating session with correct password... ");
-        let session = await router.createSession("userid", "abc123");
+        await router.createSession("userid", "abc123");
         out.writeLine("ok");
 
         out.write("trying to create a second session... ");
@@ -155,38 +155,38 @@
         }
 
         out.write("testing checked cast for server object... ");
-        let twoway = await Test.CallbackPrx.checkedCast(base);
+        const twoway = await Test.CallbackPrx.checkedCast(base);
         test(twoway !== null);
         out.writeLine("ok");
 
         out.write("creating and activating callback receiver adapter... ");
         communicator.getProperties().setProperty("Ice.PrintAdapterReady", "0");
-        let adapter = await communicator.createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
+        const adapter = await communicator.createObjectAdapterWithRouter("CallbackReceiverAdapter", router);
         await adapter.activate();
         out.writeLine("ok");
 
         out.write("getting category from router... ");
-        let category = await router.getCategoryForClient();
+        const category = await router.getCategoryForClient();
         out.writeLine("ok");
 
         out.write("creating and adding callback receiver object... ");
-        callbackReceiverImpl = new CallbackReceiverI();
-        callbackReceiver = callbackReceiverImpl;
+        const callbackReceiverImpl = new CallbackReceiverI();
+        const callbackReceiver = callbackReceiverImpl;
 
-        let callbackReceiverIdent = new Ice.Identity();
+        const callbackReceiverIdent = new Ice.Identity();
         callbackReceiverIdent.name = "callbackReceiver";
         callbackReceiverIdent.category = category;
-        twowayR = CallbackReceiverPrx.uncheckedCast(adapter.add(callbackReceiver, callbackReceiverIdent));
+        const twowayR = CallbackReceiverPrx.uncheckedCast(adapter.add(callbackReceiver, callbackReceiverIdent));
 
-        let fakeCallbackReceiverIdent = new Ice.Identity();
+        const fakeCallbackReceiverIdent = new Ice.Identity();
         fakeCallbackReceiverIdent.name = "callbackReceiver";
         fakeCallbackReceiverIdent.category = "dummy";
-        fakeTwowayR = CallbackReceiverPrx.uncheckedCast(adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
+        const fakeTwowayR = CallbackReceiverPrx.uncheckedCast(adapter.add(callbackReceiver, fakeCallbackReceiverIdent));
         out.writeLine("ok");
 
         out.write("testing oneway callback... ");
-        oneway = CallbackPrx.uncheckedCast(twoway.ice_oneway());
-        onewayR = CallbackReceiverPrx.uncheckedCast(twowayR.ice_oneway());
+        const oneway = CallbackPrx.uncheckedCast(twoway.ice_oneway());
+        const onewayR = CallbackReceiverPrx.uncheckedCast(twowayR.ice_oneway());
         let context = new Ice.Context();
         context.set("_fwd", "o");
         await oneway.initiateCallback(onewayR, context);
@@ -295,11 +295,11 @@
             out.writeLine("ok");
 
             out.write("testing stringToProxy for process object... ");
-            processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12061");
+            const processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12061");
             out.writeLine("ok");
 
             out.write("testing checked cast for admin object... ");
-            processPrx = await Ice.ProcessPrx.checkedCast(processBase);
+            const processPrx = await Ice.ProcessPrx.checkedCast(processBase);
             test(processPrx !== null);
             out.writeLine("ok");
 
@@ -325,7 +325,7 @@
         {
             initData.properties.setProperty("Ice.Warn.Dispatch", "1");
             initData.properties.setProperty("Ice.Warn.Connections", "0");
-            communicator= Ice.initialize(initData);
+            communicator = Ice.initialize(initData);
             await allTests(out, communicator, args.indexOf("--shutdown") > -1);
         }
         finally
@@ -339,7 +339,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

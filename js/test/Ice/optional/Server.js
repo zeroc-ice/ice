@@ -23,7 +23,7 @@
             {
                 communicator = Ice.initialize(initData);
                 echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
-                let adapter = await communicator.createObjectAdapter("");
+                const adapter = await communicator.createObjectAdapter("");
                 adapter.add(new InitialI(), Ice.stringToIdentity("initial"));
                 await echo.setConnection();
                 echo.ice_getCachedConnection().setAdapter(adapter);
@@ -52,7 +52,6 @@
     }
 
     exports._server = run;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -16,8 +16,9 @@ using namespace Ice;
 using namespace Test;
 
 void
-allTests(const CommunicatorPtr& communicator, int num)
+allTests(Test::TestHelper* helper, int num)
 {
+    CommunicatorPtr communicator = helper->communicator();
     vector<ControllerPrxPtr> proxies;
     vector<ControllerPrxPtr> indirectProxies;
     for(int i = 0; i < num; ++i)

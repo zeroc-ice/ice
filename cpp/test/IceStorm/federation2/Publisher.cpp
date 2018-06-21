@@ -12,58 +12,43 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Event.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+class Publisher : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Publisher::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     IceUtilInternal::Options opts;
     opts.addOpt("", "count", IceUtilInternal::Options::NeedArg);
-
-    try
-    {
-        opts.parse(argc, (const char**)argv);
-    }
-    catch(const IceUtilInternal::BadOptException& e)
-    {
-        cerr << argv[0] << ": " << e.reason << endl;
-        return EXIT_FAILURE;
-    }
+    opts.parse(argc, (const char**)argv);
 
     PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
-    string managerProxy = properties->getProperty(managerProxyProperty);
+    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
-        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-        return EXIT_FAILURE;
+        throw runtime_error("property `IceStormAdmin.TopicManager.Default' is not set");
     }
 
     ObjectPrx base = communicator->stringToProxy(managerProxy);
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-        return EXIT_FAILURE;
+        throw runtime_error("`" + managerProxy + "' is not running");
     }
 
-    TopicPrx fed1;
-    try
-    {
-        fed1 = manager->retrieve("fed1");
-    }
-    catch(const NoSuchTopic& e)
-    {
-        cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-        return EXIT_FAILURE;
-
-    }
-
+    TopicPrx fed1 = manager->retrieve("fed1");
     EventPrx eventFed1 = EventPrx::uncheckedCast(fed1->getPublisher()->ice_oneway());
 
     string arg = opts.optArg("count");
@@ -92,31 +77,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         --count;
         IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(1));
     }
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-    InitializationData initData = getTestInitData(argc, argv);
-    try
-    {
-        communicator = initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Publisher)

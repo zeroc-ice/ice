@@ -27,6 +27,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
+import java.nio.file.Paths;
+import java.nio.file.Files;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
@@ -1699,6 +1702,11 @@ public class Coordinator
                 _acmTimeout = acmTimeout;
             }
 
+            synchronized public void setReplicaName(String replicaName)
+            {
+                _replicaName = replicaName;
+            }
+
             synchronized public void loginSuccess()
             {
                 _logout.setEnabled(true);
@@ -1711,7 +1719,7 @@ public class Coordinator
                 _newApplicationWithDefaultTemplates.setEnabled(true);
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
-                _sessionKeeper.loginSuccess(parent, _sessionTimeout, _acmTimeout, _session, info);
+                _sessionKeeper.loginSuccess(parent, _sessionTimeout, _acmTimeout, _session, _replicaName, info);
             }
 
             synchronized public void loginFailed()
@@ -1734,6 +1742,7 @@ public class Coordinator
             private AdminSessionPrx _session;
             private long _sessionTimeout = 0;
             private int _acmTimeout = 0;
+            private String _replicaName;
             private boolean _failed = false;
         }
 
@@ -1813,6 +1822,7 @@ public class Coordinator
                                catch(com.zeroc.Ice.OperationNotExistException ex)
                                {
                                }
+                               cb.setReplicaName(cb.getSession().getReplicaName());
                                SwingUtilities.invokeLater(() -> cb.loginSuccess());
                            }
                            catch(final com.zeroc.Glacier2.PermissionDeniedException e)
@@ -2133,6 +2143,7 @@ public class Coordinator
                                    }
                                } while(cb.getSession() == null);
 
+                               cb.setReplicaName(cb.getSession().getReplicaName());
                                SwingUtilities.invokeLater(() -> cb.loginSuccess());
                            }
                        });
@@ -3489,68 +3500,130 @@ public class Coordinator
         return _connected;
     }
 
-    public String getDataDirectory() throws java.lang.Exception
+    public void tryMigrateDataDirectory()
     {
-        if(_dataDir == null)
+        String oldDataDir = null;
+        if(System.getProperty("os.name").startsWith("Windows"))
         {
-            if(System.getProperty("os.name").startsWith("Windows"))
+            String regKey = "\"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\"";
+            String regQuery = "reg query " + regKey + " /v Personal";
+            try
             {
-                String regKey = "\"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders\"";
-                String regQuery = "reg query " + regKey + " /v Personal";
-                try
+                java.lang.Process process = Runtime.getRuntime().exec(regQuery);
+                process.waitFor();
+                if(process.exitValue() != 0)
                 {
-                    java.lang.Process process = Runtime.getRuntime().exec(regQuery);
-                    process.waitFor();
-                    if(process.exitValue() != 0)
-                    {
-                        throw new Exception("Could not read Windows registry key `" + regKey + "'");
-                    }
+                    JOptionPane.showMessageDialog(getMainFrame(),
+                                                  "Could not read Windows registry key `" + regKey + "'",
+                                                  "Initialization Exception",
+                                                  JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
 
-                    java.io.InputStream is = process.getInputStream();
-                    java.io.StringWriter sw = new java.io.StringWriter();
-                    int c;
-                    while((c = is.read()) != -1)
-                    {
-                        sw.write(c);
-                    }
-                    String[] result = sw.toString().split("\n");
-                    for(String line : result)
-                    {
-                        int i = line.indexOf("REG_SZ");
-                        if(i == -1)
-                        {
-                            continue;
-                        }
-                        _dataDir = line.substring(i + "REG_SZ".length(), line.length()).trim();
-                        break;
-                    }
-                    if(_dataDir == null)
-                    {
-                        throw new Exception("Could not get Documents dir from Windows registry key `" + regKey + "'");
-                    }
-                    _dataDir += File.separator + "ZeroC" + File.separator + "IceGrid Admin" + File.separator +
-                        "KeyStore";
-                }
-                catch(java.io.IOException ex)
+                java.io.InputStream is = process.getInputStream();
+                java.io.StringWriter sw = new java.io.StringWriter();
+                int c;
+                while((c = is.read()) != -1)
                 {
-                    throw new Exception("Could not read Windows registry key `" + regKey + "'\n" + ex.toString());
+                    sw.write(c);
                 }
-                catch(java.lang.InterruptedException ex)
+                String[] result = sw.toString().split("\n");
+                for(String line : result)
                 {
-                    throw new Exception("Could not read Windows registry key `" + regKey + "'\n" + ex.toString());
+                    int i = line.indexOf("REG_SZ");
+                    if(i == -1)
+                    {
+                        continue;
+                    }
+                    oldDataDir = line.substring(i + "REG_SZ".length(), line.length()).trim();
+                    break;
                 }
+
+                if(oldDataDir == null)
+                {
+                    JOptionPane.showMessageDialog(getMainFrame(),
+                                              "Could not get Documents dir from Windows registry key `" + regKey + "'",
+                                              "Initialization Exception",
+                                              JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                oldDataDir = Paths.get(oldDataDir, "ZeroC",  "IceGrid Admin", "KeyStore").toString();
             }
-            else
+            catch(java.io.IOException ex)
             {
-                _dataDir = System.getProperty("user.home") + File.separator + ".ZeroC" + File.separator +
-                    "IceGrid Admin" + File.separator + "KeyStore";
+                JOptionPane.showMessageDialog(getMainFrame(),
+                                              "Could not read Windows registry key `" + regKey + "'\n" + ex.toString(),
+                                              "Initialization Exception",
+                                              JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            catch(java.lang.InterruptedException ex)
+            {
+                JOptionPane.showMessageDialog(getMainFrame(),
+                                              "Could not read Windows registry key `" + regKey + "'\n" + ex.toString(),
+                                              "Initialization Exception",
+                                              JOptionPane.ERROR_MESSAGE);
+                return;
             }
         }
-        if(!new File(_dataDir).isDirectory())
+        else if(System.getProperty("os.name").startsWith("Mac OS"))
         {
-            new File(_dataDir).mkdirs();
+            oldDataDir = Paths.get(System.getProperty("user.home"), ".ZeroC", "IceGrid Admin", "KeyStore").toString();
         }
-        return _dataDir;
+
+        if(oldDataDir != null)
+        {
+            String dataDir = getDataDirectory();
+            if(new File(dataDir).isDirectory() && new File(dataDir).list().length == 0 &&
+               new File(oldDataDir).isDirectory() && new File(oldDataDir).list().length > 0)
+            {
+                for(File f : new File(oldDataDir).listFiles())
+                {
+                    try
+                    {
+                        Files.copy(Paths.get(oldDataDir, f.getName()),
+                                   Paths.get(dataDir, f.getName()));
+                        new File(Paths.get(oldDataDir, f.getName()).toString()).delete();
+                    }
+                    catch(java.io.IOException ex)
+                    {
+                        JOptionPane.showMessageDialog(getMainFrame(),
+                                                      "Could not move `" +
+                                                      Paths.get(oldDataDir, f.getName()).toString() + "' to " +
+                                                      "`" + Paths.get(oldDataDir, f.getName()).toString() + "'",
+                                                      "Initialization Exception",
+                                                      JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    public String getDataDirectory()
+    {
+        String dataDir = null;
+        if(System.getProperty("os.name").startsWith("Windows"))
+        {
+            dataDir = Paths.get(System.getenv("APPDATA"), "..", "Local", "ZeroC",
+                                "IceGrid Admin", "KeyStore").toString();
+        }
+        else if(System.getProperty("os.name").startsWith("Mac OS"))
+        {
+            dataDir = Paths.get(System.getProperty("user.home"), "Library", "Application Support", "ZeroC",
+                                "IceGrid Admin", "KeyStore").toString();
+        }
+        else
+        {
+            dataDir = Paths.get(System.getProperty("user.home"), ".ZeroC", "IceGrid Admin", "KeyStore").toString();
+        }
+
+        if(!new File(dataDir).isDirectory())
+        {
+            new File(dataDir).mkdirs();
+        }
+
+        return dataDir;
     }
 
     public IGraphView[] getGraphViews()
@@ -3715,7 +3788,6 @@ public class Coordinator
             getScaledInstance(16, 16, java.awt.Image.SCALE_SMOOTH ));
     }
 
-    private String _dataDir;
     private final com.zeroc.Ice.InitializationData _initData;
     private com.zeroc.Ice.Communicator _communicator;
 

@@ -17,32 +17,28 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated : TestCommon.Application
+public class Collocated : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        var initial = new InitialI(adapter);
-        adapter.add(initial, Ice.Util.stringToIdentity("initial"));
-        UnexpectedObjectExceptionTestI uet = new UnexpectedObjectExceptionTestI();
-        adapter.add(uet, Ice.Util.stringToIdentity("uoet"));
-        AllTests.allTests(this);
-        // We must call shutdown even in the collocated case for cyclic dependency cleanup
-        initial.shutdown();
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        return initData;
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        using(var communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            var initial = new InitialI(adapter);
+            adapter.add(initial, Ice.Util.stringToIdentity("initial"));
+            UnexpectedObjectExceptionTestI uet = new UnexpectedObjectExceptionTestI();
+            adapter.add(uet, Ice.Util.stringToIdentity("uoet"));
+            AllTests.allTests(this);
+            // We must call shutdown even in the collocated case for cyclic dependency cleanup
+            initial.shutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Collocated app = new Collocated();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Collocated>(args);
     }
 }

@@ -281,7 +281,7 @@ const readPreserved = function(is)
 const ice_getSlicedData = function()
 {
     return this._slicedData;
-}
+};
 
 Ice.Slice.PreservedUserException = function(ex)
 {

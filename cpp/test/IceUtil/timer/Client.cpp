@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Timer.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #include <vector>
 
@@ -151,7 +151,16 @@ private:
 };
 ICE_DEFINE_PTR(DestroyTaskPtr, DestroyTask);
 
-int main(int, char**)
+class Client : public Test::TestHelper
+{
+public:
+
+    void run(int argc, char* argv[]);
+
+};
+
+void
+Client::run(int, char* argv[])
 {
     cout << "testing timer... " << flush;
     {
@@ -274,6 +283,6 @@ int main(int, char**)
         }
     }
     cout << "ok" << endl;
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client)

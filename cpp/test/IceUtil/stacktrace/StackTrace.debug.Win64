@@ -1,9 +1,10 @@
-  0 IceUtil::Exception::Exception
-  1 IceUtil::ExceptionHelper<IceUtil::NullHandleException>::ExceptionHelper
-  2 IceUtil::NullHandleException::NullHandleException
-  3 `anonymous namespace'::Thrower::fifth
-  4 `anonymous namespace'::Thrower::forth
-  5 `anonymous namespace'::Thrower::third
-  6 `anonymous namespace'::Thrower::second
-  7 `anonymous namespace'::Thrower::first
-  8 main
+  0 IceUtil::Exception::Exception at
+  1 IceUtil::ExceptionHelper<IceUtil::NullHandleException>::ExceptionHelper<IceUtil::NullHandleException> at
+  2 IceUtil::NullHandleException::NullHandleException at
+  3 `anonymous namespace'::Thrower::fifth at
+  4 `anonymous namespace'::Thrower::forth at
+  5 `anonymous namespace'::Thrower::third at
+  6 `anonymous namespace'::Thrower::second at
+  7 `anonymous namespace'::Thrower::first at
+  8 Client::run at
+  9 Test::runTest<Client> at

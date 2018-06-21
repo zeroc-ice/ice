@@ -45,6 +45,7 @@ class TcpTransceiver
         this._bytesAvailableCallback = bytesAvailableCallback;
         this._bytesWrittenCallback = bytesWrittenCallback;
     }
+
     //
     // Returns SocketOperation.None when initialization is complete.
     //
@@ -60,9 +61,12 @@ class TcpTransceiver
             if(this._state === StateNeedConnect)
             {
                 this._state = StateConnectPending;
-                this._fd = net.createConnection({port: this._addr.port,
-                                                 host: this._addr.host,
-                                                 localAddress: this._sourceAddr});
+                this._fd = net.createConnection(
+                    {
+                        port: this._addr.port,
+                        host: this._addr.host,
+                        localAddress: this._sourceAddr
+                    });
 
                 this._fd.on("connect", () => this.socketConnected());
                 this._fd.on("data", buf => this.socketBytesAvailable(buf));
@@ -160,6 +164,7 @@ class TcpTransceiver
             this._fd = null;
         }
     }
+
     //
     // Returns true if all of the data was flushed to the kernel buffer.
     //
@@ -183,7 +188,12 @@ class TcpTransceiver
             const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
 
             let sync = true;
-            /*jshint -W083 */
+            //
+            // XXX: diasble for compatibility with Node 4.x replace by
+            // Buffer.from when we drop support to Node 4.x
+            //
+
+            /* eslint-disable no-buffer-constructor */
             sync = this._fd.write(new Buffer(slice), null, () =>
                 {
                     if(!sync)
@@ -191,9 +201,9 @@ class TcpTransceiver
                         this._bytesWrittenCallback();
                     }
                 });
-            /*jshint +W083 */
+            /* eslint-enable no-buffer-constructor */
 
-            byteBuffer.position = byteBuffer.position + packetSize;
+            byteBuffer.position += packetSize;
             if(!sync)
             {
                 return false; // Wait for callback to be called before sending more data.
@@ -235,8 +245,15 @@ class TcpTransceiver
                 avail = byteBuffer.remaining;
             }
 
+            //
+            // XXX: diasble for compatibility with Node 4.x replace by
+            // Buffer.from when we drop support to Node 4.x
+            //
+
+            /* eslint-disable no-buffer-constructor */
             this._readBuffers[0].copy(new Buffer(byteBuffer.b), byteBuffer.position, this._readPosition,
                                       this._readPosition + avail);
+            /* eslint-enable no-buffer-constructor */
 
             byteBuffer.position += avail;
             this._readPosition += avail;

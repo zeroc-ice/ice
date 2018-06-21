@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -34,9 +34,10 @@ getIPConnectionInfo(const Ice::ConnectionInfoPtr& info)
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
-    string sref = "test:" + getTestEndpoint(communicator, 0);
+    Ice::CommunicatorPtr communicator = helper->communicator();
+    string sref = "test:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 

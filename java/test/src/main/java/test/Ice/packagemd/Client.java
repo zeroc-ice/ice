@@ -11,32 +11,18 @@ package test.Ice.packagemd;
 
 import test.Ice.packagemd.Test.InitialPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        InitialPrx initial = AllTests.allTests(this);
-        initial.shutdown();
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.packagemd");
-        initData.properties.setProperty("Ice.Package.Test1", "test.Ice.packagemd");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        properties.setProperty("Ice.Package.Test", "test.Ice.packagemd");
+        properties.setProperty("Ice.Package.Test1", "test.Ice.packagemd");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            InitialPrx initial = AllTests.allTests(this);
+            initial.shutdown();
+        }
     }
 }

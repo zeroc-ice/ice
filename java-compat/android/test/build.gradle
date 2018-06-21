@@ -13,7 +13,6 @@ slice.compat = true
 ext.testDir = "$project.ext.topSrcDir/java-compat/test/src/main/java/test"
 apply from: "$project.ext.topSrcDir/java-compat/test/slice.gradle"
 apply from: "$rootProject.projectDir/gradle/tests.gradle"
-apply from: "$rootProject.projectDir/gradle/dex.gradle"
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -22,7 +21,7 @@ sourceSets {
     main {
         java {
             srcDir "$project.ext.topSrcDir/java-compat/test/src/main/java"
-            include 'test/Util/**'
+            include 'test/TestHelper.java'
             exclude 'test/Ice/**/lambda'
         }
     }
@@ -37,9 +36,14 @@ dependencies {
     compile localDependency('ice-compat')
 }
 
+jar {
+    archiveName = "test.jar"
+}
+
 tests.each {
     def dirName = it
     def name = it.replace('/', '_')
+
     project(":test_${name}") {
         apply plugin: 'java'
         apply from: "$project.ext.topSrcDir/java/gradle/ice.gradle"
@@ -59,26 +63,6 @@ tests.each {
                 }
             }
         }
-
-        def dexName = "test_${name}.dex"
-        task dexClasses {
-            inputs.dir "${buildDir}/classes/java/main"
-            outputs.file "${buildDir}/classes/java/main/${dexName}"
-            doLast {
-                exec {
-                    commandLine "${dxCmd}", '--dex',
-                            "--output=${buildDir}/classes/java/main/${dexName}",
-                            "${buildDir}/classes/java/main"
-                }
-            }
-        }
-
-        dexClasses.dependsOn('classes')
-
-        configure(jar) {
-            include "${dexName}"
-        }
-        jar.dependsOn(dexClasses)
 
         dependencies {
             compile project(':test')

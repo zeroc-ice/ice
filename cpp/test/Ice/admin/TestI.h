@@ -11,7 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Ice/NativePropertiesAdmin.h>
 
 class RemoteCommunicatorI : public virtual Test::RemoteCommunicator,

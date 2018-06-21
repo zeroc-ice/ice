@@ -32,7 +32,7 @@
             try
             {
                 await obj.requestFailedException();
-                test(false)
+                test(false);
             }
             catch(ex)
             {
@@ -163,32 +163,32 @@
         }
 
         out.write("testing stringToProxy... ");
-        let ref = "asm:default -p 12010";
+        const ref = "asm:default -p 12010";
         let base = communicator.stringToProxy(ref);
         test(base !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
         let obj = await Test.TestIntfPrx.checkedCast(base);
-        test(obj != null);
+        test(obj !== null);
         test(obj.equals(base));
         out.writeLine("ok");
 
         out.write("testing ice_ids... ");
         try
         {
-            let o = communicator.stringToProxy("category/locate:default -p 12010");
+            const o = communicator.stringToProxy("category/locate:default -p 12010");
             await o.ice_ids();
             test(false);
         }
         catch(ex)
         {
-            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex)
+            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex);
         }
 
         try
         {
-            let o = communicator.stringToProxy("category/finished:default -p 12010");
+            const o = communicator.stringToProxy("category/finished:default -p 12010");
             await o.ice_ids();
             test(false);
         }
@@ -276,7 +276,7 @@
 
         out.write("testing servant locator removal... ");
         base = communicator.stringToProxy("test/activation:default -p 12010");
-        activation = await Test.TestActivationPrx.checkedCast(base);
+        const activation = await Test.TestActivationPrx.checkedCast(base);
         await activation.activateServantLocator(false);
         try
         {
@@ -316,7 +316,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

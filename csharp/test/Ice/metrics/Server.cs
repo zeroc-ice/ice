@@ -18,39 +18,36 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : TestCommon.Application
+public class Server : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
-        adapter.activate();
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.Admin.Endpoints", "tcp");
+        properties.setProperty("Ice.Admin.InstanceName", "server");
+        properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        properties.setProperty("Ice.MessageSizeMax", "50000");
+        properties.setProperty("Ice.Default.Host", "127.0.0.1");
 
-        communicator().getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
-        Ice.ObjectAdapter controllerAdapter = communicator().createObjectAdapter("ControllerAdapter");
-        controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
-        controllerAdapter.activate();
+        using(var communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new MetricsI(), Ice.Util.stringToIdentity("metrics"));
+            adapter.activate();
 
-        communicator().waitForShutdown();
-        return 0;
-    }
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            Ice.ObjectAdapter controllerAdapter = communicator.createObjectAdapter("ControllerAdapter");
+            controllerAdapter.add(new ControllerI(adapter), Ice.Util.stringToIdentity("controller"));
+            controllerAdapter.activate();
 
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
-        initData.properties.setProperty("Ice.Admin.InstanceName", "server");
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "50000");
-        initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
-        return initData;
+            communicator.waitForShutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Server app = new Server();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Server>(args);
     }
 }

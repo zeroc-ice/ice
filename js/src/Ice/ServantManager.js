@@ -30,9 +30,12 @@ class ServantManager
     {
         this._instance = instance;
         this._adapterName = adapterName;
-        this._servantMapMap = new HashMap(HashMap.compareEquals);       // Map<Ice.Identity, Map<String, Ice.Object> >
-        this._defaultServantMap = new Map();                            // Map<String, Ice.Object>
-        this._locatorMap = new Map();                                   // Map<String, Ice.ServantLocator>
+        // Map<Ice.Identity, Map<String, Ice.Object> >
+        this._servantMapMap = new HashMap(HashMap.compareEquals);
+        // Map<String, Ice.Object>
+        this._defaultServantMap = new Map();
+        // Map<String, Ice.ServantLocator>
+        this._locatorMap = new Map();
     }
 
     addServant(servant, ident, facet)
@@ -50,19 +53,16 @@ class ServantManager
             m = new Map();
             this._servantMapMap.set(ident, m);
         }
-        else
+        else if(m.has(facet))
         {
-            if(m.has(facet))
+            const ex = new Ice.AlreadyRegisteredException();
+            ex.id = Ice.identityToString(ident, this._instance.toStringMode());
+            ex.kindOfObject = "servant";
+            if(facet.length > 0)
             {
-                const ex = new Ice.AlreadyRegisteredException();
-                ex.id = Ice.identityToString(ident, this._instance.toStringMode());
-                ex.kindOfObject = "servant";
-                if(facet.length > 0)
-                {
-                    ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
-                }
-                throw ex;
+                ex.id += " -f " + StringUtil.escapeString(facet, "", this._instance.toStringMode());
             }
+            throw ex;
         }
 
         m.set(facet, servant);
@@ -153,14 +153,6 @@ class ServantManager
 
     findServant(ident, facet)
     {
-        //
-        // This assert is not valid if the adapter dispatch incoming
-        // requests from bidir connections. This method might be called if
-        // requests are received over the bidir connection after the
-        // adapter was deactivated.
-        //
-        //Debug.assert(this._instance !== null); // Must not be called after destruction.
-
         if(facet === null)
         {
             facet = "";
@@ -207,14 +199,6 @@ class ServantManager
 
     hasServant(ident)
     {
-        //
-        // This assert is not valid if the adapter dispatch incoming
-        // requests from bidir connections. This method might be called if
-        // requests are received over the bidir connection after the
-        // adapter was deactivated.
-        //
-        //Debug.assert(this._instance !== null); // Must not be called after destruction.
-
         const m = this._servantMapMap.get(ident);
         if(m === undefined)
         {
@@ -260,14 +244,6 @@ class ServantManager
 
     findServantLocator(category)
     {
-        //
-        // This assert is not valid if the adapter dispatch incoming
-        // requests from bidir connections. This method might be called if
-        // requests are received over the bidir connection after the
-        // adapter was deactivated.
-        //
-        //Debug.assert(this._instance !== null); // Must not be called after destruction.
-
         const l = this._locatorMap.get(category);
         return l === undefined ? null : l;
     }

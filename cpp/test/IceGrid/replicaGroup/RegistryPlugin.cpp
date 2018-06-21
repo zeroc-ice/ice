@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceGrid/IceGrid.h>
 
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace IceGrid;

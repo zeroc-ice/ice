@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceGrid/IceGrid.h>
 #include <IceUtil/Thread.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 #include <fstream>
@@ -376,8 +376,9 @@ logTests(const Ice::CommunicatorPtr& comm, const AdminSessionPrx& session)
 }
 
 void
-allTests(const Ice::CommunicatorPtr& comm)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr comm = helper->communicator();
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
         comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);
@@ -387,7 +388,9 @@ allTests(const Ice::CommunicatorPtr& comm)
 
     AdminSessionPrx session = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(), IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
+    session->ice_getConnection()->setACM(registry->getACMTimeout(),
+                                         IceUtil::None,
+                                         Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
     AdminPrx admin = session->getAdmin();
     test(admin);
@@ -744,8 +747,9 @@ allTests(const Ice::CommunicatorPtr& comm)
 }
 
 void
-allTestsWithTarget(const Ice::CommunicatorPtr& comm)
+allTestsWithTarget(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr comm = helper->communicator();
     RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
         comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
     test(registry);

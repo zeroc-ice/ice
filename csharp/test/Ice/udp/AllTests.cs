@@ -12,16 +12,8 @@ using System;
 using System.Text;
 using System.Threading;
 
-public class AllTests
+public class AllTests : Test.AllTests
 {
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
     public class PingReplyI : Test.PingReplyDisp_
     {
         public override void reply(Ice.Current current)
@@ -65,9 +57,9 @@ public class AllTests
         private int _replies = 0;
     }
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
         PingReplyI replyI = new PingReplyI();
@@ -77,7 +69,7 @@ public class AllTests
 
         Console.Out.Write("testing udp... ");
         Console.Out.Flush();
-        Ice.ObjectPrx @base = communicator.stringToProxy("test:" + app.getTestEndpoint(0, "udp")).ice_datagram();
+        Ice.ObjectPrx @base = communicator.stringToProxy("test:" + helper.getTestEndpoint(0, "udp")).ice_datagram();
         Test.TestIntfPrx obj = Test.TestIntfPrxHelper.uncheckedCast(@base);
 
         int nRetry = 5;
@@ -157,15 +149,18 @@ public class AllTests
         Console.Out.Write("testing udp multicast... ");
         Console.Out.Flush();
         StringBuilder endpoint = new StringBuilder();
+        //
+        // Use loopback to prevent other machines to answer.
+        //
         if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
         {
-            endpoint.Append("udp -h \"ff15::1:1\" --interface \"::1\" -p "); // Use loopback to prevent other machines to answer.
+            endpoint.Append("udp -h \"ff15::1:1\" --interface \"::1\" -p ");
         }
         else
         {
-            endpoint.Append("udp -h 239.255.1.1 --interface 127.0.0.1 -p "); // Use loopback to prevent other machines to answer.
+            endpoint.Append("udp -h 239.255.1.1 --interface 127.0.0.1 -p ");
         }
-        endpoint.Append(app.getTestPort(10));
+        endpoint.Append(helper.getTestPort(10));
         @base = communicator.stringToProxy("test -d:" + endpoint.ToString());
         TestIntfPrx objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
 

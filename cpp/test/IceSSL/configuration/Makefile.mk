@@ -7,7 +7,7 @@
 #
 # **********************************************************************
 
-$(test)_dependencies = IceSSL Ice TestCommon
+$(test)_dependencies = TestCommon IceSSL Ice
 
 #
 # Disable var tracking assignments for Linux with this test

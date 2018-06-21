@@ -9,7 +9,7 @@
 
 package test.Ice.objects;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
     private static class MyValueFactory implements com.zeroc.Ice.ValueFactory
     {
@@ -34,40 +34,26 @@ public class Server extends test.Util.Application
         }
     }
 
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
-        communicator.getValueFactoryManager().add(factory, "::Test::I");
-        communicator.getValueFactoryManager().add(factory, "::Test::J");
-        communicator.getValueFactoryManager().add(factory, "::Test::H");
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
 
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.Object object = new InitialI(adapter);
-        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("initial"));
-        object = new UnexpectedObjectExceptionTestI();
-        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("uoet"));
-        adapter.activate();
+            com.zeroc.Ice.ValueFactory factory = new MyValueFactory();
+            communicator.getValueFactoryManager().add(factory, "::Test::I");
+            communicator.getValueFactoryManager().add(factory, "::Test::J");
+            communicator.getValueFactoryManager().add(factory, "::Test::H");
 
-        return WAIT;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new InitialI(adapter), com.zeroc.Ice.Util.stringToIdentity("initial"));
+            adapter.add(new UnexpectedObjectExceptionTestI(), com.zeroc.Ice.Util.stringToIdentity("uoet"));
+            adapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

@@ -1,4 +1,4 @@
-// **********************************************************************
+
 //
 // Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
 //
@@ -9,27 +9,14 @@
 
 package test.Ice.binding;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int
+    public void
     run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Identity id = Ice.Util.stringToIdentity("communicator");
-        adapter.add(new RemoteCommunicatorI(this), id);
-        adapter.activate();
-
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.binding");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
         initData.logger = new Ice.Logger() {
             @Override public void print(String message)
             {
@@ -57,15 +44,16 @@ public class Server extends test.Util.Application
                 return this;
             }
         };
-        return initData;
-    }
 
-    public static void
-    main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+        try(Ice.Communicator communicator = initialize(initData))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.Identity id = Ice.Util.stringToIdentity("communicator");
+            adapter.add(new RemoteCommunicatorI(), id);
+            adapter.activate();
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

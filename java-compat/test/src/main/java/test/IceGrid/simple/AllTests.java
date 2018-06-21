@@ -25,10 +25,10 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
         out.flush();
@@ -86,67 +86,67 @@ public class AllTests
             // Ensure the IceGrid discovery locator can discover the
             // registries and make sure locator requests are forwarded.
             //
-            Ice.InitializationData initData = app.createInitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+            Ice.Properties properties = communicator.getProperties()._clone();
+            properties.setProperty("Ice.Default.Locator", "");
+            properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty("IceLocatorDiscovery.Port", Integer.toString(app.getTestPort(99)));
-            initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
-            initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
+            properties.setProperty("IceLocatorDiscovery.Port", Integer.toString(helper.getTestPort(99)));
+            properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
+            properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
-            Ice.Communicator com =  Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            com.stringToProxy("test @ TestAdapter").ice_ping();
-            com.stringToProxy("test").ice_ping();
+            try(Ice.Communicator com = helper.initialize(properties))
+            {
+                test(com.getDefaultLocator() != null);
+                com.stringToProxy("test @ TestAdapter").ice_ping();
+                com.stringToProxy("test").ice_ping();
 
-            test(com.getDefaultLocator().getRegistry() != null);
-            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry() != null);
-            test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
+                test(com.getDefaultLocator().getRegistry() != null);
+                test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalRegistry() != null);
+                test(IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery() != null);
 
-            Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
-            adapter.activate();
-            adapter.deactivate();
-            com.destroy();
+                Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
+                adapter.activate();
+                adapter.deactivate();
+            }
 
             //
             // Now, ensure that the IceGrid discovery locator correctly
             // handles failure to find a locator.
             //
-            initData.properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
-            initData.properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
-            initData.properties.setProperty("IceLocatorDiscovery.Timeout", "100");
-            com = Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            try
+            properties.setProperty("IceLocatorDiscovery.InstanceName", "unknown");
+            properties.setProperty("IceLocatorDiscovery.RetryCount", "1");
+            properties.setProperty("IceLocatorDiscovery.Timeout", "100");
+            try(Ice.Communicator com = helper.initialize(properties))
             {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-            }
-            try
-            {
-                com.stringToProxy("test").ice_ping();
-            }
-            catch(Ice.NoEndpointException ex)
-            {
-            }
-            test(com.getDefaultLocator().getRegistry() == null);
-            test(IceGrid.LocatorPrxHelper.checkedCast(com.getDefaultLocator()) == null);
-            try
-            {
-                IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery();
-            }
-            catch(Ice.OperationNotExistException ex)
-            {
-            }
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("test @ TestAdapter").ice_ping();
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
+                try
+                {
+                    com.stringToProxy("test").ice_ping();
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
+                test(com.getDefaultLocator().getRegistry() == null);
+                test(IceGrid.LocatorPrxHelper.checkedCast(com.getDefaultLocator()) == null);
+                try
+                {
+                    IceGrid.LocatorPrxHelper.uncheckedCast(com.getDefaultLocator()).getLocalQuery();
+                }
+                catch(Ice.OperationNotExistException ex)
+                {
+                }
 
-            adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
-            adapter.activate();
-            adapter.deactivate();
-
-            com.destroy();
+                Ice.ObjectAdapter adapter = com.createObjectAdapter("AdapterForDiscoveryTest");
+                adapter.activate();
+                adapter.deactivate();
+            }
 
             String multicast;
             if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
@@ -161,50 +161,53 @@ public class AllTests
             //
             // Test invalid lookup endpoints
             //
-            initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                             "udp -h " + multicast + " --interface unknown");
-            com = Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            try
+            properties = communicator.getProperties()._clone();
+            properties.setProperty("Ice.Default.Locator", "");
+            properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                   "IceLocatorDiscovery.PluginFactory");
+            properties.setProperty("IceLocatorDiscovery.Lookup",
+                                   "udp -h " + multicast + " --interface unknown");
+            try(Ice.Communicator com = helper.initialize(properties))
             {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
-                test(false);
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("test @ TestAdapter").ice_ping();
+                    test(false);
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                }
             }
-            catch(Ice.NoEndpointException ex)
-            {
-            }
-            com.destroy();
 
-            initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Default.Locator", "");
-            initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
-                                            "IceLocatorDiscovery.PluginFactory");
+            properties = communicator.getProperties()._clone();
+            properties.setProperty("Ice.Default.Locator", "");
+            properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
+                                   "IceLocatorDiscovery.PluginFactory");
             {
-                String intf = initData.properties.getProperty("IceLocatorDiscovery.Interface");
+                String intf = properties.getProperty("IceLocatorDiscovery.Interface");
                 if(!intf.isEmpty())
                 {
                     intf = " --interface \"" + intf + "\"";
                 }
-                String port = Integer.toString(app.getTestPort(99));
-                initData.properties.setProperty("IceLocatorDiscovery.Lookup",
-                                                 "udp -h " + multicast + " --interface unknown:" +
-                                                 "udp -h " + multicast + " -p " + port + intf);
+                String port = Integer.toString(helper.getTestPort(99));
+                properties.setProperty("IceLocatorDiscovery.Lookup",
+                                       "udp -h " + multicast + " --interface unknown:" +
+                                       "udp -h " + multicast + " -p " + port + intf);
             }
-            com = Ice.Util.initialize(initData);
-            test(com.getDefaultLocator() != null);
-            try
+
+            try(Ice.Communicator com = helper.initialize(properties))
             {
-                com.stringToProxy("test @ TestAdapter").ice_ping();
+                test(com.getDefaultLocator() != null);
+                try
+                {
+                    com.stringToProxy("test @ TestAdapter").ice_ping();
+                }
+                catch(Ice.NoEndpointException ex)
+                {
+                    test(false);
+                }
             }
-            catch(Ice.NoEndpointException ex)
-            {
-                test(false);
-            }
-            com.destroy();
         }
         out.println("ok");
 
@@ -215,10 +218,10 @@ public class AllTests
     }
 
     public static void
-    allTestsWithDeploy(test.Util.Application app)
+    allTestsWithDeploy(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
         out.flush();

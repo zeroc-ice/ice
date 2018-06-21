@@ -8,50 +8,34 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    void allTests(const Ice::CommunicatorPtr&, bool);
-    allTests(communicator, false);
-    return EXIT_SUCCESS;
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.AMICallback", "0");
+    properties->setProperty("Ice.Warn.Connections", "0");
+
+    //
+    // Limit the send buffer size, this test relies on the socket
+    // send() blocking after sending a given amount of data.
+    //
+    properties->setProperty("Ice.TCP.SndSize", "50000");
+
+    Ice::CommunicatorHolder communcator = initialize(argc, argv, properties);
+    void allTests(Test::TestHelper*, bool);
+    allTests(this, false);
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#   ifdef ICE_HAS_BT
-    Ice::registerIceBT(false);
-#   endif
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.AMICallback", "0");
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-
-        //
-        // Limit the send buffer size, this test relies on the socket
-        // send() blocking after sending a given amount of data.
-        //
-        initData.properties->setProperty("Ice.TCP.SndSize", "50000");
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

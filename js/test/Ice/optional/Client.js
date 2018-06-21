@@ -31,8 +31,8 @@
         }
 
         out.write("testing stringToProxy... ");
-        let ref = "initial:default -p 12010";
-        let base = communicator.stringToProxy(ref);
+        const ref = "initial:default -p 12010";
+        const base = communicator.stringToProxy(ref);
         test(base !== null);
         out.writeLine("ok");
 
@@ -40,20 +40,20 @@
         oo1.a = 15;
 
         out.write("testing checked cast... ");
-        let initial = await Test.InitialPrx.checkedCast(base);
+        const initial = await Test.InitialPrx.checkedCast(base);
         test(initial !== null);
         test(initial.equals(base));
         out.writeLine("ok");
 
         out.write("testing marshaling... ");
 
-        let oo4 = await initial.pingPong(new Test.OneOptional());
+        const oo4 = await initial.pingPong(new Test.OneOptional());
         test(oo4.a === undefined);
 
-        let oo5 = await initial.pingPong(oo1);
+        const oo5 = await initial.pingPong(oo1);
         test(oo5.a === oo1.a);
 
-        let mo4 = await initial.pingPong(new Test.MultiOptional());
+        const mo4 = await initial.pingPong(new Test.MultiOptional());
         test(mo4.a === undefined);
         test(mo4.b === undefined);
         test(mo4.c === undefined);
@@ -89,7 +89,7 @@
 
         test(mo4.ser === undefined);
 
-        mo1 = new Test.MultiOptional();
+        const mo1 = new Test.MultiOptional();
         mo1.a = 15;
         mo1.b = true;
         mo1.c = 19;
@@ -132,7 +132,7 @@
 
         mo1.bos = [false, true, false];
 
-        let mo5 = await initial.pingPong(mo1);
+        const mo5 = await initial.pingPong(mo1);
 
         test(mo1.a == mo5.a);
         test(mo1.b == mo5.b);
@@ -167,7 +167,7 @@
         test(ArrayUtil.equals(mo5.bos, [false, true, false]));
 
         // Clear the first half of the optional parameters
-        mo6 = new Test.MultiOptional();
+        const mo6 = new Test.MultiOptional();
         mo6.b = mo5.b;
         mo6.d = mo5.d;
         mo6.f = mo5.f;
@@ -183,11 +183,10 @@
         mo6.iood = mo5.iood;
         mo6.bos = mo5.bos;
 
-        let mo7 = await initial.pingPong(mo6);
-
+        const mo7 = await initial.pingPong(mo6);
         test(mo7.a === undefined);
         test(mo7.b == mo1.b);
-        test(mo7.c === undefined );
+        test(mo7.c === undefined);
         test(mo7.d == mo1.d);
         test(mo7.e === undefined);
         test(mo7.f == mo1.f);
@@ -218,7 +217,7 @@
         test(ArrayUtil.equals(mo7.bos, [false, true, false]));
 
         // Clear the second half of the optional parameters
-        mo8 = new Test.MultiOptional();
+        const mo8 = new Test.MultiOptional();
         mo8.a = mo1.a;
         mo8.c = mo1.c;
         mo8.e = mo1.e;
@@ -237,7 +236,7 @@
         mo8.ivsd = mo1.ivsd;
         mo8.ioopd = mo1.ioopd;
 
-        let mo9 = await initial.pingPong(mo8);
+        const mo9 = await initial.pingPong(mo8);
 
         test(mo9.a == mo1.a);
         test(mo9.b === undefined);
@@ -275,20 +274,20 @@
         //
         // Use the 1.0 encoding with operations whose only class parameters are optional.
         //
-        let initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
-        let oo = new Test.OneOptional(53);
+        const initial2 = initial.ice_encodingVersion(Ice.Encoding_1_0);
+        const oo = new Test.OneOptional(53);
 
         await initial.sendOptionalClass(true, oo);
         await initial2.sendOptionalClass(true, oo);
-        oo1 = await initial.returnOptionalClass(true)
+        oo1 = await initial.returnOptionalClass(true);
         test(oo1 !== undefined && oo1.a == 53);
         oo1 = await initial2.returnOptionalClass(true);
         test(oo1 === undefined);
 
-        let recursive1 = [new Test.Recursive()];
-        let recursive2 = [new Test.Recursive()];
+        const recursive1 = [new Test.Recursive()];
+        const recursive2 = [new Test.Recursive()];
         recursive1[0].value = recursive2;
-        let outer = new Test.Recursive();
+        const outer = new Test.Recursive();
         outer.value = recursive1;
         await initial.pingPong(outer);
 
@@ -305,7 +304,7 @@
         test(g.gg2Opt.a.equals(new Ice.Long(0, 20)));
         test(g.gg1.a == "gg1");
 
-        let init2 = ClientPrivate.Initial2Prx.uncheckedCast(initial);
+        const init2 = ClientPrivate.Initial2Prx.uncheckedCast(initial);
         await init2.opVoid(5, "test");
         out.writeLine("ok");
 
@@ -326,7 +325,7 @@
         {
             mc.ifsd.set(i, new Test.FixedStruct());
         }
-        mc = await  initial.pingPong(mc);
+        mc = await initial.pingPong(mc);
 
         test(mc.bs.length == 1000);
         test(mc.shs.length == 300);
@@ -336,7 +335,7 @@
         out.writeLine("ok");
 
         out.write("testing tag marshaling... ");
-        b = await initial.pingPong(new Test.B());
+        let b = await initial.pingPong(new Test.B());
 
         test(b.ma === undefined);
         test(b.mb === undefined);
@@ -756,41 +755,37 @@
         test(await initial.opMG1() !== undefined);
 
         {
-            let p1, p2, p3;
-            [p3, p2] = await initial.opMStruct2();
+            let [p3, p2] = await initial.opMStruct2();
             test(p3 === undefined && p2 == undefined);
 
-            p1 = new Test.SmallStruct();
+            const p1 = new Test.SmallStruct();
             [p3, p2] = await initial.opMStruct2(p1);
             test(p2.equals(p1) && p3.equals(p1));
         }
 
         {
-            let p1, p2, p3;
-            [p3, p2] = await initial.opMSeq2();
+            let [p3, p2] = await initial.opMSeq2();
             test(p2 === undefined && p3 === undefined);
 
-            p1 = ["hello"];
+            const p1 = ["hello"];
             [p3, p2] = await initial.opMSeq2(p1);
             test(ArrayUtil.equals(p2, p1) && ArrayUtil.equals(p3, p1));
         }
 
         {
-            let p1, p2, p3;
-            [p3, p2] = await initial.opMDict2();
+            let [p3, p2] = await initial.opMDict2();
             test(p2 === undefined && p3 === undefined);
 
-            p1 = new Map();
+            const p1 = new Map();
             p1.set("test", 54);
             [p3, p2] = await initial.opMDict2(p1);
             test(Ice.MapUtil.equals(p2, p1) && Ice.MapUtil.equals(p3, p1));
         }
         {
-            let p1, p2, p3;
-            [p3, p2] = await initial.opMG2();
+            let [p3, p2] = await initial.opMG2();
             test(p2 === undefined && p3 === undefined);
 
-            p1 = new Test.G();
+            const p1 = new Test.G();
             [p3, p2] = await initial.opMG2(p1);
             test(p3 !== undefined && p2 !== undefined && p3 === p2);
         }
@@ -819,7 +814,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

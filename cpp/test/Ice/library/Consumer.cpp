@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Test.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #if defined(_MSC_VER)
 #   pragma comment(lib, ICE_LIBNAME("gencode"))

@@ -13,34 +13,34 @@ class SliceInfo
 {
     constructor()
     {
-        /**
-        * The Slice type ID for this slice.
-        **/
+        //
+        // The Slice type ID for this slice.
+        //
         this.typeId = "";
 
-        /**
-        * The Slice compact type ID for this slice.
-        **/
+        //
+        // The Slice compact type ID for this slice.
+        //
         this.compactId = -1;
 
-        /**
-        * The encoded bytes for this slice, including the leading size integer.
-        **/
+        //
+        // The encoded bytes for this slice, including the leading size integer.
+        //
         this.bytes = [];
 
-        /**
-        * The class instances referenced by this slice.
-        **/
+        //
+        // The class instances referenced by this slice.
+        //
         this.instances = [];
 
-        /**
-        * Whether or not the slice contains optional members.
-        **/
+        //
+        // Whether or not the slice contains optional members.
+        //
         this.hasOptionalMembers = false;
 
-        /**
-        * Whether or not this is the last slice.
-        **/
+        //
+        // Whether or not this is the last slice.
+        //
         this.isLastSlice = false;
     }
 }

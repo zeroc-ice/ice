@@ -12,7 +12,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private class Callback
     {
@@ -69,15 +69,15 @@ public class AllTests : TestCommon.AllTests
         }
     }
 
-    public static void allTests(TestCommon.Application app, List<int> ports)
+    public static void allTests(Test.TestHelper helper, List<int> ports)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing stringToProxy... ");
         Flush();
         string refString = "test";
         for(int i = 0; i < ports.Count; i++)
         {
-            refString += ":" + app.getTestEndpoint(ports[i]);
+            refString += ":" + helper.getTestEndpoint(ports[i]);
         }
         Ice.ObjectPrx basePrx = communicator.stringToProxy(refString);
         test(basePrx != null);

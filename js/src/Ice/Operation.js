@@ -37,7 +37,7 @@ const builtinHelpers =
 function parseParam(p)
 {
     let type = p[0];
-    const t = typeof(type);
+    const t = typeof type;
     if(t === 'number')
     {
         type = builtinHelpers[p[0]];
@@ -48,9 +48,9 @@ function parseParam(p)
     }
 
     return {
-        "type": type,
-        "isObject": (p[1] === true),
-        "tag": p[2] // Optional tag, which may not be present - an undefined tag means "not optional".
+        type: type,
+        isObject: (p[1] === true),
+        tag: p[2] // Optional tag, which may not be present - an undefined tag means "not optional".
     };
 }
 
@@ -181,23 +181,29 @@ function unmarshalParams(is, retvalInfo, allParamInfo, optParamInfo, usesClasses
         {
             if(p.isObject)
             {
-                is.readOptionalValue(p.tag, obj => params[p.pos + offset] = obj, p.type);
+                is.readOptionalValue(p.tag,
+                                     obj =>
+                                     {
+                                         params[p.pos + offset] = obj;
+                                     },
+                                     p.type);
             }
             else
             {
                 params[p.pos + offset] = p.type.readOptional(is, p.tag);
             }
         }
+        else if(p.isObject)
+        {
+            is.readValue(obj =>
+                         {
+                             params[p.pos + offset] = obj;
+                         },
+                         p.type);
+        }
         else
         {
-            if(p.isObject)
-            {
-                is.readValue(obj => params[p.pos + offset] = obj, p.type);
-            }
-            else
-            {
-                params[p.pos + offset] = p.type.read(is);
-            }
+            params[p.pos + offset] = p.type.read(is);
         }
     };
 
@@ -277,7 +283,7 @@ function dispatchImpl(servant, op, incomingAsync, current)
     // Check to make sure the servant implements the operation.
     //
     const method = servant[op.servantMethod];
-    if(method === undefined || typeof(method) !== "function")
+    if(method === undefined || typeof method !== "function")
     {
         throw new Ice.UnknownException("servant for identity " + current.adapter.getCommunicator().identityToString(current.id) +
                                        " does not define operation `" + op.servantMethod + "'");
@@ -492,10 +498,8 @@ function addProxyOperation(proxyType, name, data)
 
     let op = null;
 
-    proxyType.prototype[method] = function()
+    proxyType.prototype[method] = function(...args)
     {
-        const args = arguments;
-
         //
         // Parse the operation data on the first invocation of a proxy method.
         //
@@ -524,7 +528,7 @@ function addProxyOperation(proxyType, name, data)
                         {
                             if(!p.type.validate(v))
                             {
-                                throw new Ice.MarshalException("invalid value for argument " + (i + 1)  +
+                                throw new Ice.MarshalException("invalid value for argument " + (i + 1) +
                                                                " in operation `" + op.servantMethod + "'");
                             }
                         }
@@ -558,8 +562,8 @@ function addProxyOperation(proxyType, name, data)
                 return results.length == 1 ? results[0] : results;
             };
         }
-        return  Ice.ObjectPrx._invoke(this, op.name, op.sendMode, op.format, ctx, marshalFn, unmarshalFn,
-                                       op.exceptions, Array.prototype.slice.call(args));
+        return Ice.ObjectPrx._invoke(this, op.name, op.sendMode, op.format, ctx, marshalFn, unmarshalFn,
+                                     op.exceptions, Array.prototype.slice.call(args));
     };
 }
 
@@ -578,7 +582,7 @@ Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
         //
         const method = getServantMethod(classType, current.operation);
 
-        if(method === undefined || typeof(method) !== 'function')
+        if(method === undefined || typeof method !== 'function')
         {
             throw new Ice.OperationNotExistException(current.id, current.facet, current.operation);
         }
@@ -633,7 +637,7 @@ Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
         }
 
         Object.defineProperty(proxyType, "_id", {
-            get: function(){ return ids[pos]; }
+            get: () => ids[pos]
         });
     }
 };
@@ -643,10 +647,10 @@ Slice.defineOperations = function(classType, proxyType, ids, pos, ops)
 //
 Slice.defineOperations(Ice.Object, Ice.ObjectPrx, ["::Ice::Object"], 0,
 {
-    "ice_ping": [, 1, 1, , , , , ],
-    "ice_isA": [, 1, 1, , [1], [[7]], , ],
-    "ice_id": [, 1, 1, , [7], , , ],
-    "ice_ids": [, 1, 1, , ["Ice.StringSeqHelper"], , , ]
+    ice_ping: [undefined, 1, 1, undefined, undefined, undefined, undefined, undefined],
+    ice_isA: [undefined, 1, 1, undefined, [1], [[7]], undefined, undefined],
+    ice_id: [undefined, 1, 1, undefined, [7], undefined, undefined, undefined],
+    ice_ids: [undefined, 1, 1, undefined, ["Ice.StringSeqHelper"], undefined, undefined, undefined]
 });
 
 module.exports.Ice = Ice;

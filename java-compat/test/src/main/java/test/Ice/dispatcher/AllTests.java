@@ -63,12 +63,12 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app, final Dispatcher dispatcher)
+    public static void allTests(test.TestHelper helper, final Dispatcher dispatcher)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        String sref = "test:" + app.getTestEndpoint(0);
+        String sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -80,7 +80,7 @@ public class AllTests
 
         TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(obj);
 
-        sref = "testController:" + app.getTestEndpoint(1, "tcp");
+        sref = "testController:" + helper.getTestEndpoint(1, "tcp");
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 

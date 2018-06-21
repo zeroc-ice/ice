@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Thread.h>
 #include <IceUtil/Time.h>
@@ -20,7 +20,15 @@ void callback(int signal)
     cout << "Handling signal " << signal << endl;
 }
 
-int main()
+class Client : public Test::TestHelper
+{
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
 {
     {
         cout << "First ignore CTRL+C and the like for 10 seconds (try it!)" << endl;
@@ -33,7 +41,7 @@ int main()
     }
     cout << "And another 10 seconds after ~CtrlCHandler" << endl;
     ThreadControl::sleep(Time::seconds(10));
-
     cout << "ok" << endl;
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client)

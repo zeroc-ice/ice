@@ -9,32 +9,21 @@
 
 package test.Ice.optional;
 
-public class AMDServer extends test.Util.Application
+public class AMDServer extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new AMDInitialI(), Ice.Util.stringToIdentity("initial"));
-        adapter.activate();
-        return WAIT;
-    }
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.optional.AMD");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new AMDInitialI(), Ice.Util.stringToIdentity("initial"));
+            adapter.activate();
 
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.optional.AMD");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        AMDServer c = new AMDServer();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

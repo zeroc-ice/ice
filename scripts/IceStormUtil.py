@@ -9,6 +9,8 @@
 
 import sys, os
 from Util import *
+from Component import component
+from IceBoxUtil import *
 
 class IceStorm(ProcessFromBinDir, Server):
 
@@ -41,7 +43,7 @@ class IceStorm(ProcessFromBinDir, Server):
 
         # Default properties
         props.update({
-            'IceBox.Service.IceStorm' : 'IceStormService,' + getIceSoVersion() + ':createIceStorm',
+            'IceBox.Service.IceStorm' : 'IceStormService,' + component.getSoVersion() + ':createIceStorm',
             'IceBox.PrintServicesReady' : 'IceStorm',
             'IceBox.InheritProperties' : 1,
             'IceStorm.InstanceName' : self.instanceName,
@@ -141,7 +143,7 @@ class IceStormProcess:
                     props["IceStormAdmin.TopicManager.{0}".format(name)] = testcase.getTopicManager(current, name)
         return props
 
-class IceStormAdmin(ProcessFromBinDir, IceStormProcess, Client):
+class IceStormAdmin(ProcessFromBinDir, ProcessIsReleaseOnly, IceStormProcess, Client):
 
     def __init__(self, instanceName=None, instance=None, *args, **kargs):
         Client.__init__(self, exe="icestormadmin", mapping=Mapping.getByName("cpp"), *args, **kargs)

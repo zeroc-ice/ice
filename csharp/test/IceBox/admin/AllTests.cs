@@ -12,22 +12,12 @@ using System.Collections.Generic;
 
 using Test;
 
-public class AllTests
+public class AllTests : Test.AllTests
 {
-    private static void
-    test(bool b)
+    public static void allTests(Test.TestHelper helper)
     {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
-    public static void allTests(TestCommon.Application app)
-    {
-        Ice.Communicator communicator = app.communicator();
-        string @ref = "DemoIceBox/admin:default -p 9996 -t 10000";
-        Ice.ObjectPrx admin = communicator.stringToProxy(@ref);
+        Ice.Communicator communicator = helper.communicator();
+        Ice.ObjectPrx admin = communicator.stringToProxy("DemoIceBox/admin:default -p 9996 -t 10000");
 
         TestFacetPrx facet = null;
 

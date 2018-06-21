@@ -10,7 +10,6 @@
     <ProjectGuid>{FF25599C-3654-4DF3-8078-B8235341DF83}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AssemblyName>IceBox</AssemblyName>
-    <ProjectTypeGuids>{28993779-3132-408A-BCB0-1D78225F4824};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <DocumentationFile>..\..\..\..\..\lib\net45\IceBox.XML</DocumentationFile>
     <OutputPath>..\..\..\..\..\lib\net45\</OutputPath>
     <NoWarn>1591</NoWarn>

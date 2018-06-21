@@ -11,7 +11,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private class Callback
     {
@@ -47,9 +47,8 @@ public class AllTests : TestCommon.AllTests
     }
 
     static public Test.RetryPrx
-    allTests(TestCommon.Application app, Ice.Communicator communicator2, string rf)
+    allTests(Ice.Communicator communicator, Ice.Communicator communicator2, string rf)
     {
-        Ice.Communicator communicator = app.communicator();
         Write("testing stringToProxy... ");
         Flush();
         Ice.ObjectPrx base1 = communicator.stringToProxy(rf);

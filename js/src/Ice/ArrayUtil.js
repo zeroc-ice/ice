@@ -29,7 +29,7 @@ const eq = function(e1, e2)
     {
         return e1.equals(e2);
     }
-    else if(e1 instanceof Array)
+    else if(e1 instanceof Array || e1 instanceof Uint8Array)
     {
         return ArrayUtil.equals(e1, e2, eq);
     }
@@ -92,11 +92,13 @@ Slice.defineSequence = function(module, name, valueHelper, fixed, elementType)
     let helper = null;
     Object.defineProperty(module, name,
         {
-            get: function()
+            get: () =>
                 {
                     if(helper === null)
                     {
-                        helper = Ice.StreamHelpers.generateSeqHelper(_ModuleRegistry.type(valueHelper), fixed, _ModuleRegistry.type(elementType));
+                        helper = Ice.StreamHelpers.generateSeqHelper(_ModuleRegistry.type(valueHelper),
+                                                                     fixed,
+                                                                     _ModuleRegistry.type(elementType));
                     }
                     return helper;
                 }

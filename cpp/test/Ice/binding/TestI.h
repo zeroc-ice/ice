@@ -11,6 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
+#include <TestHelper.h>
 
 class RemoteCommunicatorI : public Test::RemoteCommunicator
 {
@@ -19,7 +20,8 @@ public:
     RemoteCommunicatorI();
 
 #ifdef ICE_CPP11_MAPPING
-    virtual std::shared_ptr<Test::RemoteObjectAdapterPrx> createObjectAdapter(std::string, std::string, const Ice::Current&);
+    virtual std::shared_ptr<Test::RemoteObjectAdapterPrx> createObjectAdapter(std::string, std::string,
+                                                                              const Ice::Current&);
     virtual void deactivateObjectAdapter(std::shared_ptr<Test::RemoteObjectAdapterPrx>, const Ice::Current&);
 #else
     virtual Test::RemoteObjectAdapterPrx createObjectAdapter(const std::string&, const std::string&,

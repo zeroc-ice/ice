@@ -9,38 +9,24 @@
 
 package test.Ice.adapterDeactivation;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.ServantLocator locator = new ServantLocatorI();
-        adapter.addServantLocator(locator, "");
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
 
-        AllTests.allTests(this);
-
-        adapter.waitForDeactivate();
-        return 0;
-    }
-
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-
-        //
-        // 2 threads are necessary to dispatch the collocated transient() call with AMI
-        //
-        initData.properties.setProperty("TestAdapter.ThreadPool.Size", "2");
-
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.adapterDeactivation");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Collocated app = new Collocated();
-        int result = app.main("Collocated", args);
-        System.exit(result);
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            //
+            // 2 threads are necessary to dispatch the collocated transient() call with AMI
+            //
+            communicator.getProperties().setProperty("TestAdapter.ThreadPool.Size", "2");
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint());
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.addServantLocator(new ServantLocatorI(), "");
+            AllTests.allTests(this);
+            adapter.waitForDeactivate();
+        }
     }
 }

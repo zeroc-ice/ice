@@ -10,7 +10,7 @@
 using System;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private class Condition
     {
@@ -67,15 +67,15 @@ public class AllTests : TestCommon.AllTests
         private int _expected;
     }
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        String @ref = "hold:" + app.getTestEndpoint(0);
+        String @ref = "hold:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        String refSerialized = "hold:" + app.getTestEndpoint(1);
+        String refSerialized = "hold:" + helper.getTestEndpoint(1);
         Ice.ObjectPrx baseSerialized = communicator.stringToProxy(refSerialized);
         test(baseSerialized != null);
         WriteLine("ok");

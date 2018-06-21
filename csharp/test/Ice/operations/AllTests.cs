@@ -7,38 +7,38 @@
 //
 // **********************************************************************
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static Test.MyClassPrx allTests(TestCommon.Application app)
+    public static Test.MyClassPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Flush();
-        string rf = "test:" + app.getTestEndpoint(0);
+        string rf = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
         Test.MyDerivedClassPrx derivedProxy = Test.MyDerivedClassPrxHelper.checkedCast(cl);
 
         Write("testing twoway operations... ");
         Flush();
-        Twoways.twoways(app, cl);
-        Twoways.twoways(app, derivedProxy);
+        Twoways.twoways(helper, cl);
+        Twoways.twoways(helper, derivedProxy);
         derivedProxy.opDerived();
         WriteLine("ok");
 
         Write("testing oneway operations... ");
         Flush();
-        Oneways.oneways(app, cl);
+        Oneways.oneways(helper, cl);
         WriteLine("ok");
 
         Write("testing twoway operations with AMI... ");
         Flush();
-        TwowaysAMI.twowaysAMI(app, cl);
-        TwowaysAMI.twowaysAMI(app, derivedProxy);
+        TwowaysAMI.twowaysAMI(helper, cl);
+        TwowaysAMI.twowaysAMI(helper, derivedProxy);
         WriteLine("ok");
 
         Write("testing oneway operations with AMI... ");
         Flush();
-        OnewaysAMI.onewaysAMI(app, cl);
+        OnewaysAMI.onewaysAMI(helper, cl);
         WriteLine("ok");
 
         Write("testing batch oneway operations... ");

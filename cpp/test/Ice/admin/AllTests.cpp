@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h> // For TestFacetI
 
 using namespace std;
@@ -178,8 +178,9 @@ RemoteLoggerI::wait(int calls)
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing communicator operations... " << flush;
     {
         //
@@ -279,7 +280,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     }
     cout << "ok" << endl;
 
-    string ref = "factory:" + getTestEndpoint(communicator, 0) + " -t 10000";
+    string ref = "factory:" + helper->getTestEndpoint() + " -t 10000";
     RemoteCommunicatorFactoryPrxPtr factory =
         ICE_UNCHECKED_CAST(RemoteCommunicatorFactoryPrx, communicator->stringToProxy(ref));
 

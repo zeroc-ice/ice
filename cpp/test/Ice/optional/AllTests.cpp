@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 #ifdef ICE_CPP11_MAPPING
@@ -371,18 +371,23 @@ typedef IceUtil::Handle<FactoryI> FactoryIPtr;
 #endif
 
 InitialPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator, bool)
+allTests(Test::TestHelper* helper, bool)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     FactoryIPtr factory = ICE_MAKE_SHARED(FactoryI);
 
 #ifdef ICE_CPP11_MAPPING
-    communicator->getValueFactoryManager()->add([factory](const string& typeId) { return factory->create(typeId); }, "");
+    communicator->getValueFactoryManager()->add([factory](const string& typeId)
+                                                {
+                                                    return factory->create(typeId);
+                                                },
+                                                "");
 #else
     communicator->getValueFactoryManager()->add(factory, "");
 #endif
 
     cout << "testing stringToProxy... " << flush;
-    string ref = "initial:" + getTestEndpoint(communicator, 0);
+    string ref = "initial:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr base = communicator->stringToProxy(ref);
     test(base);
     cout << "ok" << endl;

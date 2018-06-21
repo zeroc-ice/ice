@@ -8,6 +8,7 @@
 // **********************************************************************
 
 package test.Ice.operations;
+
 import java.io.PrintWriter;
 
 import test.Ice.operations.Test.MyClassPrx;
@@ -18,32 +19,32 @@ import test.Ice.operations.Test.MyDerivedClassPrxHelper;
 public class AllTests
 {
     public static MyClassPrx
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        String ref = "test:" + app.getTestEndpoint(0);
+        String ref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx base = communicator.stringToProxy(ref);
         MyClassPrx cl = MyClassPrxHelper.checkedCast(base);
         MyDerivedClassPrx derived = MyDerivedClassPrxHelper.checkedCast(cl);
 
         out.print("testing twoway operations... ");
         out.flush();
-        Twoways.twoways(app, cl);
-        Twoways.twoways(app, derived);
+        Twoways.twoways(helper, cl);
+        Twoways.twoways(helper, derived);
         derived.opDerived();
         out.println("ok");
 
         out.print("testing oneway operations... ");
         out.flush();
-        Oneways.oneways(app, cl);
+        Oneways.oneways(helper, cl);
         out.println("ok");
 
         out.print("testing twoway operations with AMI... ");
         out.flush();
-        TwowaysAMI.twowaysAMI(app, cl);
-        TwowaysAMI.twowaysAMI(app, derived);
+        TwowaysAMI.twowaysAMI(helper, cl);
+        TwowaysAMI.twowaysAMI(helper, derived);
         out.println("ok");
 
         //
@@ -56,11 +57,11 @@ public class AllTests
             {
                 java.lang.reflect.Method twowaysLambdaAMI =
                     cls.getDeclaredMethod("twowaysLambdaAMI",
-                                          new Class<?>[]{test.Util.Application.class, MyClassPrx.class});
+                                          new Class<?>[]{test.TestHelper.class, MyClassPrx.class});
                 out.print("testing twoway operations with lambda AMI mapping... ");
                 out.flush();
-                twowaysLambdaAMI.invoke(null, app, cl);
-                twowaysLambdaAMI.invoke(null, app, derived);
+                twowaysLambdaAMI.invoke(null, helper, cl);
+                twowaysLambdaAMI.invoke(null, helper, derived);
                 out.println("ok");
             }
         }
@@ -79,7 +80,7 @@ public class AllTests
 
         out.print("testing oneway operations with AMI... ");
         out.flush();
-        OnewaysAMI.onewaysAMI(app, cl);
+        OnewaysAMI.onewaysAMI(helper, cl);
         out.println("ok");
 
         //
@@ -92,11 +93,11 @@ public class AllTests
             {
                 java.lang.reflect.Method onewaysLambdaAMI =
                     cls.getDeclaredMethod("onewaysLambdaAMI",
-                                          new Class<?>[]{test.Util.Application.class, MyClassPrx.class});
+                                          new Class<?>[]{test.TestHelper.class, MyClassPrx.class});
                 out.print("testing twoway operations with lambda AMI mapping... ");
                 out.flush();
-                onewaysLambdaAMI.invoke(null, app, cl);
-                onewaysLambdaAMI.invoke(null, app, derived);
+                onewaysLambdaAMI.invoke(null, helper, cl);
+                onewaysLambdaAMI.invoke(null, helper, derived);
                 out.println("ok");
             }
         }
@@ -115,8 +116,8 @@ public class AllTests
 
         out.print("testing batch oneway operations... ");
         out.flush();
-        BatchOneways.batchOneways(app, cl, out);
-        BatchOneways.batchOneways(app, derived, out);
+        BatchOneways.batchOneways(helper, cl, out);
+        BatchOneways.batchOneways(helper, derived, out);
         out.println("ok");
 
         out.print("testing batch AMI oneway operations... ");

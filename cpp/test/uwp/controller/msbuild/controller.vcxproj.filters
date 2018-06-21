@@ -130,7 +130,7 @@
     <ClCompile Include="x64\Release\Controller.cpp">
       <Filter>Source Files\x64\Release</Filter>
     </ClCompile>
-    <ClCompile Include="..\ViewController.xaml.cpp" />
+    <ClCompile Include="..\ControllerView.xaml.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\App.xaml.h" />
@@ -152,7 +152,7 @@
     <ClInclude Include="x64\Release\Controller.h">
       <Filter>Header Files\x64\Release</Filter>
     </ClInclude>
-    <ClInclude Include="..\ViewController.xaml.h" />
+    <ClInclude Include="..\ControllerView.xaml.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
@@ -184,7 +184,7 @@
     <Page Include="..\StandardStyles.xaml">
       <Filter>Styles</Filter>
     </Page>
-    <Page Include="..\ViewController.xaml" />
+    <Page Include="..\ControllerView.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\..\certs\cacert.der">

@@ -17,18 +17,19 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        TestIntfPrx obj = AllTests.allTests(this);
-        obj.shutdown();
-        return 0;
+        using(var communicator = initialize(ref args))
+        {
+            TestIntfPrx obj = AllTests.allTests(this);
+            obj.shutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

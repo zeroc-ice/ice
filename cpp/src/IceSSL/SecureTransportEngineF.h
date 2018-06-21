@@ -10,6 +10,7 @@
 #ifndef ICESSL_SECURE_TRANSPORT_ENGINE_F_H
 #define ICESSL_SECURE_TRANSPORT_ENGINE_F_H
 
+#ifdef __APPLE__
 #include <IceSSL/Plugin.h>
 #include <IceUtil/Shared.h>
 #include <Ice/Handle.h>
@@ -27,5 +28,7 @@ typedef IceInternal::Handle<SSLEngine> SSLEnginePtr;
 }
 
 }
+
+#endif
 
 #endif

@@ -9,7 +9,7 @@
 
 #include <IceUtil/IceUtil.h>
 #include <AliveTest.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace IceUtil;

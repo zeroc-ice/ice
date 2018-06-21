@@ -10,14 +10,14 @@
 using System;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static Test.MyClassPrx allTests(TestCommon.Application app)
+    public static Test.MyClassPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        string rf = "test:" + app.getTestEndpoint(0);
+        string rf = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 
@@ -388,7 +388,7 @@ public class AllTests : TestCommon.AllTests
         Flush();
         Ice.Properties prop = communicator.getProperties();
         String propertyPrefix = "Foo.Proxy";
-        prop.setProperty(propertyPrefix, "test:" + app.getTestEndpoint(0));
+        prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
         b1 = communicator.propertyToProxy(propertyPrefix);
         test(b1.ice_getIdentity().name.Equals("test") && b1.ice_getIdentity().category.Length == 0 &&
              b1.ice_getAdapterId().Length == 0 && b1.ice_getFacet().Length == 0);
@@ -438,7 +438,7 @@ public class AllTests : TestCommon.AllTests
         //test(b1.ice_getLocatorCacheTimeout() == 60);
         //prop.setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-        prop.setProperty(propertyPrefix, "test:" + app.getTestEndpoint(0));
+        prop.setProperty(propertyPrefix, "test:" + helper.getTestEndpoint(0));
 
         property = propertyPrefix + ".Router";
         test(b1.ice_getRouter() == null);
@@ -865,7 +865,7 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing encoding versioning... ");
         Flush();
-        string ref20 = "test -e 2.0:" + app.getTestEndpoint(0);
+        string ref20 = "test -e 2.0:" + helper.getTestEndpoint(0);
         Test.MyClassPrx cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
@@ -877,7 +877,7 @@ public class AllTests : TestCommon.AllTests
             // Server 2.0 endpoint doesn't support 1.1 version.
         }
 
-        string ref10 = "test -e 1.0:" + app.getTestEndpoint(0);
+        string ref10 = "test -e 1.0:" + helper.getTestEndpoint(0);
         Test.MyClassPrx cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
         cl10.ice_encodingVersion(Ice.Util.Encoding_1_0).ice_ping();
@@ -885,7 +885,7 @@ public class AllTests : TestCommon.AllTests
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 encoding
-        string ref13 = "test -e 1.3:" + app.getTestEndpoint(0);
+        string ref13 = "test -e 1.3:" + helper.getTestEndpoint(0);
         Test.MyClassPrx cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());
@@ -936,7 +936,7 @@ public class AllTests : TestCommon.AllTests
 
         Write("testing protocol versioning... ");
         Flush();
-        ref20 = "test -p 2.0:" + app.getTestEndpoint(0);
+        ref20 = "test -p 2.0:" + helper.getTestEndpoint(0);
         cl20 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref20));
         try
         {
@@ -948,13 +948,13 @@ public class AllTests : TestCommon.AllTests
             // Server 2.0 proxy doesn't support 1.0 version.
         }
 
-        ref10 = "test -p 1.0:" + app.getTestEndpoint(0);
+        ref10 = "test -p 1.0:" + helper.getTestEndpoint(0);
         cl10 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref10));
         cl10.ice_ping();
 
         // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
         // call will use the 1.1 protocol
-        ref13 = "test -p 1.3:" + app.getTestEndpoint(0);
+        ref13 = "test -p 1.3:" + helper.getTestEndpoint(0);
         cl13 = Test.MyClassPrxHelper.uncheckedCast(communicator.stringToProxy(ref13));
         cl13.ice_ping();
         cl13.end_ice_ping(cl13.begin_ice_ping());

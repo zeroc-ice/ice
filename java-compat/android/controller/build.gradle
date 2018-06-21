@@ -1,0 +1,80 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+apply plugin: 'com.android.application'
+apply from: "$project.ext.topSrcDir/java/gradle/ice.gradle"
+slice.compat = true
+apply from: "$rootProject.projectDir/gradle/tests.gradle"
+
+slice {
+    java {
+        files = fileTree(dir: "$project.ext.topSrcDir/scripts/", includes: ['*.ice'])
+    }
+}
+
+repositories {
+    jcenter()
+    google()
+}
+
+android {
+    compileSdkVersion ice_compileSdkVersion.toInteger()
+
+    defaultConfig {
+        applicationId "com.zeroc.testcontroller"
+        minSdkVersion ice_minSdkVersion.toInteger()
+        targetSdkVersion ice_targetSdkVersion.toInteger()
+        multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_7
+            targetCompatibility JavaVersion.VERSION_1_7
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+        }
+
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard.cfg'
+        }
+    }
+}
+
+idea.module {
+    excludeDirs -= file(buildDir)
+    buildDir.listFiles({d, f ->f != 'generated-src'} as FilenameFilter).each { excludeDirs += it }
+}
+
+task copyBksTask(type: Copy) {
+    from "${project.ext.topSrcDir}/certs/client.bks"
+    from "${project.ext.topSrcDir}/certs/server.bks"
+    into "src/main/res/raw"
+}
+preBuild.dependsOn(copyBksTask)
+
+clean {
+    delete("src/main/res/raw/client.bks")
+    delete("src/main/res/raw/server.bks")
+}
+
+dependencies {
+    implementation localDependency('ice-compat')
+    implementation localDependency('icediscovery-compat')
+    implementation localDependency('icebt-compat')
+    implementation project(':test')
+    tests.each {
+        def name = it.replace('/', '_')
+        implementation project(":test_${name}")
+    }
+    runtimeOnly "org.apache.commons:commons-compress:1.14"
+}

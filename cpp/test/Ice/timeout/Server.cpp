@@ -8,18 +8,52 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
-
-DEFINE_TEST("server")
 
 using namespace std;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Server : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
-    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(communicator, 1));
+public:
+
+    void run(int, char**);
+};
+
+void
+Server::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+
+#if TARGET_OS_IPHONE != 0
+    //
+    // COMPILERFIX: Disable connect timeout introduced for
+    // workaround to iOS device hangs when using SSL
+    //
+    properties->setProperty("Ice.Override.ConnectTimeout", "");
+#endif
+
+    //
+    // This test kills connections, so we don't want warnings.
+    //
+    properties->setProperty("Ice.Warn.Connections", "0");
+
+    //
+    // The client sends large messages to cause the transport
+    // buffers to fill up.
+    //
+    properties->setProperty("Ice.MessageSizeMax", "20000");
+
+    //
+    // Limit the recv buffer size, this test relies on the socket
+    // send() blocking after sending a given amount of data.
+    //
+    properties->setProperty("Ice.TCP.RcvSize", "50000");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
     communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
@@ -30,55 +64,8 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     controllerAdapter->add(ICE_MAKE_SHARED(ControllerI, adapter), Ice::stringToIdentity("controller"));
     controllerAdapter->activate();
 
-    TEST_READY
+    serverReady();
     communicator->waitForShutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-    Ice::registerIceUDP(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-
-#if TARGET_OS_IPHONE != 0
-        //
-        // COMPILERFIX: Disable connect timeout introduced for
-        // workaround to iOS device hangs when using SSL
-        //
-        initData.properties->setProperty("Ice.Override.ConnectTimeout", "");
-#endif
-
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-
-        //
-        // The client sends large messages to cause the transport
-        // buffers to fill up.
-        //
-        initData.properties->setProperty("Ice.MessageSizeMax", "20000");
-
-        //
-        // Limit the recv buffer size, this test relies on the socket
-        // send() blocking after sending a given amount of data.
-        //
-        initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Server)

@@ -16,51 +16,40 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        //
-        // Configure a second communicator for the invocation timeout
-        // + retry test, we need to configure a large retry interval
-        // to avoid time-sensitive failures.
-        //
-        Ice.InitializationData initData2 = new Ice.InitializationData();
-        initData2.properties = communicator().getProperties().ice_clone_();
-        initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
-        initData2.observer = Instrumentation.getObserver();
-        Ice.Communicator communicator2 = Ice.Util.initialize(initData2);
-
-        try
-        {
-            Test.RetryPrx retry = AllTests.allTests(this, communicator2, "retry:" + getTestEndpoint(0));
-            retry.shutdown();
-            return 0;
-        }
-        finally
-        {
-            communicator2.destroy();
-        }
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
+        Ice.InitializationData initData = new Ice.InitializationData();
         initData.observer = Instrumentation.getObserver();
 
+        initData.properties = createTestProperties(ref args);
         initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
 
         //
         // This test kills connections, so we don't want warnings.
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
+        using(var communicator = initialize(initData))
+        {
+            //
+            // Configure a second communicator for the invocation timeout
+            // + retry test, we need to configure a large retry interval
+            // to avoid time-sensitive failures.
+            //
+            initData.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+            initData.observer = Instrumentation.getObserver();
+            using(var communicator2 = initialize(initData))
+            {
+                Test.RetryPrx retry = AllTests.allTests(communicator, communicator2, "retry:" + getTestEndpoint(0));
+                retry.shutdown();
+            }
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 
 }

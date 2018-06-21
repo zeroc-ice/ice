@@ -78,7 +78,7 @@
             test(this._requestId == current.requestId);
             this._requestId = -1;
 
-            test(current.id.category == this._category  || this._category.length == 0);
+            test(current.id.category == this._category || this._category.length == 0);
             test(current.id.name == "locate" || current.id.name == "finished");
 
             if(current.id.name == "finished")
@@ -153,7 +153,6 @@
     }
 
     exports.ServantLocatorI = ServantLocatorI;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

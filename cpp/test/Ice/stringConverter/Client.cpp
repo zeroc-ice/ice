@@ -8,29 +8,31 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 #include <iostream>
 #include <locale.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 
 static bool useLocale = false;
 static bool useIconv = true;
 
-int
-main(int argc, char* argv[])
+class Client : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
 #ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
     Ice::registerIceStringConverter(false);
 #endif
-
-    Ice::InitializationData initData = getTestInitData(argc, argv);
 
     string narrowEncoding;
     string wideEncoding;
@@ -109,10 +111,9 @@ main(int argc, char* argv[])
 
 #endif
 
-        Ice::CommunicatorPtr communicator = Ice::initialize(initData);
+        Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
         Test::MyObjectPrxPtr proxy =
-            ICE_UNCHECKED_CAST(Test::MyObjectPrx,
-                               communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
+            ICE_UNCHECKED_CAST(Test::MyObjectPrx, communicator->stringToProxy("test:" + getTestEndpoint()));
 
         char oe = char(0xBD); // A single character in ISO Latin 9
         string msg = string("tu me fends le c") + oe + "ur!";
@@ -145,7 +146,6 @@ main(int argc, char* argv[])
         test(identStr == "cat/tu me fends le c\\305\\223ur!");
         test(Ice::stringToIdentity(identStr) == ident);
 
-        communicator->destroy();
         cout << "ok" << endl;
     }
 
@@ -159,12 +159,11 @@ main(int argc, char* argv[])
     }
     propValue += " windows=28605";
 
-    initData.properties->setProperty("Ice.Plugin.IceStringConverter", propValue);
+    properties->setProperty("Ice.Plugin.IceStringConverter", propValue);
 
-    Ice::CommunicatorPtr communicator = Ice::initialize(initData);
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     Test::MyObjectPrxPtr proxy =
-        ICE_UNCHECKED_CAST(Test::MyObjectPrx,
-                           communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0)));
+        ICE_UNCHECKED_CAST(Test::MyObjectPrx, communicator->stringToProxy("test:" + getTestEndpoint()));
 
     char oe = char(0xBD); // A single character in ISO Latin 9
     string msg = string("tu me fends le c") + oe + "ur!";
@@ -184,7 +183,6 @@ main(int argc, char* argv[])
     cout << "ok" << endl;
 
     proxy->shutdown();
-    communicator->destroy();
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client);

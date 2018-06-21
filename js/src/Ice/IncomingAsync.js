@@ -47,7 +47,7 @@ class IncomingAsync
 
         this._servant = null;
         this._locator = null;
-        this._cookie = { value: null };
+        this._cookie = {value: null};
 
         this._os = null;
         this._is = null;
@@ -208,7 +208,7 @@ class IncomingAsync
                 }
                 else
                 {
-                    Ice.StringSeqHelper.write(this._os, [ ex.facet ]);
+                    Ice.StringSeqHelper.write(this._os, [ex.facet]);
                 }
 
                 this._os.writeString(ex.operation);
@@ -320,7 +320,7 @@ class IncomingAsync
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUserException);
                 this._os.startEncapsulation(this._current.encoding, this._format);
-                this._os.writeUserException(ex);
+                this._os.writeException(ex);
                 this._os.endEncapsulation();
                 this._connection.sendResponse(this._os);
             }
@@ -342,7 +342,6 @@ class IncomingAsync
                 this._os.writeBlob(Protocol.replyHdr);
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUnknownException);
-                //this._os.writeString(ex.toString());
                 this._os.writeString(ex.toString() + (ex.stack ? "\n" + ex.stack : ""));
                 this._connection.sendResponse(this._os);
             }
@@ -457,7 +456,8 @@ class IncomingAsync
             const promise = this._servant._iceDispatch(this, this._current);
             if(promise !== null)
             {
-                promise.then(() => this.completed(null, true), (ex) => this.completed(ex, true));
+                promise.then(() => this.completed(null, true),
+                             ex => this.completed(ex, true));
                 return;
             }
 

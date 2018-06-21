@@ -11,80 +11,50 @@ package test.Ice.faultTolerance;
 
 import java.io.PrintWriter;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    private static void
-    usage()
-    {
-        System.err.println("Usage: Server port");
-    }
-
-    @Override
-    public int
+    public void
     run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        int port = 0;
-        PrintWriter out = getWriter();
-        for(String arg : args)
+        Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
+        Ice.Properties properties = createTestProperties(argsH);
+        properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
+        properties.setProperty("Ice.ServerIdleTime", "120");
+
+        try(Ice.Communicator communicator = initialize(properties))
         {
-            if(arg.charAt(0) == '-')
+            int port = 0;
+            PrintWriter out = getWriter();
+            for(String arg : argsH.value)
             {
-                out.println("Server: unknown option `" + arg + "'");
-                usage();
-                return 1;
-            }
+                if(arg.charAt(0) == '-')
+                {
+                    throw new RuntimeException("Server: unknown option `" + arg + "'");
+                }
 
-            if(port > 0)
-            {
-                out.println("Server: only one port can be specified");
-                usage();
-                return 1;
-            }
+                if(port > 0)
+                {
+                    throw new RuntimeException("Server: only one port can be specified");
+                }
 
-            try
-            {
                 port = Integer.parseInt(arg);
             }
-            catch(NumberFormatException ex)
+
+            if(port <= 0)
             {
-                out.println("Server: invalid port");
-                usage();
-                return 1;
+                throw new RuntimeException("Server: no port specified");
             }
+
+            // Don't move this, it needs the port.
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.Object object = new TestI(port);
+            adapter.add(object, Ice.Util.stringToIdentity("test"));
+
+            adapter.activate();
+
+            serverReady();
+            communicator.waitForShutdown();
         }
-
-        if(port <= 0)
-        {
-            out.println("Server: no port specified");
-            usage();
-            return 1;
-        }
-
-        // Don't move this, it needs the port.
-        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new TestI(port);
-        adapter.add(object, Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.faultTolerance");
-        // Two minutes.
-        initData.properties.setProperty("Ice.ServerIdleTime", "120");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
     }
 }

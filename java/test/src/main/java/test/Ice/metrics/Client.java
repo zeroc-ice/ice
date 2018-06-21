@@ -11,47 +11,29 @@ package test.Ice.metrics;
 
 import test.Ice.metrics.Test.MetricsPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        try
-        {
-            MetricsPrx metrics = AllTests.allTests(this, _observer);
-            metrics.shutdown();
-        }
-        catch(com.zeroc.Ice.UserException ex)
-        {
-            ex.printStackTrace();
-            assert(false);
-            return 1;
-        }
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        CommunicatorObserverI observer = new CommunicatorObserverI();
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
+        initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Default.Host", "127.0.0.1");
+        initData.observer = observer;
 
-        initData.observer = _observer;
-        return initData;
+        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        {
+            MetricsPrx metrics = AllTests.allTests(this, observer);
+            metrics.shutdown();
+        }
+        catch(com.zeroc.IceMX.UnknownMetricsView ex)
+        {
+            throw new RuntimeException(ex);
+        }
     }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
-    }
-
-    private CommunicatorObserverI _observer = new CommunicatorObserverI();
 }

@@ -16,46 +16,44 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        PluginI plugin = new PluginI(communicator());
-        plugin.initialize();
-        communicator().getPluginManager().addPlugin("Test", plugin);
-        Test.BackgroundPrx background = AllTests.allTests(this);
-        background.shutdown();
-        return 0;
-    }
+        Ice.Properties properties = createTestProperties(ref args);
 
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
         //
         // For this test, we want to disable retries.
         //
-        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        properties.setProperty("Ice.RetryIntervals", "-1");
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.Warn.Connections", "0");
 
         // This test relies on filling the TCP send/recv buffer, so
         // we rely on a fixed value for these buffers.
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        properties.setProperty("Ice.TCP.SndSize", "50000");
 
         //
         // Setup the test transport plug-in.
         //
-        string defaultProtocol = initData.properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-        initData.properties.setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
-        return initData;
+        properties.setProperty("Ice.Default.Protocol",
+                               "test-" + properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp"));
+
+        using(var communicator = initialize(properties))
+        {
+            PluginI plugin = new PluginI(communicator);
+            plugin.initialize();
+            communicator.getPluginManager().addPlugin("Test", plugin);
+            Test.BackgroundPrx background = AllTests.allTests(this);
+            background.shutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

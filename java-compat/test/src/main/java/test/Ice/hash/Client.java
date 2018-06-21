@@ -13,33 +13,16 @@ import java.io.PrintWriter;
 
 import test.Ice.hash.Test.*;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    private static void
-    test(boolean b)
+    public void run(String[] args)
     {
-        if(!b)
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
+        try(Ice.Communicator communicator = initialize(properties))
         {
-            throw new RuntimeException();
-        }
-    }
+            PrintWriter out = getWriter();
 
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
-    }
-
-    @Override
-    public int run(String[] args)
-    {
-        PrintWriter out = getWriter();
-        int status = 0;
-        try
-        {
             java.util.Map<Integer, Ice.ObjectPrx> seenProxy = new java.util.HashMap<Integer, Ice.ObjectPrx>();
             java.util.Map<Integer, Ice.Endpoint> seenEndpoint = new java.util.HashMap<Integer, Ice.Endpoint>();
             int proxyCollisions = 0;
@@ -48,17 +31,12 @@ public class Client extends test.Util.Application
             int maxCollisions = 10;
             int maxIterations = 10000;
 
-            Ice.InitializationData initData = createInitializationData();
-            initData.properties = Ice.Util.createProperties(args);
-            initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL.PluginFactory");
-            Ice.Communicator  communicator = Ice.Util.initialize(args, initData);
-
             out.print("testing proxy & endpoint hash algorithm collisions... ");
             out.flush();
             {
                 java.util.Random rand = new java.util.Random();
                 for(i = 0; proxyCollisions < maxCollisions &&
-                        endpointCollisions < maxCollisions  &&
+                        endpointCollisions < maxCollisions &&
                         i < maxIterations; ++i)
                 {
                     java.io.StringWriter sw = new java.io.StringWriter();
@@ -73,7 +51,8 @@ public class Client extends test.Util.Application
                     sw.write(Integer.toString(rand.nextInt(100)));
 
                     Ice.ObjectPrx obj = communicator.stringToProxy(sw.toString());
-                    java.util.List<Ice.Endpoint> endpoints = new java.util.ArrayList<Ice.Endpoint>(java.util.Arrays.asList(obj.ice_getEndpoints()));
+                    java.util.List<Ice.Endpoint> endpoints =
+                        new java.util.ArrayList<Ice.Endpoint>(java.util.Arrays.asList(obj.ice_getEndpoints()));
                     if(seenProxy.containsKey(obj.hashCode()))
                     {
                         if(obj.equals(seenProxy.get(obj.hashCode())))
@@ -166,7 +145,8 @@ public class Client extends test.Util.Application
                     sw.write(" -h ");
                     sw.write(Integer.toString(rand.nextInt(100)));
 
-                    Ice.ProxyIdentityFacetKey obj = new Ice.ProxyIdentityFacetKey(communicator.stringToProxy(sw.toString()));
+                    Ice.ProxyIdentityFacetKey obj =
+                        new Ice.ProxyIdentityFacetKey(communicator.stringToProxy(sw.toString()));
                     if(seenProxy.containsKey(obj.hashCode()))
                     {
                         ++proxyCollisions;
@@ -190,8 +170,10 @@ public class Client extends test.Util.Application
                 Ice.ObjectPrx prx6 = communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012");
                 Ice.ObjectPrx prx7 = communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000");
                 Ice.ObjectPrx prx8 = communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000");
-                Ice.ObjectPrx prx9 = communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
-                Ice.ObjectPrx prx10 = communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
+                Ice.ObjectPrx prx9 =
+                    communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000");
+                Ice.ObjectPrx prx10 =
+                    communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000");
 
                 java.util.Map<String, Integer> proxyMap = new java.util.HashMap<String, Integer>();
                 proxyMap.put("prx1", prx1.hashCode());
@@ -208,43 +190,70 @@ public class Client extends test.Util.Application
                 test(communicator.stringToProxy("Glacier2/router:tcp -p 10010").hashCode() == proxyMap.get("prx1"));
                 test(communicator.stringToProxy("Glacier2/router:ssl -p 10011").hashCode() == proxyMap.get("prx2"));
                 test(communicator.stringToProxy("Glacier2/router:udp -p 10012").hashCode() == proxyMap.get("prx3"));
-                test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010").hashCode() == proxyMap.get("prx4"));
-                test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").hashCode() == proxyMap.get("prx5"));
-                test(communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012").hashCode() == proxyMap.get("prx6"));
-                test(communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000").hashCode() == proxyMap.get("prx7"));
-                test(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").hashCode() == proxyMap.get("prx8"));
-                test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000").hashCode() == proxyMap.get("prx9"));
-                test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").hashCode() == proxyMap.get("prx10"));
+                test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010").hashCode() ==
+                     proxyMap.get("prx4"));
+                test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011").hashCode() ==
+                     proxyMap.get("prx5"));
+                test(communicator.stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012").hashCode() ==
+                     proxyMap.get("prx6"));
+                test(communicator.stringToProxy("Glacier2/router:tcp -p 10010 -t 10000").hashCode() ==
+                     proxyMap.get("prx7"));
+                test(communicator.stringToProxy("Glacier2/router:ssl -p 10011 -t 10000").hashCode() ==
+                     proxyMap.get("prx8"));
+                test(communicator.stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000").hashCode() ==
+                     proxyMap.get("prx9"));
+                test(communicator.stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000").hashCode() ==
+                     proxyMap.get("prx10"));
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx1).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx1).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx1).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx1).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx2).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx2).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx2).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx2).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx3).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx3).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx3).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx3).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx4).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx4).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx4).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx4).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx5).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx5).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx5).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx5).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx6).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx6).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx6).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx6).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx7).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx7).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx7).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx7).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx8).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx8).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx8).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx8).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx9).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx9).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx9).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx9).hashCode());
 
-                test(new Ice.ProxyIdentityKey(prx1).hashCode() == new Ice.ProxyIdentityKey(prx10).hashCode());
-                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() == new Ice.ProxyIdentityFacetKey(prx10).hashCode());
+                test(new Ice.ProxyIdentityKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityKey(prx10).hashCode());
+                test(new Ice.ProxyIdentityFacetKey(prx1).hashCode() ==
+                     new Ice.ProxyIdentityFacetKey(prx10).hashCode());
             }
 
             out.println("ok");
@@ -334,7 +343,8 @@ public class Client extends test.Util.Application
                 }
                 test(structCollisions < maxCollisions);
 
-                java.util.Map<Integer, ColorPalette> seenColorPalette = new java.util.HashMap<Integer, ColorPalette>();
+                java.util.Map<Integer, ColorPalette> seenColorPalette =
+                    new java.util.HashMap<Integer, ColorPalette>();
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
@@ -342,7 +352,10 @@ public class Client extends test.Util.Application
                     colorPalette.colors = new java.util.HashMap<Integer, Color>();
                     for(int j = 0; j < 100; ++j)
                     {
-                        colorPalette.colors.put(j, new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)));
+                        colorPalette.colors.put(j, new Color(rand.nextInt(255),
+                                                             rand.nextInt(255),
+                                                             rand.nextInt(255),
+                                                             rand.nextInt(255)));
                     }
 
                     if(seenColorPalette.containsKey(colorPalette.hashCode()))
@@ -394,11 +407,17 @@ public class Client extends test.Util.Application
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Draw draw =  new Draw(
-                        new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255)),
-                        new Pen(rand.nextInt(10),
-                                     new Color(rand.nextInt(255), rand.nextInt(255), rand.nextInt(255), rand.nextInt(255))),
-                                     false);
+                    Draw draw =
+                        new Draw(new Color(rand.nextInt(255),
+                                           rand.nextInt(255),
+                                           rand.nextInt(255),
+                                           rand.nextInt(255)),
+                                 new Pen(rand.nextInt(10),
+                                         new Color(rand.nextInt(255),
+                                                   rand.nextInt(255),
+                                                   rand.nextInt(255),
+                                                   rand.nextInt(255))),
+                                 false);
 
                     if(seenDraw.containsKey(draw.hashCode()))
                     {
@@ -420,17 +439,6 @@ public class Client extends test.Util.Application
                 test(structCollisions < maxCollisions);
             }
             out.println("ok");
-
-            if(communicator != null)
-            {
-                communicator.destroy();
-            }
         }
-        catch(Exception ex)
-        {
-            System.out.println(ex.toString());
-            status = 1;
-        }
-        return status;
     }
 }

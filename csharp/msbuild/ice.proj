@@ -233,6 +233,9 @@
         <Copy SourceFiles="zeroc.ice.net.nuspec"
               DestinationFolder="zeroc.ice.net" />
 
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
+              DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\THIRD_PARTY_LICENSE.txt" />
+
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
               DestinationFiles="zeroc.ice.net\ICE_LICENSE.txt" />
 

@@ -10,13 +10,13 @@
 using System;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     public static Test.ChecksumPrx
-    allTests(TestCommon.Application app, bool collocated)
+    allTests(Test.TestHelper helper, bool collocated)
     {
-        Ice.Communicator communicator = app.communicator();
-        string rf = "test:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        string rf = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx baseProxy = communicator.stringToProxy(rf);
         test(baseProxy != null);
 

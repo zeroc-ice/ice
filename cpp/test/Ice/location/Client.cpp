@@ -8,38 +8,26 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    void allTests(const Ice::CommunicatorPtr&, const string&);
-    allTests(communicator, "ServerManager:" + getTestEndpoint(communicator, 0));
-    return EXIT_SUCCESS;
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties));
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    void allTests(Test::TestHelper*, const string&);
+    allTests(this, "ServerManager:" + getTestEndpoint());
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(initData.properties, 0));
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

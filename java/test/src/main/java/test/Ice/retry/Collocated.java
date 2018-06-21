@@ -11,7 +11,7 @@ package test.Ice.retry;
 
 import test.Ice.retry.Test.RetryPrx;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
     private Instrumentation instrumentation = new Instrumentation();
 
@@ -23,60 +23,37 @@ public class Collocated extends test.Util.Application
     }
 
     @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-
-        //
-        // Configure a second communicator for the invocation timeout
-        // + retry test, we need to configure a large retry interval
-        // to avoid time-sensitive failures.
-        //
-        com.zeroc.Ice.InitializationData initData2 = createInitializationData();
-        initData2.properties = communicator.getProperties()._clone();
-        initData2.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
-        initData2.observer = instrumentation.getObserver();
-        com.zeroc.Ice.Communicator communicator2 = initialize(initData2);
-
-        setupObjectAdapter(communicator);
-        setupObjectAdapter(communicator2);
-
-        try
-        {
-            RetryPrx retry = AllTests.allTests(this, communicator, communicator2, instrumentation, "retry");
-            retry.shutdown();
-            return 0;
-        }
-        finally
-        {
-            communicator2.destroy();
-        }
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
+        com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
         initData.observer = instrumentation.getObserver();
-
+        initData.properties = createTestProperties(args);
         initData.properties.setProperty("Ice.Package.Test", "test.Ice.retry");
-
         initData.properties.setProperty("Ice.RetryIntervals", "0 1 10 1");
-
         //
         // We don't want connection warnings because of the timeout
         //
         initData.properties.setProperty("Ice.Warn.Connections", "0");
         initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
+        {
+            //
+            // Configure a second communicator for the invocation timeout
+            // + retry test, we need to configure a large retry interval
+            // to avoid time-sensitive failures.
+            //
+            initData.properties = communicator.getProperties()._clone();
+            initData.properties.setProperty("Ice.RetryIntervals", "0 1 10000");
+            initData.observer = instrumentation.getObserver();
+            try(com.zeroc.Ice.Communicator communicator2 = initialize(initData))
+            {
 
-        return initData;
-    }
+                setupObjectAdapter(communicator);
+                setupObjectAdapter(communicator2);
 
-    public static void main(String[] args)
-    {
-        Collocated app = new Collocated();
-        int result = app.main("Collocated", args);
-        System.gc();
-        System.exit(result);
+                RetryPrx retry = AllTests.allTests(this, communicator, communicator2, instrumentation, "retry");
+                retry.shutdown();
+            }
+        }
     }
 }

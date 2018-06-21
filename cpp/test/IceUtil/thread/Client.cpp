@@ -10,28 +10,27 @@
 #include <IceUtil/IceUtil.h>
 
 #include <stdlib.h>
-#include <TestCommon.h>
-
+#include <TestHelper.h>
 #include <TestSuite.h>
 
 using namespace std;
 
-int
-main(int, char**)
+class Client : public Test::TestHelper
 {
-    try
-    {
-        initializeTestSuite();
+public:
 
-        for(list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
-        {
-            (*p)->start();
-        }
-    }
-    catch(const TestFailed& e)
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    initializeTestSuite();
+
+    for(list<TestBasePtr>::const_iterator p = allTests.begin(); p != allTests.end(); ++p)
     {
-        cout << "test " << e.name << " failed" << endl;
-        return EXIT_FAILURE;
+        (*p)->start();
     }
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client)

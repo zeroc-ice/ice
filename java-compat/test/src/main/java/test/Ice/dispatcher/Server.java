@@ -9,66 +9,43 @@
 
 package test.Ice.dispatcher;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int
+    public void
     run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
-
-        assert(_dispatcher != null);
-        adapter.add(new TestI(_dispatcher), Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-        adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-        adapter2.activate();
-
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        assert(_dispatcher == null);
-        _dispatcher = new Dispatcher();
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1, "tcp"));
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-        //
-        // Limit the recv buffer size, this test relies on the socket
-        // send() blocking after sending a given amount of data.
-        //
-        initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
-        initData.dispatcher = _dispatcher;
-        return initData;
-    }
-
-    public void terminate()
-    {
-        if(_dispatcher != null)
+        Dispatcher dispatcher = new Dispatcher();
+        try
         {
-            _dispatcher.terminate();
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = createTestProperties(args);
+            initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
+            //
+            // Limit the recv buffer size, this test relies on the socket
+            // send() blocking after sending a given amount of data.
+            //
+            initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
+            initData.dispatcher = dispatcher;
+            try(Ice.Communicator communicator = initialize(initData))
+            {
+                communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                communicator.getProperties().setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+                communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
+                Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("ControllerAdapter");
+
+                adapter.add(new TestI(dispatcher), Ice.Util.stringToIdentity("test"));
+                adapter.activate();
+                adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+                adapter2.activate();
+
+                serverReady();
+                communicator.waitForShutdown();
+            }
+        }
+        finally
+        {
+            dispatcher.terminate();
         }
     }
-
-    public static void
-    main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        app.terminate();
-        System.gc();
-        System.exit(result);
-    }
-
-    //
-    // The Dispatcher class uses a static "_instance" member in other language
-    // mappings. In Java, we avoid the use of static members because we need to
-    // maintain support for Android (in which the client and server run in the
-    // same process).
-    //
-    private Dispatcher _dispatcher;
 }

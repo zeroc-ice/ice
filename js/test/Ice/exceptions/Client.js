@@ -51,7 +51,7 @@
         try
         {
             await communicator.createObjectAdapter("TestAdapter0");
-            test(false)
+            test(false);
         }
         catch(ex)
         {
@@ -71,7 +71,7 @@
 
         out.write("testing servant registration exceptions... ");
         {
-            let adapter = await communicator.createObjectAdapter("");
+            const adapter = await communicator.createObjectAdapter("");
             adapter.add(new EmptyI(), Ice.stringToIdentity("x"));
             try
             {
@@ -120,7 +120,7 @@
 
         out.write("testing servant locator registration exceptions... ");
         {
-            let adapter = await communicator.createObjectAdapter("");
+            const adapter = await communicator.createObjectAdapter("");
             adapter.addServantLocator(new ServantLocatorI(), "x");
             try
             {
@@ -149,13 +149,13 @@
         out.writeLine("ok");
 
         out.write("testing stringToProxy... ");
-        let ref = "thrower:default -p 12010";
-        let base = communicator.stringToProxy(ref);
+        const ref = "thrower:default -p 12010";
+        const base = communicator.stringToProxy(ref);
         test(base !== null);
         out.writeLine("ok");
 
         out.write("testing checked cast... ");
-        let thrower = await Test.ThrowerPrx.checkedCast(base);
+        const thrower = await Test.ThrowerPrx.checkedCast(base);
         test(thrower !== null);
         test(thrower.equals(base));
         out.writeLine("ok");
@@ -386,7 +386,7 @@
         out.write("catching object not exist exception... ");
         try
         {
-            let thrower2 = Test.ThrowerPrx.uncheckedCast(
+            const thrower2 = Test.ThrowerPrx.uncheckedCast(
                 thrower.ice_identity(Ice.stringToIdentity("does not exist")));
             await thrower2.ice_ping();
             test(false);
@@ -401,7 +401,7 @@
         out.write("catching facet not exist exception... ");
         try
         {
-            let thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet");
+            const thrower2 = Test.ThrowerPrx.uncheckedCast(thrower, "no such facet");
             await thrower2.ice_ping();
             test(false);
         }
@@ -415,7 +415,7 @@
         out.write("catching operation not exist exception... ");
         try
         {
-            let thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower);
+            const thrower2 = Test.WrongOperationPrx.uncheckedCast(thrower);
             await thrower2.noSuchOperation();
             test(false);
         }
@@ -479,7 +479,7 @@
 
     async function run(out, initData)
     {
-        let communicator
+        let communicator;
         try
         {
             initData.properties.setProperty("Ice.MessageSizeMax", "10");
@@ -499,7 +499,6 @@
 
     exports._test = run;
     exports._runServer = true;
-}
-(typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? module : undefined,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? require : this.Ice._require,
- typeof(global) !== "undefined" && typeof(global.process) !== "undefined" ? exports : this));
+}(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
