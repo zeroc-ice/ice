@@ -721,7 +721,7 @@ public class AllTests
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("ClientTestAdapter.Endpoints", "tcp -h *");
-            try(Ice.Communicator ic = helper.initialize(initData, false))
+            try(Ice.Communicator ic = helper.initialize(initData))
             {
                 final Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
                 adapter.activate();

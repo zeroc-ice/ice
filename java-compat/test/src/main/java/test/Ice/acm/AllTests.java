@@ -161,7 +161,7 @@ public class AllTests
             }
             //initData.properties.setProperty("Ice.Trace.Protocol", "2");
             //initData.properties.setProperty("Ice.Trace.Network", "2");
-            _communicator = _helper.initialize(initData, false);
+            _communicator = _helper.initialize(initData);
 
             _thread = new Thread(
                 new Runnable()

@@ -147,7 +147,7 @@ public abstract class TestHelper
     {
         InitializationData initData = new InitializationData();
         initData.properties = properties;
-        return  initialize(initData);
+        return initialize(initData);
     }
 
     public Communicator initialize(InitializationData initData)
@@ -158,7 +158,7 @@ public abstract class TestHelper
         }
 
         Communicator communicator = Ice.Util.initialize(initData);
-        if(defaultCommunicator || _communicator == null)
+        if(_communicator == null)
         {
             _communicator = communicator;
         }

@@ -282,7 +282,7 @@ public class AllTests
         basencc.ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout.
         test(count == locator.getRequestCount());
         Thread.sleep(1300);
-        basencc.ice_locatorCacheTimeout(2).ice_ping(); // 1s timeout.
+        basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
 
         communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.

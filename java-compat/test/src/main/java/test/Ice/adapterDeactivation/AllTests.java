@@ -79,7 +79,7 @@ public class AllTests
             {
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties()._clone();
-                try(Ice.Communicator comm = helper.initialize(initData, false))
+                try(Ice.Communicator comm = helper.initialize(initData))
                 {
                     comm.stringToProxy("test:" + helper.getTestEndpoint(0)).begin_ice_ping();
                 }
