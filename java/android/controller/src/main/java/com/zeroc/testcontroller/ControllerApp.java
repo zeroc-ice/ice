@@ -195,8 +195,8 @@ public class ControllerApp extends Application
             initData.properties = com.zeroc.Ice.Util.createProperties();
             initData.properties.setProperty("Ice.ThreadPool.Server.SizeMax", "10");
             initData.properties.setProperty("ControllerAdapter.Endpoints", "tcp");
-            initData.properties.setProperty("Ice.Trace.Network", "3");
-            initData.properties.setProperty("Ice.Trace.Protocol", "1");
+            //initData.properties.setProperty("Ice.Trace.Network", "3");
+            //initData.properties.setProperty("Ice.Trace.Protocol", "1");
             initData.properties.setProperty("ControllerAdapter.AdapterId", java.util.UUID.randomUUID().toString());
             initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000");
             if(!isEmulator())
@@ -312,6 +312,7 @@ public class ControllerApp extends Application
         {
             _bundle = bundle;
             _args = args;
+            _exe = exe;
         }
 
         public void communicatorInitialized(Communicator communicator)
@@ -360,22 +361,12 @@ public class ControllerApp extends Application
                     });
 
                 _helper.run(_args);
-                synchronized(this)
-                {
-                    _status = 0;
-                    _completed = true;
-                    notifyAll();
-                }
+                completed(0);
             }
             catch(Exception ex)
             {
                 ex.printStackTrace(_helper.getWriter());
-                synchronized(this)
-                {
-                    _status = -1;
-                    _completed = true;
-                    notifyAll();
-                }
+                completed(-1);
             }
         }
 
@@ -392,16 +383,16 @@ public class ControllerApp extends Application
             return _out.toString();
         }
 
+        synchronized public void serverReady()
+        {
+            _ready = true;
+            notifyAll();
+        }
+
         synchronized private void completed(int status)
         {
             _completed = true;
             _status = status;
-            notifyAll();
-        }
-
-        synchronized public void serverReady()
-        {
-            _ready = true;
             notifyAll();
         }
 

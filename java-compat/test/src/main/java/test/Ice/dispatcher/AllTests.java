@@ -21,11 +21,12 @@ import test.Ice.dispatcher.Test.Callback_TestIntf_sleep;
 
 public class AllTests
 {
-    private static abstract class OpCallback extends Callback_TestIntf_op
+    private static class Callback
     {
-        OpCallback()
+        Callback()
         {
             _called = false;
+            _exception = null;
         }
 
         public synchronized void check()
@@ -40,8 +41,26 @@ public class AllTests
                 {
                 }
             }
-
+            if(_exception != null)
+            {
+                throw _exception;
+            }
             _called = false;
+        }
+
+        public synchronized void exception(Exception ex)
+        {
+            assert(!_called);
+            _called = true;
+            if(ex instanceof RuntimeException)
+            {
+                _exception = (RuntimeException)ex;
+            }
+            else
+            {
+                _exception = new RuntimeException(ex);
+            }
+            notify();
         }
 
         public synchronized void called()
@@ -52,6 +71,7 @@ public class AllTests
         }
 
         private boolean _called;
+        private RuntimeException _exception;
     }
 
     private static void
@@ -73,7 +93,8 @@ public class AllTests
         test(obj != null);
 
         int mult = 1;
-        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp"))
+        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp") ||
+           helper.isAndroid())
         {
             mult = 4;
         }
@@ -91,61 +112,59 @@ public class AllTests
         {
             p.op();
 
-            OpCallback cb = new OpCallback()
+            final Callback cb1 = new Callback();
+            p.begin_op(new Callback_TestIntf_op() {
+                @Override
+                public void
+                response()
                 {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(dispatcher.isDispatcherThread());
-                        called();
-                    }
+                    test(dispatcher.isDispatcherThread());
+                    cb1.called();
+                }
 
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        ex.printStackTrace();
-                        test(false);
-                    }
-                };
-            p.begin_op(cb);
-            cb.check();
+                @Override
+                public void
+                exception(Ice.LocalException ex)
+                {
+                    cb1.exception(ex);
+                }
+            });
+            cb1.check();
 
+            final Callback cb2 = new Callback();
             TestIntfPrx i = (TestIntfPrx)p.ice_adapterId("dummy");
-            cb = new OpCallback()
+            i.begin_op(new Callback_TestIntf_op() {
+                @Override
+                public void
+                response()
                 {
-                    @Override
-                    public void
-                    response()
-                    {
-                        test(false);
-                    }
+                    cb2.exception(new RuntimeException());
+                }
 
-                    @Override
-                    public void
-                    exception(Ice.LocalException ex)
-                    {
-                        test(ex instanceof Ice.NoEndpointException);
-                        test(dispatcher.isDispatcherThread());
-                        called();
-                    }
-                };
-            i.begin_op(cb);
-            cb.check();
+                @Override
+                public void
+                exception(Ice.LocalException ex)
+                {
+                    test(ex instanceof Ice.NoEndpointException);
+                    test(dispatcher.isDispatcherThread());
+                    cb2.called();
+                }
+            });
+            cb2.check();
 
             {
                 //
                 // Expect InvocationTimeoutException.
                 //
-                TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
-                class Callback_TestIntf_sleepImpl extends Callback_TestIntf_sleep
+                TestIntfPrx to = TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
+                final Callback cb3 = new Callback();
+                to.begin_sleep(500 * mult, new Callback_TestIntf_sleep()
                 {
                     @Override
                     public void
                     response()
                     {
-                        test(false);
+                        cb3.exception(new RuntimeException());
                     }
 
                     @Override
@@ -154,7 +173,7 @@ public class AllTests
                     {
                         test(ex instanceof Ice.InvocationTimeoutException);
                         test(dispatcher.isDispatcherThread());
-                        called();
+                        cb3.called();
                     }
 
                     @Override
@@ -163,33 +182,8 @@ public class AllTests
                     {
                         test(sentSynchronously || dispatcher.isDispatcherThread());
                     }
-
-                    public synchronized void check()
-                    {
-                        while(!_called)
-                        {
-                            try
-                            {
-                                wait();
-                            }
-                            catch(InterruptedException ex)
-                            {
-                            }
-                        }
-
-                        _called = false;
-                    }
-                    private synchronized void called()
-                    {
-                        assert(!_called);
-                        _called = true;
-                        notify();
-                    }
-                    private boolean _called;
-                };
-                Callback_TestIntf_sleepImpl callback = new Callback_TestIntf_sleepImpl();
-                to.begin_sleep(500 * mult, callback);
-                callback.check();
+                });
+                cb3.check();
             }
 
             testController.holdAdapter();

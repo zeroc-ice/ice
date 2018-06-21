@@ -418,7 +418,7 @@ public class AllTests : Test.AllTests
             controller.holdAdapter(-1);
             long begin = System.DateTime.Now.Ticks;
             comm.destroy();
-            test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 700);
+            test(((long)new System.TimeSpan(System.DateTime.Now.Ticks - begin).TotalMilliseconds - begin) < 1000);
             controller.resumeAdapter();
         }
         WriteLine("ok");

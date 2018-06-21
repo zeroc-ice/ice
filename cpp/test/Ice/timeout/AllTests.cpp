@@ -472,7 +472,7 @@ allTests(Test::TestHelper* helper)
         controller->holdAdapter(-1);
         IceUtil::Time now = IceUtil::Time::now();
         ich.release()->destroy();
-        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(700));
+        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(1000));
         controller->resumeAdapter();
         timeout->op(); // Ensure adapter is active.
     }

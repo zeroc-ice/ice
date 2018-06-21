@@ -86,7 +86,8 @@ public class AllTests
         test(obj != null);
 
         int mult = 1;
-        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp"))
+        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp") ||
+           helper.isAndroid())
         {
             mult = 4;
         }
@@ -165,7 +166,7 @@ public class AllTests
             // Expect success.
             //
             TimeoutPrx to = timeout.ice_timeout(1000 * mult);
-            controller.holdAdapter(200 * mult);
+            controller.holdAdapter(100 * mult);
             try
             {
                 to.sendData(new byte[1000000]);
@@ -222,7 +223,7 @@ public class AllTests
             //
             // Expect success.
             //
-            TimeoutPrx to = timeout.ice_invocationTimeout(500 * mult);
+            TimeoutPrx to = timeout.ice_invocationTimeout(1000 * mult);
             Callback cb = new Callback();
             to.sleepAsync(100 * mult).whenComplete((result, ex) ->
                 {
@@ -331,7 +332,7 @@ public class AllTests
             com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
             properties.setProperty("Ice.Override.ConnectTimeout", "250");
             properties.setProperty("Ice.Override.Timeout", "100");
-            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties, false))
+            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties))
             {
                 TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
                 connect(to);
@@ -381,7 +382,7 @@ public class AllTests
                 properties.setProperty("Ice.Override.ConnectTimeout", "2500");
             }
 
-            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties, false))
+            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties))
             {
                 TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
                 controller.holdAdapter(-1);
@@ -438,14 +439,14 @@ public class AllTests
             // Test Ice.Override.CloseTimeout.
             //
             com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
-            properties.setProperty("Ice.Override.CloseTimeout", "100");
-            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties, false))
+            properties.setProperty("Ice.Override.CloseTimeout", "10");
+            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties))
             {
                 comm.stringToProxy(sref).ice_getConnection();
                 controller.holdAdapter(-1);
                 long now = System.nanoTime();
                 comm.destroy();
-                test(System.nanoTime() - now < 700 * 1000000);
+                test(System.nanoTime() - now < 2000 * 1000000);
                 controller.resumeAdapter();
             }
         }
@@ -463,7 +464,7 @@ public class AllTests
             proxy = proxy.ice_invocationTimeout(100);
             try
             {
-                proxy.sleep(500) ;
+                proxy.sleep(500);
                 test(false);
             }
             catch(com.zeroc.Ice.InvocationTimeoutException ex)

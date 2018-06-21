@@ -175,7 +175,7 @@ allTests(Test::TestHelper* helper)
             //
             // Expect InvocationTimeoutException.
             //
-            auto to = p->ice_invocationTimeout(250);
+            auto to = p->ice_invocationTimeout(10);
             to->sleepAsync(500,
                 [cb]()
                 {
@@ -250,7 +250,7 @@ allTests(Test::TestHelper* helper)
             //
             // Expect InvocationTimeoutException.
             //
-            Test::TestIntfPrx to = p->ice_invocationTimeout(250);
+            Test::TestIntfPrx to = p->ice_invocationTimeout(10);
             to->begin_sleep(500, Test::newCallback_TestIntf_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
             cb->check();
         }

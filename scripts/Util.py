@@ -23,10 +23,23 @@ import Expect
 
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-def run(cmd, cwd=None, err=False):
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
+    if stdout:
+        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+    else:
+        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     try:
-        out = p.stdout.read().decode('UTF-8').strip()
+        if stdin:
+            try:
+                while True:
+                    p.stdin.write(stdin)
+                    if not stdinRepeat:
+                        break
+                    time.sleep(1)
+            except:
+                pass
+
+        out = (p.stderr if stdout else p.stdout).read().decode('UTF-8').strip()
         if(not err and p.wait() != 0) or (err and p.wait() == 0) :
             raise RuntimeError(cmd + " failed:\n" + out)
     finally:
@@ -35,7 +48,8 @@ def run(cmd, cwd=None, err=False):
         #
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
-        p.stdout.close()
+        (p.stderr if stdout else p.stdout).close()
+        p.stdin.close()
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
@@ -2191,7 +2205,7 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
         self.device = "emulator-{}".format(port)
-        cmd = "emulator -avd {0} -port {1} -noaudio -partition-size 768 -no-window -no-snapshot".format(avd, port)
+        cmd = "emulator -avd {0} -port {1} -noaudio -partition-size 768 -no-snapshot".format(avd, port)
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2216,7 +2230,6 @@ class AndroidProcessController(RemoteProcessController):
             if (time.time() - t) > 300:
                 raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
             time.sleep(2)
-        print(" ok")
 
     def startControllerApp(self, current, ident):
 
@@ -2229,11 +2242,12 @@ class AndroidProcessController(RemoteProcessController):
         elif current.config.androidemulator:
             # Create Android Virtual Device
             sdk = current.testcase.getMapping().getSDKPackage()
+            print("creating virtual device ({0})... ".format(sdk))
             try:
                 run("avdmanager delete avd -n IceTests") # Delete the created device
             except:
                 pass
-            run("sdkmanager \"{0}\"".format(sdk))
+            run("sdkmanager \"{0}\"".format(sdk), stdout=True, stdin="yes", stdinRepeat=True) # yes to accept licenses
             run("avdmanager create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
             self.startEmulator("IceTests")
         elif not self.device:
@@ -2242,7 +2256,7 @@ class AndroidProcessController(RemoteProcessController):
         apk = os.path.join(current.testcase.getMapping().getPath(),
                            "controller/build/outputs/apk/debug/testController-debug.apk")
         run("{} install -t -r {}".format(self.adb(), apk))
-        run("{} shell am start -n com.zeroc.testcontroller/.ControllerActivity".format(self.adb()))
+        run("{} shell am start -n \"com.zeroc.testcontroller/.ControllerActivity\" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER".format(self.adb()))
 
     def stopControllerApp(self, ident):
         try:
@@ -3107,7 +3121,7 @@ class AndroidMapping(AndroidMappingMixin, JavaMapping): # Note: the inheritance 
         AndroidMappingMixin.__init__(self, JavaMapping)
 
     def getSDKPackage(self):
-        return "system-images;android-25;google_apis;x86_64"
+        return "system-images;android-27;google_apis;x86"
 
 class AndroidCompatMapping(AndroidMappingMixin, JavaCompatMapping): # Note: the inheritance order is important
 

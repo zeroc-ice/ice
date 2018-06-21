@@ -1568,7 +1568,7 @@ class TwowaysAMI
                 com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
                 properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                try(com.zeroc.Ice.Communicator ic = helper.initialize(properties, false))
+                try(com.zeroc.Ice.Communicator ic = helper.initialize(properties))
                 {
                     java.util.Map<String, String> ctx = new java.util.HashMap<>();
                     ctx.put("one", "ONE");

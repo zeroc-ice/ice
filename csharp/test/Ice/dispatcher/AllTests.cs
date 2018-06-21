@@ -134,7 +134,7 @@ public class AllTests : Test.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                 to.begin_sleep(500).whenCompleted(
                     () =>
                     {
@@ -199,7 +199,7 @@ public class AllTests : Test.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -232,7 +232,7 @@ public class AllTests : Test.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -306,7 +306,7 @@ public class AllTests : Test.AllTests
                         test(Dispatcher.isDispatcherThread());
                     }
 
-                    Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                    Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                     try
                     {
                         await to.sleepAsync(500);

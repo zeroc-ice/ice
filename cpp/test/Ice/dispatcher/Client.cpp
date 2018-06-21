@@ -45,6 +45,8 @@ Client::run(int argc, char** argv)
 
     void allTests(Test::TestHelper*);
     allTests(this);
+
+    Dispatcher::terminate();
 }
 
 DEFINE_TEST(Client)

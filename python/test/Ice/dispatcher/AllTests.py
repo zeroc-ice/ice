@@ -84,7 +84,7 @@ def allTests(communicator, collocated):
     #
     # Expect InvocationTimeoutException.
     #
-    to = p.ice_invocationTimeout(250);
+    to = p.ice_invocationTimeout(10);
     to.sleepAsync(500).add_done_callback_async(cb.exceptionEx)
     cb.check()
 

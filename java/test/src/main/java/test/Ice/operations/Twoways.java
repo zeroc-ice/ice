@@ -1404,7 +1404,7 @@ class Twoways
                 com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
                 properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                try(Communicator ic = helper.initialize(properties, false))
+                try(Communicator ic = helper.initialize(properties))
                 {
 
                     Map<String, String> ctx = new HashMap<>();

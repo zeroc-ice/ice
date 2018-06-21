@@ -164,7 +164,8 @@ public class AllTests
         test(obj != null);
 
         int mult = 1;
-        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp"))
+        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp") ||
+           helper.isAndroid())
         {
             mult = 4;
         }
@@ -242,7 +243,7 @@ public class AllTests
             // Expect success.
             //
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(1000 * mult));
-            controller.holdAdapter(200 * mult);
+            controller.holdAdapter(100 * mult);
             try
             {
                 to.sendData(new byte[1000000]);
@@ -295,7 +296,7 @@ public class AllTests
             //
             // Expect success.
             //
-            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(500 * mult));
+            TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_invocationTimeout(1000 * mult));
             CallbackSuccess cb = new CallbackSuccess();
             to.begin_sleep(100 * mult, cb);
             cb.check();
@@ -507,13 +508,13 @@ public class AllTests
             // Test Ice.Override.CloseTimeout.
             //
             Ice.Properties properties = communicator.getProperties()._clone();
-            properties.setProperty("Ice.Override.CloseTimeout", "100");
+            properties.setProperty("Ice.Override.CloseTimeout", "10");
             Ice.Communicator comm = helper.initialize(properties);
             comm.stringToProxy(sref).ice_getConnection();
             controller.holdAdapter(-1);
             long now = System.nanoTime();
             comm.destroy();
-            test(System.nanoTime() - now < 700 * 1000000);
+            test(System.nanoTime() - now < 2000 * 1000000);
             controller.resumeAdapter();
         }
         out.println("ok");

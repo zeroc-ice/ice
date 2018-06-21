@@ -225,18 +225,18 @@ public class AllTests : Test.AllTests
         test(++count == locator.getRequestCount());
         basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
-        basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        basencc.ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout.
         test(count == locator.getRequestCount());
-        System.Threading.Thread.Sleep(1200); // 1200ms
+        System.Threading.Thread.Sleep(1300); // 1300ms
         basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
 
         communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         count += 2;
         test(count == locator.getRequestCount());
-        communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+        communicator.stringToProxy("test").ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout
         test(count == locator.getRequestCount());
-        System.Threading.Thread.Sleep(1200); // 1200ms
+        System.Threading.Thread.Sleep(1300); // 1300ms
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         count += 2;
         test(count == locator.getRequestCount());

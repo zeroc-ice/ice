@@ -282,7 +282,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     test(++count == locator->getRequestCount());
     basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     test(++count == locator->getRequestCount());
-    basencc->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+    basencc->ice_locatorCacheTimeout(2)->ice_ping(); // 2s timeout.
     test(count == locator->getRequestCount());
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
     basencc->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
@@ -291,7 +291,7 @@ allTests(Test::TestHelper* helper, const string& ref)
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     count += 2;
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
+    communicator->stringToProxy("test")->ice_locatorCacheTimeout(2)->ice_ping(); // 2s timeout
     test(count == locator->getRequestCount());
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout

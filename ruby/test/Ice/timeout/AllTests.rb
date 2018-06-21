@@ -235,7 +235,7 @@ def allTests(communicator)
     controller.holdAdapter(-1);
     now = Time.now
     comm.destroy();
-    test((Time.now - now) < 0.7);
+    test((Time.now - now) < 1.0);
     controller.resumeAdapter()
 
     puts "ok"

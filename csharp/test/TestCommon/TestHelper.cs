@@ -69,28 +69,30 @@ namespace Test
             return properties;
         }
 
-        public Ice.Communicator initialize(ref string[] args, bool defaultCommunicator = true)
+        public Ice.Communicator initialize(ref string[] args)
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = createTestProperties(ref args);
-            return initialize(initData, defaultCommunicator);
+            return initialize(initData);
         }
 
-        public Ice.Communicator initialize(Ice.Properties properties, bool defaultCommunicator = true)
+        public Ice.Communicator initialize(Ice.Properties properties)
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = properties;
-            return initialize(initData, defaultCommunicator);
+            return initialize(initData);
         }
-        public Ice.Communicator initialize(Ice.InitializationData initData, bool defaultCommunicator = true)
+
+        public Ice.Communicator initialize(Ice.InitializationData initData)
         {
             Ice.Communicator communicator = Ice.Util.initialize(initData);
-            if(defaultCommunicator)
+            if(_communicator == null)
             {
                 _communicator = communicator;
             }
             return  communicator;
         }
+
         public Ice.Communicator communicator()
         {
             return _communicator;

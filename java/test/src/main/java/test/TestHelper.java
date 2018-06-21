@@ -140,42 +140,27 @@ public abstract class TestHelper
 
     public Communicator initialize(String[] args)
     {
-        return initialize(args, true);
-    }
-
-    public Communicator initialize(String[] args, boolean defaultCommunicator)
-    {
         InitializationData initData = new InitializationData();
         initData.properties = createTestProperties(args);
-        return initialize(initData, defaultCommunicator);
+        return initialize(initData);
     }
 
     public Communicator initialize(Properties properties)
     {
-        return initialize(properties, true);
-    }
-
-    public Communicator initialize(Properties properties, boolean defaultCommunicator)
-    {
         InitializationData initData = new InitializationData();
         initData.properties = properties;
-        return  initialize(initData, defaultCommunicator);
+        return  initialize(initData);
     }
 
     public Communicator initialize(InitializationData initData)
     {
-        return initialize(initData, true);
-    }
-
-    public Communicator initialize(InitializationData initData, boolean defaultCommunicator)
-    {
-        Communicator communicator = Util.initialize(initData);
         if(_classLoader != null && initData.classLoader == null)
         {
             initData.classLoader = _classLoader;
         }
 
-        if(defaultCommunicator)
+        Communicator communicator = Util.initialize(initData);
+        if(_communicator == null)
         {
             _communicator = communicator;
         }
@@ -185,7 +170,7 @@ public abstract class TestHelper
             _controllerHelper.communicatorInitialized(communicator);
         }
 
-        return  communicator;
+        return communicator;
     }
 
     public void setControllerHelper(ControllerHelper controllerHelper)
