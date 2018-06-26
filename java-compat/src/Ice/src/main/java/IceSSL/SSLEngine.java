@@ -798,7 +798,6 @@ class SSLEngine
             throw new Ice.SecurityException("IceSSL: couldn't create SSL engine", ex);
         }
 
-
         String[] cipherSuites = filterCiphers(engine.getSupportedCipherSuites(), engine.getEnabledCipherSuites());
         try
         {

@@ -68,7 +68,6 @@ final class TransceiverI implements IceInternal.Transceiver
             return status;
         }
 
-
         SSLSession session = _engine.getSession();
         _cipher = session.getCipherSuite();
         try
