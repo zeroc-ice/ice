@@ -107,6 +107,30 @@ function allTests($communicator)
     }
 
     {
+        $base = $communicator->stringToProxy("i4:default -p 12010");
+        $i = $base->ice_checkedCast("::Inner::Test::Inner2::I");
+
+        $s1 = $NS ? eval("return new Test\\S(0);") :
+                    eval("return new Test_S(0);");
+        $s2 = null;
+        $s3 = $i->opS($s1, $s2);
+        test($s1 == $s3);
+        test($s2 == $s3);
+
+        $sseq1 = array($s1);
+        $sseq2 = null;
+        $sseq3 = $i->opSSeq($sseq1, $sseq2);
+        test($sseq2[0] == $s1);
+        test($sseq3[0] == $s1);
+
+        $smap1 = array("a" => $s1);
+        $smap2 = null;
+        $smap3 = $i->opSMap($smap1, $smap2);
+        test($smap2["a"] == $s1);
+        test($smap3["a"] == $s1);
+    }
+
+    {
         $base = $communicator->stringToProxy("i1:default -p 12010");
         $i = $base->ice_checkedCast("::Test::I");
         $i->shutdown();

@@ -74,6 +74,9 @@ protected:
     void writeDocCommentAMD(const OperationPtr&, const std::string&);
     void writeDocCommentParam(const OperationPtr&, ParamDir, bool);
 
+    virtual bool visitModuleStart(const ModulePtr&);
+    virtual void visitModuleEnd(const ModulePtr&);
+
     ::IceUtilInternal::Output& _out;
 };
 

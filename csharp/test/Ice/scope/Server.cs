@@ -87,7 +87,8 @@ public class Server : Test.TestHelper
         }
 
         public override Dictionary<String, Test.Inner.Inner2.S>
-        opSMap(Dictionary<String, Test.Inner.Inner2.S> s1, out Dictionary<String, Test.Inner.Inner2.S> s2, Ice.Current current)
+        opSMap(Dictionary<String, Test.Inner.Inner2.S> s1, out Dictionary<String, Test.Inner.Inner2.S> s2,
+               Ice.Current current)
         {
             s2 = s1;
             return s1;
@@ -108,7 +109,8 @@ public class Server : Test.TestHelper
         }
 
         public override Dictionary<String, Test.Inner.Inner2.C>
-        opCMap(Dictionary<String, Test.Inner.Inner2.C> c1, out Dictionary<String, Test.Inner.Inner2.C> c2, Ice.Current current)
+        opCMap(Dictionary<String, Test.Inner.Inner2.C> c1, out Dictionary<String, Test.Inner.Inner2.C> c2,
+               Ice.Current current)
         {
             c2 = c1;
             return c1;
@@ -138,7 +140,8 @@ public class Server : Test.TestHelper
         }
 
         public override Dictionary<String, Test.Inner.Inner2.S>
-        opSMap(Dictionary<String, Test.Inner.Inner2.S> s1, out Dictionary<String, Test.Inner.Inner2.S> s2, Ice.Current current)
+        opSMap(Dictionary<String, Test.Inner.Inner2.S> s1, out Dictionary<String, Test.Inner.Inner2.S> s2,
+               Ice.Current current)
         {
             s2 = s1;
             return s1;
@@ -159,7 +162,8 @@ public class Server : Test.TestHelper
         }
 
         public override Dictionary<String, Test.Inner.Inner2.C>
-        opCMap(Dictionary<String, Test.Inner.Inner2.C> c1, out Dictionary<String, Test.Inner.Inner2.C> c2, Ice.Current current)
+        opCMap(Dictionary<String, Test.Inner.Inner2.C> c1, out Dictionary<String, Test.Inner.Inner2.C> c2,
+               Ice.Current current)
         {
             c2 = c1;
             return c1;
@@ -167,6 +171,58 @@ public class Server : Test.TestHelper
 
         override
         public void shutdown(Ice.Current current)
+        {
+            current.adapter.getCommunicator().shutdown();
+        }
+    }
+
+    class I4 : Inner.Test.Inner2.IDisp_
+    {
+        public override Test.S
+        opS(Test.S s1, out Test.S s2, Ice.Current current)
+        {
+            s2 = s1;
+            return s1;
+        }
+
+        public override Test.S[]
+        opSSeq(Test.S[] s1, out Test.S[] s2, Ice.Current current)
+        {
+            s2 = s1;
+            return s1;
+        }
+
+        public override Dictionary<String, Test.S>
+        opSMap(Dictionary<String, Test.S> s1, out Dictionary<String, Test.S> s2,
+               Ice.Current current)
+        {
+            s2 = s1;
+            return s1;
+        }
+
+        public override Test.C
+        opC(Test.C c1, out Test.C c2, Ice.Current current)
+        {
+            c2 = c1;
+            return c1;
+        }
+
+        public override Test.C[]
+        opCSeq(Test.C[] c1, out Test.C[] c2, Ice.Current current)
+        {
+            c2 = c1;
+            return c1;
+        }
+
+        public override Dictionary<String, Test.C>
+        opCMap(Dictionary<String, Test.C> c1, out Dictionary<String, Test.C> c2,
+               Ice.Current current)
+        {
+            c2 = c1;
+            return c1;
+        }
+
+        public override void shutdown(Ice.Current current)
         {
             current.adapter.getCommunicator().shutdown();
         }
@@ -182,6 +238,7 @@ public class Server : Test.TestHelper
             adapter.add(new I1(), Ice.Util.stringToIdentity("i1"));
             adapter.add(new I2(), Ice.Util.stringToIdentity("i2"));
             adapter.add(new I3(), Ice.Util.stringToIdentity("i3"));
+            adapter.add(new I4(), Ice.Util.stringToIdentity("i4"));
             adapter.activate();
             communicator.waitForShutdown();
         }

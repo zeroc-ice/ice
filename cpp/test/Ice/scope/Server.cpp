@@ -85,6 +85,31 @@ public:
     virtual void shutdown(const Ice::Current&);
 };
 
+class I4 : public Inner::Test::Inner2::I
+{
+public:
+
+    virtual Test::S
+    opS(ICE_IN(Test::S), Test::S&, const Ice::Current&);
+
+    virtual Test::SSeq
+    opSSeq(ICE_IN(Test::SSeq), Test::SSeq&, const Ice::Current&);
+
+    virtual Test::SMap
+    opSMap(ICE_IN(Test::SMap), Test::SMap&, const Ice::Current&);
+
+    virtual Test::CPtr
+    opC(ICE_IN(Test::CPtr), Test::CPtr&, const Ice::Current&);
+
+    virtual Test::CSeq
+    opCSeq(ICE_IN(Test::CSeq), Test::CSeq&, const Ice::Current&);
+
+    virtual Test::CMap
+    opCMap(ICE_IN(Test::CMap), Test::CMap&, const Ice::Current&);
+
+    virtual void shutdown(const Ice::Current&);
+};
+
 //
 // I1 implementation
 //
@@ -235,6 +260,57 @@ I3::shutdown(const Ice::Current& current)
     current.adapter->getCommunicator()->shutdown();
 }
 
+//
+// I4 implementation
+//
+Test::S
+I4::opS(ICE_IN(Test::S) s1, Test::S& s2, const Ice::Current&)
+{
+    s2 = s1;
+    return s1;
+}
+
+Test::SSeq
+I4::opSSeq(ICE_IN(Test::SSeq) s1, Test::SSeq& s2, const Ice::Current&)
+{
+    s2 = s1;
+    return s1;
+}
+
+Test::SMap
+I4::opSMap(ICE_IN(Test::SMap) s1, Test::SMap& s2, const Ice::Current&)
+{
+    s2 = s1;
+    return s1;
+}
+
+Test::CPtr
+I4::opC(ICE_IN(Test::CPtr) c1, Test::CPtr& c2, const Ice::Current&)
+{
+    c2 = c1;
+    return c1;
+}
+
+Test::CSeq
+I4::opCSeq(ICE_IN(Test::CSeq) c1, Test::CSeq& c2, const Ice::Current&)
+{
+    c2 = c1;
+    return c1;
+}
+
+Test::CMap
+I4::opCMap(ICE_IN(Test::CMap) c1, Test::CMap& c2, const Ice::Current&)
+{
+    c2 = c1;
+    return c1;
+}
+
+void
+I4::shutdown(const Ice::Current& current)
+{
+    current.adapter->getCommunicator()->shutdown();
+}
+
 void
 Server::run(int argc, char** argv)
 {
@@ -244,6 +320,7 @@ Server::run(int argc, char** argv)
     adapter->add(ICE_MAKE_SHARED(I1), Ice::stringToIdentity("i1"));
     adapter->add(ICE_MAKE_SHARED(I2), Ice::stringToIdentity("i2"));
     adapter->add(ICE_MAKE_SHARED(I3), Ice::stringToIdentity("i3"));
+    adapter->add(ICE_MAKE_SHARED(I4), Ice::stringToIdentity("i4"));
     adapter->activate();
     serverReady();
     communicator->waitForShutdown();

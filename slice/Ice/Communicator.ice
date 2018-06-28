@@ -54,7 +54,7 @@ module Ice
  * @see ValueFactory
  *
  **/
-["clr:implements:_System.IDisposable", "java:implements:java.lang.AutoCloseable", "php:internal", "matlab:internal"]
+["clr:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable", "php:internal", "matlab:internal"]
 local interface Communicator
 {
 

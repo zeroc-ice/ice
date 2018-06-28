@@ -257,6 +257,43 @@ public class AllTests
         }
 
         {
+            com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy("i4:" + helper.getTestEndpoint());
+            test.Ice.scope.Inner.Test.Inner2.IPrx i = test.Ice.scope.Inner.Test.Inner2.IPrx.checkedCast(obj);
+
+            test.Ice.scope.Test.S s1 = new test.Ice.scope.Test.S(0);
+            test.Ice.scope.Inner.Test.Inner2.I.OpSResult opSResult = i.opSAsync(s1).join();
+            test(s1.equals(opSResult.returnValue));
+            test(s1.equals(opSResult.s2));
+
+            test.Ice.scope.Test.S[] sseq1 = new test.Ice.scope.Test.S[]{ s1 };
+            test.Ice.scope.Inner.Test.Inner2.I.OpSSeqResult opSSeqResult = i.opSSeqAsync(sseq1).join();
+            test(opSSeqResult.returnValue[0].equals(s1));
+            test(opSSeqResult.s2[0].equals(s1));
+
+            java.util.Map<String, test.Ice.scope.Test.S> smap1 = new java.util.HashMap<String, test.Ice.scope.Test.S>();
+            smap1.put("a", s1);
+            test.Ice.scope.Inner.Test.Inner2.I.OpSMapResult opSMapResult = i.opSMapAsync(smap1).join();
+            test(opSMapResult.returnValue.get("a").equals(s1));
+            test(opSMapResult.s2.get("a").equals(s1));
+
+            test.Ice.scope.Test.C c1 = new test.Ice.scope.Test.C(s1);
+            test.Ice.scope.Inner.Test.Inner2.I.OpCResult opCResult = i.opCAsync(c1).join();
+            test(c1.s.equals(opCResult.returnValue.s));
+            test(c1.s.equals(opCResult.c2.s));
+
+            test.Ice.scope.Test.C[] cseq1 = new test.Ice.scope.Test.C[]{ c1 };
+            test.Ice.scope.Inner.Test.Inner2.I.OpCSeqResult opCSeqResult = i.opCSeqAsync(cseq1).join();
+            test(opCSeqResult.returnValue[0].s.equals(s1));
+            test(opCSeqResult.c2[0].s.equals(s1));
+
+            java.util.Map<String, test.Ice.scope.Test.C> cmap1 = new java.util.HashMap<String, test.Ice.scope.Test.C>();
+            cmap1.put("a", c1);
+            test.Ice.scope.Inner.Test.Inner2.I.OpCMapResult opCMapResult = i.opCMapAsync(cmap1).join();
+            test(opCMapResult.returnValue.get("a").s.equals(s1));
+            test(opCMapResult.c2.get("a").s.equals(s1));
+        }
+
+        {
             test.Ice.scope.Test.IPrx i =
                 test.Ice.scope.Test.IPrx.checkedCast(communicator.stringToProxy("i1:" + helper.getTestEndpoint()));
             i.shutdown();
