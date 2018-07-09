@@ -184,7 +184,7 @@ public class AllTests
             // Expect ConnectTimeoutException.
             //
             TimeoutPrx to = TimeoutPrxHelper.uncheckedCast(obj.ice_timeout(100 * mult));
-            controller.holdAdapter(200 * mult);
+            controller.holdAdapter(-1);
             try
             {
                 to.op();
@@ -194,6 +194,8 @@ public class AllTests
             {
                 // Expected.
             }
+            controller.resumeAdapter();
+            timeout.op(); // Ensure adapter is active.
         }
         {
             //
