@@ -547,6 +547,8 @@ class Mapping(object):
             self.androidemulator = False
             self.netframework = ""
 
+            self.phpVersion = "7.1"
+
         def __str__(self):
             s = []
             for o in self.parsedOptions:
@@ -3370,6 +3372,22 @@ class PhpMapping(CppBasedClientMapping):
         mappingName = "php"
         mappingDesc = "PHP"
 
+
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["php-version="])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("PHP Mapping options:")
+            print("--php-version=[7.1|7.2]    PHP Version used for Windows builds")
+
+
+        def __init__(self, options=[]):
+            CppBasedClientMapping.Config.__init__(self, options)
+            parseOptions(self, options, { "php-version" : "phpVersion" })
+
     def getCommandLine(self, current, process, exe, args):
         phpArgs = []
         php = "php"
@@ -3379,9 +3397,11 @@ class PhpMapping(CppBasedClientMapping):
         # the Nuget PHP dependency.
         #
         if isinstance(platform, Windows) and not component.useBinDist(self, current):
+            nugetVersion = "7.1.17" if current.config.phpVersion == "7.1" else "7.2.7"
+            threadSafe = current.driver.configs[self].buildConfig in ["Debug", "Release"]
             buildPlatform = current.driver.configs[self].buildPlatform
             buildConfig = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
-            packageName = "php-7.1-ts.7.1.17" if buildConfig in ["Debug", "Release"] else "php-7.1-nts.7.1.17"
+            packageName = "php-{0}-{1}.{2}".format(current.config.phpVersion, "ts" if threadSafe else "nts", nugetVersion)
             php = os.path.join(self.path, "msbuild", "packages", packageName, "build", "native", "bin",
                                buildPlatform, buildConfig, "php.exe")
 

@@ -245,6 +245,7 @@ if isinstance(platform, Windows):
     Mapping.remove("ruby")
     if platform.getCompiler() != "VC140":
         Mapping.remove("python")
+    if platform.getCompiler() not in ["VC140", "VC141"]:
         Mapping.remove("php")
 elif not platform.hasDotNet():
     # Remove C# if Dot Net Core isn't supported

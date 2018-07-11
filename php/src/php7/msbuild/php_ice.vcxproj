@@ -238,6 +238,8 @@
     <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" />
     <Import Project="..\..\..\msbuild\packages\php-7.1-nts.7.1.17\build\native\php-7.1-nts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.1-nts.7.1.17\build\native\php-7.1-nts.targets')" />
     <Import Project="..\..\..\msbuild\packages\php-7.1-ts.7.1.17\build\native\php-7.1-ts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.1-ts.7.1.17\build\native\php-7.1-ts.targets')" />
+    <Import Project="..\..\..\msbuild\packages\php-7.2-nts.7.2.7\build\native\php-7.2-nts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.2-nts.7.2.7\build\native\php-7.2-nts.targets')" />
+    <Import Project="..\..\..\msbuild\packages\php-7.2-ts.7.2.7\build\native\php-7.2-ts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.2-ts.7.2.7\build\native\php-7.2-ts.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
@@ -247,5 +249,7 @@
     <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\php-7.1-nts.7.1.17\build\native\php-7.1-nts.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\php-7.1-nts.7.1.17\build\native\php-7.1-nts.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\php-7.1-ts.7.1.17\build\native\php-7.1-ts.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\php-7.1-ts.7.1.17\build\native\php-7.1-ts.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\php-7.2-nts.7.2.7\build\native\php-7.2-nts.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\php-7.2-nts.7.2.7\build\native\php-7.2-nts.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\php-7.2-ts.7.2.7\build\native\php-7.2-ts.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\php-7.2-ts.7.2.7\build\native\php-7.2-ts.targets'))" />
   </Target>
 </Project>
