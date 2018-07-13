@@ -736,7 +736,7 @@ Slice::CsVisitor::writeDispatch(const ClassDefPtr& p)
                         }
                         else
                         {
-                            _out << nl << "return " << getUnqualified(fixId(cl->scoped() + "Disp_"), package)
+                            _out << nl << "return " << getUnqualified(cl, package, "", "Disp_")
                                  << ".iceD_" << opName << "(this, inS, current);";
                         }
                         break;
@@ -2193,6 +2193,17 @@ void
 Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr&)
 {
     _out << eb;
+}
+
+bool
+Slice::Gen::CompactIdVisitor::visitModuleStart(const ModulePtr& p)
+{
+    return true;
+}
+
+void
+Slice::Gen::CompactIdVisitor::visitModuleEnd(const ModulePtr& p)
+{
 }
 
 bool
@@ -3756,7 +3767,7 @@ Slice::Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
         ClassDefPtr def = *q;
         if(def->isInterface() || def->allOperations().size() > 0)
         {
-            baseInterfaces.push_back(getUnqualified(fixId((*q)->scoped() + "Prx"), package));
+            baseInterfaces.push_back(getUnqualified(*q, package, "", "Prx"));
         }
     }
 
@@ -4026,9 +4037,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
                 {
                     first = false;
                 }
-                string s = (*q)->scoped();
-                s += "Operations";
-                _out << getUnqualified(fixId(s), package) << '_';
+                _out << getUnqualified(*q, package, "", "Operations_");
             }
             ++q;
         }
@@ -5037,7 +5046,7 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     string baseClass = getUnqualified("Ice.ObjectImpl", package);
     if(hasBaseClass && !bases.front()->allOperations().empty())
     {
-        baseClass = fixId(bases.front()->scoped() + "Disp_");
+        baseClass = getUnqualified(bases.front(), package, "", "Disp_");
     }
 
     _out << sp;

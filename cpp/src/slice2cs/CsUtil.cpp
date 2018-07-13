@@ -195,15 +195,15 @@ string
 Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package, const string& prefix,
                                    const string& suffix)
 {
-    string name = fixId(p->name());
+    string name = fixId(prefix + p->name() + suffix);
     string contPkg = getPackage(p);
     if(contPkg == package || contPkg.empty())
     {
-        return prefix + name + suffix;
+        return name;
     }
     else
     {
-        return "global::" + contPkg + "." + prefix + name + suffix;
+        return "global::" + contPkg + "." + name;
     }
 }
 
@@ -383,11 +383,11 @@ Slice::CsGenerator::getStaticId(const TypePtr& type)
     {
         ContainedPtr cont = ContainedPtr::dynamicCast(cl->container());
         assert(cont);
-        return fixId(cont->scoped(), DotNet::ICloneable) + "." + cl->name() + "Disp_.ice_staticId()";
+        return getUnqualified(cont) + "." + cl->name() + "Disp_.ice_staticId()";
     }
     else
     {
-        return fixId(cl->scoped(), DotNet::ICloneable) + ".ice_staticId()";
+        return getUnqualified(cl) + ".ice_staticId()";
     }
 }
 
@@ -525,7 +525,7 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-        return getUnqualified(fixId(contained->scoped()), package);
+        return getUnqualified(contained, package);
     }
 
     return "???";
@@ -544,12 +544,12 @@ Slice::CsGenerator::resultStructName(const string& className, const string& opNa
 }
 
 string
-Slice::CsGenerator::resultType(const OperationPtr& op, const string& scope, bool dispatch)
+Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bool dispatch)
 {
     ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container()); // Get the class containing the op.
     if(dispatch && op->hasMarshaledResult())
     {
-        return getUnqualified(fixId(cl->scope() + resultStructName(cl->name(), op->name(), true)), scope);
+        return getUnqualified(cl, package, "", resultStructName("", op->name(), true));
     }
 
     string t;
@@ -558,16 +558,16 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& scope, bool
     {
         if(outParams.empty())
         {
-            t = typeToString(op->returnType(), scope, op->returnIsOptional(), cl->isLocal());
+            t = typeToString(op->returnType(), package, op->returnIsOptional(), cl->isLocal());
         }
         else if(op->returnType() || outParams.size() > 1)
         {
             ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
-            t = getUnqualified(fixId(cl->scope()) + resultStructName(cl->name(), op->name()), scope);
+            t = getUnqualified(cl, package, "", resultStructName("", op->name()));
         }
         else
         {
-            t = typeToString(outParams.front()->type(), scope, outParams.front()->optional(), cl->isLocal());
+            t = typeToString(outParams.front()->type(), package, outParams.front()->optional(), cl->isLocal());
         }
     }
 
@@ -650,7 +650,7 @@ Slice::CsGenerator::isValueType(const TypePtr& type)
 void
 Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
                                               const TypePtr& type,
-                                              const string& scope,
+                                              const string& package,
                                               const string& param,
                                               bool marshal,
                                               const string& customStream)
@@ -777,7 +777,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
             }
             case Builtin::KindObjectProxy:
             {
-                string typeS = typeToString(type, scope);
+                string typeS = typeToString(type, package);
                 if(marshal)
                 {
                     out << nl << stream << ".writeProxy(" << param << ");";
@@ -803,8 +803,8 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         ClassDefPtr def = prx->_class()->definition();
         if(def->isInterface() || def->allOperations().size() > 0)
         {
-            string typeS = typeToString(type, scope);
-            if (marshal)
+            string typeS = typeToString(type, package);
+            if(marshal)
             {
                 out << nl << typeS << "Helper.write(" << stream << ", " << param << ");";
             }
@@ -848,7 +848,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         {
             if(!isValueType(st))
             {
-                out << nl << typeToString(st, scope) << ".ice_write(" << stream << ", " << param << ");";
+                out << nl << typeToString(st, package) << ".ice_write(" << stream << ", " << param << ");";
             }
             else
             {
@@ -859,7 +859,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         {
             if(!isValueType(st))
             {
-                out << nl << param << " = " << typeToString(type, scope) << ".ice_read(" << stream << ");";
+                out << nl << param << " = " << typeToString(type, package) << ".ice_read(" << stream << ");";
             }
             else
             {
@@ -878,7 +878,7 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << param << " = (" << typeToString(type, scope) << ')' << stream << ".readEnum(" << en->maxValue()
+            out << nl << param << " = (" << typeToString(type, package) << ')' << stream << ".readEnum(" << en->maxValue()
                 << ");";
         }
         return;
@@ -887,22 +887,22 @@ Slice::CsGenerator::writeMarshalUnmarshalCode(Output &out,
     SequencePtr seq = SequencePtr::dynamicCast(type);
     if(seq)
     {
-        writeSequenceMarshalUnmarshalCode(out, seq, scope, param, marshal, true, stream);
+        writeSequenceMarshalUnmarshalCode(out, seq, package, param, marshal, true, stream);
         return;
     }
 
     assert(ConstructedPtr::dynamicCast(type));
-    string typeS;
+    string helperName;
     DictionaryPtr d = DictionaryPtr::dynamicCast(type);
     if(d)
     {
-        typeS = fixId(d->scope()) + d->name();
+        helperName = getUnqualified(d, package, "", "Helper");
     }
     else
     {
-        typeS = typeToString(type, scope);
+        helperName = typeToString(type, package) + "Helper";
     }
-    string helperName = getUnqualified(typeS + "Helper", scope);
+
     if(marshal)
     {
         out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -1303,7 +1303,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     assert(cont);
     if(useHelper)
     {
-        string helperName = getUnqualified(fixId(cont->scoped(), DotNet::ICloneable) + "." + seq->name() + "Helper", scope);
+        string helperName = getUnqualified(getPackage(seq) + "." + seq->name() + "Helper", scope);
         if(marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -1445,7 +1445,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         else
                         {
                             patcherName = "global::IceInternal.Patcher.listReadValue";
-                            out << "global::System.Collections.Generic." << genericType << "<Ice.Value>(" << param << "_lenx);";
+                            out << "global::System.Collections.Generic." << genericType << "<global::Ice.Value>(" << param << "_lenx);";
                         }
                         out << nl << "for(int ix = 0; ix < " << param << "_lenx; ++ix)";
                         out << sb;
@@ -1869,11 +1869,11 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     string helperName;
     if(ProxyPtr::dynamicCast(type))
     {
-        helperName = getUnqualified(fixId(ProxyPtr::dynamicCast(type)->_class()->scoped() + "PrxHelper"), scope);
+        helperName = getUnqualified(ProxyPtr::dynamicCast(type)->_class(), scope, "", "PrxHelper");
     }
     else
     {
-        helperName = getUnqualified(fixId(ContainedPtr::dynamicCast(type)->scoped() + "Helper"), scope);
+        helperName = getUnqualified(ContainedPtr::dynamicCast(type), scope, "", "Helper");
     }
 
     string func;
