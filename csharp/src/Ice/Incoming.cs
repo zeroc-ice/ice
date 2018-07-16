@@ -233,8 +233,11 @@ namespace IceInternal
                         if(connInfo is Ice.IPConnectionInfo)
                         {
                             Ice.IPConnectionInfo ipConnInfo = (Ice.IPConnectionInfo)connInfo;
-                            output.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " +
-                                         ipConnInfo.remotePort.ToString());
+                            if(ipConnInfo != null)
+                            {
+                                output.print("\nremote host: " + ipConnInfo.remoteAddress + " remote port: " +
+                                             ipConnInfo.remotePort.ToString());
+                            }
                         }
                     }
                     catch(Ice.LocalException)
