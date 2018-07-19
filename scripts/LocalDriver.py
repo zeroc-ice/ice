@@ -534,7 +534,7 @@ class LocalDriver(Driver):
                 continue
 
             # Skip if the cross test server mapping is another mapping than the cross mapping
-            if cross != cross.getServerMapping():
+            if cross and cross != cross.getServerMapping():
                 continue
 
             # Skip if the mapping doesn't provide the test case
