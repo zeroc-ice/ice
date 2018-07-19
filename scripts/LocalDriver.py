@@ -533,6 +533,10 @@ class LocalDriver(Driver):
             if self.allCross and cross == current.testcase.getMapping():
                 continue
 
+            # Skip if the cross test server mapping is another mapping than the cross mapping
+            if cross != cross.getServerMapping():
+                continue
+
             # Skip if the mapping doesn't provide the test case
             server = current.testcase.getServerTestCase(cross)
             if not server:

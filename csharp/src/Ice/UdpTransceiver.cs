@@ -49,23 +49,6 @@ namespace IceInternal
                 {
                     throw new Ice.ConnectFailedException(ex);
                 }
-            }
-
-            if(_state <= StateConnectPending)
-            {
-                //
-                // On Windows, we delay the join for the mcast group after the connection
-                // establishment succeeds. This is necessary for older Windows versions
-                // where joining the group fails if the socket isn't bound. See ICE-5113.
-                //
-                if(Network.isMulticast((IPEndPoint)_addr))
-                {
-                    Network.setMcastGroup(_fd, ((IPEndPoint)_addr).Address, _mcastInterface);
-                    if(_mcastTtl != -1)
-                    {
-                        Network.setMcastTtl(_fd, _mcastTtl, _addr.AddressFamily);
-                    }
-                }
                 _state = StateConnected;
             }
 
@@ -241,7 +224,7 @@ namespace IceInternal
                         }
                     }
 
-                    // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                    // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                     if(_state == StateConnected ||
                        AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                     {
@@ -329,7 +312,7 @@ namespace IceInternal
 
             try
             {
-                // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if(_state == StateConnected ||
                    AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode)
                 {
@@ -383,7 +366,7 @@ namespace IceInternal
                     throw new SocketException((int)_readEventArgs.SocketError);
                 }
                 ret = _readEventArgs.BytesTransferred;
-                // TODO: Workaround for https://github.com/dotnet/corefx/pull/6666
+                // TODO: Workaround for https://github.com/dotnet/corefx/issues/31182
                 if(_state != StateConnected &&
                    !(AssemblyUtil.isMacOS && _fd.AddressFamily == AddressFamily.InterNetworkV6 && _fd.DualMode))
                 {
@@ -702,7 +685,6 @@ namespace IceInternal
             _writeEventArgs.Completed += new EventHandler<SocketAsyncEventArgs>(ioCompleted);
 
             _mcastInterface = mcastInterface;
-            _mcastTtl = mcastTtl;
             _state = StateNeedConnect;
             _incoming = false;
 
@@ -716,6 +698,10 @@ namespace IceInternal
                     if(_mcastInterface.Length > 0)
                     {
                         Network.setMcastInterface(_fd, _mcastInterface, _addr.AddressFamily);
+                    }
+                    if(mcastTtl != -1)
+                    {
+                        Network.setMcastTtl(_fd, mcastTtl, _addr.AddressFamily);
                     }
                 }
             }
@@ -894,7 +880,6 @@ namespace IceInternal
         private IPEndPoint _mcastAddr = null;
         private EndPoint _peerAddr = null;
         private string _mcastInterface = null;
-        private int _mcastTtl = -1;
 
         private int _port = 0;
         private bool _bound = false;

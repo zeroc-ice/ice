@@ -25,6 +25,12 @@ public class Server : Test.TestHelper
         properties.setProperty("Ice.Warn.Connections", "0");
         properties.setProperty("Ice.UDP.RcvSize", "16384");
 
+        if(IceInternal.AssemblyUtil.isMacOS && properties.getPropertyAsInt("Ice.IPv6") > 0)
+        {
+            // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182
+            properties.setProperty("Ice.IPv4", "0");
+        }
+
         using(var communicator = initialize(properties))
         {
             int num = 0;
@@ -55,12 +61,21 @@ public class Server : Test.TestHelper
             //
             if(properties.getProperty("Ice.IPv6").Equals("1"))
             {
-                endpoint.Append("udp -h \"ff15::1:1\" --interface \"::1\" -p ");
+                endpoint.Append("udp -h \"ff15::1:1\"");
+                if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+                {
+                    endpoint.Append(" --interface \"::1\"");
+                }
             }
             else
             {
-                endpoint.Append("udp -h 239.255.1.1 --interface 127.0.0.1 -p ");
+                endpoint.Append("udp -h 239.255.1.1");
+                if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+                {
+                    endpoint.Append(" --interface 127.0.0.1");
+                }
             }
+            endpoint.Append(" -p ");
             endpoint.Append(getTestPort(properties, 10));
             communicator.getProperties().setProperty("McastTestAdapter.Endpoints", endpoint.ToString());
             Ice.ObjectAdapter mcastAdapter = communicator.createObjectAdapter("McastTestAdapter");

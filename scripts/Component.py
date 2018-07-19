@@ -136,21 +136,8 @@ class Ice(Component):
                 return False
 
         if isinstance(mapping, CSharpMapping) and current.config.netframework:
-            #
-            # The following tests require multicast, on Unix platforms it's currently only supported
-            # with IPv4 due to .NET Core bug https://github.com/dotnet/corefx/issues/25525
-            #
-            if not isinstance(platform, Windows) and current.config.ipv6 and testId in ["Ice/udp",
-                                                                                        "IceDiscovery/simple",
-                                                                                        "IceGrid/simple"]:
-                return False
-
             if isinstance(platform, Darwin):
-                if parent in ["IceSSL", "IceDiscovery"]:
-                    return False
-
-                # TODO: Remove once https://github.com/dotnet/corefx/issues/28759 is fixed
-                if testId == "Ice/adapterDeactivation" and current.config.protocol in ["ssl", "wss"]:
+                if parent in ["IceSSL"]:
                     return False
 
         return True
@@ -192,7 +179,8 @@ class Ice(Component):
             "Ice/servantLocator",
             "Ice/slicing/exceptions",
             "Ice/slicing/objects",
-            "Ice/optional"
+            "Ice/optional",
+            "Ice/udp"
         ]
 
     def getSoVersion(self):

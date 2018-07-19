@@ -154,12 +154,21 @@ public class AllTests : Test.AllTests
         //
         if(communicator.getProperties().getProperty("Ice.IPv6").Equals("1"))
         {
-            endpoint.Append("udp -h \"ff15::1:1\" --interface \"::1\" -p ");
+            endpoint.Append("udp -h \"ff15::1:1\"");
+            if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+            {
+                endpoint.Append(" --interface \"::1\"");
+            }
         }
         else
         {
-            endpoint.Append("udp -h 239.255.1.1 --interface 127.0.0.1 -p ");
+            endpoint.Append("udp -h 239.255.1.1");
+            if(IceInternal.AssemblyUtil.isWindows || IceInternal.AssemblyUtil.isMacOS)
+            {
+                endpoint.Append(" --interface 127.0.0.1");
+            }
         }
+        endpoint.Append(" -p ");
         endpoint.Append(helper.getTestPort(10));
         @base = communicator.stringToProxy("test -d:" + endpoint.ToString());
         TestIntfPrx objMcast = Test.TestIntfPrxHelper.uncheckedCast(@base);
