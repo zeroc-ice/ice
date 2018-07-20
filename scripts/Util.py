@@ -3000,16 +3000,16 @@ class CppMapping(Mapping):
         return "ice-uwp-controller.cpp_3qjctahehqazm"
 
     def getUWPPackageFullName(self, platform):
-        return  "{0}_1.0.0.0_{1}__3qjctahehqazm".format(self.getUWPPackageName(),
-                                                        "X86" if platform == "Win32" else platform)
+        return "{0}_1.0.0.0_{1}__3qjctahehqazm".format(self.getUWPPackageName(),
+                                                       "X86" if platform == "Win32" else platform)
 
     def getUWPPackageFullPath(self, platform, config):
         prefix = "controller_1.0.0.0_{0}{1}".format(platform, "_{0}".format(config) if config == "Debug" else "")
-        package = os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller",
-                               "{0}_Test".format(prefix), "{0}.appx".format(prefix))
+        return os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller",
+                            "{0}_Test".format(prefix), "{0}.appx".format(prefix))
 
     def getIOSControllerIdentity(self, current):
-        if current.config.platform == "iphonesimulator":
+        if current.config.buildPlatform == "iphonesimulator":
             return ("iPhoneSimulator/com.zeroc.Cpp11-Test-Controller" if current.config.cpp11 else
                     "iPhoneSimulator/com.zeroc.Cpp98-Test-Controller")
         else:
@@ -3442,7 +3442,7 @@ class ObjCMapping(CppBasedMapping):
         }[processType]
 
     def getIOSControllerIdentity(self, current):
-        if current.config.platform == "iphonesimulator":
+        if current.config.buildPlatform == "iphonesimulator":
             return ("iPhoneSimulator/com.zeroc.ObjC-ARC-Test-Controller" if current.config.arc else
                     "iPhoneSimulator/com.zeroc.ObjC-Test-Controller")
         else:
