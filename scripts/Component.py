@@ -135,10 +135,9 @@ class Ice(Component):
             elif parent in ["Glacier2"] and testId not in ["Glacier2/application", "Glacier2/sessionHelper"]:
                 return False
 
-        if isinstance(mapping, CSharpMapping) and current.config.netframework:
-            if isinstance(platform, Darwin):
-                if parent in ["IceSSL"]:
-                    return False
+        # IceSSL test doesn't work on macOS/.NET Core
+        if isinstance(mapping, CSharpMapping) and isinstance(platform, Darwin) and parent in ["IceSSL"]:
+                return False
 
         return True
 

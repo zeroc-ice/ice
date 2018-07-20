@@ -25,14 +25,15 @@ class IceBox(ProcessFromBinDir, Server):
         # tests
         #
         if self.configFile:
-            if isinstance(mapping, CSharpMapping) and current.config.netframework:
+            if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
                 configFile = self.configFile.format(testdir=current.testsuite.getPath())
-                netframework ="\\netstandard2.0\\{0}\\".format(current.config.netframework)
                 with open(configFile, 'r') as source:
-                    with open(configFile + ".{0}".format(current.config.netframework), 'w') as target:
+                    netcoreapp = mapping.getTargetFramework(current)
+                    newConfigFile = configFile + ".netcoreapp"
+                    with open(newConfigFile, 'w') as target:
                         for line in source.readlines():
-                            target.write(line.replace("\\net45\\", netframework))
-                        current.files.append(configFile + ".{0}".format(current.config.netframework))
+                            target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(netcoreapp)))
+                        current.files.append(newConfigFile)
 
     def getExe(self, current):
         mapping = self.getMapping(current)
@@ -56,8 +57,8 @@ class IceBox(ProcessFromBinDir, Server):
         args = Server.getEffectiveArgs(self, current, args)
         if self.configFile:
             mapping = self.getMapping(current)
-            if isinstance(mapping, CSharpMapping) and current.config.netframework:
-                args.append("--Ice.Config={0}".format(self.configFile + ".{0}".format(current.config.netframework)))
+            if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
+                args.append("--Ice.Config={0}".format(self.configFile + ".netcoreapp"))
             else:
                 args.append("--Ice.Config={0}".format(self.configFile))
         return args

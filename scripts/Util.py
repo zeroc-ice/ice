@@ -372,7 +372,7 @@ class Windows(Platform):
             elif isinstance(process, SliceTranslator):
                 return os.path.join(installDir, "tools")
             elif isinstance(mapping, CSharpMapping):
-                return os.path.join(installDir, "tools", current.config.netframework or "net45")
+                return os.path.join(installDir, "tools", mapping.getBinTargetFramework(current))
             elif process.isReleaseOnly():
                 # Some services are only available in release mode in the Nuget package
                 return os.path.join(installDir, "build", "native", "bin", platform, "Release")
@@ -380,7 +380,7 @@ class Windows(Platform):
                 return os.path.join(installDir, "build", "native", "bin", platform, config)
         else:
             if isinstance(mapping, CSharpMapping):
-                return os.path.join(installDir, "bin", current.config.netframework or "net45")
+                return os.path.join(installDir, "bin", mapping.getBinTargetFramework(current))
             elif isinstance(mapping, PhpMapping):
                 return os.path.join(self.getNugetPackageDir(component, mapping, current),
                                     "build", "native", "bin", platform, config)
@@ -390,7 +390,7 @@ class Windows(Platform):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", "netstandard2.0" if current.config.netframework else "net45")
+            return os.path.join(installDir, "lib", mapping.getLibTargetFramework(current))
         else:
             platform = current.driver.configs[mapping].buildPlatform
             config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
@@ -416,7 +416,7 @@ class Windows(Platform):
         return None # No default installation directory on Windows
 
     def getNugetPackageDir(self, component, mapping, current):
-        if isinstance(mapping, CSharpMapping) and current.config.netframework == "netcoreapp2.0":
+        if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
             return Platform.getNugetPackageDir(self, component, mapping, current)
         else:
             package = "{0}.{1}".format(component.getNugetPackage(mapping, self.getPlatformToolset()),
@@ -545,7 +545,6 @@ class Mapping(object):
             self.device = ""
             self.avd = ""
             self.androidemulator = False
-            self.netframework = ""
 
             self.phpVersion = "7.1"
 
@@ -3140,36 +3139,35 @@ class CSharpMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["netframework="])
+            return ("", ["dotnetcore"])
 
         @classmethod
         def usage(self):
             print("")
-            print("--netframework           Run C# tests using Ice netstandard2.0 libraries and tests")
-            print("                         build with given .NET Framework [netcoreapp2.0|net4.6]")
+            print("--dotnetcore             Run C# tests using .NET Core")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
-            parseOptions(self, options, { "netframework" : "netframework" })
-            #
-            # For non Windows platforms the default is netcoreapp2.0 for windows empty
-            # means to run test agains .NET Framework 4.5 Ice build
-            #
-            supportedframeworks = ["netcoreapp2.0"]
-            if isinstance(platform, Windows):
-                supportedframeworks += ["net461", "net462", "net47", "net471"]
 
-            if self.netframework:
-                if not self.netframework in supportedframeworks:
-                    raise RuntimeError("Unssuported .NET Framework `{0}'".format(self.netframework))
-            else:
-                self.netframework = "" if isinstance(platform, Windows) else "netcoreapp2.0"
+            self.dotnetcore = not isinstance(platform, Windows)
+
+            parseOptions(self, options)
+
+
+    def getBinTargetFramework(self, current):
+        return "netcoreapp2.0" if current.config.dotnetcore else "net45" # Framework version for the bin subdir
+
+    def getLibTargetFramework(self, current):
+        return "netstandard2.0" if current.config.dotnetcore else "net45" # Framework version for the lib subdir
+
+    def getTargetFramework(self, current):
+        return "netcoreapp2.1" if current.config.dotnetcore else "net45" # Framework version for tests
 
     def getBuildDir(self, name, current):
-        if current.config.netframework:
-            return os.path.join("msbuild", name, "netstandard2.0", current.config.netframework)
+        if current.config.dotnetcore:
+            return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
         else:
-            return os.path.join("msbuild", name, "net45")
+            return os.path.join("msbuild", name, self.getTargetFramework(current))
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
@@ -3211,7 +3209,7 @@ class CSharpMapping(Mapping):
                 env['PATH'] = os.path.join(toplevel, "cpp", "msbuild", "packages",
                                            "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
                                            "build", "native", "bin", "x64", "Release")
-            if not current.config.netframework:
+            if not current.config.dotnetcore:
                 env['DEVPATH'] = component.getLibDir(process, self, current)
         return env
 
@@ -3232,7 +3230,7 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(), current.getBuildDir(exe))
 
-        if current.config.netframework == "netcoreapp2.0":
+        if current.config.dotnetcore:
             return "dotnet " + os.path.join(path, exe) + ".dll " + args
         else:
             return os.path.join(path, exe) + ".exe " + args
