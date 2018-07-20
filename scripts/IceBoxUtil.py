@@ -28,11 +28,11 @@ class IceBox(ProcessFromBinDir, Server):
             if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
                 configFile = self.configFile.format(testdir=current.testsuite.getPath())
                 with open(configFile, 'r') as source:
-                    netcoreapp = mapping.getTargetFramework(current)
+                    framework = mapping.getLibTargetFramework(current)
                     newConfigFile = configFile + ".netcoreapp"
                     with open(newConfigFile, 'w') as target:
                         for line in source.readlines():
-                            target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(netcoreapp)))
+                            target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(framework)))
                         current.files.append(newConfigFile)
 
     def getExe(self, current):

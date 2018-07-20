@@ -179,7 +179,6 @@ class Ice(Component):
             "Ice/slicing/exceptions",
             "Ice/slicing/objects",
             "Ice/optional",
-            "Ice/udp"
         ]
 
     def getSoVersion(self):
