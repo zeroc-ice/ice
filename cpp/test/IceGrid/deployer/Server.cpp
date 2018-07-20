@@ -10,54 +10,20 @@
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
 #include <TestI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <fstream>
 
 using namespace std;
 
-class Server : public Ice::Application
+class Server : public Test::TestHelper
 {
 public:
 
-    virtual int run(int argc, char* argv[]);
+    void run(int, char**);
 };
 
-int
-Server::run(int argc, char* argv[])
-{
-    Ice::PropertiesPtr properties = communicator()->getProperties();
-
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    args = properties->parseCommandLineOptions("Test", args);
-    Ice::stringSeqToArgs(args, argc, argv);
-
-    string name = properties->getProperty("Ice.ProgramName");
-    Ice::ObjectAdapterPtr adapter;
-
-    if(!properties->getProperty("ReplicatedAdapter").empty())
-    {
-        adapter = communicator()->createObjectAdapter("ReplicatedAdapter");
-        adapter->activate();
-    }
-
-    adapter = communicator()->createObjectAdapter("Server");
-    Ice::ObjectPtr object = new TestI(properties);
-    adapter->add(object, Ice::stringToIdentity(name));
-    shutdownOnInterrupt();
-    try
-    {
-        adapter->activate();
-    }
-    catch(const Ice::ObjectAdapterDeactivatedException&)
-    {
-    }
-    communicator()->waitForShutdown();
-    ignoreInterrupt();
-    return EXIT_SUCCESS;
-}
-
-int
-main(int argc, char* argv[])
+void
+Server::run(int argc, char** argv)
 {
     //
     // Test if MY_ENV_VARIABLE is set.
@@ -106,7 +72,29 @@ main(int argc, char* argv[])
     test(value5 != 0 && string(value5) == "BAR;12");
 #endif
 
-    Server app;
-    int rc = app.main(argc, argv);
-    return rc;
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+
+    Ice::PropertiesPtr properties = communicator->getProperties();
+    string name = properties->getProperty("Ice.ProgramName");
+    Ice::ObjectAdapterPtr adapter;
+
+    if(!properties->getProperty("ReplicatedAdapter").empty())
+    {
+        adapter = communicator->createObjectAdapter("ReplicatedAdapter");
+        adapter->activate();
+    }
+
+    adapter = communicator->createObjectAdapter("Server");
+    Ice::ObjectPtr object = new TestI(properties);
+    adapter->add(object, Ice::stringToIdentity(name));
+    try
+    {
+        adapter->activate();
+    }
+    catch(const Ice::ObjectAdapterDeactivatedException&)
+    {
+    }
+    communicator->waitForShutdown();
 }
+
+DEFINE_TEST(Server)

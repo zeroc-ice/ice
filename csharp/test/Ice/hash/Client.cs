@@ -17,23 +17,11 @@ using System.Collections.Generic;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client
+public class Client : Test.TestHelper
 {
-    private static void
-    test(bool b)
+    public override void run(string[] args)
     {
-        if (!b)
-        {
-            throw new Exception();
-        }
-    }
-
-    public static int Main(string[] args)
-    {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
+        using(var communicator = initialize(ref args))
         {
             Console.Error.Write("testing proxy & endpoint hash algorithm collisions... ");
             Console.Error.Flush();
@@ -45,14 +33,10 @@ public class Client
             int maxCollisions = 10;
             int maxIterations = 10000;
 
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            //initData.properties.setProperty("Ice.Plugin.IceSSL", "IceSSL:IceSSL.PluginFactory");
-            communicator = Ice.Util.initialize(ref args, initData);
             {
                 Random rand = new Random();
                 for(i = 0; proxyCollisions < maxCollisions &&
-                        endpointCollisions < maxCollisions  &&
+                        endpointCollisions < maxCollisions &&
                         i < maxIterations; ++i)
                 {
                     System.IO.StringWriter sw = new System.IO.StringWriter();
@@ -244,8 +228,7 @@ public class Client
                 Random rand = new Random();
 
                 int exceptionCollisions = 0;
-                for(i = 0; i < maxIterations &&
-                        exceptionCollisions < maxCollisions; ++i)
+                for(i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
                 {
                     Test.OtherException ex = new Test.OtherException(rand.Next(100), rand.Next(100), 0, false);
                     if(seenException.ContainsKey(ex.GetHashCode()))
@@ -276,10 +259,13 @@ public class Client
                 Random rand = new Random();
 
                 int exceptionCollisions = 0;
-                for(i = 0; i < maxIterations &&
-                        exceptionCollisions < maxCollisions; ++i)
+                for(i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
                 {
-                    Test.OtherException ex = new Test.OtherException(rand.Next(100) * 2^30, rand.Next(100) * 2^30, rand.Next(100) * 2^30, false);
+                    Test.OtherException ex = new Test.OtherException(rand.Next(100) * 2^30,
+                                                                     rand.Next(100) * 2^30,
+                                                                     rand.Next(100) * 2^30,
+                                                                     false);
+
                     if(seenException.ContainsKey(ex.GetHashCode()))
                     {
                         if(ex.Equals(seenException[ex.GetHashCode()]))
@@ -305,8 +291,7 @@ public class Client
                 Random rand = new Random();
 
                 int exceptionCollisions = 0;
-                for(i = 0; i < maxIterations &&
-                        exceptionCollisions < maxCollisions; ++i)
+                for(i = 0; i < maxIterations && exceptionCollisions < maxCollisions; ++i)
                 {
                     int v = rand.Next(1000);
                     Test.BaseException ex = new Test.InvalidPointException(v);
@@ -358,7 +343,8 @@ public class Client
                 int structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.PointF pf = new Test.PointF((float)rand.NextDouble(), (float)rand.NextDouble(),
+                    Test.PointF pf = new Test.PointF((float)rand.NextDouble(),
+                                                     (float)rand.NextDouble(),
                                                      (float)rand.NextDouble());
                     if(seenPointF.ContainsKey(pf.GetHashCode()))
                     {
@@ -383,7 +369,8 @@ public class Client
                 structCollisions = 0;
                 for(i = 0; i < maxIterations && structCollisions < maxCollisions; ++i)
                 {
-                    Test.PointD pd = new Test.PointD(rand.NextDouble(), rand.NextDouble(),
+                    Test.PointD pd = new Test.PointD(rand.NextDouble(),
+                                                     rand.NextDouble(),
                                                      rand.NextDouble());
                     if(seenPointD.ContainsKey(pd.GetHashCode()))
                     {
@@ -443,7 +430,10 @@ public class Client
                     colorPalette.colors = new Dictionary<int, Test.Color>();
                     for(int j = 0; j < 100; ++j)
                     {
-                        colorPalette.colors[j] = new Test.Color(rand.Next(255), rand.Next(255), rand.Next(255), rand.Next(255));
+                        colorPalette.colors[j] = new Test.Color(rand.Next(255),
+                                                                rand.Next(255),
+                                                                rand.Next(255),
+                                                                rand.Next(255));
                     }
 
                     if(seenColorPalette.ContainsKey(colorPalette.GetHashCode()))
@@ -520,18 +510,11 @@ public class Client
                 test(structCollisions < maxCollisions);
             }
             Console.Error.WriteLine("ok");
-
-            if(communicator != null)
-            {
-                communicator.destroy();
-            }
         }
-        catch(Exception ex)
-        {
-            Console.WriteLine(ex.ToString());
-            status = 1;
-        }
+    }
 
-        return status;
+    public static int Main(string[] args)
+    {
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

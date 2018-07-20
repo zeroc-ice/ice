@@ -17,31 +17,24 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : TestCommon.Application
+public class Server : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-
-        communicator().waitForShutdown();
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.ServerIdleTime", "30");
-        return initData;
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.ServerIdleTime", "30");
+        using(var communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+            adapter.activate();
+            communicator.waitForShutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Server app = new Server();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Server>(args);
     }
 }

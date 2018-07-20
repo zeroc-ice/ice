@@ -10,6 +10,8 @@
 #ifndef ICESSL_SECURE_TRANSPORT_TRANSCEIVER_I_H
 #define ICESSL_SECURE_TRANSPORT_TRANSCEIVER_I_H
 
+#ifdef __APPLE__
+
 #include <IceSSL/Config.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/SecureTransportEngineF.h>
@@ -88,5 +90,7 @@ typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 } // SecureTransport namespace end
 
 } // IceSSL namespace end
+
+#endif
 
 #endif

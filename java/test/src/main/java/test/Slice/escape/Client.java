@@ -22,7 +22,7 @@ import test.Slice.escape._abstract.catchPrx;
 import test.Slice.escape._abstract.defaultPrx;
 import test.Slice.escape._abstract.finalizePrx;
 
-public class Client
+public class Client extends test.TestHelper
 {
     static public class catchI implements _catch
     {
@@ -124,61 +124,35 @@ public class Client
         assert _switch.value == 0;
     }
 
-    private static int run(String[] args, com.zeroc.Ice.Communicator communicator)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new defaultI(), com.zeroc.Ice.Util.stringToIdentity("test"));
-        adapter.activate();
+        //
+        // In this test, we need at least two threads in the
+        // client side thread pool for nested AMI.
+        //
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package._abstract", "test.Slice.escape");
+        properties.setProperty("Ice.ThreadPool.Client.Size", "2");
+        properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+        properties.setProperty("TestAdapter.Endpoints", "default");
 
-        System.out.print("Testing operation name... ");
-        System.out.flush();
-        defaultPrx p = defaultPrx.uncheckedCast(adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("test")));
-        p._do();
-        System.out.println("ok");
-
-        return 0;
-    }
-
-    public static void main(String[] args)
-    {
-        int status = 0;
-        com.zeroc.Ice.Communicator communicator = null;
-
-        try
+        //
+        // We must set MessageSizeMax to an explicit values,
+        // because we run tests to check whether
+        // Ice.MemoryLimitException is raised as expected.
+        //
+        properties.setProperty("Ice.MessageSizeMax", "100");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
-            //
-            // In this test, we need at least two threads in the
-            // client side thread pool for nested AMI.
-            //
-            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
-            initData.properties = com.zeroc.Ice.Util.createProperties();
-            initData.properties.setProperty("Ice.Package._abstract", "test.Slice.escape");
-            initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-            initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-            initData.properties.setProperty("TestAdapter.Endpoints", "default");
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new defaultI(), com.zeroc.Ice.Util.stringToIdentity("test"));
+            adapter.activate();
 
-            //
-            // We must set MessageSizeMax to an explicit values,
-            // because we run tests to check whether
-            // Ice.MemoryLimitException is raised as expected.
-            //
-            initData.properties.setProperty("Ice.MessageSizeMax", "100");
-
-            communicator = com.zeroc.Ice.Util.initialize(args, initData);
-            status = run(args, communicator);
+            System.out.print("Testing operation name... ");
+            System.out.flush();
+            defaultPrx p = defaultPrx.uncheckedCast(adapter.createProxy(com.zeroc.Ice.Util.stringToIdentity("test")));
+            p._do();
+            System.out.println("ok");
         }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            communicator.destroy();
-        }
-
-        System.gc();
-        System.exit(status);
     }
 }

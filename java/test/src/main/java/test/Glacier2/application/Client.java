@@ -13,19 +13,13 @@ import java.io.PrintWriter;
 import test.Glacier2.application.Test.CallbackPrx;
 import test.Glacier2.application.Test.CallbackReceiverPrx;
 
-public class Client extends test.Util.Application
+import com.zeroc.Ice.InitializationData;
+
+public class Client extends test.TestHelper
 {
-    Client()
+    public Client()
     {
         out = getWriter();
-    }
-
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
     }
 
     class CallbackReceiverI implements test.Glacier2.application.Test.CallbackReceiver
@@ -134,61 +128,51 @@ public class Client extends test.Util.Application
         private CallbackReceiverI _receiver;
     }
 
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        _initData = super.getInitData(args, rArgs);
-        _initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return _initData;
-    }
-
-    public int run(String[] args)
+    public void run(String[] args)
     {
         Application app = new Application();
-        _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" +
-                                            getTestEndpoint(_initData.properties, 50));
-        int status = app.main("Client", args, _initData);
+        InitializationData initData = new InitializationData();
+        initData.properties = createTestProperties(args);
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Default.Router",
+                                        "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
 
-        out.print("testing stringToProxy for process object... ");
-        out.flush();
-        com.zeroc.Ice.ObjectPrx processBase = communicator().stringToProxy("Glacier2/admin -f Process:" +
-                                                                getTestEndpoint(communicator().getProperties(), 51));
-        out.println("ok");
+        int status = app.main("Client", args, initData);
 
-        out.print("testing checked cast for admin object... ");
-        out.flush();
-        com.zeroc.Ice.ProcessPrx process = com.zeroc.Ice.ProcessPrx.checkedCast(processBase);
-        test(process != null);
-        out.println("ok");
+        initData.properties = createTestProperties(args);
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
 
-        out.print("testing Glacier2 shutdown... ");
-        out.flush();
-        process.shutdown();
-        try
+        try(com.zeroc.Ice.Communicator communicator = initialize(initData))
         {
-            process.ice_ping();
-            test(false);
-        }
-        catch(com.zeroc.Ice.LocalException ex)
-        {
+            out.print("testing stringToProxy for process object... ");
+            out.flush();
+            com.zeroc.Ice.ObjectPrx processBase =
+                communicator.stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
             out.println("ok");
+
+            out.print("testing checked cast for admin object... ");
+            out.flush();
+            com.zeroc.Ice.ProcessPrx process = com.zeroc.Ice.ProcessPrx.checkedCast(processBase);
+            test(process != null);
+            out.println("ok");
+
+            out.print("testing Glacier2 shutdown... ");
+            out.flush();
+            process.shutdown();
+            try
+            {
+                process.ice_ping();
+                test(false);
+            }
+            catch(com.zeroc.Ice.LocalException ex)
+            {
+                out.println("ok");
+            }
         }
 
         test(app._restart == 5);
         test(app._destroyed);
-
-        return status;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
     }
 
     final public PrintWriter out;
-    private com.zeroc.Ice.InitializationData _initData;
 }

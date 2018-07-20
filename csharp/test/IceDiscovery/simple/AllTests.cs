@@ -11,12 +11,12 @@ using Test;
 using System;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     public static void
-    allTests(TestCommon.Application app, int num)
+    allTests(Test.TestHelper helper, int num)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         List<ControllerPrx> proxies = new List<ControllerPrx>();
         List<ControllerPrx> indirectProxies = new List<ControllerPrx>();
         for(int i = 0; i < num; ++i)

@@ -9,37 +9,19 @@
 
 package test.Ice.inheritance;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
     @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        com.zeroc.Ice.Object object = new InitialI(adapter);
-        adapter.add(object, com.zeroc.Ice.Util.stringToIdentity("initial"));
-
-        AllTests.allTests(this);
-
-        return 0;
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.inheritance");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new InitialI(adapter), com.zeroc.Ice.Util.stringToIdentity("initial"));
+            AllTests.allTests(this);
+        }
     }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.inheritance");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Collocated c = new Collocated();
-        int status = c.main("Collocated", args);
-
-        System.gc();
-        System.exit(status);
-    }
-
 }

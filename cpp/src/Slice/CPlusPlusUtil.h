@@ -37,7 +37,7 @@ const int TypeContextCpp11 = 64;
 
 bool isMovable(const TypePtr&);
 
-std::string getAbsolute(const std::string&, const std::string&);
+std::string getUnqualified(const std::string&, const std::string&);
 std::string typeToString(const TypePtr&, const std::string& = "", const StringList& = StringList(), int = 0);
 std::string typeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);
 std::string returnTypeToString(const TypePtr&, bool, const std::string& = "", const StringList& = StringList(), int = 0);

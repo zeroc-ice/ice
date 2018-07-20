@@ -11,7 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private static string testString = "This is a test string";
 
@@ -180,10 +180,10 @@ public class AllTests : TestCommon.AllTests
         private CallbackBase callback = new CallbackBase();
     }
 
-    public static Test.MyClassPrx allTests(TestCommon.Application app)
+    public static Test.MyClassPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:" + app.getTestEndpoint(0));
+        Ice.Communicator communicator = helper.communicator();
+        Ice.ObjectPrx baseProxy = communicator.stringToProxy("test:" + helper.getTestEndpoint(0));
         Test.MyClassPrx cl = Test.MyClassPrxHelper.checkedCast(baseProxy);
         Test.MyClassPrx oneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_oneway());
         Test.MyClassPrx batchOneway = Test.MyClassPrxHelper.uncheckedCast(cl.ice_batchOneway());

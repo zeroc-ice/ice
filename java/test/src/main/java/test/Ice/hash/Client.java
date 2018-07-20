@@ -18,31 +18,14 @@ import com.zeroc.Ice.ObjectPrx;
 import com.zeroc.Ice.ProxyIdentityKey;
 import com.zeroc.Ice.ProxyIdentityFacetKey;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
-    }
-
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
         PrintWriter out = getWriter();
-        int status = 0;
-        try
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
             java.util.Map<Integer, ObjectPrx> seenProxy = new java.util.HashMap<>();
             java.util.Map<Integer, Endpoint> seenEndpoint = new java.util.HashMap<>();
@@ -51,11 +34,6 @@ public class Client extends test.Util.Application
             int i = 0;
             int maxCollisions = 10;
             int maxIterations = 10000;
-
-            com.zeroc.Ice.InitializationData initData = createInitializationData();
-            initData.properties = com.zeroc.Ice.Util.createProperties(args);
-            initData.properties.setProperty("Ice.Plugin.IceSSL", "com.zeroc.IceSSL.PluginFactory");
-            com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, initData);
 
             out.print("testing proxy & endpoint hash algorithm collisions... ");
             out.flush();
@@ -435,17 +413,6 @@ public class Client extends test.Util.Application
                 test(structCollisions < maxCollisions);
             }
             out.println("ok");
-
-            if(communicator != null)
-            {
-                communicator.destroy();
-            }
         }
-        catch(Exception ex)
-        {
-            System.out.println(ex.toString());
-            status = 1;
-        }
-        return status;
     }
 }

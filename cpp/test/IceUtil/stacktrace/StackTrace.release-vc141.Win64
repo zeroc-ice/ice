@@ -4,4 +4,5 @@
   3 `anonymous namespace'::Thrower::third at
   4 `anonymous namespace'::Thrower::second at
   5 `anonymous namespace'::Thrower::first at
-  6 main at
+  6 Client::run at
+  7 Test::runTest<Client> at

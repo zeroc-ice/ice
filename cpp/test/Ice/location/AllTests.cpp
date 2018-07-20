@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <Ice/Router.h>
 #include <IceUtil/IceUtil.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <list>
 
@@ -60,8 +60,9 @@ public:
 typedef IceUtil::Handle<AMICallback> AMICallbackPtr;
 
 void
-allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
+allTests(Test::TestHelper* helper, const string& ref)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     ServerManagerPrxPtr manager = ICE_CHECKED_CAST(ServerManagerPrx, communicator->stringToProxy(ref));
     TestLocatorPrxPtr locator = ICE_UNCHECKED_CAST(TestLocatorPrx, communicator->getDefaultLocator());
     test(manager);
@@ -276,20 +277,21 @@ allTests(const Ice::CommunicatorPtr& communicator, const string& ref)
     cout << "testing locator cache timeout... " << flush;
 
     int count = locator->getRequestCount();
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
+    Ice::ObjectPrxPtr basencc = communicator->stringToProxy("test@TestAdapter")->ice_connectionCached(false);
+    basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     test(++count == locator->getRequestCount());
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
+    basencc->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     test(++count == locator->getRequestCount());
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+    basencc->ice_locatorCacheTimeout(2)->ice_ping(); // 2s timeout.
     test(count == locator->getRequestCount());
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
-    communicator->stringToProxy("test@TestAdapter")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
+    basencc->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout.
     test(++count == locator->getRequestCount());
 
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
     count += 2;
     test(count == locator->getRequestCount());
-    communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout
+    communicator->stringToProxy("test")->ice_locatorCacheTimeout(2)->ice_ping(); // 2s timeout
     test(count == locator->getRequestCount());
     IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1300));
     communicator->stringToProxy("test")->ice_locatorCacheTimeout(1)->ice_ping(); // 1s timeout

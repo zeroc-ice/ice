@@ -11,7 +11,7 @@
 #define TEST_I_H
 
 #include <Test.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 class TestIntfControllerI;
 ICE_DEFINE_PTR(TestIntfControllerIPtr, TestIntfControllerI);

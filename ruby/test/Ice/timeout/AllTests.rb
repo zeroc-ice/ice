@@ -51,7 +51,7 @@ def allTests(communicator)
     #
     # Expect success.
     #
-    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(2000))
+    to = Test::TimeoutPrx::uncheckedCast(obj.ice_timeout(-1))
     controller.holdAdapter(100)
     begin
         to.op()
@@ -235,7 +235,7 @@ def allTests(communicator)
     controller.holdAdapter(-1);
     now = Time.now
     comm.destroy();
-    test((Time.now - now) < 0.7);
+    test((Time.now - now) < 1.0);
     controller.resumeAdapter()
 
     puts "ok"

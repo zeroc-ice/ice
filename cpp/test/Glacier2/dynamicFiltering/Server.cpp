@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <Glacier2/PermissionsVerifier.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestControllerI.h>
 #include <SessionI.h>
 #include <BackendI.h>
@@ -112,24 +112,17 @@ private:
     BackendPtr _backend;
 };
 
-class SessionControlServer : public Application
+class SessionControlServer : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+SessionControlServer::run(int argc, char** argv)
 {
-    SessionControlServer app;
-    Ice::InitializationData initData = getTestInitData(argc, argv);
-    return app.main(argc, argv, initData);
-}
-
-int
-SessionControlServer::run(int, char*[])
-{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     //
     // The server requires 3 separate server endpoints. One for the test
     // controller that will coordinate the tests and the required
@@ -141,27 +134,27 @@ SessionControlServer::run(int, char*[])
     // servant, allowing us to use any reference as long as the client
     // expects to use a proxy for the correct type of object.
     //
-    communicator()->getProperties()->setProperty("TestControllerAdapter.Endpoints",
-                                                 getTestEndpoint(communicator(), 2, "tcp"));
-    ObjectAdapterPtr controllerAdapter = communicator()->createObjectAdapter("TestControllerAdapter");
-    TestControllerIPtr controller = new TestControllerI(getTestEndpoint(communicator(), 1));
+    communicator->getProperties()->setProperty("TestControllerAdapter.Endpoints", getTestEndpoint(2, "tcp"));
+    ObjectAdapterPtr controllerAdapter = communicator->createObjectAdapter("TestControllerAdapter");
+    TestControllerIPtr controller = new TestControllerI(getTestEndpoint(1));
     controllerAdapter->add(controller, Ice::stringToIdentity("testController"));
     controllerAdapter->activate();
 
-    communicator()->getProperties()->setProperty("SessionControlAdapter.Endpoints", getTestEndpoint(communicator(), 0));
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("SessionControlAdapter");
+    communicator->getProperties()->setProperty("SessionControlAdapter.Endpoints", getTestEndpoint());
+    ObjectAdapterPtr adapter = communicator->createObjectAdapter("SessionControlAdapter");
     adapter->add(new SessionManagerI(controller), Ice::stringToIdentity("SessionManager"));
     adapter->activate();
 
     BackendPtr backend = new BackendI;
-    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", getTestEndpoint(communicator(), 1));
-    ObjectAdapterPtr backendAdapter = communicator()->createObjectAdapter("BackendAdapter");
+    communicator->getProperties()->setProperty("BackendAdapter.Endpoints", getTestEndpoint(1));
+    ObjectAdapterPtr backendAdapter = communicator->createObjectAdapter("BackendAdapter");
     backendAdapter->addServantLocator(new ServantLocatorI(backend), "");
     backendAdapter->activate();
 
     Ice::LocatorPtr locator = new ServerLocatorI(backend, backendAdapter);
     backendAdapter->add(locator, Ice::stringToIdentity("locator"));
 
-    communicator()->waitForShutdown();
-    return EXIT_SUCCESS;
+    communicator->waitForShutdown();
 }
+
+DEFINE_TEST(SessionControlServer)

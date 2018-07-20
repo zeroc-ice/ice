@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <TestI.h>
 
@@ -111,9 +111,10 @@ connect(const Ice::ObjectPrxPtr& prx)
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
-    string sref = "timeout:" + getTestEndpoint(communicator, 0);
+    Ice::CommunicatorPtr communicator = helper->communicator();
+    string sref = "timeout:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
@@ -121,7 +122,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     test(timeout);
 
     ControllerPrxPtr controller =
-        ICE_CHECKED_CAST(ControllerPrx, communicator->stringToProxy("controller:" + getTestEndpoint(communicator, 1)));
+        ICE_CHECKED_CAST(ControllerPrx, communicator->stringToProxy("controller:" + helper->getTestEndpoint(1)));
     test(controller);
 
     cout << "testing connect timeout... " << flush;
@@ -147,7 +148,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         //
         // Expect success.
         //
-        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(2000));
+        TimeoutPrxPtr to = ICE_UNCHECKED_CAST(TimeoutPrx, obj->ice_timeout(-1));
         controller->holdAdapter(100);
         try
         {
@@ -471,7 +472,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
         controller->holdAdapter(-1);
         IceUtil::Time now = IceUtil::Time::now();
         ich.release()->destroy();
-        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(700));
+        test(IceUtil::Time::now() - now < IceUtil::Time::milliSeconds(1000));
         controller->resumeAdapter();
         timeout->op(); // Ensure adapter is active.
     }

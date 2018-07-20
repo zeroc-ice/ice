@@ -11,7 +11,7 @@
 #include <Glacier2/Glacier2.h>
 #include <IceStorm/IceStorm.h>
 #include <IceGrid/IceGrid.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -85,8 +85,9 @@ private:
 } // Anonymous namespace end
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     {
         cout << "Testing Glacier2 stub... " << flush;
         char** argv = 0;
@@ -143,7 +144,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     {
         cout << "Testing IceGrid stub... " << flush;
 
-        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + getTestEndpoint(communicator, 0));
+        Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + helper->getTestEndpoint());
         IceGrid::RegistryPrxPtr registry = ICE_UNCHECKED_CAST(IceGrid::RegistryPrx, base);
         IceGrid::AdminSessionPrxPtr session;
         IceGrid::AdminPrxPtr admin;

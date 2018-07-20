@@ -27,7 +27,7 @@ public class AllTests
 
     static String getPort(Ice.PropertiesAdminPrx p)
     {
-        return Integer.toString(test.Util.Application.getTestPort(p.ice_getCommunicator().getProperties(), 0));
+        return Integer.toString(test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), 0));
     }
 
     static IceMX.ConnectionMetrics getServerConnectionMetrics(IceMX.MetricsAdminPrx metrics, long expected)
@@ -442,19 +442,20 @@ public class AllTests
         return m;
     }
 
-    static MetricsPrx allTests(test.Util.Application app, CommunicatorObserverI obsv)
+    static MetricsPrx allTests(test.TestHelper helper, CommunicatorObserverI obsv)
         throws IceMX.UnknownMetricsView
     {
-        PrintWriter out = app.getWriter();
-        Ice.Communicator communicator = app.communicator();
+        PrintWriter out = helper.getWriter();
+        Ice.Communicator communicator = helper.communicator();
 
-        String host = app.getTestHost();
-        String port = Integer.toString(app.getTestPort(0));
+        String host = helper.getTestHost();
+        String port = Integer.toString(helper.getTestPort(0));
         String hostAndPort = host + ":" + port;
-        String protocol = app.getTestProtocol();
+        String protocol = helper.getTestProtocol();
         String endpoint = protocol + " -h " + host + " -p " + port;
 
-        MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:" + app.getTestEndpoint(0)));
+        MetricsPrx metrics = MetricsPrxHelper.checkedCast(communicator.stringToProxy("metrics:" +
+                                                                                     helper.getTestEndpoint(0)));
         boolean collocated = metrics.ice_getConnection() == null;
 
         int threadCount = 4;
@@ -642,7 +643,7 @@ public class AllTests
             test(map.get("active").current == 1);
 
             ControllerPrx controller = ControllerPrxHelper.checkedCast(
-                communicator.stringToProxy("controller:" + app.getTestEndpoint(1)));
+                communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
             controller.hold();
 
             map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Connection"));
@@ -871,6 +872,7 @@ public class AllTests
         catch(UserEx ex)
         {
         }
+
         try
         {
             metrics.opWithRequestFailedException();
@@ -879,6 +881,7 @@ public class AllTests
         catch(Ice.RequestFailedException ex)
         {
         }
+
         try
         {
             metrics.opWithLocalException();
@@ -887,6 +890,7 @@ public class AllTests
         catch(Ice.LocalException ex)
         {
         }
+
         try
         {
             metrics.opWithUnknownException();
@@ -895,17 +899,19 @@ public class AllTests
         catch(Ice.UnknownException ex)
         {
         }
+
         if(!collocated)
         {
             try
             {
-            metrics.fail();
-            test(false);
+                metrics.fail();
+                test(false);
             }
             catch(Ice.ConnectionLostException ex)
             {
             }
         }
+
         map = toMap(serverMetrics.getMetricsView("View", timestamp).get("Dispatch"));
         test(map.size() == (collocated ? 5 : 6));
 
@@ -999,6 +1005,7 @@ public class AllTests
         catch(UserEx ex)
         {
         }
+
         try
         {
             metrics.end_opWithUserException(metrics.begin_opWithUserException());
@@ -1018,6 +1025,7 @@ public class AllTests
         catch(Ice.RequestFailedException ex)
         {
         }
+
         try
         {
             metrics.end_opWithRequestFailedException(metrics.begin_opWithRequestFailedException());
@@ -1037,6 +1045,7 @@ public class AllTests
         catch(Ice.LocalException ex)
         {
         }
+
         try
         {
             metrics.end_opWithLocalException(metrics.begin_opWithLocalException());
@@ -1056,6 +1065,7 @@ public class AllTests
         catch(Ice.UnknownException ex)
         {
         }
+
         try
         {
             metrics.end_opWithUnknownException(metrics.begin_opWithUnknownException());
@@ -1077,6 +1087,7 @@ public class AllTests
             catch(Ice.ConnectionLostException ex)
             {
             }
+
             try
             {
                 metrics.end_fail(metrics.begin_fail());

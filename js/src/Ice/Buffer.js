@@ -26,14 +26,15 @@ class Buffer
         {
             this.b = buffer;
             this.v = new DataView(this.b);
+            this._limit = this.b.byteLength;
         }
         else
         {
             this.b = null; // ArrayBuffer
             this.v = null; // DataView
+            this._limit = 0;
         }
         this._position = 0;
-        this._limit = 0;
         this._shrinkCounter = 0;
     }
 
@@ -98,7 +99,7 @@ class Buffer
         {
             this._shrinkCounter = 0;
         }
-        this._limit = 0;
+        this._limit = this.capacity();
         this._position = 0;
     }
 
@@ -121,7 +122,7 @@ class Buffer
         }
         else if(n < this.capacity)
         {
-            this.b = this.b.slice(0, this.capacity);
+            this.b = this.b.slice(0, n);
             this.v = new DataView(this.b);
         }
     }

@@ -8,15 +8,17 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
+//
 // Work-around for strange VS2017 15.5 optimizer bug, see ICE-8611
+//
+#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
 #   pragma optimize("g", off)
 #endif
 
@@ -218,15 +220,18 @@ testExceptions(const TestIntfPrxPtr& obj)
     }
 }
 
-#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
+//
 // See above
+//
+#if defined(_MSC_VER) && (_MSC_VER >= 1900 && _MSC_VER < 2000) && defined(NDEBUG) && defined(ICE_CPP11_MAPPING)
 #   pragma optimize("g", on)
 #endif
 
 TestIntfPrxPtr
-allTests(const CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
-    const string endp = getTestEndpoint(communicator, 0);
+    CommunicatorPtr communicator = helper->communicator();
+    const string endp = helper->getTestEndpoint();
     cout << "testing stringToProxy... " << flush;
     ObjectPrxPtr base = communicator->stringToProxy("asm:" + endp);
     test(base);
@@ -279,8 +284,7 @@ allTests(const CommunicatorPtr& communicator)
     obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     try
     {
-        ICE_CHECKED_CAST(TestIntfPrx,
-                         communicator->stringToProxy("category/unknown:" + getTestEndpoint(communicator, 0)));
+        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("category/unknown:" + endp));
     }
     catch(const ObjectNotExistException&)
     {
@@ -294,8 +298,7 @@ allTests(const CommunicatorPtr& communicator)
     obj = ICE_CHECKED_CAST(TestIntfPrx, base);
     try
     {
-        ICE_CHECKED_CAST(TestIntfPrx,
-                         communicator->stringToProxy("anothercategory/unknown:" + getTestEndpoint(communicator, 0)));
+        ICE_CHECKED_CAST(TestIntfPrx, communicator->stringToProxy("anothercategory/unknown:" + endp));
     }
     catch(const ObjectNotExistException&)
     {

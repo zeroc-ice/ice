@@ -11,7 +11,7 @@
 #include <IceUtil/Options.h>
 #include <IceUtil/IceUtil.h>
 #include <IceStorm/IceStorm.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Single.h>
 
 using namespace std;
@@ -19,9 +19,17 @@ using namespace Ice;
 using namespace IceStorm;
 using namespace Test;
 
-int
-run(int argc, char* argv[], const CommunicatorPtr& communicator)
+class Publisher : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Publisher::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     IceUtilInternal::Options opts;
     opts.addOpt("", "cycle");
 
@@ -31,25 +39,27 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cerr << argv[0] << ": " << e.reason << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": " << e.reason;
+        throw invalid_argument(os.str());
     }
 
     PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
-    string managerProxy = properties->getProperty(managerProxyProperty);
+    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
-        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
+        throw invalid_argument(os.str());
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
         communicator->stringToProxy(managerProxy));
     if(!manager)
     {
-        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": `" << managerProxy << "' is not running";
+        throw invalid_argument(os.str());
     }
 
     TopicPrx topic;
@@ -68,8 +78,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         }
         catch(const IceStorm::NoSuchTopic& e)
         {
-            cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-            return EXIT_FAILURE;
+            ostringstream os;
+            os << argv[0] << ": NoSuchTopic: " << e.name;
+            throw invalid_argument(os.str());
         }
     }
     assert(topic);
@@ -94,8 +105,9 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
         }
         if(single.size() <= 1)
         {
-            cerr << argv[0] << ": Not enough endpoints in publisher proxy" << endl;
-            return EXIT_FAILURE;
+            ostringstream os;
+            os << argv[0] << ": Not enough endpoints in publisher proxy";
+            throw invalid_argument(os.str());
         }
         int which = 0;
         for(int i = 0; i < 1000; ++i)
@@ -112,31 +124,6 @@ run(int argc, char* argv[], const CommunicatorPtr& communicator)
             single->event(i);
         }
     }
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-    InitializationData initData = getTestInitData(argc, argv);
-    try
-    {
-        communicator = initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Publisher)

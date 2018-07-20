@@ -8,45 +8,32 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestAMDI.h>
-
-DEFINE_TEST("serveramd")
 
 using namespace std;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class ServerAMD : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
+public:
+
+    void run(int, char**);
+};
+
+void
+ServerAMD::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.Warn.Dispatch", "0");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(ICE_MAKE_SHARED(MyDerivedClassI), Ice::stringToIdentity("test"));
     adapter->activate();
-    TEST_READY
+    serverReady();
     communicator->waitForShutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(ServerAMD)

@@ -56,13 +56,13 @@ public class AllTests
         private boolean _called;
     }
 
-    public static RetryPrx allTests(test.Util.Application app,
+    public static RetryPrx allTests(test.TestHelper helper,
                                     com.zeroc.Ice.Communicator communicator,
                                     com.zeroc.Ice.Communicator communicator2,
                                     Instrumentation instrumentation,
                                     String ref)
     {
-        PrintWriter out = app.getWriter();
+        PrintWriter out = helper.getWriter();
         out.print("testing stringToProxy... ");
         out.flush();
         com.zeroc.Ice.ObjectPrx base1 = communicator.stringToProxy(ref);

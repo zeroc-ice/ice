@@ -120,6 +120,10 @@
     {
         "files": ["Test.js", "Client.js"]
     },
+    "Ice/scope":
+    {
+        "files": ["Test.js", "Client.js"]
+    },
     "Ice/servantLocator":
     {
         "files": ["Test.js", "Client.js", "TestI.js", "ServantLocatorI.js", "TestActivationI.js", "Server.js"],
@@ -165,6 +169,10 @@
     "Ice/number":
     {
         "files": ["Client.js"]
+    },
+    "Ice/stream":
+    {
+        "files": ["Test.js", "Client.js"]
     },
     "Glacier2/router":
     {

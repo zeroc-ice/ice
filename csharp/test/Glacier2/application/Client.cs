@@ -18,7 +18,7 @@ using System.Threading;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
     class CallbackReceiverI : Test.CallbackReceiverDisp_
     {
@@ -121,56 +121,53 @@ public class Client : TestCommon.Application
         private CallbackReceiverI _receiver;
     }
 
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        _initData = base.getInitData(ref args);
-        _initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return _initData;
-    }
-
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
         Application app = new Application();
-        _initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:" +
-                                            getTestEndpoint(_initData.properties, 50));
-        int status = app.main(args, _initData);
 
-        Console.Out.Write("testing stringToProxy for process object... ");
-        Console.Out.Flush();
-        Ice.ObjectPrx processBase = communicator().stringToProxy("Glacier2/admin -f Process:" +
-                                                                 getTestEndpoint(communicator().getProperties(), 51));
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("testing checked cast for admin object... ");
-        Console.Out.Flush();
-        Ice.ProcessPrx process = Ice.ProcessPrxHelper.checkedCast(processBase);
-        test(process != null);
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("testing Glacier2 shutdown... ");
-        Console.Out.Flush();
-        process.shutdown();
-        try
+        Ice.Properties properties = createTestProperties(ref args);
+        Ice.InitializationData initData = new Ice.InitializationData();
+        initData.properties = properties.ice_clone_();
+        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        initData.properties.setProperty("Ice.Default.Router",
+                                        "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
+        if(app.main(args, initData) != 0)
         {
-            process.ice_ping();
             test(false);
         }
-        catch(Ice.LocalException)
+
+        using(var communicator = initialize(properties))
         {
+            Console.Out.Write("testing stringToProxy for process object... ");
+            Console.Out.Flush();
+            Ice.ObjectPrx processBase = communicator.stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
             Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing checked cast for admin object... ");
+            Console.Out.Flush();
+            Ice.ProcessPrx process = Ice.ProcessPrxHelper.checkedCast(processBase);
+            test(process != null);
+            Console.Out.WriteLine("ok");
+
+            Console.Out.Write("testing Glacier2 shutdown... ");
+            Console.Out.Flush();
+            process.shutdown();
+            try
+            {
+                process.ice_ping();
+                test(false);
+            }
+            catch(Ice.LocalException)
+            {
+                Console.Out.WriteLine("ok");
+            }
+            test(app._restart == 5);
+            test(app._destroyed);
         }
-
-        test(app._restart == 5);
-        test(app._destroyed);
-
-        return status;
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
-
-    private Ice.InitializationData _initData;
 }

@@ -10,6 +10,8 @@
 #ifndef ICESSL_SCHANNEL_ENGINE_F_H
 #define ICESSL_SCHANNEL_ENGINE_F_H
 
+#ifdef _WIN32
+
 #include <IceUtil/Shared.h>
 #include <Ice/Handle.h>
 
@@ -28,5 +30,7 @@ typedef IceInternal::Handle<SSLEngine> SSLEnginePtr;
 }
 
 }
+
+#endif
 
 #endif

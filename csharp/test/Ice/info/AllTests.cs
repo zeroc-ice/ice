@@ -10,7 +10,7 @@
 using System.Collections.Generic;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private static Ice.TCPEndpointInfo getTCPEndpointInfo(Ice.EndpointInfo info)
     {
@@ -36,9 +36,9 @@ public class AllTests : TestCommon.AllTests
         return null;
     }
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing proxy endpoint information... ");
         Flush();
         {
@@ -120,9 +120,9 @@ public class AllTests : TestCommon.AllTests
 
             adapter.destroy();
 
-            int port = app.getTestPort(1);
+            int port = helper.getTestPort(1);
             communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p " + port);
-            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", app.getTestEndpoint(1));
+            communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", helper.getTestEndpoint(1));
             adapter = communicator.createObjectAdapter("TestAdapter");
 
             endpoints = adapter.getEndpoints();
@@ -144,11 +144,11 @@ public class AllTests : TestCommon.AllTests
         }
         WriteLine("ok");
 
-        int endpointPort = app.getTestPort(0);
+        int endpointPort = helper.getTestPort(0);
 
         Ice.ObjectPrx @base = communicator.stringToProxy("test:" +
-                                                         app.getTestEndpoint(0) + ":" +
-                                                         app.getTestEndpoint(0, "udp"));
+                                                         helper.getTestEndpoint(0) + ":" +
+                                                         helper.getTestEndpoint(0, "udp"));
         TestIntfPrx testIntf = TestIntfPrxHelper.checkedCast(@base);
 
         string defaultHost = communicator.getProperties().getProperty("Ice.Default.Host");

@@ -3,10 +3,6 @@
         <Configuration>Release</Configuration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(IceTestsTargetFrameworks)' == ''">
-        <IceTestsTargetFrameworks>netcoreapp2.0</IceTestsTargetFrameworks>
-    </PropertyGroup>
-
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"
             Condition="Exists('$(VCTargetsPath)\Microsoft.Cpp.Default.props')"/>
@@ -79,7 +75,7 @@
         </NetStandardDistSolution>
 
         <NetStandardTestSolution Include="ice.netstandard2.0.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;IceTestsTargetFrameworks=$(IceTestsTargetFrameworks)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
         </NetStandardTestSolution>
     </ItemGroup>
 
@@ -232,6 +228,9 @@
 
         <Copy SourceFiles="zeroc.ice.net.nuspec"
               DestinationFolder="zeroc.ice.net" />
+
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
+              DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\THIRD_PARTY_LICENSE.txt" />
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
               DestinationFiles="zeroc.ice.net\ICE_LICENSE.txt" />

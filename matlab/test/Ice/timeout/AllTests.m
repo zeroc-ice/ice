@@ -63,7 +63,7 @@ classdef AllTests
             %
             % Expect success.
             %
-            to = timeout.ice_timeout(2000);
+            to = timeout.ice_timeout(-1);
             controller.holdAdapter(100);
             try
                 to.op();
@@ -335,7 +335,7 @@ classdef AllTests
             controller.holdAdapter(-1);
             tic();
             comm.destroy();
-            assert(toc() < .7);
+            assert(toc() < 1.0);
             controller.resumeAdapter();
             timeout.op(); % Ensure adapter is active.
 

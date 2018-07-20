@@ -1424,7 +1424,11 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
          << "\"" << getHelper(type) << "\"" << ", " << (fixed ? "true" : "false");
     if(isClassType(type))
     {
-        _out<< ", \"" << typeToString(type) << "\"";
+        bool isinterface =
+            ClassDeclPtr::dynamicCast(type) &&
+            ClassDeclPtr::dynamicCast(type)->definition() &&
+            ClassDeclPtr::dynamicCast(type)->definition()->isInterface();
+        _out<< ", \"" << (isinterface ? "Ice.Value" : typeToString(type)) << "\"";
     }
     _out << ");";
 }
@@ -1692,10 +1696,15 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const string propertyName = name + "Helper";
     bool fixed = !keyType->isVariableLength() && !valueType->isVariableLength();
 
+    bool isinterface =
+            ClassDeclPtr::dynamicCast(valueType) &&
+            ClassDeclPtr::dynamicCast(valueType)->definition() &&
+            ClassDeclPtr::dynamicCast(valueType)->definition()->isInterface();
+
     _out << sp;
     _out << nl << "Slice.defineDictionary(" << scope << ", \"" << name << "\", \"" << propertyName << "\", "
          << "\"" << getHelper(keyType) << "\", "
-         << "\"" << getHelper(valueType) << "\", "
+         << "\"" << (isinterface ? "Ice.Value" : getHelper(valueType)) << "\", "
          << (fixed ? "true" : "false") << ", "
          << (keyUseEquals ? "Ice.HashMap.compareEquals" : "undefined");
 

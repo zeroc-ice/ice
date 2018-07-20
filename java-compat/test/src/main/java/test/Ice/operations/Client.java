@@ -11,47 +11,32 @@ package test.Ice.operations;
 
 import test.Ice.operations.Test.MyClassPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        java.io.PrintWriter out = getWriter();
-        MyClassPrx myClass = AllTests.allTests(this);
-
-        out.print("testing server shutdown... ");
-        out.flush();
-        myClass.shutdown();
-        try
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.ThreadPool.Client.Size", "2");
+        properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+        properties.setProperty("Ice.Package.Test", "test.Ice.operations");
+        properties.setProperty("Ice.BatchAutoFlushSize", "100");
+        try(Ice.Communicator communicator = initialize(properties))
         {
-            myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-            throw new RuntimeException();
+            java.io.PrintWriter out = getWriter();
+            MyClassPrx myClass = AllTests.allTests(this);
+
+            out.print("testing server shutdown... ");
+            out.flush();
+            myClass.shutdown();
+            try
+            {
+                myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+                throw new RuntimeException();
+            }
+            catch(Ice.LocalException ex)
+            {
+                out.println("ok");
+            }
         }
-        catch(Ice.LocalException ex)
-        {
-            out.println("ok");
-        }
-
-        return 0;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-        initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
-        initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
     }
 }

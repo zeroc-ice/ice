@@ -166,14 +166,15 @@
 
         out.write("testing locator cache timeout... ");
         let count = await locator.getRequestCount();
-        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        const basencc = communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
+        await basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == await locator.getRequestCount());
-        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        await basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == await locator.getRequestCount());
-        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        await basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(count == await locator.getRequestCount());
         await Ice.Promise.delay(1200); // 1200ms
-        await communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        await basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == await locator.getRequestCount());
 
         await communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.

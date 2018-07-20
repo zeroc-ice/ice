@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 using System.Threading;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     public class Progress : IProgress<bool>
     {
@@ -102,16 +102,16 @@ public class AllTests : TestCommon.AllTests
         private bool _called;
     }
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        string sref = "test:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        string sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         Test.TestIntfPrx p = Test.TestIntfPrxHelper.uncheckedCast(obj);
 
-        sref = "testController:" + app.getTestEndpoint(1);
+        sref = "testController:" + helper.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -134,7 +134,7 @@ public class AllTests : TestCommon.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                 to.begin_sleep(500).whenCompleted(
                     () =>
                     {
@@ -199,7 +199,7 @@ public class AllTests : TestCommon.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -232,7 +232,7 @@ public class AllTests : TestCommon.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
@@ -306,7 +306,7 @@ public class AllTests : TestCommon.AllTests
                         test(Dispatcher.isDispatcherThread());
                     }
 
-                    Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(250));
+                    Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
                     try
                     {
                         await to.sleepAsync(500);

@@ -16,32 +16,27 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Collocated : TestCommon.Application
+public class Collocated : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
-        //adapter.activate(); // Don't activate OA to ensure collocation is used.
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
+        properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+        properties.setProperty("Ice.Warn.Dispatch", "0");
 
-        AllTests.allTests(this);
-
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
-        initData.properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        return initData;
+        using(var communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+            //adapter.activate(); // Don't activate OA to ensure collocation is used.
+            AllTests.allTests(this);
+        }
     }
 
     public static int Main(String[] args)
     {
-        Collocated app = new Collocated();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Collocated>(args);
     }
 }

@@ -24,7 +24,7 @@ class Oneways
     }
 
     static void
-    oneways(test.Util.Application app, MyClassPrx p)
+    oneways(test.TestHelper helper, MyClassPrx p)
     {
         p = MyClassPrxHelper.uncheckedCast(p.ice_oneway());
 

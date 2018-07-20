@@ -9,30 +9,26 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
+#include <TestHelper.h>
 
 using namespace std;
 
-class Server : public Ice::Application
+class Server : public Test::TestHelper
 {
 public:
 
-    virtual int run(int argc, char* argv[]);
-
+    void run(int, char**);
 };
 
-int
-Server::run(int argc, char* argv[])
+void
+Server::run(int argc, char** argv)
 {
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    args = communicator()->getProperties()->parseCommandLineOptions("TestAdapter", args);
-    Ice::stringSeqToArgs(args, argc, argv);
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
 
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapter("TestAdapter");
-    Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
-    string id = communicator()->getProperties()->getPropertyWithDefault("Identity", "test");
-    adapter->add(object, Ice::stringToIdentity(id));
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+    string id = communicator->getProperties()->getPropertyWithDefault("Identity", "test");
+    adapter->add(ICE_MAKE_SHARED(TestI), Ice::stringToIdentity(id));
 
-    shutdownOnInterrupt();
     try
     {
         adapter->activate();
@@ -40,19 +36,7 @@ Server::run(int argc, char* argv[])
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
     }
-    communicator()->waitForShutdown();
-    ignoreInterrupt();
-    return EXIT_SUCCESS;
+    communicator->waitForShutdown();
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-    Server app;
-    int rc = app.main(argc, argv);
-    return rc;
-}
+DEFINE_TEST(Server)

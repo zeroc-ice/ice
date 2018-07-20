@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <InstrumentationI.h>
 #include <Test.h>
 
@@ -59,7 +59,7 @@ string
 getPort(const Ice::PropertiesAdminPrxPtr& p)
 {
     ostringstream os;
-    os << getTestPort(p->ice_getCommunicator()->getProperties(), 0);
+    os << TestHelper::getTestPort(p->ice_getCommunicator()->getProperties(), 0);
     return os.str();
 }
 
@@ -384,7 +384,8 @@ clearView(const Ice::PropertiesAdminPrxPtr& cprops, const Ice::PropertiesAdminPr
 }
 
 void
-checkFailure(const IceMX::MetricsAdminPrxPtr& m, const string& map, const string& id, const string& failure, int count = 0)
+checkFailure(const IceMX::MetricsAdminPrxPtr& m, const string& map, const string& id, const string& failure,
+             int count = 0)
 {
     IceMX::MetricsFailures f = m->getMetricsFailures("View", map, id);
     if(f.failures.find(failure) == f.failures.end())
@@ -414,18 +415,18 @@ toMap(const IceMX::MetricsMap& mmap)
 }
 
 MetricsPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPtr& obsv)
+allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
 {
-    Ice::PropertiesPtr properties = communicator->getProperties();
-    string host = getTestHost(properties);
+    Ice::CommunicatorPtr communicator = helper->communicator();
+    string host = helper->getTestHost();
     string port;
     {
         ostringstream os;
-        os << getTestPort(properties, 0);
+        os << helper->getTestPort();
         port = os.str();
     }
     string hostAndPort = host + ":" + port;
-    string protocol = getTestProtocol(properties);
+    string protocol = helper->getTestProtocol();
     string endpoint;
     {
         ostringstream os;
@@ -638,7 +639,7 @@ allTests(const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPt
         map = toMap(clientMetrics->getMetricsView("View", timestamp)["Connection"]);
         test(map["active"]->current == 1);
 
-        Ice::ObjectPrxPtr cprx = communicator->stringToProxy("controller:" + getTestEndpoint(communicator, 1));
+        Ice::ObjectPrxPtr cprx = communicator->stringToProxy("controller:" + helper->getTestEndpoint(1));
         ControllerPrxPtr controller = ICE_CHECKED_CAST(ControllerPrx, cprx);
         controller->hold();
 

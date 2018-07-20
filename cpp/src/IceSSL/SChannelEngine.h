@@ -10,6 +10,8 @@
 #ifndef ICESSL_SCHANNEL_ENGINE_H
 #define ICESSL_SCHANNEL_ENGINE_H
 
+#ifdef _WIN32
+
 #include <IceSSL/SSLEngine.h>
 #include <IceSSL/SChannelEngineF.h>
 
@@ -122,5 +124,7 @@ private:
 }
 
 }
+
+#endif
 
 #endif

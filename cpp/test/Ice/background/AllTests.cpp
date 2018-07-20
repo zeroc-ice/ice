@@ -10,7 +10,7 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/Random.h>
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <PluginI.h>
 #include <Configuration.h>
@@ -205,16 +205,17 @@ void validationTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, con
 void readWriteTests(const ConfigurationPtr&, const Test::BackgroundPrxPtr&, const Test::BackgroundControllerPrxPtr&);
 
 BackgroundPrxPtr
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
-    const string endp = getTestEndpoint(communicator, 0);
+    Ice::CommunicatorPtr communicator = helper->communicator();
+    const string endp = helper->getTestEndpoint();
     string sref = "background:" + endp;
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
     BackgroundPrxPtr background = ICE_UNCHECKED_CAST(BackgroundPrx, obj);
 
-    sref = "backgroundController:" + getTestEndpoint(communicator, 1, "tcp");
+    sref = "backgroundController:" + helper->getTestEndpoint(1, "tcp");
     obj = communicator->stringToProxy(sref);
     test(obj);
 

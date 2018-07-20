@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceSSL/IceSSL.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
 
 using namespace std;

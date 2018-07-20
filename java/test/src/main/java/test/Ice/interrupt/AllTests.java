@@ -82,18 +82,18 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app)
+    public static void allTests(test.TestHelper helper)
         throws InterruptedException
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
-        String sref = "test:" + app.getTestEndpoint(0);
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
+        String sref = "test:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         final TestIntfPrx p = TestIntfPrx.uncheckedCast(obj);
 
-        sref = "testController:" + app.getTestEndpoint(1);
+        sref = "testController:" + helper.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -519,9 +519,9 @@ public class AllTests
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //
-            com.zeroc.Ice.InitializationData initData = app.createInitializationData();
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
-            com.zeroc.Ice.Communicator ic = app.initialize(initData);
+            com.zeroc.Ice.Communicator ic = helper.initialize(initData);
 
             Thread.currentThread().interrupt();
             try
@@ -537,7 +537,7 @@ public class AllTests
 
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
 
-            ic = app.initialize(initData);
+            ic = helper.initialize(initData);
             com.zeroc.Ice.ObjectPrx o = ic.stringToProxy(p.toString());
 
             final Thread[] thread = new Thread[1];
@@ -641,10 +641,10 @@ public class AllTests
         {
             final Thread mainThread = Thread.currentThread();
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
-            com.zeroc.Ice.InitializationData initData = app.createInitializationData();
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("ClientTestAdapter.Endpoints", "tcp -h *");
-            com.zeroc.Ice.Communicator ic = app.initialize(initData);
+            com.zeroc.Ice.Communicator ic = helper.initialize(initData);
             final com.zeroc.Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
             adapter.activate();
 

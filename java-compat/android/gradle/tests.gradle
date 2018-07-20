@@ -41,6 +41,7 @@ ext.tests = [
     "Ice/properties",
     "Ice/proxy",
     "Ice/retry",
+    "Ice/scope",
     "Ice/seqMapping",
     "Ice/serialize",
     "Ice/servantLocator",

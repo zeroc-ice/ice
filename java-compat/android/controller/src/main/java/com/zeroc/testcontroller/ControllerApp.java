@@ -24,13 +24,12 @@ import Test.Common.ProcessControllerRegistryPrxHelper;
 import Test.Common.ProcessControllerRegistryPrx;
 import Test.Common.ProcessControllerPrx;
 import Test.Common.ProcessControllerPrxHelper;
-import test.Util.Application.CommunicatorListener;
 
 public class ControllerApp extends Application
 {
     private final String TAG = "ControllerApp";
-    private ControllerHelper _helper;
-    private ControllerActivity _controller;
+    private ControllerI _controllerI;
+    private ControllerActivity _activity;
     private java.util.Map<String, ClassLoader> _classLoaders = new java.util.HashMap<String, ClassLoader>();
     private String _ipv4Address;
     private String _ipv6Address;
@@ -41,10 +40,10 @@ public class ControllerApp extends Application
         TestSuiteBundle(String name, ClassLoader loader) throws ClassNotFoundException
         {
             _loader = loader;
-            _class = (Class<? extends test.Util.Application>)_loader.loadClass(name);
+            _class = (Class<? extends test.TestHelper>)_loader.loadClass(name);
         }
 
-        test.Util.Application newInstance()
+        test.TestHelper newInstance()
                 throws IllegalAccessException, InstantiationException
         {
             if(_class == null)
@@ -61,7 +60,7 @@ public class ControllerApp extends Application
 
         private String _name;
         private ClassLoader _loader;
-        private Class<? extends test.Util.Application> _class;
+        private Class<? extends test.TestHelper> _class;
     }
 
     class AndroidLogger implements Ice.Logger
@@ -155,29 +154,25 @@ public class ControllerApp extends Application
         return addresses;
     }
 
-    public synchronized void startController(ControllerActivity controller, boolean bluetooth)
+    public synchronized void startController(ControllerActivity activity, boolean bluetooth)
     {
-        if(_helper == null)
+        _activity = activity;
+        if(_controllerI == null)
         {
-            _controller = controller;
-            _helper = new ControllerHelper(bluetooth);
-        }
-        else
-        {
-            _controller = controller;
+            _controllerI = new ControllerI(bluetooth);
         }
     }
 
     public synchronized void println(final String data)
     {
-        _controller.runOnUiThread(new Runnable()
+        _activity.runOnUiThread(new Runnable()
         {
             @Override
             public void run()
             {
                 synchronized(ControllerApp.this)
                 {
-                    _controller.println(data);
+                    _activity.println(data);
                 }
             }
         });
@@ -195,9 +190,9 @@ public class ControllerApp extends Application
                Build.PRODUCT.equals("google_sdk");
     }
 
-    class ControllerHelper
+    class ControllerI
     {
-        public ControllerHelper(boolean bluetooth)
+        public ControllerI(boolean bluetooth)
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = Ice.Util.createProperties();
@@ -329,38 +324,37 @@ public class ControllerApp extends Application
         private Ice.Communicator _communicator;
     }
 
-    class MainHelperI extends Thread implements test.Util.Application.ServerReadyListener
+    class ControllerHelperI extends Thread implements test.TestHelper.ControllerHelper
     {
-        public MainHelperI(TestSuiteBundle bundle, String[] args, String exe)
+        public ControllerHelperI(TestSuiteBundle bundle, String[] args, String exe)
         {
             _bundle = bundle;
             _args = args;
+        }
+
+        public void communicatorInitialized(Communicator communicator)
+        {
+            if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").equals("IceSSL.PluginFactory"))
+            {
+                IceSSL.Plugin plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
+                String keystore = communicator.getProperties().getProperty("IceSSL.Keystore");
+                communicator.getProperties().setProperty("IceSSL.Keystore", "");
+                java.io.InputStream certs = getResources().openRawResource(
+                        keystore.equals("client.bks") ? R.raw.client : R.raw.server);
+                plugin.setKeystoreStream(certs);
+                plugin.setTruststoreStream(certs);
+                communicator.getPluginManager().initializePlugins();
+            }
         }
 
         public void run()
         {
             try
             {
-                _app = _bundle.newInstance();
-                _app.setClassLoader(_bundle.getClassLoader());
-                _app.setCommunicatorListener(new CommunicatorListener()
-                {
-                    public void communicatorInitialized(Communicator communicator)
-                    {
-                        if(communicator.getProperties().getProperty("Ice.Plugin.IceSSL").equals("IceSSL.PluginFactory"))
-                        {
-                            IceSSL.Plugin plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
-                            String keystore = communicator.getProperties().getProperty("IceSSL.Keystore");
-                            communicator.getProperties().setProperty("IceSSL.Keystore", "");
-                            java.io.InputStream certs = getResources().openRawResource(
-                                keystore.equals("client.bks") ? R.raw.client : R.raw.server);
-                            plugin.setKeystoreStream(certs);
-                            plugin.setTruststoreStream(certs);
-                            communicator.getPluginManager().initializePlugins();
-                        }
-                    }
-                });
-                _app.setWriter(new Writer()
+                _helper = _bundle.newInstance();
+                _helper.setClassLoader(_bundle.getClassLoader());
+                _helper.setControllerHelper(this);
+                _helper.setWriter(new Writer()
                     {
                         @Override
                         public void close() throws IOException
@@ -379,33 +373,22 @@ public class ControllerApp extends Application
                             _out.append(buf, offset, count);
                         }
                     });
-                _app.setServerReadyListener(this);
 
-                int status = _app.main(_exe, _args);
-                synchronized(this)
-                {
-                    _status = status;
-                    _completed = true;
-                    notifyAll();
-                }
+                _helper.run(_args);
+                completed(0);
             }
             catch(Exception ex)
             {
-                _out.append(ex.toString());
-                synchronized(this)
-                {
-                    _status = -1;
-                    _completed = true;
-                    notifyAll();
-                }
+                ex.printStackTrace(_helper.getWriter());
+                completed(-1);
             }
         }
 
         public void shutdown()
         {
-            if(_app != null)
+            if(_helper != null)
             {
-                _app.stop();
+                _helper.shutdown();
             }
         }
 
@@ -414,16 +397,16 @@ public class ControllerApp extends Application
             return _out.toString();
         }
 
+        synchronized public void serverReady()
+        {
+            _ready = true;
+            notifyAll();
+        }
+
         synchronized private void completed(int status)
         {
             _completed = true;
             _status = status;
-            notifyAll();
-        }
-
-        synchronized public void serverReady()
-        {
-            _ready = true;
             notifyAll();
         }
 
@@ -476,7 +459,7 @@ public class ControllerApp extends Application
         private TestSuiteBundle _bundle;
         private String[] _args;
         private String _exe;
-        private test.Util.Application _app;
+        private test.TestHelper _helper;
         private boolean _ready = false;
         private boolean _completed = false;
         private int _status = 0;
@@ -489,13 +472,15 @@ public class ControllerApp extends Application
             throws Test.Common.ProcessFailedException
         {
             println("starting " + testsuite + " " + exe + "... ");
-            String className = "test." + testsuite.replace("/", ".") + "." + exe.substring(0, 1).toUpperCase() + exe.substring(1);
+            String className = "test." + testsuite.replace("/", ".") + "." +
+                exe.substring(0, 1).toUpperCase() + exe.substring(1);
             try
             {
                 TestSuiteBundle bundle = new TestSuiteBundle(className, getClassLoader());
-                MainHelperI mainHelper = new MainHelperI(bundle, args, exe);
-                mainHelper.start();
-                return Test.Common.ProcessPrxHelper.uncheckedCast(current.adapter.addWithUUID(new ProcessI(mainHelper)));
+                ControllerHelperI controllerHelper = new ControllerHelperI(bundle, args, exe);
+                controllerHelper.start();
+                return Test.Common.ProcessPrxHelper.uncheckedCast(
+                    current.adapter.addWithUUID(new ProcessI(controllerHelper)));
             }
             catch(ClassNotFoundException ex)
             {
@@ -522,41 +507,41 @@ public class ControllerApp extends Application
 
     class ProcessI extends Test.Common._ProcessDisp
     {
-        public ProcessI(MainHelperI helper)
+        public ProcessI(ControllerHelperI controllerHelper)
         {
-            _helper = helper;
+            _controllerHelper = controllerHelper;
         }
 
         public void waitReady(int timeout, Ice.Current current)
             throws Test.Common.ProcessFailedException
         {
-            _helper.waitReady(timeout);
+            _controllerHelper.waitReady(timeout);
         }
 
         public int waitSuccess(int timeout, Ice.Current current)
             throws Test.Common.ProcessFailedException
         {
-            return _helper.waitSuccess(timeout);
+            return _controllerHelper.waitSuccess(timeout);
         }
 
         public String terminate(Ice.Current current)
         {
-            _helper.shutdown();
+            _controllerHelper.shutdown();
             current.adapter.remove(current.id);
             while(true)
             {
                 try
                 {
-                    _helper.join();
+                    _controllerHelper.join();
                     break;
                 }
                 catch(InterruptedException ex)
                 {
                 }
             }
-            return _helper.getOutput();
+            return _controllerHelper.getOutput();
         }
 
-        private MainHelperI _helper;
+        private ControllerHelperI _controllerHelper;
     }
 }

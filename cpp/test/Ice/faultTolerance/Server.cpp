@@ -9,34 +9,43 @@
 
 #include <Ice/Ice.h>
 #include <TestI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 
-void
-usage(const char* n)
+class Server : public Test::TestHelper
 {
-    cerr << "Usage: " << n << " port\n";
-}
+public:
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+    void run(int, char**);
+};
+
+void
+Server::run(int argc, char** argv)
 {
+    //
+    // In this test, we need a longer server idle time, otherwise
+    // our test servers may time out before they are used in the
+    // test.
+    //
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+
     int port = 0;
     for(int i = 1; i < argc; ++i)
     {
         if(argv[i][0] == '-')
         {
-            cerr << argv[0] << ": unknown option `" << argv[i] << "'" << endl;
-            usage(argv[0]);
-            return EXIT_FAILURE;
+            ostringstream os;
+            os << ": unknown option `" << argv[i] << "'";
+            throw invalid_argument(os.str());
         }
 
         if(port > 0)
         {
-            cerr << argv[0] << ": only one port can be specified" << endl;
-            usage(argv[0]);
-            return EXIT_FAILURE;
+            throw runtime_error("only one port can be specified");
         }
 
         port = atoi(argv[i]);
@@ -44,47 +53,18 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     if(port <= 0)
     {
-        cerr << argv[0] << ": no port specified" << endl;
-        usage(argv[0]);
-        return EXIT_FAILURE;
+        throw runtime_error("no port specified");
     }
 
     ostringstream endpts;
-    endpts << getTestEndpoint(communicator, port);
+    endpts << getTestEndpoint(port);
     communicator->getProperties()->setProperty("TestAdapter.Endpoints", endpts.str());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectPtr object = ICE_MAKE_SHARED(TestI);
     adapter->add(object, Ice::stringToIdentity("test"));
     adapter->activate();
+    serverReady();
     communicator->waitForShutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-    Ice::registerIceUDP(true);
-#endif
-
-    try
-    {
-        //
-        // In this test, we need a longer server idle time, otherwise
-        // our test servers may time out before they are used in the
-        // test.
-        //
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.ServerIdleTime", "120"); // Two minutes.
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Server)

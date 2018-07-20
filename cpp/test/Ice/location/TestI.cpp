@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <Ice/Locator.h>
 #include <TestI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace Test;
 
@@ -60,14 +60,15 @@ ServerManagerI::startServer(const Ice::Current&)
         {
             Ice::PropertiesPtr props = _initData.properties;
             serverCommunicator->getProperties()->setProperty("TestAdapter.Endpoints",
-                                                             getTestEndpoint(props, _nextPort++));
+                                                             TestHelper::getTestEndpoint(props, _nextPort++));
             serverCommunicator->getProperties()->setProperty("TestAdapter2.Endpoints",
-                                                             getTestEndpoint(props, _nextPort++));
+                                                             TestHelper::getTestEndpoint(props, _nextPort++));
 
             adapter = serverCommunicator->createObjectAdapter("TestAdapter");
             adapter2 = serverCommunicator->createObjectAdapter("TestAdapter2");
 
-            Ice::ObjectPrxPtr locator = serverCommunicator->stringToProxy("locator:" + getTestEndpoint(props, 0));
+            Ice::ObjectPrxPtr locator =
+                serverCommunicator->stringToProxy("locator:" + TestHelper::getTestEndpoint(props));
             adapter->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
             adapter2->setLocator(ICE_UNCHECKED_CAST(Ice::LocatorPrx, locator));
 

@@ -11,16 +11,8 @@ using System;
 using System.Collections.Generic;
 using Test;
 
-public class Client
+public class Client : TestHelper
 {
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new Exception();
-        }
-    }
-
     private static void allTests(Ice.Communicator communicator)
     {
         Console.Out.Write("testing equals() for Slice structures... ");
@@ -267,36 +259,16 @@ public class Client
         Console.Out.WriteLine("ok");
     }
 
-    private static int run(string[] args, Ice.Communicator communicator)
+    public override void run(string[] args)
     {
-        allTests(communicator);
-
-        return 0;
+        using(var communicator = initialize(ref args))
+        {
+            allTests(communicator);
+        }
     }
 
     public static int Main(string[] args)
     {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
-        {
-            Ice.InitializationData initData = new Ice.InitializationData();
-            initData.properties = Ice.Util.createProperties(ref args);
-            communicator = Ice.Util.initialize(ref args, initData);
-            status = run(args, communicator);
-        }
-        catch(System.Exception ex)
-        {
-            Console.Error.WriteLine(ex);
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            communicator.destroy();
-        }
-
-        return status;
+        return TestDriver.runTest<Client>(args);
     }
 }

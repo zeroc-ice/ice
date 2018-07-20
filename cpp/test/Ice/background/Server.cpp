@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
 #include <Configuration.h>
 #include <PluginI.h>
@@ -124,11 +124,45 @@ private:
     BackgroundControllerIPtr _controller;
 };
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Server : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
-    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(communicator, 1, "tcp"));
+public:
+
+    void run(int, char**);
+};
+
+void
+Server::run(int argc, char** argv)
+{
+#ifdef ICE_STATIC_LIBS
+    Ice::registerPluginFactory("Test", createTestTransport, false);
+#endif
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+
+    //
+    // This test kills connections, so we don't want warnings.
+    //
+    properties->setProperty("Ice.Warn.Connections", "0");
+
+    properties->setProperty("Ice.MessageSizeMax", "50000");
+
+    //
+    // This test relies on filling the TCP send/recv buffer, so
+    // we rely on a fixed value for these buffers.
+    //
+    properties->setProperty("Ice.TCP.RcvSize", "50000");
+
+    //
+    // Setup the test transport plug-in.
+    //
+    properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
+    string defaultProtocol = properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
+    properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
     communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
@@ -152,46 +186,6 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     adapter2->activate();
 
     communicator->waitForShutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-    Ice::registerPluginFactory("Test", createTestTransport, false);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-
-        //
-        // This test kills connections, so we don't want warnings.
-        //
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-
-        initData.properties->setProperty("Ice.MessageSizeMax", "50000");
-
-        // This test relies on filling the TCP send/recv buffer, so
-        // we rely on a fixed value for these buffers.
-        initData.properties->setProperty("Ice.TCP.RcvSize", "50000");
-
-        //
-        // Setup the test transport plug-in.
-        //
-        initData.properties->setProperty("Ice.Plugin.Test", "TestTransport:createTestTransport");
-        string defaultProtocol = initData.properties->getPropertyWithDefault("Ice.Default.Protocol", "tcp");
-        initData.properties->setProperty("Ice.Default.Protocol", "test-" + defaultProtocol);
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Server)

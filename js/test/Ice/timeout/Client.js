@@ -82,8 +82,8 @@
         }
 
         {
-            const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(1000 * mult));
-            await controller.holdAdapter(200 * mult);
+            const to = Test.TimeoutPrx.uncheckedCast(obj.ice_timeout(-1));
+            await controller.holdAdapter(100 * mult);
             await to.ice_getConnection();
             try
             {

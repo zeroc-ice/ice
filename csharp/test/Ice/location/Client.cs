@@ -16,24 +16,20 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        AllTests.allTests(this);
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(initData.properties, 0));
-        return initData;
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.Default.Locator", "locator:" + getTestEndpoint(properties, 0));
+        using(var communicator = initialize(properties))
+        {
+            AllTests.allTests(this);
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

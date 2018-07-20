@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     public static void allTests()
     {

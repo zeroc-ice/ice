@@ -30,7 +30,7 @@ public class AllTests
 
     static String getPort(com.zeroc.Ice.PropertiesAdminPrx p)
     {
-        return Integer.toString(test.Util.Application.getTestPort(p.ice_getCommunicator().getProperties(), 0));
+        return Integer.toString(test.TestHelper.getTestPort(p.ice_getCommunicator().getProperties(), 0));
     }
 
     static ConnectionMetrics getServerConnectionMetrics(MetricsAdminPrx metrics, long expected)
@@ -377,16 +377,16 @@ public class AllTests
         return m;
     }
 
-    static MetricsPrx allTests(test.Util.Application app, CommunicatorObserverI obsv)
+    static MetricsPrx allTests(test.TestHelper helper, CommunicatorObserverI obsv)
         throws UnknownMetricsView
     {
-        PrintWriter out = app.getWriter();
-        com.zeroc.Ice.Communicator communicator = app.communicator();
+        PrintWriter out = helper.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
 
-        String host = app.getTestHost();
-        String port = Integer.toString(app.getTestPort(0));
+        String host = helper.getTestHost();
+        String port = Integer.toString(helper.getTestPort(0));
         String hostAndPort = host + ":" + port;
-        String protocol = app.getTestProtocol();
+        String protocol = helper.getTestProtocol();
         String endpoint = protocol + " -h " + host + " -p " + port;
 
         MetricsPrx metrics = MetricsPrx.checkedCast(communicator.stringToProxy("metrics:" + endpoint));
@@ -576,7 +576,7 @@ public class AllTests
             test(map.get("active").current == 1);
 
             ControllerPrx controller = ControllerPrx.checkedCast(
-                communicator.stringToProxy("controller:" + app.getTestEndpoint(1)));
+                communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
             controller.hold();
 
             map = toMap(clientMetrics.getMetricsView("View").returnValue.get("Connection"));

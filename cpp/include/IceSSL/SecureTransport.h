@@ -10,6 +10,8 @@
 #ifndef ICESSL_SECURE_TRANSPORT_H
 #define ICESSL_SECURE_TRANSPORT_H
 
+#ifdef __APPLE__
+
 #include <IceSSL/Plugin.h>
 #include <Security/Security.h>
 
@@ -69,5 +71,7 @@ public:
 } // SecureTransport namespace end
 
 } // IceSSL namespace end
+
+#endif
 
 #endif

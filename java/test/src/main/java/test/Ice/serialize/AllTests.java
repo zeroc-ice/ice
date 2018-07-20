@@ -23,12 +23,12 @@ public class AllTests
         }
     }
 
-    public static InitialPrx allTests(test.Util.Application app, boolean collocated)
+    public static InitialPrx allTests(test.TestHelper helper, boolean collocated)
     {
-        PrintWriter out = app.getWriter();
-        com.zeroc.Ice.Communicator communicator = app.communicator();
+        PrintWriter out = helper.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
 
-        String ref = "initial:" + app.getTestEndpoint(0);
+        String ref = "initial:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy(ref);
         InitialPrx initial = InitialPrx.checkedCast(base);
 

@@ -11,13 +11,13 @@ using System;
 using Test;
 using System.Collections.Generic;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-                                        communicator.stringToProxy("ServerManager :" + app.getTestEndpoint(0)));
+                                        communicator.stringToProxy("ServerManager :" + helper.getTestEndpoint(0)));
         test(manager != null);
         TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
         test(locator != null);
@@ -219,23 +219,24 @@ public class AllTests : TestCommon.AllTests
         Write("testing locator cache timeout... ");
         Flush();
 
+        Ice.ObjectPrx basencc = communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
         int count = locator.getRequestCount();
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        basencc.ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout.
         test(count == locator.getRequestCount());
-        System.Threading.Thread.Sleep(1200); // 1200ms
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        System.Threading.Thread.Sleep(1300); // 1300ms
+        basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
 
         communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         count += 2;
         test(count == locator.getRequestCount());
-        communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+        communicator.stringToProxy("test").ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout
         test(count == locator.getRequestCount());
-        System.Threading.Thread.Sleep(1200); // 1200ms
+        System.Threading.Thread.Sleep(1300); // 1300ms
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         count += 2;
         test(count == locator.getRequestCount());

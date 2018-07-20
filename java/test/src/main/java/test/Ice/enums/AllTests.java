@@ -22,11 +22,11 @@ public class AllTests
         }
     }
 
-    public static TestIntfPrx allTests(test.Util.Application app)
+    public static TestIntfPrx allTests(test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator=app.communicator();
-        PrintWriter out = app.getWriter();
-        String ref = "test:" + app.getTestEndpoint(0);
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
+        String ref = "test:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(ref);
         test(obj != null);
         TestIntfPrx proxy = TestIntfPrx.checkedCast(obj);

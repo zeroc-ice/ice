@@ -16,9 +16,9 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    private int run(Test.MyObjectPrx prx, InterceptorI interceptor)
+    private void runTest(Test.MyObjectPrx prx, InterceptorI interceptor)
     {
         Console.Out.Write("testing simple interceptor... ");
         Console.Out.Flush();
@@ -95,11 +95,9 @@ public class Client : TestCommon.Application
         test(interceptor.getLastOperation().Equals("badSystemAdd"));
         test(!interceptor.getLastStatus());
         Console.WriteLine("ok");
-
-        return 0;
     }
 
-    private int runAmd(Test.MyObjectPrx prx, InterceptorI interceptor)
+    private void runAmdTest(Test.MyObjectPrx prx, InterceptorI interceptor)
     {
         Console.Out.Write("testing simple interceptor... ");
         Console.Out.Flush();
@@ -171,60 +169,45 @@ public class Client : TestCommon.Application
         test(interceptor.getLastOperation().Equals("amdBadSystemAdd"));
         test(interceptor.getLastStatus());
         Console.WriteLine("ok");
-        return 0;
     }
 
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        //
-        // Create OA and servants
-        //
-
-        communicator().getProperties().setProperty("MyOA.AdapterId", "myOA");
-
-        Ice.ObjectAdapter oa = communicator().createObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
-
-        Ice.Object servant = new MyObjectI();
-        InterceptorI interceptor = new InterceptorI(servant);
-
-        Test.MyObjectPrx prx = Test.MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
-
-        Console.WriteLine("Collocation optimization on");
-        int rs = run(prx, interceptor);
-        if(rs != 0)
+        using(var communicator = initialize(ref args))
         {
-            return rs;
+            //
+            // Create OA and servants
+            //
+            communicator.getProperties().setProperty("MyOA.AdapterId", "myOA");
+
+            Ice.ObjectAdapter oa = communicator.createObjectAdapterWithEndpoints("MyOA2", "tcp -h localhost");
+
+            Ice.Object servant = new MyObjectI();
+            InterceptorI interceptor = new InterceptorI(servant);
+
+            Test.MyObjectPrx prx = Test.MyObjectPrxHelper.uncheckedCast(oa.addWithUUID(interceptor));
+
+            Console.WriteLine("Collocation optimization on");
+            runTest(prx, interceptor);
+            Console.WriteLine("Now with AMD");
+            interceptor.clear();
+            runAmdTest(prx, interceptor);
+
+            oa.activate(); // Only necessary for non-collocation optimized tests
+
+            Console.WriteLine("Collocation optimization off");
+            interceptor.clear();
+            prx = Test.MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
+            runTest(prx, interceptor);
+
+            Console.WriteLine("Now with AMD");
+            interceptor.clear();
+            runAmdTest(prx, interceptor);
         }
-
-        Console.WriteLine("Now with AMD");
-        interceptor.clear();
-        rs = runAmd(prx, interceptor);
-        if(rs != 0)
-        {
-            return rs;
-        }
-
-        oa.activate(); // Only necessary for non-collocation optimized tests
-
-        Console.WriteLine("Collocation optimization off");
-        interceptor.clear();
-        prx = Test.MyObjectPrxHelper.uncheckedCast(prx.ice_collocationOptimized(false));
-        rs = run(prx, interceptor);
-        if(rs != 0)
-        {
-            return rs;
-        }
-
-        Console.WriteLine("Now with AMD");
-        interceptor.clear();
-        rs = runAmd(prx, interceptor);
-
-        return rs;
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

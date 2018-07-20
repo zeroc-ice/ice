@@ -8,46 +8,30 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 using namespace Test;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    ThrowerPrxPtr allTests(const Ice::CommunicatorPtr&);
-    ThrowerPrxPtr thrower = allTests(communicator);
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+
+    ThrowerPrxPtr allTests(Test::TestHelper*);
+    ThrowerPrxPtr thrower = allTests(this);
     thrower->shutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#   ifdef ICE_HAS_BT
-    Ice::registerIceBT(false);
-#   endif
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-        initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

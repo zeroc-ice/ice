@@ -103,7 +103,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     ConstPtr constant = ConstPtr::dynamicCast(valueType);
     if(constant)
     {
-        out << getAbsolute(fixKwd(constant->scoped()), scope);
+        out << getUnqualified(fixKwd(constant->scoped()), scope);
     }
     else
     {
@@ -156,17 +156,17 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
 
                 if(unscoped)
                 {
-                    out << getAbsolute(fixKwd(ep->scope() + enumerator->name()), scope);
+                    out << getUnqualified(fixKwd(ep->scope() + enumerator->name()), scope);
                 }
                 else
                 {
                     if(cpp11)
                     {
-                        out << getAbsolute(fixKwd(enumerator->scoped()), scope);
+                        out << getUnqualified(fixKwd(enumerator->scoped()), scope);
                     }
                     else
                     {
-                        out << getAbsolute(fixKwd(ep->scope() + ep->name() + enumerator->name()), scope);
+                        out << getUnqualified(fixKwd(ep->scope() + ep->name() + enumerator->name()), scope);
                     }
                 }
             }
@@ -242,7 +242,7 @@ writeInParamsLambda(IceUtilInternal::Output& C, const OperationPtr& p, const Par
     }
     else
     {
-        C << "[&](" << getAbsolute("::Ice::OutputStream*", scope) << " ostr)";
+        C << "[&](" << getUnqualified("::Ice::OutputStream*", scope) << " ostr)";
         C << sb;
         writeMarshalCode(C, inParams, 0, true, TypeContextInParam | TypeContextCpp11);
         if(p->sendsClasses(false))
@@ -273,7 +273,7 @@ throwUserExceptionLambda(IceUtilInternal::Output& C, ExceptionList throws, const
         //
         throws.sort(Slice::DerivedToBaseCompare());
 
-        C << "[](const " << getAbsolute("::Ice::UserException&", scope) << " ex)";
+        C << "[](const " << getUnqualified("::Ice::UserException&", scope) << " ex)";
         C << sb;
         C << nl << "try";
         C << sb;
@@ -285,12 +285,12 @@ throwUserExceptionLambda(IceUtilInternal::Output& C, ExceptionList throws, const
         for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
         {
             string scoped = (*i)->scoped();
-            C << nl << "catch(const " << getAbsolute(fixKwd((*i)->scoped()), scope) << "&)";
+            C << nl << "catch(const " << getUnqualified(fixKwd((*i)->scoped()), scope) << "&)";
             C << sb;
             C << nl << "throw;";
             C << eb;
         }
-        C << nl << "catch(const " << getAbsolute("::Ice::UserException&", scope) << ")";
+        C << nl << "catch(const " << getUnqualified("::Ice::UserException&", scope) << ")";
         C << sb;
         C << eb;
         C << eb;
@@ -1299,11 +1299,11 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     H << "public ";
     if(base)
     {
-        H << getAbsolute(fixKwd(base->scoped()), scope);
+        H << getUnqualified(fixKwd(base->scoped()), scope);
     }
     else
     {
-        H << getAbsolute(p->isLocal() ? "::Ice::LocalException" : "::Ice::UserException", scope);
+        H << getUnqualified(p->isLocal() ? "::Ice::LocalException" : "::Ice::UserException", scope);
     }
     H.restoreIndent();
     H << sb;
@@ -1581,11 +1581,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         H << sp;
         H << nl << "/// \\cond STREAM";
-        H << nl << "virtual void _writeImpl(" << getAbsolute("::Ice::OutputStream*", scope) << ") const;";
-        H << nl << "virtual void _readImpl(" << getAbsolute("::Ice::InputStream*", scope) << ");";
+        H << nl << "virtual void _writeImpl(" << getUnqualified("::Ice::OutputStream*", scope) << ") const;";
+        H << nl << "virtual void _readImpl(" << getUnqualified("::Ice::InputStream*", scope) << ");";
         H << nl << "/// \\endcond";
 
-        string baseName = getAbsolute(base ? fixKwd(base->scoped()) : "::Ice::UserException", scope);
+        string baseName = getUnqualified(base ? fixKwd(base->scoped()) : "::Ice::UserException", scope);
 
         if(preserved && !basePreserved)
         {
@@ -1601,7 +1601,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::_write("
-              << getAbsolute("::Ice::OutputStream*", scope) << " ostr) const";
+              << getUnqualified("::Ice::OutputStream*", scope) << " ostr) const";
             C << sb;
             C << nl << "ostr->startException(_slicedData);";
             C << nl << "_writeImpl(ostr);";
@@ -1609,7 +1609,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::_read("
-              << getAbsolute("::Ice::InputStream*", scope) << " istr)";
+              << getUnqualified("::Ice::InputStream*", scope) << " istr)";
             C << sb;
             C << nl << "istr->startException();";
             C << nl << "_readImpl(istr);";
@@ -1620,11 +1620,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << sp;
         C << nl << "/// \\cond STREAM";
         C << nl << "void" << nl << scoped.substr(2) << "::_writeImpl("
-          << getAbsolute("::Ice::OutputStream*", scope) << " ostr) const";
+          << getUnqualified("::Ice::OutputStream*", scope) << " ostr) const";
         C << sb;
         C << nl << "ostr->startSlice(\"" << p->scoped() << "\", -1, " << (!base ? "true" : "false") << ");";
-        C << nl << getAbsolute("::Ice::StreamWriter", scope) << "< " << name << ", "
-          << getAbsolute("::Ice::OutputStream", scope) << ">::write(ostr, *this);";
+        C << nl << getUnqualified("::Ice::StreamWriter", scope) << "< " << name << ", "
+          << getUnqualified("::Ice::OutputStream", scope) << ">::write(ostr, *this);";
         C << nl << "ostr->endSlice();";
         if(base)
         {
@@ -1633,11 +1633,11 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         C << eb;
 
         C << sp << nl << "void" << nl << scoped.substr(2) << "::_readImpl("
-          << getAbsolute("::Ice::InputStream*", scope) << " istr)";
+          << getUnqualified("::Ice::InputStream*", scope) << " istr)";
         C << sb;
         C << nl << "istr->startSlice();";
-        C << nl << getAbsolute("::Ice::StreamReader", scope) << "< " << name << ", "
-          << getAbsolute("::Ice::InputStream", scope) << ">::read(istr, *this);";
+        C << nl << getUnqualified("::Ice::StreamReader", scope) << "< " << name << ", "
+          << getUnqualified("::Ice::InputStream", scope) << ">::read(istr, *this);";
         C << nl << "istr->endSlice();";
         if(base)
         {
@@ -1896,7 +1896,7 @@ Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     string name = fixKwd(p->name());
     TypePtr type = p->type();
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
-    string scope = fixKwd(cont->scope());
+    string scope = fixKwd(p->scope());
     string s = typeToString(type, scope, p->typeMetaData(), _useWstring);
     StringList metaData = p->getMetaData();
 
@@ -1920,7 +1920,7 @@ Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     string name = fixKwd(p->name());
     ContainedPtr cont = ContainedPtr::dynamicCast(p->container());
-    string scope = fixKwd(cont->scope());
+    string scope = fixKwd(p->scope());
     string dictType = findMetaData(p->getMetaData());
 
     H << sp;
@@ -2010,11 +2010,11 @@ Slice::Gen::TypesVisitor::emitUpcall(const ExceptionPtr& base, const string& cal
     C << nl;
     if(base)
     {
-        C << getAbsolute(fixKwd(base->scoped()), scope);
+        C << getUnqualified(fixKwd(base->scoped()), scope);
     }
     else
     {
-        C << getAbsolute(isLocal ? "::Ice::LocalException" : "::Ice::UserException", scope);
+        C << getUnqualified(isLocal ? "::Ice::LocalException" : "::Ice::UserException", scope);
     }
     C << call;
 }
@@ -2073,7 +2073,6 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     }
 
     string name = fixKwd(p->name());
-    string scoped = fixKwd(p->scoped());
 
     H << sp << nl << "class " << name << ';';
     //
@@ -2082,9 +2081,8 @@ Slice::Gen::ProxyDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
     // Note that _readProxy is always in the IceProxy::... namespace
     //
     H << nl << "/// \\cond INTERNAL";
-    H << nl << _dllExport << "void _readProxy(::Ice::InputStream*, ::IceInternal::ProxyHandle< ::IceProxy"
-      << scoped << ">&);";
-    H << nl << _dllExport << "::IceProxy::Ice::Object* upCast(::IceProxy" << scoped << "*);";
+    H << nl << _dllExport << "void _readProxy(::Ice::InputStream*, ::IceInternal::ProxyHandle< " << name << ">&);";
+    H << nl << _dllExport << "::IceProxy::Ice::Object* upCast(" << name << "*);";
     H << nl << "/// \\endcond";
 }
 
@@ -2790,7 +2788,7 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
         // depends on this name
         //
         H << nl << "/// \\cond INTERNAL";
-        H << nl << _dllExport << getAbsolute("::Ice::Object*", scope) << " upCast(" << name << "*);";
+        H << nl << _dllExport << getUnqualified("::Ice::Object*", scope) << " upCast(" << name << "*);";
         H << nl << "/// \\endcond";
         H << nl << "typedef ::IceInternal::Handle< " << name << "> " << p->name() << "Ptr;";
         H << nl << "typedef ::IceInternal::ProxyHandle< ::IceProxy" << scoped << "> " << p->name() << "Prx;";
@@ -2802,14 +2800,14 @@ Slice::Gen::ObjectDeclVisitor::visitClassDecl(const ClassDeclPtr& p)
         //
         H << nl << "/// \\cond INTERNAL";
         H << nl << _dllExport << "void _icePatchObjectPtr(" << p->name() << "Ptr&, const "
-          << getAbsolute("::Ice::ObjectPtr&", scope) << ");";
+          << getUnqualified("::Ice::ObjectPtr&", scope) << ");";
         H << nl << "/// \\endcond";
     }
     else
     {
         H << nl << "/// \\cond INTERNAL";
-        H << nl << _dllExport << getAbsolute("::Ice::LocalObject*", scope) << " upCast("
-          << getAbsolute(scoped, scope) << "*);";
+        H << nl << _dllExport << getUnqualified("::Ice::LocalObject*", scope) << " upCast("
+          << getUnqualified(scoped, scope) << "*);";
         H << nl << "/// \\endcond";
         H << nl << "typedef ::IceInternal::Handle< " << name << "> " << p->name() << "Ptr;";
     }
@@ -2882,7 +2880,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.useCurrentPosAsIndent();
     if(bases.empty())
     {
-        H << "public virtual " << getAbsolute(p->isLocal() ? "::Ice::LocalObject" : "::Ice::Object", scope);
+        H << "public virtual " << getUnqualified(p->isLocal() ? "::Ice::LocalObject" : "::Ice::Object", scope);
     }
     else
     {
@@ -2895,7 +2893,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
                 H << "virtual ";
             }
 
-            H << "public " << getAbsolute(fixKwd((*q)->scoped()), scope);
+            H << "public " << getUnqualified(fixKwd((*q)->scoped()), scope);
             if(++q != bases.end())
             {
                 H << ',' << nl;
@@ -2995,7 +2993,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             H << nl << " * Polymporphically clones this object.";
             H << nl << " * @return A shallow copy of this object.";
             H << nl << " */";
-            H << nl << "virtual " << getAbsolute("::Ice::ObjectPtr", scope) << " ice_clone() const;";
+            H << nl << "virtual " << getUnqualified("::Ice::ObjectPtr", scope) << " ice_clone() const;";
 
             if(hasGCObjectBaseClass)
             {
@@ -3012,7 +3010,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
             C << sb;
             if(!p->isAbstract())
             {
-                C << nl << getAbsolute("::Ice::Object*", scope) << " p = new " << name << "(*this);";
+                C << nl << getUnqualified("::Ice::Object*", scope) << " p = new " << name << "(*this);";
                 C << nl << "return p;";
             }
             else
@@ -3020,7 +3018,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
                 //
                 // We need this ice_clone for abstract classes derived from concrete classes
                 //
-                C << nl << "throw " << getAbsolute("::Ice::CloneNotImplementedException", scope)
+                C << nl << "throw " << getUnqualified("::Ice::CloneNotImplementedException", scope)
                   << "(__FILE__, __LINE__);";
             }
             C << eb;
@@ -3055,24 +3053,24 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         H << nl << " * @param current The Current object for the invocation.";
         H << nl << " * @return True if this object supports the interface, false, otherwise.";
         H << nl << " */";
-        H << nl << "virtual bool ice_isA(const ::std::string& id, const " << getAbsolute("::Ice::Current&", scope)
-          << " current = " << getAbsolute("::Ice::emptyCurrent", scope) << ") const;";
+        H << nl << "virtual bool ice_isA(const ::std::string& id, const " << getUnqualified("::Ice::Current&", scope)
+          << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
         H << sp;
         H << nl << "/**";
         H << nl << " * Obtains a list of the Slice type IDs representing the interfaces supported by this object.";
         H << nl << " * @param current The Current object for the invocation.";
         H << nl << " * @return A list of fully-scoped type IDs.";
         H << nl << " */";
-        H << nl << "virtual ::std::vector< ::std::string> ice_ids(const " << getAbsolute("::Ice::Current&", scope)
-          << " current = " << getAbsolute("::Ice::emptyCurrent", scope) << ") const;";
+        H << nl << "virtual ::std::vector< ::std::string> ice_ids(const " << getUnqualified("::Ice::Current&", scope)
+          << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
         H << sp;
         H << nl << "/**";
         H << nl << " * Obtains a Slice type ID representing the most-derived interface supported by this object.";
         H << nl << " * @param current The Current object for the invocation.";
         H << nl << " * @return A fully-scoped type ID.";
         H << nl << " */";
-        H << nl << "virtual const ::std::string& ice_id(const " << getAbsolute("::Ice::Current&", scope)
-          << " current = " << getAbsolute("::Ice::emptyCurrent", scope) << ") const;";
+        H << nl << "virtual const ::std::string& ice_id(const " << getUnqualified("::Ice::Current&", scope)
+          << " current = " << getUnqualified("::Ice::emptyCurrent", scope) << ") const;";
         H << sp;
         H << nl << "/**";
         H << nl << " * Obtains the Slice type ID corresponding to this class.";
@@ -3100,14 +3098,14 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         C << sp;
         C << nl << "bool" << nl << scoped.substr(2)
-          << "::ice_isA(const ::std::string& s, const " << getAbsolute("::Ice::Current&", scope) << ") const";
+          << "::ice_isA(const ::std::string& s, const " << getUnqualified("::Ice::Current&", scope) << ") const";
         C << sb;
         C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", s);";
         C << eb;
 
         C << sp;
         C << nl << "::std::vector< ::std::string>" << nl << scoped.substr(2)
-          << "::ice_ids(const " << getAbsolute("::Ice::Current&", scope) << ") const";
+          << "::ice_ids(const " << getUnqualified("::Ice::Current&", scope) << ") const";
         C << sb;
         C << nl << "return ::std::vector< ::std::string>(&" << flatName << "[0], &" << flatName
           << '[' << ids.size() << "]);";
@@ -3115,7 +3113,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
 
         C << sp;
         C << nl << "const ::std::string&" << nl << scoped.substr(2)
-          << "::ice_id(const " << getAbsolute("::Ice::Current&", scope) << ") const";
+          << "::ice_id(const " << getUnqualified("::Ice::Current&", scope) << ") const";
         C << sb;
         C << nl << "return ice_staticId();";
         C << eb;
@@ -3145,7 +3143,7 @@ Slice::Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
         C << nl << "/// \\cond INTERNAL";
         C << nl
           << _dllExport
-          << "::Ice::LocalObject* " << scope.substr(2) << "upCast(" << getAbsolute(scoped, scope)
+          << "::Ice::LocalObject* " << scope.substr(2) << "upCast(" << getUnqualified(scoped, scope)
           << "* p) { return p; }";
         C << nl << "/// \\endcond";
     }
@@ -3189,7 +3187,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             H << sp;
             H << nl << "/// \\cond INTERNAL";
             H << nl << "virtual bool _iceDispatch(::IceInternal::Incoming&, const "
-              << getAbsolute("::Ice::Current&", scope) << ");";
+              << getUnqualified("::Ice::Current&", scope) << ");";
             H << nl << "/// \\endcond";
 
             string flatName = "iceC" + p->flattenedScope() + p->name() + "_all";
@@ -3212,7 +3210,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << nl << "/// \\cond INTERNAL";
             C << nl << "bool";
             C << nl << scoped.substr(2) << "::_iceDispatch(::IceInternal::Incoming& in, const "
-              << getAbsolute("::Ice::Current&", scope) << " current)";
+              << getUnqualified("::Ice::Current&", scope) << " current)";
             C << sb;
 
             C << nl << "::std::pair<const ::std::string*, const ::std::string*> r = "
@@ -3220,7 +3218,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
               << ", current.operation);";
             C << nl << "if(r.first == r.second)";
             C << sb;
-            C << nl << "throw " << getAbsolute("::Ice::OperationNotExistException", scope)
+            C << nl << "throw " << getUnqualified("::Ice::OperationNotExistException", scope)
               << "(__FILE__, __LINE__, current.id, " << "current.facet, current.operation);";
             C << eb;
             C << sp;
@@ -3237,7 +3235,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << nl << "default:";
             C << sb;
             C << nl << "assert(false);";
-            C << nl << "throw " << getAbsolute("::Ice::OperationNotExistException", scope)
+            C << nl << "throw " << getUnqualified("::Ice::OperationNotExistException", scope)
               << "(__FILE__, __LINE__, current.id, " << "current.facet, current.operation);";
             C << eb;
             C << eb;
@@ -3261,7 +3259,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             {
                 H << sp;
                 H << nl << "/// \\cond INTERNAL";
-                H << nl << "virtual " << getAbsolute("::Ice::Int", scope)
+                H << nl << "virtual " << getUnqualified("::Ice::Int", scope)
                   << " ice_operationAttributes(const ::std::string&) const;";
                 H << nl << "/// \\endcond";
 
@@ -3319,7 +3317,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             H << nl << " * Obtains a value factory that instantiates this class.";
             H << nl << " * @return The value factory.";
             H << nl << " */";
-            H << nl << "static " << getAbsolute("::Ice::ValueFactoryPtr", scope) << " ice_factory();";
+            H << nl << "static " << getUnqualified("::Ice::ValueFactoryPtr", scope) << " ice_factory();";
         }
 
         if(preserved && !basePreserved)
@@ -3331,12 +3329,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             H << nl << " * @return The SlicedData object, or nil if the class was not sliced or was not";
             H << nl << " * marshaled in the sliced format.";
             H << nl << " */";
-            H << nl << "virtual " << getAbsolute("::Ice::SlicedDataPtr", scope) << " ice_getSlicedData() const;";
+            H << nl << "virtual " << getUnqualified("::Ice::SlicedDataPtr", scope) << " ice_getSlicedData() const;";
 
             H << sp;
             H << nl << "/// \\cond STREAM";
-            H << nl << "virtual void _iceWrite(" << getAbsolute("::Ice::OutputStream*", scope) << ") const;";
-            H << nl << "virtual void _iceRead(" << getAbsolute("::Ice::InputStream*", scope) << ");";
+            H << nl << "virtual void _iceWrite(" << getUnqualified("::Ice::OutputStream*", scope) << ") const;";
+            H << nl << "virtual void _iceRead(" << getUnqualified("::Ice::InputStream*", scope) << ");";
             H << nl << "/// \\endcond";
         }
 
@@ -3347,8 +3345,8 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         H << sp;
         H << nl << "/// \\cond STREAM";
-        H << nl << "virtual void _iceWriteImpl(" << getAbsolute("::Ice::OutputStream*", scope) << ") const;";
-        H << nl << "virtual void _iceReadImpl(" << getAbsolute("::Ice::InputStream*", scope) << ");";
+        H << nl << "virtual void _iceWriteImpl(" << getUnqualified("::Ice::OutputStream*", scope) << ") const;";
+        H << nl << "virtual void _iceReadImpl(" << getUnqualified("::Ice::InputStream*", scope) << ");";
         H << nl << "/// \\endcond";
 
         if(preserved && !basePreserved)
@@ -3360,7 +3358,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb;
 
             C << sp;
-            C << nl << "void" << nl << scoped.substr(2) << "::_iceWrite(" << getAbsolute("::Ice::OutputStream*", scope)
+            C << nl << "void" << nl << scoped.substr(2) << "::_iceWrite(" << getUnqualified("::Ice::OutputStream*", scope)
               << "ostr) const";
             C << sb;
             C << nl << "ostr->startValue(_iceSlicedData);";
@@ -3369,7 +3367,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
             C << eb;
 
             C << sp;
-            C << nl << "void" << nl << scoped.substr(2) << "::_iceRead(" << getAbsolute("::Ice::InputStream*", scope)
+            C << nl << "void" << nl << scoped.substr(2) << "::_iceRead(" << getUnqualified("::Ice::InputStream*", scope)
               << " istr)";
             C << sb;
             C << nl << "istr->startValue();";
@@ -3380,12 +3378,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         C << sp;
         C << nl << "/// \\cond STREAM";
-        C << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(" << getAbsolute("::Ice::OutputStream*", scope)
+        C << nl << "void" << nl << scoped.substr(2) << "::_iceWriteImpl(" << getUnqualified("::Ice::OutputStream*", scope)
           << " ostr) const";
         C << sb;
         C << nl << "ostr->startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
-        C << nl << getAbsolute("::Ice::StreamWriter", scope) << "< " << name << ", "
-          << getAbsolute("::Ice::OutputStream", scope) << ">::write(ostr, *this);";
+        C << nl << getUnqualified("::Ice::StreamWriter", scope) << "< " << name << ", "
+          << getUnqualified("::Ice::OutputStream", scope) << ">::write(ostr, *this);";
         C << nl << "ostr->endSlice();";
         if(base)
         {
@@ -3394,12 +3392,12 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << eb;
 
         C << sp;
-        C << nl << "void" << nl << scoped.substr(2) << "::_iceReadImpl(" << getAbsolute("::Ice::InputStream*", scope)
+        C << nl << "void" << nl << scoped.substr(2) << "::_iceReadImpl(" << getUnqualified("::Ice::InputStream*", scope)
           << " istr)";
         C << sb;
         C << nl << "istr->startSlice();";
-        C << nl << getAbsolute("::Ice::StreamReader", scope) << "< " << name << ", "
-          << getAbsolute("::Ice::InputStream", scope) << ">::read(istr, *this);";
+        C << nl << getUnqualified("::Ice::StreamReader", scope) << "< " << name << ", "
+          << getUnqualified("::Ice::InputStream", scope) << ">::read(istr, *this);";
         C << nl << "istr->endSlice();";
         if(base)
         {
@@ -3533,15 +3531,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << nl << "inline bool operator==(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name())
           << "& rhs)";
         H << sb;
-        H << nl << "return static_cast<const " << getAbsolute("::Ice::LocalObject&", scope)
-          << ">(lhs) == static_cast<const " << getAbsolute("::Ice::LocalObject&", scope) << ">(rhs);";
+        H << nl << "return static_cast<const " << getUnqualified("::Ice::LocalObject&", scope)
+          << ">(lhs) == static_cast<const " << getUnqualified("::Ice::LocalObject&", scope) << ">(rhs);";
         H << eb;
         H << sp;
         H << nl << "inline bool operator<(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name())
           << "& rhs)";
         H << sb;
-        H << nl << "return static_cast<const " << getAbsolute("::Ice::LocalObject&", scope)
-          << ">(lhs) < static_cast<const " << getAbsolute("::Ice::LocalObject&", scope) << ">(rhs);";
+        H << nl << "return static_cast<const " << getUnqualified("::Ice::LocalObject&", scope)
+          << ">(lhs) < static_cast<const " << getUnqualified("::Ice::LocalObject&", scope) << ">(rhs);";
         H << eb;
         H << nl << "/// \\endcond";
     }
@@ -3551,7 +3549,7 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "/// \\cond INTERNAL";
         C << nl << "void";
         C << nl << scope.substr(2) << "_icePatchObjectPtr(" << p->name() << "Ptr& handle, const "
-          << getAbsolute("::Ice::ObjectPtr&", scope) << " v)";
+          << getUnqualified("::Ice::ObjectPtr&", scope) << " v)";
         C << sb;
         C << nl << "handle = " << p->name() << "Ptr::dynamicCast(v);";
         C << nl << "if(v && !handle)";
@@ -3566,15 +3564,15 @@ Slice::Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << nl << "inline bool operator==(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name())
           << "& rhs)";
         H << sb;
-        H << nl << "return static_cast<const " << getAbsolute("::Ice::Object&", scope)
-          << ">(lhs) == static_cast<const " << getAbsolute("::Ice::Object&", scope) << ">(rhs);";
+        H << nl << "return static_cast<const " << getUnqualified("::Ice::Object&", scope)
+          << ">(lhs) == static_cast<const " << getUnqualified("::Ice::Object&", scope) << ">(rhs);";
         H << eb;
         H << sp;
         H << nl << "inline bool operator<(const " << fixKwd(p->name()) << "& lhs, const " << fixKwd(p->name())
           << "& rhs)";
         H << sb;
-        H << nl << "return static_cast<const " << getAbsolute("::Ice::Object&", scope)
-          << ">(lhs) < static_cast<const " << getAbsolute("::Ice::Object&", scope) << ">(rhs);";
+        H << nl << "return static_cast<const " << getUnqualified("::Ice::Object&", scope)
+          << ">(lhs) < static_cast<const " << getUnqualified("::Ice::Object&", scope) << ">(rhs);";
         H << eb;
         H << nl << "/// \\endcond";
     }
@@ -3683,9 +3681,9 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             args += ", ";
         }
 
-        params += "const " + getAbsolute("::Ice::Current&", classScope) + " " + currentParam + " = " +
-            getAbsolute("::Ice::emptyCurrent", classScope) + ")";
-        paramsDecl += "const " + getAbsolute("::Ice::Current&", classScope) + " " + currentParam + ")";
+        params += "const " + getUnqualified("::Ice::Current&", classScope) + " " + currentParam + " = " +
+            getUnqualified("::Ice::emptyCurrent", classScope) + ")";
+        paramsDecl += "const " + getUnqualified("::Ice::Current&", classScope) + " " + currentParam + ")";
         args += "current)";
     }
     else
@@ -3695,8 +3693,8 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         args += ')';
     }
 
-    paramsAMD += "const " + getAbsolute("::Ice::Current&", classScope) + " " + currentParam + " = " +
-        getAbsolute("::Ice::emptyCurrent", classScope) + ")";
+    paramsAMD += "const " + getUnqualified("::Ice::Current&", classScope) + " " + currentParam + " = " +
+        getUnqualified("::Ice::emptyCurrent", classScope) + ")";
     argsAMD += "current)";
 
     string isConst = ((p->mode() == Operation::Nonmutating) || p->hasMetaData("cpp:const")) ? " const" : "";
@@ -3745,7 +3743,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
     if(!cl->isLocal())
     {
         H << nl << "/// \\cond INTERNAL";
-        H << nl << "bool _iceD_" << name << "(::IceInternal::Incoming&, const " << getAbsolute("::Ice::Current&", scope)
+        H << nl << "bool _iceD_" << name << "(::IceInternal::Incoming&, const " << getUnqualified("::Ice::Current&", scope)
           << ")" << isConst << ';';
         H << nl << "/// \\endcond";
 
@@ -3755,13 +3753,13 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         //
         C << nl << "/// \\cond INTERNAL";
         C << nl << "bool" << nl << scope.substr(2) << "_iceD_" << name << "(::IceInternal::Incoming& inS"
-          << ", const " << getAbsolute("::Ice::Current&", classScope) << " current)" << isConst;
+          << ", const " << getUnqualified("::Ice::Current&", classScope) << " current)" << isConst;
         C << sb;
         C << nl << "_iceCheckMode(" << operationModeToString(p->mode()) << ", current.mode);";
 
         if(!inParams.empty())
         {
-            C << nl << getAbsolute("::Ice::InputStream*", classScope) << " istr = inS.startReadParams();";
+            C << nl << getUnqualified("::Ice::InputStream*", classScope) << " istr = inS.startReadParams();";
             writeAllocateCode(C, inParams, 0, true, classScope, _useWstring | TypeContextInParam);
             writeUnmarshalCode(C, inParams, 0, true, TypeContextInParam);
             if(p->sendsClasses(false))
@@ -3790,7 +3788,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             C << "this->" << fixKwd(name) << args << ';';
             if(ret || !outParams.empty())
             {
-                C << nl << getAbsolute("::Ice::OutputStream*", classScope) << " ostr = inS.startWriteParams();";
+                C << nl << getUnqualified("::Ice::OutputStream*", classScope) << " ostr = inS.startWriteParams();";
                 writeMarshalCode(C, outParams, p, true, 0);
                 if(p->returnsClasses(false))
                 {
@@ -3852,7 +3850,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             returns.push_back(returnDoc);
             writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), StringList(), returns);
         }
-        H << nl << "virtual " << getAbsolute("::Ice::AsyncResultPtr", classScope) << " begin_" << name << spar
+        H << nl << "virtual " << getUnqualified("::Ice::AsyncResultPtr", classScope) << " begin_" << name << spar
           << paramsDeclAMI << epar << " = 0;";
 
         H << sp;
@@ -3864,10 +3862,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             returns.push_back(returnDoc);
             writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
         }
-        H << nl << "virtual " << getAbsolute("::Ice::AsyncResultPtr", classScope) << " begin_" << name << spar
+        H << nl << "virtual " << getUnqualified("::Ice::AsyncResultPtr", classScope) << " begin_" << name << spar
           << paramsDeclAMI
-          << ("const " + getAbsolute("::Ice::CallbackPtr&", classScope) + " " + cbParam)
-          << ("const " + getAbsolute("::Ice::LocalObjectPtr&", classScope) + " " + cookieParam + " = 0")
+          << ("const " + getUnqualified("::Ice::CallbackPtr&", classScope) + " " + cbParam)
+          << ("const " + getUnqualified("::Ice::LocalObjectPtr&", classScope) + " " + cookieParam + " = 0")
           << epar << " = 0;";
 
         string delName = "Callback_" + cl->name() + "_" + name;
@@ -3881,10 +3879,10 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             returns.push_back(returnDoc);
             writeOpDocSummary(H, p, comment, OpDocInParams, false, StringList(), postParams, returns);
         }
-        H << nl << "virtual " << getAbsolute("::Ice::AsyncResultPtr", classScope) << " begin_" << name << spar
+        H << nl << "virtual " << getUnqualified("::Ice::AsyncResultPtr", classScope) << " begin_" << name << spar
           << paramsDeclAMI
           << ("const " + delName + "Ptr& " + cbParam)
-          << ("const " + getAbsolute("::Ice::LocalObjectPtr&", classScope) + " " + cookieParam + " = 0") << epar
+          << ("const " + getUnqualified("::Ice::LocalObjectPtr&", classScope) + " " + cookieParam + " = 0") << epar
           << " = 0;";
 
         H << sp;
@@ -3896,7 +3894,7 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
             writeOpDocSummary(H, p, comment, OpDocOutParams, true, StringList(), postParams, comment->returns());
         }
         H << nl << "virtual " << retS << " end_" << name << spar << outParamsDeclAMI
-          << ("const " + getAbsolute("::Ice::AsyncResultPtr&", classScope) + " " + resultParam) << epar << " = 0;";
+          << ("const " + getUnqualified("::Ice::AsyncResultPtr&", classScope) + " " + resultParam) << epar << " = 0;";
     }
 }
 
@@ -4191,11 +4189,11 @@ Slice::Gen::ObjectVisitor::emitUpcall(const ClassDefPtr& base, const string& cal
     C << nl;
     if(base)
     {
-        C << getAbsolute(fixKwd(base->scoped()), scope);
+        C << getUnqualified(fixKwd(base->scoped()), scope);
     }
     else
     {
-        C << getAbsolute("::Ice::Object", scope);
+        C << getUnqualified("::Ice::Object", scope);
     }
     C << call;
 }
@@ -4453,7 +4451,7 @@ Slice::Gen::AsyncCallbackTemplateVisitor::generateOperation(const OperationPtr& 
         //
         H << sp;
         H << nl << "/// \\cond INTERNAL";
-        H << nl << "virtual void completed(const " << getAbsolute("::Ice::AsyncResultPtr&", clScope)
+        H << nl << "virtual void completed(const " << getUnqualified("::Ice::AsyncResultPtr&", clScope)
           << " result) const";
         H << sb;
         H << nl << clName << "Prx proxy = " << clName << "Prx::uncheckedCast(result->getProxy());";
@@ -4666,14 +4664,14 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
         StructPtr st = StructPtr::dynamicCast(type);
         if(st)
         {
-            return getAbsolute(fixKwd(st->scoped()), scope) + "()";
+            return getUnqualified(fixKwd(st->scoped()), scope) + "()";
         }
 
         EnumPtr en = EnumPtr::dynamicCast(type);
         if(en)
         {
             EnumeratorList enumerators = en->enumerators();
-            return getAbsolute(fixKwd(en->scope() + enumerators.front()->name()), scope);
+            return getUnqualified(fixKwd(en->scope() + enumerators.front()->name()), scope);
         }
 
         SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -4685,7 +4683,7 @@ Slice::Gen::ImplVisitor::defaultValue(const TypePtr& type, const string& scope, 
         DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
         if(dict)
         {
-            return getAbsolute(fixKwd(dict->scoped()), scope) + "()";
+            return getUnqualified(fixKwd(dict->scoped()), scope) + "()";
         }
     }
 
@@ -4817,7 +4815,7 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            H << sp << nl << "virtual " << getAbsolute(retS, scope) << ' ' << fixKwd(opName) << '(';
+            H << sp << nl << "virtual " << getUnqualified(retS, scope) << ' ' << fixKwd(opName) << '(';
             H.useCurrentPosAsIndent();
             ParamDeclList paramList = op->parameters();
             for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)
@@ -5000,7 +4998,7 @@ Slice::Gen::AsyncVisitor::visitOperation(const OperationPtr& p)
     H << nl << " * method in the case of an error.";
     H << nl << " */";
     H << nl << "class " << _dllExport << cbName << " : public virtual "
-      << getAbsolute("::Ice::AMDCallback", classScope);
+      << getUnqualified("::Ice::AMDCallback", classScope);
     H << sb;
     H.dec();
     H << nl << "public:";
@@ -6260,10 +6258,10 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
 
     string helperClass =
-        getAbsolute(p->isLocal() ? "::Ice::LocalExceptionHelper" : "::Ice::UserExceptionHelper", scope);
+        getUnqualified(p->isLocal() ? "::Ice::LocalExceptionHelper" : "::Ice::UserExceptionHelper", scope);
     string baseClass = base ?
-        getAbsolute(fixKwd(base->scoped()), scope) :
-        getAbsolute(p->isLocal() ? "::Ice::LocalException" : "::Ice::UserException", scope);
+        getUnqualified(fixKwd(base->scoped()), scope) :
+        getUnqualified(p->isLocal() ? "::Ice::LocalException" : "::Ice::UserException", scope);
     string templateParameters = name + ", " + baseClass;
 
     H << sp;
@@ -6297,7 +6295,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
           << " The line number at which the exception was raised, typically __LINE__.";
         H << nl << " */";
         H << nl << name << "(const char* " << fileParam << ", int " << lineParam << ") : ";
-        H << getAbsolute("::Ice::LocalExceptionHelper", scope) << "<" << templateParameters << ">";
+        H << getUnqualified("::Ice::LocalExceptionHelper", scope) << "<" << templateParameters << ">";
         H << "(" << fileParam << ", " << lineParam << ")";
         H << sb;
         H << eb;
@@ -6385,7 +6383,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         else if(p->isLocal())
         {
-            H << " " << getAbsolute("::Ice::LocalExceptionHelper", scope) << "<" << templateParameters << ">";
+            H << " " << getUnqualified("::Ice::LocalExceptionHelper", scope) << "<" << templateParameters << ">";
             H << "(" << fileParam << ", " << lineParam << ")";
             if(!dataMembers.empty())
             {
@@ -6498,16 +6496,16 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             H << nl << " * @return The SlicedData object, or nil if the exception was not sliced or was not";
             H << nl << " * marshaled in the sliced format.";
             H << nl << " */";
-            H << nl << _dllMemberExport << "virtual ::std::shared_ptr<" << getAbsolute("::Ice::SlicedData", scope)
+            H << nl << _dllMemberExport << "virtual ::std::shared_ptr<" << getUnqualified("::Ice::SlicedData", scope)
               << "> ice_getSlicedData() const override;";
             H << sp;
             H << nl << "/// \\cond STREAM";
-            H << nl << _dllMemberExport << "virtual void _write(" << getAbsolute("::Ice::OutputStream*", scope)
+            H << nl << _dllMemberExport << "virtual void _write(" << getUnqualified("::Ice::OutputStream*", scope)
               << ") const override;";
-            H << nl << _dllMemberExport << "virtual void _read(" << getAbsolute("::Ice::InputStream*", scope)
+            H << nl << _dllMemberExport << "virtual void _read(" << getUnqualified("::Ice::InputStream*", scope)
               << ") override;";
 
-            H << sp << nl << "::std::shared_ptr<" << getAbsolute("::Ice::SlicedData", scope) << "> _slicedData;";
+            H << sp << nl << "::std::shared_ptr<" << getUnqualified("::Ice::SlicedData", scope) << "> _slicedData;";
             H << nl << "/// \\endcond";
 
             C << sp;
@@ -6520,7 +6518,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << sp;
             C << nl << "/// \\cond STREAM";
             C << nl << "void" << nl << scoped.substr(2) << "::_write("
-              << getAbsolute("::Ice::OutputStream*", scope) << " ostr) const";
+              << getUnqualified("::Ice::OutputStream*", scope) << " ostr) const";
             C << sb;
             C << nl << "ostr->startException(_slicedData);";
             C << nl << "_writeImpl(ostr);";
@@ -6528,7 +6526,7 @@ Slice::Gen::Cpp11TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             C << eb;
 
             C << sp << nl << "void" << nl << scoped.substr(2) << "::_read("
-              << getAbsolute("::Ice::InputStream*", scope) << " istr)";
+              << getUnqualified("::Ice::InputStream*", scope) << " istr)";
             C << sb;
             C << nl << "istr->startException();";
             C << nl << "_readImpl(istr);";
@@ -6739,17 +6737,17 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << sp;
     writeDocSummary(H, p);
     H << nl << "class " << _dllClassExport << p->name() << "Prx : public virtual "
-      << getAbsolute("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
+      << getUnqualified("::Ice::Proxy", scope) << "<" << fixKwd(p->name() + "Prx") << ", ";
     if(bases.empty() || (base && base->allOperations().empty()))
     {
-        H << getAbsolute("::Ice::ObjectPrx", scope);
+        H << getUnqualified("::Ice::ObjectPrx", scope);
     }
     else
     {
         ClassList::const_iterator q = bases.begin();
         while(q != bases.end())
         {
-            H << getAbsolute(fixKwd((*q)->scoped() + "Prx"), scope);
+            H << getUnqualified(fixKwd((*q)->scoped() + "Prx"), scope);
             if(++q != bases.end())
             {
                 H << ", ";
@@ -6785,11 +6783,11 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     H.inc();
     H << sp;
     H << nl << "/// \\cond INTERNAL";
-    H << nl << getAbsolute(prx, scope) << "() = default;";
-    H << nl << "friend ::std::shared_ptr<" << getAbsolute(prx, scope) << "> IceInternal::createProxy<"
-      << getAbsolute(prx, scope) << ">();";
+    H << nl << getUnqualified(prx, scope) << "() = default;";
+    H << nl << "friend ::std::shared_ptr<" << getUnqualified(prx, scope) << "> IceInternal::createProxy<"
+      << getUnqualified(prx, scope) << ">();";
     H << sp;
-    H << nl << _dllMemberExport << "virtual ::std::shared_ptr<" << getAbsolute("::Ice::ObjectPrx", scope)
+    H << nl << _dllMemberExport << "virtual ::std::shared_ptr<" << getUnqualified("::Ice::ObjectPrx", scope)
       << "> _newInstance() const override;";
     H << nl << "/// \\endcond";
     H << eb << ';';
@@ -6799,7 +6797,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     C << nl << "::std::shared_ptr<::Ice::ObjectPrx>";
     C << nl << scoped.substr(2) << "::_newInstance() const";
     C << sb;
-    C << nl << "return ::IceInternal::createProxy<" << getAbsolute(prx, scope) << ">();";
+    C << nl << "return ::IceInternal::createProxy<" << getUnqualified(prx, scope) << ">();";
     C << eb;
     C << nl << "/// \\endcond";
     C << sp;
@@ -6896,8 +6894,8 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     string scoped = fixKwd(cl->scope() + cl->name() + "Prx" + "::").substr(2);
 
     const string contextParam = escapeParam(paramList, "context");
-    const string contextDecl = "const " + getAbsolute("::Ice::Context&", clScope) + " " + contextParam + " = " +
-        getAbsolute("::Ice::noExplicitContext", clScope);
+    const string contextDecl = "const " + getUnqualified("::Ice::Context&", clScope) + " " + contextParam + " = " +
+        getUnqualified("::Ice::noExplicitContext", clScope);
 
     string futureT;
     if(futureOutParams.empty())
@@ -6948,7 +6946,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         H << "auto _result = ";
     }
 
-    H << "_makePromiseOutgoing<" << getAbsolute(futureT, cl->scoped()) << ">";
+    H << "_makePromiseOutgoing<" << getUnqualified(futureT, cl->scoped()) << ">";
 
     H << spar << "true, this" << "&" + cl->name() + "Prx::_iceI_" + name;
     for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
@@ -7171,7 +7169,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         H << nl << "return _makeLamdaOutgoing<" << futureT << ">" << spar;
 
         H << (futureOutParams.size() > 1 ? "_responseCb" : responseParam) << exParam << sentParam << "this";
-        H << string("&" + getAbsolute(scoped, clScope.substr(2)) + "_iceI_" + name);
+        H << string("&" + getUnqualified(scoped, clScope.substr(2)) + "_iceI_" + name);
         for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
         {
             H << fixKwd((*q)->name());
@@ -7189,7 +7187,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     H << nl << _dllMemberExport << "void _iceI_" << name << spar;
     H << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>&";
     H << inParamsS;
-    H << ("const " + getAbsolute("::Ice::Context&", clScope));
+    H << ("const " + getUnqualified("::Ice::Context&", clScope));
     H << epar << ";";
     H << nl << "/// \\endcond";
 
@@ -7197,7 +7195,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
     C << nl << "/// \\cond INTERNAL";
     C << nl << "void" << nl << scoped << "_iceI_" << name << spar;
     C << "const ::std::shared_ptr<::IceInternal::OutgoingAsyncT<" + futureT + ">>& outAsync";
-    C << inParamsImplDecl << ("const " + getAbsolute("::Ice::Context&", clScope) + " context");
+    C << inParamsImplDecl << ("const " + getUnqualified("::Ice::Context&", clScope) + " context");
     C << epar;
     C << sb;
     if(p->returnsData())
@@ -7205,8 +7203,8 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         C << nl << "_checkTwowayOnly(" << flatName << ");";
     }
     C << nl << "outAsync->invoke(" << flatName << ", ";
-    C << getAbsolute(operationModeToString(p->sendMode(), true), clScope) << ", "
-      << getAbsolute(opFormatTypeToString(p, true), clScope) << ", context,";
+    C << getUnqualified(operationModeToString(p->sendMode(), true), clScope) << ", "
+      << getUnqualified(opFormatTypeToString(p, true), clScope) << ", context,";
     C.inc();
     C << nl;
 
@@ -7221,7 +7219,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         // only one, we rely on the default read method from LambdaOutgoing
         // except if the unique ret/out is optional or is an array/range.
         //
-        C << "," << nl << "[](" << getAbsolute("::Ice::InputStream*", clScope) << " istr)";
+        C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", clScope) << " istr)";
         C << sb;
         C << nl << futureT << " v;";
         writeUnmarshalCode(C, outParams, p, false, _useWstring | TypeContextCpp11, "", returnValueS, "v");
@@ -7240,7 +7238,7 @@ Slice::Gen::Cpp11ProxyVisitor::visitOperation(const OperationPtr& p)
         // a read method, we can't rely on the default read method which wouldn't
         // known which tag to use.
         //
-        C << "," << nl << "[](" << getAbsolute("::Ice::InputStream*", clScope) << " istr)";
+        C << "," << nl << "[](" << getUnqualified("::Ice::InputStream*", clScope) << " istr)";
         C << sb;
 
         writeAllocateCode(C, outParams, p, true, clScope, _useWstring | TypeContextCpp11);
@@ -7331,11 +7329,11 @@ Slice::Gen::Cpp11TypesVisitor::emitUpcall(const ExceptionPtr& base, const string
     C << nl;
     if(base)
     {
-        C << getAbsolute(fixKwd(base->scoped()), scope);
+        C << getUnqualified(fixKwd(base->scoped()), scope);
     }
     else
     {
-        getAbsolute(isLocal ? "::Ice::LocalException" : "::Ice::UserException", scope);
+        getUnqualified(isLocal ? "::Ice::LocalException" : "::Ice::UserException", scope);
     }
     C << call;
 }
@@ -7398,11 +7396,11 @@ Slice::Gen::Cpp11InterfaceVisitor::emitUpcall(const ClassDefPtr& base, const str
     C << nl;
     if(base)
     {
-        C << getAbsolute(fixKwd(base->scoped()), scope);
+        C << getUnqualified(fixKwd(base->scoped()), scope);
     }
     else
     {
-        C << getAbsolute("::Ice::Object", scope);
+        C << getUnqualified("::Ice::Object", scope);
     }
     C << call;
 }
@@ -7413,11 +7411,11 @@ Slice::Gen::Cpp11ValueVisitor::emitUpcall(const ClassDefPtr& base, const string&
     C << nl;
     if(base)
     {
-        C << getAbsolute(fixKwd(base->scoped()), scope);
+        C << getUnqualified(fixKwd(base->scoped()), scope);
     }
     else
     {
-        C << getAbsolute("::Ice::Value", scope);
+        C << getUnqualified("::Ice::Value", scope);
     }
     C << call;
 }
@@ -7872,7 +7870,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     H.useCurrentPosAsIndent();
     if(bases.empty() || (base && base->allOperations().empty()))
     {
-        H << "public virtual " << getAbsolute("::Ice::Object", scope);
+        H << "public virtual " << getUnqualified("::Ice::Object", scope);
     }
     else
     {
@@ -7882,7 +7880,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
             string baseSuffix = (*q)->isInterface() ? "" : "Disp";
             string baseScoped = fixKwd((*q)->scope() + (*q)->name() + baseSuffix);
 
-            H << "public virtual " << getAbsolute(baseScoped, scope);
+            H << "public virtual " << getUnqualified(baseScoped, scope);
             if(++q != bases.end())
             {
                 H << ',' << nl;
@@ -7927,7 +7925,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return True if this object supports the interface, false, otherwise.";
     H << nl << " */";
-    H << nl << "virtual bool ice_isA(::std::string id, const " << getAbsolute("::Ice::Current&", scope)
+    H << nl << "virtual bool ice_isA(::std::string id, const " << getUnqualified("::Ice::Current&", scope)
       << " current) const override;";
         H << sp;
     H << nl << "/**";
@@ -7936,7 +7934,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * @return A list of fully-scoped type IDs.";
     H << nl << " */";
     H << nl
-      << "virtual ::std::vector<::std::string> ice_ids(const " << getAbsolute("::Ice::Current&", scope)
+      << "virtual ::std::vector<::std::string> ice_ids(const " << getUnqualified("::Ice::Current&", scope)
       << " current) const override;";
         H << sp;
     H << nl << "/**";
@@ -7944,7 +7942,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
     H << nl << " * @param current The Current object for the invocation.";
     H << nl << " * @return A fully-scoped type ID.";
     H << nl << " */";
-    H << nl << "virtual ::std::string ice_id(const " << getAbsolute("::Ice::Current&", scope)
+    H << nl << "virtual ::std::string ice_id(const " << getUnqualified("::Ice::Current&", scope)
       << " current) const override;";
         H << sp;
     H << nl << "/**";
@@ -7957,21 +7955,21 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     C << sp;
     C << nl << "bool" << nl << scoped.substr(2) << "::ice_isA(::std::string s, const "
-      << getAbsolute("::Ice::Current&", scope) << ") const";
+      << getUnqualified("::Ice::Current&", scope) << ") const";
     C << sb;
     C << nl << "return ::std::binary_search(" << flatName << ", " << flatName << " + " << ids.size() << ", s);";
     C << eb;
 
     C << sp;
     C << nl << "::std::vector<::std::string>" << nl << scoped.substr(2) << "::ice_ids(const "
-      << getAbsolute("::Ice::Current&", scope) << ") const";
+      << getUnqualified("::Ice::Current&", scope) << ") const";
     C << sb;
     C << nl << "return ::std::vector<::std::string>(&" << flatName << "[0], &" << flatName << '[' << ids.size()
       << "]);";
     C << eb;
 
     C << sp;
-    C << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id(const " << getAbsolute("::Ice::Current&", scope)
+    C << nl << "::std::string" << nl << scoped.substr(2) << "::ice_id(const " << getUnqualified("::Ice::Current&", scope)
       << ") const";
     C << sb;
     C << nl << "return ice_staticId();";
@@ -8021,14 +8019,14 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << sp;
         H << nl << "/// \\cond INTERNAL";
         H << nl << "virtual bool _iceDispatch(::IceInternal::Incoming&, const "
-          << getAbsolute("::Ice::Current&", scope) << ") override;";
+          << getUnqualified("::Ice::Current&", scope) << ") override;";
         H << nl << "/// \\endcond";
 
         C << sp;
         C << nl << "/// \\cond INTERNAL";
         C << nl << "bool";
         C << nl << scoped.substr(2) << "::_iceDispatch(::IceInternal::Incoming& in, const "
-          << getAbsolute("::Ice::Current&", scope) << " current)";
+          << getUnqualified("::Ice::Current&", scope) << " current)";
         C << sb;
 
         C << nl << "::std::pair<const ::std::string*, const ::std::string*> r = "
@@ -8036,7 +8034,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefEnd(const ClassDefPtr& p)
           << ", current.operation);";
         C << nl << "if(r.first == r.second)";
         C << sb;
-        C << nl << "throw " << getAbsolute("::Ice::OperationNotExistException", scope)
+        C << nl << "throw " << getUnqualified("::Ice::OperationNotExistException", scope)
           << "(__FILE__, __LINE__, current.id, current.facet, current.operation);";
         C << eb;
         C << sp;
@@ -8053,7 +8051,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << nl << "default:";
         C << sb;
         C << nl << "assert(false);";
-        C << nl << "throw " << getAbsolute("::Ice::OperationNotExistException", scope)
+        C << nl << "throw " << getUnqualified("::Ice::OperationNotExistException", scope)
           << "(__FILE__, __LINE__, current.id, current.facet, current.operation);";
         C << eb;
         C << eb;
@@ -8110,7 +8108,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     const string responsecbParam = escapeParam(inParams, "response");
     const string excbParam = escapeParam(inParams, "exception");
     const string currentParam = escapeParam(amd ? inParams : paramList, "current");
-    const string currentTypeDecl = "const " + getAbsolute("::Ice::Current&", classScope);
+    const string currentTypeDecl = "const " + getUnqualified("::Ice::Current&", classScope);
     const string currentDecl = currentTypeDecl + " " + currentParam;
 
     CommentPtr comment = p->parseComment(false);
@@ -8201,7 +8199,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
         H << nl << "/**";
         H << nl << " * Marshaled result structure for operation " << (amd ? name + "Async" : fixKwd(name)) << ".";
         H << nl << " */";
-        H << nl << "class " << resultName << " : public " << getAbsolute("::Ice::MarshaledResult", classScope);
+        H << nl << "class " << resultName << " : public " << getUnqualified("::Ice::MarshaledResult", classScope);
         H << sb;
         H.dec();
         H << nl << "public:";
@@ -8276,7 +8274,7 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     H << nl << deprecateSymbol << "virtual " << retS << ' ' << opName << spar << params << epar << isConst << " = 0;";
     H << nl << "/// \\cond INTERNAL";
     H << nl << "bool _iceD_" << name << "(::IceInternal::Incoming&, const "
-      << getAbsolute("::Ice::Current&", classScope) << ")" << isConst << ';';
+      << getUnqualified("::Ice::Current&", classScope) << ")" << isConst << ';';
     H << nl << "/// \\endcond";
 
     C << sp;
@@ -8284,9 +8282,9 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
     C << nl << "bool";
     C << nl << scope.substr(2);
     C << "_iceD_" << name << "(::IceInternal::Incoming& inS, const "
-      << getAbsolute("::Ice::Current&", classScope) << " current)" << isConst;
+      << getUnqualified("::Ice::Current&", classScope) << " current)" << isConst;
     C << sb;
-    C << nl << "_iceCheckMode(" << getAbsolute(operationModeToString(p->mode(), true), classScope)
+    C << nl << "_iceCheckMode(" << getUnqualified(operationModeToString(p->mode(), true), classScope)
       << ", current.mode);";
 
     if(!inParams.empty())
@@ -8427,16 +8425,16 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     H << sp;
     writeDocSummary(H, p);
-    H << nl << "class " << _dllClassExport << name << " : public " << getAbsolute("::Ice::ValueHelper", scope)
+    H << nl << "class " << _dllClassExport << name << " : public " << getUnqualified("::Ice::ValueHelper", scope)
       << "<" << name << ", ";
 
     if(!base || (base && base->isInterface()))
     {
-        H << getAbsolute("::Ice::Value", scope);
+        H << getUnqualified("::Ice::Value", scope);
     }
     else
     {
-        H << getAbsolute(fixKwd(base->scoped()), scope);
+        H << getUnqualified(fixKwd(base->scoped()), scope);
     }
     H << ">";
     H << sb;
@@ -8507,7 +8505,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         H << nl << " * @return The SlicedData object, or nil if the value was not sliced or was not";
         H << nl << " * marshaled in the sliced format.";
         H << nl << " */";
-        H << nl << "virtual ::std::shared_ptr<" << getAbsolute("::Ice::SlicedData", scope)
+        H << nl << "virtual ::std::shared_ptr<" << getUnqualified("::Ice::SlicedData", scope)
           << "> ice_getSlicedData() const override;";
 
         C << sp;
@@ -8518,13 +8516,13 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
         H << sp;
         H << nl << "/// \\cond STREAM";
-        H << nl << "virtual void _iceWrite(" << getAbsolute("::Ice::OutputStream*", scope) << ") const override;";
-        H << nl << "virtual void _iceRead(" << getAbsolute("::Ice::InputStream*", scope) << ") override;";
+        H << nl << "virtual void _iceWrite(" << getUnqualified("::Ice::OutputStream*", scope) << ") const override;";
+        H << nl << "virtual void _iceRead(" << getUnqualified("::Ice::InputStream*", scope) << ") override;";
         H << nl << "/// \\endcond";
 
         C << sp;
         C << nl << "/// \\cond STREAM";
-        C << nl << "void" << nl << scoped.substr(2) << "::_iceWrite(" << getAbsolute("::Ice::OutputStream*", scope)
+        C << nl << "void" << nl << scoped.substr(2) << "::_iceWrite(" << getUnqualified("::Ice::OutputStream*", scope)
           << " ostr) const";
         C << sb;
         C << nl << "ostr->startValue(_iceSlicedData);";
@@ -8533,7 +8531,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         C << eb;
 
         C << sp;
-        C << nl << "void" << nl << scoped.substr(2) << "::_iceRead(" << getAbsolute("::Ice::InputStream*", scope)
+        C << nl << "void" << nl << scoped.substr(2) << "::_iceRead(" << getUnqualified("::Ice::InputStream*", scope)
           << " istr)";
         C << sb;
         C << nl << "istr->startValue();";
@@ -8608,7 +8606,7 @@ Slice::Gen::Cpp11ValueVisitor::visitClassDefEnd(const ClassDefPtr& p)
         }
         H << sp;
         H << nl << "/// \\cond STREAM";
-        H << nl << "::std::shared_ptr<" << getAbsolute("::Ice::SlicedData", scope) << "> _iceSlicedData;";
+        H << nl << "::std::shared_ptr<" << getUnqualified("::Ice::SlicedData", scope) << "> _iceSlicedData;";
         H << nl << "/// \\endcond";
     }
 
@@ -8696,12 +8694,12 @@ Slice::Gen::Cpp11ObjectVisitor::emitVirtualBaseInitializers(const ClassDefPtr& d
 
     if(base->isLocal())
     {
-        H << nl << getAbsolute(fixKwd(base->scoped()), scope);
+        H << nl << getUnqualified(fixKwd(base->scoped()), scope);
     }
     else
     {
-        H << nl << "Ice::ValueHelper<" << getAbsolute(fixKwd(derived->scoped()), scope)
-          << ", " << getAbsolute(fixKwd(base->scoped()), scope) << ">";
+        H << nl << "Ice::ValueHelper<" << getUnqualified(fixKwd(derived->scoped()), scope)
+          << ", " << getUnqualified(fixKwd(base->scoped()), scope) << ">";
     }
     H << upcall;
     return true;
@@ -9019,14 +9017,14 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
         StructPtr st = StructPtr::dynamicCast(type);
         if(st)
         {
-            return getAbsolute(fixKwd(st->scoped()), scope) + "()";
+            return getUnqualified(fixKwd(st->scoped()), scope) + "()";
         }
 
         EnumPtr en = EnumPtr::dynamicCast(type);
         if(en)
         {
             EnumeratorList enumerators = en->enumerators();
-            return getAbsolute(fixKwd(en->scoped() + "::" + enumerators.front()->name()), scope);
+            return getUnqualified(fixKwd(en->scoped() + "::" + enumerators.front()->name()), scope);
         }
 
         SequencePtr seq = SequencePtr::dynamicCast(type);
@@ -9038,7 +9036,7 @@ Slice::Gen::Cpp11ImplVisitor::defaultValue(const TypePtr& type, const string& sc
         DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
         if(dict)
         {
-            return getAbsolute(fixKwd(dict->scoped()), scope) + "()";
+            return getUnqualified(fixKwd(dict->scoped()), scope) + "()";
         }
     }
 
@@ -9225,7 +9223,7 @@ Slice::Gen::Cpp11ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
         else
         {
-            H << sp << nl << "virtual " << getAbsolute(retS, scope) << ' ' << fixKwd(opName) << '(';
+            H << sp << nl << "virtual " << getUnqualified(retS, scope) << ' ' << fixKwd(opName) << '(';
             H.useCurrentPosAsIndent();
             ParamDeclList paramList = op->hasMarshaledResult() ? inParams : op->parameters();
             for(ParamDeclList::const_iterator q = paramList.begin(); q != paramList.end(); ++q)

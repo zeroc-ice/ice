@@ -9,55 +9,41 @@
 
 package test.Ice.hold;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        java.util.Timer timer = new java.util.Timer();
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.hold");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter1.Endpoints", getTestEndpoint(0));
+            communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Size", "5");
+            communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
+            communicator.getProperties().setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
+            communicator.getProperties().setProperty("TestAdapter1.ThreadPool.Serialize", "0");
 
-        com.zeroc.Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
-        adapter1.add(new HoldI(timer, adapter1), com.zeroc.Ice.Util.stringToIdentity("hold"));
+            communicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
+            communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Size", "5");
+            communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
+            communicator.getProperties().setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
+            communicator.getProperties().setProperty("TestAdapter2.ThreadPool.Serialize", "1");
 
-        com.zeroc.Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
-        adapter2.add(new HoldI(timer, adapter2), com.zeroc.Ice.Util.stringToIdentity("hold"));
+            java.util.Timer timer = new java.util.Timer();
 
-        adapter1.activate();
-        adapter2.activate();
+            com.zeroc.Ice.ObjectAdapter adapter1 = communicator.createObjectAdapter("TestAdapter1");
+            adapter1.add(new HoldI(timer, adapter1), com.zeroc.Ice.Util.stringToIdentity("hold"));
 
-        serverReady();
-        communicator.waitForShutdown();
+            com.zeroc.Ice.ObjectAdapter adapter2 = communicator.createObjectAdapter("TestAdapter2");
+            adapter2.add(new HoldI(timer, adapter2), com.zeroc.Ice.Util.stringToIdentity("hold"));
 
-        timer.cancel();
+            adapter1.activate();
+            adapter2.activate();
 
-        return 0;
-    }
+            serverReady();
+            communicator.waitForShutdown();
 
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.hold");
-        initData.properties.setProperty("TestAdapter1.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("TestAdapter1.ThreadPool.Size", "5");
-        initData.properties.setProperty("TestAdapter1.ThreadPool.SizeMax", "5");
-        initData.properties.setProperty("TestAdapter1.ThreadPool.SizeWarn", "0");
-        initData.properties.setProperty("TestAdapter1.ThreadPool.Serialize", "0");
-
-        initData.properties.setProperty("TestAdapter2.Endpoints", getTestEndpoint(initData.properties, 1));
-        initData.properties.setProperty("TestAdapter2.ThreadPool.Size", "5");
-        initData.properties.setProperty("TestAdapter2.ThreadPool.SizeMax", "5");
-        initData.properties.setProperty("TestAdapter2.ThreadPool.SizeWarn", "0");
-        initData.properties.setProperty("TestAdapter2.ThreadPool.Serialize", "1");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            timer.cancel();
+        }
     }
 }

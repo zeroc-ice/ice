@@ -9,7 +9,7 @@
 
 package test.Ice.objects;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
     private static class MyValueFactory implements Ice.ValueFactory
     {
@@ -34,41 +34,30 @@ public class Server extends test.Util.Application
         }
     }
 
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ValueFactory factory = new MyValueFactory();
-        communicator.getValueFactoryManager().add(factory, "::Test::I");
-        communicator.getValueFactoryManager().add(factory, "::Test::J");
-        communicator.getValueFactoryManager().add(factory, "::Test::H");
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.objects");
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
 
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        Ice.Object object = new InitialI(adapter);
-        adapter.add(object, Ice.Util.stringToIdentity("initial"));
-        object = new UnexpectedObjectExceptionTestI();
-        adapter.add(object, Ice.Util.stringToIdentity("uoet"));
-        adapter.activate();
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ValueFactory factory = new MyValueFactory();
+            communicator.getValueFactoryManager().add(factory, "::Test::I");
+            communicator.getValueFactoryManager().add(factory, "::Test::J");
+            communicator.getValueFactoryManager().add(factory, "::Test::H");
 
-        return WAIT;
-    }
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.Object object = new InitialI(adapter);
+            adapter.add(object, Ice.Util.stringToIdentity("initial"));
+            object = new UnexpectedObjectExceptionTestI();
+            adapter.add(object, Ice.Util.stringToIdentity("uoet"));
+            adapter.activate();
 
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.objects");
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.MessageSizeMax", "2048"); // Needed on some Android versions
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

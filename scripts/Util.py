@@ -7,9 +7,8 @@
 #
 # **********************************************************************
 
-import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil, copy, inspect
-
-import xml.sax.saxutils
+import os, sys, runpy, getopt, traceback, types, threading, time, datetime, re, itertools, random, subprocess, shutil
+import copy, inspect, xml.sax.saxutils
 
 isPython2 = sys.version_info[0] == 2
 if isPython2:
@@ -24,10 +23,23 @@ import Expect
 
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-def run(cmd, cwd=None, err=False):
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
+    if stdout:
+        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+    else:
+        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     try:
-        out = p.stdout.read().decode('UTF-8').strip()
+        if stdin:
+            try:
+                while True:
+                    p.stdin.write(stdin)
+                    if not stdinRepeat:
+                        break
+                    time.sleep(1)
+            except:
+                pass
+
+        out = (p.stderr if stdout else p.stdout).read().decode('UTF-8').strip()
         if(not err and p.wait() != 0) or (err and p.wait() == 0) :
             raise RuntimeError(cmd + " failed:\n" + out)
     finally:
@@ -36,7 +48,8 @@ def run(cmd, cwd=None, err=False):
         #
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
-        p.stdout.close()
+        (p.stderr if stdout else p.stdout).close()
+        p.stdin.close()
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
@@ -52,28 +65,117 @@ def val(v, escapeQuotes=False, quoteValue=True):
     else:
         return str(v)
 
+illegalXMLChars = re.compile(u'[\x00-\x08\x0b\x0c\x0e-\x1F\uD800-\uDFFF\uFFFE\uFFFF]')
+
 def escapeXml(s, attribute=False):
     # Remove backspace characters from the output (they aren't accepted by Jenkins XML parser)
     if isPython2:
         s = "".join(ch for ch in unicode(s.decode("utf-8")) if ch != u"\u0008").encode("utf-8")
     else:
         s = "".join(ch for ch in s if ch != u"\u0008")
+    s = illegalXMLChars.sub("?", s) # Strip invalid XML characters
     return xml.sax.saxutils.quoteattr(s) if attribute else xml.sax.saxutils.escape(s)
 
-def getIceSoVersion():
-    config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
-    intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
-    majorVersion = int(intVersion / 10000)
-    minorVersion = int(intVersion / 100) - 100 * majorVersion
-    patchVersion = intVersion % 100
-    if patchVersion < 50:
-        return '%d' % (majorVersion * 10 + minorVersion)
-    elif patchVersion < 60:
-        return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
-    else:
-        return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
+"""
+Component abstract class. The driver and mapping classes rely on the component
+class to provide component specific information.
+"""
+class Component(object):
 
-class Platform:
+    def __init__(self):
+        pass
+
+    """
+    Returns whether or not to use the binary distribution.
+    """
+    def useBinDist(self, mapping, current):
+        raise Error("must be overriden")
+
+    """
+    Returns the component installation directory if using a binary distribution
+    or the mapping directory if using a source distribution.
+    """
+    def getInstallDir(self, mapping, current):
+        raise Error("must be overriden")
+
+    def getPhpExtension(self, mapping, current):
+        raise Error("must be overriden if component provides php mapping")
+
+    def getNugetPackage(self, mapping, compiler=None):
+        raise Error("must be overriden if component provides C++ or C# nuget packages")
+
+    def getNugetPackageVersion(self, mapping):
+        raise Error("must be overriden if component provides C++ or C# nuget packages")
+
+    def getFilters(self, mapping, config):
+        return ([], [])
+
+    def canRun(self, testId, mapping, current):
+        return True
+
+    def isMainThreadOnly(self, testId):
+        return True
+
+    def getDefaultProcesses(self, mapping, processType, testId):
+        return None
+
+    def getDefaultExe(self, mapping, processType, config):
+        return None
+
+    def getDefaultSource(self, mapping, processType):
+        return None
+
+    def getOptions(self, testcase, current):
+        return None
+
+    def getRunOrder(self):
+        return []
+
+    def isCross(self, testId):
+        return False
+
+    def getSliceDir(self, mapping, current):
+        installDir = self.getInstallDir(mapping, current)
+        if installDir.endswith(mapping.name):
+            installDir = installDir[0:len(installDir) - len(mapping.name) - 1]
+        if platform.getInstallDir() and installDir == platform.getInstallDir():
+            return os.path.join(installDir, "share", "ice", "slice")
+        else:
+            return os.path.join(installDir, "slice")
+
+    def getBinDir(self, process, mapping, current):
+        return platform._getBinDir(self, process, mapping, current)
+
+    def getLibDir(self, process, mapping, current):
+        return platform._getLibDir(self, process, mapping, current)
+
+    def getPhpIncludePath(self, mapping, current):
+        return "{0}/{1}".format(self.getInstallDir(mapping, current), "php" if self.useBinDist(mapping, current) else "lib")
+
+    def _useBinDist(self, mapping, current, envName):
+        env = os.environ.get(envName, "").split()
+        return 'all' in env or mapping.name in env
+
+    def _getInstallDir(self, mapping, current, envHomeName):
+        if self.useBinDist(mapping, current):
+            # On Windows or for the C# mapping we first look for Nuget packages rather than the binary installation
+            if isinstance(platform, Windows) or isinstance(mapping, CSharpMapping):
+                packageDir = platform.getNugetPackageDir(self, mapping, current)
+                if envHomeName and not os.path.exists(packageDir):
+                    home = os.environ.get(envHomeName, "")
+                    if not home or not os.path.exists(home):
+                        raise RuntimeError("Cannot detect a valid distribution in `" + envHomeName + "'")
+                    return home
+                else:
+                    return packageDir
+            else:
+                return os.environ.get(envHomeName, platform.getInstallDir())
+        elif mapping:
+            return mapping.getPath()
+        else:
+            return toplevel
+
+class Platform(object):
 
     def __init__(self):
         self.parseBuildVariables({
@@ -88,6 +190,9 @@ class Platform:
         except:
             self.nugetPackageCache = None
 
+    def hasDotNet(self):
+        return self.nugetPackageCache != None
+
     def parseBuildVariables(self, variables):
         # Run make to get the values of the given variables
         output = run('make print V="{0}"'.format(" ".join(variables.keys())), cwd = toplevel)
@@ -99,27 +204,26 @@ class Platform:
                     value = match.group(2).strip() or ""
                     setattr(self, varname, valuefn(value) if valuefn else value)
 
-    def getFilters(self, config):
-        if config.buildConfig in ["static", "cpp11-static"]:
-            return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
-                    ["Ice/library", "Ice/plugin"])
-        return ([], [])
-
     def getDefaultBuildPlatform(self):
         return self.supportedPlatforms[0]
 
     def getDefaultBuildConfig(self):
         return self.supportedConfigs[0]
 
-    def getBinSubDir(self, mapping, process, current):
-        # Return the bin sub-directory for the given mapping,platform,config,
-        # to be overriden by specializations
-        return "bin"
+    def _getBinDir(self, component, process, mapping, current):
+        installDir = component.getInstallDir(mapping, current)
+        if isinstance(mapping, CSharpMapping):
+            if component.useBinDist(mapping, current):
+                return os.path.join(installDir, "tools", "netcoreapp2.0")
+            else:
+                return os.path.join(installDir, "bin", "netcoreapp2.0")
+        return os.path.join(installDir, "bin")
 
-    def getLibSubDir(self, mapping, process, current):
-        # Return the bin sub-directory for the given mapping,platform,config,
-        # to be overriden by specializations
-        return "lib"
+    def _getLibDir(self, component, process, mapping, current):
+        installDir = component.getInstallDir(mapping, current)
+        if isinstance(mapping, CSharpMapping):
+            return os.path.join(installDir, "lib", "netstandard2.0")
+        return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
         # Return the build sub-directory, to be overriden by specializations
@@ -130,67 +234,22 @@ class Platform:
     def getLdPathEnvName(self):
         return "LD_LIBRARY_PATH"
 
-    def getInstallDir(self, mapping, current, envName):
-        return os.environ.get(envName, "/usr")
+    def getInstallDir(self):
+        return "/usr"
 
-    def getIceInstallDir(self, mapping, current):
-        #
-        # For .NET Core with Ice binary distribution the NuGet packages is
-        # installed in the global packages package cache
-        #
-        if isinstance(mapping, CSharpMapping) and current.driver.useIceBinDist(mapping) and current.config.netframework:
-            return os.path.join(self.nugetPackageCache, "zeroc.ice.net", self.getNugetPackageVersion(mapping))
-        else:
-            return self.getInstallDir(mapping, current, "ICE_HOME")
-
-    def getSliceDir(self, iceDir):
-        if iceDir.startswith("/usr"):
-            return os.path.join(iceDir, "share", "ice", "slice")
-        else:
-            return os.path.join(iceDir, "slice")
-
-    def getDefaultExe(self, name, config):
-        if name == "icebox" and config.cpp11:
-            name += "++11"
-        return name
+    def getNugetPackageDir(self, component, mapping, current):
+        if not self.nugetPackageCache:
+            return None
+        return os.path.join(self.nugetPackageCache, component.getNugetPackage(mapping), component.getNugetPackageVersion(mapping))
 
     def hasOpenSSL(self):
         # This is used by the IceSSL test suite to figure out how to setup certificates
         return False
 
-    def canRun(self, mapping, current):
-        return True
-
-    def getDotnetExe(self):
+    def getDotNetExe(self):
         return "dotnet"
 
-    def getNugetPackageVersion(self, mapping):
-        version = None
-        if isinstance(mapping, CSharpMapping):
-            with open(os.path.join(toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec"), "r") as configFile:
-                version = re.search("<version>(.*)</version>", configFile.read()).group(1)
-        else:
-            with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-                version = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        return version
-
 class Darwin(Platform):
-
-    def getFilters(self, config):
-        if config.buildPlatform in ["iphoneos", "iphonesimulator", "macosx"] and "xcodesdk" in config.buildConfig:
-            return (["Ice/.*", "IceSSL/configuration"],
-                    ["Ice/background",
-                     "Ice/echo",
-                     "Ice/faultTolerance",
-                     "Ice/gc",
-                     "Ice/library",
-                     "Ice/logger",
-                     "Ice/properties",
-                     "Ice/plugin",
-                     "Ice/stringConverter",
-                     "Ice/threadPoolPriority",
-                     "Ice/udp"])
-        return Platform.getFilters(self, config)
 
     def getDefaultBuildPlatform(self):
         return "macosx"
@@ -198,8 +257,8 @@ class Darwin(Platform):
     def getLdPathEnvName(self):
         return "DYLD_LIBRARY_PATH"
 
-    def getInstallDir(self, mapping, current, envName):
-        return os.environ.get(envName, "/usr/local")
+    def getInstallDir(self):
+        return "/usr/local"
 
 class AIX(Platform):
 
@@ -223,24 +282,32 @@ class Linux(Platform):
     def hasOpenSSL(self):
         return True
 
-    def getBinSubDir(self, mapping, process, current):
+    def _getBinDir(self, component, process, mapping, current):
+        installDir = component.getInstallDir(mapping, current)
+        if isinstance(mapping, CSharpMapping):
+            return Platform._getBinDir(self, component, process, mapping, current)
+
         buildPlatform = current.driver.configs[mapping].buildPlatform
         if self.linuxId in ["ubuntu", "debian"] and buildPlatform in self.foreignPlatforms:
-            return os.path.join("bin", self.multiArch[buildPlatform])
-        return "bin"
+            return os.path.join(installDir, "bin", self.multiArch[buildPlatform])
+        return os.path.join(installDir, "bin")
 
-    def getLibSubDir(self, mapping, process, current):
+    def _getLibDir(self, component, process, mapping, current):
+        installDir = component.getInstallDir(mapping, current)
+        if isinstance(mapping, CSharpMapping):
+            return Platform._getLibDir(self, component, process, mapping, current)
+
         buildPlatform = current.driver.configs[mapping].buildPlatform
 
         # PHP module is always installed in the lib directory for the default build platform
         if isinstance(mapping, PhpMapping) and buildPlatform == self.getDefaultBuildPlatform():
-            return "lib"
+            return os.path.join(installDir, "lib")
 
         if self.linuxId in ["centos", "rhel", "fedora"]:
-            return "lib64" if buildPlatform == "x64" else "lib"
+            return os.path.join(installDir, "lib64" if buildPlatform == "x64" else "lib")
         elif self.linuxId in ["ubuntu", "debian"]:
-            return os.path.join("lib", self.multiArch[buildPlatform])
-        return "lib"
+            return os.path.join(installDir, "lib", self.multiArch[buildPlatform])
+        return os.path.join(installDir, "lib")
 
     def getBuildSubDir(self, mapping, name, current):
         buildPlatform = current.driver.configs[mapping].buildPlatform
@@ -250,60 +317,14 @@ class Linux(Platform):
         else:
             return os.path.join("build", buildPlatform, buildConfig)
 
-    def getDefaultExe(self, name, config):
-        if name == "icebox":
-            if self.linuxId in ["centos", "rhel", "fedora"] and config.buildPlatform == "x86":
-                name += "32" # Multilib platform
-            if config.cpp11:
-                name += "++11"
-        return name
-
-    def canRun(self, mapping, current):
-        if self.linuxId in ["centos", "rhel", "fedora"] and current.config.buildPlatform == "x86":
-            #
-            # Don't test Glacier2/IceStorm/IceGrid services with multilib platforms. We only
-            # build services for the native platform.
-            #
-            parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
-            if parent in ["Glacier2", "IceStorm", "IceGrid"]:
-                return False
-        return Platform.canRun(self, mapping, current)
+    def getLinuxId(self):
+        return self.linuxId
 
 class Windows(Platform):
 
     def __init__(self):
         Platform.__init__(self)
         self.compiler = None
-
-    def getFilters(self, config):
-        if config.uwp:
-            return (["cpp/Ice/.*", "cpp/IceSSL/configuration"],
-                    ["Ice/background",
-                     "Ice/echo",
-                     "Ice/faultTolerance",
-                     "Ice/gc",
-                     "Ice/library",
-                     "Ice/logger",
-                     "Ice/networkProxy",        # SOCKS proxy not supported with UWP
-                     "Ice/properties",          # Property files are not supported with UWP
-                     "Ice/plugin",
-                     "Ice/threadPoolPriority"])
-        elif self.getCompiler() in ["VC100"]:
-            return (["cpp/Ice/.*",
-                     "cpp/IceSSL/.*",
-                     "cpp/IceBox/.*",
-                     "cpp/IceDiscovery/.*",
-                     "cpp/IceUtil/.*",
-                     "cpp/Slice/.*"], [])
-        else:
-            iceBinDist = os.environ.get("ICE_BIN_DIST", "").split()
-            exclude = ["ruby"]
-            if not 'all' in iceBinDist:
-                if not 'python' in iceBinDist and not self.getCompiler() in ["VC140"]:
-                    exclude.append("python")
-                if not 'php' in iceBinDist and not self.getCompiler() in ["VC140"]:
-                    exclude.append("php")
-            return ([], exclude)
 
     def parseBuildVariables(self, variables):
         pass # Nothing to do, we don't support the make build system on Windows
@@ -341,51 +362,44 @@ class Windows(Platform):
     def getPlatformToolset(self):
         return self.getCompiler().replace("VC", "v")
 
-    def getBinSubDir(self, mapping, process, current):
-        #
-        # Platform/Config taget bin directories.
-        #
+    def _getBinDir(self, component, process, mapping, current):
+        installDir = component.getInstallDir(mapping, current)
         platform = current.driver.configs[mapping].buildPlatform
-        buildConfig = current.driver.configs[mapping].buildConfig
-        config = "Debug" if buildConfig.find("Debug") >= 0 else "Release"
-
-        if current.config.uwp and not current.config.protocol in ["ssl", "wss"]:
-            return ""
-        elif current.driver.useIceBinDist(mapping):
-            version = self.getNugetPackageVersion(mapping)
-            packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
-            package = os.path.join(mapping.path, "msbuild", "packages", "{0}".format(
-                mapping.getNugetPackage(packageSuffix, version))) if hasattr(mapping, "getNugetPackage") else None
-            nuget = package and os.path.exists(package)
-            iceHome = os.environ.get("ICE_HOME", "")
-            if isinstance(mapping, CppMapping) and not nuget and not os.path.exists(iceHome):
-                raise RuntimeError("Cannot detect a valid C++ distribution")
-            if not nuget:
-                return "bin"
-            elif isinstance(mapping, CSharpMapping) or isinstance(process, SliceTranslator):
-                return os.path.join("tools")
+        config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
+        if component.useBinDist(mapping, current):
+            if installDir != self.getNugetPackageDir(component, mapping, current):
+                return os.path.join(installDir, "bin")
+            elif isinstance(process, SliceTranslator):
+                return os.path.join(installDir, "tools")
+            elif isinstance(mapping, CSharpMapping):
+                return os.path.join(installDir, "tools", mapping.getBinTargetFramework(current))
+            elif process.isReleaseOnly():
+                # Some services are only available in release mode in the Nuget package
+                return os.path.join(installDir, "build", "native", "bin", platform, "Release")
             else:
-
-                #
-                # With Windows binary distribution some binaries are only included for Release configuration.
-                #
-                binaries = [Glacier2Router, IcePatch2Calc, IcePatch2Client, IcePatch2Server, IceBoxAdmin, IceBridge,
-                            IceStormAdmin, IceGridAdmin]
-                config = next(("Release" for p in binaries if isinstance(process, p)), config)
-
-                return os.path.join("build", "native", "bin", platform, config)
+                return os.path.join(installDir, "build", "native", "bin", platform, config)
         else:
-            if isinstance(mapping, CppMapping):
-                return os.path.join("bin", platform, config)
+            if isinstance(mapping, CSharpMapping):
+                return os.path.join(installDir, "bin", mapping.getBinTargetFramework(current))
             elif isinstance(mapping, PhpMapping):
-                return os.path.join("msbuild", "packages", "zeroc.ice.v140.{0}".format(self.getNugetPackageVersion(mapping)),
+                return os.path.join(self.getNugetPackageDir(component, mapping, current),
                                     "build", "native", "bin", platform, config)
-            return "bin"
+            else:
+                return os.path.join(installDir, "bin", platform, config)
 
-    def getLibSubDir(self, mapping, process, current):
-        if isinstance(mapping, PhpMapping):
-            return "php" if current.driver.useIceBinDist(mapping) else "lib"
-        return self.getBinSubDir(mapping, process, current)
+    def _getLibDir(self, component, process, mapping, current):
+        installDir = component.getInstallDir(mapping, current)
+        if isinstance(mapping, CSharpMapping):
+            return os.path.join(installDir, "lib", mapping.getLibTargetFramework(current))
+        else:
+            platform = current.driver.configs[mapping].buildPlatform
+            config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
+            if isinstance(mapping, PhpMapping):
+                return os.path.join(installDir, "lib", platform, config)
+            elif component.useBinDist(mapping, current):
+                return os.path.join(installDir, "build", "native", "bin", platform, config)
+            else:
+                return os.path.join(installDir, "bin", platform, config)
 
     def getBuildSubDir(self, mapping, name, current):
         buildPlatform = current.driver.configs[mapping].buildPlatform
@@ -398,45 +412,26 @@ class Windows(Platform):
     def getLdPathEnvName(self):
         return "PATH"
 
-    def getInstallDir(self, mapping, current, envName):
+    def getInstallDir(self):
+        return None # No default installation directory on Windows
 
-        platform = current.config.buildPlatform
-        config = "Debug" if current.config.buildConfig.find("Debug") >= 0 else "Release"
-        version = self.getNugetPackageVersion(mapping)
-        packageSuffix = self.getPlatformToolset() if isinstance(mapping, CppMapping) else "net"
-        package = None
+    def getNugetPackageDir(self, component, mapping, current):
+        if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
+            return Platform.getNugetPackageDir(self, component, mapping, current)
+        else:
+            package = "{0}.{1}".format(component.getNugetPackage(mapping, self.getPlatformToolset()),
+                                       component.getNugetPackageVersion(mapping))
+            return os.path.join(mapping.path, "msbuild", "packages", package)
 
-        if isinstance(mapping, CSharpMapping) and current.config.netframework:
-            #
-            # Use NuGet package from nuget locals
-            #
-            package = os.path.join(self.nugetPackageCache, "zeroc.ice.net", version)
-        elif hasattr(mapping, "getNugetPackage"):
-            package = os.path.join(mapping.path, "msbuild", "packages", mapping.getNugetPackage(packageSuffix, version))
-
-        home = os.environ.get(envName, "")
-        if isinstance(mapping, CppMapping) and not package and not os.path.exists(home):
-            raise RuntimeError("Cannot detect a valid C++ distribution")
-
-        return package if package and os.path.exists(package) else home
-
-    def canRun(self, mapping, current):
-        #
-        # On Windows, if testing with a binary distribution, don't test Glacier2/IceBridge services
-        # with the Debug configurations since we don't provide binaries for them.
-        #
-        if current.driver.useIceBinDist(mapping):
-            parent = re.match(r'^([\w]*).*', current.testcase.getTestSuite().getId()).group(1)
-            if parent in ["Glacier2", "IceBridge"] and current.config.buildConfig.find("Debug") >= 0:
-                return False
-        return Platform.canRun(self, mapping, current)
-
-    def getDotnetExe(self):
+    def getDotNetExe(self):
         try:
             return run("where dotnet").strip()
         except:
             return None
 
+#
+# Instantiate platform global variable
+#
 platform = None
 if sys.platform == "darwin":
     platform = Darwin()
@@ -446,7 +441,6 @@ elif sys.platform.startswith("linux") or sys.platform.startswith("gnukfreebsd"):
     platform = Linux()
 elif sys.platform == "win32" or sys.platform[:6] == "cygwin":
     platform = Windows()
-
 if not platform:
     print("can't run on unknown platform `{0}'".format(sys.platform))
     sys.exit(1)
@@ -483,29 +477,16 @@ def parseOptions(obj, options, mapped={}):
             remaining.append((o, a))
     options[:] = remaining
 
-class Mapping:
+"""
+Mapping abstract class. The mapping class provides mapping specific information.
+Multiple components can share the same mapping rules as long as the layout is
+similar.
+"""
+class Mapping(object):
 
     mappings = OrderedDict()
 
-    class Config:
-
-        # All option values for Ice/IceBox tests.
-        coreOptions = {
-            "protocol" : ["tcp", "ssl", "wss", "ws"],
-            "compress" : [False, True],
-            "ipv6" : [False, True],
-            "serialize" : [False, True],
-            "mx" : [False, True],
-        }
-
-        # All option values for IceGrid/IceStorm/Glacier2/IceDiscovery tests.
-        serviceOptions = {
-            "protocol" : ["tcp", "wss"],
-            "compress" : [False, True],
-            "ipv6" : [False, True],
-            "serialize" : [False, True],
-            "mx" : [False, True],
-        }
+    class Config(object):
 
         @classmethod
         def getSupportedArgs(self):
@@ -564,7 +545,8 @@ class Mapping:
             self.device = ""
             self.avd = ""
             self.androidemulator = False
-            self.netframework = ""
+
+            self.phpVersion = "7.1"
 
         def __str__(self):
             s = []
@@ -631,17 +613,10 @@ class Mapping:
 
                     yield self.__class__(options)
 
-            options = None
-            parent = re.match(r'^([\w]*).*', testcase.getTestSuite().getId()).group(1)
-            if isinstance(testcase, ClientServerTestCase) and parent in ["Ice", "IceBox"]:
-                options = current.driver.filterOptions(testcase, self.coreOptions)
-            elif parent in ["IceGrid", "Glacier2", "IceStorm", "IceDiscovery", "IceBridge"]:
-                options = current.driver.filterOptions(testcase, self.serviceOptions)
+            return [c for c in gen(current.driver.filterOptions(component.getOptions(testcase, current)))]
 
-            return [c for c in gen(options)]
-
-        def canRun(self, current):
-            if not platform.canRun(current.testcase.getMapping(), current):
+        def canRun(self, testId, current):
+            if not component.canRun(testId, current.testcase.getMapping(), current):
                 return False
 
             options = {}
@@ -762,11 +737,14 @@ class Mapping:
         self.mappings[name] = mapping.init(name)
 
     @classmethod
+    def remove(self, name):
+        del self.mappings[name]
+
+    @classmethod
     def getAll(self, driver=None):
         return [m for m in self.mappings.values() if not driver or driver.matchLanguage(str(m))]
 
     def __init__(self, path=None):
-        self.platform = None
         self.name = None
         self.path = os.path.abspath(path) if path else None
         self.testsuites = {}
@@ -784,20 +762,18 @@ class Mapping:
         return self.Config(options)
 
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
-        (pfilters, prfilters) = platform.getFilters(config)
-        for includes in [filters, [re.compile(pf) for pf in pfilters]]:
-            if len(includes) > 0:
-                for f in includes:
-                    if f.search(self.name + "/" + testId):
-                        break
-                else:
+        if len(filters) > 0:
+            for f in filters:
+                if f.search(self.name + "/" + testId):
+                    break
+            else:
+                return True
+
+        if len(rfilters) > 0:
+            for f in rfilters:
+                if f.search(self.name + "/" + testId):
                     return True
 
-        for excludes in [rfilters, [re.compile(pf) for pf in prfilters]]:
-            if len(excludes) > 0:
-                for f in excludes:
-                    if f.search(self.name + "/" + testId):
-                        return True
         return False
 
     def loadTestSuites(self, tests, config, filters=[], rfilters=[]):
@@ -862,7 +838,6 @@ class Mapping:
     def computeTestCases(self, testId, files):
 
         # Instantiate a new test suite if the directory contains well-known source files.
-
         def checkFile(f, m):
             try:
                 # If given mapping is same as local mapping, just check the files set, otherwise check
@@ -906,27 +881,35 @@ class Mapping:
         return current.testcase.getPath()
 
     def getDefaultSource(self, processType):
-        return processType
+        defaultSource = component.getDefaultSource(self, processType)
+        if defaultSource:
+            return defaultSource
+        return self._getDefaultSource(processType)
 
     def getDefaultProcesses(self, processType, testsuite):
+        defaultProcesses = component.getDefaultProcesses(self, processType, testsuite.getId())
+        if defaultProcesses:
+            return defaultProcesses
+        return self._getDefaultProcesses(processType, testsuite)
+
+    def getDefaultExe(self, processType, config=None):
+        defaultExe = component.getDefaultExe(self, processType, config)
+        if defaultExe:
+            return defaultExe
+        return self._getDefaultExe(processType, config)
+
+    def _getDefaultSource(self, processType):
+        return processType
+
+    def _getDefaultProcesses(self, processType, testsuite):
         #
         # If no server or client is explicitly set with a testcase, getDefaultProcess is called
         # to figure out which process class to instantiate. Based on the processType and the testsuite
         # we instantiate the right default process class.
         #
-        if processType is None:
-            return []
-        elif testsuite.getId().startswith("IceUtil") or testsuite.getId().startswith("Slice"):
-            return [SimpleClient()]
-        elif testsuite.getId().startswith("IceGrid"):
-            if processType in ["client", "collocated"]:
-                return [IceGridClient()]
-            if processType in ["server", "serveramd"]:
-                return [IceGridServer()]
-        else:
-            return [Server()] if processType in ["server", "serveramd"] else [Client()]
+        return [Server()] if processType in ["server", "serveramd"] else [Client()] if processType else []
 
-    def getDefaultExe(self, processType, config):
+    def _getDefaultExe(self, processType, config):
         return processType
 
     def getClientMapping(self, testId=None):
@@ -937,12 +920,6 @@ class Mapping:
         # Can be overridden for client-only mapping that relies on another mapping for servers
         return self
 
-    def getBinDir(self, process, current):
-        return os.path.join(current.driver.getIceDir(self, current), platform.getBinSubDir(self, process, current))
-
-    def getLibDir(self, process, current):
-        return os.path.join(current.driver.getIceDir(self, current), platform.getLibSubDir(self, process, current))
-
     def getBuildDir(self, name, current):
         return platform.getBuildSubDir(self, name, current)
 
@@ -951,7 +928,7 @@ class Mapping:
         if process.isFromBinDir():
             # If it's a process from the bin directory, the location is platform specific
             # so we check with the platform.
-            cmd = os.path.join(self.getBinDir(process, current), exe)
+            cmd = os.path.join(component.getBinDir(process, self, current), exe)
         elif current.testcase:
             # If it's a process from a testcase, the binary is in the test build directory.
             cmd = os.path.join(current.testcase.getPath(), current.getBuildDir(exe), exe)
@@ -997,32 +974,11 @@ class Mapping:
     def getOptions(self, current):
         return {}
 
-    def getRunOrder(self):
-        return ["Slice", "IceUtil", "Ice", "IceSSL", "IceBox", "Glacier2", "IceGrid", "IceStorm"]
-
-    def getCrossTestSuites(self):
-        return [
-            "Ice/ami",
-            "Ice/info",
-            "Ice/exceptions",
-            "Ice/enums",
-            "Ice/facets",
-            "Ice/inheritance",
-            "Ice/invoke",
-            "Ice/objects",
-            "Ice/operations",
-            "Ice/proxy",
-            "Ice/servantLocator",
-            "Ice/slicing/exceptions",
-            "Ice/slicing/objects",
-            "Ice/optional"
-        ]
-
 #
 # A Runnable can be used as a "client" for in test cases, it provides
 # implements run, setup and teardown methods.
 #
-class Runnable:
+class Runnable(object):
 
     def __init__(self, desc=None):
         self.desc = desc
@@ -1240,6 +1196,9 @@ class Process(Runnable):
     def isFromBinDir(self):
         return False
 
+    def isReleaseOnly(self):
+        return False
+
     def getArgs(self, current):
         return []
 
@@ -1326,7 +1285,26 @@ class ProcessFromBinDir:
     def isFromBinDir(self):
         return True
 
-class SliceTranslator(ProcessFromBinDir, SimpleClient):
+#
+# Executables for processes inheriting this marker class are looked up in the
+# Ice distribution bin directory.
+#
+class ProcessFromBinDir:
+
+    def isFromBinDir(self):
+        return True
+
+#
+# Executables for processes inheriting this marker class are only provided
+# as a Release executble on Windows
+#
+class ProcessIsReleaseOnly:
+
+    def isReleaseOnly(self):
+        return True
+
+
+class SliceTranslator(ProcessFromBinDir, ProcessIsReleaseOnly, SimpleClient):
 
     def __init__(self, translator):
         SimpleClient.__init__(self, exe=translator, quiet=True, mapping=Mapping.getByName("cpp"))
@@ -1796,7 +1774,7 @@ class Result:
 
         out.write(  '</testsuite>\n')
 
-class TestSuite:
+class TestSuite(object):
 
     def __init__(self, path, testcases=None, options=None, libDirs=None, runOnMainThread=False, chdir=False,
                  multihost=True, mapping=None):
@@ -1844,10 +1822,9 @@ class TestSuite:
     def isMainThreadOnly(self, driver):
         for m in [CppMapping, JavaMapping, CSharpMapping]:
             config = driver.configs[self.mapping]
-            # TODO: WORKAROUND for ICE-8175
-            if self.id.startswith("IceStorm"):
+            if component.isMainThreadOnly(self.id):
                 return True
-            elif isinstance(self.mapping, AndroidMapping) or isinstance(self.mapping, AndroidCompatMapping):
+            elif isinstance(self.mapping, AndroidMappingMixin):
                 return True
             elif isinstance(self.mapping, m):
                 if "iphone" in config.buildPlatform or config.uwp:
@@ -1888,10 +1865,6 @@ class TestSuite:
 
     def isMultiHost(self):
         return self.multihost
-
-    def isCross(self):
-        # Only run the tests that support cross testing --all-cross or --cross
-        return self.id in self.mapping.getCrossTestSuites()
 
 class ProcessController:
 
@@ -1952,8 +1925,6 @@ class LocalProcessController(ProcessController):
             "testcase": current.testcase,
             "testdir": current.testsuite.getPath(),
             "builddir": current.getBuildDir(process.getExe(current)),
-            "icedir" : current.driver.getIceDir(current.testcase.getMapping(), current),
-            "iceboxconfigext": "" if not current.config.netframework else ".{0}".format(current.config.netframework)
         }
 
         traceFile = ""
@@ -2112,16 +2083,16 @@ class RemoteProcessController(ProcessController):
             try:
                 proxy.ice_ping()
             except Exception as ex:
-                raise RuntimeError("couldn't reach the remote controller `{0}'".format(proxy))
+                raise RuntimeError("couldn't reach the remote controller `{0}': {1}".format(proxy, ex))
 
             with self.cond:
                 self.processControllerProxies[ident] = proxy
                 return self.processControllerProxies[ident]
         else:
-            # Wait 10 seconds for a process controller to be registered with the ProcessControllerRegistry
+            # Wait 30 seconds for a process controller to be registered with the ProcessControllerRegistry
             with self.cond:
                 if not ident in self.processControllerProxies:
-                    self.cond.wait(10)
+                    self.cond.wait(30)
                 if ident in self.processControllerProxies:
                     return self.processControllerProxies[ident]
             raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
@@ -2235,7 +2206,7 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
         self.device = "emulator-{}".format(port)
-        cmd = "emulator -avd {0} -port {1} -noaudio -no-window -no-snapshot".format(avd, port)
+        cmd = "emulator -avd {0} -port {1} -noaudio -partition-size 768 -no-snapshot".format(avd, port)
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2260,7 +2231,6 @@ class AndroidProcessController(RemoteProcessController):
             if (time.time() - t) > 300:
                 raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
             time.sleep(2)
-        print(" ok")
 
     def startControllerApp(self, current, ident):
 
@@ -2273,11 +2243,12 @@ class AndroidProcessController(RemoteProcessController):
         elif current.config.androidemulator:
             # Create Android Virtual Device
             sdk = current.testcase.getMapping().getSDKPackage()
+            print("creating virtual device ({0})... ".format(sdk))
             try:
                 run("avdmanager delete avd -n IceTests") # Delete the created device
             except:
                 pass
-            run("sdkmanager \"{0}\"".format(sdk))
+            run("sdkmanager \"{0}\"".format(sdk), stdout=True, stdin="yes", stdinRepeat=True) # yes to accept licenses
             run("avdmanager create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
             self.startEmulator("IceTests")
         elif not self.device:
@@ -2286,7 +2257,7 @@ class AndroidProcessController(RemoteProcessController):
         apk = os.path.join(current.testcase.getMapping().getPath(),
                            "controller/build/outputs/apk/debug/testController-debug.apk")
         run("{} install -t -r {}".format(self.adb(), apk))
-        run("{} shell am start -n com.zeroc.testcontroller/.ControllerActivity".format(self.adb()))
+        run("{} shell am start -n \"com.zeroc.testcontroller/.ControllerActivity\" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER".format(self.adb()))
 
     def stopControllerApp(self, ident):
         try:
@@ -2745,12 +2716,12 @@ class Driver:
         return list(self.drivers.values())
 
     @classmethod
-    def create(self, options):
+    def create(self, options, component):
         parseOptions(self, options)
         driver = self.drivers.get(self.driver)
         if not driver:
             raise RuntimeError("unknown driver `{0}'".format(self.driver))
-        return driver(options)
+        return driver(options, component)
 
     @classmethod
     def getSupportedArgs(self):
@@ -2778,8 +2749,9 @@ class Driver:
         print("--controller-app      Start the process controller application.")
         print("--valgrind            Start executables with valgrind.")
 
-    def __init__(self, options):
+    def __init__(self, options, component):
         self.debug = False
+        component = component
         self.filters = []
         self.rfilters = []
         self.host = ""
@@ -2790,8 +2762,8 @@ class Driver:
         self.languages = ",".join(os.environ.get("LANGUAGES", "").split(" "))
         self.languages = [self.languages] if self.languages else []
         self.rlanguages = []
-
         self.failures = []
+
         parseOptions(self, options, { "d": "debug",
                                       "r" : "filters",
                                       "R" : "rfilters",
@@ -2801,12 +2773,12 @@ class Driver:
                                       "host-bt" : "hostBT",
                                       "controller-app" : "controllerApp"})
 
-        self.filters = [re.compile(a) for a in self.filters]
-        self.rfilters = [re.compile(a) for a in self.rfilters]
         if self.languages:
             self.languages = [i for sublist in [l.split(",") for l in self.languages] for i in sublist]
         if self.rlanguages:
             self.rlanguages = [i for sublist in [l.split(",") for l in self.rlanguages] for i in sublist]
+
+        (self.filters, self.rfilters) = ([re.compile(a) for a in self.filters], [re.compile(a) for a in self.rfilters])
 
         self.communicator = None
         self.interface = ""
@@ -2815,29 +2787,11 @@ class Driver:
     def setConfigs(self, configs):
         self.configs = configs
 
-    def useIceBinDist(self, mapping):
-        return self.useBinDist(mapping, "ICE_BIN_DIST")
-
-    def getIceDir(self, mapping, current):
-        return self.getInstallDir(mapping, current, "ICE_HOME", "ICE_BIN_DIST")
-
-    def useBinDist(self, mapping, envName):
-        env = os.environ.get(envName, "").split()
-        return 'all' in env or mapping.name in env
-
-    def getInstallDir(self, mapping, current, envHomeName, envBinDistName):
-        if self.useBinDist(mapping, envBinDistName):
-            if envHomeName == "ICE_HOME":
-                return platform.getIceInstallDir(mapping, current)
-            else:
-                return platform.getInstallDir(mapping, current, envHomeName)
-        elif mapping:
-            return mapping.getPath()
-        else:
-            return toplevel
-
-    def getSliceDir(self, mapping, current):
-        return platform.getSliceDir(self.getIceDir(mapping, current) if self.useIceBinDist(mapping) else toplevel)
+    def getFilters(self, mapping, config):
+        # Return the driver and component filters
+        (filters, rfilters) = component.getFilters(mapping, config)
+        (filters, rfilters) = ([re.compile(a) for a in filters], [re.compile(a) for a in rfilters])
+        return (self.filters + filters, self.rfilters + rfilters)
 
     def isWorkerThread(self):
         return False
@@ -2909,9 +2863,9 @@ class Driver:
         initData.properties.setProperty("IceDiscovery.Interface", self.interface)
         initData.properties.setProperty("Ice.Default.Host", self.interface)
         initData.properties.setProperty("Ice.ThreadPool.Server.Size", "10")
-        #initData.properties.setProperty("Ice.Trace.Protocol", "1")
-        #initData.properties.setProperty("Ice.Trace.Network", "3")
-        #initData.properties.setProperty("Ice.StdErr", "allTests.log")
+        # initData.properties.setProperty("Ice.Trace.Protocol", "1")
+        # initData.properties.setProperty("Ice.Trace.Network", "3")
+        # initData.properties.setProperty("Ice.StdErr", "allTests.log")
         initData.properties.setProperty("Ice.Override.Timeout", "10000")
         initData.properties.setProperty("Ice.Override.ConnectTimeout", "1000")
         self.communicator = Ice.initialize(initData)
@@ -2930,8 +2884,7 @@ class Driver:
                 processController = UWPProcessController
         elif process and isinstance(process.getMapping(current), JavaScriptMapping) and current.config.browser:
             processController = BrowserProcessController
-        elif process and (isinstance(process.getMapping(current), AndroidMapping) or
-                          isinstance(process.getMapping(current), AndroidCompatMapping)):
+        elif process and isinstance(process.getMapping(current), AndroidMappingMixin):
             processController = AndroidProcessController
         else:
             processController = LocalProcessController
@@ -2983,28 +2936,6 @@ class CppMapping(Mapping):
 
             parseOptions(self, options, { "cpp-config" : "buildConfig", "cpp-platform" : "buildPlatform" })
 
-        def canRun(self, current):
-            if not Mapping.Config.canRun(self, current):
-                return False
-
-            # No C++11 tests for IceStorm, IceGrid, etc
-            if self.cpp11:
-                testId = current.testcase.getTestSuite().getId()
-                parent = re.match(r'^([\w]*).*', testId).group(1)
-                if parent in ["IceStorm", "IceBridge"]:
-                    return False
-                elif parent in ["IceGrid"] and testId not in ["IceGrid/simple"]:
-                    return False
-                elif parent in ["Glacier2"] and testId not in ["Glacier2/application", "Glacier2/sessionHelper"]:
-                    return False
-            return True
-
-    def getNugetPackage(self, compiler, version):
-        return "zeroc.ice.{0}.{1}".format(compiler, version)
-
-    def getDefaultExe(self, processType, config):
-        return platform.getDefaultExe(processType, config)
-
     def getOptions(self, current):
         return { "compress" : [False] } if current.config.uwp else {}
 
@@ -3025,10 +2956,9 @@ class CppMapping(Mapping):
             "IceSSL.CertFile": "server.p12" if server else "ms-appx:///client.p12" if uwp else "client.p12"
         })
         if isinstance(platform, Darwin):
-            keychainFile = "server.keychain" if server else "client.keychain"
             props.update({
                 "IceSSL.KeychainPassword" : "password",
-                "IceSSL.Keychain": keychainFile
+                "IceSSL.Keychain": "server.keychain" if server else "client.keychain"
              })
         return props
 
@@ -3054,7 +2984,7 @@ class CppMapping(Mapping):
         # On most platforms, we also need to add the library directory to the library path environment variable.
         #
         if not isinstance(platform, Darwin):
-            libPaths.append(self.getLibDir(process, current))
+            libPaths.append(component.getLibDir(process, self, current))
 
         #
         # Add the test suite library directories to the platform library path environment variable.
@@ -3068,7 +2998,7 @@ class CppMapping(Mapping):
             env[platform.getLdPathEnvName()] = os.pathsep.join(libPaths)
         return env
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return {
             "client" : "Client.cpp",
             "server" : "Server.cpp",
@@ -3088,9 +3018,9 @@ class JavaMapping(Mapping):
         package = "test." + current.testcase.getPath()[len(self.getTestsPath()) + 1:].replace(os.sep, ".")
         javaArgs = self.getJavaArgs(process, current)
         if javaArgs:
-            return "{0} {1} {2}.{3} {4}".format(java, " ".join(javaArgs), package, exe, args)
+            return "{0} {1} -Dtest.class={2}.{3} test.TestDriver {4}".format(java, " ".join(javaArgs), package, exe, args)
         else:
-            return "{0} {1}.{2} {3}".format(java, package, exe, args)
+            return "{0} -Dtest.class={1}.{2} test.TestDriver {3}".format(java, package, exe, args)
 
     def getJavaArgs(self, process, current):
         return []
@@ -3116,17 +3046,15 @@ class JavaMapping(Mapping):
     def getTestsPath(self):
         return os.path.join(self.path, "test/src/main/java/test")
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return self.getDefaultExe(processType) + ".java"
 
-    def getDefaultExe(self, processType, config=None):
+    def _getDefaultExe(self, processType, config=None):
         return {
             "client" : "Client",
             "server" : "Server",
             "serveramd" : "AMDServer",
             "collocated" : "Collocated",
-            "icebox": "com.zeroc.IceBox.Server",
-            "iceboxadmin" : "com.zeroc.IceBox.Admin",
         }[processType]
 
 class JavaCompatMapping(JavaMapping):
@@ -3139,41 +3067,15 @@ class JavaCompatMapping(JavaMapping):
             "IceLocatorDiscovery" : "IceLocatorDiscovery.PluginFactory"
         }[plugin]
 
-    def getDefaultExe(self, processType, config=None):
+    def _getDefaultExe(self, processType, config=None):
         return {
             "client" : "Client",
             "server" : "Server",
             "serveramd" : "AMDServer",
             "collocated" : "Collocated",
-            "icebox": "IceBox.Server",
-            "iceboxadmin" : "IceBox.Admin",
         }[processType]
 
-class Android:
-
-    @classmethod
-    def getUnsuportedTests(self, protocol):
-        tests = [
-            "Ice/hash",
-            "Ice/faultTolerance",
-            "Ice/metrics",
-            "Ice/networkProxy",
-            "Ice/throughput",
-            "Ice/plugin",
-            "Ice/logger",
-            "Ice/properties"]
-        if protocol in ["ssl", "wss"]:
-            tests += [
-                "Ice/binding",
-                "Ice/timeout",
-                "Ice/udp"]
-        if protocol in ["bt", "bts"]:
-            tests += [
-                "Ice/info",
-                "Ice/udp"]
-        return tests
-
-class AndroidMapping(JavaMapping):
+class AndroidMappingMixin():
 
     class Config(Mapping.Config):
 
@@ -3195,8 +3097,11 @@ class AndroidMapping(JavaMapping):
             parseOptions(self, options)
             self.androidemulator = self.androidemulator or self.avd
 
+    def __init__(self, baseclass):
+        self.baseclass = baseclass
+
     def getSSLProps(self, process, current):
-        props = JavaMapping.getSSLProps(self, process, current)
+        props = super(self.baseclass, self).getSSLProps(process, current)
         props.update({
             "IceSSL.KeystoreType" : "BKS",
             "IceSSL.TruststoreType" : "BKS",
@@ -3210,55 +3115,20 @@ class AndroidMapping(JavaMapping):
     def getCommonTestsPath(self):
         return os.path.join(self.path, "..", "..", "scripts", "tests")
 
-    def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
-        if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
-            return True
-        return JavaMapping.filterTestSuite(self, testId, config, filters, rfilters)
+class AndroidMapping(AndroidMappingMixin, JavaMapping): # Note: the inheritance order is important
+
+    def __init__(self):
+        JavaMapping.__init__(self)
+        AndroidMappingMixin.__init__(self, JavaMapping)
 
     def getSDKPackage(self):
-        return "system-images;android-25;google_apis;x86_64"
+        return "system-images;android-27;google_apis;x86"
 
-class AndroidCompatMapping(JavaCompatMapping):
+class AndroidCompatMapping(AndroidMappingMixin, JavaCompatMapping): # Note: the inheritance order is important
 
-    class Config(Mapping.Config):
-
-        @classmethod
-        def getSupportedArgs(self):
-            return ("", ["device=", "avd=", "androidemulator"])
-
-        @classmethod
-        def usage(self):
-            print("")
-            print("Android Mapping options:")
-            print("--device=<device-id>      Id of the emulator or device used to run the tests.")
-            print("--androidemulator         Run tests in emulator as opposed to a real device.")
-            print("--avd                     Start emulator image")
-
-        def __init__(self, options=[]):
-            Mapping.Config.__init__(self, options)
-
-            parseOptions(self, options)
-            self.androidemulator = self.androidemulator or self.avd
-
-    def getSSLProps(self, process, current):
-        props = JavaCompatMapping.getSSLProps(self, process, current)
-        props.update({
-            "IceSSL.KeystoreType" : "BKS",
-            "IceSSL.TruststoreType" : "BKS",
-            "Ice.InitPlugins" : "0",
-            "IceSSL.Keystore": "server.bks" if isinstance(process, Server) else "client.bks"})
-        return props
-
-    def getTestsPath(self):
-        return os.path.join(self.path, "../test/src/main/java/test")
-
-    def getCommonTestsPath(self):
-        return os.path.join(self.path, "..", "..", "scripts", "tests")
-
-    def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
-        if not testId.startswith("Ice/") or testId in Android.getUnsuportedTests(config.protocol):
-            return True
-        return JavaCompatMapping.filterTestSuite(self, testId, config, filters, rfilters)
+    def __init__(self):
+        JavaCompatMapping.__init__(self)
+        AndroidMappingMixin.__init__(self, JavaCompatMapping)
 
     def getSDKPackage(self):
         return "system-images;android-21;google_apis;x86_64"
@@ -3269,61 +3139,34 @@ class CSharpMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["netframework="])
+            return ("", ["dotnetcore"])
 
         @classmethod
         def usage(self):
             print("")
-            print("--netframework           Run C# tests using Ice netstandard2.0 libraries and tests")
-            print("                         build with given .NET Framework [netcoreapp2.0|net4.6]")
+            print("--dotnetcore             Run C# tests using .NET Core")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
-            parseOptions(self, options, { "netframework" : "netframework" })
-            #
-            # For non Windows platforms the default is netcoreapp2.0 for windows empty
-            # means to run test agains .NET Framework 4.5 Ice build
-            #
-            supportedframeworks = ["netcoreapp2.0"]
-            if isinstance(platform, Windows):
-                supportedframeworks += ["net461", "net462", "net47", "net471"]
 
-            if self.netframework:
-                if not self.netframework in supportedframeworks:
-                    raise RuntimeError("Unssuported .NET Framework `{0}'".format(self.netframework))
-            else:
-                self.netframework = "" if isinstance(platform, Windows) else "netcoreapp2.0"
+            self.dotnetcore = not isinstance(platform, Windows)
 
-        def canRun(self, current):
-            testId = current.testcase.getTestSuite().getId()
-            if not Mapping.Config.canRun(self, current):
-                return False
+            parseOptions(self, options)
 
-            if self.netframework:
-                #
-                # The following tests require multicast, on Unix platforms it's currently only supported
-                # with IPv4 due to .NET Core bug https://github.com/dotnet/corefx/issues/25525
-                #
-                if not isinstance(platform, Windows) and self.ipv6 and testId in ["Ice/udp",
-                                                                                  "IceDiscovery/simple",
-                                                                                  "IceGrid/simple"]:
-                    return False
+    def getBinTargetFramework(self, current):
+        return "netcoreapp2.0" if current.config.dotnetcore else "net45" # Framework version for the bin subdir
 
-                if isinstance(platform, Darwin):
-                    if "IceSSL" in testId or "IceDiscovery" in testId:
-                        return False
+    def getLibTargetFramework(self, current):
+        return "netstandard2.0" if current.config.dotnetcore else "net45" # Framework version for the lib subdir
 
-                    # TODO: Remove once https://github.com/dotnet/corefx/issues/28759 is fixed
-                    if testId == "Ice/adapterDeactivation" and self.protocol in ["ssl", "wss"]:
-                        return False
-
-            return True
+    def getTargetFramework(self, current):
+        return "netcoreapp2.1" if current.config.dotnetcore else "net45" # Framework version for tests
 
     def getBuildDir(self, name, current):
-        if current.config.netframework:
-            return os.path.join("msbuild", name, "netstandard2.0", current.config.netframework)
+        if current.config.dotnetcore:
+            return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
         else:
-            return os.path.join("msbuild", name, "net45")
+            return os.path.join("msbuild", name, self.getTargetFramework(current))
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
@@ -3337,12 +3180,7 @@ class CSharpMapping(Mapping):
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
-        plugindir = "{0}/{1}".format(current.driver.getIceDir(self, current), "lib")
-
-        if current.config.netframework:
-            plugindir = os.path.join(plugindir, "netstandard2.0")
-        else:
-            plugindir = os.path.join(plugindir, "net45")
+        plugindir = component.getLibDir(process, self, current)
 
         #
         # If the plug-in assemblie exists in the test directory, this is a good indication that the
@@ -3364,21 +3202,17 @@ class CSharpMapping(Mapping):
     def getEnv(self, process, current):
         env = {}
         if isinstance(platform, Windows):
-
-            if current.driver.useIceBinDist(self):
-                framework = "net45" if not current.config.netframework else current.config.netframework
-                env['PATH'] = os.path.join(platform.getIceInstallDir(self, current), "tools", framework)
-                if not current.config.netframework:
-                    env['DEVPATH'] = os.path.join(platform.getIceInstallDir(self, current), "lib", "net45")
+            if component.useBinDist(self, current):
+                env['PATH'] = component.getBinDir(process, self, current)
             else:
                 env['PATH'] = os.path.join(toplevel, "cpp", "msbuild", "packages",
                                            "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
                                            "build", "native", "bin", "x64", "Release")
-                if not current.config.netframework:
-                    env['DEVPATH'] = os.path.join(current.driver.getIceDir(self, current), "lib", "net45")
+            if not current.config.dotnetcore:
+                env['DEVPATH'] = component.getLibDir(process, self, current)
         return env
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return {
             "client" : "Client.cs",
             "server" : "Server.cs",
@@ -3386,35 +3220,19 @@ class CSharpMapping(Mapping):
             "collocated" : "Collocated.cs",
         }[processType]
 
-    def getDefaultExe(self, processType, config):
+    def _getDefaultExe(self, processType, config):
         return processType
 
-    def getNugetPackage(self, compiler, version):
-        return "zeroc.ice.net.{0}".format(version)
-
     def getCommandLine(self, current, process, exe, args):
-        cmd = ""
-        if current.config.netframework:
-            cmd = "dotnet "
-            if exe  == "icebox":
-                if current.driver.useIceBinDist(self):
-                    cmd += os.path.join(platform.getIceInstallDir(self, current), "tools", "netcoreapp2.0", "iceboxnet.dll")
-                else:
-                    cmd += os.path.join(self.path, "bin", "netcoreapp2.0", "iceboxnet.dll")
-            else:
-                if current.config.netframework == "netcoreapp2.0":
-                    cmd += os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), "{0}.dll".format(exe))
-                else:
-                    cmd += os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), "{0}".format(exe))
+        if process.isFromBinDir():
+            path = component.getBinDir(process, self, current)
         else:
-            if exe == "icebox":
-                if current.driver.useIceBinDist(self):
-                    cmd = os.path.join(platform.getIceInstallDir(self, current), "tools", "net45", "iceboxnet.exe")
-                else:
-                    cmd = os.path.join(self.path, "bin", "net45", "iceboxnet.exe")
-            else:
-                cmd = os.path.join(current.testcase.getPath(), self.getBuildDir(exe, current), exe)
-        return cmd + " " + args
+            path = os.path.join(current.testcase.getPath(), current.getBuildDir(exe))
+
+        if current.config.dotnetcore:
+            return "dotnet " + os.path.join(path, exe) + ".dll " + args
+        else:
+            return os.path.join(path, exe) + ".exe " + args
 
 class CppBasedMapping(Mapping):
 
@@ -3448,14 +3266,11 @@ class CppBasedMapping(Mapping):
 
     def getEnv(self, process, current):
         env = Mapping.getEnv(self, process, current)
-        if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
+        if component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
-            # the Ice C++ library directory to the library path
-            env[platform.getLdPathEnvName()] = Mapping.getByName("cpp").getLibDir(process, current)
+            # the C++ library directory to the library path
+            env[platform.getLdPathEnvName()] = component.getLibDir(process, Mapping.getByName("cpp"), current)
         return env
-
-    def getNugetPackage(self, compiler, version):
-        return "zeroc.ice.{0}.{1}".format(compiler, version)
 
 class ObjCMapping(CppBasedMapping):
 
@@ -3473,7 +3288,7 @@ class ObjCMapping(CppBasedMapping):
             Mapping.Config.__init__(self, options)
             self.arc = self.buildConfig.lower().find("arc") >= 0
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return {
             "client" : "Client.m",
             "server" : "Server.m",
@@ -3491,10 +3306,10 @@ class PythonMapping(CppBasedMapping):
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
-        if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
+        if component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
             # the Ice python directory to PYTHONPATH
-            dirs = self.getPythonDirs(current.driver.getIceDir(self, current), current.config)
+            dirs = self.getPythonDirs(component.getInstallDir(self, current), current.config)
             env["PYTHONPATH"] = os.pathsep.join(dirs)
         return env
 
@@ -3505,10 +3320,10 @@ class PythonMapping(CppBasedMapping):
         dirs.append(os.path.join(iceDir, "python"))
         return dirs
 
-    def getDefaultExe(self, processType, config):
+    def _getDefaultExe(self, processType, config):
         return self.getDefaultSource(processType)
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return {
             "client" : "Client.py",
             "server" : "Server.py",
@@ -3525,7 +3340,7 @@ class CppBasedClientMapping(CppBasedMapping):
     def getServerMapping(self, testId=None):
         return Mapping.getByName("cpp") # By default, run clients against C++ mapping executables
 
-    def getDefaultExe(self, processType, config):
+    def _getDefaultExe(self, processType, config):
         return self.getDefaultSource(processType)
 
 class RubyMapping(CppBasedClientMapping):
@@ -3539,13 +3354,13 @@ class RubyMapping(CppBasedClientMapping):
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
-        if current.driver.getIceDir(self, current) != platform.getIceInstallDir(self, current):
+        if component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
             # the Ice ruby directory to RUBYLIB
             env["RUBYLIB"] = os.path.join(self.path, "ruby")
         return env
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return { "client" : "Client.rb" }[processType]
 
 class PhpMapping(CppBasedClientMapping):
@@ -3554,46 +3369,55 @@ class PhpMapping(CppBasedClientMapping):
         mappingName = "php"
         mappingDesc = "PHP"
 
+
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["php-version="])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("PHP Mapping options:")
+            print("--php-version=[7.1|7.2]    PHP Version used for Windows builds")
+
+
+        def __init__(self, options=[]):
+            CppBasedClientMapping.Config.__init__(self, options)
+            parseOptions(self, options, { "php-version" : "phpVersion" })
+
     def getCommandLine(self, current, process, exe, args):
         phpArgs = []
         php = "php"
+
+        #
+        # On Windows, when using a source distribution use the php executable from
+        # the Nuget PHP dependency.
+        #
+        if isinstance(platform, Windows) and not component.useBinDist(self, current):
+            nugetVersion = "7.1.17" if current.config.phpVersion == "7.1" else "7.2.7"
+            threadSafe = current.driver.configs[self].buildConfig in ["Debug", "Release"]
+            buildPlatform = current.driver.configs[self].buildPlatform
+            buildConfig = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
+            packageName = "php-{0}-{1}.{2}".format(current.config.phpVersion, "ts" if threadSafe else "nts", nugetVersion)
+            php = os.path.join(self.path, "msbuild", "packages", packageName, "build", "native", "bin",
+                               buildPlatform, buildConfig, "php.exe")
+
         #
         # If Ice is not installed in the system directory, specify its location with PHP
         # configuration arguments.
         #
-        if isinstance(platform, Windows):
-            systemInstall = current.driver.useIceBinDist(self)
-        else:
-            systemInstall = current.driver.getIceDir(self, current) == platform.getIceInstallDir(self, current)
-
-        if not systemInstall:
-            if isinstance(platform, Windows):
-                buildPlatform = current.driver.configs[self].buildPlatform
-                buildConfig = current.driver.configs[self].buildConfig
-                packageName = "php-7.1-ts.7.1.17" if buildConfig in ["Debug", "Release"] else "php-7.1-nts.7.1.17"
-                extension = "php_ice.dll" if buildConfig in ["Debug", "Release"] else "php_ice_nts.dll"
-                buildConfig = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
-
-                php = os.path.join(self.path, "msbuild", "packages", packageName, "build", "native", "bin",
-                                   buildPlatform, buildConfig, "php.exe")
-
-                extensionDir = os.path.join(self.path, "lib", buildPlatform, buildConfig)
-                includePath = self.getLibDir(process, current)
-            else:
-                useBinDist = current.driver.useIceBinDist(self)
-                extension = "ice.so"
-                extensionDir = self.getLibDir(process, current)
-                includePath = "{0}/{1}".format(current.driver.getIceDir(self, current), "php" if useBinDist else "lib")
-
+        if isinstance(platform, Windows) and not component.useBinDist(self, current) or \
+           platform.getInstallDir() and component.getInstallDir(self, current) != platform.getInstallDir():
             phpArgs += ["-n"] # Do not load any php.ini files
-            phpArgs += ["-d", "extension_dir='{0}'".format(extensionDir)]
-            phpArgs += ["-d", "extension='{0}'".format(extension)]
-            phpArgs += ["-d", "include_path='{0}'".format(includePath)]
+            phpArgs += ["-d", "extension_dir='{0}'".format(component.getLibDir(process, self, current))]
+            phpArgs += ["-d", "extension='{0}'".format(component.getPhpExtension(self, current))]
+            phpArgs += ["-d", "include_path='{0}'".format(component.getPhpIncludePath(self, current))]
+
         if hasattr(process, "getPhpArgs"):
             phpArgs += process.getPhpArgs(current)
         return "{0} {1} -f {2} -- {3}".format(php, " ".join(phpArgs), exe, args)
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return { "client" : "Client.php" }[processType]
 
 class MatlabMapping(CppBasedClientMapping):
@@ -3612,7 +3436,7 @@ class MatlabMapping(CppBasedClientMapping):
     def getServerMapping(self, testId=None):
         return Mapping.getByName("python") # Run clients against Python mapping servers
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return { "client" : "client.m" }[processType]
 
     def getOptions(self, current):
@@ -3654,7 +3478,7 @@ class JavaScriptMapping(Mapping):
 
     def loadTestSuites(self, tests, config, filters, rfilters):
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
-        self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config, filters, rfilters)
+        self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config)
 
     def getServerMapping(self, testId=None):
         if testId and self.hasSource(testId, "server"):
@@ -3662,10 +3486,10 @@ class JavaScriptMapping(Mapping):
         else:
             return Mapping.getByName("cpp") # Run clients against C++ mapping servers if no JS server provided
 
-    def getDefaultProcesses(self, processType, testsuite):
+    def _getDefaultProcesses(self, processType, testsuite):
         if processType in ["server", "serveramd"]:
             return [EchoServer(), Server()]
-        return Mapping.getDefaultProcesses(self, processType, testsuite)
+        return Mapping._getDefaultProcesses(self, processType, testsuite)
 
     def getCommandLine(self, current, process, exe, args):
         if current.config.es5:
@@ -3673,11 +3497,11 @@ class JavaScriptMapping(Mapping):
         else:
             return "node {0}/test/Common/run.js {1} {2}".format(self.path, exe, args)
 
-    def getDefaultSource(self, processType):
+    def _getDefaultSource(self, processType):
         return { "client" : "Client.js", "serveramd" : "ServerAMD.js", "server" : "Server.js" }[processType]
 
-    def getDefaultExe(self, processType, config=None):
-        return self.getDefaultSource(processType).replace(".js", "")
+    def _getDefaultExe(self, processType, config=None):
+        return self._getDefaultSource(processType).replace(".js", "")
 
     def getEnv(self, process, current):
         env = Mapping.getEnv(self, process, current)
@@ -3711,70 +3535,22 @@ class JavaScriptMapping(Mapping):
         }
         return options
 
-try:
-    from Glacier2Util import *
-    from IceBoxUtil import *
-    from IceBridgeUtil import *
-    from IcePatch2Util import *
-    from IceGridUtil import *
-    from IceStormUtil import *
-except ImportError:
-    pass
-
+#
+# Import local driver
+#
 from LocalDriver import *
 
 #
-# Supported mappings
+# Import component classes and instantiate the default component
 #
-for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
-    if m == "cpp" or re.match("cpp-.*", m):
-        Mapping.add(m, CppMapping())
-    elif m == "java-compat" or re.match("java-compat-.*", m):
-        Mapping.add(m, JavaCompatMapping())
-    elif m == "java" or re.match("java-.*", m):
-        Mapping.add(m, JavaMapping())
-    elif m == "python" or re.match("python-.*", m):
-        Mapping.add(m, PythonMapping())
-    elif m == "ruby" or re.match("ruby-.*", m):
-        Mapping.add(m, RubyMapping())
-    elif m == "php" or re.match("php-.*", m):
-        Mapping.add(m, PhpMapping())
-    elif m == "js" or re.match("js-.*", m):
-        Mapping.add(m, JavaScriptMapping())
-    elif m == "objective-c" or re.match("objective-c-*", m):
-        Mapping.add(m, ObjCMapping())
-
-try:
-    if not isinstance(platform, Windows):
-        #
-        # Check if the .NET Core SDK is installed
-        #
-        run("dotnet --version")
-    Mapping.add("csharp", CSharpMapping())
-except:
-    pass
-
-#
-# Check if the Android SDK is installed and eventually add the Android mappings
-#
-try:
-    run("adb version")
-    Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
-    Mapping.add(os.path.join("java", "android"), AndroidMapping())
-except:
-    pass
-
-#
-# Check if Matlab is installed and eventually add the Matlab mapping
-#
-try:
-    run("where matlab" if isinstance(platform, Windows) else "which matlab")
-    Mapping.add("matlab", MatlabMapping())
-except:
-    pass
+from Component import *
 
 def runTestsWithPath(path):
-    runTests([Mapping.getByPath(path)])
+    mapping = Mapping.getByPath(path)
+    if not mapping:
+        print("couldn't find mapping for `{0}' (is this mapping supported on this platform?)".format(path))
+        sys.exit(0)
+    runTests([mapping])
 
 def runTests(mappings=None, drivers=None):
     if not mappings:
@@ -3818,7 +3594,7 @@ def runTests(mappings=None, drivers=None):
         #
         # Create the driver
         #
-        driver = Driver.create(opts)
+        driver = Driver.create(opts, component)
 
         #
         # Create the configurations for each mapping.
@@ -3838,7 +3614,8 @@ def runTests(mappings=None, drivers=None):
         #
         driver.setConfigs(configs)
         for mapping in mappings + driver.getMappings():
-            mapping.loadTestSuites(args, configs[mapping], driver.filters, driver.rfilters)
+            (filters, rfilters) = driver.getFilters(mapping, configs[mapping])
+            mapping.loadTestSuites(args, configs[mapping], filters, rfilters)
 
         #
         # Finally, run the test suites with the driver.

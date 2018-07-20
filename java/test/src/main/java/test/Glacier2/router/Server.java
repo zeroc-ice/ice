@@ -9,39 +9,39 @@
 
 package test.Glacier2.router;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
+
 {
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        communicator().getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
-        adapter.add(new CallbackI(),
-                    com.zeroc.Ice.Util.stringToIdentity("c1/callback")); // The test allows "c1" as category.
-        adapter.add(new CallbackI(),
-                    com.zeroc.Ice.Util.stringToIdentity("c2/callback")); // The test allows "c2" as category.
-        adapter.add(new CallbackI(),
-                    com.zeroc.Ice.Util.stringToIdentity("c3/callback")); // The test rejects "c3" as category.
-        adapter.add(new CallbackI(),
-                    com.zeroc.Ice.Util.stringToIdentity("_userid/callback")); // The test allows the prefixed userid.
-        adapter.activate();
-        communicator().waitForShutdown();
-        return 0;
-    }
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
 
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
-        return initData;
-    }
+            //
+            // The test allows "c1" as category.
+            //
+            adapter.add(new CallbackI(), com.zeroc.Ice.Util.stringToIdentity("c1/callback"));
 
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
+            //
+            // The test allows "c2" as category.
+            //
+            adapter.add(new CallbackI(), com.zeroc.Ice.Util.stringToIdentity("c2/callback"));
 
-        System.gc();
-        System.exit(status);
+            //
+            // The test rejects "c3" as category.
+            //
+            adapter.add(new CallbackI(), com.zeroc.Ice.Util.stringToIdentity("c3/callback"));
+
+            //
+            // The test allows the prefixed userid.
+            //
+            adapter.add(new CallbackI(), com.zeroc.Ice.Util.stringToIdentity("_userid/callback"));
+            adapter.activate();
+            communicator.waitForShutdown();
+        }
     }
 }

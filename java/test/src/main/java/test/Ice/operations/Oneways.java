@@ -21,35 +21,22 @@ class Oneways
         }
     }
 
-    static void oneways(test.Util.Application app, MyClassPrx p)
+    static void oneways(test.TestHelper helper, MyClassPrx p)
     {
         p = p.ice_oneway();
 
-        {
-            p.ice_ping();
-        }
+        p.ice_ping();
+        p.opVoid();
+        p.opIdempotent();
+        p.opNonmutating();
 
+        try
         {
-            p.opVoid();
+            p.opByte((byte)0xff, (byte)0x0f);
+            test(false);
         }
-
+        catch(com.zeroc.Ice.TwowayOnlyException ex)
         {
-            p.opIdempotent();
-        }
-
-        {
-            p.opNonmutating();
-        }
-
-        {
-            try
-            {
-                p.opByte((byte)0xff, (byte)0x0f);
-                test(false);
-            }
-            catch(com.zeroc.Ice.TwowayOnlyException ex)
-            {
-            }
         }
     }
 }

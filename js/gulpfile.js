@@ -111,8 +111,10 @@ var tests = [
     "test/Ice/servantLocator",
     "test/Ice/slicing/exceptions",
     "test/Ice/slicing/objects",
+    "test/Ice/stream",
     "test/Ice/timeout",
     "test/Ice/number",
+    "test/Ice/scope",
     "test/Glacier2/router",
     "test/Slice/escape",
     "test/Slice/macros"

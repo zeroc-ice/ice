@@ -16,17 +16,16 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server
+public class Server : Test.TestHelper
 {
-    public class App : Ice.Application
+    public override void run(string[] args)
     {
-        public override int run(string[] args)
+        using(var communicator = initialize(ref args))
         {
-            args = communicator().getProperties().parseCommandLineOptions("TestAdapter", args);
-            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-            string id = communicator().getProperties().getPropertyWithDefault("Identity", "test");
+            communicator.getProperties().parseCommandLineOptions("TestAdapter", args);
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            string id = communicator.getProperties().getPropertyWithDefault("Identity", "test");
             adapter.add(new TestI(), Ice.Util.stringToIdentity(id));
-            shutdownOnInterrupt();
             try
             {
                 adapter.activate();
@@ -34,14 +33,12 @@ public class Server
             catch(Ice.ObjectAdapterDeactivatedException)
             {
             }
-            communicator().waitForShutdown();
-            return 0;
+            communicator.waitForShutdown();
         }
     }
 
     public static int Main(string[] args)
     {
-        App server = new App();
-        return server.main(args);
+        return Test.TestDriver.runTest<Server>(args);
     }
 }

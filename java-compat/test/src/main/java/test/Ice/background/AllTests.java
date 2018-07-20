@@ -264,18 +264,18 @@ public class AllTests
     }
 
     public static BackgroundPrx
-    allTests(test.Util.Application app, Configuration configuration)
+    allTests(test.TestHelper helper, Configuration configuration)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        String sref = "background:" + app.getTestEndpoint(0);
+        String sref = "background:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         BackgroundPrx background = BackgroundPrxHelper.uncheckedCast(obj);
 
-        sref = "backgroundController:" + app.getTestEndpoint(1, "tcp");
+        sref = "backgroundController:" + helper.getTestEndpoint(1, "tcp");
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -313,7 +313,7 @@ public class AllTests
         out.flush();
         {
             Ice.LocatorPrx locator;
-            obj = communicator.stringToProxy("locator:" + app.getTestEndpoint(0)).ice_invocationTimeout(250);
+            obj = communicator.stringToProxy("locator:" + helper.getTestEndpoint(0)).ice_invocationTimeout(250);
             locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_locator(locator).ice_oneway();
 
@@ -328,7 +328,7 @@ public class AllTests
             }
             backgroundController.resumeCall("findAdapterById");
 
-            obj = communicator.stringToProxy("locator:" + app.getTestEndpoint(0));
+            obj = communicator.stringToProxy("locator:" + helper.getTestEndpoint(0));
             locator = Ice.LocatorPrxHelper.uncheckedCast(obj);
             obj = obj.ice_locator(locator);
             obj.ice_ping();
@@ -354,7 +354,7 @@ public class AllTests
         {
             Ice.RouterPrx router;
 
-            obj = communicator.stringToProxy("router:" + app.getTestEndpoint(0)).ice_invocationTimeout(250);
+            obj = communicator.stringToProxy("router:" + helper.getTestEndpoint(0)).ice_invocationTimeout(250);
             router = Ice.RouterPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router).ice_oneway();
 
@@ -369,7 +369,7 @@ public class AllTests
             }
             backgroundController.resumeCall("getClientProxy");
 
-            obj = communicator.stringToProxy("router:" + app.getTestEndpoint(0));
+            obj = communicator.stringToProxy("router:" + helper.getTestEndpoint(0));
             router = Ice.RouterPrxHelper.uncheckedCast(obj);
             obj = communicator.stringToProxy("background@Test").ice_router(router);
             BackgroundPrx bg = BackgroundPrxHelper.uncheckedCast(obj);

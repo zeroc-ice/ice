@@ -10,10 +10,11 @@
 #include <Ice/Ice.h>
 #include <Glacier2/PermissionsVerifier.h>
 #include <Glacier2/Session.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <IceSSL/Plugin.h>
 
 using namespace std;
+using namespace Test;
 
 namespace
 {
@@ -25,14 +26,14 @@ void testContext(bool ssl, const Ice::CommunicatorPtr& communicator, const Ice::
     {
         test(ctx["_con.type"] == "tcp");
         ostringstream port;
-        port << getTestPort(communicator->getProperties(), 0);
+        port << TestHelper::getTestPort(communicator->getProperties());
         test(ctx["_con.localPort"] == port.str());
     }
     else
     {
         test(ctx["_con.type"] == "ssl");
         ostringstream port;
-        port << getTestPort(communicator->getProperties(), 1);
+        port << TestHelper::getTestPort(communicator->getProperties(), 1);
         test(ctx["_con.localPort"] == port.str());
     }
     test(ctx["_con.localAddress"] == "127.0.0.1");
@@ -131,7 +132,7 @@ public:
 
         test(info.remoteHost == "127.0.0.1");
         test(info.localHost == "127.0.0.1");
-        test(info.localPort == getTestPort(current.adapter->getCommunicator()->getProperties(), 1));
+        test(info.localPort == TestHelper::getTestPort(current.adapter->getCommunicator()->getProperties(), 1));
 
         try
         {
@@ -152,31 +153,25 @@ public:
     }
 };
 
-class SessionServer : public Ice::Application
+class Server : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+Server::run(int argc, char** argv)
 {
-    SessionServer app;
-    Ice::InitializationData initData = getTestInitData(argc, argv);
-    return app.main(argc, argv, initData);
-}
-
-int
-SessionServer::run(int, char**)
-{
-    Ice::ObjectAdapterPtr adapter = communicator()->createObjectAdapterWithEndpoints("SessionServer",
-                                                             getTestEndpoint(communicator(), 3, "tcp"));
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SessionServer",
+                                                                                   getTestEndpoint(3, "tcp"));
     adapter->add(new PermissionsVerifierI, Ice::stringToIdentity("verifier"));
     adapter->add(new SSLPermissionsVerifierI, Ice::stringToIdentity("sslverifier"));
     adapter->add(new SessionManagerI, Ice::stringToIdentity("sessionmanager"));
     adapter->add(new SSLSessionManagerI, Ice::stringToIdentity("sslsessionmanager"));
     adapter->activate();
-    communicator()->waitForShutdown();
-    return EXIT_SUCCESS;
+    communicator->waitForShutdown();
 }
+
+DEFINE_TEST(Server)

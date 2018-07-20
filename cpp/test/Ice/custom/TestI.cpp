@@ -10,11 +10,6 @@
 #include <Ice/Communicator.h>
 #include <TestI.h>
 
-TestIntfI::TestIntfI(const Ice::CommunicatorPtr& communicator)
-    : _communicator(communicator)
-{
-}
-
 Test::DoubleSeq
 TestIntfI::opDoubleArray(ICE_IN(std::pair<const Ice::Double*, const Ice::Double*>) inSeq,
                          Test::DoubleSeq& outSeq,
@@ -461,7 +456,7 @@ TestIntfI::opBufferStruct(ICE_IN(Test::BufferStruct) bs, const Ice::Current&)
 }
 
 void
-TestIntfI::shutdown(const Ice::Current&)
+TestIntfI::shutdown(const Ice::Current& current)
 {
-    _communicator->shutdown();
+    current.adapter->getCommunicator()->shutdown();
 }

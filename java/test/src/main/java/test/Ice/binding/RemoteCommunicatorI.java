@@ -15,9 +15,9 @@ import test.Ice.binding.Test.RemoteCommunicator;
 public class RemoteCommunicatorI implements RemoteCommunicator
 {
     public
-    RemoteCommunicatorI(test.Util.Application app)
+    RemoteCommunicatorI(test.TestHelper helper)
     {
-        _app = app;
+        _helper = helper;
     }
 
     @Override
@@ -31,9 +31,8 @@ public class RemoteCommunicatorI implements RemoteCommunicator
                 String endpoints = endpts;
                 if(endpoints.indexOf("-p") < 0)
                 {
-                    endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
+                    endpoints = _helper.getTestEndpoint(_nextPort++, endpoints);
                 }
-
                 com.zeroc.Ice.Communicator com = current.adapter.getCommunicator();
                 com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
                 com.zeroc.Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
@@ -61,6 +60,6 @@ public class RemoteCommunicatorI implements RemoteCommunicator
         current.adapter.getCommunicator().shutdown();
     }
 
-    private final test.Util.Application _app;
+    private final test.TestHelper _helper;
     private int _nextPort = 10;
 }

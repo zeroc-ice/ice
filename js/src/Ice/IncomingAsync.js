@@ -320,7 +320,7 @@ class IncomingAsync
                 this._os.writeInt(this._current.requestId);
                 this._os.writeByte(Protocol.replyUserException);
                 this._os.startEncapsulation(this._current.encoding, this._format);
-                this._os.writeUserException(ex);
+                this._os.writeException(ex);
                 this._os.endEncapsulation();
                 this._connection.sendResponse(this._os);
             }

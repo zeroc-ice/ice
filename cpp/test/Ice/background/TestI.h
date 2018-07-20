@@ -11,7 +11,6 @@
 #define TEST_I_H
 
 #include <Test.h>
-#include <TestCommon.h>
 #include <Configuration.h>
 
 #include <set>

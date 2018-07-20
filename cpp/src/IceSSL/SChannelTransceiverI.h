@@ -10,6 +10,8 @@
 #ifndef ICESSL_SCHANNELTRANSCEIVER_I_H
 #define ICESSL_SCHANNELTRANSCEIVER_I_H
 
+#ifdef _WIN32
+
 #include <IceSSL/Config.h>
 #include <IceSSL/InstanceF.h>
 #include <IceSSL/Plugin.h>
@@ -127,5 +129,7 @@ typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 } // SChannel namespace end
 
 } // IceSSL namespace end
+
+#endif
 
 #endif

@@ -8,46 +8,36 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <InstrumentationI.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 using namespace Test;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator, const CommunicatorObserverIPtr& observer)
+class Client : public Test::TestHelper
 {
-    MetricsPrxPtr allTests(const Ice::CommunicatorPtr&, const CommunicatorObserverIPtr&);
-    MetricsPrxPtr metrics = allTests(communicator, observer);
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
+    initData.properties->setProperty("Ice.Admin.Endpoints", "default");
+    initData.properties->setProperty("Ice.Admin.InstanceName", "client");
+    initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
+    initData.properties->setProperty("Ice.Warn.Connections", "0");
+    CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI);
+    initData.observer = observer;
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+
+    MetricsPrxPtr allTests(Test::TestHelper*, const CommunicatorObserverIPtr&);
+    MetricsPrxPtr metrics = allTests(this, observer);
     metrics->shutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Admin.Endpoints", "default");
-        initData.properties->setProperty("Ice.Admin.InstanceName", "client");
-        initData.properties->setProperty("Ice.Admin.DelayCreation", "1");
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-        CommunicatorObserverIPtr observer = ICE_MAKE_SHARED(CommunicatorObserverI);
-        initData.observer = observer;
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator(), observer);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

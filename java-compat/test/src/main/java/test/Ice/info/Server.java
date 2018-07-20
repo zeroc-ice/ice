@@ -9,34 +9,22 @@
 
 package test.Ice.info;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-        return WAIT;
-    }
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + ":" + getTestEndpoint(1, "udp"));
 
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.proxy");
-        initData.properties.setProperty("TestAdapter.Endpoints",
-                                        getTestEndpoint(initData.properties, 0) + ":" +
-                                        getTestEndpoint(initData.properties, 1, "udp"));
-        return initData;
-    }
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+            adapter.activate();
 
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

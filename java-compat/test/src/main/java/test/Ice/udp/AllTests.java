@@ -69,10 +69,10 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         communicator.getProperties().setProperty("ReplyAdapter.Endpoints", "udp");
         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ReplyAdapter");
@@ -84,7 +84,7 @@ public class AllTests
 
         out.print("testing udp... ");
         out.flush();
-        Ice.ObjectPrx base = communicator.stringToProxy("test -d:" + app.getTestEndpoint(0, "udp"));
+        Ice.ObjectPrx base = communicator.stringToProxy("test -d:" + helper.getTestEndpoint(0, "udp"));
         TestIntfPrx obj = TestIntfPrxHelper.uncheckedCast(base);
 
         int nRetry = 5;
@@ -135,9 +135,9 @@ public class AllTests
             // We occasionally encounter an IOException("No buffer space is available") on Linux/Android
             // when using a large packet (e.g., 50K), so we use a smaller value here.
             //
-            communicator.getProperties().setProperty("Ice.UDP.SndSize", "25000");
+            communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
             obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-            seq = new byte[24000];
+            seq = new byte[50000];
             try
             {
                 replyI.reset();
@@ -148,7 +148,7 @@ public class AllTests
                 // Ice.UDP.RcvSize is too small, therefore it will not send a reply. However, on some
                 // versions of Android, the server might still receive the request.
                 //
-                if(!app.isAndroid())
+                if(!helper.isAndroid())
                 {
                     test(!b);
                 }
@@ -169,7 +169,7 @@ public class AllTests
             if(communicator.getProperties().getProperty("Ice.IPv6").equals("1"))
             {
                 endpoint.append("udp -h \"ff15::1:1\" -p ");
-                endpoint.append(app.getTestPort(communicator.getProperties(), 10));
+                endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                 if(System.getProperty("os.name").contains("OS X") ||
                    System.getProperty("os.name").startsWith("Windows"))
                 {
@@ -179,7 +179,7 @@ public class AllTests
             else
             {
                 endpoint.append("udp -h 239.255.1.1 -p ");
-                endpoint.append(app.getTestPort(communicator.getProperties(), 10));
+                endpoint.append(helper.getTestPort(communicator.getProperties(), 10));
                 if(System.getProperty("os.name").contains("OS X") ||
                    System.getProperty("os.name").startsWith("Windows"))
                 {
@@ -193,7 +193,7 @@ public class AllTests
             // On Android, the test suite driver only starts one server instance. Otherwise, we expect
             // there to be five servers and we expect a response from all of them.
             //
-            final int numServers = app.isAndroid() ? 1 : 5;
+            final int numServers = helper.isAndroid() ? 1 : 5;
 
             nRetry = 5;
             while(nRetry-- > 0)
@@ -221,7 +221,7 @@ public class AllTests
         //
         // Bidir requests don't seem to work on older Android versions.
         //
-        if(!app.isAndroid())
+        if(!helper.isAndroid())
         {
             out.print("testing udp bi-dir connection... ");
             out.flush();

@@ -22,10 +22,10 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app)
+    public static void allTests(test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing stringToProxy... ");
         out.flush();
@@ -83,12 +83,12 @@ public class AllTests
             // Ensure the IceGrid discovery locator can discover the
             // registries and make sure locator requests are forwarded.
             //
-            com.zeroc.Ice.InitializationData initData = app.createInitializationData();
+            com.zeroc.Ice.InitializationData initData = new com.zeroc.Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("Ice.Default.Locator", "");
             initData.properties.setProperty("Ice.Plugin.IceLocatorDiscovery",
                                             "IceLocatorDiscovery:com.zeroc.IceLocatorDiscovery.PluginFactory");
-            initData.properties.setProperty("IceLocatorDiscovery.Port", Integer.toString(app.getTestPort(99)));
+            initData.properties.setProperty("IceLocatorDiscovery.Port", Integer.toString(helper.getTestPort(99)));
             initData.properties.setProperty("AdapterForDiscoveryTest.AdapterId", "discoveryAdapter");
             initData.properties.setProperty("AdapterForDiscoveryTest.Endpoints", "default");
 
@@ -186,7 +186,7 @@ public class AllTests
                 {
                     intf = " --interface \"" + intf + "\"";
                 }
-                String port = Integer.toString(app.getTestPort(99));
+                String port = Integer.toString(helper.getTestPort(99));
                 initData.properties.setProperty("IceLocatorDiscovery.Lookup",
                                                  "udp -h " + multicast + " --interface unknown:" +
                                                  "udp -h " + multicast + " -p " + port + intf);
@@ -211,8 +211,11 @@ public class AllTests
         out.println("ok");
     }
 
-    public static void allTestsWithDeploy(com.zeroc.Ice.Communicator communicator, PrintWriter out)
+    public static void allTestsWithDeploy(test.TestHelper helper)
     {
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
+
         out.print("testing stringToProxy... ");
         out.flush();
         com.zeroc.Ice.ObjectPrx base = communicator.stringToProxy("test @ TestAdapter");

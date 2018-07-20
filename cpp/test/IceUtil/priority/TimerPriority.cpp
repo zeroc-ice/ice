@@ -10,7 +10,7 @@
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/Timer.h>
 #include <TimerPriority.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace IceUtil;

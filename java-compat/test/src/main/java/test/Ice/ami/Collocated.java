@@ -9,40 +9,28 @@
 
 package test.Ice.ami;
 
-public class Collocated extends test.Util.Application
+public class Collocated extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.ObjectAdapter adapter2 = communicator().createObjectAdapter("ControllerAdapter");
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.ami");
+        properties.setProperty("Ice.Warn.AMICallback", "0");
 
-        adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-        //adapter.activate(); // Collocated test doesn't need to activate the OA
-        adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
-        //adapter2.activate(); // Collocated test doesn't need to activate the OA
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+            //adapter.activate(); // Collocated test doesn't need to activate the OA
 
-        AllTests.allTests(this, true);
-        return 0;
-    }
+            properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
+            properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
+            Ice.ObjectAdapter adapter2  = communicator.createObjectAdapter("ControllerAdapter");
+            adapter2.add(new TestControllerI(adapter), Ice.Util.stringToIdentity("testController"));
+            //adapter2.activate(); // Collocated test doesn't need to activate the OA
 
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.ami");
-        initData.properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-        initData.properties.setProperty("ControllerAdapter.Endpoints", getTestEndpoint(initData.properties, 1));
-        initData.properties.setProperty("ControllerAdapter.ThreadPool.Size", "1");
-        initData.properties.setProperty("Ice.Warn.AMICallback", "0");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Collocated app = new Collocated();
-        int result = app.main("Collocated", args);
-        System.gc();
-        System.exit(result);
+            AllTests.allTests(this, true);
+        }
     }
 }

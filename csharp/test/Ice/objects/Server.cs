@@ -17,7 +17,7 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : TestCommon.Application
+public class Server : Test.TestHelper
 {
     public static Ice.Value MyValueFactory(string type)
     {
@@ -37,33 +37,29 @@ public class Server : TestCommon.Application
         return null;
     }
 
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        communicator().getValueFactoryManager().add(MyValueFactory, "::Test::I");
-        communicator().getValueFactoryManager().add(MyValueFactory, "::Test::J");
-        communicator().getValueFactoryManager().add(MyValueFactory, "::Test::H");
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        using(var communicator = initialize(properties))
+        {
+            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
+            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");
+            communicator.getValueFactoryManager().add(MyValueFactory, "::Test::H");
 
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.Object @object = new InitialI(adapter);
-        adapter.add(@object, Ice.Util.stringToIdentity("initial"));
-        @object = new UnexpectedObjectExceptionTestI();
-        adapter.add(@object, Ice.Util.stringToIdentity("uoet"));
-        adapter.activate();
-        communicator().waitForShutdown();
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        return initData;
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.Object @object = new InitialI(adapter);
+            adapter.add(@object, Ice.Util.stringToIdentity("initial"));
+            @object = new UnexpectedObjectExceptionTestI();
+            adapter.add(@object, Ice.Util.stringToIdentity("uoet"));
+            adapter.activate();
+            communicator.waitForShutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Server app = new Server();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Server>(args);
     }
 }

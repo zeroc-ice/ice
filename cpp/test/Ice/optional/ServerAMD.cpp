@@ -8,56 +8,32 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestAMDI.h>
-
-DEFINE_TEST("serveramd")
 
 using namespace std;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class ServerAMD : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
+public:
+
+    void run(int, char**);
+};
+
+void
+ServerAMD::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+#ifndef ICE_CPP11_MAPPING
+    properties->setProperty("Ice.CollectObjects", "1");
+#endif
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     adapter->add(ICE_MAKE_SHARED(InitialI), Ice::stringToIdentity("initial"));
     adapter->activate();
-    TEST_READY
+    serverReady();
     communicator->waitForShutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-#ifndef ICE_CPP11_MAPPING
-        initData.properties->setProperty("Ice.CollectObjects", "1");
-#endif
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(ServerAMD)

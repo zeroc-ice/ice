@@ -9,7 +9,7 @@
 
 from Util import *
 
-class IceBridge(ProcessFromBinDir, Server):
+class IceBridge(ProcessFromBinDir, ProcessIsReleaseOnly, Server):
 
     def __init__(self, *args, **kargs):
         Server.__init__(self, "icebridge", mapping=Mapping.getByName("cpp"), desc="IceBridge", *args, **kargs)

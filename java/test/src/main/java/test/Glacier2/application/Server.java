@@ -9,35 +9,22 @@
 
 package test.Glacier2.application;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        communicator().getProperties().setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
-        communicator().createObjectAdapter("DeactivatedAdapter");
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("DeactivatedAdapter.Endpoints", getTestEndpoint(1));
+            communicator.createObjectAdapter("DeactivatedAdapter");
 
-        communicator().getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
-        com.zeroc.Ice.ObjectAdapter adapter = communicator().createObjectAdapter("CallbackAdapter");
-        adapter.add(new CallbackI(), com.zeroc.Ice.Util.stringToIdentity("callback"));
-        adapter.activate();
-        communicator().waitForShutdown();
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.Glacier2.router");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
+            communicator.getProperties().setProperty("CallbackAdapter.Endpoints", getTestEndpoint(0));
+            com.zeroc.Ice.ObjectAdapter adapter = communicator.createObjectAdapter("CallbackAdapter");
+            adapter.add(new CallbackI(), com.zeroc.Ice.Util.stringToIdentity("callback"));
+            adapter.activate();
+            communicator.waitForShutdown();
+        }
     }
 }

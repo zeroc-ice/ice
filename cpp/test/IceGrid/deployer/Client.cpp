@@ -8,14 +8,23 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+
     bool withTarget = false;
     if(argc > 1)
     {
@@ -37,40 +46,14 @@ run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
 
     if(!withTarget)
     {
-        void allTests(const Ice::CommunicatorPtr&);
-        allTests(communicator);
+        void allTests(Test::TestHelper*);
+        allTests(this);
     }
     else
     {
-        void allTestsWithTarget(const Ice::CommunicatorPtr&);
-        allTestsWithTarget(communicator);
+        void allTestsWithTarget(Test::TestHelper*);
+        allTestsWithTarget(this);
     }
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Client)

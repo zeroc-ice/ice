@@ -9,38 +9,27 @@
 
 package test.Ice.operations;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-        return WAIT;
-    }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
+        Ice.Properties properties = createTestProperties(args);
         //
         // It's possible to have batch oneway requests dispatched
         // after the adapter is deactivated due to thread
         // scheduling so we suppress this warning.
         //
-        initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.operations");
-        return initData;
-    }
+        properties.setProperty("Ice.Warn.Dispatch", "0");
+        properties.setProperty("Ice.Package.Test", "test.Ice.operations");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+            adapter.activate();
 
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

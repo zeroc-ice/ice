@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceUtil/Random.h>
 #include <Test.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #if defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wdeprecated-declarations"
@@ -19,14 +19,21 @@
 using namespace std;
 using namespace Test;
 
-DEFINE_TEST("client")
-
-int main(int argc, char** argv)
+class Client : public Test::TestHelper
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceUDP(true);
-    Ice::registerIceSSL(false);
-#endif
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = Ice::createProperties(argc, argv);
+    properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
+    properties->setProperty("IceSSL.Keychain", "client.keychain");
+    properties->setProperty("IceSSL.KeychainPassword", "password");
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
     cout << "testing proxy hash algorithm collisions... " << flush;
     map<Ice::Int, Ice::ObjectPrxPtr> seenProxy;
     map<Ice::Int, Ice::EndpointPtr> seenEndpoint;
@@ -35,13 +42,6 @@ int main(int argc, char** argv)
     unsigned int maxCollisions = 10;
     unsigned int maxIterations = 10000;
 
-    Ice::InitializationData id;
-    id.properties = Ice::createProperties(argc, argv);
-    id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
-    id.properties->setProperty("IceSSL.Keychain", "client.keychain");
-    id.properties->setProperty("IceSSL.KeychainPassword", "password");
-
-    Ice::CommunicatorPtr communicator = Ice::initialize(id);
     for(i = 0; proxyCollisions < maxCollisions && i < maxIterations; ++i)
     {
         ostringstream os;
@@ -84,22 +84,20 @@ int main(int argc, char** argv)
     proxyMap["prx9"] = prx9->_hash();
     proxyMap["prx10"] = prx10->_hash();
 
-    test( communicator->stringToProxy("Glacier2/router:tcp -p 10010")->_hash() == proxyMap["prx1"]);
-    test( communicator->stringToProxy("Glacier2/router:ssl -p 10011")->_hash() == proxyMap["prx2"]);
-    test( communicator->stringToProxy("Glacier2/router:udp -p 10012")->_hash() == proxyMap["prx3"]);
-    test( communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")->_hash() == proxyMap["prx4"]);
-    test( communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")->_hash() == proxyMap["prx5"]);
-    test( communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")->_hash() == proxyMap["prx6"]);
-    test( communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")->_hash() == proxyMap["prx7"]);
-    test( communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")->_hash() == proxyMap["prx8"]);
-    test( communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")->_hash() == proxyMap["prx9"]);
-    test( communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")->_hash() == proxyMap["prx10"]);
+    test(communicator->stringToProxy("Glacier2/router:tcp -p 10010")->_hash() == proxyMap["prx1"]);
+    test(communicator->stringToProxy("Glacier2/router:ssl -p 10011")->_hash() == proxyMap["prx2"]);
+    test(communicator->stringToProxy("Glacier2/router:udp -p 10012")->_hash() == proxyMap["prx3"]);
+    test(communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010")->_hash() == proxyMap["prx4"]);
+    test(communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011")->_hash() == proxyMap["prx5"]);
+    test(communicator->stringToProxy("Glacier2/router:udp -h zeroc.com -p 10012")->_hash() == proxyMap["prx6"]);
+    test(communicator->stringToProxy("Glacier2/router:tcp -p 10010 -t 10000")->_hash() == proxyMap["prx7"]);
+    test(communicator->stringToProxy("Glacier2/router:ssl -p 10011 -t 10000")->_hash() == proxyMap["prx8"]);
+    test(communicator->stringToProxy("Glacier2/router:tcp -h zeroc.com -p 10010 -t 10000")->_hash() ==
+         proxyMap["prx9"]);
+    test(communicator->stringToProxy("Glacier2/router:ssl -h zeroc.com -p 10011 -t 10000")->_hash() ==
+         proxyMap["prx10"]);
 
     cerr << "ok" << endl;
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client)

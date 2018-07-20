@@ -22,7 +22,6 @@ import test.Ice.location.Test.TestLocatorPrx;
 import test.Ice.location.Test.TestLocatorPrxHelper;
 import test.Ice.location.Test.TestLocatorRegistryPrx;
 import test.Ice.location.Test.TestLocatorRegistryPrxHelper;
-import test.Util.Application;
 
 public class AllTests
 {
@@ -35,15 +34,14 @@ public class AllTests
         }
     }
 
-    public static void
-    allTests(Application app)
+    public static void allTests(test.TestHelper helper)
         throws Ice.AdapterAlreadyActiveException, Ice.AdapterNotFoundException, InterruptedException
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
         ServerManagerPrx manager = ServerManagerPrxHelper.checkedCast(
-            communicator.stringToProxy("ServerManager :" + app.getTestEndpoint(0)));
+            communicator.stringToProxy("ServerManager :" + helper.getTestEndpoint(0)));
         test(manager != null);
 
         TestLocatorPrx locator = TestLocatorPrxHelper.uncheckedCast(communicator.getDefaultLocator());
@@ -119,6 +117,7 @@ public class AllTests
         out.flush();
         obj.shutdown();
         manager.startServer();
+
         try
         {
             obj2.ice_ping();
@@ -134,6 +133,7 @@ public class AllTests
         out.flush();
         obj.shutdown();
         manager.startServer();
+
         try
         {
             obj6.ice_ping();
@@ -149,6 +149,7 @@ public class AllTests
         out.flush();
         obj.shutdown();
         manager.startServer();
+
         try
         {
             obj3.ice_ping();
@@ -158,6 +159,7 @@ public class AllTests
             ex.printStackTrace();
             test(false);
         }
+
         try
         {
             obj2.ice_ping();
@@ -169,6 +171,7 @@ public class AllTests
         }
         obj.shutdown();
         manager.startServer();
+
         try
         {
             obj2.ice_ping();
@@ -178,6 +181,7 @@ public class AllTests
             ex.printStackTrace();
             test(false);
         }
+
         try
         {
             obj3.ice_ping();
@@ -212,6 +216,7 @@ public class AllTests
         }
         obj.shutdown();
         manager.startServer();
+
         try
         {
             obj2.ice_ping();
@@ -268,23 +273,24 @@ public class AllTests
         out.print("testing locator cache timeout... ");
         out.flush();
 
+        Ice.ObjectPrx basencc = communicator.stringToProxy("test@TestAdapter").ice_connectionCached(false);
         int count = locator.getRequestCount();
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+        basencc.ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         test(++count == locator.getRequestCount());
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        basencc.ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout.
         test(count == locator.getRequestCount());
-        Thread.sleep(1200);
-        communicator.stringToProxy("test@TestAdapter").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+        Thread.sleep(1300);
+        basencc.ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
         test(++count == locator.getRequestCount());
 
         communicator.stringToProxy("test").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
         count += 2;
         test(count == locator.getRequestCount());
-        communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
+        communicator.stringToProxy("test").ice_locatorCacheTimeout(2).ice_ping(); // 2s timeout
         test(count == locator.getRequestCount());
-        Thread.sleep(1200);
+        Thread.sleep(1300);
         communicator.stringToProxy("test").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout
         count += 2;
         test(count == locator.getRequestCount());
@@ -400,6 +406,7 @@ public class AllTests
 
         out.print("testing adapter locator cache... ");
         out.flush();
+
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
@@ -411,6 +418,7 @@ public class AllTests
             test(ex.id.equals("TestAdapter3"));
         }
         registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
+
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
@@ -431,6 +439,7 @@ public class AllTests
         catch(Ice.LocalException ex)
         {
         }
+
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
@@ -440,6 +449,7 @@ public class AllTests
         {
         }
         registry.setAdapterDirectProxy("TestAdapter3", locator.findAdapterById("TestAdapter"));
+
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
@@ -477,6 +487,7 @@ public class AllTests
         {
         }
         registry.setAdapterDirectProxy("TestAdapter4", locator.findAdapterById("TestAdapter"));
+
         try
         {
             communicator.stringToProxy("test3").ice_ping();
@@ -494,7 +505,7 @@ public class AllTests
         }
         catch(Ice.LocalException ex)
         {
-        ex.printStackTrace();
+            ex.printStackTrace();
             test(false);
         }
 
@@ -506,6 +517,7 @@ public class AllTests
         catch(Ice.LocalException ex)
         {
         }
+
         try
         {
             communicator.stringToProxy("test@TestAdapter4").ice_ping();
@@ -514,6 +526,7 @@ public class AllTests
         catch(Ice.LocalException ex)
         {
         }
+
         try
         {
             communicator.stringToProxy("test3").ice_ping();
@@ -523,6 +536,7 @@ public class AllTests
         {
         }
         registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
+
         try
         {
             communicator.stringToProxy("test3").ice_ping();
@@ -546,56 +560,57 @@ public class AllTests
         out.print("testing locator cache background updates... ");
         out.flush();
         {
-            Ice.InitializationData initData = app.createInitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
-            Ice.Communicator ic = app.initialize(initData);
-
-            registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
-            registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
-
-            count = locator.getRequestCount();
-            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
-            ic.stringToProxy("test3").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
-            count += 3;
-            test(count == locator.getRequestCount());
-            registry.setAdapterDirectProxy("TestAdapter5", null);
-            registry.addObject(communicator.stringToProxy("test3:tcp"));
-            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
-            ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
-            test(count == locator.getRequestCount());
-            Thread.sleep(1200);
-
-            // The following request should trigger the background updates but still use the cached endpoints
-            // and therefore succeed.
-            ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-            ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-
-            try
+            Ice.Properties properties = communicator.getProperties()._clone();
+            properties.setProperty("Ice.BackgroundLocatorCacheUpdates", "1");
+            try(Ice.Communicator ic = helper.initialize(properties))
             {
-                while(true)
+                registry.setAdapterDirectProxy("TestAdapter5", locator.findAdapterById("TestAdapter"));
+                registry.addObject(communicator.stringToProxy("test3@TestAdapter"));
+
+                count = locator.getRequestCount();
+                ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+                ic.stringToProxy("test3").ice_locatorCacheTimeout(0).ice_ping(); // No locator cache.
+                count += 3;
+                test(count == locator.getRequestCount());
+                registry.setAdapterDirectProxy("TestAdapter5", null);
+                registry.addObject(communicator.stringToProxy("test3:tcp"));
+                ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+                ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
+                test(count == locator.getRequestCount());
+                Thread.sleep(1200);
+
+                // The following request should trigger the background updates but still use the cached endpoints
+                // and therefore succeed.
+                ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+
+                try
                 {
-                    ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-                    Thread.sleep(10);
+                    while(true)
+                    {
+                        ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                        Thread.sleep(10);
+                    }
                 }
-            }
-            catch(Ice.LocalException ex)
-            {
-                // Expected to fail once they endpoints have been updated in the background.
-            }
-            try
-            {
-                while(true)
+                catch(Ice.LocalException ex)
                 {
-                    ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
-                    Thread.sleep(10);
+                    // Expected to fail once they endpoints have been updated in the background.
                 }
+
+                try
+                {
+                    while(true)
+                    {
+                        ic.stringToProxy("test3").ice_locatorCacheTimeout(1).ice_ping(); // 1s timeout.
+                        Thread.sleep(10);
+                    }
+                }
+                catch(Ice.LocalException ex)
+                {
+                    // Expected to fail once they endpoints have been updated in the background.
+                }
+                ic.destroy();
             }
-            catch(Ice.LocalException ex)
-            {
-                // Expected to fail once they endpoints have been updated in the background.
-            }
-            ic.destroy();
         }
         out.println("ok");
 

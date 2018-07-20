@@ -81,7 +81,6 @@ private:
 SOCKSNetworkProxy::SOCKSNetworkProxy(const string& host, int port) : _host(host), _port(port)
 {
     assert(!host.empty());
-    memset(&_address, 0, sizeof(_address));
 }
 
 SOCKSNetworkProxy::SOCKSNetworkProxy(const Address& addr) : _port(0), _address(addr)
@@ -194,7 +193,6 @@ HTTPNetworkProxy::HTTPNetworkProxy(const string& host, int port) :
     _host(host), _port(port), _protocol(EnableBoth)
 {
     assert(!host.empty());
-    memset(&_address, 0, sizeof(_address));
 }
 
 HTTPNetworkProxy::HTTPNetworkProxy(const Address& addr, ProtocolSupport protocol) :

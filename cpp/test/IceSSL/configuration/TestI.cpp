@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceUtil/Thread.h>
 #include <TestI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <IceSSL/Plugin.h>
 #include <IceSSL/ConnectionInfo.h>
 

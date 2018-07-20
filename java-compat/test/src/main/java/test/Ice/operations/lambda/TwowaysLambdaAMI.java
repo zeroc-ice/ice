@@ -935,9 +935,9 @@ public class TwowaysLambdaAMI
     }
 
     public static void
-    twowaysLambdaAMI(test.Util.Application app, MyClassPrx p)
+    twowaysLambdaAMI(test.TestHelper helper, MyClassPrx p)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
 
         {
             pingI cb = new pingI();

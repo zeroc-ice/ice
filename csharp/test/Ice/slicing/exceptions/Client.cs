@@ -10,18 +10,19 @@
 using Test;
 using System;
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        TestIntfPrx test = AllTests.allTests(this, false);
-        test.shutdown();
-        return 0;
+        using(var communicator = initialize(ref args))
+        {
+            TestIntfPrx test = AllTests.allTests(this, false);
+            test.shutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

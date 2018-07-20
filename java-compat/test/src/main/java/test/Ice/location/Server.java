@@ -9,61 +9,47 @@
 
 package test.Ice.location;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    private Ice.InitializationData _initData;
-
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        Ice.Communicator communicator = communicator();
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.location");
+        properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+        properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
 
-        //
-        // Register the server manager. The server manager creates a new
-        // 'server' (a server isn't a different process, it's just a new
-        // communicator and object adapter).
-        //
-        Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
 
-        //
-        // We also register a sample server locator which implements the
-        // locator interface, this locator is used by the clients and the
-        // 'servers' created with the server manager interface.
-        //
-        ServerLocatorRegistry registry = new ServerLocatorRegistry();
-        registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
-        Ice.Object object = new ServerManagerI(registry, _initData, this);
-        adapter.add(object, Ice.Util.stringToIdentity("ServerManager"));
+            //
+            // Register the server manager. The server manager creates a new
+            // 'server' (a server isn't a different process, it's just a new
+            // communicator and object adapter).
+            //
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
-        Ice.LocatorRegistryPrx registryPrx = Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry,
-                Ice.Util.stringToIdentity("registry")));
+            //
+            // We also register a sample server locator which implements the
+            // locator interface, this locator is used by the clients and the
+            // 'servers' created with the server manager interface.
+            //
+            ServerLocatorRegistry registry = new ServerLocatorRegistry();
+            registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
+            Ice.Object object = new ServerManagerI(registry, this);
+            adapter.add(object, Ice.Util.stringToIdentity("ServerManager"));
 
-        ServerLocator locator = new ServerLocator(registry, registryPrx);
-        adapter.add(locator, Ice.Util.stringToIdentity("locator"));
+            Ice.LocatorRegistryPrx registryPrx =
+                Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry,
+                                                                       Ice.Util.stringToIdentity("registry")));
 
-        adapter.activate();
+            ServerLocator locator = new ServerLocator(registry, registryPrx);
+            adapter.add(locator, Ice.Util.stringToIdentity("locator"));
 
-        return WAIT;
-    }
+            adapter.activate();
 
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.location");
-        initData.properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-        initData.properties.setProperty("Ice.ThreadPool.Server.SizeWarn", "0");
-        initData.properties.setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(initData.properties, 0));
-
-        _initData = initData;
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server app = new Server();
-        int result = app.main("Server", args);
-        System.gc();
-        System.exit(result);
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

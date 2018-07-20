@@ -10,15 +10,16 @@
 #include <IceUtil/IceUtil.h>
 #include <Ice/Ice.h>
 #include <IceGrid/IceGrid.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 using namespace Test;
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
     Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
     test(base);
@@ -178,7 +179,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
                     intf = " --interface \"" + intf + "\"";
                 }
                 ostringstream port;
-                port << getTestPort(initData.properties, 99);
+                port << TestHelper::getTestPort(initData.properties, 99);
                 initData.properties->setProperty("IceLocatorDiscovery.Lookup",
                                                  "udp -h " + multicast + " --interface unknown:" +
                                                  "udp -h " + multicast + " -p " + port.str() + intf);
@@ -208,8 +209,9 @@ allTests(const Ice::CommunicatorPtr& communicator)
 }
 
 void
-allTestsWithDeploy(const Ice::CommunicatorPtr& communicator)
+allTestsWithDeploy(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing stringToProxy... " << flush;
     Ice::ObjectPrxPtr base = communicator->stringToProxy("test @ TestAdapter");
     test(base);

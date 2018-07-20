@@ -1,4 +1,5 @@
   0 IceUtil::Exception::Exception at
   1 IceUtil::ExceptionHelper<IceUtil::NullHandleException>::ExceptionHelper<IceUtil::NullHandleException> at
   2 IceUtil::NullHandleException::NullHandleException at
-  3 main at
+  3 Client::run at
+  4 Test::runTest<Client> at

@@ -7,5 +7,6 @@
   6 (anonymous namespace)::Thrower::third() in client
   7 (anonymous namespace)::Thrower::second() in client
   8 (anonymous namespace)::Thrower::first() in client
-  9 main in client
- 10 start in libdyld.dylib
+  9 Client::run(int, char**) in client
+ 10 int Test::runTest<Client>(int, char**) in client
+ 11 main in client

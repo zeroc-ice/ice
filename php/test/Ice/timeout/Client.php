@@ -109,7 +109,7 @@ function allTests($communicator)
         //
         // Expect success.
         //
-        $to =$timeout->ice_timeout(2000);
+        $to = $timeout->ice_timeout(-1);
         $controller->holdAdapter(100);
         try
         {

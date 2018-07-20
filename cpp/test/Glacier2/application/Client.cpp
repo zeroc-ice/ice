@@ -11,7 +11,7 @@
 #include <Ice/Ice.h>
 #include <Glacier2/Glacier2.h>
 
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #include <iostream>
 #include <iomanip>
@@ -80,7 +80,8 @@ public:
         {
             cout << "testing Glacier2::Application restart... " << flush;
         }
-        Ice::ObjectPrxPtr base = communicator()->stringToProxy("callback:" + getTestEndpoint(communicator(), 0));
+        Ice::ObjectPrxPtr base = communicator()->stringToProxy(
+            "callback:" + TestHelper::getTestEndpoint(communicator()->getProperties()));
         CallbackPrxPtr callback = ICE_UNCHECKED_CAST(CallbackPrx, base);
         if(++_restart < 5)
         {
@@ -110,24 +111,34 @@ public:
 
 } // anonymous namespace end
 
-int
-main(int argc, char* argv[])
+class Client : public Test::TestHelper
 {
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
     Application app;
-    Ice::InitializationData initData = getTestInitData(argc, argv);
+    Ice::InitializationData initData;
+    initData.properties = createTestProperties(argc, argv);
     initData.properties->setProperty("Ice.Warn.Connections", "0");
-    initData.properties->setProperty("Ice.Default.Router", "Glacier2/router:" + getTestEndpoint(initData.properties, 50));
+    initData.properties->setProperty("Ice.Default.Router",
+                                     "Glacier2/router:" + TestHelper::getTestEndpoint(initData.properties, 50));
     int status = app.main(argc, argv, initData);
+    if(status != 0)
+    {
+        test(false);
+    }
 
     initData.properties->setProperty("Ice.Default.Router", "");
-    Ice::CommunicatorPtr communicator = Ice::initialize(initData);
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
     cout << "testing stringToProxy for process object... " << flush;
-    Ice::ObjectPrxPtr processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(communicator, 51));
+    Ice::ObjectPrxPtr processBase = communicator->stringToProxy("Glacier2/admin -f Process:" + getTestEndpoint(51));
     cout << "ok" << endl;
 
     cout << "testing checked cast for admin object... " << flush;
@@ -137,6 +148,7 @@ main(int argc, char* argv[])
 
     cout << "testing Glacier2 shutdown... " << flush;
     process->shutdown();
+
     try
     {
         process->ice_ping();
@@ -149,7 +161,6 @@ main(int argc, char* argv[])
 
     test(app._restart == 5);
     test(app._destroyed);
-
-    communicator->destroy();
-    return status;
 }
+
+DEFINE_TEST(Client)

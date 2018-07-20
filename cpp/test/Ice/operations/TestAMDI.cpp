@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <TestAMDI.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <functional>
 #include <iterator>
 

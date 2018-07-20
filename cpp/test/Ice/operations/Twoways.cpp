@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <limits>
 
@@ -1753,8 +1753,10 @@ twoways(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& p)
                 ctx["two"] = "TWO";
                 ctx["three"] = "THREE";
 
-                Test::MyClassPrxPtr p = ICE_UNCHECKED_CAST(Test::MyClassPrx,
-                                                           ic->stringToProxy("test:" + getTestEndpoint(ic, 0)));
+                Ice::PropertiesPtr properties = ic->getProperties();
+                Test::MyClassPrxPtr p =
+                    ICE_UNCHECKED_CAST(Test::MyClassPrx,
+                                       ic->stringToProxy("test:" + TestHelper::getTestEndpoint(properties, 0)));
 
                 ic->getImplicitContext()->setContext(ctx);
                 test(ic->getImplicitContext()->getContext() == ctx);

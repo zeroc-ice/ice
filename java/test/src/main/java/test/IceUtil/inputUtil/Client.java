@@ -12,17 +12,9 @@ package test.IceUtil.inputUtil;
 import com.zeroc.IceUtilInternal.Options;
 import com.zeroc.IceUtilInternal.StringUtil;
 
-public class Client
+public class Client extends test.TestHelper
 {
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
-    public static void main(String[] argvs)
+    public void run(String[] argvs)
     {
         System.out.print("testing string to command line arguments... ");
         System.out.flush();

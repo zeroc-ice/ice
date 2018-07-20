@@ -8,20 +8,32 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
-
-DEFINE_TEST("server");
 
 using namespace std;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Server : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
-    communicator->getProperties()->setProperty("TestAdapter2.Endpoints", getTestEndpoint(communicator, 1));
+public:
+
+    void run(int, char**);
+};
+
+void
+Server::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Dispatch", "0");
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("TestAdapter2.Endpoints", getTestEndpoint(1));
     communicator->getProperties()->setProperty("TestAdapter2.MessageSizeMax", "0");
-    communicator->getProperties()->setProperty("TestAdapter3.Endpoints", getTestEndpoint(communicator, 2));
+    communicator->getProperties()->setProperty("TestAdapter3.Endpoints", getTestEndpoint(2));
     communicator->getProperties()->setProperty("TestAdapter3.MessageSizeMax", "1");
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
     Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("TestAdapter2");
@@ -33,33 +45,8 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     adapter->activate();
     adapter2->activate();
     adapter3->activate();
-    TEST_READY
+    serverReady();
     communicator->waitForShutdown();
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-    Ice::registerIceUDP(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.Dispatch", "0");
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-        initData.properties->setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Server)

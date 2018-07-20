@@ -9,30 +9,15 @@
 
 package test.Ice.classLoader;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        AllTests.allTests(this, false);
-        return 0;
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.classLoader");
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            AllTests.allTests(this, false);
+        }
     }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        _initData = super.getInitData(argsH);
-        _initData.properties.setProperty("Ice.Package.Test", "test.Ice.classLoader");
-        return _initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        System.gc();
-        System.exit(result);
-    }
-
-    private Ice.InitializationData _initData;
 }

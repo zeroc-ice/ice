@@ -76,17 +76,18 @@ public class AllTests
         return prx.ice_getConnection(); // Establish connection
     }
 
-    public static void allTests(test.Util.Application app)
+    public static void allTests(test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
 
-        String sref = "timeout:" + app.getTestEndpoint(0);
+        String sref = "timeout:" + helper.getTestEndpoint(0);
         com.zeroc.Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         int mult = 1;
-        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp"))
+        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp") ||
+           helper.isAndroid())
         {
             mult = 4;
         }
@@ -95,7 +96,7 @@ public class AllTests
         test(timeout != null);
 
         ControllerPrx controller = ControllerPrx.checkedCast(
-           communicator.stringToProxy("controller:" + app.getTestEndpoint(1)));
+           communicator.stringToProxy("controller:" + helper.getTestEndpoint(1)));
         test(controller != null);
 
         out.print("testing connect timeout... ");
@@ -122,8 +123,8 @@ public class AllTests
             //
             // Expect success.
             //
-            TimeoutPrx to = timeout.ice_timeout(1000 * mult);
-            controller.holdAdapter(200 * mult);
+            TimeoutPrx to = timeout.ice_timeout(2000 * mult);
+            controller.holdAdapter(100 * mult);
             try
             {
                 to.op();
@@ -165,7 +166,7 @@ public class AllTests
             // Expect success.
             //
             TimeoutPrx to = timeout.ice_timeout(1000 * mult);
-            controller.holdAdapter(200 * mult);
+            controller.holdAdapter(100 * mult);
             try
             {
                 to.sendData(new byte[1000000]);
@@ -222,7 +223,7 @@ public class AllTests
             //
             // Expect success.
             //
-            TimeoutPrx to = timeout.ice_invocationTimeout(500 * mult);
+            TimeoutPrx to = timeout.ice_invocationTimeout(1000 * mult);
             Callback cb = new Callback();
             to.sleepAsync(100 * mult).whenComplete((result, ex) ->
                 {
@@ -328,125 +329,126 @@ public class AllTests
             // Test Ice.Override.Timeout. This property overrides all
             // endpoint timeouts.
             //
-            com.zeroc.Ice.InitializationData initData = app.createInitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
-            initData.properties.setProperty("Ice.Override.Timeout", "100");
-            com.zeroc.Ice.Communicator comm = app.initialize(initData);
-            TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
-            connect(to);
-            controller.holdAdapter(-1);
-            try
+            com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
+            properties.setProperty("Ice.Override.ConnectTimeout", "250");
+            properties.setProperty("Ice.Override.Timeout", "100");
+            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties))
             {
-                to.sendData(seq);
-                test(false);
-            }
-            catch(com.zeroc.Ice.TimeoutException ex)
-            {
-                // Expected.
-            }
-            controller.resumeAdapter();
-            timeout.op(); // Ensure adapter is active.
+                TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
+                connect(to);
+                controller.holdAdapter(-1);
+                try
+                {
+                    to.sendData(seq);
+                    test(false);
+                }
+                catch(com.zeroc.Ice.TimeoutException ex)
+                {
+                    // Expected.
+                }
+                controller.resumeAdapter();
+                timeout.op(); // Ensure adapter is active.
 
-            //
-            // Calling ice_timeout() should have no effect.
-            //
-            to = TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult));
-            connect(to);
-            controller.holdAdapter(-1);
-            try
-            {
-                to.sendData(seq);
-                test(false);
+                //
+                // Calling ice_timeout() should have no effect.
+                //
+                to = TimeoutPrx.uncheckedCast(to.ice_timeout(1000 * mult));
+                connect(to);
+                controller.holdAdapter(-1);
+                try
+                {
+                    to.sendData(seq);
+                    test(false);
+                }
+                catch(com.zeroc.Ice.TimeoutException ex)
+                {
+                    // Expected.
+                }
+                controller.resumeAdapter();
+                timeout.op(); // Ensure adapter is active.
             }
-            catch(com.zeroc.Ice.TimeoutException ex)
-            {
-                // Expected.
-            }
-            controller.resumeAdapter();
-            timeout.op(); // Ensure adapter is active.
-            comm.destroy();
         }
         {
             //
             // Test Ice.Override.ConnectTimeout.
             //
-            com.zeroc.Ice.InitializationData initData = app.createInitializationData();
-            initData.properties = communicator.getProperties()._clone();
+            com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
             if(mult == 1)
             {
-                initData.properties.setProperty("Ice.Override.ConnectTimeout", "250");
+                properties.setProperty("Ice.Override.ConnectTimeout", "250");
             }
             else
             {
-                initData.properties.setProperty("Ice.Override.ConnectTimeout", "2500");
+                properties.setProperty("Ice.Override.ConnectTimeout", "2500");
             }
 
-            com.zeroc.Ice.Communicator comm = app.initialize(initData);
-            TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
-            controller.holdAdapter(-1);
-            try
+            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties))
             {
-                to.op();
-                test(false);
-            }
-            catch(com.zeroc.Ice.ConnectTimeoutException ex)
-            {
-                // Expected.
-            }
-            controller.resumeAdapter();
-            timeout.op(); // Ensure adapter is active.
+                TimeoutPrx to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
+                controller.holdAdapter(-1);
+                try
+                {
+                    to.op();
+                    test(false);
+                }
+                catch(com.zeroc.Ice.ConnectTimeoutException ex)
+                {
+                    // Expected.
+                }
+                controller.resumeAdapter();
+                timeout.op(); // Ensure adapter is active.
 
-            //
-            // Calling ice_timeout() should have no effect on the connect timeout.
-            //
-            controller.holdAdapter(-1);
-            to = to.ice_timeout(1000 * mult);
-            try
-            {
-                to.op();
-                test(false);
-            }
-            catch(com.zeroc.Ice.ConnectTimeoutException ex)
-            {
-                // Expected.
-            }
-            controller.resumeAdapter();
-            timeout.op(); // Ensure adapter is active.
+                //
+                // Calling ice_timeout() should have no effect on the connect timeout.
+                //
+                controller.holdAdapter(-1);
+                to = to.ice_timeout(1000 * mult);
+                try
+                {
+                    to.op();
+                    test(false);
+                }
+                catch(com.zeroc.Ice.ConnectTimeoutException ex)
+                {
+                    // Expected.
+                }
+                controller.resumeAdapter();
+                timeout.op(); // Ensure adapter is active.
 
-            //
-            // Verify that timeout set via ice_timeout() is still used for requests.
-            //
-            to = to.ice_timeout(250);
-            connect(to);
-            controller.holdAdapter(-1);
-            try
-            {
-                to.sendData(seq);
-                test(false);
+                //
+                // Verify that timeout set via ice_timeout() is still used for requests.
+                //
+                to = to.ice_timeout(250);
+                connect(to);
+                controller.holdAdapter(-1);
+                try
+                {
+                    to.sendData(seq);
+                    test(false);
+                }
+                catch(com.zeroc.Ice.TimeoutException ex)
+                {
+                    // Expected.
+                }
+                controller.resumeAdapter();
+                timeout.op(); // Ensure adapter is active.
             }
-            catch(com.zeroc.Ice.TimeoutException ex)
-            {
-                // Expected.
-            }
-            controller.resumeAdapter();
-            timeout.op(); // Ensure adapter is active.
-            comm.destroy();
         }
         {
             //
             // Test Ice.Override.CloseTimeout.
             //
-            com.zeroc.Ice.InitializationData initData = app.createInitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            initData.properties.setProperty("Ice.Override.CloseTimeout", "100");
-            com.zeroc.Ice.Communicator comm = app.initialize(initData);
-            comm.stringToProxy(sref).ice_getConnection();
-            controller.holdAdapter(-1);
-            long now = System.nanoTime();
-            comm.destroy();
-            test(System.nanoTime() - now < 700 * 1000000);
-            controller.resumeAdapter();
+            com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
+            properties.setProperty("Ice.Override.CloseTimeout", "10");
+            try(com.zeroc.Ice.Communicator comm = helper.initialize(properties))
+            {
+                comm.stringToProxy(sref).ice_getConnection();
+                controller.holdAdapter(-1);
+                long now = System.nanoTime();
+                comm.destroy();
+                test(System.nanoTime() - now < 2000 * 1000000);
+                controller.resumeAdapter();
+            }
         }
         out.println("ok");
 

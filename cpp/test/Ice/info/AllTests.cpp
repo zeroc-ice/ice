@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceSSL/IceSSL.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
 
 using namespace std;
@@ -49,8 +49,9 @@ getTCPConnectionInfo(const Ice::ConnectionInfoPtr& info)
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing proxy endpoint information... " << flush;
     {
         Ice::ObjectPrxPtr p1 =
@@ -147,11 +148,11 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
             adapter->destroy();
 
-            int port = getTestPort(communicator->getProperties(), 1);
+            int port = helper->getTestPort(1);
             ostringstream portStr;
             portStr << port;
             communicator->getProperties()->setProperty("TestAdapter.Endpoints", "default -h * -p " + portStr.str());
-            communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", getTestEndpoint(communicator, 1));
+            communicator->getProperties()->setProperty("TestAdapter.PublishedEndpoints", helper->getTestEndpoint(1));
             adapter = communicator->createObjectAdapter("TestAdapter");
 
             endpoints = adapter->getEndpoints();
@@ -166,7 +167,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             }
 
             ipEndpoint = getTCPEndpointInfo(publishedEndpoints[0]->getInfo());
-            test(ipEndpoint->host == getTestHost(communicator->getProperties()));
+            test(ipEndpoint->host == helper->getTestHost());
             test(ipEndpoint->port == port);
 
             adapter->destroy();
@@ -174,8 +175,8 @@ allTests(const Ice::CommunicatorPtr& communicator)
         cout << "ok" << endl;
     }
 
-    string endpoints = getTestEndpoint(communicator, 0) + ":" + getTestEndpoint(communicator, 0, "udp") + " -c";
-    int port = getTestPort(communicator->getProperties(), 0);
+    string endpoints = helper->getTestEndpoint() + ":" + helper->getTestEndpoint("udp") + " -c";
+    int port = helper->getTestPort();
     Ice::ObjectPrxPtr base = communicator->stringToProxy("test:" + endpoints);
     TestIntfPrxPtr testIntf = ICE_CHECKED_CAST(TestIntfPrx, base);
 

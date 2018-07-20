@@ -13,12 +13,6 @@ import test.Ice.binding.Test._RemoteCommunicatorDisp;
 
 public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
 {
-    public
-    RemoteCommunicatorI(test.Util.Application app)
-    {
-        _app = app;
-    }
-
     @Override
     public RemoteObjectAdapterPrx
     createObjectAdapter(String name, String endpts, Ice.Current current)
@@ -31,13 +25,16 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
                 String endpoints = endpts;
                 if(endpoints.indexOf("-p") < 0)
                 {
-                    endpoints = _app.getTestEndpoint(_nextPort++, endpoints);
+                    endpoints = test.TestHelper.getTestEndpoint(current.adapter.getCommunicator().getProperties(),
+                                                                _nextPort++,
+                                                                endpoints);
                 }
 
                 Ice.Communicator com = current.adapter.getCommunicator();
                 com.getProperties().setProperty(name + ".ThreadPool.Size", "1");
                 Ice.ObjectAdapter adapter = com.createObjectAdapterWithEndpoints(name, endpoints);
-                return RemoteObjectAdapterPrxHelper.uncheckedCast(current.adapter.addWithUUID(new RemoteObjectAdapterI(adapter)));
+                Ice.Object obj = new RemoteObjectAdapterI(adapter);
+                return RemoteObjectAdapterPrxHelper.uncheckedCast(current.adapter.addWithUUID(obj));
             }
             catch(Ice.SocketException ex)
             {
@@ -63,6 +60,5 @@ public class RemoteCommunicatorI extends _RemoteCommunicatorDisp
         current.adapter.getCommunicator().shutdown();
     }
 
-    private final test.Util.Application _app;
     private int _nextPort = 10;
 }

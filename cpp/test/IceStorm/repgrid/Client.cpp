@@ -10,7 +10,7 @@
 #include <Ice/Ice.h>
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Ice;
@@ -56,29 +56,29 @@ private:
 };
 typedef IceUtil::Handle<SingleI> SingleIPtr;
 
-int
-run(int, char* argv[], const CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     ObjectPrx base = communicator->stringToProxy("Test.IceStorm/TopicManager");
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(base);
     if(!manager)
     {
-        cerr << argv[0] << ": `Test.IceStorm/TopicManager' is not running" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": `Test.IceStorm/TopicManager' is not running";
+        throw invalid_argument(os.str());
     }
 
     ObjectAdapterPtr adapter = communicator->createObjectAdapterWithEndpoints("SingleAdapter", "default:udp");
 
-    TopicPrx topic;
-    try
-    {
-        topic = manager->create("single");
-    }
-    catch(const IceStorm::TopicExists& e)
-    {
-        cerr << argv[0] << ": TopicExists: " << e.name << endl;
-        return EXIT_FAILURE;
-    }
+    TopicPrx topic = manager->create("single");
 
     //
     // Create subscribers with different QoS.
@@ -108,31 +108,6 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
     }
 
     sub->waitForEvents();
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-    InitializationData initData = getTestInitData(argc, argv);
-    try
-    {
-        communicator = initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Client)

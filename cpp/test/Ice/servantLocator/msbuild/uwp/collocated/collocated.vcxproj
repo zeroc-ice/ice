@@ -30,7 +30,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5B0C8615-BB38-41DE-A2B7-EC0835.0.442}</ProjectGuid>
+    <ProjectGuid>{5B0C8615-BB38-41DE-A2B7-EC0835000000}</ProjectGuid>
     <Keyword>DynamicLibrary</Keyword>
     <DefaultLanguage>en-US</DefaultLanguage>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>

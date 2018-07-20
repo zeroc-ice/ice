@@ -32,9 +32,24 @@ public:
     //
     static void validateMetaData(const UnitPtr&);
 
+    //
+    // Returns the namespace of a Contained entity.
+    //
+    static std::string getPackage(const ContainedPtr&);
+
+    static std::string getUnqualified(const std::string&, const std::string&, bool builtin = false);
+    static std::string getUnqualified(const ContainedPtr&,
+                                      const std::string& package = "",
+                                      const std::string& prefix = "",
+                                      const std::string& suffix = "");
+
 protected:
 
-    static std::string getAbsolute(const std::string&, const std::string&);
+    //
+    // Returns the namespace prefix of a Contained entity.
+    //
+    static std::string getPackagePrefix(const ContainedPtr&);
+
     static std::string resultStructName(const std::string&, const std::string&, bool = false);
     static std::string resultType(const OperationPtr&, const std::string&, bool = false);
     static std::string taskResultType(const OperationPtr&, const std::string&, bool = false);

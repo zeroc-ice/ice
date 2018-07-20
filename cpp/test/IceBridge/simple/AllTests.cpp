@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -83,11 +83,12 @@ private:
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing connection to bridge... " << flush;
-    Ice::ObjectPrx base = communicator->stringToProxy("test:" + getTestEndpoint(communicator, 1) + ":" +
-                                                         getTestEndpoint(communicator, 1, "udp"));
+    Ice::ObjectPrx base = communicator->stringToProxy("test:" + helper->getTestEndpoint(1) + ":" +
+                                                      helper->getTestEndpoint(1, "udp"));
     test(base);
     Test::MyClassPrx cl = Ice::checkedCast<Test::MyClassPrx>(base);
     cl->ice_ping();
@@ -237,7 +238,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
 
     cout << "testing router... " << flush;
     {
-        Ice::ObjectPrx base = communicator->stringToProxy("Ice/RouterFinder:" + getTestEndpoint(communicator, 1));
+        Ice::ObjectPrx base = communicator->stringToProxy("Ice/RouterFinder:" + helper->getTestEndpoint(1));
         Ice::RouterFinderPrx finder = Ice::checkedCast<Ice::RouterFinderPrx>(base);
         Ice::RouterPrx router = finder->getRouter();
         base = communicator->stringToProxy("test")->ice_router(router);
@@ -272,7 +273,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
     cout << "ok" << endl;
 
     cout << "testing bridge shutdown... " << flush;
-    Ice::ObjectPrx admin = communicator->stringToProxy("IceBridge/admin:" + getTestEndpoint(communicator, 2, "tcp"));
+    Ice::ObjectPrx admin = communicator->stringToProxy("IceBridge/admin:" + helper->getTestEndpoint(2, "tcp"));
     Ice::ProcessPrx process = Ice::checkedCast<Ice::ProcessPrx>(admin->ice_facet("Process"));
     process->shutdown();
     cout << "ok" << endl;

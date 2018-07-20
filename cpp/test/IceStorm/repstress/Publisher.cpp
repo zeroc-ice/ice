@@ -12,7 +12,7 @@
 #include <IceStorm/IceStorm.h>
 #include <Single.h>
 #include <Controller.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace Ice;
@@ -81,37 +81,37 @@ private:
 };
 typedef IceUtil::Handle<PublishThread> PublishThreadPtr;
 
-int
-run(int, char* argv[], const CommunicatorPtr& communicator)
+class Publisher : public Test::TestHelper
 {
+public:
+
+    void run(int, char**);
+};
+
+void
+Publisher::run(int argc, char** argv)
+{
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
     PropertiesPtr properties = communicator->getProperties();
-    const char* managerProxyProperty = "IceStormAdmin.TopicManager.Default";
-    string managerProxy = properties->getProperty(managerProxyProperty);
+    string managerProxy = properties->getProperty("IceStormAdmin.TopicManager.Default");
     if(managerProxy.empty())
     {
-        cerr << argv[0] << ": property `" << managerProxyProperty << "' is not set" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": property `IceStormAdmin.TopicManager.Default' is not set";
+        throw invalid_argument(os.str());
     }
 
     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::checkedCast(
         communicator->stringToProxy(managerProxy));
     if(!manager)
     {
-        cerr << argv[0] << ": `" << managerProxy << "' is not running" << endl;
-        return EXIT_FAILURE;
+        ostringstream os;
+        os << argv[0] << ": `" << managerProxy << "' is not running";
+        throw invalid_argument(os.str());
     }
 
-    TopicPrx topic;
-    try
-    {
-        topic = manager->retrieve("single");
-    }
-    catch(const NoSuchTopic& e)
-    {
-        cerr << argv[0] << ": NoSuchTopic: " << e.name << endl;
-        return EXIT_FAILURE;
-
-    }
+    TopicPrx topic = manager->retrieve("single");
     assert(topic);
 
     //
@@ -132,31 +132,6 @@ run(int, char* argv[], const CommunicatorPtr& communicator)
 
     t->destroy();
     t->getThreadControl().join();
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-    CommunicatorPtr communicator;
-    InitializationData initData = getTestInitData(argc, argv);
-    try
-    {
-        communicator = initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Publisher)

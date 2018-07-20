@@ -17,7 +17,6 @@ import java.util.Map;
 import com.zeroc.Ice.*;
 
 import test.Ice.operations.Test.*;
-import test.Util.Application;
 
 class Twoways
 {
@@ -49,9 +48,9 @@ class Twoways
         final private MyClassPrx _proxy;
     }
 
-    static void twoways(Application app, MyClassPrx p)
+    static void twoways(test.TestHelper helper, MyClassPrx p)
     {
-        Communicator communicator = app.communicator();
+        Communicator communicator = helper.communicator();
         final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
 
         String[] literals = p.opStringLiterals();
@@ -1402,64 +1401,64 @@ class Twoways
             String[] impls = {"Shared", "PerThread"};
             for(int i = 0; i < 2; i++)
             {
-                InitializationData initData = app.createInitializationData();
-                initData.properties = communicator.getProperties()._clone();
-                initData.properties.setProperty("Ice.ImplicitContext", impls[i]);
+                com.zeroc.Ice.Properties properties = communicator.getProperties()._clone();
+                properties.setProperty("Ice.ImplicitContext", impls[i]);
 
-                Communicator ic = app.initialize(initData);
-
-                Map<String, String> ctx = new HashMap<>();
-                ctx.put("one", "ONE");
-                ctx.put("two", "TWO");
-                ctx.put("three", "THREE");
-
-                MyClassPrx p3 = MyClassPrx.uncheckedCast(ic.stringToProxy("test:" + app.getTestEndpoint(0)));
-
-                ic.getImplicitContext().setContext(ctx);
-                test(ic.getImplicitContext().getContext().equals(ctx));
-                test(p3.opContext().equals(ctx));
-
-                test(!ic.getImplicitContext().containsKey("zero"));
-                String r = ic.getImplicitContext().put("zero", "ZERO");
-                test(r.equals(""));
-                test(ic.getImplicitContext().containsKey("zero"));
-                test(ic.getImplicitContext().get("zero").equals("ZERO"));
-
-                ctx = ic.getImplicitContext().getContext();
-                test(p3.opContext().equals(ctx));
-
-                Map<String, String> prxContext = new HashMap<>();
-                prxContext.put("one", "UN");
-                prxContext.put("four", "QUATRE");
-
-                Map<String, String> combined = new HashMap<>(ctx);
-                combined.putAll(prxContext);
-                test(combined.get("one").equals("UN"));
-
-                p3 = p3.ice_context(prxContext);
-
-                ic.getImplicitContext().setContext(null);
-                test(p3.opContext().equals(prxContext));
-
-                ic.getImplicitContext().setContext(ctx);
-                test(p3.opContext().equals(combined));
-
-                test(ic.getImplicitContext().remove("one").equals("ONE"));
-
-                if(impls[i].equals("PerThread"))
+                try(Communicator ic = helper.initialize(properties))
                 {
-                    Thread thread = new PerThreadContextInvokeThread(p3.ice_context(null));
-                    thread.start();
-                    try
+
+                    Map<String, String> ctx = new HashMap<>();
+                    ctx.put("one", "ONE");
+                    ctx.put("two", "TWO");
+                    ctx.put("three", "THREE");
+
+                    MyClassPrx p3 =
+                        MyClassPrx.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint(properties, 0)));
+
+                    ic.getImplicitContext().setContext(ctx);
+                    test(ic.getImplicitContext().getContext().equals(ctx));
+                    test(p3.opContext().equals(ctx));
+
+                    test(!ic.getImplicitContext().containsKey("zero"));
+                    String r = ic.getImplicitContext().put("zero", "ZERO");
+                    test(r.equals(""));
+                    test(ic.getImplicitContext().containsKey("zero"));
+                    test(ic.getImplicitContext().get("zero").equals("ZERO"));
+
+                    ctx = ic.getImplicitContext().getContext();
+                    test(p3.opContext().equals(ctx));
+
+                    Map<String, String> prxContext = new HashMap<>();
+                    prxContext.put("one", "UN");
+                    prxContext.put("four", "QUATRE");
+
+                    Map<String, String> combined = new HashMap<>(ctx);
+                    combined.putAll(prxContext);
+                    test(combined.get("one").equals("UN"));
+
+                    p3 = p3.ice_context(prxContext);
+
+                    ic.getImplicitContext().setContext(null);
+                    test(p3.opContext().equals(prxContext));
+
+                    ic.getImplicitContext().setContext(ctx);
+                    test(p3.opContext().equals(combined));
+
+                    test(ic.getImplicitContext().remove("one").equals("ONE"));
+
+                    if(impls[i].equals("PerThread"))
                     {
-                        thread.join();
-                    }
-                    catch(InterruptedException ex)
-                    {
+                        Thread thread = new PerThreadContextInvokeThread(p3.ice_context(null));
+                        thread.start();
+                        try
+                        {
+                            thread.join();
+                        }
+                        catch(InterruptedException ex)
+                        {
+                        }
                     }
                 }
-
-                ic.destroy();
             }
         }
 

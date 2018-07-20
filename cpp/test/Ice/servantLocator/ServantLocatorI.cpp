@@ -13,7 +13,7 @@
 #else
 #   include <Test.h>
 #endif
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #include <stdexcept>
 

@@ -10,12 +10,12 @@
 using System;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static TestIntfPrx allTests(TestCommon.Application app)
+    public static TestIntfPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        string sref = "test:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        string sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
         TestIntfPrx proxy = TestIntfPrxHelper.uncheckedCast(obj);

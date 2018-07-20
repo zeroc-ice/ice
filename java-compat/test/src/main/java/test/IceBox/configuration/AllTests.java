@@ -26,18 +26,18 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
         TestIntfPrx service1 =
-            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(0)));
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(0)));
         TestIntfPrx service2 =
-            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(1)));
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(1)));
         TestIntfPrx service3 =
-            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(2)));
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(2)));
         TestIntfPrx service4 =
-            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(3)));
+            TestIntfPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + helper.getTestEndpoint(3)));
 
         if(service1.getProperty("IceBox.InheritProperties").equals(""))
         {

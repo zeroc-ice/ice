@@ -8,52 +8,38 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
-
-DEFINE_TEST("client")
 
 using namespace std;
 using namespace Test;
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
+class Client : public Test::TestHelper
 {
-    void allTests(const Ice::CommunicatorPtr&);
-    allTests(communicator);
+public:
+
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.UDP.RcvSize", "16384");
+    properties->setProperty("Ice.UDP.SndSize", "16384");
+
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    void allTests(Test::TestHelper*);
+    allTests(this);
 
     int num = argc == 2 ? atoi(argv[1]) : 1;
     for(int i = 0; i < num; i++)
     {
         ostringstream os;
-        os << "control:" << getTestEndpoint(communicator, i, "tcp");
+        os << "control:" << getTestEndpoint(i, "tcp");
         ICE_UNCHECKED_CAST(TestIntfPrx, communicator->stringToProxy(os.str()))->shutdown();
     }
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-    Ice::registerIceUDP(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.Connections", "0");
-        initData.properties->setProperty("Ice.UDP.RcvSize", "16384");
-        initData.properties->setProperty("Ice.UDP.SndSize", "16384");
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Client)

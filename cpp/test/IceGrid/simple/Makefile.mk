@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_dependencies = IceLocatorDiscovery IceGrid Glacier2 Ice TestCommon
+$(test)_dependencies = IceLocatorDiscovery IceGrid Glacier2 TestCommon IceSSL Ice
 
 tests += $(test)

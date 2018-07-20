@@ -14,20 +14,12 @@ from Util import *
 #
 options=lambda current: { "protocol": ["tcp", "ws"] } if current.config.uwp else {}
 
-class IceUdpTestSuite(TestSuite):
+global currentMapping # The mapping for which this test suite is being loaded
 
-    def setup(self, current):
-        TestSuite.setup(self, current)
+if isinstance(currentMapping, AndroidMappingMixin):
+    testcase = ClientServerTestCase(server=Server(ready="McastTestAdapter"))
+else:
+    testcase = ClientServerTestCase(client=Client(args=[5]),
+                                    servers=[Server(args=[i], ready="McastTestAdapter") for i in range(0, 5)])
 
-        n = 1 if (isinstance(self.getMapping(), AndroidMapping) or
-                  isinstance(self.getMapping(), AndroidCompatMapping)) else 5
-        #
-        # Start n servers
-        #
-        servers=range(0, n)
-
-        self.testcases = {} # Clear default test cases
-        self.addTestCase(ClientServerTestCase(client=Client(args=[n]),
-                                              servers=[Server(args=[i], ready="McastTestAdapter") for i in servers]))
-
-IceUdpTestSuite(__name__, multihost=False, options=options)
+TestSuite(__name__, [ testcase ], multihost=False, options=options)

@@ -29,7 +29,7 @@ const eq = function(e1, e2)
     {
         return e1.equals(e2);
     }
-    else if(e1 instanceof Array)
+    else if(e1 instanceof Array || e1 instanceof Uint8Array)
     {
         return ArrayUtil.equals(e1, e2, eq);
     }

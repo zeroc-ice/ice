@@ -21,9 +21,9 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app)
+    public static void allTests(test.TestHelper helper)
     {
-        com.zeroc.Ice.Communicator communicator = app.communicator();
+        com.zeroc.Ice.Communicator communicator = helper.communicator();
 
         String ref = "DemoIceBox/admin:default -p 9996 -t 10000";
         com.zeroc.Ice.ObjectPrx admin = communicator.stringToProxy(ref);

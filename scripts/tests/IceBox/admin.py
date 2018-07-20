@@ -24,8 +24,8 @@ class IceBoxAdminTestCase(ClientServerTestCase):
         current.writeln("ok")
 
 TestSuite(__name__, [
-        ClientServerTestCase(server=IceBox(args=['--Ice.Config="{testdir}/config.icebox{iceboxconfigext}"'])),
-        IceBoxAdminTestCase("iceboxadmin", server=IceBox(args=['--Ice.Config="{testdir}/config.icebox{iceboxconfigext}"'])),
+        ClientServerTestCase(server=IceBox("{testdir}/config.icebox")),
+        IceBoxAdminTestCase("iceboxadmin", server=IceBox("{testdir}/config.icebox")),
     ],
     libDirs=["testservice"],
     runOnMainThread=True,

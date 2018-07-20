@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/Random.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
@@ -899,18 +899,19 @@ typedef IceUtil::Handle<Thrower> ThrowerPtr;
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
+allTests(Test::TestHelper* helper, bool collocated)
 {
+    Ice::CommunicatorPtr communicator = helper->communicator();
     const string protocol = communicator->getProperties()->getProperty("Ice.Default.Protocol");
 
 #ifdef ICE_CPP11_MAPPING
-    string sref = "test:" + getTestEndpoint(communicator, 0);
+    string sref = "test:" + helper->getTestEndpoint();
     auto obj = communicator->stringToProxy(sref);
     test(obj);
 
     auto p = Ice::uncheckedCast<Test::TestIntfPrx>(obj);
 
-    sref = "testController:" + getTestEndpoint(communicator, 1);
+    sref = "testController:" + helper->getTestEndpoint(1);
     obj = communicator->stringToProxy(sref);
     test(obj);
 
@@ -2387,7 +2388,7 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
         cout << "testing result struct... " << flush;
 
         auto q = Ice::uncheckedCast<Test::Outer::Inner::TestIntfPrx>(
-            communicator->stringToProxy("test2:" + getTestEndpoint(communicator, 0)));
+            communicator->stringToProxy("test2:" + helper->getTestEndpoint()));
 
         promise<void> promise;
         q->opAsync(1,
@@ -2420,13 +2421,13 @@ allTests(const Ice::CommunicatorPtr& communicator, bool collocated)
     p->shutdown();
 
 #else
-    string sref = "test:" + getTestEndpoint(communicator, 0);
+    string sref = "test:" + helper->getTestEndpoint();
     Ice::ObjectPrx obj = communicator->stringToProxy(sref);
     test(obj);
 
     Test::TestIntfPrx p = Test::TestIntfPrx::uncheckedCast(obj);
 
-    sref = "testController:" + getTestEndpoint(communicator, 1);
+    sref = "testController:" + helper->getTestEndpoint(1);
     obj = communicator->stringToProxy(sref);
     test(obj);
 

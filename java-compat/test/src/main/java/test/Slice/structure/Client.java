@@ -16,16 +16,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-public class Client
+public class Client extends test.TestHelper
 {
-    private static void test(boolean b)
-    {
-        if(!b)
-        {
-            throw new RuntimeException();
-        }
-    }
-
     private static void allTests(Ice.Communicator communicator)
     {
         System.out.print("testing equals() for Slice structures... ");
@@ -272,36 +264,11 @@ public class Client
         System.out.println("ok");
     }
 
-    private static int run(String[] args, Ice.Communicator communicator)
+    public void run(String[] args)
     {
-        allTests(communicator);
-
-        return 0;
-    }
-
-    public static void main(String[] args)
-    {
-        int status = 0;
-        Ice.Communicator communicator = null;
-
-        try
+        try(Ice.Communicator communicator = initialize(args))
         {
-            Ice.StringSeqHolder argsH = new Ice.StringSeqHolder(args);
-            communicator = Ice.Util.initialize(argsH);
-            status = run(argsH.value, communicator);
+            allTests(communicator);
         }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-            status = 1;
-        }
-
-        if(communicator != null)
-        {
-            communicator.destroy();
-        }
-
-        System.gc();
-        System.exit(status);
     }
 }

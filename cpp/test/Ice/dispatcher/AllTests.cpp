@@ -9,7 +9,7 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/Random.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 #include <Dispatcher.h>
 
@@ -113,15 +113,16 @@ ICE_DEFINE_PTR(CallbackPtr, Callback);
 }
 
 void
-allTests(const Ice::CommunicatorPtr& communicator)
+allTests(Test::TestHelper* helper)
 {
-    string sref = "test:" + getTestEndpoint(communicator, 0);
+    Ice::CommunicatorPtr communicator = helper->communicator();
+    string sref = "test:" + helper->getTestEndpoint();
     Ice::ObjectPrxPtr obj = communicator->stringToProxy(sref);
     test(obj);
 
     Test::TestIntfPrxPtr p = ICE_UNCHECKED_CAST(Test::TestIntfPrx, obj);
 
-    sref = "testController:" + getTestEndpoint(communicator, 1, "tcp");
+    sref = "testController:" + helper->getTestEndpoint(1, "tcp");
     obj = communicator->stringToProxy(sref);
     test(obj);
 
@@ -174,7 +175,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             //
             // Expect InvocationTimeoutException.
             //
-            auto to = p->ice_invocationTimeout(250);
+            auto to = p->ice_invocationTimeout(10);
             to->sleepAsync(500,
                 [cb]()
                 {
@@ -249,7 +250,7 @@ allTests(const Ice::CommunicatorPtr& communicator)
             //
             // Expect InvocationTimeoutException.
             //
-            Test::TestIntfPrx to = p->ice_invocationTimeout(250);
+            Test::TestIntfPrx to = p->ice_invocationTimeout(10);
             to->begin_sleep(500, Test::newCallback_TestIntf_sleep(cb, &Callback::responseEx, &Callback::exceptionEx));
             cb->check();
         }

@@ -58,20 +58,14 @@ class GI : public virtual Test::G
 {
 public:
 
-    GI(const Ice::CommunicatorPtr&);
     virtual void shutdown(const Ice::Current&);
     virtual std::string callG(const Ice::Current&);
-
-private:
-
-    Ice::CommunicatorPtr _communicator;
 };
 
 class HI : public virtual Test::H, public virtual GI
 {
 public:
 
-    HI(const Ice::CommunicatorPtr&);
     virtual std::string callH(const Ice::Current&);
 };
 

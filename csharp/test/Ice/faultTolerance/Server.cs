@@ -16,30 +16,23 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Server : TestCommon.Application
+public class Server : Test.TestHelper
 {
-    private static void usage()
+    public override void run(string[] args)
     {
-        Console.Error.WriteLine("Usage: Server port");
-    }
-
-    public override int run(string[] args)
-    {
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.ServerIdleTime", "120");
         int port = 0;
         for(int i = 0; i < args.Length; i++)
         {
             if(args[i][0] == '-')
             {
-                Console.Error.WriteLine("Server: unknown option `" + args[i] + "'");
-                usage();
-                return 1;
+                throw new ArgumentException("Server: unknown option `" + args[i] + "'");
             }
 
             if(port != 0)
             {
-                Console.Error.WriteLine("Server: only one port can be specified");
-                usage();
-                return 1;
+                throw new ArgumentException("Server: only one port can be specified");
             }
 
             try
@@ -48,38 +41,28 @@ public class Server : TestCommon.Application
             }
             catch(FormatException)
             {
-                Console.Error.WriteLine("Server: invalid port");
-                usage();
-                return 1;
+                throw new ArgumentException("Server: invalid port");
             }
         }
 
         if(port <= 0)
         {
-            Console.Error.WriteLine("Server: no port specified");
-            usage();
-            return 1;
+            throw new ArgumentException("Server: no port specified");
         }
 
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        Ice.Object obj = new TestI();
-        adapter.add(obj, Ice.Util.stringToIdentity("test"));
-        adapter.activate();
-        communicator().waitForShutdown();
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.ServerIdleTime", "120");
-        return initData;
+        using(var communicator = initialize(properties))
+        {
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(port));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            Ice.Object obj = new TestI();
+            adapter.add(obj, Ice.Util.stringToIdentity("test"));
+            adapter.activate();
+            communicator.waitForShutdown();
+        }
     }
 
     public static int Main(string[] args)
     {
-        Server app = new Server();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Server>(args);
     }
 }

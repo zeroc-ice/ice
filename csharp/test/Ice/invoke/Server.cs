@@ -9,6 +9,7 @@
 
 using System;
 using System.Reflection;
+using System.Linq;
 
 [assembly: CLSCompliant(true)]
 
@@ -50,32 +51,24 @@ public class ServantLocatorI : Ice.ServantLocator
     private Ice.Object _blobject;
 }
 
-public class Server : TestCommon.Application
+public class Server : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        bool async = false;
-        for(int i = 0; i < args.Length; ++i)
+        bool async = args.Any(v => v.Equals("--async"));
+        using(var communicator = initialize(ref args))
         {
-            if(args[i].Equals("--async"))
-            {
-               async = true;
-            }
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+            adapter.addServantLocator(new ServantLocatorI(async), "");
+            adapter.activate();
+            communicator.waitForShutdown();
         }
-
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.addServantLocator(new ServantLocatorI(async), "");
-        adapter.activate();
-
-        communicator().waitForShutdown();
-        return 0;
     }
 
     public static int Main(string[] args)
     {
-        Server app = new Server();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Server>(args);
     }
 
 }

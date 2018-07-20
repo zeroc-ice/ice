@@ -52,6 +52,7 @@ task testSliceTask {
                                                          'Ice/optional/*.ice',
                                                          'Ice/stream/*.ice',
                                                          'Ice/enums/*.ice',
+                                                         'Ice/scope/*.ice',
                                                          'Glacier2/application/*.ice',
                                                          'Glacier2/router/*.ice',
                                                          'Glacier2/sessionHelper/*.ice',

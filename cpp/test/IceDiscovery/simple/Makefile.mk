@@ -7,6 +7,6 @@
 #
 # **********************************************************************
 
-$(test)_dependencies = IceDiscovery Ice TestCommon
+$(test)_dependencies = IceDiscovery TestCommon IceSSL Ice
 
 tests += $(test)

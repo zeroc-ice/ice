@@ -8,18 +8,26 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <TestI.h>
-
-DEFINE_TEST("collocated")
 
 using namespace std;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& communicator)
+class Collocated : public Test::TestHelper
 {
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint(communicator, 0));
-    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(communicator, 1));
+public:
+
+    void run(int, char**);
+};
+
+void
+Collocated::run(int argc, char** argv)
+{
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.AMICallback", "0");
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1));
     communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
     Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
@@ -34,31 +42,8 @@ run(int, char**, const Ice::CommunicatorPtr& communicator)
     adapter2->add(testController, Ice::stringToIdentity("testController"));
     //adapter2->activate(); // Collocated test doesn't need to activate the OA
 
-    void allTests(const Ice::CommunicatorPtr&, bool);
-    allTests(communicator, true);
-
-    return EXIT_SUCCESS;
+    void allTests(Test::TestHelper*, bool);
+    allTests(this, true);
 }
 
-int
-main(int argc, char* argv[])
-{
-#ifdef ICE_STATIC_LIBS
-    Ice::registerIceSSL(false);
-    Ice::registerIceWS(true);
-#endif
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Warn.AMICallback", "0");
-
-        Ice::CommunicatorHolder ich(argc, argv, initData);
-        return run(argc, argv, ich.communicator());
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        return  EXIT_FAILURE;
-    }
-}
+DEFINE_TEST(Collocated)

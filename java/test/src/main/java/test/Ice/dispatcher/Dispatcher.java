@@ -66,6 +66,7 @@ public class Dispatcher implements Runnable,
                 catch(Exception ex)
                 {
                     // Exceptions should never propagate here.
+                    ex.printStackTrace();
                     test(false);
                 }
             }

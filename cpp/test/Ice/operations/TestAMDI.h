@@ -12,7 +12,6 @@
 
 #include <IceUtil/Thread.h>
 #include <TestAMD.h>
-#include <TestCommon.h>
 
 class MyDerivedClassI : public Test::MyDerivedClass
 {

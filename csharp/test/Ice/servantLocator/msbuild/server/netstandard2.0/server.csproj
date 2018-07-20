@@ -4,13 +4,13 @@
   <PropertyGroup>
     <AssemblyName>server</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../../../../TestCommon/TestApp.cs"/>
+    <Compile Include="../../../../../TestCommon/TestHelper.cs"/>
     <Compile Include="../../../TestI.cs"/>
     <Compile Include="../../../Server.cs"/>
     <Compile Include="../../../CookieI.cs"/>

@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/StringUtil.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #include <fstream>
 
@@ -96,12 +96,20 @@ splitLines(const string& str)
 
 }
 
-int main(int argc, char* argv[])
+class Client : public Test::TestHelper
+{
+public:
+
+    virtual void run(int argc, char* argv[]);
+};
+
+void
+Client::run(int argc, char* argv[])
 {
     if(IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
     {
         cout << "This Ice build cannot capture stack traces" << endl;
-        return EXIT_SUCCESS;
+        return;
     }
 
     bool optimized = false;
@@ -163,8 +171,10 @@ int main(int argc, char* argv[])
 
         if(!ifs)
         {
-            cout << "cannot open `" << filename << "`, failed!" << endl;
-            return EXIT_FAILURE;
+            ostringstream os;
+            os << "cannot open `" << filename << "`, failed!";
+            cout << os.str() << endl;
+            throw invalid_argument(os.str());
         }
 
         // Show which template we use:
@@ -229,6 +239,6 @@ int main(int argc, char* argv[])
         }
     }
     cout << "ok" << endl;
-
-    return EXIT_SUCCESS;
 }
+
+DEFINE_TEST(Client);

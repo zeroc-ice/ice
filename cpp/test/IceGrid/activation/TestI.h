@@ -27,5 +27,5 @@ private:
 
     bool _failed;
 };
-
+ICE_DEFINE_PTR(TestIPtr, TestI);
 #endif

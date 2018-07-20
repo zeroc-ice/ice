@@ -10,7 +10,7 @@
 #include <IceUtil/DisableWarnings.h>
 #include <AMDInterceptorI.h>
 #include <Test.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 

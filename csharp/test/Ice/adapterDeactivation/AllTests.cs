@@ -10,14 +10,14 @@
 using System;
 using Test;
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
-    public static TestIntfPrx allTests(TestCommon.Application app)
+    public static TestIntfPrx allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
+        Ice.Communicator communicator = helper.communicator();
         Write("testing stringToProxy... ");
         Flush();
-        string @ref = "test:" + app.getTestEndpoint(0);
+        string @ref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
         WriteLine("ok");
@@ -66,7 +66,7 @@ public class AllTests : TestCommon.AllTests
                 Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties().ice_clone_();
                 Ice.Communicator comm = Ice.Util.initialize(initData);
-                comm.stringToProxy("test:" + app.getTestEndpoint(0)).begin_ice_ping();
+                comm.stringToProxy("test:" + helper.getTestEndpoint(0)).begin_ice_ping();
                 comm.destroy();
             }
             WriteLine("ok");
@@ -156,7 +156,8 @@ public class AllTests : TestCommon.AllTests
 
             try
             {
-                router = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("test:" + app.getTestEndpoint(1)));
+                router = Ice.RouterPrxHelper.uncheckedCast(communicator.stringToProxy("test:" +
+                                                                                      helper.getTestEndpoint(1)));
                 communicator.createObjectAdapterWithRouter("", router);
                 test(false);
             }
@@ -169,10 +170,10 @@ public class AllTests : TestCommon.AllTests
         Write("testing object adapter creation with port in use... ");
         Flush();
         {
-            var adapter1 = communicator.createObjectAdapterWithEndpoints("Adpt1", app.getTestEndpoint(10));
+            var adapter1 = communicator.createObjectAdapterWithEndpoints("Adpt1", helper.getTestEndpoint(10));
             try
             {
-                communicator.createObjectAdapterWithEndpoints("Adpt2", app.getTestEndpoint(10));
+                communicator.createObjectAdapterWithEndpoints("Adpt2", helper.getTestEndpoint(10));
                 test(false);
             }
             catch(Ice.LocalException)

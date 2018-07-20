@@ -8,40 +8,34 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <CallbackI.h>
 
 using namespace std;
 using namespace Ice;
 using namespace Test;
 
-class CallbackServer : public Application
+class CallbackServer : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+CallbackServer::run(int argc, char** argv)
 {
-    Ice::InitializationData initData = getTestInitData(argc, argv);
+    Ice::PropertiesPtr properties = createTestProperties(argc, argv);
+    properties->setProperty("Ice.Warn.Connections", "0");
+    properties->setProperty("Ice.Warn.Dispatch", "0");
+    properties->setProperty("Ice.ThreadPool.Server.Serialize", "1");
 
-    initData.properties->setProperty("Ice.Warn.Connections", "0");
-    initData.properties->setProperty("Ice.Warn.Dispatch", "0");
-    initData.properties->setProperty("Ice.ThreadPool.Server.Serialize", "1");
-
-    CallbackServer app;
-    return app.main(argc, argv, initData);
-}
-
-int
-CallbackServer::run(int, char**)
-{
-    communicator()->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint(communicator(), 0));
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("CallbackAdapter");
+    Ice::CommunicatorHolder communicator = initialize(argc, argv, properties);
+    communicator->getProperties()->setProperty("CallbackAdapter.Endpoints", getTestEndpoint());
+    ObjectAdapterPtr adapter = communicator->createObjectAdapter("CallbackAdapter");
     adapter->add(new CallbackI(), Ice::stringToIdentity("c/callback"));
     adapter->activate();
-    communicator()->waitForShutdown();
-    return EXIT_SUCCESS;
+    communicator->waitForShutdown();
 }
+
+DEFINE_TEST(CallbackServer)

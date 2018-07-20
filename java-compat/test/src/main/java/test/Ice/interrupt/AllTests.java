@@ -85,18 +85,18 @@ public class AllTests
     }
 
     public static void
-    allTests(test.Util.Application app)
+    allTests(test.TestHelper helper)
         throws InterruptedException
     {
-        Ice.Communicator communicator = app.communicator();
-        PrintWriter out = app.getWriter();
-        String sref = "test:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        PrintWriter out = helper.getWriter();
+        String sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 
         final TestIntfPrx p = TestIntfPrxHelper.uncheckedCast(obj);
 
-        sref = "testController:" + app.getTestEndpoint(1);
+        sref = "testController:" + helper.getTestEndpoint(1);
         obj = communicator.stringToProxy(sref);
         test(obj != null);
 
@@ -572,9 +572,8 @@ public class AllTests
             //
             // Check that CommunicatorDestroyedException is raised directly.
             //
-            Ice.InitializationData initData = app.createInitializationData();
-            initData.properties = communicator.getProperties()._clone();
-            Ice.Communicator ic = app.initialize(initData);
+            Ice.Properties properties = communicator.getProperties()._clone();
+            Ice.Communicator ic = helper.initialize(properties);
 
             Thread.currentThread().interrupt();
             try
@@ -590,7 +589,7 @@ public class AllTests
 
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
 
-            ic = app.initialize(initData);
+            ic = helper.initialize(properties);
             Ice.ObjectPrx o = ic.stringToProxy(p.toString());
 
             final Thread[] thread = new Thread[1];
@@ -632,6 +631,7 @@ public class AllTests
 
                 }
             });
+
             executor.submit(new Runnable() {
                 @Override
                 public void run()
@@ -718,96 +718,96 @@ public class AllTests
         {
             final Thread mainThread = Thread.currentThread();
             ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(1);
-            Ice.InitializationData initData = app.createInitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = communicator.getProperties()._clone();
             initData.properties.setProperty("ClientTestAdapter.Endpoints", "tcp -h *");
-            Ice.Communicator ic = app.initialize(initData);
-            final Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
-            adapter.activate();
+            try(Ice.Communicator ic = helper.initialize(initData))
+            {
+                final Ice.ObjectAdapter adapter = ic.createObjectAdapter("ClientTestAdapter");
+                adapter.activate();
 
-            try
-            {
-                mainThread.interrupt();
-                adapter.waitForHold();
-                test(false);
-            }
-            catch(Ice.OperationInterruptedException e)
-            {
-                // Expected.
-            }
-
-            try
-            {
-                mainThread.interrupt();
-                adapter.waitForDeactivate();
-                test(false);
-            }
-            catch(Ice.OperationInterruptedException e)
-            {
-                // Expected.
-            }
-
-            try
-            {
-                mainThread.interrupt();
-                ic.waitForShutdown();
-                test(false);
-            }
-            catch(Ice.OperationInterruptedException e)
-            {
-                // Expected.
-            }
-
-            Runnable interruptMainThread = new Runnable() {
-                @Override
-                public void run()
+                try
                 {
-                    try
-                    {
-                        Thread.sleep(250);
-                    }
-                    catch(InterruptedException e)
-                    {
-                        test(false);
-                    }
                     mainThread.interrupt();
+                    adapter.waitForHold();
+                    test(false);
                 }
-            };
+                catch(Ice.OperationInterruptedException e)
+                {
+                    // Expected.
+                }
 
-            executor.execute(interruptMainThread);
-            try
-            {
-                adapter.waitForHold();
-                test(false);
-            }
-            catch(Ice.OperationInterruptedException e)
-            {
-                // Expected.
-            }
+                try
+                {
+                    mainThread.interrupt();
+                    adapter.waitForDeactivate();
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException e)
+                {
+                    // Expected.
+                }
 
-            executor.execute(interruptMainThread);
-            try
-            {
-                adapter.waitForDeactivate();
-                test(false);
-            }
-            catch(Ice.OperationInterruptedException e)
-            {
-                // Expected.
-            }
+                try
+                {
+                    mainThread.interrupt();
+                    ic.waitForShutdown();
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException e)
+                {
+                    // Expected.
+                }
 
-            executor.execute(interruptMainThread);
-            try
-            {
-                ic.waitForShutdown();
-                test(false);
-            }
-            catch(Ice.OperationInterruptedException e)
-            {
-                // Expected.
-            }
+                Runnable interruptMainThread = new Runnable() {
+                        @Override
+                        public void run()
+                        {
+                            try
+                            {
+                                Thread.sleep(250);
+                            }
+                            catch(InterruptedException e)
+                            {
+                                test(false);
+                            }
+                            mainThread.interrupt();
+                        }
+                    };
 
-            ic.destroy();
+                executor.execute(interruptMainThread);
+                try
+                {
+                    adapter.waitForHold();
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException e)
+                {
+                    // Expected.
+                }
+
+                executor.execute(interruptMainThread);
+                try
+                {
+                    adapter.waitForDeactivate();
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException e)
+                {
+                    // Expected.
+                }
+
+                executor.execute(interruptMainThread);
+                try
+                {
+                    ic.waitForShutdown();
+                    test(false);
+                }
+                catch(Ice.OperationInterruptedException e)
+                {
+                    // Expected.
+                }
+            }
 
             executor.shutdown();
             while(!executor.isTerminated())

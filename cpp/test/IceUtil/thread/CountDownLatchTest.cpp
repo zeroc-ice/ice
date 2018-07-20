@@ -11,7 +11,7 @@
 #include <IceUtil/CountDownLatch.h>
 
 #include <CountDownLatchTest.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 using namespace std;
 using namespace IceUtil;

@@ -9,6 +9,8 @@
 
 using System;
 using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
 
 [assembly: CLSCompliant(true)]
 
@@ -16,52 +18,25 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    private static void usage()
+    public override void run(string[] args)
     {
-        Console.Error.WriteLine("Usage: client port...");
-    }
-
-    public override int run(string[] args)
-    {
-        System.Collections.Generic.List<int> ports = new System.Collections.Generic.List<int>();
-        for(int i = 0; i < args.Length; i++)
+        Ice.Properties properties = createTestProperties(ref args);
+        properties.setProperty("Ice.Warn.Connections", "0");
+        using(var communicator = initialize(properties))
         {
-            int port = 0;
-            try
+            List<int> ports = args.Select(v => Int32.Parse(v)).ToList();
+            if(ports.Count == 0)
             {
-                port = Int32.Parse(args[i]);
+                throw new ArgumentException("Client: no ports specified");
             }
-            catch(FormatException ex)
-            {
-                Console.Error.WriteLine(ex);
-                return 1;
-            }
-            ports.Add(port);
+            AllTests.allTests(this, ports);
         }
-
-        if(ports.Count == 0)
-        {
-            Console.Error.WriteLine("Client: no ports specified");
-            usage();
-            return 1;
-        }
-
-        AllTests.allTests(this, ports);
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
-        return initData;
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

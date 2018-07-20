@@ -20,7 +20,7 @@ sourceSets {
     main {
         java {
             srcDir "$rootProject.projectDir/../test/src/main/java"
-            include 'test/Util/**'
+            include 'test/TestHelper.java'
         }
     }
 }

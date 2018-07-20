@@ -9,6 +9,6 @@
 # **********************************************************************
 
 TestSuite(__name__, [
-    ClientServerTestCase("client/server #1", server=IceBox(args=['--Ice.Config="{testdir}/config.icebox{iceboxconfigext}"'])),
-    ClientServerTestCase("client/server #2", server=IceBox(args=['--Ice.Config="{testdir}/config.icebox2{iceboxconfigext}"']))
+    ClientServerTestCase("client/server #1", server=IceBox("{testdir}/config.icebox")),
+    ClientServerTestCase("client/server #2", server=IceBox("{testdir}/config.icebox2"))
 ], libDirs=["testservice"], runOnMainThread=True, options={ "protocol" : ["tcp"], "ipv6" : [False], "mx" : [False] }, multihost=False)

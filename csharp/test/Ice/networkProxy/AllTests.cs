@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-public class AllTests : TestCommon.AllTests
+public class AllTests : Test.AllTests
 {
     private static Ice.IPConnectionInfo getIPConnectionInfo(Ice.ConnectionInfo info)
     {
@@ -21,10 +21,10 @@ public class AllTests : TestCommon.AllTests
         return null;
     }
 
-    public static void allTests(TestCommon.Application app)
+    public static void allTests(Test.TestHelper helper)
     {
-        Ice.Communicator communicator = app.communicator();
-        string sref = "test:" + app.getTestEndpoint(0);
+        Ice.Communicator communicator = helper.communicator();
+        string sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
         test(obj != null);
 

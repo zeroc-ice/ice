@@ -154,8 +154,8 @@
     <ClInclude Include="..\App.xaml.h">
       <DependentUpon>..\App.xaml</DependentUpon>
     </ClInclude>
-    <ClInclude Include="..\ViewController.xaml.h">
-      <DependentUpon>..\ViewController.xaml</DependentUpon>
+    <ClInclude Include="..\ControllerView.xaml.h">
+      <DependentUpon>..\ControllerView.xaml</DependentUpon>
     </ClInclude>
     <ClInclude Include="ARM\Debug\Controller.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -210,7 +210,7 @@
     <ApplicationDefinition Include="..\App.xaml">
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="..\ViewController.xaml">
+    <Page Include="..\ControllerView.xaml">
       <SubType>Designer</SubType>
     </Page>
     <Page Include="..\StandardStyles.xaml" />
@@ -234,8 +234,8 @@
       <DependentUpon>..\App.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="..\pch.cpp" />
-    <ClCompile Include="..\ViewController.xaml.cpp">
-      <DependentUpon>..\ViewController.xaml</DependentUpon>
+    <ClCompile Include="..\ControllerView.xaml.cpp">
+      <DependentUpon>..\ControllerView.xaml</DependentUpon>
     </ClCompile>
     <ClCompile Include="ARM\Debug\Controller.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -328,6 +328,30 @@
     </None>
     <None Include="..\..\..\IceSSL\certs\s_rsa_ca1_pub.pem">
       <DeploymentContent>true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\client\Win32\Debug\Ice_scope_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\client\Win32\Release\Ice_scope_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\client\x64\Debug\Ice_scope_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\client\x64\Release\Ice_scope_client.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\server\Win32\Debug\Ice_scope_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\server\Win32\Release\Ice_scope_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\server\x64\Debug\Ice_scope_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</DeploymentContent>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\server\x64\Release\Ice_scope_server.dll">
+      <DeploymentContent Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</DeploymentContent>
     </None>
     <None Include="controller_TemporaryKey.pfx" />
     <SliceCompile Include="..\..\..\..\..\scripts\Controller.ice" />

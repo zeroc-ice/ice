@@ -9,40 +9,23 @@
 
 package test.IceSSL.configuration;
 
-import java.io.PrintWriter;
-
 import test.IceSSL.configuration.Test.ServerFactoryPrx;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        PrintWriter out = getWriter();
-        if(args.length < 1)
+        java.util.List<String> rargs = new java.util.ArrayList<String>();
+        com.zeroc.Ice.Properties properties = createTestProperties(args, rargs);
+        if(rargs.size() < 1)
         {
-            out.println("Usage: client testdir");
-            return 1;
+            throw new RuntimeException("Usage: client testdir");
         }
-        ServerFactoryPrx factory = AllTests.allTests(this, args[0]);
-        factory.shutdown();
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
+        properties.setProperty("Ice.Package.Test", "test.IceSSL.configuration");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
+        {
+            ServerFactoryPrx factory = AllTests.allTests(this, rargs.get(0));
+            factory.shutdown();
+        }
     }
 }

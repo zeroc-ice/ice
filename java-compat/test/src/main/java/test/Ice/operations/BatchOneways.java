@@ -73,9 +73,9 @@ class BatchOneways
     }
 
     static void
-    batchOneways(test.Util.Application app, MyClassPrx p, PrintWriter out)
+    batchOneways(test.TestHelper helper, MyClassPrx p, PrintWriter out)
     {
-        final Ice.Communicator communicator = app.communicator();
+        final Ice.Communicator communicator = helper.communicator();
         final Ice.Properties properties = communicator.getProperties();
         final byte[] bs1 = new byte[10  * 1024];
 
@@ -150,40 +150,39 @@ class BatchOneways
 
         if(batch.ice_getConnection() != null && !bluetooth)
         {
-            Ice.InitializationData initData = app.createInitializationData();
+            Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = properties._clone();
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor;
-            Ice.Communicator ic = app.initialize(initData);
+            try(Ice.Communicator ic = helper.initialize(initData))
+            {
+                batch = MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.toString()).ice_batchOneway());
 
-            batch = MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.toString()).ice_batchOneway());
+                test(interceptor.count() == 0);
+                batch.ice_ping();
+                batch.ice_ping();
+                batch.ice_ping();
+                test(interceptor.count() == 0);
 
-            test(interceptor.count() == 0);
-            batch.ice_ping();
-            batch.ice_ping();
-            batch.ice_ping();
-            test(interceptor.count() == 0);
+                interceptor.setEnqueue(true);
+                batch.ice_ping();
+                batch.ice_ping();
+                batch.ice_ping();
+                test(interceptor.count() == 3);
 
-            interceptor.setEnqueue(true);
-            batch.ice_ping();
-            batch.ice_ping();
-            batch.ice_ping();
-            test(interceptor.count() == 3);
+                batch.ice_flushBatchRequests();
+                batch.ice_ping();
+                test(interceptor.count() == 1);
 
-            batch.ice_flushBatchRequests();
-            batch.ice_ping();
-            test(interceptor.count() == 1);
+                batch.opByteSOneway(bs1);
+                test(interceptor.count() == 2);
+                batch.opByteSOneway(bs1);
+                test(interceptor.count() == 3);
 
-            batch.opByteSOneway(bs1);
-            test(interceptor.count() == 2);
-            batch.opByteSOneway(bs1);
-            test(interceptor.count() == 3);
-
-            batch.opByteSOneway(bs1); // This should trigger the flush
-            batch.ice_ping();
-            test(interceptor.count() == 2);
-
-            ic.destroy();
+                batch.opByteSOneway(bs1); // This should trigger the flush
+                batch.ice_ping();
+                test(interceptor.count() == 2);
+            }
         }
 
         boolean supportsCompress = true;

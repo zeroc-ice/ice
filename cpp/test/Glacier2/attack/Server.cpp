@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <BackendI.h>
 
 using namespace std;
@@ -42,28 +42,22 @@ private:
     BackendPtr _backend;
 };
 
-class BackendServer : public Application
+class BackendServer : public Test::TestHelper
 {
 public:
 
-    virtual int run(int, char*[]);
+    void run(int, char**);
 };
 
-int
-main(int argc, char* argv[])
+void
+BackendServer::run(int argc, char** argv)
 {
-    BackendServer app;
-    Ice::InitializationData initData = getTestInitData(argc, argv);
-    return app.main(argc, argv, initData);
-}
-
-int
-BackendServer::run(int, char**)
-{
-    communicator()->getProperties()->setProperty("BackendAdapter.Endpoints", getTestEndpoint(communicator(), 0));
-    ObjectAdapterPtr adapter = communicator()->createObjectAdapter("BackendAdapter");
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    communicator->getProperties()->setProperty("BackendAdapter.Endpoints", getTestEndpoint());
+    ObjectAdapterPtr adapter = communicator->createObjectAdapter("BackendAdapter");
     adapter->addServantLocator(new ServantLocatorI, "");
     adapter->activate();
-    communicator()->waitForShutdown();
-    return EXIT_SUCCESS;
+    communicator->waitForShutdown();
 }
+
+DEFINE_TEST(BackendServer)

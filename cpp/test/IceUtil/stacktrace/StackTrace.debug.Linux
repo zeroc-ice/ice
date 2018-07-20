@@ -7,4 +7,6 @@ client
 client
 client
 client
-  9 __libc_start_main in
+client
+client
+ 11 __libc_start_main in

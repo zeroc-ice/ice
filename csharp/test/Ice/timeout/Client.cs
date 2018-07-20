@@ -16,39 +16,35 @@ using System.Reflection;
 [assembly: AssemblyDescription("Ice test")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 
-public class Client : TestCommon.Application
+public class Client : Test.TestHelper
 {
-    public override int run(string[] args)
+    public override void run(string[] args)
     {
-        AllTests.allTests(this);
-        return 0;
-    }
-
-    protected override Ice.InitializationData getInitData(ref string[] args)
-    {
-        Ice.InitializationData initData = base.getInitData(ref args);
+        Ice.Properties properties = createTestProperties(ref args);
 
         //
         // For this test, we want to disable retries.
         //
-        initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        properties.setProperty("Ice.RetryIntervals", "-1");
 
         //
         // This test kills connections, so we don't want warnings.
         //
-        initData.properties.setProperty("Ice.Warn.Connections", "0");
+        properties.setProperty("Ice.Warn.Connections", "0");
 
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
         //
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
-        return initData;
+        properties.setProperty("Ice.TCP.SndSize", "50000");
+        using(var communicator = initialize(properties))
+        {
+            AllTests.allTests(this);
+        }
     }
 
     public static int Main(string[] args)
     {
-        Client app = new Client();
-        return app.runmain(args);
+        return Test.TestDriver.runTest<Client>(args);
     }
 }

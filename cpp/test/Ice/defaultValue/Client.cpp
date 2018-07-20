@@ -8,37 +8,24 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 using namespace Test;
 
-DEFINE_TEST("client")
+class Client : public Test::TestHelper
+{
+public:
 
-int
-run(int, char**)
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
 {
     void allTests();
     allTests();
-
-    return EXIT_SUCCESS;
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-
-    try
-    {
-        status = run(argc, argv);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    return status;
-}
+DEFINE_TEST(Client)

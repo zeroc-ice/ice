@@ -781,15 +781,22 @@ class SSLEngine
     javax.net.ssl.SSLEngine createSSLEngine(boolean incoming, String host, int port)
     {
         javax.net.ssl.SSLEngine engine;
-        if(host != null)
+        try
         {
-            engine = _context.createSSLEngine(host, port);
+            if(host != null)
+            {
+                engine = _context.createSSLEngine(host, port);
+            }
+            else
+            {
+                engine = _context.createSSLEngine();
+            }
+            engine.setUseClientMode(!incoming);
         }
-        else
+        catch(Exception ex)
         {
-            engine = _context.createSSLEngine();
+            throw new Ice.SecurityException("IceSSL: couldn't create SSL engine", ex);
         }
-        engine.setUseClientMode(!incoming);
 
         String[] cipherSuites = filterCiphers(engine.getSupportedCipherSuites(), engine.getEnabledCipherSuites());
         try

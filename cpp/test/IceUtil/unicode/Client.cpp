@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/IceUtil.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 
 #ifdef _WIN32
 #   include <io.h>

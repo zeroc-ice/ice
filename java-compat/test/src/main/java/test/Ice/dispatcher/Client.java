@@ -9,52 +9,31 @@
 
 package test.Ice.dispatcher;
 
-public class Client extends test.Util.Application
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        AllTests.allTests(this, _dispatcher);
-        return 0;
+        Dispatcher dispatcher = new Dispatcher();
+        try
+        {
+            Ice.InitializationData initData = new Ice.InitializationData();
+            initData.properties = createTestProperties(args);
+            initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
+
+            //
+            // Limit the send buffer size, this test relies on the socket
+            // send() blocking after sending a given amount of data.
+            //
+            initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+            initData.dispatcher = dispatcher;
+            try(Ice.Communicator communicator = initialize(initData))
+            {
+                AllTests.allTests(this, dispatcher);
+            }
+        }
+        finally
+        {
+            dispatcher.terminate();
+        }
     }
-
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        assert(_dispatcher == null);
-        _dispatcher = new Dispatcher();
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.dispatcher");
-
-        //
-        // Limit the send buffer size, this test relies on the socket
-        // send() blocking after sending a given amount of data.
-        //
-        initData.properties.setProperty("Ice.TCP.SndSize", "50000");
-
-        initData.dispatcher = _dispatcher;
-        return initData;
-    }
-
-    Dispatcher getDispatcher()
-    {
-        return _dispatcher;
-    }
-
-    public static void main(String[] args)
-    {
-        Client app = new Client();
-        int result = app.main("Client", args);
-        app.getDispatcher().terminate();
-        System.gc();
-        System.exit(result);
-    }
-
-    //
-    // The Dispatcher class uses a static "_instance" member in other language
-    // mappings. In Java, we avoid the use of static members because we need to
-    // maintain support for Android (in which the client and server run in the
-    // same process).
-    //
-    private Dispatcher _dispatcher;
 }

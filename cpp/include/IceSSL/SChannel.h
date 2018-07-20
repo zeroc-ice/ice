@@ -10,6 +10,8 @@
 #ifndef ICESSL_SCHANNEL_H
 #define ICESSL_SCHANNEL_H
 
+#ifdef _WIN32
+
 #include <IceSSL/Plugin.h>
 
 #include <wincrypt.h>
@@ -69,5 +71,7 @@ public:
 } // SChannel namespace end
 
 } // IceSSL namespace end
+
+#endif
 
 #endif

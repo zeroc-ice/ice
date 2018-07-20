@@ -101,9 +101,9 @@ public class AllTests
         }
     }
 
-    public static void allTests(test.Util.Application app)
+    public static void allTests(test.TestHelper helper)
     {
-        PrintWriter out = app.getWriter();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing communicator operations... ");
         out.flush();
@@ -111,81 +111,86 @@ public class AllTests
             //
             // Test: Exercise addAdminFacet, findAdminFacet, removeAdminFacet with a typical configuration.
             //
-            com.zeroc.Ice.InitializationData init = app.createInitializationData();
+            com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
             init.properties = com.zeroc.Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
-            com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init);
-            testFacets(comm, true);
-            comm.destroy();
+            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
+            {
+                testFacets(comm, true);
+            }
         }
         {
             //
             // Test: Verify that the operations work correctly in the presence of facet filters.
             //
-            com.zeroc.Ice.InitializationData init = app.createInitializationData();
+            com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
             init.properties = com.zeroc.Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.Facets", "Properties");
-            com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init);
-            testFacets(comm, false);
-            comm.destroy();
+            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
+            {
+                testFacets(comm, false);
+            }
         }
         {
             //
             // Test: Verify that the operations work correctly with the Admin object disabled.
             //
-            com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize();
-            testFacets(comm, false);
-            comm.destroy();
+            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize())
+            {
+                testFacets(comm, false);
+            }
         }
         {
             //
             // Test: Verify that the operations work correctly when Ice.Admin.Enabled is set
             //
-            com.zeroc.Ice.InitializationData init = app.createInitializationData();
+            com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
             init.properties = com.zeroc.Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Enabled", "1");
-            com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init);
-
-            test(comm.getAdmin() == null);
-            com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("test-admin");
-            try
+            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
             {
-                comm.createAdmin(null, id);
-                test(false);
-            }
-            catch(com.zeroc.Ice.InitializationException ex)
-            {
-            }
+                test(comm.getAdmin() == null);
+                com.zeroc.Ice.Identity id = com.zeroc.Ice.Util.stringToIdentity("test-admin");
+                try
+                {
+                    comm.createAdmin(null, id);
+                    test(false);
+                }
+                catch(com.zeroc.Ice.InitializationException ex)
+                {
+                }
 
-            com.zeroc.Ice.ObjectAdapter adapter = comm.createObjectAdapter("");
-            test(comm.createAdmin(adapter, id) != null);
-            test(comm.getAdmin() != null);
-            testFacets(comm, true);
-            comm.destroy();
+                com.zeroc.Ice.ObjectAdapter adapter = comm.createObjectAdapter("");
+                test(comm.createAdmin(adapter, id) != null);
+                test(comm.getAdmin() != null);
+                testFacets(comm, true);
+            }
         }
         {
             //
             // Test: Verify that the operations work correctly when creation of the Admin object is delayed.
             //
-            com.zeroc.Ice.InitializationData init = app.createInitializationData();
+            com.zeroc.Ice.InitializationData init = new com.zeroc.Ice.InitializationData();
             init.properties = com.zeroc.Ice.Util.createProperties();
             init.properties.setProperty("Ice.Admin.Endpoints", "tcp -h 127.0.0.1");
             init.properties.setProperty("Ice.Admin.InstanceName", "Test");
             init.properties.setProperty("Ice.Admin.DelayCreation", "1");
-            com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init);
-            testFacets(comm, true);
-            comm.getAdmin();
-            testFacets(comm, true);
-            comm.destroy();
+            try(com.zeroc.Ice.Communicator comm = com.zeroc.Ice.Util.initialize(init))
+            {
+                testFacets(comm, true);
+                comm.getAdmin();
+                testFacets(comm, true);
+                comm.destroy();
+            }
         }
         out.println("ok");
 
-        String ref = "factory:" + app.getTestEndpoint(0) + " -t 10000";
+        String ref = "factory:" + helper.getTestEndpoint(0) + " -t 10000";
         RemoteCommunicatorFactoryPrx factory =
-            RemoteCommunicatorFactoryPrx.uncheckedCast(app.communicator().stringToProxy(ref));
+            RemoteCommunicatorFactoryPrx.uncheckedCast(helper.communicator().stringToProxy(ref));
 
         out.print("testing process facet... ");
         out.flush();
@@ -360,7 +365,7 @@ public class AllTests
             // Now, test RemoteLogger
             //
             com.zeroc.Ice.ObjectAdapter adapter =
-                app.communicator().createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
+                helper.communicator().createObjectAdapterWithEndpoints("RemoteLoggerAdapter", "tcp -h localhost");
 
             RemoteLoggerI remoteLogger = new RemoteLoggerI();
 
@@ -557,6 +562,7 @@ public class AllTests
             rcom.destroy();
         }
         out.println("ok");
+        out.flush();
 
         factory.shutdown();
     }

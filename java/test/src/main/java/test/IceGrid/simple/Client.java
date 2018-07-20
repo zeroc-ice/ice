@@ -9,48 +9,26 @@
 
 package test.IceGrid.simple;
 
-public class Client extends test.Util.Application
+import java.util.stream.Stream;
+
+public class Client extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
-        com.zeroc.Ice.Communicator communicator = communicator();
-        boolean withDeploy = false;
-        for(String arg : args)
+        com.zeroc.Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
+        try(com.zeroc.Ice.Communicator communicator = initialize(properties))
         {
-            if(arg.equals("--with-deploy"))
+            boolean withDeploy =  Stream.of(args).anyMatch(v -> v.equals("--with-deploy"));
+
+            if(!withDeploy)
             {
-                withDeploy = true;
-                break;
+                AllTests.allTests(this);
+            }
+            else
+            {
+                AllTests.allTestsWithDeploy(this);
             }
         }
-
-        if(!withDeploy)
-        {
-            AllTests.allTests(this);
-        }
-        else
-        {
-            AllTests.allTestsWithDeploy(communicator, getWriter());
-        }
-
-        return 0;
-    }
-
-    @Override
-    protected com.zeroc.Ice.InitializationData getInitData(String[] args, java.util.List<String> rArgs)
-    {
-        com.zeroc.Ice.InitializationData initData = super.getInitData(args, rArgs);
-        initData.properties.setProperty("Ice.Package.Test", "test.IceGrid.simple");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Client c = new Client();
-        int status = c.main("Client", args);
-
-        System.gc();
-        System.exit(status);
     }
 }

@@ -9,50 +9,30 @@
 
 #include <Ice/Ice.h>
 #include <IceUtil/IceUtil.h>
-#include <TestCommon.h>
+#include <TestHelper.h>
 #include <Test.h>
 
 using namespace std;
 using namespace Test;
 
-int
-run(int, char**, const Ice::CommunicatorPtr& comm)
+class Client : public Test::TestHelper
 {
-    void allTests(const Ice::CommunicatorPtr&);
-    allTests(comm);
+public:
 
+    void run(int, char**);
+};
+
+void
+Client::run(int argc, char** argv)
+{
+    Ice::CommunicatorHolder communicator = initialize(argc, argv);
+    void allTests(Test::TestHelper*);
+    allTests(this);
     //
     // Shutdown the IceBox server.
     //
-    ICE_UNCHECKED_CAST(Ice::ProcessPrx, comm->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
-
-    return EXIT_SUCCESS;
+    ICE_UNCHECKED_CAST(Ice::ProcessPrx,
+                       communicator->stringToProxy("DemoIceBox/admin -f Process:default -p 9996"))->shutdown();
 }
 
-int
-main(int argc, char* argv[])
-{
-    int status;
-
-    Ice::CommunicatorPtr communicator;
-
-    try
-    {
-        Ice::InitializationData initData = getTestInitData(argc, argv);
-        initData.properties->setProperty("Ice.Default.Host", "127.0.0.1");
-        communicator = Ice::initialize(argc, argv, initData);
-        status = run(argc, argv, communicator);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        status = EXIT_FAILURE;
-    }
-
-    if(communicator)
-    {
-        communicator->destroy();
-    }
-
-    return status;
-}
+DEFINE_TEST(Client)

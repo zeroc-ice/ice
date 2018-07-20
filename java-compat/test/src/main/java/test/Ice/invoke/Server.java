@@ -9,11 +9,12 @@
 
 package test.Ice.invoke;
 
-public class Server extends test.Util.Application
+public class Server extends test.TestHelper
 {
-    @Override
-    public int run(String[] args)
+    public void run(String[] args)
     {
+        Ice.Properties properties = createTestProperties(args);
+        properties.setProperty("Ice.Package.Test", "test.Ice.invoke");
         boolean async = false;
         for(int i = 0; i < args.length; ++i)
         {
@@ -23,27 +24,15 @@ public class Server extends test.Util.Application
             }
         }
 
-        communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-        Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
-        adapter.addServantLocator(new ServantLocatorI(async), "");
-        adapter.activate();
-        return WAIT;
-    }
+        try(Ice.Communicator communicator = initialize(properties))
+        {
+            communicator().getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+            Ice.ObjectAdapter adapter = communicator().createObjectAdapter("TestAdapter");
+            adapter.addServantLocator(new ServantLocatorI(async), "");
+            adapter.activate();
 
-    @Override
-    protected Ice.InitializationData getInitData(Ice.StringSeqHolder argsH)
-    {
-        Ice.InitializationData initData = super.getInitData(argsH);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.invoke");
-        return initData;
-    }
-
-    public static void main(String[] args)
-    {
-        Server c = new Server();
-        int status = c.main("Server", args);
-
-        System.gc();
-        System.exit(status);
+            serverReady();
+            communicator.waitForShutdown();
+        }
     }
 }

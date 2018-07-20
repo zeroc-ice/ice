@@ -20,7 +20,6 @@ import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
 import test.Ice.ami.Test.Callback_TestIntf_opWithUE;
 import test.Ice.ami.Test.Callback_TestIntf_opWithPayload;
 import test.Ice.ami.Test.CloseMode;
-import test.Util.Application;
 
 public class AMI
 {
@@ -626,11 +625,11 @@ public class AMI
     }
 
     public static void
-    run(Application app, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
+    run(test.TestHelper helper, Ice.Communicator communicator, boolean collocated, TestIntfPrx p,
         TestIntfControllerPrx testController)
     {
         final boolean bluetooth = communicator.getProperties().getProperty("Ice.Default.Protocol").indexOf("bt") == 0;
-        PrintWriter out = app.getWriter();
+        PrintWriter out = helper.getWriter();
 
         out.print("testing begin/end invocation... ");
         out.flush();
@@ -1207,15 +1206,15 @@ public class AMI
             //
             if(p.ice_getConnection() != null)
             {
-                Ice.InitializationData initData = app.createInitializationData();
+                Ice.InitializationData initData = new Ice.InitializationData();
                 initData.properties = communicator.getProperties()._clone();
-                Ice.Communicator ic = app.initialize(initData);
-                Ice.ObjectPrx o = ic.stringToProxy(p.toString());
-                TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(o);
-                ic.destroy();
 
                 try
                 {
+                    Ice.Communicator ic = helper.initialize(initData);
+                    Ice.ObjectPrx o = ic.stringToProxy(p.toString());
+                    TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(o);
+                    ic.destroy();
                     p2.begin_op();
                     test(false);
                 }
