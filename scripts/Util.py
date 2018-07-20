@@ -3153,7 +3153,6 @@ class CSharpMapping(Mapping):
 
             parseOptions(self, options)
 
-
     def getBinTargetFramework(self, current):
         return "netcoreapp2.0" if current.config.dotnetcore else "net45" # Framework version for the bin subdir
 

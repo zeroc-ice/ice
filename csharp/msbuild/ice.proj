@@ -3,10 +3,6 @@
         <Configuration>Release</Configuration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(IceTestsTargetFrameworks)' == ''">
-        <IceTestsTargetFrameworks>netcoreapp2.0</IceTestsTargetFrameworks>
-    </PropertyGroup>
-
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"
             Condition="Exists('$(VCTargetsPath)\Microsoft.Cpp.Default.props')"/>
@@ -79,7 +75,7 @@
         </NetStandardDistSolution>
 
         <NetStandardTestSolution Include="ice.netstandard2.0.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;IceTestsTargetFrameworks=$(IceTestsTargetFrameworks)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
         </NetStandardTestSolution>
     </ItemGroup>
 
