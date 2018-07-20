@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["cs:namespace:Ice.retry"]]
 module Test
 {
 

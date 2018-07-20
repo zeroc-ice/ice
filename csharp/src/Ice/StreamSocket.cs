@@ -361,6 +361,15 @@ namespace IceInternal
         private int read(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
+            if(AssemblyUtil.isMono)
+            {
+                //
+                // Mono on Android and iOS don't support the use of synchronous socket
+                // operations on a non-blocking socket. Returning 0 here forces the caller to schedule
+                // an asynchronous operation.
+                //
+                return 0;
+            }
             int read = 0;
             while(buf.hasRemaining())
             {
@@ -398,7 +407,15 @@ namespace IceInternal
         private int write(ByteBuffer buf)
         {
             Debug.Assert(_fd != null);
-
+            if(AssemblyUtil.isMono)
+            {
+                //
+                // Mono on Android and iOS don't support the use of synchronous socket
+                // operations on a non-blocking socket. Returning 0 here forces the caller to schedule
+                // an asynchronous operation.
+                //
+                return 0;
+            }
             int packetSize = buf.remaining();
             if(AssemblyUtil.isWindows)
             {

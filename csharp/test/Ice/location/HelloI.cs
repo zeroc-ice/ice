@@ -7,11 +7,15 @@
 //
 // **********************************************************************
 
-using Test;
-
-public class HelloI : HelloDisp_
+namespace Ice
 {
-    public override void sayHello(Ice.Current current)
+    namespace location
     {
+        public class HelloI : Test.HelloDisp_
+        {
+            public override void sayHello(Ice.Current current)
+            {
+            }
+        }
     }
 }

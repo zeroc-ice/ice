@@ -12,6 +12,7 @@
 #include <Package.ice>
 #include <NoPackage.ice>
 
+[["cs:namespace:Ice.packagemd"]]
 module Test
 {
 

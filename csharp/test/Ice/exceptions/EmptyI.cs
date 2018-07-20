@@ -7,6 +7,12 @@
 //
 // **********************************************************************
 
-public sealed class EmptyI : Test.EmptyDisp_
+namespace Ice
 {
+    namespace exceptions
+    {
+        public sealed class EmptyI : Test.EmptyDisp_
+        {
+        }
+    }
 }

@@ -7,12 +7,16 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class CookieI : Cookie
+namespace Ice
 {
-    public override string message()
+    namespace servantLocator
     {
-        return "blahblah";
+        public sealed class CookieI : Test.Cookie
+        {
+            public override string message()
+            {
+                return "blahblah";
+            }
+        }
     }
 }

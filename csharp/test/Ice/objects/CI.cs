@@ -7,17 +7,21 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class CI : C
+namespace Ice
 {
-    public override void ice_preMarshal()
+    namespace objects
     {
-        preMarshalInvoked = true;
-    }
+        public sealed class CI : Test.C
+        {
+            public override void ice_preMarshal()
+            {
+                preMarshalInvoked = true;
+            }
 
-    public override void ice_postUnmarshal()
-    {
-        postUnmarshalInvoked = true;
+            public override void ice_postUnmarshal()
+            {
+                postUnmarshalInvoked = true;
+            }
+        }
     }
 }

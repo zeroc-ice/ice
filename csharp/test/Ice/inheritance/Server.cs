@@ -7,32 +7,34 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Server : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace inheritance
     {
-        using(var communicator = initialize(ref args))
+        public class Server : TestHelper
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Ice.Object @object = new InitialI(adapter);
-            adapter.add(@object, Ice.Util.stringToIdentity("initial"));
-            adapter.activate();
-            communicator.waitForShutdown();
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.inheritance");
+                using(var communicator = initialize(properties))
+                {
+                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    Ice.Object @object = new InitialI(adapter);
+                    adapter.add(@object, Ice.Util.stringToIdentity("initial"));
+                    adapter.activate();
+                    serverReady();
+                    communicator.waitForShutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Server>(args);
+            }
+        }
     }
 }

@@ -7,31 +7,32 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace scope
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        using(var communicator = initialize(properties))
+        public class Client : TestHelper
         {
-            Console.Out.Write("test same Slice type name in different scopes... ");
-            Console.Out.Flush();
-            AllTests.allTests(this);
-            Console.Out.WriteLine("ok");
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.scope");
+                using(var communicator = initialize(properties))
+                {
+                    var output = getWriter();
+                    output.Write("test same Slice type name in different scopes... ");
+                    output.Flush();
+                    AllTests.allTests(this);
+                    output.WriteLine("ok");
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

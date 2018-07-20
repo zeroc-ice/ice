@@ -13,110 +13,116 @@ using System.Collections.Generic;
 using System.Threading;
 
 //
-// The .NET Compact Framework doesn't support the System.Timers.Timer class.
+// TODO replace with System.Timers.Timer
 //
-public class Timer
+namespace Ice
 {
-    public delegate void Task();
-
-    private class Entry : IComparable<Entry>
+    namespace hold
     {
-        public Task task;
-        public long when;
-
-        public int CompareTo(Entry e)
+        public class Timer
         {
-            if(when < e.when)
+            public delegate void Task();
+
+            private class Entry : IComparable<Entry>
             {
-                return -1;
-            }
-            else if(when == e.when)
+                public Task task;
+                public long when;
+
+                public int CompareTo(Entry e)
+                {
+                    if(when < e.when)
+                    {
+                        return -1;
+                    }
+                    else if(when == e.when)
+                    {
+                        return 0;
+                    }
+                    else
+                    {
+                        return 1;
+                    }
+                }
+            };
+
+            public Timer()
             {
-                return 0;
+                _t = new Thread(new ThreadStart(run));
+                _t.Start();
             }
-            else
+
+            public void schedule(Task task, int milliseconds)
             {
-                return 1;
+                lock(this)
+                {
+                    Entry e = new Entry();
+                    e.task = task;
+                    e.when = currentMonotonicTimeMillis() + milliseconds;
+                    _tasks.Add(e);
+                    _tasks.Sort();
+                    Monitor.Pulse(this);
+                }
             }
-        }
-    };
 
-    public Timer()
-    {
-        _t = new Thread(new ThreadStart(run));
-        _t.Start();
-    }
+            public void shutdown()
+            {
+                lock(this)
+                {
+                    Entry e = new Entry();
+                    e.task = null;
+                    e.when = 0;
+                    _tasks.Add(e);
+                    _tasks.Sort();
+                    Monitor.Pulse(this);
+                }
+            }
 
-    public void schedule(Task task, int milliseconds)
-    {
-        lock(this)
-        {
-            Entry e = new Entry();
-            e.task = task;
-            e.when = currentMonotonicTimeMillis() + milliseconds;
-            _tasks.Add(e);
-            _tasks.Sort();
-            Monitor.Pulse(this);
-        }
-    }
+            public void waitForShutdown()
+            {
+                _t.Join();
+            }
 
-    public void shutdown()
-    {
-        lock(this)
-        {
-            Entry e = new Entry();
-            e.task = null;
-            e.when = 0;
-            _tasks.Add(e);
-            _tasks.Sort();
-            Monitor.Pulse(this);
-        }
-    }
-
-    public void waitForShutdown()
-    {
-        _t.Join();
-    }
-
-    private void run()
-    {
-        while(true)
-        {
-            Entry e;
-            lock(this)
+            private void run()
             {
                 while(true)
                 {
-                    while(_tasks.Count == 0)
+                    Entry e;
+                    lock(this)
                     {
-                        Monitor.Wait(this);
-                    }
+                        while(true)
+                        {
+                            while(_tasks.Count == 0)
+                            {
+                                Monitor.Wait(this);
+                            }
 
-                    e = _tasks[0];
-                    if(e.task == null)
-                    {
-                       return;
+                            e = _tasks[0];
+                            if(e.task == null)
+                            {
+                                return;
+                            }
+                            long now = currentMonotonicTimeMillis();
+                            if(now >= e.when)
+                            {
+                                _tasks.RemoveAt(0);
+                                break;
+                            }
+                            Monitor.Wait(this,(int)(e.when - now));
+                        }
                     }
-                    long now = currentMonotonicTimeMillis();
-                    if(now >= e.when)
-                    {
-                        _tasks.RemoveAt(0);
-                        break;
-                    }
-                    Monitor.Wait(this, (int)(e.when - now));
+                    e.task();
                 }
+
             }
-            e.task();
+
+            private long currentMonotonicTimeMillis()
+            {
+                return _sw.ElapsedMilliseconds;
+            }
+            private Stopwatch _sw = Stopwatch.StartNew();
+
+            private Thread _t;
+            private List<Entry> _tasks = new List<Entry>();
         }
-
     }
-
-    private long currentMonotonicTimeMillis()
-    {
-        return _sw.ElapsedMilliseconds;
-    }
-    private Stopwatch _sw = Stopwatch.StartNew();
-
-    private Thread _t;
-    private List<Entry> _tasks = new List<Entry>();
 }

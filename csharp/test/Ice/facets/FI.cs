@@ -7,21 +7,25 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class FI : FDisp_
+namespace Ice
 {
-    public FI()
+    namespace facets
     {
-    }
+        public sealed class FI : Test.FDisp_
+        {
+            public FI()
+            {
+            }
 
-    public override string callE(Ice.Current current)
-    {
-        return "E";
-    }
+            public override string callE(Ice.Current current)
+            {
+                return "E";
+            }
 
-    public override string callF(Ice.Current current)
-    {
-        return "F";
+            public override string callF(Ice.Current current)
+            {
+                return "F";
+            }
+        }
     }
 }

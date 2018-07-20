@@ -8,31 +8,32 @@
 // **********************************************************************
 
 using System;
-using System.Diagnostics;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace seqMapping
     {
-        using(var communicator = initialize(ref args))
+        public class Client : TestHelper
         {
-            Test.MyClassPrx myClass = AllTests.allTests(this, false);
-            Console.Out.Write("shutting down server... ");
-            Console.Out.Flush();
-            myClass.shutdown();
-            Console.Out.WriteLine("ok");
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.seqMapping");
+                using(var communicator = initialize(properties))
+                {
+                    var myClass = AllTests.allTests(this, false);
+                    Console.Out.Write("shutting down server... ");
+                    Console.Out.Flush();
+                    myClass.shutdown();
+                    Console.Out.WriteLine("ok");
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

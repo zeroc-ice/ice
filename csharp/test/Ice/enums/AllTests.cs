@@ -7,191 +7,230 @@
 //
 // **********************************************************************
 
-using System;
-using Test;
-
-public class AllTests : Test.AllTests
+namespace Ice
 {
-    public static TestIntfPrx allTests(Test.TestHelper helper)
+    namespace enums
     {
-        Ice.Communicator communicator = helper.communicator();
-        string sref = "test:" + helper.getTestEndpoint(0);
-        Ice.ObjectPrx obj = communicator.stringToProxy(sref);
-        test(obj != null);
-        TestIntfPrx proxy = TestIntfPrxHelper.uncheckedCast(obj);
-        test(proxy != null);
-
-        Console.Out.Write("testing enum values... ");
-        Console.Out.Flush();
-
-        test((int)ByteEnum.benum1 == 0);
-        test((int)ByteEnum.benum2 == 1);
-        test((int)ByteEnum.benum3 == ByteConst1.value);
-        test((int)ByteEnum.benum4 == ByteConst1.value + 1);
-        test((int)ByteEnum.benum5 == ShortConst1.value);
-        test((int)ByteEnum.benum6 == ShortConst1.value + 1);
-        test((int)ByteEnum.benum7 == IntConst1.value);
-        test((int)ByteEnum.benum8 == IntConst1.value + 1);
-        test((int)ByteEnum.benum9 == LongConst1.value);
-        test((int)ByteEnum.benum10 == LongConst1.value + 1);
-        test((int)ByteEnum.benum11 == ByteConst2.value);
-
-        test((int)ShortEnum.senum1 == 3);
-        test((int)ShortEnum.senum2 == 4);
-        test((int)ShortEnum.senum3 == ByteConst1.value);
-        test((int)ShortEnum.senum4 == ByteConst1.value + 1);
-        test((int)ShortEnum.senum5 == ShortConst1.value);
-        test((int)ShortEnum.senum6 == ShortConst1.value + 1);
-        test((int)ShortEnum.senum7 == IntConst1.value);
-        test((int)ShortEnum.senum8 == IntConst1.value + 1);
-        test((int)ShortEnum.senum9 == LongConst1.value);
-        test((int)ShortEnum.senum10 == LongConst1.value + 1);
-        test((int)ShortEnum.senum11 == ShortConst2.value);
-
-        test((int)IntEnum.ienum1 == 0);
-        test((int)IntEnum.ienum2 == 1);
-        test((int)IntEnum.ienum3 == ByteConst1.value);
-        test((int)IntEnum.ienum4 == ByteConst1.value + 1);
-        test((int)IntEnum.ienum5 == ShortConst1.value);
-        test((int)IntEnum.ienum6 == ShortConst1.value + 1);
-        test((int)IntEnum.ienum7 == IntConst1.value);
-        test((int)IntEnum.ienum8 == IntConst1.value + 1);
-        test((int)IntEnum.ienum9 == LongConst1.value);
-        test((int)IntEnum.ienum10 == LongConst1.value + 1);
-        test((int)IntEnum.ienum11 == IntConst2.value);
-        test((int)IntEnum.ienum12 == LongConst2.value);
-
-        test((int)SimpleEnum.red == 0);
-        test((int)SimpleEnum.green == 1);
-        test((int)SimpleEnum.blue == 2);
-
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("testing enum streaming... ");
-        Console.Out.Flush();
-
-        Ice.OutputStream ostr;
-        byte[] bytes;
-
-        bool encoding_1_0 = communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0");
-
-        ostr = new Ice.OutputStream(communicator);
-        ostr.writeEnum((int)ByteEnum.benum11, (int)ByteEnum.benum11);
-        bytes = ostr.finished();
-        test(bytes.Length == 1); // ByteEnum should require one byte
-
-        ostr = new Ice.OutputStream(communicator);
-        ostr.writeEnum((int)ShortEnum.senum11, (int)ShortEnum.senum11);
-        bytes = ostr.finished();
-        test(bytes.Length == (encoding_1_0 ? 2 : 5));
-
-        ostr = new Ice.OutputStream(communicator);
-        ostr.writeEnum((int)IntEnum.ienum11, (int)IntEnum.ienum12);
-        bytes = ostr.finished();
-        test(bytes.Length == (encoding_1_0 ? 4 : 5));
-
-        ostr = new Ice.OutputStream(communicator);
-        ostr.writeEnum((int)SimpleEnum.blue, (int)SimpleEnum.blue);
-        bytes = ostr.finished();
-        test(bytes.Length == 1); // SimpleEnum should require one byte
-
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("testing enum operations... ");
-        Console.Out.Flush();
-
-        ByteEnum byteEnum;
-        test(proxy.opByte(ByteEnum.benum1, out byteEnum) == ByteEnum.benum1);
-        test(byteEnum == ByteEnum.benum1);
-        test(proxy.opByte(ByteEnum.benum11, out byteEnum) == ByteEnum.benum11);
-        test(byteEnum == ByteEnum.benum11);
-
-        ShortEnum shortEnum;
-        test(proxy.opShort(ShortEnum.senum1, out shortEnum) == ShortEnum.senum1);
-        test(shortEnum == ShortEnum.senum1);
-        test(proxy.opShort(ShortEnum.senum11, out shortEnum) == ShortEnum.senum11);
-        test(shortEnum == ShortEnum.senum11);
-
-        IntEnum intEnum;
-        test(proxy.opInt(IntEnum.ienum1, out intEnum) == IntEnum.ienum1);
-        test(intEnum == IntEnum.ienum1);
-        test(proxy.opInt(IntEnum.ienum11, out intEnum) == IntEnum.ienum11);
-        test(intEnum == IntEnum.ienum11);
-        test(proxy.opInt(IntEnum.ienum12, out intEnum) == IntEnum.ienum12);
-        test(intEnum == IntEnum.ienum12);
-
-        SimpleEnum s;
-        test(proxy.opSimple(SimpleEnum.green, out s) == SimpleEnum.green);
-        test(s == SimpleEnum.green);
-
-        Console.Out.WriteLine("ok");
-
-        Console.Out.Write("testing enum sequences operations... ");
-        Console.Out.Flush();
-
+        public class AllTests : global::Test.AllTests
         {
-            ByteEnum[] b1 = new ByteEnum[11]
-                    { ByteEnum.benum1, ByteEnum.benum2, ByteEnum.benum3, ByteEnum.benum4, ByteEnum.benum5,
-                      ByteEnum.benum6, ByteEnum.benum7, ByteEnum.benum8, ByteEnum.benum9, ByteEnum.benum10,
-                      ByteEnum.benum11};
-
-            ByteEnum[] b2;
-            ByteEnum[] b3 = proxy.opByteSeq(b1, out b2);
-
-            for(int i = 0; i < b1.Length; ++i)
+            public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
             {
-                test(b1[i] == b2[i]);
-                test(b1[i] == b3[i]);
+                Ice.Communicator communicator = helper.communicator();
+                string sref = "test:" + helper.getTestEndpoint(0);
+                Ice.ObjectPrx obj = communicator.stringToProxy(sref);
+                test(obj != null);
+                var proxy = Test.TestIntfPrxHelper.uncheckedCast(obj);
+                test(proxy != null);
+
+                var output = helper.getWriter();
+
+                output.Write("testing enum values... ");
+                output.Flush();
+
+                test((int)Test.ByteEnum.benum1 == 0);
+                test((int)Test.ByteEnum.benum2 == 1);
+                test((int)Test.ByteEnum.benum3 == Test.ByteConst1.value);
+                test((int)Test.ByteEnum.benum4 == Test.ByteConst1.value + 1);
+                test((int)Test.ByteEnum.benum5 == Test.ShortConst1.value);
+                test((int)Test.ByteEnum.benum6 == Test.ShortConst1.value + 1);
+                test((int)Test.ByteEnum.benum7 == Test.IntConst1.value);
+                test((int)Test.ByteEnum.benum8 == Test.IntConst1.value + 1);
+                test((int)Test.ByteEnum.benum9 == Test.LongConst1.value);
+                test((int)Test.ByteEnum.benum10 == Test.LongConst1.value + 1);
+                test((int)Test.ByteEnum.benum11 == Test.ByteConst2.value);
+
+                test((int)Test.ShortEnum.senum1 == 3);
+                test((int)Test.ShortEnum.senum2 == 4);
+                test((int)Test.ShortEnum.senum3 == Test.ByteConst1.value);
+                test((int)Test.ShortEnum.senum4 == Test.ByteConst1.value + 1);
+                test((int)Test.ShortEnum.senum5 == Test.ShortConst1.value);
+                test((int)Test.ShortEnum.senum6 == Test.ShortConst1.value + 1);
+                test((int)Test.ShortEnum.senum7 == Test.IntConst1.value);
+                test((int)Test.ShortEnum.senum8 == Test.IntConst1.value + 1);
+                test((int)Test.ShortEnum.senum9 == Test.LongConst1.value);
+                test((int)Test.ShortEnum.senum10 == Test.LongConst1.value + 1);
+                test((int)Test.ShortEnum.senum11 == Test.ShortConst2.value);
+
+                test((int)Test.IntEnum.ienum1 == 0);
+                test((int)Test.IntEnum.ienum2 == 1);
+                test((int)Test.IntEnum.ienum3 == Test.ByteConst1.value);
+                test((int)Test.IntEnum.ienum4 == Test.ByteConst1.value + 1);
+                test((int)Test.IntEnum.ienum5 == Test.ShortConst1.value);
+                test((int)Test.IntEnum.ienum6 == Test.ShortConst1.value + 1);
+                test((int)Test.IntEnum.ienum7 == Test.IntConst1.value);
+                test((int)Test.IntEnum.ienum8 == Test.IntConst1.value + 1);
+                test((int)Test.IntEnum.ienum9 == Test.LongConst1.value);
+                test((int)Test.IntEnum.ienum10 == Test.LongConst1.value + 1);
+                test((int)Test.IntEnum.ienum11 == Test.IntConst2.value);
+                test((int)Test.IntEnum.ienum12 == Test.LongConst2.value);
+
+                test((int)Test.SimpleEnum.red == 0);
+                test((int)Test.SimpleEnum.green == 1);
+                test((int)Test.SimpleEnum.blue == 2);
+
+                output.WriteLine("ok");
+
+                output.Write("testing enum streaming... ");
+                output.Flush();
+
+                Ice.OutputStream ostr;
+                byte[] bytes;
+
+                bool encoding_1_0 = communicator.getProperties().getProperty("Ice.Default.EncodingVersion").Equals("1.0");
+
+                ostr = new Ice.OutputStream(communicator);
+                ostr.writeEnum((int)Test.ByteEnum.benum11,(int)Test.ByteEnum.benum11);
+                bytes = ostr.finished();
+                test(bytes.Length == 1); // ByteEnum should require one byte
+
+                ostr = new Ice.OutputStream(communicator);
+                ostr.writeEnum((int)Test.ShortEnum.senum11,(int)Test.ShortEnum.senum11);
+                bytes = ostr.finished();
+                test(bytes.Length ==(encoding_1_0 ? 2 : 5));
+
+                ostr = new Ice.OutputStream(communicator);
+                ostr.writeEnum((int)Test.IntEnum.ienum11,(int)Test.IntEnum.ienum12);
+                bytes = ostr.finished();
+                test(bytes.Length ==(encoding_1_0 ? 4 : 5));
+
+                ostr = new Ice.OutputStream(communicator);
+                ostr.writeEnum((int)Test.SimpleEnum.blue,(int)Test.SimpleEnum.blue);
+                bytes = ostr.finished();
+                test(bytes.Length == 1); // SimpleEnum should require one byte
+
+                output.WriteLine("ok");
+
+                output.Write("testing enum operations... ");
+                output.Flush();
+
+                Test.ByteEnum byteEnum;
+                test(proxy.opByte(Test.ByteEnum.benum1, out byteEnum) == Test.ByteEnum.benum1);
+                test(byteEnum == Test.ByteEnum.benum1);
+                test(proxy.opByte(Test.ByteEnum.benum11, out byteEnum) == Test.ByteEnum.benum11);
+                test(byteEnum == Test.ByteEnum.benum11);
+
+                Test.ShortEnum shortEnum;
+                test(proxy.opShort(Test.ShortEnum.senum1, out shortEnum) == Test.ShortEnum.senum1);
+                test(shortEnum == Test.ShortEnum.senum1);
+                test(proxy.opShort(Test.ShortEnum.senum11, out shortEnum) == Test.ShortEnum.senum11);
+                test(shortEnum == Test.ShortEnum.senum11);
+
+                Test.IntEnum intEnum;
+                test(proxy.opInt(Test.IntEnum.ienum1, out intEnum) == Test.IntEnum.ienum1);
+                test(intEnum == Test.IntEnum.ienum1);
+                test(proxy.opInt(Test.IntEnum.ienum11, out intEnum) == Test.IntEnum.ienum11);
+                test(intEnum == Test.IntEnum.ienum11);
+                test(proxy.opInt(Test.IntEnum.ienum12, out intEnum) == Test.IntEnum.ienum12);
+                test(intEnum == Test.IntEnum.ienum12);
+
+                Test.SimpleEnum s;
+                test(proxy.opSimple(Test.SimpleEnum.green, out s) == Test.SimpleEnum.green);
+                test(s == Test.SimpleEnum.green);
+
+                output.WriteLine("ok");
+
+                output.Write("testing enum sequences operations... ");
+                output.Flush();
+
+                {
+                    var b1 = new Test.ByteEnum[11]
+                            {
+                                    Test.ByteEnum.benum1,
+                                    Test.ByteEnum.benum2,
+                                    Test.ByteEnum.benum3,
+                                    Test.ByteEnum.benum4,
+                                    Test.ByteEnum.benum5,
+                                    Test.ByteEnum.benum6,
+                                    Test.ByteEnum.benum7,
+                                    Test.ByteEnum.benum8,
+                                    Test.ByteEnum.benum9,
+                                    Test.ByteEnum.benum10,
+                                    Test.ByteEnum.benum11
+                            };
+
+                    Test.ByteEnum[] b2;
+                    Test.ByteEnum[] b3 = proxy.opByteSeq(b1, out b2);
+
+                    for(int i = 0; i < b1.Length; ++i)
+                    {
+                        test(b1[i] == b2[i]);
+                        test(b1[i] == b3[i]);
+                    }
+                }
+
+                {
+                    var s1 = new Test.ShortEnum[11]
+                        {
+                                Test.ShortEnum.senum1,
+                                Test.ShortEnum.senum2,
+                                Test.ShortEnum.senum3,
+                                Test.ShortEnum.senum4,
+                                Test.ShortEnum.senum5,
+                                Test.ShortEnum.senum6,
+                                Test.ShortEnum.senum7,
+                                Test.ShortEnum.senum8,
+                                Test.ShortEnum.senum9,
+                                Test.ShortEnum.senum10,
+                                Test.ShortEnum.senum11
+                        };
+
+                    Test.ShortEnum[] s2;
+                    Test.ShortEnum[] s3 = proxy.opShortSeq(s1, out s2);
+
+                    for(int i = 0; i < s1.Length; ++i)
+                    {
+                        test(s1[i] == s2[i]);
+                        test(s1[i] == s3[i]);
+                    }
+                }
+
+                {
+                    Test.IntEnum[] i1 = new Test.IntEnum[11]
+                            {
+                                    Test.IntEnum.ienum1,
+                                    Test.IntEnum.ienum2,
+                                    Test.IntEnum.ienum3,
+                                    Test.IntEnum.ienum4,
+                                    Test.IntEnum.ienum5,
+                                    Test.IntEnum.ienum6,
+                                    Test.IntEnum.ienum7,
+                                    Test.IntEnum.ienum8,
+                                    Test.IntEnum.ienum9,
+                                    Test.IntEnum.ienum10,
+                                    Test.IntEnum.ienum11
+                            };
+
+                    Test.IntEnum[] i2;
+                    Test.IntEnum[] i3 = proxy.opIntSeq(i1, out i2);
+
+                    for(int i = 0; i < i1.Length; ++i)
+                    {
+                        test(i1[i] == i2[i]);
+                        test(i1[i] == i3[i]);
+                    }
+                }
+
+                {
+                    var s1 = new Test.SimpleEnum[3]
+                            {
+                                    Test.SimpleEnum.red,
+                                    Test.SimpleEnum.green,
+                                    Test.SimpleEnum.blue
+                            };
+
+                    Test.SimpleEnum[] s2;
+                    Test.SimpleEnum[] s3 = proxy.opSimpleSeq(s1, out s2);
+
+                    for(int i = 0; i < s1.Length; ++i)
+                    {
+                        test(s1[i] == s2[i]);
+                        test(s1[i] == s3[i]);
+                    }
+                }
+
+                output.WriteLine("ok");
+                return proxy;
             }
         }
-
-        {
-            ShortEnum[] s1 = new ShortEnum[11]
-                    { ShortEnum.senum1, ShortEnum.senum2, ShortEnum.senum3, ShortEnum.senum4, ShortEnum.senum5,
-                      ShortEnum.senum6, ShortEnum.senum7, ShortEnum.senum8, ShortEnum.senum9, ShortEnum.senum10,
-                      ShortEnum.senum11};
-
-            ShortEnum[] s2;
-            ShortEnum[] s3 = proxy.opShortSeq(s1, out s2);
-
-            for(int i = 0; i < s1.Length; ++i)
-            {
-                test(s1[i] == s2[i]);
-                test(s1[i] == s3[i]);
-            }
-        }
-
-        {
-            IntEnum[] i1 = new IntEnum[11]
-                    { IntEnum.ienum1, IntEnum.ienum2, IntEnum.ienum3, IntEnum.ienum4, IntEnum.ienum5,
-                      IntEnum.ienum6, IntEnum.ienum7, IntEnum.ienum8, IntEnum.ienum9, IntEnum.ienum10,
-                      IntEnum.ienum11};
-
-            IntEnum[] i2;
-            IntEnum[] i3 = proxy.opIntSeq(i1, out i2);
-
-            for(int i = 0; i < i1.Length; ++i)
-            {
-                test(i1[i] == i2[i]);
-                test(i1[i] == i3[i]);
-            }
-        }
-
-        {
-            SimpleEnum[] s1 = new SimpleEnum[3]
-                    { SimpleEnum.red, SimpleEnum.green, SimpleEnum.blue };
-
-            SimpleEnum[] s2;
-            SimpleEnum[] s3 = proxy.opSimpleSeq(s1, out s2);
-
-            for(int i = 0; i < s1.Length; ++i)
-            {
-                test(s1[i] == s2[i]);
-                test(s1[i] == s3[i]);
-            }
-        }
-
-        Console.Out.WriteLine("ok");
-        return proxy;
     }
 }

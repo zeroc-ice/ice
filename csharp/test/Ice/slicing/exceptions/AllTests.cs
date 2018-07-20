@@ -93,22 +93,23 @@ public class AllTests : Test.AllTests
     public static TestIntfPrx allTests(Test.TestHelper helper, bool collocated)
     {
         Ice.Communicator communicator = helper.communicator();
-        Write("testing stringToProxy... ");
-        Flush();
+        var output = helper.getWriter();
+        output.Write("testing stringToProxy... ");
+        output.Flush();
         String @ref = "Test:" + helper.getTestEndpoint(0) + " -t 2000";
         Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
         test(@base != null);
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("testing checked cast... ");
-        Flush();
+        output.Write("testing checked cast... ");
+        output.Flush();
         TestIntfPrx testPrx = TestIntfPrxHelper.checkedCast(@base);
         test(testPrx != null);
         test(testPrx.Equals(@base));
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("base... ");
-        Flush();
+        output.Write("base... ");
+        output.Flush();
         {
             try
             {
@@ -125,10 +126,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("base (AMI)... ");
-        Flush();
+        output.Write("base (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_baseAsBase().whenCompleted(
@@ -177,10 +178,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown derived... ");
-        Flush();
+        output.Write("slicing of unknown derived... ");
+        output.Flush();
         {
             try
             {
@@ -197,10 +198,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown derived (AMI)... ");
-        Flush();
+        output.Write("slicing of unknown derived (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_unknownDerivedAsBase().whenCompleted(
@@ -249,10 +250,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known derived as base... ");
-        Flush();
+        output.Write("non-slicing of known derived as base... ");
+        output.Flush();
         {
             try
             {
@@ -270,10 +271,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known derived as base (AMI)... ");
-        Flush();
+        output.Write("non-slicing of known derived as base (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_knownDerivedAsBase().whenCompleted(
@@ -324,10 +325,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known derived as derived... ");
-        Flush();
+        output.Write("non-slicing of known derived as derived... ");
+        output.Flush();
         {
             try
             {
@@ -345,10 +346,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known derived as derived (AMI)... ");
-        Flush();
+        output.Write("non-slicing of known derived as derived (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_knownDerivedAsKnownDerived().whenCompleted(
@@ -399,10 +400,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown intermediate as base... ");
-        Flush();
+        output.Write("slicing of unknown intermediate as base... ");
+        output.Flush();
         {
             try
             {
@@ -419,10 +420,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown intermediate as base (AMI)... ");
-        Flush();
+        output.Write("slicing of unknown intermediate as base (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_unknownIntermediateAsBase().whenCompleted(
@@ -471,10 +472,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of known intermediate as base... ");
-        Flush();
+        output.Write("slicing of known intermediate as base... ");
+        output.Flush();
         {
             try
             {
@@ -492,10 +493,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of known intermediate as base (AMI)... ");
-        Flush();
+        output.Write("slicing of known intermediate as base (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_knownIntermediateAsBase().whenCompleted(
@@ -546,10 +547,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of known most derived as base... ");
-        Flush();
+        output.Write("slicing of known most derived as base... ");
+        output.Flush();
         {
             try
             {
@@ -568,10 +569,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of known most derived as base (AMI)... ");
-        Flush();
+        output.Write("slicing of known most derived as base (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_knownMostDerivedAsBase().whenCompleted(
@@ -624,10 +625,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known intermediate as intermediate... ");
-        Flush();
+        output.Write("non-slicing of known intermediate as intermediate... ");
+        output.Flush();
         {
             try
             {
@@ -645,10 +646,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known intermediate as intermediate (AMI)... ");
-        Flush();
+        output.Write("non-slicing of known intermediate as intermediate (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_knownIntermediateAsKnownIntermediate().whenCompleted(
@@ -699,10 +700,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known most derived as intermediate... ");
-        Flush();
+        output.Write("non-slicing of known most derived as intermediate... ");
+        output.Flush();
         {
             try
             {
@@ -721,10 +722,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known most derived as intermediate (AMI)... ");
-        Flush();
+        output.Write("non-slicing of known most derived as intermediate (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_knownMostDerivedAsKnownIntermediate().whenCompleted(
@@ -777,10 +778,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known most derived as most derived... ");
-        Flush();
+        output.Write("non-slicing of known most derived as most derived... ");
+        output.Flush();
         {
             try
             {
@@ -799,10 +800,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("non-slicing of known most derived as most derived (AMI)... ");
-        Flush();
+        output.Write("non-slicing of known most derived as most derived (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_knownMostDerivedAsKnownMostDerived().whenCompleted(
@@ -855,10 +856,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown most derived, known intermediate as base... ");
-        Flush();
+        output.Write("slicing of unknown most derived, known intermediate as base... ");
+        output.Flush();
         {
             try
             {
@@ -876,10 +877,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown most derived, known intermediate as base (AMI)... ");
-        Flush();
+        output.Write("slicing of unknown most derived, known intermediate as base (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_unknownMostDerived1AsBase().whenCompleted(
@@ -930,10 +931,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown most derived, known intermediate as intermediate... ");
-        Flush();
+        output.Write("slicing of unknown most derived, known intermediate as intermediate... ");
+        output.Flush();
         {
             try
             {
@@ -951,10 +952,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
-        Flush();
+        output.Write("slicing of unknown most derived, known intermediate as intermediate (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_unknownMostDerived1AsKnownIntermediate().whenCompleted(
@@ -1005,10 +1006,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown most derived, unknown intermediate thrown as base... ");
-        Flush();
+        output.Write("slicing of unknown most derived, unknown intermediate thrown as base... ");
+        output.Flush();
         {
             try
             {
@@ -1025,10 +1026,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
-        Flush();
+        output.Write("slicing of unknown most derived, unknown intermediate thrown as base (AMI)... ");
+        output.Flush();
         {
             Callback cb = new Callback();
             testPrx.begin_unknownMostDerived2AsBase().whenCompleted(
@@ -1077,10 +1078,10 @@ public class AllTests : Test.AllTests
                 }
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("unknown most derived in compact format... ");
-        Flush();
+        output.Write("unknown most derived in compact format... ");
+        output.Flush();
         {
             try
             {
@@ -1110,10 +1111,10 @@ public class AllTests : Test.AllTests
                 test(false);
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("preserved exceptions... ");
-        Flush();
+        output.Write("preserved exceptions... ");
+        output.Flush();
         {
             try
             {
@@ -1271,7 +1272,7 @@ public class AllTests : Test.AllTests
 
             adapter.destroy();
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
         return testPrx;
     }

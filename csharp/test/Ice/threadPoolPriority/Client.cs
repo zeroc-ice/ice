@@ -7,33 +7,33 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
-
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace threadPoolPriority
     {
-        using(var communicator = initialize(ref args))
+        public class Client : global::Test.TestHelper
         {
-            Console.Out.Write("testing server priority... ");
-            Console.Out.Flush();
-            Ice.ObjectPrx obj = communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
-            Test.PriorityPrx priority = Test.PriorityPrxHelper.checkedCast(obj);
-            test("AboveNormal".Equals(priority.getPriority()));
-            Console.Out.WriteLine("ok");
-            priority.shutdown();
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.threadPoolPriority");
+                using(var communicator = initialize(properties))
+                {
+                    var output = getWriter();
+                    output.Write("testing server priority... ");
+                    output.Flush();
+                    var obj = communicator.stringToProxy("test:" + getTestEndpoint(0) + " -t 10000");
+                    Test.PriorityPrx priority = Test.PriorityPrxHelper.checkedCast(obj);
+                    test("AboveNormal".Equals(priority.getPriority()));
+                    output.WriteLine("ok");
+                    priority.shutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return global::Test.TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

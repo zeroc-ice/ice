@@ -7,53 +7,59 @@
 //
 // **********************************************************************
 
-public sealed class RetryI : Test.RetryDisp_
+namespace Ice
 {
-    public RetryI()
+    namespace retry
     {
-    }
-
-    public override void op(bool kill, Ice.Current current)
-    {
-        if(kill)
+        public sealed class RetryI : Test.RetryDisp_
         {
-            if(current.con != null)
+            public RetryI()
             {
-                current.con.close(Ice.ConnectionClose.Forcefully);
             }
-            else
+
+            public override void op(bool kill, Ice.Current current)
+            {
+                if(kill)
+                {
+                    if(current.con != null)
+                    {
+                        current.con.close(Ice.ConnectionClose.Forcefully);
+                    }
+                    else
+                    {
+                        throw new Ice.ConnectionLostException();
+                    }
+                }
+            }
+
+            public override int opIdempotent(int nRetry, Ice.Current current)
+            {
+                if(nRetry > _counter)
+                {
+                    ++_counter;
+                    throw new Ice.ConnectionLostException();
+                }
+                int counter = _counter;
+                _counter = 0;
+                return counter;
+            }
+
+            public override void opNotIdempotent(Ice.Current current)
             {
                 throw new Ice.ConnectionLostException();
             }
+
+            public override void opSystemException(Ice.Current c)
+            {
+                throw new SystemFailure();
+            }
+
+            public override void shutdown(Ice.Current current)
+            {
+                current.adapter.getCommunicator().shutdown();
+            }
+
+            private int _counter;
         }
     }
-
-    public override int opIdempotent(int nRetry, Ice.Current current)
-    {
-        if(nRetry > _counter)
-        {
-            ++_counter;
-            throw new Ice.ConnectionLostException();
-        }
-        int counter = _counter;
-        _counter = 0;
-        return counter;
-    }
-
-    public override void opNotIdempotent(Ice.Current current)
-    {
-        throw new Ice.ConnectionLostException();
-    }
-
-    public override void opSystemException(Ice.Current c)
-    {
-        throw new SystemFailure();
-    }
-
-    public override void shutdown(Ice.Current current)
-    {
-        current.adapter.getCommunicator().shutdown();
-    }
-
-    private int _counter;
 }

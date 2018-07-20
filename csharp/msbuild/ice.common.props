@@ -2,9 +2,9 @@
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
   <!-- Required for the project configurations to show up in settings editor -->
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Any CPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Any CPU'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
   </PropertyGroup>
 
   <PropertyGroup>

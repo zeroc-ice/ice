@@ -12,6 +12,7 @@
 
 #include <Ice/Properties.ice>
 
+[["cs:namespace:Ice.admin"]]
 module Test
 {
 

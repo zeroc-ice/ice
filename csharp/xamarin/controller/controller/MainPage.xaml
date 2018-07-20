@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:controller"
+             x:Class="controller.MainPage">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Label Grid.Row="0" Text="ProcessControllerRegistry" FontSize="20"/>
+        <Entry Grid.Row="1" Text="" x:Name="ProcessControllerRegistryHost"/>
+        <Label Grid.Row="2" Text="IPv4" FontSize="20"/>
+        <Picker Grid.Row="3"  x:Name="IPv4Address"/>
+        <Label Grid.Row="4" Text="IPv6" FontSize="20"/>
+        <Picker Grid.Row="5"  x:Name="IPv6Address"/>
+        <Button Grid.Row="6" x:Name="RegisterProcessController" Text="Register Process Controller" IsEnabled="False"/>
+        <ListView Grid.Row="7" x:Name="Output"></ListView>
+    </Grid>
+</ContentPage>

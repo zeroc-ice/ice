@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["cs:namespace:Ice.binding"]]
 module Test
 {
 

@@ -7,16 +7,20 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class EI : E
+namespace Ice
 {
-    public EI() : base(1, "hello")
+    namespace objects
     {
-    }
+        public sealed class EI : Test.E
+        {
+            public EI() : base(1, "hello")
+            {
+            }
 
-    public bool checkValues()
-    {
-        return i == 1 && s.Equals("hello");
+            public bool checkValues()
+            {
+                return i == 1 && s.Equals("hello");
+            }
+        }
     }
 }

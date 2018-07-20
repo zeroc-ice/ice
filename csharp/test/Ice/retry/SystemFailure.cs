@@ -7,12 +7,18 @@
 //
 // **********************************************************************
 
-[System.Serializable]
-public class SystemFailure : Ice.SystemException
+namespace Ice
 {
-    public override string
-    ice_id()
+    namespace retry
     {
-        return "::SystemFailure";
+        [System.Serializable]
+        public class SystemFailure : Ice.SystemException
+        {
+            public override string
+            ice_id()
+            {
+                return "::SystemFailure";
+            }
+        }
     }
-};
+}

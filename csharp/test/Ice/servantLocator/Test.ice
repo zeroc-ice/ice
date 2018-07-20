@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["cs:namespace:Ice.servantLocator"]]
 module Test
 {
 

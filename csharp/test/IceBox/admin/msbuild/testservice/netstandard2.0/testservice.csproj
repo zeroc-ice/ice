@@ -1,6 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="../../../../../../msbuild/ice.common.props"/>
+  <Import Project="../../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
     <AssemblyName>testservice</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -9,21 +9,24 @@
     <OutputPath>.</OutputPath>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="../../../TestI.cs"/>
-    <Compile Include="../../../TestServiceI.cs"/>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4"/>
-    <SliceCompile Include="../../../Test.ice"/>
+    <Compile Include="../../../TestI.cs" />
+    <Compile Include="../../../TestServiceI.cs" />
+    <Compile Include="generated\Test.cs">
+      <SliceCompileSource>../../../Test.ice</SliceCompileSource>
+    </Compile>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" />
+    <SliceCompile Include="../../../Test.ice" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
       <ItemGroup>
-        <PackageReference Include="zeroc.ice.net" Version="3.7.1"/>
+        <PackageReference Include="zeroc.ice.net" Version="3.7.1" />
       </ItemGroup>
     </When>
     <Otherwise>
       <ItemGroup>
-        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll"/>
-        <Reference Include="../../../../../../lib/netstandard2.0/IceBox.dll"/>
+        <Reference Include="../../../../../../lib/netstandard2.0/Ice.dll" />
+        <Reference Include="../../../../../../lib/netstandard2.0/IceBox.dll" />
       </ItemGroup>
     </Otherwise>
   </Choose>

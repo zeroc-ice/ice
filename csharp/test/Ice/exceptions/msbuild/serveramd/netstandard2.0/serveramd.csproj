@@ -12,9 +12,9 @@
   <ItemGroup>
     <Compile Include="../../../../../TestCommon/TestHelper.cs"/>
     <Compile Include="../../../ThrowerAMDI.cs"/>
-    <Compile Include="../../../EmptyI.cs"/>
+    <Compile Include="../../../EmptyAMDI.cs"/>
     <Compile Include="../../../ServantLocatorI.cs"/>
-    <Compile Include="../../../Server.cs"/>
+    <Compile Include="../../../ServerAMD.cs"/>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4"/>
     <SliceCompile Include="../../../TestAMD.ice"/>
   </ItemGroup>

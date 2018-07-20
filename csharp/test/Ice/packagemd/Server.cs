@@ -7,34 +7,34 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Server : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace packagemd
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.Package.Test", "test.Ice.packagemd");
-        properties.setProperty("Ice.Package.Test1", "test.Ice.packagemd");
-        using (var communicator = initialize(properties))
+        public class Server : TestHelper
         {
-            properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            var adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new InitialI(), Ice.Util.stringToIdentity("initial"));
-            adapter.activate();
-            communicator.waitForShutdown();
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.packagemd");
+                properties.setProperty("Ice.Package.Test1", "Ice.packagemd");
+                using(var communicator = initialize(properties))
+                {
+                    properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    var adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.add(new InitialI(), Ice.Util.stringToIdentity("initial"));
+                    adapter.activate();
+                    serverReady();
+                    communicator.waitForShutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Server>(args);
+            }
+        }
     }
 }

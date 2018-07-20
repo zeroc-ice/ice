@@ -7,36 +7,37 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Collocated : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace facets
     {
-        using(var communicator = initialize(ref args))
+        public class Collocated : TestHelper
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            Ice.Object d = new DI();
-            adapter.add(d, Ice.Util.stringToIdentity("d"));
-            adapter.addFacet(d, Ice.Util.stringToIdentity("d"), "facetABCD");
-            Ice.Object f = new FI();
-            adapter.addFacet(f, Ice.Util.stringToIdentity("d"), "facetEF");
-            Ice.Object h = new HI(communicator);
-            adapter.addFacet(h, Ice.Util.stringToIdentity("d"), "facetGH");
-            AllTests.allTests(this);
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.facets");
+                using(var communicator = initialize(properties))
+                {
+                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    Ice.Object d = new DI();
+                    adapter.add(d, Ice.Util.stringToIdentity("d"));
+                    adapter.addFacet(d, Ice.Util.stringToIdentity("d"), "facetABCD");
+                    Ice.Object f = new FI();
+                    adapter.addFacet(f, Ice.Util.stringToIdentity("d"), "facetEF");
+                    Ice.Object h = new HI(communicator);
+                    adapter.addFacet(h, Ice.Util.stringToIdentity("d"), "facetGH");
+                    AllTests.allTests(this);
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Collocated>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Collocated>(args);
+            }
+        }
     }
 }

@@ -7,35 +7,36 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Collocated : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace servantLocator
     {
-        using(var communicator = initialize(ref args))
+        public class Collocated : TestHelper
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            communicator.getProperties().setProperty("Ice.Warn.Dispatch", "0");
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.servantLocator");
+                using(var communicator = initialize(properties))
+                {
+                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.getProperties().setProperty("Ice.Warn.Dispatch", "0");
 
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.addServantLocator(new ServantLocatorI("category"), "category");
-            adapter.addServantLocator(new ServantLocatorI(""), "");
-            adapter.add(new TestI(), Ice.Util.stringToIdentity("asm"));
-            adapter.add(new TestActivationI(), Ice.Util.stringToIdentity("test/activation"));
-            AllTests.allTests(this);
+                    var adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.addServantLocator(new ServantLocatorI("category"), "category");
+                    adapter.addServantLocator(new ServantLocatorI(""), "");
+                    adapter.add(new TestI(), Ice.Util.stringToIdentity("asm"));
+                    adapter.add(new TestActivationI(), Ice.Util.stringToIdentity("test/activation"));
+                    AllTests.allTests(this);
+                }
+            }
+
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Collocated>(args);
+            }
         }
-    }
-
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Collocated>(args);
     }
 }

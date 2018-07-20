@@ -8,28 +8,28 @@
 // **********************************************************************
 
 using Test;
-using System;
-using System.Reflection;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace inheritance
     {
-        using(var communicator = initialize(ref args))
+        public class Client : TestHelper
         {
-            InitialPrx initial = AllTests.allTests(this);
-            initial.shutdown();
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.inheritance");
+                using(var communicator = initialize(properties))
+                {
+                    var initial = AllTests.allTests(this);
+                    initial.shutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }
