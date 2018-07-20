@@ -125,9 +125,9 @@ public class AllTests
                 test(seq.length > 16384);
             }
 
-            communicator.getProperties().setProperty("Ice.UDP.SndSize", "25000");
+            communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
             obj.ice_getConnection().close(com.zeroc.Ice.ConnectionClose.GracefullyWithWait);
-            seq = new byte[24000];
+            seq = new byte[50000];
             try
             {
                 replyI.reset();
