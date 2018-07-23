@@ -266,11 +266,12 @@ try:
     run("adb version")
     Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
     Mapping.add(os.path.join("java", "android"), AndroidMapping())
-    Mapping.add(os.path.join("csharp", "xamarin", "android"), XamarinAndroidMapping())
+    if (isinstance(platform, Windows) and platform.getCompiler() == "VC141") or isinstance(platform, Darwin):
+        Mapping.add(os.path.join("csharp", "xamarin", "android"), XamarinAndroidMapping())
 except:
     pass
 
-if isinstance(platform, Windows):
+if isinstance(platform, Windows) and platform.getCompiler() == "VC141":
     Mapping.add(os.path.join("csharp", "xamarin", "uwp"), XamarinUWPMapping())
 Mapping.add(os.path.join("csharp", "xamarin", "ios"), XamarinIOSMapping())
 
