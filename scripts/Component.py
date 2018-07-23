@@ -274,7 +274,7 @@ except:
 if isinstance(platform, Windows) and platform.getCompiler() == "VC141":
     Mapping.add(os.path.join("csharp", "xamarin", "uwp"), XamarinUWPMapping())
 
-if instance(platform, Darwin):
+if isinstance(platform, Darwin):
     Mapping.add(os.path.join("csharp", "xamarin", "ios"), XamarinIOSMapping())
 
 #
