@@ -273,7 +273,9 @@ except:
 
 if isinstance(platform, Windows) and platform.getCompiler() == "VC141":
     Mapping.add(os.path.join("csharp", "xamarin", "uwp"), XamarinUWPMapping())
-Mapping.add(os.path.join("csharp", "xamarin", "ios"), XamarinIOSMapping())
+
+if instance(platform, Darwin):
+    Mapping.add(os.path.join("csharp", "xamarin", "ios"), XamarinIOSMapping())
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping
