@@ -30,11 +30,11 @@
     </Projects>
 
     <!-- For PHP build both thread safe and non thread safe configurations -->
-    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140' or '$(DefaultPlatformToolset)' == 'v141'">
       <Configuration>$(Configuration)</Configuration>
     </Projects>
 
-    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140' or '$(DefaultPlatformToolset)' == 'v141'">
       <Configuration>NTS-$(Configuration)</Configuration>
     </Projects>
 
