@@ -3023,7 +3023,7 @@ class CppMapping(Mapping):
         path = os.path.join(self.getTestsPath(), "ios/controller/build", "Debug-iphonesimulator",
                             self.getIOSAppName(current))
         if not os.path.exists(path):
-            path = os.path.join(mapping.getTestsPath(), "ios/controller/build", "Release-iphonesimulator",
+            path = os.path.join(self.getTestsPath(), "ios/controller/build", "Release-iphonesimulator",
                                 self.getIOSAppName(Current))
         return path
 
