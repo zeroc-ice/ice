@@ -109,3 +109,4 @@ csharp/xamarin/uwp/AppX
 *.deps.json
 *.runtimeconfig.dev.json
 *.runtimeconfig.json
+cpp/AppX
