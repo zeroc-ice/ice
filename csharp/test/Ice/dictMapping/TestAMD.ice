@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["cs:namespace:Ice.dictMapping.AMD"]]
 module Test
 {
 

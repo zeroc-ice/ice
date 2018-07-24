@@ -12,7 +12,7 @@
   <ItemGroup>
     <Compile Include="../../../../../TestCommon/TestHelper.cs"/>
     <Compile Include="../../../MyDerivedClassAMDTieI.cs"/>
-    <Compile Include="../../../Server.cs"/>
+    <Compile Include="../../../ServerAMDTie.cs"/>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4"/>
     <SliceCompile Include="../../../TestAMD.ice"/>
   </ItemGroup>

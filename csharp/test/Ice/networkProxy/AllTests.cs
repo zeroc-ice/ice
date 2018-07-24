@@ -36,31 +36,31 @@ public class AllTests : Test.AllTests
 
         Test.TestIntfPrx testPrx = Test.TestIntfPrxHelper.checkedCast(obj);
         test(testPrx != null);
-
-        Write("testing connection... ");
-        Flush();
+        var output = helper.getWriter();
+        output.Write("testing connection... ");
+        output.Flush();
         {
             testPrx.ice_ping();
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("testing connection information... ");
-        Flush();
+        output.Write("testing connection information... ");
+        output.Flush();
         {
             Ice.IPConnectionInfo info = getIPConnectionInfo(testPrx.ice_getConnection().getInfo());
             test(info.remotePort == proxyPort); // make sure we are connected to the proxy port.
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("shutting down server... ");
-        Flush();
+        output.Write("shutting down server... ");
+        output.Flush();
         {
             testPrx.shutdown();
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("testing connection failure... ");
-        Flush();
+        output.Write("testing connection failure... ");
+        output.Flush();
         {
             try
             {
@@ -71,6 +71,6 @@ public class AllTests : Test.AllTests
             {
             }
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
     }
 }

@@ -7,37 +7,43 @@
 //
 // **********************************************************************
 
-public sealed class MyObjectI : Test.MyObjectDisp_
+namespace Ice
 {
-    public override void
-    ice_ping(Ice.Current current)
+    namespace defaultServant
     {
-        string name = current.id.name;
-
-        if(name == "ObjectNotExist")
+        public sealed class MyObjectI : Test.MyObjectDisp_
         {
-            throw new Ice.ObjectNotExistException();
-        }
-        else if(name == "FacetNotExist")
-        {
-            throw new Ice.FacetNotExistException();
-        }
-    }
+            public override void
+            ice_ping(Ice.Current current)
+            {
+                string name = current.id.name;
 
-    public override string
-    getName(Ice.Current current)
-    {
-        string name = current.id.name;
+                if(name == "ObjectNotExist")
+                {
+                    throw new Ice.ObjectNotExistException();
+                }
+                else if(name == "FacetNotExist")
+                {
+                    throw new Ice.FacetNotExistException();
+                }
+            }
 
-        if(name == "ObjectNotExist")
-        {
-            throw new Ice.ObjectNotExistException();
-        }
-        else if(name == "FacetNotExist")
-        {
-            throw new Ice.FacetNotExistException();
-        }
+            public override string
+            getName(Ice.Current current)
+            {
+                string name = current.id.name;
 
-        return name;
+                if(name == "ObjectNotExist")
+                {
+                    throw new Ice.ObjectNotExistException();
+                }
+                else if(name == "FacetNotExist")
+                {
+                    throw new Ice.FacetNotExistException();
+                }
+
+                return name;
+            }
+        }
     }
 }

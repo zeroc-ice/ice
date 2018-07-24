@@ -40,8 +40,8 @@
     <Compile Include="..\..\..\MyDerivedClassAMDI.cs">
       <Link>MyDerivedClassAMDI.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Server.cs">
-      <Link>Server.cs</Link>
+    <Compile Include="..\..\..\ServerAMD.cs">
+      <Link>ServerAMD.cs</Link>
     </Compile>
     <Compile Include="generated\TestAMD.cs" />
   </ItemGroup>

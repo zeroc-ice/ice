@@ -8,43 +8,44 @@
 // **********************************************************************
 
 using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace operations
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.ThreadPool.Client.Size", "2");
-        properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
-        properties.setProperty("Ice.BatchAutoFlushSize", "100");
-        using(var communicator = initialize(properties))
+        public class Client : TestHelper
         {
-            Test.MyClassPrx myClass = AllTests.allTests(this);
+            public override void run(string[] args)
+            {
+                Ice.Properties properties = createTestProperties(ref args);
+                properties.setProperty("Ice.ThreadPool.Client.Size", "2");
+                properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
+                properties.setProperty("Ice.BatchAutoFlushSize", "100");
+                properties.setProperty("Ice.Package.Test", "Ice.operations");
+                using (var communicator = initialize(properties))
+                {
+                    var myClass = AllTests.allTests(this);
 
-            Console.Out.Write("testing server shutdown... ");
-            Console.Out.Flush();
-            myClass.shutdown();
-            try
-            {
-                myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
-                throw new System.Exception();
+                    Console.Out.Write("testing server shutdown... ");
+                    Console.Out.Flush();
+                    myClass.shutdown();
+                    try
+                    {
+                        myClass.ice_timeout(100).ice_ping(); // Use timeout to speed up testing on Windows
+                        test(false);
+                    }
+                    catch (Ice.LocalException)
+                    {
+                        Console.Out.WriteLine("ok");
+                    }
+                }
             }
-            catch(Ice.LocalException)
+
+            public static int Main(string[] args)
             {
-                Console.Out.WriteLine("ok");
+                return TestDriver.runTest<Client>(args);
             }
         }
-    }
-
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
     }
 }

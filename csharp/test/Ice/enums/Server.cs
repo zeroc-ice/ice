@@ -7,34 +7,34 @@
 //
 // **********************************************************************
 
-using System;
-using System.Diagnostics;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Server : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace enums
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.ServerIdleTime", "30");
-        using(var communicator = initialize(properties))
+        public class Server : TestHelper
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
-            adapter.activate();
-            communicator.waitForShutdown();
-        }
-    }
+            public override void run(string[] args)
+            {
+                Ice.Properties properties = createTestProperties(ref args);
+                properties.setProperty("Ice.ServerIdleTime", "30");
+                properties.setProperty("Ice.Package.Test", "Ice.enums");
+                using(var communicator = initialize(properties))
+                {
+                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.add(new TestI(), Ice.Util.stringToIdentity("test"));
+                    adapter.activate();
+                    serverReady();
+                    communicator.waitForShutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Server>(args);
+            }
+        }
     }
 }

@@ -95,6 +95,20 @@ class Ice(Component):
                      "Ice/threadPoolPriority"])
         elif isinstance(platform, Windows) and platform.getCompiler() in ["VC100"]:
             return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
+        elif (isinstance(mapping, XamarinMapping)):
+            return (["Ice/.*"],
+                    ["Ice/hash",
+                     "Ice/faultTolerance",
+                     "Ice/metrics",
+                     "Ice/assemblies",
+                     "Ice/background",
+                     "Ice/dispatcher",
+                     "Ice/networkProxy",
+                     "Ice/throughput",
+                     "Ice/plugin",
+                     "Ice/logger",
+                     "Ice/properties",
+                     "Ice/slicing/*"])
         elif isinstance(mapping, AndroidMappingMixin):
             return (["Ice/.*"],
                     ["Ice/hash",
@@ -135,9 +149,17 @@ class Ice(Component):
             elif parent in ["Glacier2"] and testId not in ["Glacier2/application", "Glacier2/sessionHelper"]:
                 return False
 
+        if isinstance(mapping, XamarinAndroidMapping) or isinstance(mapping, XamarinIOSMapping):
+            #
+            # With Xamarin on Android and iOS Ice/udp is only supported with IPv4
+            #
+            if current.config.ipv6 and testId in ["Ice/udp"]:
+                return False
+
+
         # IceSSL test doesn't work on macOS/.NET Core
         if isinstance(mapping, CSharpMapping) and isinstance(platform, Darwin) and parent in ["IceSSL"]:
-                return False
+            return False
 
         return True
 
@@ -244,8 +266,16 @@ try:
     run("adb version")
     Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
     Mapping.add(os.path.join("java", "android"), AndroidMapping())
+    if (isinstance(platform, Windows) and platform.getCompiler() == "VC141") or isinstance(platform, Darwin):
+        Mapping.add(os.path.join("csharp", "xamarin", "android"), XamarinAndroidMapping())
 except:
     pass
+
+if isinstance(platform, Windows) and platform.getCompiler() == "VC141":
+    Mapping.add(os.path.join("csharp", "xamarin", "uwp"), XamarinUWPMapping())
+
+if isinstance(platform, Darwin):
+    Mapping.add(os.path.join("csharp", "xamarin", "ios"), XamarinIOSMapping())
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping

@@ -9,8 +9,6 @@
 
 using System;
 
-[assembly: CLSCompliant(true)]
-
 namespace Serialize
 {
 

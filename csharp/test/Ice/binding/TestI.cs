@@ -7,12 +7,16 @@
 //
 // **********************************************************************
 
-using Test;
-
-public class TestI : TestIntfDisp_
+namespace Ice
 {
-    public override string getAdapterName(Ice.Current current)
+    namespace binding
     {
-        return current.adapter.getName();
+        public class TestI : Test.TestIntfDisp_
+        {
+            public override string getAdapterName(Ice.Current current)
+            {
+                return current.adapter.getName();
+            }
+        }
     }
 }

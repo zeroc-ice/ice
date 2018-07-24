@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["cs:namespace:Ice.interceptor"]]
 module Test
 {
 

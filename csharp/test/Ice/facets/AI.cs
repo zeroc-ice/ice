@@ -7,16 +7,20 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class AI : ADisp_
+namespace Ice
 {
-    public AI()
+    namespace facets
     {
-    }
+        public sealed class AI : Test.ADisp_
+        {
+            public AI()
+            {
+            }
 
-    public override string callA(Ice.Current current)
-    {
-        return "A";
+            public override string callA(Ice.Current current)
+            {
+                return "A";
+            }
+        }
     }
 }

@@ -284,4 +284,15 @@
     <Target Name="NuGetPack"
             DependsOnTargets="WindowsNuGetPack;UnixNuGetPack">
     </Target>
+
+    <!-- Build xamarin Android test controller -->
+    <Target Name="BuildXamarin" DependsOnTargets="BuildNetStandardDist">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller.sln" Targets="Restore"
+                 Properties="Configuration=$(Configuration)"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller.sln"
+                 Properties="Configuration=$(Configuration)"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller\controller.Android\controller.Android.csproj"
+                 Properties="IntermediateOutputPath=obj\;OutputPath=bin\$(Configuration)\;AndroidUseSharedRuntime=false;EmbedAssembliesIntoApk=true;Platform=AnyCPU"
+                 Targets="SignAndroidPackage"/>
+    </Target>
 </Project>

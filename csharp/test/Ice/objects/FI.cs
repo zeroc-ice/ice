@@ -7,20 +7,24 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class FI : F
+namespace Ice
 {
-    public FI()
+    namespace objects
     {
-    }
+        public sealed class FI : Test.F
+        {
+            public FI()
+            {
+            }
 
-    public FI(E e) : base(e, e)
-    {
-    }
+            public FI(Test.E e) : base(e, e)
+            {
+            }
 
-    public bool checkValues()
-    {
-        return e1 != null && e1 == e2;
+            public bool checkValues()
+            {
+                return e1 != null && e1 == e2;
+            }
+        }
     }
 }

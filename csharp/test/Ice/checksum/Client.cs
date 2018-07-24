@@ -7,22 +7,29 @@
 //
 // **********************************************************************
 
-using System;
-using System.Diagnostics;
+using Test;
 
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace checksum
     {
-        using(var communicator = initialize(ref args))
+        public class Client : TestHelper
         {
-            Test.ChecksumPrx checksum = AllTests.allTests(this, false);
-            checksum.shutdown();
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.checksum");
+                using(var communicator = initialize(properties))
+                {
+                    var checksum = AllTests.allTests(this, false);
+                    checksum.shutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

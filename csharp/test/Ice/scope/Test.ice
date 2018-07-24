@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["cs:namespace:Ice.scope"]]
 module Test
 {
     struct S

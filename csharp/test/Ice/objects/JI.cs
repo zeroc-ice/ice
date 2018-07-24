@@ -7,9 +7,15 @@
 //
 // **********************************************************************
 
-public sealed class JI : Ice.InterfaceByValue
+namespace Ice
 {
-    public JI() : base(Test.JDisp_.ice_staticId())
+    namespace objects
     {
+        public sealed class JI : Ice.InterfaceByValue
+        {
+            public JI() : base(Test.JDisp_.ice_staticId())
+            {
+            }
+        }
     }
 }

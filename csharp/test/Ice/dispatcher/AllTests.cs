@@ -36,9 +36,10 @@ public class AllTests : Test.AllTests
 
     private class Callback
     {
-        internal Callback()
+        internal Callback(System.IO.TextWriter output)
         {
             _called = false;
+            _output = output;
         }
 
         public void check()
@@ -63,7 +64,7 @@ public class AllTests : Test.AllTests
         {
             if(!(ex is Ice.NoEndpointException))
             {
-                WriteLine(ex.ToString());
+                _output.WriteLine(ex.ToString());
                 test(false);
             }
             test(Dispatcher.isDispatcherThread());
@@ -79,7 +80,7 @@ public class AllTests : Test.AllTests
         {
             if(!(ex is Ice.CommunicatorDestroyedException))
             {
-                WriteLine(ex.ToString());
+                _output.WriteLine(ex.ToString());
                 test(false);
             }
         }
@@ -100,10 +101,12 @@ public class AllTests : Test.AllTests
         }
 
         private bool _called;
+        private System.IO.TextWriter _output;
     }
 
     public static void allTests(Test.TestHelper helper)
     {
+        var output = helper.getWriter();
         Ice.Communicator communicator = helper.communicator();
         string sref = "test:" + helper.getTestEndpoint(0);
         Ice.ObjectPrx obj = communicator.stringToProxy(sref);
@@ -117,12 +120,12 @@ public class AllTests : Test.AllTests
 
         Test.TestIntfControllerPrx testController = Test.TestIntfControllerPrxHelper.uncheckedCast(obj);
 
-        Write("testing dispatcher... ");
-        Flush();
+        output.Write("testing dispatcher... ");
+        output.Flush();
         {
             p.op();
 
-            Callback cb = new Callback();
+            Callback cb = new Callback(output);
             p.begin_op().whenCompleted(cb.response, cb.exception);
             cb.check();
 
@@ -160,14 +163,14 @@ public class AllTests : Test.AllTests
             testController.resumeAdapter();
             r.waitForCompleted();
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("testing dispatcher with continuations... ");
-        Flush();
+        output.Write("testing dispatcher with continuations... ");
+        output.Flush();
         {
             p.op();
 
-            Callback cb = new Callback();
+            Callback cb = new Callback(output);
             System.Action<Task> continuation = (Task previous) =>
             {
                 try
@@ -282,10 +285,10 @@ public class AllTests : Test.AllTests
             testController.resumeAdapter();
             t.Wait();
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
-        Write("testing dispatcher with async/await... ");
-        Flush();
+        output.Write("testing dispatcher with async/await... ");
+        output.Flush();
         {
             TaskCompletionSource<object> t = new TaskCompletionSource<object>();
             p.opAsync().ContinueWith(async previous => // Execute the code below from the Ice client thread pool
@@ -326,7 +329,7 @@ public class AllTests : Test.AllTests
 
             t.Task.Wait();
         }
-        WriteLine("ok");
+        output.WriteLine("ok");
 
         p.shutdown();
     }

@@ -40,8 +40,8 @@
     <Compile Include="..\..\..\MyDerivedClassTieI.cs">
       <Link>MyDerivedClassTieI.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Server.cs">
-      <Link>Server.cs</Link>
+    <Compile Include="..\..\..\ServerTie.cs">
+      <Link>ServerTie.cs</Link>
     </Compile>
     <Compile Include="generated\Test.cs" />
   </ItemGroup>

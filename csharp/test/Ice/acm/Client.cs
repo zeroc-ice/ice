@@ -7,29 +7,29 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    override public void run(string[] args)
+    namespace acm
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.Warn.Connections", "0");
-        using(var communicator = initialize(properties))
+        public class Client : TestHelper
         {
-            AllTests.allTests(this);
-        }
-    }
+            override public void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.acm");
+                properties.setProperty("Ice.Warn.Connections", "0");
+                using(var communicator = initialize(properties))
+                {
+                    AllTests.allTests(this);
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

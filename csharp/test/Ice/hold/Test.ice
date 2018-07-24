@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["cs:namespace:Ice.hold"]]
 module Test
 {
 

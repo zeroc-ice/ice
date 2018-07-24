@@ -7,103 +7,109 @@
 //
 // **********************************************************************
 
-using Test;
 using System.Text;
 
-public class RouterI : Ice.RouterDisp_
+namespace Ice
 {
-    public override Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable, Ice.Current current)
+    namespace adapterDeactivation
     {
-        hasRoutingTable = false;
-        return null;
-    }
-
-    public override Ice.ObjectPrx getServerProxy(Ice.Current current)
-    {
-        StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
-        s.Append(_nextPort++);
-        s.Append(" -t 30000");
-        return current.adapter.getCommunicator().stringToProxy(s.ToString());
-    }
-
-    public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
-    {
-        return null;
-    }
-
-    private int _nextPort = 23456;
-}
-
-public sealed class ServantLocatorI : Ice.ServantLocator
-{
-    public ServantLocatorI()
-    {
-        _deactivated = false;
-    }
-
-    ~ServantLocatorI()
-    {
-        lock(this)
+        public class RouterI : Ice.RouterDisp_
         {
-            test(_deactivated);
-        }
-    }
+            public override Ice.ObjectPrx getClientProxy(out Ice.Optional<bool> hasRoutingTable,
+                Ice.Current current)
+            {
+                hasRoutingTable = false;
+                return null;
+            }
 
-    private static void test(bool b)
-    {
-        if(!b)
-        {
-            throw new System.Exception();
-        }
-    }
+            public override Ice.ObjectPrx getServerProxy(Ice.Current current)
+            {
+                StringBuilder s = new StringBuilder("dummy:tcp -h localhost -p ");
+                s.Append(_nextPort++);
+                s.Append(" -t 30000");
+                return current.adapter.getCommunicator().stringToProxy(s.ToString());
+            }
 
-    public Ice.Object locate(Ice.Current current, out System.Object cookie)
-    {
-        lock(this)
-        {
-            test(!_deactivated);
+            public override Ice.ObjectPrx[] addProxies(Ice.ObjectPrx[] proxies, Ice.Current current)
+            {
+                return null;
+            }
+
+            private int _nextPort = 23456;
         }
 
-        if(current.id.name.Equals("router"))
+        public sealed class ServantLocatorI : Ice.ServantLocator
         {
-            cookie = null;
-            return _router;
+            public ServantLocatorI()
+            {
+                _deactivated = false;
+            }
+
+            ~ServantLocatorI()
+            {
+                lock(this)
+                {
+                    test(_deactivated);
+                }
+            }
+
+            private static void test(bool b)
+            {
+                if(!b)
+                {
+                    throw new System.Exception();
+                }
+            }
+
+            public Ice.Object locate(Ice.Current current, out System.Object cookie)
+            {
+                lock(this)
+                {
+                    test(!_deactivated);
+                }
+
+                if(current.id.name.Equals("router"))
+                {
+                    cookie = null;
+                    return _router;
+                }
+
+                test(current.id.category.Length == 0);
+                test(current.id.name.Equals("test"));
+
+                cookie = new CookieI();
+
+                return new TestI();
+            }
+
+            public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+            {
+                lock(this)
+                {
+                    test(!_deactivated);
+                }
+
+                if(current.id.name.Equals("router"))
+                {
+                    return;
+                }
+
+                Test.Cookie co = (Test.Cookie) cookie;
+                test(co.message().Equals("blahblah"));
+            }
+
+            public void deactivate(string category)
+            {
+                lock(this)
+                {
+                    test(!_deactivated);
+
+                    _deactivated = true;
+                }
+            }
+
+            private bool _deactivated;
+            private RouterI _router = new RouterI();
         }
-
-        test(current.id.category.Length == 0);
-        test(current.id.name.Equals("test"));
-
-        cookie = new CookieI();
-
-        return new TestI();
     }
-
-    public void finished(Ice.Current current, Ice.Object servant, System.Object cookie)
-    {
-        lock(this)
-        {
-            test(!_deactivated);
-        }
-
-        if(current.id.name.Equals("router"))
-        {
-            return;
-        }
-
-        Cookie co = (Cookie) cookie;
-        test(co.message().Equals("blahblah"));
-    }
-
-    public void deactivate(string category)
-    {
-        lock(this)
-        {
-            test(!_deactivated);
-
-            _deactivated = true;
-        }
-    }
-
-    private bool _deactivated;
-    private RouterI _router = new RouterI();
 }

@@ -21,10 +21,12 @@ namespace IceInternal
         public static readonly bool isWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
         public static readonly bool isMacOS = RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
         public static readonly bool isLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+        public static readonly bool isMono = RuntimeInformation.FrameworkDescription.Contains("Mono");
 #else
         public static readonly bool isWindows = true;
         public static readonly bool isMacOS = false;
         public static readonly bool isLinux = false;
+        public static readonly bool isMono = false;
 #endif
         public static Type findType(Instance instance, string csharpId)
         {
@@ -140,27 +142,34 @@ namespace IceInternal
 
         private static void loadReferencedAssemblies(Assembly a)
         {
-            AssemblyName[] names = a.GetReferencedAssemblies();
-            foreach(AssemblyName name in names)
+            try
             {
-                if(!_loadedAssemblies.ContainsKey(name.FullName))
+                AssemblyName[] names = a.GetReferencedAssemblies();
+                foreach(AssemblyName name in names)
                 {
-                    try
+                    if(!_loadedAssemblies.ContainsKey(name.FullName))
                     {
-                        Assembly ra = Assembly.Load(name);
-                        //
-                        // The value of name.FullName may not match that of ra.FullName, so
-                        // we record the assembly using both keys.
-                        //
-                        _loadedAssemblies[name.FullName] = ra;
-                        _loadedAssemblies[ra.FullName] = ra;
-                        loadReferencedAssemblies(ra);
-                    }
-                    catch(Exception)
-                    {
-                        // Ignore assemblies that cannot be loaded.
+                        try
+                        {
+                            Assembly ra = Assembly.Load(name);
+                            //
+                            // The value of name.FullName may not match that of ra.FullName, so
+                            // we record the assembly using both keys.
+                            //
+                            _loadedAssemblies[name.FullName] = ra;
+                            _loadedAssemblies[ra.FullName] = ra;
+                            loadReferencedAssemblies(ra);
+                        }
+                        catch(Exception)
+                        {
+                            // Ignore assemblies that cannot be loaded.
+                        }
                     }
                 }
+            }
+            catch(PlatformNotSupportedException)
+            {
+                // Some platforms like UWP do not support using GetReferencedAssemblies
             }
         }
 

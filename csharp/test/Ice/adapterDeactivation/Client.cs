@@ -8,28 +8,27 @@
 // **********************************************************************
 
 using Test;
-using System;
-using System.Diagnostics;
-using System.Reflection;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace adapterDeactivation
     {
-        using(var communicator = initialize(ref args))
+        public class Client : TestHelper
         {
-            AllTests.allTests(this);
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.adapterDeactivation");
+                using(var communicator = initialize(properties))
+                {
+                    AllTests.allTests(this);
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

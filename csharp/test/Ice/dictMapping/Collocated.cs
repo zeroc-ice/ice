@@ -7,32 +7,32 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Collocated : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace dictMapping
     {
-        using(var communicator = initialize(ref args))
+        public class Collocated : TestHelper
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.add(new MyClassI(), Ice.Util.stringToIdentity("test"));
-            //adapter.activate(); // Don't activate OA to ensure collocation is used.
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.dictMapping");
+                using(var communicator = initialize(properties))
+                {
+                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    var adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.add(new MyClassI(), Ice.Util.stringToIdentity("test"));
+                    //adapter.activate(); // Don't activate OA to ensure collocation is used.
+                    AllTests.allTests(this, true);
+                }
+            }
 
-            AllTests.allTests(this, true);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Collocated>(args);
+            }
         }
-    }
-
-    public static int Main(String[] args)
-    {
-        return Test.TestDriver.runTest<Collocated>(args);
     }
 }

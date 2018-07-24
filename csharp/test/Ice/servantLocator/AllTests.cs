@@ -8,355 +8,361 @@
 // **********************************************************************
 
 using System;
-using Test;
-using Ice;
 
-public class AllTests : Test.AllTests
+namespace Ice
 {
-    public static void testExceptions(TestIntfPrx obj)
+    namespace servantLocator
     {
-        try
+        public class AllTests : global::Test.AllTests
         {
-            obj.requestFailedException();
-            test(false);
-        }
-        catch(ObjectNotExistException ex)
-        {
-            test(ex.id.Equals(obj.ice_getIdentity()));
-            test(ex.facet.Equals(obj.ice_getFacet()));
-            test(ex.operation.Equals("requestFailedException"));
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+            public static void testExceptions(Test.TestIntfPrx obj)
+            {
+                try
+                {
+                    obj.requestFailedException();
+                    test(false);
+                }
+                catch(Ice.ObjectNotExistException ex)
+                {
+                    test(ex.id.Equals(obj.ice_getIdentity()));
+                    test(ex.facet.Equals(obj.ice_getFacet()));
+                    test(ex.operation.Equals("requestFailedException"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.unknownUserException();
-            test(false);
-        }
-        catch(UnknownUserException ex)
-        {
-            test(ex.unknown.Equals("reason"));
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.unknownUserException();
+                    test(false);
+                }
+                catch(Ice.UnknownUserException ex)
+                {
+                    test(ex.unknown.Equals("reason"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.unknownLocalException();
-            test(false);
-        }
-        catch(UnknownLocalException ex)
-        {
-            test(ex.unknown.Equals("reason"));
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.unknownLocalException();
+                    test(false);
+                }
+                catch(Ice.UnknownLocalException ex)
+                {
+                    test(ex.unknown.Equals("reason"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.unknownException();
-            test(false);
-        }
-        catch(UnknownException ex)
-        {
-            test(ex.unknown.Equals("reason"));
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.unknownException();
+                    test(false);
+                }
+                catch(Ice.UnknownException ex)
+                {
+                    test(ex.unknown.Equals("reason"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.userException();
-            test(false);
-        }
-        catch(UnknownUserException ex)
-        {
-            //Console.Error.WriteLine(ex.unknown);
-            test(ex.unknown.IndexOf("Test::TestIntfUserException") >= 0);
-        }
-        catch(Ice.OperationNotExistException)
-        {
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.userException();
+                    test(false);
+                }
+                catch(Ice.UnknownUserException ex)
+                {
+                    //Console.Error.WriteLine(ex.unknown);
+                    test(ex.unknown.IndexOf("Test::TestIntfUserException") >= 0);
+                }
+                catch(Ice.OperationNotExistException)
+                {
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.localException();
-            test(false);
-        }
-        catch(UnknownLocalException ex)
-        {
-            test(ex.unknown.IndexOf("Ice::SocketException") >= 0 ||
-                 ex.unknown.IndexOf("Ice.SocketException") >= 0);
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.localException();
+                    test(false);
+                }
+                catch(Ice.UnknownLocalException ex)
+                {
+                    test(ex.unknown.IndexOf("Ice::SocketException") >= 0 ||
+                         ex.unknown.IndexOf("Ice.SocketException") >= 0);
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.csException();
-            test(false);
-        }
-        catch(UnknownException ex)
-        {
-            test(ex.unknown.IndexOf("System.Exception") >= 0);
-        }
-        catch(Ice.OperationNotExistException)
-        {
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.csException();
+                    test(false);
+                }
+                catch(Ice.UnknownException ex)
+                {
+                    test(ex.unknown.IndexOf("System.Exception") >= 0);
+                }
+                catch(Ice.OperationNotExistException)
+                {
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.unknownExceptionWithServantException();
-            test(false);
-        }
-        catch(UnknownException ex)
-        {
-            test(ex.unknown.Equals("reason"));
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.unknownExceptionWithServantException();
+                    test(false);
+                }
+                catch(Ice.UnknownException ex)
+                {
+                    test(ex.unknown.Equals("reason"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.impossibleException(false);
-            test(false);
-        }
-        catch(UnknownUserException)
-        {
-            // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.impossibleException(false);
+                    test(false);
+                }
+                catch(Ice.UnknownUserException)
+                {
+                    // Operation doesn't throw, but locate() and finished() throw TestIntfUserException.
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.impossibleException(true);
-            test(false);
-        }
-        catch(UnknownUserException)
-        {
-            // Operation throws TestImpossibleException, but locate() and finished() throw TestIntfUserException.
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                try
+                {
+                    obj.impossibleException(true);
+                    test(false);
+                }
+                catch(Ice.UnknownUserException)
+                {
+                    // Operation throws TestImpossibleException, but locate() and finished() throw TestIntfUserException.
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        try
-        {
-            obj.intfUserException(false);
-            test(false);
-        }
-        catch(TestImpossibleException)
-        {
-            // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
-        }
-        catch(System.Exception ex)
-        {
-            Console.WriteLine(ex);
-            test(false);
-        }
+                try
+                {
+                    obj.intfUserException(false);
+                    test(false);
+                }
+                catch(Test.TestImpossibleException)
+                {
+                    // Operation doesn't throw, but locate() and finished() throw TestImpossibleException.
+                }
+                catch(Exception ex)
+                {
+                    Console.WriteLine(ex);
+                    test(false);
+                }
 
-        try
-        {
-            obj.intfUserException(true);
-            test(false);
-        }
-        catch(TestImpossibleException)
-        {
-            // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
-    }
+                try
+                {
+                    obj.intfUserException(true);
+                    test(false);
+                }
+                catch(Test.TestImpossibleException)
+                {
+                    // Operation throws TestIntfUserException, but locate() and finished() throw TestImpossibleException.
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+            }
 
-    public static TestIntfPrx allTests(Test.TestHelper helper)
-    {
-        Ice.Communicator communicator = helper.communicator();
-        Write("testing stringToProxy... ");
-        Flush();
-        string @ref = "asm:" + helper.getTestEndpoint(0);
-        Ice.ObjectPrx @base = communicator.stringToProxy(@ref);
-        test(@base != null);
-        WriteLine("ok");
+            public static Test.TestIntfPrx allTests(global::Test.TestHelper helper)
+            {
+                var communicator = helper.communicator();
+                var output = helper.getWriter();
 
-        Write("testing checked cast... ");
-        Flush();
-        TestIntfPrx obj = TestIntfPrxHelper.checkedCast(@base);
-        test(obj != null);
-        test(obj.Equals(@base));
-        WriteLine("ok");
+                output.Write("testing stringToProxy... ");
+                output.Flush();
+                string @ref = "asm:" + helper.getTestEndpoint(0);
+                var @base = communicator.stringToProxy(@ref);
+                test(@base != null);
+                output.WriteLine("ok");
 
-        Write("testing ice_ids... ");
-        Flush();
-        try
-        {
-            Ice.ObjectPrx o = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
-            o.ice_ids();
-            test(false);
-        }
-        catch(UnknownUserException ex)
-        {
-            test(ex.unknown.Equals("::Test::TestIntfUserException"));
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
+                output.Write("testing checked cast... ");
+                output.Flush();
+                var obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                test(obj != null);
+                test(obj.Equals(@base));
+                output.WriteLine("ok");
 
-        try
-        {
-            Ice.ObjectPrx o = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
-            o.ice_ids();
-            test(false);
-        }
-        catch(UnknownUserException ex)
-        {
-            test(ex.unknown.Equals("::Test::TestIntfUserException"));
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
-        WriteLine("ok");
+                output.Write("testing ice_ids... ");
+                output.Flush();
+                try
+                {
+                    var o = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
+                    o.ice_ids();
+                    test(false);
+                }
+                catch(Ice.UnknownUserException ex)
+                {
+                    test(ex.unknown.Equals("::Test::TestIntfUserException"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
 
-        Write("testing servant locator...");
-        Flush();
-        @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
-        obj = TestIntfPrxHelper.checkedCast(@base);
-        try
-        {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
-        }
-        catch(ObjectNotExistException)
-        {
-        }
-        WriteLine("ok");
+                try
+                {
+                    var o = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
+                    o.ice_ids();
+                    test(false);
+                }
+                catch(Ice.UnknownUserException ex)
+                {
+                    test(ex.unknown.Equals("::Test::TestIntfUserException"));
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+                output.WriteLine("ok");
 
-        Write("testing default servant locator...");
-        Flush();
-        @base = communicator.stringToProxy("anothercat/locate:" + helper.getTestEndpoint(0));
-        obj = TestIntfPrxHelper.checkedCast(@base);
-        @base = communicator.stringToProxy("locate:" + helper.getTestEndpoint(0));
-        obj = TestIntfPrxHelper.checkedCast(@base);
-        try
-        {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
-        }
-        catch(ObjectNotExistException)
-        {
-        }
-        try
-        {
-            TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
-        }
-        catch(ObjectNotExistException)
-        {
-        }
-        WriteLine("ok");
+                output.Write("testing servant locator...");
+                output.Flush();
+                @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
+                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                try
+                {
+                    Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("category/unknown:" + helper.getTestEndpoint(0)));
+                }
+                catch(Ice.ObjectNotExistException)
+                {
+                }
+                output.WriteLine("ok");
 
-        Write("testing locate exceptions... ");
-        Flush();
-        @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
-        obj = TestIntfPrxHelper.checkedCast(@base);
-        testExceptions(obj);
-        WriteLine("ok");
+                output.Write("testing default servant locator...");
+                output.Flush();
+                @base = communicator.stringToProxy("anothercat/locate:" + helper.getTestEndpoint(0));
+                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                @base = communicator.stringToProxy("locate:" + helper.getTestEndpoint(0));
+                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                try
+                {
+                    Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("anothercat/unknown:" + helper.getTestEndpoint(0)));
+                }
+                catch(Ice.ObjectNotExistException)
+                {
+                }
+                try
+                {
+                    Test.TestIntfPrxHelper.checkedCast(communicator.stringToProxy("unknown:" + helper.getTestEndpoint(0)));
+                }
+                catch(Ice.ObjectNotExistException)
+                {
+                }
+                output.WriteLine("ok");
 
-        Write("testing finished exceptions... ");
-        Flush();
-        @base = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
-        obj = TestIntfPrxHelper.checkedCast(@base);
-        testExceptions(obj);
+                output.Write("testing locate exceptions... ");
+                output.Flush();
+                @base = communicator.stringToProxy("category/locate:" + helper.getTestEndpoint(0));
+                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                testExceptions(obj);
+                output.WriteLine("ok");
 
-        //
-        // Only call these for category/finished.
-        //
-        try
-        {
-            obj.asyncResponse();
-        }
-        catch(TestIntfUserException)
-        {
-            test(false);
-        }
-        catch(TestImpossibleException)
-        {
-            //
-            // Called by finished().
-            //
-        }
+                output.Write("testing finished exceptions... ");
+                output.Flush();
+                @base = communicator.stringToProxy("category/finished:" + helper.getTestEndpoint(0));
+                obj = Test.TestIntfPrxHelper.checkedCast(@base);
+                testExceptions(obj);
 
-        //
-        // Only call these for category/finished.
-        //
-        try
-        {
-            obj.asyncException();
-        }
-        catch(TestIntfUserException)
-        {
-            test(false);
-        }
-        catch(TestImpossibleException)
-        {
-            //
-            // Called by finished().
-            //
-        }
+                //
+                // Only call these for category/finished.
+                //
+                try
+                {
+                    obj.asyncResponse();
+                }
+                catch(Test.TestIntfUserException)
+                {
+                    test(false);
+                }
+                catch(Test.TestImpossibleException)
+                {
+                    //
+                    // Called by finished().
+                    //
+                }
 
-        WriteLine("ok");
+                //
+                // Only call these for category/finished.
+                //
+                try
+                {
+                    obj.asyncException();
+                }
+                catch(Test.TestIntfUserException)
+                {
+                    test(false);
+                }
+                catch(Test.TestImpossibleException)
+                {
+                    //
+                    // Called by finished().
+                    //
+                }
 
-        Write("testing servant locator removal... ");
-        Flush();
-        @base = communicator.stringToProxy("test/activation:" + helper.getTestEndpoint(0));
-        TestActivationPrx activation = TestActivationPrxHelper.checkedCast(@base);
-        activation.activateServantLocator(false);
-        try
-        {
-            obj.ice_ping();
-            test(false);
+                output.WriteLine("ok");
+
+                output.Write("testing servant locator removal... ");
+                output.Flush();
+                @base = communicator.stringToProxy("test/activation:" + helper.getTestEndpoint(0));
+                var activation = Test.TestActivationPrxHelper.checkedCast(@base);
+                activation.activateServantLocator(false);
+                try
+                {
+                    obj.ice_ping();
+                    test(false);
+                }
+                catch(Ice.ObjectNotExistException)
+                {
+                    output.WriteLine("ok");
+                }
+                output.Write("testing servant locator addition... ");
+                output.Flush();
+                activation.activateServantLocator(true);
+                try
+                {
+                    obj.ice_ping();
+                    output.WriteLine("ok");
+                }
+                catch(Exception)
+                {
+                    test(false);
+                }
+                return obj;
+            }
         }
-        catch(ObjectNotExistException)
-        {
-            WriteLine("ok");
-        }
-        Write("testing servant locator addition... ");
-        Flush();
-        activation.activateServantLocator(true);
-        try
-        {
-            obj.ice_ping();
-            WriteLine("ok");
-        }
-        catch(System.Exception)
-        {
-            test(false);
-        }
-        return obj;
     }
 }

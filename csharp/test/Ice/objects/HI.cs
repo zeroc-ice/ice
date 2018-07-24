@@ -7,8 +7,12 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class HI : H
+namespace Ice
 {
+    namespace objects
+    {
+        public sealed class HI : Test.H
+        {
+        }
+    }
 }

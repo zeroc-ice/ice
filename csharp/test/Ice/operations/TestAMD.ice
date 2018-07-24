@@ -11,6 +11,7 @@
 
 #include <Ice/Current.ice>
 
+[["cs:namespace:Ice.operations.AMD"]]
 module Test
 {
 

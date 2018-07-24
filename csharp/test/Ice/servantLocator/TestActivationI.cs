@@ -7,23 +7,27 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class TestActivationI : TestActivationDisp_
+namespace Ice
 {
-    override public void activateServantLocator(bool activate, Ice.Current current)
+    namespace servantLocator
     {
-        if(activate)
+        public sealed class TestActivationI : Test.TestActivationDisp_
         {
-            current.adapter.addServantLocator(new ServantLocatorI(""), "");
-            current.adapter.addServantLocator(new ServantLocatorI("category"), "category");
-        }
-        else
-        {
-            Ice.ServantLocator locator = current.adapter.removeServantLocator("");
-            locator.deactivate("");
-            locator = current.adapter.removeServantLocator("category");
-            locator.deactivate("category");
+            override public void activateServantLocator(bool activate, Ice.Current current)
+            {
+                if(activate)
+                {
+                    current.adapter.addServantLocator(new ServantLocatorI(""), "");
+                    current.adapter.addServantLocator(new ServantLocatorI("category"), "category");
+                }
+                else
+                {
+                    var locator = current.adapter.removeServantLocator("");
+                    locator.deactivate("");
+                    locator = current.adapter.removeServantLocator("category");
+                    locator.deactivate("category");
+                }
+            }
         }
     }
 }

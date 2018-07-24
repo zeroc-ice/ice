@@ -16,10 +16,10 @@ namespace IceInternal
 
     internal static class SafeNativeMethods
     {
-        [DllImport("bzip2.dll", EntryPoint="BZ2_bzlibVersion")]
+        [DllImport("bzip2.dll", EntryPoint="BZ2_bzlibVersion", ExactSpelling=true)]
         internal static extern IntPtr windowsBZ2_bzlibVersion();
 
-        [DllImport("bzip2.dll", EntryPoint="BZ2_bzBuffToBuffCompress")]
+        [DllImport("bzip2.dll", EntryPoint="BZ2_bzBuffToBuffCompress", ExactSpelling=true)]
         internal static extern int windowsBZ2_bzBuffToBuffCompress(byte[] dest,
                                                                    ref int destLen,
                                                                    byte[] source,
@@ -28,7 +28,7 @@ namespace IceInternal
                                                                    int verbosity,
                                                                    int workFactor);
 
-        [DllImport("bzip2.dll", EntryPoint="BZ2_bzBuffToBuffDecompress")]
+        [DllImport("bzip2.dll", EntryPoint="BZ2_bzBuffToBuffDecompress", ExactSpelling=true)]
         internal static extern int windowsBZ2_bzBuffToBuffDecompress(byte[] dest,
                                                                      ref int destLen,
                                                                      byte[] source,
@@ -36,10 +36,10 @@ namespace IceInternal
                                                                      int small,
                                                                      int verbosity);
 
-        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzlibVersion")]
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzlibVersion", ExactSpelling=true)]
         internal static extern IntPtr unixBZ2_bzlibVersion();
 
-        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffCompress")]
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffCompress", ExactSpelling=true)]
         internal static extern int unixBZ2_bzBuffToBuffCompress(byte[] dest,
                                                                 ref int destLen,
                                                                 byte[] source,
@@ -48,7 +48,7 @@ namespace IceInternal
                                                                 int verbosity,
                                                                 int workFactor);
 
-        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffDecompress")]
+        [DllImport("libbz2.so.1", EntryPoint="BZ2_bzBuffToBuffDecompress", ExactSpelling=true)]
         internal static extern int unixBZ2_bzBuffToBuffDecompress(byte[] dest,
                                                                   ref int destLen,
                                                                   byte[] source,
@@ -56,10 +56,10 @@ namespace IceInternal
                                                                   int small,
                                                                   int verbosity);
 
-        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzlibVersion")]
+        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzlibVersion", ExactSpelling=true)]
         internal static extern IntPtr macOSBZ2_bzlibVersion();
 
-        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzBuffToBuffCompress")]
+        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzBuffToBuffCompress", ExactSpelling=true)]
         internal static extern int macOSBZ2_bzBuffToBuffCompress(byte[] dest,
                                                                  ref int destLen,
                                                                  byte[] source,
@@ -68,7 +68,7 @@ namespace IceInternal
                                                                  int verbosity,
                                                                  int workFactor);
 
-        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzBuffToBuffDecompress")]
+        [DllImport("libbz2.dylib", EntryPoint="BZ2_bzBuffToBuffDecompress", ExactSpelling=true)]
         internal static extern int macOSBZ2_bzBuffToBuffDecompress(byte[] dest,
                                                                    ref int destLen,
                                                                    byte[] source,
@@ -122,14 +122,14 @@ namespace IceInternal
                 }
                 _bzlibInstalled = true;
             }
-            catch(DllNotFoundException)
-            {
-                // Expected -- bzip2 lib not installed or not in PATH.
-            }
             catch(EntryPointNotFoundException)
             {
                 string lib = AssemblyUtil.isWindows ? "bzip2.dll" : "libbz2.so.1";
                 Console.Error.WriteLine("warning: found " + lib + " but entry point BZ2_bzlibVersion is missing.");
+            }
+            catch(TypeLoadException)
+            {
+                // Expected -- bzip2 lib not installed or not in PATH.
             }
             catch(BadImageFormatException ex)
             {

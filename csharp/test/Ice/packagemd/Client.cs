@@ -7,32 +7,31 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    override public void run(string[] args)
+    namespace packagemd
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.Warn.Dispatch", "0");
-        properties.setProperty("Ice.Package.Test", "test.Ice.packagemd");
-        properties.setProperty("Ice.Package.Test1", "test.Ice.packagemd");
-        using (var communicator = initialize(properties))
+        public class Client : TestHelper
         {
-            var initial = AllTests.allTests(this);
-            initial.shutdown();
-        }
-    }
+            override public void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Warn.Dispatch", "0");
+                properties.setProperty("Ice.Package.Test", "Ice.packagemd");
+                properties.setProperty("Ice.Package.Test1", "Ice.packagemd");
+                using(var communicator = initialize(properties))
+                {
+                    var initial = AllTests.allTests(this);
+                    initial.shutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

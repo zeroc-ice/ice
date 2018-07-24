@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:test.Ice.packagemd.testpkg"]]
+[["cs:namespace:Ice.packagemd.testpkg"]]
 
 module Test2
 {
@@ -34,7 +34,7 @@ exception E2 extends E1
 }
 }
 
-["cs:namespace:test.Ice.packagemd.modpkg"]
+["cs:namespace:Ice.packagemd.modpkg"]
 module Test3
 {
 class C1

@@ -16,7 +16,8 @@ options=lambda current: { "protocol": ["tcp", "ws"] } if current.config.uwp else
 
 global currentMapping # The mapping for which this test suite is being loaded
 
-if isinstance(currentMapping, AndroidMappingMixin):
+if (isinstance(currentMapping, AndroidMappingMixin) or
+    isinstance(currentMapping, XamarinMapping)):
     testcase = ClientServerTestCase(server=Server(ready="McastTestAdapter"))
 else:
     testcase = ClientServerTestCase(client=Client(args=[5]),
