@@ -2477,9 +2477,16 @@ class UWPProcessController(RemoteProcessController):
             pass
 
     def installPackage(self, package, arch):
-        base = os.path.splitext(os.path.basename(package))[0]
-        output = run("powershell Get-AppxPackage -Name {0}".format(base))
-        if base not in output or "Architecture      : {0}".format(arch) not in output:
+        packages = {
+            "Microsoft.VCLibs.x64.14.00.appx" : "Microsoft.VCLibs.140.00",
+            "Microsoft.VCLibs.x86.14.00.appx" : "Microsoft.VCLibs.140.00",
+            "Microsoft.VCLibs.x64.Debug.14.00.appx" : "Microsoft.VCLibs.140.00.Debug",
+            "Microsoft.VCLibs.x86.Debug.14.00.appx" : "Microsoft.VCLibs.140.00.Debug",
+            "Microsoft.NET.CoreRuntime.2.1.appx" : "Microsoft.NET.CoreRuntime.2.1"
+        }
+        packageName = packages[os.path.basename(package)]
+        output = run("powershell Get-AppxPackage -Name {0}".format(packageName))
+        if packageName not in output or "Architecture      : {0}".format(arch) not in output:
             run("powershell Add-AppxPackage -Path \"{0}\" -ForceApplicationShutdown".format(package))
 
 class BrowserProcessController(RemoteProcessController):
