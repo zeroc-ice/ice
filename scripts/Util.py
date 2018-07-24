@@ -3566,7 +3566,7 @@ class PhpMapping(CppBasedClientMapping):
         # the Nuget PHP dependency.
         #
         if isinstance(platform, Windows) and not component.useBinDist(self, current):
-            nugetVersion = "7.1.17" if current.config.phpVersion == "7.1" else "7.2.7"
+            nugetVersion = "7.1.17" if current.config.phpVersion == "7.1" else "7.2.8"
             threadSafe = current.driver.configs[self].buildConfig in ["Debug", "Release"]
             buildPlatform = current.driver.configs[self].buildPlatform
             buildConfig = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
