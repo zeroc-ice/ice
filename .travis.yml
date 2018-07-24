@@ -18,8 +18,6 @@ jobs:
   include:
     - stage: Build
       script:
-      # see https://github.com/travis-ci/travis-ci/issues/8920
-      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
       - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
       - |
         echo "FROM ${DOCKER_BASE_IMAGE}" >> Dockerfile
@@ -29,8 +27,6 @@ jobs:
 
     # - stage: Build C++11
     #   script:
-    #   # see https://github.com/travis-ci/travis-ci/issues/8920
-    #   - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
     #   - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
     #   - |
     #     echo "FROM ${DOCKER_BUILD_IMAGE}" >> Dockerfile
@@ -40,9 +36,6 @@ jobs:
 
     - &test-staging
       stage: Test
-      before_script:
-      # see https://github.com/travis-ci/travis-ci/issues/8920
-      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
       script: $DOCKER_RUN "${ALLTESTS} --language=cpp"
       env: comment=C++
     # - <<: *test-staging
