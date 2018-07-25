@@ -3989,14 +3989,26 @@ Slice::ClassDef::operations() const
 OperationList
 Slice::ClassDef::allOperations() const
 {
-    OperationList result = operations();
-    result.sort();
-    result.unique();
+    OperationList result;
     for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
     {
         OperationList li = (*p)->allOperations();
-        result.merge(li);
-        result.unique();
+        for(OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+        {
+            if(find(result.begin(), result.end(), *q) == result.end())
+            {
+                result.push_back(*q);
+            }
+        }
+    }
+
+    OperationList li = operations();
+    for(OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+    {
+        if(find(result.begin(), result.end(), *q) == result.end())
+        {
+            result.push_back(*q);
+        }
     }
     return result;
 }

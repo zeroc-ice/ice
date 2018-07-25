@@ -1065,7 +1065,6 @@ Slice::Gen::generate(const UnitPtr& p)
                 implH << _include << '/';
             }
             implH << _base << "." << _headerExtension << ">";
-            implH << nl << "//base";
             writeExtraHeaders(implC);
 
             implC << "\n#include <";
