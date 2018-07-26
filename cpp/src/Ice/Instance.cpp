@@ -1453,6 +1453,16 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     try
     {
         _endpointHostResolver = new EndpointHostResolver(this);
+        bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
+        int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
+        if(hasPriority)
+        {
+            _endpointHostResolver->start(0, priority);
+        }
+        else
+        {
+            _endpointHostResolver->start();
+        }
     }
     catch(const IceUtil::Exception& ex)
     {

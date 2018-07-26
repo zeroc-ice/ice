@@ -538,30 +538,7 @@ IceInternal::EndpointHostResolver::EndpointHostResolver(const InstancePtr& insta
     _preferIPv6(instance->preferIPv6()),
     _destroyed(false)
 {
-    __setNoDelete(true);
-    try
-    {
-        updateObserver();
-        bool hasPriority = _instance->initializationData().properties->getProperty("Ice.ThreadPriority") != "";
-        int priority = _instance->initializationData().properties->getPropertyAsInt("Ice.ThreadPriority");
-        if(hasPriority)
-        {
-            start(0, priority);
-        }
-        else
-        {
-            start();
-        }
-    }
-    catch(const IceUtil::Exception& ex)
-    {
-        {
-            Ice::Error out(_instance->initializationData().logger);
-            out << "cannot create thread for enpoint host resolver:\n" << ex;
-        }
-        throw;
-    }
-    __setNoDelete(false);
+    updateObserver();
 }
 
 void
