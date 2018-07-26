@@ -1935,16 +1935,6 @@ int main(int argc, char* argv[])
         consoleErr << args[0] << ": error:" << ex.what() << endl;
         return EXIT_FAILURE;
     }
-    catch(const std::string& msg)
-    {
-        consoleErr << args[0] << ": error:" << msg << endl;
-        return EXIT_FAILURE;
-    }
-    catch(const char* msg)
-    {
-        consoleErr << args[0] << ": error:" << msg << endl;
-        return EXIT_FAILURE;
-    }
     catch(...)
     {
         consoleErr << args[0] << ": error:" << "unknown exception" << endl;

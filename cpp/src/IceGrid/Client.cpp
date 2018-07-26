@@ -273,16 +273,6 @@ Client::main(StringSeq& args)
         consoleErr << _appName << ": std::exception: " << ex.what() << endl;
         status = EXIT_FAILURE;
     }
-    catch(const std::string& msg)
-    {
-        consoleErr << _appName << ": " << msg << endl;
-        status = EXIT_FAILURE;
-    }
-    catch(const char* msg)
-    {
-        consoleErr << _appName << ": " << msg << endl;
-        status = EXIT_FAILURE;
-    }
     catch(...)
     {
         consoleErr << _appName << ": unknown exception" << endl;

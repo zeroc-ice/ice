@@ -730,18 +730,6 @@ ApplicationObserverTopic::applicationUpdated(Ice::Long dbSerial, const Applicati
         out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << ex.what();
         assert(false);
     }
-    catch(const std::string& msg)
-    {
-        Ice::Error out(_logger);
-        out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << msg;
-        assert(false);
-    }
-    catch(const char* msg)
-    {
-        Ice::Error out(_logger);
-        out << "unexpected exception while instantiating application `" << info.descriptor.name << "':\n" << msg;
-        assert(false);
-    }
     catch(...)
     {
         Ice::Error out(_logger);

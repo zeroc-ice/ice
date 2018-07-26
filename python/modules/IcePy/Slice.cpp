@@ -238,16 +238,6 @@ IcePy_compile(PyObject* /*self*/, PyObject* args)
         consoleErr << argSeq[0] << ": error:" << ex.what() << endl;
         rc = EXIT_FAILURE;
     }
-    catch(const std::string& msg)
-    {
-        consoleErr << argSeq[0] << ": error:" << msg << endl;
-        rc = EXIT_FAILURE;
-    }
-    catch(const char* msg)
-    {
-        consoleErr << argSeq[0] << ": error:" << msg << endl;
-        rc = EXIT_FAILURE;
-    }
     catch(...)
     {
         consoleErr << argSeq[0] << ": error:" << "unknown exception" << endl;

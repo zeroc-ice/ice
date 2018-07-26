@@ -190,16 +190,6 @@ IceRuby_compile(int argc, VALUE* argv, VALUE self)
             cerr << argSeq[0] << ": error:" << ex.what() << endl;
             rc = EXIT_FAILURE;
         }
-        catch(const std::string& msg)
-        {
-            cerr << argSeq[0] << ": error:" << msg << endl;
-            rc = EXIT_FAILURE;
-        }
-        catch(const char* msg)
-        {
-            cerr << argSeq[0] << ": error:" << msg << endl;
-            rc = EXIT_FAILURE;
-        }
         catch(...)
         {
             cerr << argSeq[0] << ": error:" << "unknown exception" << endl;

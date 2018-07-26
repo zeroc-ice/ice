@@ -315,11 +315,6 @@ main(int argc, char* argv[])
         consoleErr << appName << ": " << ex.what() << endl;
         return EXIT_FAILURE;
     }
-    catch(const char* ex)
-    {
-        consoleErr << appName << ": " << ex << endl;
-        return EXIT_FAILURE;
-    }
 
     return EXIT_SUCCESS;
 }
