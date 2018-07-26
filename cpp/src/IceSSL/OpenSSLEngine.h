@@ -45,6 +45,7 @@ public:
 
 private:
 
+    void cleanup();
     SSL_METHOD* getMethod(int);
     void setOptions(int);
     enum Protocols { SSLv3 = 0x01, TLSv1_0 = 0x02, TLSv1_1 = 0x04, TLSv1_2 = 0x08 };

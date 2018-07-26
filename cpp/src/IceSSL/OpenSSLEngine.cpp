@@ -201,8 +201,6 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
     IceSSL::SSLEngine(communicator),
     _ctx(0)
 {
-    __setNoDelete(true);
-
     //
     // Initialize OpenSSL if necessary.
     //
@@ -279,6 +277,7 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
 
                 if(!IceUtilInternal::splitString(randFiles, IceUtilInternal::pathsep, files))
                 {
+                    cleanup();
                     throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: invalid value for IceSSL.Random:\n" + randFiles);
                 }
@@ -288,11 +287,13 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
                     string resolved;
                     if(!checkPath(file, defaultDir, false, resolved))
                     {
+                        cleanup();
                         throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: entropy data file not found:\n" + file);
                     }
                     if(!RAND_load_file(resolved.c_str(), 1024))
                     {
+                        cleanup();
                         throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: unable to load entropy data from " + resolved);
                     }
@@ -308,6 +309,7 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
             {
                 if(RAND_egd(entropyDaemon.c_str()) <= 0)
                 {
+                    cleanup();
                     throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: EGD failure using file " + entropyDaemon);
                 }
@@ -332,21 +334,24 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
 #endif
         }
     }
-    __setNoDelete(false);
 }
 
-OpenSSL::SSLEngine::~SSLEngine()
+void
+OpenSSL::SSLEngine::cleanup()
 {
-//
-// OpenSSL 1.1.0 remove the need for library initialization and cleanup.
-//
+    //
+    // Must be called with the static mutex locked.
+    //
+    --instanceCount;
+    //
+    // OpenSSL 1.1.0 remove the need for library initialization and cleanup. We
+    // still need to decrement instanceCount
+    //
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     //
     // Clean up OpenSSL resources.
     //
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
-
-    if(--instanceCount == 0 && initOpenSSL)
+    if(instanceCount == 0 && initOpenSSL)
     {
         //
         // NOTE: We can't destroy the locks here: threads which might have called openssl methods
@@ -364,6 +369,12 @@ OpenSSL::SSLEngine::~SSLEngine()
         EVP_cleanup();
     }
 #endif
+}
+
+OpenSSL::SSLEngine::~SSLEngine()
+{
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+    cleanup();
 }
 
 void
