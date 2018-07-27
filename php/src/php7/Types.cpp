@@ -1622,7 +1622,11 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
 #    pragma warning(default:4311)
 #    pragma warning(default:4312)
 #endif
-
+        //
+        // Add a temporary null value so that the foreach order is the
+        // same as the index order.
+        //
+        add_index_null(&zv, i);
         elementType->unmarshal(is, this, comm, &zv, cl, false);
     }
 

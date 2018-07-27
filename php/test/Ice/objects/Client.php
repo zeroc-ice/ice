@@ -422,9 +422,29 @@ function allTests($communicator)
     $outS = null;
     $initial->opBaseSeq(array(), $outS);
 
-    $base = $NS ? eval("return new Test\\Base;") : eval("return new Test_Base;");
-    $retS = $initial->opBaseSeq(array($base), $outS);
-    test(count($retS) == 1 && count($outS) == 1);
+    $seq = array();
+    for($i = 0; $i < 120; $i++)
+    {
+        $b = $NS ? eval("return new Test\\Base;") : eval("return new Test_Base;");
+        $b->str = "b" . $i;
+        $b->theS = $NS ? eval("return new Test\\S;") : eval("return new Test_S;");
+        $b->theS->str = "b" . $i;
+        $seq[$i] = $b;
+    }
+
+    $retS = $initial->opBaseSeq($seq, $outS);
+    test($seq == $retS);
+    test($seq == $outS);
+    $i = 0;
+    foreach($retS as $obj)
+    {
+        test($obj == $seq[$i++]);
+    }
+    $i = 0;
+    foreach($outS as $obj)
+    {
+        test($obj == $seq[$i++]);
+    }
     echo "ok\n";
 
     echo "testing recursive type... ";
