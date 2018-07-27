@@ -9,7 +9,6 @@
 
 #ifndef ICE_CPP11_MAPPING
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/AsyncResult.h>
 #include <Ice/Proxy.h>
 

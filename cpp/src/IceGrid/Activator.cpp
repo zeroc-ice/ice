@@ -83,17 +83,14 @@ reportChildError(int err, int fd, const char* cannot, const char* name, const Tr
     // Send any errors to the parent process, using the write
     // end of the pipe.
     //
-    char msg[500];
-    strcpy(msg, cannot);
-    strcat(msg, " `");
-    strcat(msg, name);
-    strcat(msg, "'");
+    ostringstream os;
+    os << cannot << " `" << name << "'";
     if(err)
     {
-        strcat(msg, ": ");
-        strcat(msg, strerror(err));
+        os << ": " << IceUtilInternal::errorToString(err) << endl;
     }
-    ssize_t sz = write(fd, msg, strlen(msg));
+    const string msg = os.str();
+    ssize_t sz = write(fd, msg.c_str(), msg.size() + 1);
     if(sz == -1)
     {
         Ice::Warning out(traceLevels->logger);

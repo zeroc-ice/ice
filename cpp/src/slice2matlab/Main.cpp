@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/InputUtil.h>
@@ -277,7 +276,7 @@ openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
             if(IceUtilInternal::mkdir(path, 0777) != 0)
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << strerror(errno);
+                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);

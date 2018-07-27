@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
@@ -354,7 +353,7 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     if(!_out)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << strerror(errno);
+        os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);

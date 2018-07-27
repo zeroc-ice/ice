@@ -144,7 +144,8 @@ IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Lo
     int fd = IceUtilInternal::open(absolutePath, O_RDONLY|O_BINARY);
     if(fd == -1)
     {
-        throw FileAccessException(string("cannot open `") + path + "' for reading: " + strerror(errno));
+        throw FileAccessException(string("cannot open `") + path + "' for reading: " +
+                                  IceUtilInternal::errorToString(errno));
     }
 
     if(!largeFile)
@@ -177,7 +178,7 @@ IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Lo
         posStr << pos;
 
         throw FileAccessException("cannot seek position " + posStr.str() + " in file `" + path + "': " +
-                                  strerror(errno));
+                                  IceUtilInternal::errorToString(errno));
     }
 
     buffer.resize(num);
@@ -190,7 +191,7 @@ IcePatch2::FileServerI::getFileCompressedInternal(const std::string& pa, Ice::Lo
 #endif
     {
         IceUtilInternal::close(fd);
-        throw FileAccessException("cannot read `" + path + "': " + strerror(errno));
+        throw FileAccessException("cannot read `" + path + "': " + IceUtilInternal::errorToString(errno));
     }
 
     IceUtilInternal::close(fd);

@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
@@ -92,7 +91,7 @@ createDirectory(const string& dir)
     if(IceUtilInternal::mkdir(dir, 0777) != 0)
     {
         ostringstream os;
-        os << "cannot create directory '" << dir << "': " << strerror(errno);
+        os << "cannot create directory '" << dir << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }
@@ -132,7 +131,7 @@ createPackageDirectory(const string& output, const string& pkgdir)
             if(IceUtilInternal::mkdir(path, 0777) != 0)
             {
                 ostringstream os;
-                os << "cannot create directory '" << path << "': " << strerror(errno);
+                os << "cannot create directory '" << path << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -160,7 +159,7 @@ createPackageDirectory(const string& output, const string& pkgdir)
             if(!out)
             {
                 ostringstream os;
-                os << "cannot open '" << init << "': " << strerror(errno);
+                os << "cannot open '" << init << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addFile(init);
@@ -322,7 +321,7 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
         if(!in)
         {
             ostringstream os;
-            os << "cannot open file '" << initPath << "': " << strerror(errno);
+            os << "cannot open file '" << initPath << "': " << IceUtilInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
 
@@ -415,7 +414,7 @@ PackageVisitor::writeInit(const string& dir, const string& name, const StringLis
     if(!os)
     {
         ostringstream os;
-        os << "cannot open file '" << initPath << "': " << strerror(errno);
+        os << "cannot open file '" << initPath << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(initPath);
@@ -751,7 +750,7 @@ Slice::Python::compile(const vector<string>& argv)
                             if(!out)
                             {
                                 ostringstream os;
-                                os << "cannot open '" << path << "': " << strerror(errno);
+                                os << "cannot open '" << path << "': " << IceUtilInternal::errorToString(errno);
                                 throw FileException(__FILE__, __LINE__, os.str());
                             }
                             FileTracker::instance()->addFile(path);

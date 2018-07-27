@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Mutex.h>
@@ -297,7 +297,7 @@ Slice::Ruby::compile(const vector<string>& argv)
                         if(!out)
                         {
                             ostringstream os;
-                            os << "cannot open`" << file << "': " << strerror(errno);
+                            os << "cannot open`" << file << "': " << IceUtilInternal::errorToString(errno);
                             throw FileException(__FILE__, __LINE__, os.str());
                         }
                         FileTracker::instance()->addFile(file);

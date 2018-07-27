@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
+#include <IceUtil/StringUtil.h>
 #include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
@@ -740,7 +740,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
             if(IceUtilInternal::mkdir(path, 0777) != 0)
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << strerror(errno);
+                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -779,7 +779,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << strerror(errno);
+        os << "cannot open file `" << path << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }

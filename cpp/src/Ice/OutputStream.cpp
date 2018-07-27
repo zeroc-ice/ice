@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/OutputStream.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Instance.h>

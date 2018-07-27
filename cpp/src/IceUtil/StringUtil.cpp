@@ -10,7 +10,9 @@
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/StringConverter.h>
 #include <cstring>
+#include <string.h> // for strerror_r
 
+#include <sstream>
 #include <iomanip>
 
 using namespace std;
@@ -1071,7 +1073,38 @@ IceUtilInternal::lastErrorToString()
 string
 IceUtilInternal::errorToString(int error)
 {
-    return strerror(error);
+    char buf[500];
+#if !defined(__GLIBC__) || defined(BSD) || ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE)
+    //
+    // Use the XSI-compliant version of strerror_r
+    //
+    if(strerror_r(error, &buf[0], 500) != 0)
+    {
+        ostringstream os;
+        os << "Unknown error `" << error << "'";
+        return os.str();
+    }
+    else
+    {
+        return string(buf);
+    }
+#else
+    //
+    // Use the GNU-specific version of strerror_r
+    //
+    errno = 0;
+    const char* msg = strerror_r(error, &buf[0], 500);
+    if(errno != 0)
+    {
+        ostringstream os;
+        os << "Unknown error `" << error << "'";
+        return os.str();
+    }
+    else
+    {
+        return msg;
+    }
+#endif
 }
 
 string

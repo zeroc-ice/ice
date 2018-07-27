@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include "Gen.h"
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
@@ -107,7 +106,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     }
     else
     {
-        bool cpp11 = typeContext & TypeContextCpp11;
+        bool cpp11 = (typeContext & TypeContextCpp11) == TypeContextCpp11;
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
         if(bp && bp->kind() == Builtin::KindString)
         {
@@ -803,7 +802,7 @@ Slice::Gen::generate(const UnitPtr& p)
         if(!implH)
         {
             ostringstream os;
-            os << "cannot open `" << fileImplH << "': " << strerror(errno);
+            os << "cannot open `" << fileImplH << "': " << IceUtilInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
         FileTracker::instance()->addFile(fileImplH);
@@ -812,7 +811,7 @@ Slice::Gen::generate(const UnitPtr& p)
         if(!implC)
         {
             ostringstream os;
-            os << "cannot open `" << fileImplC << "': " << strerror(errno);
+            os << "cannot open `" << fileImplC << "': " << IceUtilInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
         FileTracker::instance()->addFile(fileImplC);
@@ -840,7 +839,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if(!H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << strerror(errno);
+        os << "cannot open `" << fileH << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -849,7 +848,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if(!C)
     {
         ostringstream os;
-        os << "cannot open `" << fileC << "': " << strerror(errno);
+        os << "cannot open `" << fileC << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileC);

@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/Functional.h>
 #include "Gen.h"
 #include <limits>
@@ -696,7 +696,7 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include, c
     if(!_H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << strerror(errno);
+        os << "cannot open `" << fileH << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -707,7 +707,7 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include, c
     if(!_M)
     {
         ostringstream os;
-        os << "cannot open `" << fileM << "': " << strerror(errno);
+        os << "cannot open `" << fileM << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileM);

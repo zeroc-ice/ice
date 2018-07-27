@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/CollocatedRequestHandler.h>
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/ThreadPool.h>

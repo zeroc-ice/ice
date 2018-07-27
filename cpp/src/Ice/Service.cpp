@@ -1530,7 +1530,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         {
             consoleErr << argv[0] << ": ";
         }
-        consoleErr << strerror(errno) << endl;
+        consoleErr << IceUtilInternal::errorToString(errno) << endl;
         return EXIT_FAILURE;
     }
 
@@ -1563,7 +1563,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 {
                     consoleErr << argv[0] << ": ";
                 }
-                consoleErr << strerror(errno) << endl;
+                consoleErr << IceUtilInternal::errorToString(errno) << endl;
                 _exit(EXIT_FAILURE);
             }
             break;
@@ -1590,7 +1590,8 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                     {
                         consoleErr << ": ";
                     }
-                    consoleErr << "I/O error while reading error message from child:\n" << strerror(errno) << endl;
+                    consoleErr << "I/O error while reading error message from child:\n"
+                               << IceUtilInternal::errorToString(errno) << endl;
                     _exit(EXIT_FAILURE);
                 }
                 pos += n;

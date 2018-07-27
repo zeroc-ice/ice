@@ -18,13 +18,13 @@
 #ifndef _WIN32
 
 #include <Ice/StringConverter.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/ThreadException.h>
 #include <IceUtil/UndefSysMacros.h>
 
 #include <algorithm>
 #include <iconv.h>
 #include <langinfo.h>
-#include <string.h> // For strerror
 
 #if (defined(__APPLE__) && _LIBICONV_VERSION < 0x010B)
 //
@@ -289,9 +289,8 @@ IconvStringConverter<charT>::toUTF8(const charT* sourceStart,
 
     if(count == size_t(-1))
     {
-        throw Ice::IllegalConversionException(__FILE__,
-                                              __LINE__,
-                                              errno != 0 ? strerror(errno) : "Unknown error");
+        throw Ice::IllegalConversionException(__FILE__, __LINE__,
+                                              errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
     }
     return reinterpret_cast<Ice::Byte*>(outbuf);
 }
@@ -345,9 +344,8 @@ IconvStringConverter<charT>::fromUTF8(const Ice::Byte* sourceStart, const Ice::B
 
     if(count == size_t(-1))
     {
-        throw Ice::IllegalConversionException(__FILE__,
-                                              __LINE__,
-                                              errno != 0 ? strerror(errno) : "Unknown error");
+        throw Ice::IllegalConversionException(__FILE__,  __LINE__,
+                                              errno == 0 ? "Unknown error" : IceUtilInternal::errorToString(errno));
     }
 
     target.resize(target.size() - (outbytesleft / sizeof(charT)));

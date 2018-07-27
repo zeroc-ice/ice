@@ -1426,7 +1426,7 @@ Slice::GeneratorBase::openStream(const string& path)
     if(!_out.isOpen())
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << strerror(errno);
+        os << "cannot open file `" << path << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(path);
@@ -1787,7 +1787,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
     if(IceUtilInternal::mkdir(dir, 0777) != 0)
     {
         ostringstream os;
-        os << "cannot create directory `" << dir << "': " << strerror(errno);
+        os << "cannot create directory `" << dir << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addDirectory(dir);
@@ -1800,7 +1800,7 @@ Slice::GeneratorBase::readFile(const string& file)
     if(!in)
     {
         ostringstream os;
-        os << "cannot open file `" << file << "': " << strerror(errno);
+        os << "cannot open file `" << file << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 
@@ -1836,7 +1836,7 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
     if(!in)
     {
         ostringstream os;
-        os << "cannot open file `" << file << "': " << strerror(errno);
+        os << "cannot open file `" << file << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 

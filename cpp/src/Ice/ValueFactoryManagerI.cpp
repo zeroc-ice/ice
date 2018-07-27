@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/ValueFactoryManagerI.h>
 #include <Ice/LocalException.h>
 

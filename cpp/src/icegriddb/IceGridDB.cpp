@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/ConsoleUtil.h>
@@ -270,7 +271,7 @@ Client::run(int argc, char* argv[])
             ifstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
-                consoleErr << argv[0] << ": could not open input file: " << strerror(errno) << endl;
+                consoleErr << argv[0] << ": could not open input file: " << IceUtilInternal::errorToString(errno) << endl;
                 return EXIT_FAILURE;
             }
             fs.unsetf(ios::skipws);
@@ -545,7 +546,7 @@ Client::run(int argc, char* argv[])
             ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
-                consoleErr << argv[0] << ": could not open output file: " << strerror(errno) << endl;
+                consoleErr << argv[0] << ": could not open output file: " << IceUtilInternal::errorToString(errno) << endl;
                 return EXIT_FAILURE;
             }
             fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());

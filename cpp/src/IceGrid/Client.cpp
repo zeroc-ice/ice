@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/Thread.h>
@@ -383,7 +382,7 @@ Client::run(StringSeq& originalArgs)
     }
     debug = opts.isSet("debug");
 
-    bool ssl = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL");
+    bool ssl = communicator()->getProperties()->getPropertyAsInt("IceGridAdmin.AuthenticateUsingSSL") > 0;
     if(opts.isSet("ssl"))
     {
         ssl = true;

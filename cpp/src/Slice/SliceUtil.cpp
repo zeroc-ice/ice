@@ -7,7 +7,6 @@
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Slice/Util.h>
 #include <Slice/FileTracker.h>
 #include <IceUtil/FileUtil.h>
@@ -397,7 +396,7 @@ Slice::writeDependencies(const string& dependencies, const string& dependFile)
         if(!of)
         {
             ostringstream os;
-            os << "cannot open file `" << dependFile << "': " << strerror(errno);
+            os << "cannot open file `" << dependFile << "': " << IceUtilInternal::errorToString(errno);
             throw Slice::FileException(__FILE__, __LINE__, os.str());
         }
         of << dependencies;
