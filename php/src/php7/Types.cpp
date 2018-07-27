@@ -1720,12 +1720,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             seq[i++] = Z_TYPE_P(val) == IS_TRUE;
         }
         ZEND_HASH_FOREACH_END();
-
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-        os->writeBoolSeq(seq);
-#else
         os->write(seq);
-#endif
         break;
     }
     case PrimitiveInfo::KindByte:
