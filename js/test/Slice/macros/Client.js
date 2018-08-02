@@ -11,19 +11,14 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    const TestHelper = require("TestHelper").TestHelper;
+    const test = TestHelper.test;
 
-    function test(value)
+    class Client extends TestHelper
     {
-        if(!value)
+        allTests()
         {
-            throw new Error("test failed");
-        }
-    }
-
-    function run(out)
-    {
-        try
-        {
+            const out = this.getWriter();
             out.write("testing Slice predefined macros... ");
 
             const d = new Test._Default();
@@ -39,15 +34,14 @@
             test(c.version == Ice.intVersion());
 
             out.writeLine("ok");
-            return Promise.resolve();
         }
-        catch(ex)
+
+        run(args)
         {
-            return Promise.reject(ex);
+            this.allTests();
         }
     }
-
-    exports._test = run;
+    exports.Client = Client;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

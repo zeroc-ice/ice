@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-/* global self, _server, _serveramd, _test, Ice */
+/* global self, ControllerHelper, Ice */
 
 class Output
 {
@@ -30,36 +30,13 @@ self.onmessage = async e =>
             {
                 self.importScripts(script);
             }
-
-            class Logger extends Ice.Logger
-            {
-                write(message, indent)
-                {
-                    if(indent)
-                    {
-                        message = message.replace(/\n/g, "\n   ");
-                    }
-                    Output.writeLine(message);
-                }
-            }
-
-            let promise;
-            const initData = new Ice.InitializationData();
-            initData.properties = Ice.createProperties(e.data.args);
-            initData.logger = new Logger();
-            if(e.data.exe === "Server" || e.data.exe === "ServerAMD")
-            {
-                const ready = new Ice.Promise();
-                const test = e.data.exe === "Server" ? _server : _serveramd;
-                promise = test(Output, initData, ready, e.data.args);
-                await ready;
-                self.postMessage({type: "ready"});
-            }
-            else
-            {
-                promise = _test(Output, initData, e.data.args);
-            }
-
+            const helper = new ControllerHelper(e.data.exe, Output);
+            const cls = Ice._require(e.data.exe)[e.data.exe];
+            const test = new cls();
+            test.setControllerHelper(helper);
+            const promise = test.run(e.data.args);
+            await helper.waitReady();
+            self.postMessage({type: "ready"});
             await promise;
             self.postMessage({type: "finished"});
         }

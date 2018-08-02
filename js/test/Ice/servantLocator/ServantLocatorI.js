@@ -12,17 +12,10 @@
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
     const TestI = require("TestI").TestI;
+    const test = require("TestHelper").TestHelper.test;
 
     class MyError
     {
-    }
-
-    function test(value)
-    {
-        if(!value)
-        {
-            throw new Error("test failed");
-        }
     }
 
     class CookieI

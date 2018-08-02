@@ -3665,7 +3665,7 @@ class JavaScriptMapping(Mapping):
 
     def getCommandLine(self, current, process, exe, args):
         if current.config.es5:
-            return "node {0}/test/es5/Common/run.js --es5 {1} {2}".format(self.path, exe, args)
+            return "node {0}/test/es5/Common/run.js {1} {2}".format(self.path, exe, args)
         else:
             return "node {0}/test/Common/run.js {1} {2}".format(self.path, exe, args)
 
@@ -3677,7 +3677,11 @@ class JavaScriptMapping(Mapping):
 
     def getEnv(self, process, current):
         env = Mapping.getEnv(self, process, current)
-        env["NODE_PATH"] = self.getTestCwd(process, current)
+        commonPath = os.path.join(self.getPath(), "test")
+        if current.config.es5:
+            commonPath = os.path.join(commonPath, "es5")
+        commonPath = os.path.join(commonPath, "Common")
+        env["NODE_PATH"] = os.pathsep.join([commonPath, self.getTestCwd(process, current)])
         return env
 
     def getSSLProps(self, process, current):

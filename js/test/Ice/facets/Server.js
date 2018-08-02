@@ -11,31 +11,26 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    const TestHelper = require("TestHelper").TestHelper;
     const TestI = require("TestI");
+    const test = TestHelper.test;
 
     const DI = TestI.DI;
     const FI = TestI.FI;
     const HI = TestI.HI;
     const EmptyI = TestI.EmptyI;
 
-    function test(value)
+    class Server extends TestHelper
     {
-        if(!value)
+        async run(args)
         {
-            throw new Error("test failed");
-        }
-    }
-
-    async function run(out, initData, ready)
-    {
-        let communicator;
-        try
-        {
+            let communicator;
             let echo;
             try
             {
-                communicator = Ice.initialize(initData);
-                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
+                communicator = this.initialize(args);
+                const out = this.getWriter();
+                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
 
                 out.write("testing facet registration exceptions... ");
                 let adapter = await communicator.createObjectAdapter("");
@@ -106,12 +101,8 @@
                 adapter.addFacet(hi, Ice.stringToIdentity("d"), "facetGH");
                 await echo.setConnection();
                 echo.ice_getCachedConnection().setAdapter(adapter);
-                ready.resolve();
+                this.serverReady();
                 await communicator.waitForShutdown();
-            }
-            catch(ex)
-            {
-                ready.reject(ex);
             }
             finally
             {
@@ -119,18 +110,15 @@
                 {
                     await echo.shutdown();
                 }
-            }
-        }
-        finally
-        {
-            if(communicator)
-            {
-                await communicator.destroy();
+
+                if(communicator)
+                {
+                    await communicator.destroy();
+                }
             }
         }
     }
-
-    exports._server = run;
+    exports.Server = Server;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

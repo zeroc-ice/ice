@@ -11,29 +11,27 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    const TestHelper = require("TestHelper").TestHelper;
     const AMDMyDerivedClassI = require("AMDMyDerivedClassI").AMDMyDerivedClassI;
 
-    async function run(out, initData, ready)
+    class ServerAMD extends TestHelper
     {
-        initData.properties.setProperty("Ice.BatchAutoFlushSize", "100");
-        let communicator;
-        try
+        async run(args)
         {
+            let communicator;
             let echo;
             try
             {
-                communicator = Ice.initialize(initData);
-                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
+                const properties = this.createTestProperties(args);
+                properties.setProperty("Ice.BatchAutoFlushSize", "100");
+                communicator = this.initialize(properties);
+                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
                 const adapter = await communicator.createObjectAdapter("");
                 adapter.add(new AMDMyDerivedClassI(echo.ice_getEndpoints()), Ice.stringToIdentity("test"));
                 await echo.setConnection();
                 echo.ice_getCachedConnection().setAdapter(adapter);
-                ready.resolve();
+                this.serverReady();
                 await communicator.waitForShutdown();
-            }
-            catch(ex)
-            {
-                ready.reject(ex);
             }
             finally
             {
@@ -41,18 +39,15 @@
                 {
                     await echo.shutdown();
                 }
-            }
-        }
-        finally
-        {
-            if(communicator)
-            {
-                await communicator.destroy();
+
+                if(communicator)
+                {
+                    communicator.destroy();
+                }
             }
         }
     }
-
-    exports._serveramd = run;
+    exports.ServerAMD = ServerAMD;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

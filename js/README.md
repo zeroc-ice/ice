@@ -82,7 +82,7 @@ pip install zeroc-ice
 
 You can start the NodeJS tests with:
 ```
-npm run test:node
+python allTests.py
 ```
 
 If everything worked out, you should see lots of `ok` messages. In case of a
@@ -90,18 +90,20 @@ failure, the tests abort with `failed`.
 
 You can start the browser tests with:
 ```
-npm run test:browser
+python allTest.py --browser Manual
 ```
 
-This opens the test page (http://127.0.0.1:8080) using the system's default
-browser. These tests require a web browser with ECMAScript 6 support, such as
-a recent version of Chrome, Firefox or Safari.
+Then open the test page (http://127.0.0.1:8080/start) using a web browser.
+These tests require a web browser with ECMAScript 6 support, such as
+a recent version of Chrome, Firefox, Microsoft Edge or Safari.
 
-If you are using another web browser, such as Microsoft Edge or Internet
-Explorer, you should use instead:
+If you are using another web browser, such as Internet Explorer, you should
+use instead:
 ```
-npm run test:browser-es5
+python allTest.py --browser Manual --es5
 ```
+
+Then open the test page (http://127.0.0.1:8080/es5/start)
 
 This runs a version of the test suite transpiled to ECMAScript 5 using [Babel][2].
 
@@ -190,7 +192,7 @@ npm pack
 
 This will generate the file `ice-3.7.1.tgz`, which can be installed by running:
 ```
-npm install <path_to_file>/ice-3.7.1.tgz
+npm install ice-3.7.1.tgz
 ```
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript

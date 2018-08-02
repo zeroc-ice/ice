@@ -10,22 +10,10 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
+    const test = require("TestHelper").TestHelper.test;
 
-    async function run(communicator, prx, Test, bidir)
+    async function run(communicator, prx, Test, bidir, helper)
     {
-        function test(value, ex)
-        {
-            if(!value)
-            {
-                let message = "test failed";
-                if(ex)
-                {
-                    message += "\n" + ex.toString();
-                }
-                throw new Error(message);
-            }
-        }
-
         const literals = await prx.opStringLiterals();
 
         test(Test.s0 == "\\" &&
@@ -1371,7 +1359,7 @@
             ctx.set("two", "TWO");
             ctx.set("three", "THREE");
 
-            let p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"));
+            let p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint()));
 
             ic.getImplicitContext().setContext(ctx);
             test(Ice.MapUtil.equals(ic.getImplicitContext().getContext(), ctx));

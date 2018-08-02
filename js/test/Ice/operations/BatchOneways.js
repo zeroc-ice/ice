@@ -10,17 +10,10 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
+    const test = require("TestHelper").TestHelper.test;
 
     async function run(communicator, prx, Test, bidir)
     {
-        function test(value)
-        {
-            if(!value)
-            {
-                throw new Error("test failed");
-            }
-        }
-
         const bs1 = new Uint8Array(10 * 1024);
         for(let i = 0; i < bs1.length; ++i)
         {

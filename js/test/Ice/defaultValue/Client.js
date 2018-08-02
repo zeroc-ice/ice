@@ -11,19 +11,14 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    const TestHelper = require("TestHelper").TestHelper;
+    const test = TestHelper.test;
 
-    function run(out, initData)
+    class Client extends TestHelper
     {
-        function test(value)
+        run()
         {
-            if(!value)
-            {
-                throw new Error("test failed");
-            }
-        }
-
-        try
-        {
+            const out = this.getWriter();
             out.write("testing default values... ");
             {
                 const v = new Test.Struct1();
@@ -198,14 +193,9 @@
                 test(cl.dict === null);
             }
             out.writeLine("ok");
-            return Promise.resolve();
-        }
-        catch(ex)
-        {
-            return Promise.reject(ex);
         }
     }
-    exports._test = run;
+    exports.Client = Client;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

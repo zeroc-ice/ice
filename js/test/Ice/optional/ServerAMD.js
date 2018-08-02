@@ -11,28 +11,25 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    const TestHelper = require("TestHelper").TestHelper;
     const AMDInitialI = require("AMDInitialI").AMDInitialI;
 
-    async function run(out, initData, ready)
+    class ServerAMD extends TestHelper
     {
-        let communicator;
-        try
+        async run(args)
         {
+            let communicator;
             let echo;
             try
             {
-                communicator = Ice.initialize(initData);
-                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:default -p 12010"));
+                communicator = this.initialize(args);
+                echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
                 const adapter = await communicator.createObjectAdapter("");
                 adapter.add(new AMDInitialI(), Ice.stringToIdentity("initial"));
                 await echo.setConnection();
                 echo.ice_getCachedConnection().setAdapter(adapter);
-                ready.resolve();
+                this.serverReady();
                 await communicator.waitForShutdown();
-            }
-            catch(ex)
-            {
-                ready.reject(ex);
             }
             finally
             {
@@ -40,18 +37,15 @@
                 {
                     await echo.shutdown();
                 }
-            }
-        }
-        finally
-        {
-            if(communicator)
-            {
-                communicator.destroy();
+
+                if(communicator)
+                {
+                    communicator.destroy();
+                }
             }
         }
     }
-
-    exports._serveramd = run;
+    exports.ServerAMD = ServerAMD;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
   typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));

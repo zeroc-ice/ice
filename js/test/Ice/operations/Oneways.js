@@ -10,22 +10,10 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
+    const test = require("TestHelper").TestHelper.test;
 
     async function run(communicator, prx, Test, bidir)
     {
-        function test(value, ex)
-        {
-            if(!value)
-            {
-                let message = "test failed";
-                if(ex)
-                {
-                    message += "\n" + ex.toString();
-                }
-                throw new Error(message);
-            }
-        }
-
         prx = prx.ice_oneway();
         await prx.ice_ping();
 

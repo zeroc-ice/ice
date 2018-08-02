@@ -134,23 +134,11 @@ gulp.task("common:slice-babel", ["common:slice"],
             gulp.src(["test/Common/Controller.js",
                       "test/Common/ControllerI.js",
                       "test/Common/ControllerWorker.js",
-                      "test/Common/TestRunner.js",
-                      "test/Common/TestSuite.js",
-                      "test/Common/Worker.js",
+                      "test/Common/TestHelper.js",
                       "test/Common/run.js"]),
             babel({compact: false}),
             gulp.dest("test/es5/Common")], cb);
     });
-
-gulp.task("common:slice-es5-worker", ["common:slice-babel"],
-          function(cb){
-              pump([
-                  gulp.src(["node_modules/babel-polyfill/dist/polyfill.js",
-                            "test/es5/Common/Worker.js"]),
-                  concat("Worker.js"),
-                  gulp.dest("test/es5/Common/")
-              ], cb);
-          });
 
 gulp.task("common:slice-es5-controllerworker", ["common:slice-babel"],
           function(cb){
@@ -169,9 +157,7 @@ gulp.task("common:clean", [],
              "test/es5/Common/Controller.js",
              "test/es5/Common/ControllerI.js",
              "test/es5/Common/ControllerWorker.js",
-             "test/es5/Common/TestRunner.js",
-             "test/es5/Common/TestSuite.js",
-             "test/es5/Common/Worker.js"]);
+             "test/es5/Common/TestHelper.js"]);
     });
 
 gulp.task("import:slice2js", [],
@@ -248,7 +234,7 @@ tests.forEach(
     });
 
 gulp.task("test", tests.map(testBabelTask).concat(
-    ["common:slice-es5-worker", "common:slice-es5-controllerworker", "import:bundle"]));
+    ["common:slice-es5-controllerworker", "import:bundle"]));
 
 gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:clean", "import:clean"]));
 
@@ -416,133 +402,8 @@ gulp.task("dist", useBinDist ? [] :
     libs.map(libTask).concat(libs.map(minLibTask))
                      .concat(libs.map(babelMinLibTask))
                      .concat(libs.map(babelTask)));
+
 gulp.task("dist:clean", libs.map(libCleanTask));
-
-function runTestsWithBrowser(url)
-{
-    require("./bin/HttpServer")();
-    var cmd = ["../scripts/Controller.py", "--endpoints", "ws -p 15002:wss -p 15003", "-d",
-               "--sprops=IceSSL.VerifyPeer=0"];
-    if(host)
-    {
-        cmd.push("--host");
-        cmd.push(host);
-    }
-    if(platform)
-    {
-        cmd.push("--platform=" + platform);
-    }
-    if(configuration)
-    {
-        cmd.push("--config=" + configuration);
-    }
-
-    var i = process.argv.indexOf("--");
-    var argv = process.argv.filter(
-        function(element, index, argv)
-        {
-            return i !== -1 && index > i;
-        });
-    cmd = cmd.concat(argv);
-
-    var p  = require("child_process").spawn("python", cmd, {stdio: "inherit"});
-    p.on("error", function(err)
-        {
-            if(err.message == "spawn python ENOENT")
-            {
-                console.log("Error: python is required in PATH to run tests");
-                process.exit(1);
-            }
-            else
-            {
-                throw err;
-            }
-        });
-    process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
-        function()
-        {
-            process.exit();
-        });
-    process.on("exit", function()
-        {
-            p.kill();
-        });
-    return gulp.src("").pipe(open({uri: url}));
-}
-
-gulp.task("test:browser", useBinDist ? ["test"] : ["build"],
-    function(url){
-        return runTestsWithBrowser("http://" + host +":8080/test/Ice/acm/index.html");
-    });
-
-gulp.task("test:browser-es5", useBinDist ? ["test"] : ["build"],
-    function(url){
-        return runTestsWithBrowser("http://" + host +":8080/test/es5/Ice/acm/index.html");
-    });
-
-gulp.task("test:node", (useBinDist ? ["test"] : ["build"]),
-    function(){
-        var args = ["allTests.py", "--all"];
-        if(platform)
-        {
-            args = args.concat(["--cpp-platform", platform]);
-        }
-        if(configuration)
-        {
-            args = args.concat(["--cpp-config", configuration]);
-        }
-
-        var p = require("child_process").spawn("python", args, {stdio: "inherit"});
-        p.on("error",
-            function(err)
-            {
-                if(err.message == "spawn python ENOENT")
-                {
-                    console.log("Error: python is required in PATH to run tests");
-                    process.exit(1);
-                }
-                else
-                {
-                    throw err;
-                }
-            });
-
-        process.on(process.platform == "win32" ? "SIGBREAK" : "SIGINT",
-            function()
-            {
-                process.exit();
-            });
-        process.on("exit", function()
-            {
-                p.kill();
-            });
-    });
-
-gulp.task("lint:html", ["build"],
-    function(cb){
-        pump([
-            gulp.src(["**/*.html",
-                      "!node_modules/**/*.html",
-                      "!test/**/index.html"]),
-            jshint.extract("auto"),
-            jshint(),
-            jshint.reporter('default')], cb);
-    });
-
-gulp.task("lint:js", ["build"],
-    function(cb){
-        pump([
-            gulp.src(["gulpfile.js",
-                      "gulp/**/*.js",
-                      "src/**/*.js",
-                      "src/**/browser/*.js",
-                      "test/**/*.js",
-                      "!src/es5/**/*.js",
-                      "!test/es5/**/**/*.js",
-                      "!**/Client.min.js"]),
-            jshint(),
-            jshint.reporter("default")], cb);
-    });
 
 var buildDepends = ["dist", "test"];
 var cleanDepends = ["test:clean", "common:clean"];
@@ -566,7 +427,6 @@ if(!useBinDist)
         cleanDepends.push("ice-module:clean");
 }
 
-gulp.task("lint", ["lint:js", "lint:html"]);
 gulp.task("build", buildDepends);
 gulp.task("clean", cleanDepends.concat(useBinDist ? [] : ["dist:clean"]));
 gulp.task("default", ["build"]);
