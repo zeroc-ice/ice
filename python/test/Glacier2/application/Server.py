@@ -8,9 +8,11 @@
 #
 # **********************************************************************
 
-import os, sys, traceback, Ice
-Ice.loadSlice('Callback.ice')
+from TestHelper import TestHelper
+TestHelper.loadSlice('Callback.ice')
+import Ice
 import Test
+
 
 class CallbackI(Test.Callback):
 
@@ -20,19 +22,16 @@ class CallbackI(Test.Callback):
     def shutdown(self, current):
         current.adapter.getCommunicator().shutdown()
 
-class Server(Ice.Application):
+
+class Server(TestHelper):
 
     def run(self, args):
-        self.communicator().getProperties().setProperty("DeactivatedAdapter.Endpoints", "default -p 12011")
-        self.communicator().createObjectAdapter("DeactivatedAdapter")
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("DeactivatedAdapter.Endpoints", "default -p 12011")
+            communicator.createObjectAdapter("DeactivatedAdapter")
 
-        self.communicator().getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010")
-        adapter = self.communicator().createObjectAdapter("CallbackAdapter")
-        adapter.add(CallbackI(), Ice.stringToIdentity("callback"))
-        adapter.activate()
-        self.communicator().waitForShutdown()
-        return 0
-
-app = Server()
-status = app.main(sys.argv)
-sys.exit(status)
+            communicator.getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010")
+            adapter = communicator.createObjectAdapter("CallbackAdapter")
+            adapter.add(CallbackI(), Ice.stringToIdentity("callback"))
+            adapter.activate()
+            communicator.waitForShutdown()

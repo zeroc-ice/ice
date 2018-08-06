@@ -8,20 +8,11 @@
 #
 # **********************************************************************
 
-import os, sys, traceback, array
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
-
-Ice.loadSlice('"-I' + slice_dir + '" Test.ice')
 import Test
 
-def test(b):
-    if not b:
-        raise RuntimeError('test assertion failed')
 
 class ThrowerI(Test.Thrower):
     def shutdown(self, current=None):
@@ -150,35 +141,29 @@ class ThrowerI(Test.Thrower):
         f.set_exception(Test.A())
         return f
 
-def run(args, communicator):
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter2 = communicator.createObjectAdapter("TestAdapter2")
-    adapter3 = communicator.createObjectAdapter("TestAdapter3")
-    object = ThrowerI()
-    adapter.add(object, Ice.stringToIdentity("thrower"))
-    adapter2.add(object, Ice.stringToIdentity("thrower"))
-    adapter3.add(object, Ice.stringToIdentity("thrower"))
-    adapter.activate()
-    adapter2.activate()
-    adapter3.activate()
-    communicator.waitForShutdown()
-    return True
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Warn.Dispatch", "0")
-    initData.properties.setProperty("Ice.Warn.Connections", "0");
-    initData.properties.setProperty("TestAdapter.Endpoints", "default -p 12010")
-    initData.properties.setProperty("Ice.MessageSizeMax", "10")
-    initData.properties.setProperty("TestAdapter2.Endpoints", "default -p 12011")
-    initData.properties.setProperty("TestAdapter2.MessageSizeMax", "0")
-    initData.properties.setProperty("TestAdapter3.Endpoints", "default -p 12012")
-    initData.properties.setProperty("TestAdapter3.MessageSizeMax", "1")
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+class ServerAMD(TestHelper):
 
-sys.exit(not status)
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.Warn.Dispatch", "0")
+        properties.setProperty("Ice.Warn.Connections", "0")
+        properties.setProperty("Ice.MessageSizeMax", "10")
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
+            communicator.getProperties().setProperty("TestAdapter2.Endpoints", "default -p 12011")
+            communicator.getProperties().setProperty("TestAdapter2.MessageSizeMax", "0")
+            communicator.getProperties().setProperty("TestAdapter3.Endpoints", "default -p 12012")
+            communicator.getProperties().setProperty("TestAdapter3.MessageSizeMax", "1")
+
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter2 = communicator.createObjectAdapter("TestAdapter2")
+            adapter3 = communicator.createObjectAdapter("TestAdapter3")
+            object = ThrowerI()
+            adapter.add(object, Ice.stringToIdentity("thrower"))
+            adapter2.add(object, Ice.stringToIdentity("thrower"))
+            adapter3.add(object, Ice.stringToIdentity("thrower"))
+            adapter.activate()
+            adapter2.activate()
+            adapter3.activate()
+            communicator.waitForShutdown()

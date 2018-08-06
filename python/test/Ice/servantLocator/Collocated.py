@@ -8,29 +8,29 @@
 #
 # **********************************************************************
 
-import os, sys, traceback, time
-
+from TestHelper import TestHelper
+TestHelper.loadSlice('Test.ice')
 import Ice
-Ice.loadSlice('Test.ice')
-import Test, TestI, AllTests, TestActivationI
+import TestI
+import AllTests
+import TestActivationI
 
-class TestServer(Ice.Application):
+
+class Collocated(TestHelper):
+
     def run(self, args):
-        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-        self.communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("Ice.Warn.Dispatch", "0")
 
-        adapter = self.communicator().createObjectAdapter("TestAdapter")
-        #adapter.activate() // Don't activate OA to ensure collocation is used.
-        adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
-        adapter.addServantLocator(TestI.ServantLocatorI(""), "")
-        adapter.add(TestI.TestI(), Ice.stringToIdentity("asm"))
-        adapter.add(TestActivationI.TestActivationI(), Ice.stringToIdentity("test/activation"))
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            # adapter.activate() // Don't activate OA to ensure collocation is used.
+            adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
+            adapter.addServantLocator(TestI.ServantLocatorI(""), "")
+            adapter.add(TestI.TestI(), Ice.stringToIdentity("asm"))
+            adapter.add(TestActivationI.TestActivationI(), Ice.stringToIdentity("test/activation"))
 
-        AllTests.allTests(self.communicator(), False)
+            AllTests.allTests(self, communicator)
 
-        adapter.deactivate()
-        adapter.waitForDeactivate()
-        return 0
-
-app = TestServer()
-sys.exit(app.main(sys.argv))
+            adapter.deactivate()
+            adapter.waitForDeactivate()

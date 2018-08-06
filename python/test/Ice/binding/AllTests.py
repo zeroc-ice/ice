@@ -50,8 +50,8 @@ def deactivate(com, adapters):
     for p in adapters:
         com.deactivateObjectAdapter(p)
 
-def allTests(communicator):
-    ref = "communicator:default -p 12010"
+def allTests(helper, communicator):
+    ref = "communicator:{0}".format(helper.getTestEndpoint())
     com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref))
 
     sys.stdout.write("testing binding with single endpoint... ")

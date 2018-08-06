@@ -51,14 +51,14 @@ class Callback:
         else:
             test(Dispatcher.Dispatcher.isDispatcherThread())
 
-def allTests(communicator, collocated):
-    sref = "test:default -p 12010"
+def allTests(helper, communicator):
+    sref = "test:{0}".format(helper.getTestEndpoint())
     obj = communicator.stringToProxy(sref)
     test(obj)
 
     p = Test.TestIntfPrx.uncheckedCast(obj)
 
-    sref = "testController:default -p 12011"
+    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
     obj = communicator.stringToProxy(sref)
     test(obj)
 

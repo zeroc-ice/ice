@@ -3474,15 +3474,20 @@ class PythonMapping(CppBasedMapping):
         mappingDesc = "Python"
 
     def getCommandLine(self, current, process, exe, args):
-        return "\"{0}\" {1} {2}".format(sys.executable, exe, args)
+        return "\"{0}\"  {1} {2} {3}".format(sys.executable,
+                                             os.path.join(self.path, "test", "TestHelper.py"),
+                                             exe,
+                                             args)
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
+        dirs = []
         if component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
             # the Ice python directory to PYTHONPATH
-            dirs = self.getPythonDirs(component.getInstallDir(self, current), current.config)
-            env["PYTHONPATH"] = os.pathsep.join(dirs)
+            dirs += self.getPythonDirs(component.getInstallDir(self, current), current.config)
+        dirs += [current.testcase.getPath()]
+        env["PYTHONPATH"] = os.pathsep.join(dirs)
         return env
 
     def getPythonDirs(self, iceDir, config):

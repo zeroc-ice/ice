@@ -8,11 +8,11 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import Ice
-Ice.loadSlice('Test.ice')
 import Test
+
 
 class InitialI(Test.Initial):
 
@@ -186,21 +186,15 @@ class InitialI(Test.Initial):
     def supportsNullOptional(self, current=None):
         return True
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    initial = InitialI()
-    adapter.add(initial, Ice.stringToIdentity("initial"))
-    adapter.activate()
 
-    communicator.waitForShutdown()
-    return True
+class Server(TestHelper):
 
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+    def run(self, args):
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            initial = InitialI()
+            adapter.add(initial, Ice.stringToIdentity("initial"))
+            adapter.activate()
 
-sys.exit(not status)
+            communicator.waitForShutdown()

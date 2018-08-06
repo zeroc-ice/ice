@@ -71,7 +71,7 @@ def testFacets(com, builtInFacets = True):
     except Ice.NotRegisteredException:
         pass # Expected
 
-def allTests(communicator):
+def allTests(helper, communicator):
     sys.stdout.write("testing communicator operations... ")
     sys.stdout.flush()
 
@@ -144,7 +144,7 @@ def allTests(communicator):
     com.destroy()
     print("ok")
 
-    ref = "factory:default -p 12010 -t 10000"
+    ref = "factory:{0} -t 10000".format(helper.getTestEndpoint())
     factory = Test.RemoteCommunicatorFactoryPrx.uncheckedCast(communicator.stringToProxy(ref))
 
     sys.stdout.write("testing process facet... ")

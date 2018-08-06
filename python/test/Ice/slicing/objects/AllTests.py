@@ -392,8 +392,8 @@ def PreservedFactoryI(id):
         return PreservedI()
     return None
 
-def allTests(communicator):
-    obj = communicator.stringToProxy("Test:default -p 12010")
+def allTests(helper, communicator):
+    obj = communicator.stringToProxy("Test:{0}".format(helper.getTestEndpoint()))
     t = Test.TestIntfPrx.checkedCast(obj)
 
     sys.stdout.write("base as Object... ")

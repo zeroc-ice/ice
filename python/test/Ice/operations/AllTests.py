@@ -14,8 +14,8 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
-    ref = "test:default -p 12010"
+def allTests(helper, communicator):
+    ref = "test:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
     cl = Test.MyClassPrx.checkedCast(base)
     derived = Test.MyDerivedClassPrx.checkedCast(cl)
@@ -70,4 +70,11 @@ def allTests(communicator):
     BatchOnewaysAMI.batchOneways(derived)
     print("ok")
 
-    return cl
+    sys.stdout.write("testing server shutdown... ")
+    sys.stdout.flush()
+    cl.shutdown()
+    try:
+        cl.ice_timeout(100).ice_ping()  # Use timeout to speed up testing on Windows
+        test(False)
+    except Ice.LocalException:
+        print("ok")

@@ -8,52 +8,35 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
-import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
-Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import AllTests
 
-def test(b):
-    if not b:
-        raise RuntimeError('test assertion failed')
 
-def run(args, communicator):
-    AllTests.allTests(communicator)
-    return True
+class Client(TestHelper):
 
-try:
-    #
-    # In this test, we need at least two threads in the
-    # client side thread pool for nested AMI.
-    #
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
+    def run(self, args):
+        #
+        # In this test, we need at least two threads in the
+        # client side thread pool for nested AMI.
+        #
+        properties = self.createTestProperties(args)
 
-    #
-    # For this test, we want to disable retries.
-    #
-    initData.properties.setProperty("Ice.RetryIntervals", "-1");
+        #
+        # For this test, we want to disable retries.
+        #
+        properties.setProperty("Ice.RetryIntervals", "-1")
 
-    #
-    # This test kills connections, so we don't want warnings.
-    #
-    initData.properties.setProperty("Ice.Warn.Connections", "0");
+        #
+        # This test kills connections, so we don't want warnings.
+        #
+        properties.setProperty("Ice.Warn.Connections", "0")
 
-    #
-    # Limit the send buffer size, this test relies on the socket
-    # send() blocking after sending a given amount of data.
-    #
-    initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        #
+        # Limit the send buffer size, this test relies on the socket
+        # send() blocking after sending a given amount of data.
+        #
+        properties.setProperty("Ice.TCP.SndSize", "50000")
 
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+        with self.initialize(properties=properties) as communicator:
+            AllTests.allTests(self, communicator)

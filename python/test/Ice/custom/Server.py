@@ -8,15 +8,17 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
-import Ice
-Ice.loadSlice('Test.ice')
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import sys
 import Test
+import Ice
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class CustomI(Test.Custom):
     def opByteString1(self, b1, current=None):
@@ -89,20 +91,13 @@ class CustomI(Test.Custom):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    object = CustomI()
-    adapter.add(object, Ice.stringToIdentity("test"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
 
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+class Server(TestHelper):
 
-sys.exit(not status)
+    def run(self, args):
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(CustomI(), Ice.stringToIdentity("test"))
+            adapter.activate()
+            communicator.waitForShutdown()

@@ -376,14 +376,14 @@ class Thrower(CallbackBase):
         self.called()
         throwEx(self._t)
 
-def allTests(communicator, collocated):
-    sref = "test:default -p 12010"
+def allTests(helper, communicator, collocated):
+    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
     obj = communicator.stringToProxy(sref)
     test(obj)
 
     p = Test.TestIntfPrx.uncheckedCast(obj)
 
-    sref = "testController:default -p 12011"
+    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
     obj = communicator.stringToProxy(sref)
     test(obj)
 
@@ -1303,14 +1303,14 @@ def allTests(communicator, collocated):
 
         print("ok")
 
-def allTestsFuture(communicator, collocated):
-    sref = "test:default -p 12010"
+def allTestsFuture(helper, communicator, collocated):
+    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
     obj = communicator.stringToProxy(sref)
     test(obj)
 
     p = Test.TestIntfPrx.uncheckedCast(obj)
 
-    sref = "testController:default -p 12011"
+    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
     obj = communicator.stringToProxy(sref)
     test(obj)
 

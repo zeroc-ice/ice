@@ -13,10 +13,10 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
+def allTests(helper, communicator):
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("test:default -p 12010")
+    base = communicator.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
     test(base)
     print("ok")
 
@@ -52,7 +52,7 @@ def allTests(communicator):
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
         comm = Ice.initialize(initData)
-        comm.stringToProxy("test:default -p 12010").ice_pingAsync()
+        comm.stringToProxy("test:{0}".format(helper.getTestEndpoint())).ice_pingAsync()
         comm.destroy()
     print("ok")
 

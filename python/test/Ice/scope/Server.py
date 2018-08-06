@@ -8,12 +8,11 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
-import Ice
-Ice.loadSlice('Test.ice')
+from TestHelper import TestHelper
+TestHelper.loadSlice('Test.ice')
 import Test
 import Inner
+import Ice
 
 
 class I1(Test.I):
@@ -112,23 +111,15 @@ class I4(Inner.Test.Inner2.I):
         current.adapter.getCommunicator().shutdown()
 
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(I1(), Ice.stringToIdentity("i1"))
-    adapter.add(I2(), Ice.stringToIdentity("i2"))
-    adapter.add(I3(), Ice.stringToIdentity("i3"))
-    adapter.add(I4(), Ice.stringToIdentity("i4"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
+class Server(TestHelper):
 
-
-try:
-    with Ice.initialize(sys.argv) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+    def run(self, args):
+        with self.initialize(args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(I1(), Ice.stringToIdentity("i1"))
+            adapter.add(I2(), Ice.stringToIdentity("i2"))
+            adapter.add(I3(), Ice.stringToIdentity("i3"))
+            adapter.add(I4(), Ice.stringToIdentity("i4"))
+            adapter.activate()
+            communicator.waitForShutdown()

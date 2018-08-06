@@ -8,37 +8,25 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice ClientPrivate.ice")
 import Ice
-Ice.loadSlice('Test.ice')
-Ice.loadSlice('ClientPrivate.ice')
-import Test, TestI, AllTests
+import TestI
+import AllTests
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    initial = TestI.InitialI(adapter)
-    adapter.add(initial, Ice.stringToIdentity("initial"))
-    uoet = TestI.UnexpectedObjectExceptionTestI()
-    adapter.add(uoet, Ice.stringToIdentity("uoet"))
-    #adapter.activate() // Don't activate OA to ensure collocation is used.
 
-    AllTests.allTests(communicator)
+class Collocated(TestHelper):
 
-    # We must call shutdown even in the collocated case for cyclic dependency cleanup
-    initial.shutdown()
-
-    return True
-
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-    with Ice.initialize(sys.argv, initData) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            initial = TestI.InitialI(adapter)
+            adapter.add(initial, Ice.stringToIdentity("initial"))
+            adapter.add(TestI.UnexpectedObjectExceptionTestI(), Ice.stringToIdentity("uoet"))
+            # adapter.activate() // Don't activate OA to ensure collocation is used.
+            AllTests.allTests(self, communicator)
+            # We must call shutdown even in the collocated case for cyclic dependency cleanup
+            initial.shutdown()

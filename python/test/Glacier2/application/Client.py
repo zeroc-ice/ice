@@ -8,15 +8,20 @@
 #
 # **********************************************************************
 
-import os, sys, traceback, threading, Ice, Glacier2
+import sys
+import threading
+import Ice
+import Glacier2
 
-Ice.loadSlice("Callback.ice")
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Callback.ice")
 import Test
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class CallbackReceiverI(Test.CallbackReceiver):
 
@@ -34,6 +39,7 @@ class CallbackReceiverI(Test.CallbackReceiver):
             while not self._received:
                 self._cond.wait()
             self._received = False;
+
 
 class Application(Glacier2.Application):
 
@@ -76,37 +82,38 @@ class Application(Glacier2.Application):
     def sessionDestroyed(self):
         self._destroyed = True
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12060")
 
-    app = Application()
-    status = app.main(sys.argv, initData=initData)
-    test(app._restart == 5)
-    test(app._destroyed)
-    initData.properties.setProperty("Ice.Default.Router", "");
-    with Ice.initialize(initData) as communicator:
-        sys.stdout.write("testing stringToProxy for process object... ")
-        sys.stdout.flush()
-        processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12061");
-        print("ok")
+class Client(TestHelper):
 
-        sys.stdout.write("testing checked cast for admin object... ")
-        sys.stdout.flush()
-        process = Ice.ProcessPrx.checkedCast(processBase)
-        test(process)
-        print("ok")
+    def run(self, args):
+        initData = Ice.InitializationData()
+        initData.properties = self.createTestProperties(sys.argv)
+        initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12060")
 
-        sys.stdout.write("testing Glacier2 shutdown... ")
-        sys.stdout.flush()
-        process.shutdown()
-        try:
-            process.ice_ping()
-            test(False)
-        except Ice.LocalException:
+        app = Application()
+        status = app.main(sys.argv, initData=initData)
+        test(status == 0)
+        test(app._restart == 5)
+        test(app._destroyed)
+
+        initData.properties.setProperty("Ice.Default.Router", "")
+        with self.initialize(initData=initData) as communicator:
+            sys.stdout.write("testing stringToProxy for process object... ")
+            sys.stdout.flush()
+            processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12061")
             print("ok")
-except:
-    traceback.print_exc()
-    status = 1
-sys.exit(status)
+
+            sys.stdout.write("testing checked cast for admin object... ")
+            sys.stdout.flush()
+            process = Ice.ProcessPrx.checkedCast(processBase)
+            test(process)
+            print("ok")
+
+            sys.stdout.write("testing Glacier2 shutdown... ")
+            sys.stdout.flush()
+            process.shutdown()
+            try:
+                process.ice_ping()
+                test(False)
+            except Ice.LocalException:
+                print("ok")

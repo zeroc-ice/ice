@@ -8,32 +8,18 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import Ice
+import TestI
 
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
 
-Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
-import Test, TestI
-
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000");
-    adapter = communicator.createObjectAdapter("TestAdapter");
-    ident = Ice.stringToIdentity("factory");
-    adapter.add(TestI.RemoteCommunicatorFactoryI(), ident);
-    adapter.activate();
-
-    communicator.waitForShutdown();
-    return True;
-
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+class Server(TestHelper):
+    def run(self, args):
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints",
+                                                     "{0} -t 10000".format(self.getTestEndpoint()))
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(TestI.RemoteCommunicatorFactoryI(), Ice.stringToIdentity("factory"))
+            adapter.activate()
+            communicator.waitForShutdown()

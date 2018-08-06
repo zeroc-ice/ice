@@ -8,33 +8,15 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import AllTests
 
-import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
 
-Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
-import Test, AllTests
+class Client(TestHelper):
 
-def test(b):
-    if not b:
-        raise RuntimeError('test assertion failed')
-
-def run(args, communicator):
-    AllTests.allTests(communicator, "ServerManager:default -p 12010")
-    return True
-
-try:
-    data = Ice.InitializationData()
-    data.properties = Ice.createProperties(sys.argv)
-    data.properties.setProperty("Ice.Default.Locator", "locator:default -p 12010")
-    with Ice.initialize(sys.argv, data) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.Default.Locator", "locator:{0}".format(self.getTestEndpoint(properties=properties)))
+        with self.initialize(properties=properties) as communicator:
+            AllTests.allTests(self, communicator)

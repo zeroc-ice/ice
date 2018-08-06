@@ -8,21 +8,12 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
-import Ice
-
-Ice.loadSlice('Test.ice')
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import AllTests
 
-def run(args):
-    AllTests.allTests()
-    return True
 
-try:
-    status = run(sys.argv)
-except:
-    traceback.print_exc()
-    status = False
+class Client(TestHelper):
 
-sys.exit(not status)
+    def run(self, args):
+        AllTests.allTests()

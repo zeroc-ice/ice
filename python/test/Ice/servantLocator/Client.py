@@ -8,17 +8,14 @@
 #
 # **********************************************************************
 
-import os, sys
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import AllTests
 
-import Ice
-Ice.loadSlice('Test.ice')
-import Test, AllTests
 
-class TestClient(Ice.Application):
+class Client(TestHelper):
+
     def run(self, args):
-        obj = AllTests.allTests(self.communicator(), False)
-        obj.shutdown()
-        return 0
-
-app = TestClient()
-sys.exit(app.main(sys.argv))
+        with self.initialize(args=args) as communicator:
+            obj = AllTests.allTests(self, communicator)
+            obj.shutdown()

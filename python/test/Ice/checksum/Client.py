@@ -8,27 +8,13 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
+from TestHelper import TestHelper
+TestHelper.loadSlice("--checksum Test.ice CTypes.ice")
+import AllTests
 
-import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
 
-Ice.loadSlice("'-I" + slice_dir + "' --checksum Test.ice CTypes.ice")
-import Test, AllTests
+class Client(TestHelper):
 
-def run(args, communicator):
-    checksum = AllTests.allTests(communicator)
-    checksum.shutdown()
-    return True
-
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+    def run(self, args):
+        with self.initialize(args=args) as communicator:
+            AllTests.allTests(self, communicator)

@@ -8,26 +8,25 @@
 #
 # **********************************************************************
 
-import os, sys, traceback, time
-
+from TestHelper import TestHelper
+TestHelper.loadSlice('Test.ice')
 import Ice
-Ice.loadSlice('Test.ice')
-import Test, TestAMDI, TestActivationAMDI
+import TestAMDI
+import TestActivationAMDI
 
-class TestServer(Ice.Application):
+
+class ServerAMD(TestHelper):
+
     def run(self, args):
-        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-        self.communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("Ice.Warn.Dispatch", "0")
 
-        adapter = self.communicator().createObjectAdapter("TestAdapter")
-        adapter.addServantLocator(TestAMDI.ServantLocatorI("category"), "category")
-        adapter.addServantLocator(TestAMDI.ServantLocatorI(""), "")
-        adapter.add(TestAMDI.TestI(), Ice.stringToIdentity("asm"))
-        adapter.add(TestActivationAMDI.TestActivationAMDI(), Ice.stringToIdentity("test/activation"))
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.addServantLocator(TestAMDI.ServantLocatorI("category"), "category")
+            adapter.addServantLocator(TestAMDI.ServantLocatorI(""), "")
+            adapter.add(TestAMDI.TestI(), Ice.stringToIdentity("asm"))
+            adapter.add(TestActivationAMDI.TestActivationAMDI(), Ice.stringToIdentity("test/activation"))
 
-        adapter.activate()
-        adapter.waitForDeactivate()
-        return 0
-
-app = TestServer()
-sys.exit(app.main(sys.argv))
+            adapter.activate()
+            adapter.waitForDeactivate()

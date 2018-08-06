@@ -60,12 +60,12 @@ class Callback(CallbackBase):
     def pid(self):
         return self._pid
 
-def allTests(communicator, ports):
+def allTests(helper, communicator, ports):
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
     ref = "test"
-    for p in ports:
-        ref = ref + ":default -p " + str(p)
+    for i in range(len(ports)):
+        ref += ":{0}".format(helper.getTestEndpoint(num=i))
     base = communicator.stringToProxy(ref)
     test(base)
     print("ok")

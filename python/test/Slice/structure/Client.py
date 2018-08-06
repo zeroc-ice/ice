@@ -8,23 +8,17 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
+from TestHelper import TestHelper
+TestHelper.loadSlice('Test.ice')
+import sys
+import copy
+import Test
 
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "python", "Ice", "__init__.py")):
-        break
-else:
-    raise RuntimeError("can't find toplevel directory!")
-
-import Ice
-
-Ice.loadSlice('Test.ice')
-import Test, copy
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 def allTests(communicator):
     sys.stdout.write("testing equals() for Slice structures... ")
@@ -187,18 +181,10 @@ def allTests(communicator):
 
     print("ok")
 
-def run(args, communicator):
-    allTests(communicator)
 
-    return True
+class Client(TestHelper):
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+    def run(self, args):
 
-sys.exit(not status)
+        with self.initialize(args=args) as communicator:
+            allTests(communicator)

@@ -222,8 +222,8 @@ class RelayI(Test.Relay):
         ex.p2 = ex.p1
         raise ex
 
-def allTests(communicator):
-    obj = communicator.stringToProxy("Test:default -p 12010")
+def allTests(helper, communicator):
+    obj = communicator.stringToProxy("Test:{0}".format(helper.getTestEndpoint()))
     t = Test.TestIntfPrx.checkedCast(obj)
 
     sys.stdout.write("base... ")

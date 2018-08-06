@@ -59,16 +59,17 @@ def connect(prx):
             pass
     return prx.ice_getConnection(); # Establish connection
 
-def allTests(communicator):
+def allTests(helper, communicator):
 
-    sref = "timeout:default -p 12010"
+    sref = "timeout:{0}".format(helper.getTestEndpoint())
     obj = communicator.stringToProxy(sref)
     test(obj != None)
 
     timeout = Test.TimeoutPrx.checkedCast(obj)
     test(timeout != None)
 
-    controller = Test.ControllerPrx.checkedCast(communicator.stringToProxy("controller:default -p 12011"))
+    controller = Test.ControllerPrx.checkedCast(
+        communicator.stringToProxy("controller:{0}".format(helper.getTestEndpoint(num=1))))
     test(controller != None)
 
     sys.stdout.write("testing connect timeout... ")

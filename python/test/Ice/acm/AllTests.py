@@ -150,8 +150,8 @@ class TestCase(threading.Thread):
         self._serverACMClose = close
         self._serverACMHeartbeat = heartbeat
 
-def allTests(communicator):
-    ref = "communicator:default -p 12010"
+def allTests(helper, communicator):
+    ref = "communicator:{0}".format(helper.getTestEndpoint(num=0))
     com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref))
 
     tests = []

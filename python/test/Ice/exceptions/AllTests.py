@@ -212,7 +212,7 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-def allTests(communicator):
+def allTests(helper, communicator):
     sys.stdout.write("testing servant registration exceptions... ")
     sys.stdout.flush()
     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *")
@@ -275,7 +275,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    ref = "thrower:default -p 12010"
+    ref = "thrower:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
     test(base)
     print("ok")

@@ -13,8 +13,8 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
-    ref = "test:default -p 12010"
+def allTests(helper, communicator):
+    ref = "test:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
     test(base)
 
@@ -55,4 +55,4 @@ def allTests(communicator):
 
     print("ok")
 
-    return checksum
+    checksum.shutdown()

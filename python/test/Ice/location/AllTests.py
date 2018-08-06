@@ -17,7 +17,8 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator, ref):
+def allTests(helper, communicator):
+    ref = "ServerManager:{0}".format(helper.getTestEndpoint())
     manager = Test.ServerManagerPrx.checkedCast(communicator.stringToProxy(ref))
     locator = communicator.getDefaultLocator()
     test(manager)

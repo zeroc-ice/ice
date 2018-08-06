@@ -8,16 +8,11 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
 import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
-
-Ice.loadSlice("'-I" + slice_dir + "' --checksum Test.ice STypes.ice")
+from TestHelper import TestHelper
+TestHelper.loadSlice("--checksum Test.ice STypes.ice")
 import Test
+
 
 class ChecksumI(Test.Checksum):
     def getSliceChecksums(self, current=None):
@@ -26,20 +21,15 @@ class ChecksumI(Test.Checksum):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    object = ChecksumI()
-    adapter.add(object, Ice.stringToIdentity("test"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
 
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+class Server(TestHelper):
 
-sys.exit(not status)
+    def run(self, args):
+
+        with self.initialize(args=args) as communicator:
+
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(ChecksumI(), Ice.stringToIdentity("test"))
+            adapter.activate()
+            communicator.waitForShutdown()

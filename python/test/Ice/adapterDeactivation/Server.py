@@ -7,22 +7,18 @@
 #
 # **********************************************************************
 
-import os, sys, traceback, time
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import TestI
 
-import Ice
-Ice.loadSlice('Test.ice')
-import Test, TestI
 
-class TestServer(Ice.Application):
+class Server(TestHelper):
+
     def run(self, args):
-        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-        adapter = self.communicator().createObjectAdapter("TestAdapter")
-        locator = TestI.ServantLocatorI()
-
-        adapter.addServantLocator(locator, "")
-        adapter.activate()
-        adapter.waitForDeactivate()
-        return 0
-
-app = TestServer()
-sys.exit(app.main(sys.argv))
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            locator = TestI.ServantLocatorI()
+            adapter.addServantLocator(locator, "")
+            adapter.activate()
+            adapter.waitForDeactivate()

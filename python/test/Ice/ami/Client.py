@@ -8,43 +8,24 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-import Ice
-
-import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
-
-Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import AllTests
 
-def test(b):
-    if not b:
-        raise RuntimeError('test assertion failed')
 
-def run(args, communicator):
-    AllTests.allTests(communicator, False)
-    AllTests.allTestsFuture(communicator, False)
-    return True
+class Client(TestHelper):
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty('Ice.Warn.AMICallback', '0')
-    initData.properties.setProperty('Ice.Warn.Connections', '0')
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty('Ice.Warn.AMICallback', '0')
+        properties.setProperty('Ice.Warn.Connections', '0')
 
-    #
-    # Limit the send buffer size, this test relies on the socket
-    # send() blocking after sending a given amount of data.
-    #
-    initData.properties.setProperty("Ice.TCP.SndSize", "50000");
+        #
+        # Limit the send buffer size, this test relies on the socket
+        # send() blocking after sending a given amount of data.
+        #
+        properties.setProperty("Ice.TCP.SndSize", "50000")
 
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+        with self.initialize(properties=properties) as communicator:
+            AllTests.allTests(self, communicator, False)
+            AllTests.allTestsFuture(self, communicator, False)

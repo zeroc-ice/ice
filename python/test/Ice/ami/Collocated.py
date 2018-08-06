@@ -8,53 +8,40 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import AllTests
+import TestI
 import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
 
-Ice.loadSlice('"-I' + slice_dir + '" Test.ice')
-import Test, TestI, AllTests
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011")
-    communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
+class Collocated(TestHelper):
 
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter2 = communicator.createObjectAdapter("ControllerAdapter")
+    def run(self, args):
 
-    testController = TestI.TestIntfControllerI(adapter)
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.Warn.AMICallback", "0")
+        #
+        # This test kills connections, so we don't want warnings.
+        #
+        properties.setProperty("Ice.Warn.Connections", "0")
 
-    adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
-    adapter.add(TestI.TestIntfII(), Ice.stringToIdentity("test2"))
-    #adapter.activate() # Collocated test doesn't need to active the OA
+        with self.initialize(properties=properties) as communicator:
 
-    adapter2.add(testController, Ice.stringToIdentity("testController"))
-    #adapter2.activate() # Collocated test doesn't need to active the OA
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011")
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
 
-    AllTests.allTests(communicator, True)
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter2 = communicator.createObjectAdapter("ControllerAdapter")
 
-    return True
+            testController = TestI.TestIntfControllerI(adapter)
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
+            adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
+            adapter.add(TestI.TestIntfII(), Ice.stringToIdentity("test2"))
+            # adapter.activate() # Collocated test doesn't need to active the OA
 
-    initData.properties.setProperty("Ice.Warn.AMICallback", "0");
+            adapter2.add(testController, Ice.stringToIdentity("testController"))
+            # adapter2.activate() # Collocated test doesn't need to active the OA
 
-    #
-    # This test kills connections, so we don't want warnings.
-    #
-    initData.properties.setProperty("Ice.Warn.Connections", "0");
-
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+            AllTests.allTests(self, communicator, True)

@@ -8,40 +8,23 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
+import TestI
+import AllTests
 
-Ice.loadSlice('"-I' + slice_dir + '" Test.ice')
-import Test, TestI, AllTests
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    prx = adapter.add(TestI.MyDerivedClassI(), Ice.stringToIdentity("test"))
-    #adapter.activate() // Don't activate OA to ensure collocation is used.
+class Collocated(TestHelper):
 
-    if prx.ice_getConnection():
-        raise RuntimeError("collocation doesn't work")
-
-    cl = AllTests.allTests(communicator)
-
-    return True
-
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-
-    initData.properties.setProperty("Ice.BatchAutoFlushSize", "100")
-
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.BatchAutoFlushSize", "100")
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            prx = adapter.add(TestI.MyDerivedClassI(), Ice.stringToIdentity("test"))
+            # adapter.activate() // Don't activate OA to ensure collocation is used.
+            if prx.ice_getConnection():
+                raise RuntimeError("collocation doesn't work")
+            AllTests.allTests(self, communicator)

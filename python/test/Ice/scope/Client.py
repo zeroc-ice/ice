@@ -8,21 +8,13 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import AllTests
 
-import Ice
-Ice.loadSlice('Test.ice')
-import Test, AllTests
 
-def run(args, communicator):
-    AllTests.allTests(communicator)
-    return True
+class Client(TestHelper):
 
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+    def run(self, args):
+        with self.initialize(args=args) as communicator:
+            AllTests.allTests(self, communicator)

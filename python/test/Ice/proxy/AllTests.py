@@ -13,7 +13,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator, collocated):
+def allTests(helper, communicator, collocated):
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
 
@@ -25,7 +25,7 @@ def allTests(communicator, collocated):
     p = communicator.propertyToProxy('bogus')
     test(p == None)
 
-    ref = "test:default -p 12010"
+    ref = "test:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
     test(base)
 
@@ -199,7 +199,7 @@ def allTests(communicator, collocated):
     sys.stdout.flush()
     prop = communicator.getProperties()
     propertyPrefix = "Foo.Proxy"
-    prop.setProperty(propertyPrefix, "test:default -p 12010")
+    prop.setProperty(propertyPrefix, "test:{0}".format(helper.getTestEndpoint()))
     b1 = communicator.propertyToProxy(propertyPrefix)
     test(b1.ice_getIdentity().name == "test" and len(b1.ice_getIdentity().category) == 0 and \
          len(b1.ice_getAdapterId()) == 0 and len(b1.ice_getFacet()) == 0)
@@ -694,16 +694,16 @@ def allTests(communicator, collocated):
 
     sys.stdout.write("testing encoding versioning... ")
     sys.stdout.flush()
-    ref20 = "test -e 2.0:default -p 12010";
+    ref20 = "test -e 2.0:{0}".format(helper.getTestEndpoint())
     cl20 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref20));
     try:
-        cl20.ice_ping();
-        test(false);
+        cl20.ice_ping()
+        test(False)
     except Ice.UnsupportedEncodingException:
         # Server 2.0 endpoint doesn't support 1.1 version.
         pass
 
-    ref10 = "test -e 1.0:default -p 12010"
+    ref10 = "test -e 1.0:{0}".format(helper.getTestEndpoint())
     cl10 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref10))
     cl10.ice_ping()
     cl10.ice_encodingVersion(Ice.Encoding_1_0).ice_ping()
@@ -711,7 +711,7 @@ def allTests(communicator, collocated):
 
     # 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
     # call will use the 1.1 encoding
-    ref13 = "test -e 1.3:default -p 12010"
+    ref13 = "test -e 1.3:{0}".format(helper.getTestEndpoint())
     cl13 = Test.MyClassPrx.uncheckedCast(communicator.stringToProxy(ref13))
     cl13.ice_ping()
 

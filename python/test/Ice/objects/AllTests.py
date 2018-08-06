@@ -39,7 +39,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
+def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::B')
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::C')
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::D')
@@ -53,7 +53,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    ref = "initial:default -p 12010"
+    ref = "initial:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
     test(base)
     print("ok")

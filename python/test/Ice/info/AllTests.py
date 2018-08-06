@@ -25,7 +25,7 @@ def getTCPConnectionInfo(info):
             return info
         info = info.underlying
 
-def allTests(communicator):
+def allTests(helper, communicator):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 
@@ -126,16 +126,18 @@ def allTests(communicator):
 
     print("ok")
 
-    base = communicator.stringToProxy("test:default -p 12010:udp -p 12010")
+    base = communicator.stringToProxy("test:{0}:{1}".format(helper.getTestEndpoint(),
+                                                            helper.getTestEndpoint(protocol="udp")))
     testIntf = Test.TestIntfPrx.checkedCast(base)
 
     sys.stdout.write("test connection endpoint information... ")
     sys.stdout.flush()
 
     defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
+    port = helper.getTestPort()
 
     tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
-    test(tcpinfo.port == 12010)
+    test(tcpinfo.port == port)
     test(not tcpinfo.compress)
     test(tcpinfo.host == defaultHost)
 

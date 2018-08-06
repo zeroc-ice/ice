@@ -8,12 +8,11 @@
 #
 # **********************************************************************
 
-import os, sys, traceback
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice ServerPrivate.ice")
+import TestI
 import Ice
-Ice.loadSlice('Test.ice')
-Ice.loadSlice('ServerPrivate.ice')
-import Test, TestI
+
 
 def MyValueFactory(type):
     if type == '::Test::I':
@@ -22,31 +21,23 @@ def MyValueFactory(type):
         return TestI.JI()
     elif type == '::Test::H':
         return TestI.HI()
-    assert(False) # Should never be reached
+    assert(False)  # Should never be reached
 
-def run(args, communicator):
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::I')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::J')
-    communicator.getValueFactoryManager().add(MyValueFactory, '::Test::H')
 
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    initial = TestI.InitialI(adapter)
-    adapter.add(initial, Ice.stringToIdentity("initial"))
-    uoet = TestI.UnexpectedObjectExceptionTestI()
-    adapter.add(uoet, Ice.stringToIdentity("uoet"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
+class Server(TestHelper):
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(properties=properties) as communicator:
+            communicator.getValueFactoryManager().add(MyValueFactory, '::Test::I')
+            communicator.getValueFactoryManager().add(MyValueFactory, '::Test::J')
+            communicator.getValueFactoryManager().add(MyValueFactory, '::Test::H')
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            initial = TestI.InitialI(adapter)
+            adapter.add(initial, Ice.stringToIdentity("initial"))
+            uoet = TestI.UnexpectedObjectExceptionTestI()
+            adapter.add(uoet, Ice.stringToIdentity("uoet"))
+            adapter.activate()
+            communicator.waitForShutdown()

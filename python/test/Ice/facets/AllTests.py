@@ -16,7 +16,7 @@ def test(b):
 class EmptyI(Test.Empty):
     pass
 
-def allTests(communicator):
+def allTests(helper, communicator):
 
     sys.stdout.write("testing Ice.Admin.Facets property... ")
     sys.stdout.flush()
@@ -90,7 +90,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    ref = "d:default -p 12010"
+    ref = "d:{0}".format(helper.getTestEndpoint())
     db = communicator.stringToProxy(ref)
     test(db)
     print("ok")
