@@ -9,33 +9,14 @@
 # **********************************************************************
 
 require 'Ice'
-
 Ice::loadSlice("--all -I. ClientPrivate.ice")
 require './AllTests'
 
-def test(b)
-    if !b
-        raise RuntimeError, 'test assertion failed'
+class Client < ::TestHelper
+    def run(args)
+        self.init(args:args) do |communicator|
+            initial = allTests(self, communicator)
+            initial.shutdown()
+        end
     end
 end
-
-def run(args, communicator)
-    initial = allTests(communicator)
-    initial.shutdown()
-    return true
-end
-
-begin
-    communicator = Ice.initialize(ARGV)
-    status = run(ARGV, communicator)
-rescue => ex
-    puts $!
-    print ex.backtrace.join("\n")
-    status = false
-end
-
-if communicator
-    communicator.destroy()
-end
-
-exit(status ? 0 : 1)

@@ -7,10 +7,10 @@
 #
 # **********************************************************************
 
-def allTests(communicator)
+def allTests(helper, communicator)
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "test:default -p 12010"
+    ref = "test:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
 
@@ -192,7 +192,7 @@ def allTests(communicator)
     STDOUT.flush
     prop = communicator.getProperties()
     propertyPrefix = "Foo.Proxy"
-    prop.setProperty(propertyPrefix, "test:default -p 12010")
+    prop.setProperty(propertyPrefix, "test:#{helper.getTestEndpoint()}")
     b1 = communicator.propertyToProxy(propertyPrefix)
     test(b1.ice_getIdentity().name == "test" && b1.ice_getIdentity().category.empty? && \
          b1.ice_getAdapterId().empty? && b1.ice_getFacet().empty?)
@@ -234,7 +234,7 @@ def allTests(communicator)
     #test(b1.ice_getLocatorCacheTimeout() == 60)
     #prop.setProperty("Ice::Default.LocatorCacheTimeout", "")
 
-    prop.setProperty(propertyPrefix, "test:default -p 12010")
+    prop.setProperty(propertyPrefix, "test:#{helper.getTestEndpoint()}")
 
     property = propertyPrefix + ".Router"
     test(!b1.ice_getRouter())
@@ -692,7 +692,7 @@ def allTests(communicator)
 
     print "testing encoding versioning... "
     STDOUT.flush
-    ref20 = "test -e 2.0:default -p 12010";
+    ref20 = "test -e 2.0:#{helper.getTestEndpoint()}";
     cl20 = Test::MyClassPrx::uncheckedCast(communicator.stringToProxy(ref20));
     begin
         cl20.ice_ping();
@@ -701,7 +701,7 @@ def allTests(communicator)
         # Server 2.0 endpoint doesn't support 1.1 version.
     end
 
-    ref10 = "test -e 1.0:default -p 12010"
+    ref10 = "test -e 1.0:#{helper.getTestEndpoint()}"
     cl10 = Test::MyClassPrx::uncheckedCast(communicator.stringToProxy(ref10))
     cl10.ice_ping()
     cl10.ice_encodingVersion(Ice::Encoding_1_0).ice_ping()
@@ -709,7 +709,7 @@ def allTests(communicator)
 
     # 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
     # call will use the 1.1 encoding
-    ref13 = "test -e 1.3:default -p 12010"
+    ref13 = "test -e 1.3:#{helper.getTestEndpoint()}"
     cl13 = Test::MyClassPrx::uncheckedCast(communicator.stringToProxy(ref13))
     cl13.ice_ping()
 

@@ -13,8 +13,8 @@ def test(b)
     end
 end
 
-def allTests(communicator)
-    ref = "test:default -p 12010"
+def allTests(helper, communicator)
+    ref = "test:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
 

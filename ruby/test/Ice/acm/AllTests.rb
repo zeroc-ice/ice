@@ -84,8 +84,8 @@ def testHeartbeatManual(communicator, com)
     puts "ok"
 end
 
-def allTests(communicator)
-    ref = "communicator:default -p 12010"
+def allTests(helper, communicator)
+    ref = "communicator:#{helper.getTestEndpoint()}"
     com = Test::RemoteCommunicatorPrx::uncheckedCast(communicator.stringToProxy(ref))
 
     testSetACM(communicator, com)

@@ -10,16 +10,16 @@
 require './Twoways'
 require './BatchOneways'
 
-def allTests(communicator)
-    ref = "test:default -p 12010"
+def allTests(helper, communicator)
+    ref = "test:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     cl = Test::MyClassPrx::checkedCast(base)
     derived = Test::MyDerivedClassPrx::checkedCast(cl)
 
     print "testing twoway operations... "
     STDOUT.flush
-    twoways(communicator, cl)
-    twoways(communicator, derived)
+    twoways(helper, communicator, cl)
+    twoways(helper, communicator, derived)
     derived.opDerived()
     puts "ok"
 

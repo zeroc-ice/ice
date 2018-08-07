@@ -7,14 +7,8 @@
 #
 # **********************************************************************
 
-def test(b)
-    if !b
-        raise RuntimeError, 'test assertion failed'
-    end
-end
-
-def allTests(communicator)
-    ref = "test:default -p 12010"
+def allTests(helper, communicator)
+    ref = "test:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
 

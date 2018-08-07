@@ -7,18 +7,12 @@
 #
 # **********************************************************************
 
-def test(b)
-    if !b
-        raise RuntimeError, 'test assertion failed'
-    end
-end
-
-def allTests(communicator)
+def allTests(helper, communicator)
 
     print "test same Slice type name in different scopes... "
     STDOUT.flush
 
-    i1 = Test::IPrx::checkedCast(communicator.stringToProxy("i1:default -p 12010"))
+    i1 = Test::IPrx::checkedCast(communicator.stringToProxy("i1:#{helper.getTestEndpoint()}"))
 
     s1 = Test::S.new(0)
     s2, s3 = i1.opS(s1)
@@ -52,7 +46,7 @@ def allTests(communicator)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i2 = Test::Inner::Inner2::IPrx::checkedCast(communicator.stringToProxy("i2:default -p 12010"))
+    i2 = Test::Inner::Inner2::IPrx::checkedCast(communicator.stringToProxy("i2:#{helper.getTestEndpoint()}"))
 
     s1 = Test::Inner::Inner2::S.new(0)
     s2, s3 = i2.opS(s1)
@@ -86,7 +80,7 @@ def allTests(communicator)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i3 = Test::Inner::IPrx::checkedCast(communicator.stringToProxy("i3:default -p 12010"))
+    i3 = Test::Inner::IPrx::checkedCast(communicator.stringToProxy("i3:#{helper.getTestEndpoint()}"))
 
     s1 = Test::Inner::Inner2::S.new(0)
     s2, s3 = i3.opS(s1)
@@ -120,7 +114,7 @@ def allTests(communicator)
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i4 = Inner::Test::Inner2::IPrx::checkedCast(communicator.stringToProxy("i4:default -p 12010"))
+    i4 = Inner::Test::Inner2::IPrx::checkedCast(communicator.stringToProxy("i4:#{helper.getTestEndpoint()}"))
 
     s1 = Test::S.new(0)
     s2, s3 = i4.opS(s1)

@@ -7,16 +7,10 @@
 #
 # **********************************************************************
 
-def test(b)
-    if !b
-        raise RuntimeError, 'test assertion failed'
-    end
-end
-
-def allTests(communicator)
+def allTests(helper, communicator)
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "initial:default -p 12010"
+    ref = "initial:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
     puts "ok"

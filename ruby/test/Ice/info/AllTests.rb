@@ -25,7 +25,7 @@ def getTCPConnectionInfo(info)
     end
 end
 
-def allTests(communicator)
+def allTests(helper, communicator)
     print "testing proxy endpoint information..."
     STDOUT.flush
 
@@ -72,7 +72,9 @@ def allTests(communicator)
     puts "ok"
 
     defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
-    base = communicator.stringToProxy("test:default -p 12010:udp -p 12010")
+    tcpEndpoint = helper.getTestEndpoint()
+    udpEndpoint = helper.getTestEndpoint(protocol:"udp")
+    base = communicator.stringToProxy("test:#{tcpEndpoint}:#{udpEndpoint}")
     testIntf = Test::TestIntfPrx::checkedCast(base)
 
     print "test connection endpoint information..."

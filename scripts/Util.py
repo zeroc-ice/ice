@@ -3527,14 +3527,17 @@ class RubyMapping(CppBasedClientMapping):
         mappingDesc = "Ruby"
 
     def getCommandLine(self, current, process, exe, args):
-        return "ruby " + exe + " " + args
+        return "ruby  {0} {1} {2}".format(os.path.join(self.path, "test", "TestHelper.rb"), exe, args)
 
     def getEnv(self, process, current):
         env = CppBasedMapping.getEnv(self, process, current)
+        dirs = []
         if component.getInstallDir(self, current) != platform.getInstallDir():
             # If not installed in the default platform installation directory, add
             # the Ice ruby directory to RUBYLIB
-            env["RUBYLIB"] = os.path.join(self.path, "ruby")
+            dirs += [os.path.join(self.path, "ruby")]
+        dirs += [current.testcase.getPath()]
+        env["RUBYLIB"] = os.pathsep.join(dirs)
         return env
 
     def _getDefaultSource(self, processType):

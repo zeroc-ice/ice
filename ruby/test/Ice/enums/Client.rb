@@ -8,28 +8,15 @@
 #
 # **********************************************************************
 
-require 'Ice'
-
+require "Ice"
 Ice::loadSlice("Test.ice")
 require './AllTests'
 
-def run(args, communicator)
-    proxy = allTests(communicator)
-    proxy.shutdown()
-    return true
+class Client < ::TestHelper
+    def run(args)
+        self.init(args:args) do |communicator|
+            proxy = allTests(self, communicator)
+            proxy.shutdown()
+        end
+    end
 end
-
-begin
-    communicator = Ice.initialize(ARGV)
-    status = run(ARGV, communicator)
-rescue => ex
-    puts $!
-    print ex.backtrace.join("\n")
-    status = false
-end
-
-if communicator
-    communicator.destroy()
-end
-
-exit(status ? 0 : 1)

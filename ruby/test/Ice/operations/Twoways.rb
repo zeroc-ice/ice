@@ -8,7 +8,7 @@
 #
 # **********************************************************************
 
-def twoways(communicator, p)
+def twoways(helper, communicator, p)
 
     literals = p.opStringLiterals();
 
@@ -1239,7 +1239,7 @@ def twoways(communicator, p)
 
         ctx = {'one'=>'ONE', 'two'=>'TWO', 'three'=>'THREE'}
 
-        p = Test::MyClassPrx::uncheckedCast(ic.stringToProxy('test:default -p 12010'))
+        p = Test::MyClassPrx::uncheckedCast(ic.stringToProxy("test:#{helper.getTestEndpoint()}"))
 
         ic.getImplicitContext().setContext(ctx)
         test(ic.getImplicitContext().getContext() == ctx)

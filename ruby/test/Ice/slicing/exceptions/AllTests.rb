@@ -13,8 +13,8 @@ def test(b)
     end
 end
 
-def allTests(communicator)
-    obj = communicator.stringToProxy("Test:default -p 12010")
+def allTests(helper, communicator)
+    obj = communicator.stringToProxy("Test:#{helper.getTestEndpoint()}")
     t = Test::TestIntfPrx::checkedCast(obj)
 
     print "base... "

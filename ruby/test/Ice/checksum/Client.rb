@@ -8,34 +8,15 @@
 #
 # **********************************************************************
 
-require 'pathname'
-require 'Ice'
-
-slice_dir = Ice.getSliceDir
-if slice_dir.empty?
-    fail "Slice directory not found"
-end
-
-Ice::loadSlice("'-I" + slice_dir + "' --checksum Test.ice CTypes.ice")
+require "Ice"
+Ice::loadSlice("'-I#{Ice.getSliceDir}' --checksum Test.ice CTypes.ice")
 require './AllTests'
 
-def run(args, communicator)
-    checksum = allTests(communicator)
-    checksum.shutdown()
-    return true
+class Client < ::TestHelper
+    def run(args)
+        self.init(args:args) do |communicator|
+            checksum = allTests(self, communicator)
+            checksum.shutdown()
+        end
+    end
 end
-
-begin
-    communicator = Ice.initialize(ARGV)
-    status = run(ARGV, communicator)
-rescue => ex
-    puts $!
-    print ex.backtrace.join("\n")
-    status = false
-end
-
-if communicator
-    communicator.destroy()
-end
-
-exit(status ? 0 : 1)

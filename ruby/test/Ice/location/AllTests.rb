@@ -13,7 +13,8 @@ def test(b)
     end
 end
 
-def allTests(communicator, ref)
+def allTests(helper, communicator)
+    ref =  "ServerManager:#{helper.getTestEndpoint()}"
     manager = Test::ServerManagerPrx::checkedCast(communicator.stringToProxy(ref))
     locator = communicator.getDefaultLocator()
     test(manager)

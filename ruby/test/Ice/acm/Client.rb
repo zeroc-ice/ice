@@ -8,41 +8,16 @@
 #
 # **********************************************************************
 
-require 'pathname'
-require 'Ice'
-slice_dir = Ice.getSliceDir
-if slice_dir.empty?
-    fail "Slice directory not found"
-end
-
-Ice::loadSlice("'-I" + slice_dir + "' Test.ice")
+require "Ice"
+Ice::loadSlice("Test.ice")
 require './AllTests'
 
-def test(b)
-    if !b
-        raise RuntimeError, 'test assertion failed'
+class Client < ::TestHelper
+    def run(args)
+        properties = self.createTestProperties(args:args)
+        properties.setProperty("Ice.Warn.Connections", "0")
+        self.init(properties:properties) do |communicator|
+            allTests(self, communicator)
+        end
     end
 end
-
-def run(args, communicator)
-    allTests(communicator)
-    return true
-end
-
-begin
-    initData = Ice::InitializationData.new
-    initData.properties = Ice.createProperties(ARGV)
-    initData.properties.setProperty("Ice.Warn.Connections", "0")
-    communicator = Ice.initialize(ARGV, initData)
-    status = run(ARGV, communicator)
-rescue => ex
-    puts $!
-    print ex.backtrace.join("\n")
-    status = false
-end
-
-if communicator
-    communicator.destroy()
-end
-
-exit(status ? 0 : 1)

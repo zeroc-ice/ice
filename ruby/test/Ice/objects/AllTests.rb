@@ -68,7 +68,7 @@ def test(b)
     end
 end
 
-def allTests(communicator)
+def allTests(helper, communicator)
 
     factory = MyValueFactory.new
     communicator.getValueFactoryManager().add(factory, '::Test::B')
@@ -83,7 +83,7 @@ def allTests(communicator)
 
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "initial:default -p 12010"
+    ref = "initial:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
     puts "ok"
@@ -309,7 +309,7 @@ def allTests(communicator)
 
     print "testing UnexpectedObjectException... "
     STDOUT.flush
-    ref = "uoet:default -p 12010"
+    ref = "uoet:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
     uoet = Test::UnexpectedObjectExceptionTestPrx::uncheckedCast(base)

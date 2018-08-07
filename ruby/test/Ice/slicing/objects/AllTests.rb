@@ -10,14 +10,8 @@
 require 'Ice'
 Ice::loadSlice('-I. --all ClientPrivate.ice')
 
-def test(b)
-    if !b
-        raise RuntimeError, 'test assertion failed'
-    end
-end
-
-def allTests(communicator)
-    obj = communicator.stringToProxy("Test:default -p 12010")
+def allTests(helper, communicator)
+    obj = communicator.stringToProxy("Test:#{helper.getTestEndpoint()}")
     t = Test::TestIntfPrx::checkedCast(obj)
 
     print "base as Object... "

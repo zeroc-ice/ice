@@ -13,7 +13,7 @@ def test(b)
     end
 end
 
-def allTests(communicator)
+def allTests(helper, communicator)
 
     print "testing Ice.Admin.Facets property... "
     STDOUT.flush
@@ -38,7 +38,7 @@ def allTests(communicator)
 
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "d:default -p 12010"
+    ref = "d:#{helper.getTestEndpoint()}"
     db = communicator.stringToProxy(ref)
     test(db)
     puts "ok"
