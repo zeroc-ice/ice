@@ -226,6 +226,10 @@ namespace
     require_once 'Ice/RemoteLogger.php';
     require_once 'Ice/Communicator.php';
 
+    global $Ice_Protocol_1_0;
+    global $Ice_Encoding_1_0;
+    global $Ice_Encoding_1_1;
+
     $Ice_Protocol_1_0 = new Ice\ProtocolVersion(1, 0);
     $Ice_Encoding_1_0 = new Ice\EncodingVersion(1, 0);
     $Ice_Encoding_1_1 = new Ice\EncodingVersion(1, 1);
