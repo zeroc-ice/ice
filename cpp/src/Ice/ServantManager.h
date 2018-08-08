@@ -17,6 +17,14 @@
 #include <Ice/ServantLocatorF.h>
 #include <Ice/Identity.h>
 #include <Ice/FacetMap.h>
+#include <cstddef>
+#include <string>
+#include <map>
+#if defined(ICE_CPP11_COMPILER)
+#include <functional>
+#include <type_traits>
+#include <unordered_map>
+#endif
 
 namespace Ice
 {
@@ -24,6 +32,39 @@ namespace Ice
 class ObjectAdapterI;
 
 }
+
+#if defined(ICE_CPP11_COMPILER)
+
+namespace IceInternal
+{
+
+struct IdentityHash
+{
+    typedef std::size_t result_type;
+    result_type operator() (Ice::Identity const& id) const ICE_NOEXCEPT
+    {
+        std::hash< std::string > h;
+        return (h(id.name) + static_cast< std::size_t >(0xc6a4a7935bd1e995ull)) ^ h(id.category);
+    }
+};
+
+}
+
+#if defined(__GLIBCXX__)
+
+namespace std {
+
+// A hint for libstdc++ so that unordered_map caches hash values
+template< >
+struct __is_fast_hash< IceInternal::IdentityHash > : std::false_type
+{
+};
+
+}
+
+#endif // defined(__GLIBCXX__)
+
+#endif // defined(ICE_CPP11_COMPILER)
 
 namespace IceInternal
 {
@@ -57,8 +98,13 @@ private:
 
     const std::string _adapterName;
 
+#if defined(ICE_CPP11_COMPILER)
+    typedef std::unordered_map<Ice::Identity, Ice::FacetMap, IdentityHash> ServantMapMap;
+    typedef std::unordered_map<std::string, Ice::ObjectPtr> DefaultServantMap;
+#else
     typedef std::map<Ice::Identity, Ice::FacetMap> ServantMapMap;
     typedef std::map<std::string, Ice::ObjectPtr> DefaultServantMap;
+#endif
 
     ServantMapMap _servantMapMap;
     mutable ServantMapMap::iterator _servantMapMapHint;
