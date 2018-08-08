@@ -1603,6 +1603,7 @@ generate(const UnitPtr& un, bool all, bool checksum, bool ns, const vector<strin
             }
             else
             {
+                out << nl << "global $Ice_sliceChecksums;";
                 for(ChecksumMap::const_iterator p = checksums.begin(); p != checksums.end(); ++p)
                 {
                     out << nl << "$Ice_sliceChecksums[\"" << p->first << "\"] = \"";
