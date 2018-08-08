@@ -81,6 +81,7 @@ private:
     // Emit the array for a Slice type.
     //
     void writeType(const TypePtr&);
+    string getType(const TypePtr&);
 
     //
     // Write a default value for a given type.
@@ -413,11 +414,27 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         }
     }
 
+    {
+        vector<string> seenType;
+        string type = (base ? getTypeVar(base) : "$Ice__t_Object");
+        _out << sp;
+        _out << nl << "global " << type << ";";
+        seenType.push_back(type);
+        for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
+        {
+            type = getType((*q)->type());
+            if(find(seenType.begin(), seenType.end(), type) == seenType.end())
+            {
+                _out << nl << "global " << type << ";";
+            }
+        }
+    }
+
     //
     // Emit the type information.
     //
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-    _out << sp << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << escapeName(abs) << "', "
+    _out << nl << type << " = IcePHP_defineClass('" << scoped << "', '" << escapeName(abs) << "', "
          << p->compactId() << ", " << (isAbstract ? "true" : "false") << ", " << (preserved ? "true" : "false") << ", ";
     if(!base)
     {
@@ -497,6 +514,32 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(!ops.empty())
         {
             _out << sp;
+
+            vector<string> seenType;
+            for(OperationList::iterator p = ops.begin(); p != ops.end(); ++p)
+            {
+                string type;
+                ParamDeclList params = (*p)->parameters();
+                for(ParamDeclList::const_iterator q = params.begin(); q != params.end(); ++q)
+                {
+                    type = getType((*q)->type());
+                    if(find(seenType.begin(), seenType.end(), type) == seenType.end())
+                    {
+                        _out << nl << "global " << type << ";";
+                    }
+                }
+
+                TypePtr returnType = (*p)->returnType();
+                if(returnType)
+                {
+                    type = getType(returnType);
+                    if(find(seenType.begin(), seenType.end(), type) == seenType.end())
+                    {
+                        _out << nl << "global " << type << ";";
+                    }
+                }
+            }
+
             for(OperationList::iterator oli = ops.begin(); oli != ops.end(); ++oli)
             {
                 ParamDeclList params = (*oli)->parameters();
@@ -712,11 +755,33 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     _out << eb;
 
+    _out << sp;
+    {
+        vector<string> seenType;
+        string type;
+        if(base)
+        {
+            type = getTypeVar(base);
+            seenType.push_back(type);
+            _out << nl << "global " << type << ";";
+        }
+
+        for(DataMemberList::iterator p = members.begin(); p != members.end(); ++p)
+        {
+            type = getType((*p)->type());
+            if(find(seenType.begin(), seenType.end(), type) == seenType.end())
+            {
+                seenType.push_back(type);
+                _out << nl << "global " << type << ";";
+            }
+        }
+    }
+
     //
     // Emit the type information.
     //
     const bool preserved = p->hasMetaData("preserve-slice") || p->inheritsMetaData("preserve-slice");
-    _out << sp << nl << type << " = IcePHP_defineException('" << scoped << "', '" << escapeName(abs) << "', "
+    _out << nl << type << " = IcePHP_defineException('" << scoped << "', '" << escapeName(abs) << "', "
          << (preserved ? "true" : "false") << ", ";
     if(!base)
     {
@@ -826,7 +891,21 @@ CodeVisitor::visitStructStart(const StructPtr& p)
     //
     // Emit the type information.
     //
-    _out << sp << nl << type << " = IcePHP_defineStruct('" << scoped << "', '" << escapeName(abs) << "', array(";
+    _out << sp;
+    {
+        string type;
+        vector<string> seenType;
+        for(MemberInfoList::iterator r = memberList.begin(); r != memberList.end(); ++r)
+        {
+            type = getType(r->dataMember->type());
+            if(find(seenType.begin(), seenType.end(), type) == seenType.end())
+            {
+                seenType.push_back(type);
+                _out << nl << "global " << type << ";";
+            }
+        }
+    }
+    _out << nl << type << " = IcePHP_defineStruct('" << scoped << "', '" << escapeName(abs) << "', array(";
     //
     // Data members are represented as an array:
     //
@@ -870,6 +949,7 @@ CodeVisitor::visitSequence(const SequencePtr& p)
     _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
+    _out << nl << "global " << getType(content) << ";";
     _out << nl << type << " = IcePHP_defineSequence('" << scoped << "', ";
     writeType(content);
     _out << ");";
@@ -925,6 +1005,11 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
+    _out << "global " << getType(p->keyType()) << ";";
+    if(getType(p->keyType()) != getType(p->valueType()))
+    {
+        _out << "global " << getType(p->valueType()) << ";";
+    }
     _out << nl << type << " = IcePHP_defineDictionary('" << scoped << "', ";
     writeType(p->keyType());
     _out << ", ";
@@ -1053,6 +1138,12 @@ CodeVisitor::getName(const ContainedPtr& p, const string& suffix)
 void
 CodeVisitor::writeType(const TypePtr& p)
 {
+    _out << getType(p);
+}
+
+string
+CodeVisitor::getType(const TypePtr& p)
+{
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
     if(builtin)
     {
@@ -1060,73 +1151,60 @@ CodeVisitor::writeType(const TypePtr& p)
         {
             case Builtin::KindBool:
             {
-                _out << "$IcePHP__t_bool";
-                break;
+                return "$IcePHP__t_bool";
             }
             case Builtin::KindByte:
             {
-                _out << "$IcePHP__t_byte";
-                break;
+                return "$IcePHP__t_byte";
             }
             case Builtin::KindShort:
             {
-                _out << "$IcePHP__t_short";
-                break;
+                return "$IcePHP__t_short";
             }
             case Builtin::KindInt:
             {
-                _out << "$IcePHP__t_int";
-                break;
+                return "$IcePHP__t_int";
             }
             case Builtin::KindLong:
             {
-                _out << "$IcePHP__t_long";
-                break;
+                return "$IcePHP__t_long";
             }
             case Builtin::KindFloat:
             {
-                _out << "$IcePHP__t_float";
-                break;
+                return "$IcePHP__t_float";
             }
             case Builtin::KindDouble:
             {
-                _out << "$IcePHP__t_double";
-                break;
+                return "$IcePHP__t_double";
             }
             case Builtin::KindString:
             {
-                _out << "$IcePHP__t_string";
-                break;
+                return "$IcePHP__t_string";
             }
             case Builtin::KindObject:
             {
-                _out << "$Ice__t_Object";
-                break;
+                return "$Ice__t_Object";
             }
             case Builtin::KindObjectProxy:
             {
-                _out << "$Ice__t_ObjectPrx";
-                break;
+                return "$Ice__t_ObjectPrx";
             }
             case Builtin::KindLocalObject:
             {
-                _out << "$Ice__t_LocalObject";
-                break;
+                return "$Ice__t_LocalObject";
             }
         }
-        return;
     }
 
     ProxyPtr prx = ProxyPtr::dynamicCast(p);
     if(prx)
     {
-        _out << getTypeVar(prx->_class(), "Prx");
-        return;
+        return getTypeVar(prx->_class(), "Prx");
     }
 
     ContainedPtr cont = ContainedPtr::dynamicCast(p);
     assert(cont);
-    _out << getTypeVar(cont);
+    return getTypeVar(cont);
 }
 
 void
