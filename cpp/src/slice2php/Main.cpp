@@ -1005,10 +1005,10 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
     _out << sp << nl << "global " << type << ';';
     _out << sp << nl << "if(!isset(" << type << "))";
     _out << sb;
-    _out << "global " << getType(p->keyType()) << ";";
+    _out << nl << "global " << getType(p->keyType()) << ";";
     if(getType(p->keyType()) != getType(p->valueType()))
     {
-        _out << "global " << getType(p->valueType()) << ";";
+        _out << nl << "global " << getType(p->valueType()) << ";";
     }
     _out << nl << type << " = IcePHP_defineDictionary('" << scoped << "', ";
     writeType(p->keyType());

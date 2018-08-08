@@ -110,6 +110,12 @@ namespace Ice
         }
     }
 
+    global $Ice__t_Object;
+    global $Ice__t_ObjectSeq;
+    global $Ice__t_LocalObject;
+    global $Ice__t_ObjectPrx;
+    global $Ice__t_ObjectProxySeq;
+
     $Ice__t_Object = IcePHP_defineClass('::Ice::Object', "\\Ice\\Object", -1, true, false, null, null, null);
     $Ice__t_ObjectSeq = IcePHP_defineSequence('::Ice::ObjectSeq', $Ice__t_Object);
     $Ice__t_LocalObject = IcePHP_defineClass('::Ice::LocalObject', "\\Ice\\LocalObject", -1, true, false, null, null, null);
@@ -125,6 +131,7 @@ namespace Ice
         public $unknownTypeId;
     }
 
+    global $Ice__t_UnknownSlicedObject;
     $Ice__t_UnknownSlicedObject = IcePHP_defineClass('::Ice::UnknownSlicedObject', "\\Ice\\UnknownSlicedObject", -1, false, true, $Ice__t_Object, null, null);
 
     interface ObjectFactory
@@ -164,6 +171,7 @@ namespace Ice
         const SlicedFormat = 2;
     }
 
+    global $Ice_sliceChecksums;
     $Ice_sliceChecksums = array();
 }
 
@@ -184,6 +192,10 @@ require_once 'Ice/Version.php';
 require_once 'Ice/Instrumentation.php';
 require_once 'Ice/Metrics.php';
 require_once 'Ice/RemoteLogger.php';
+
+global $Ice_Protocol_1_0;
+global $Ice_Encoding_1_0;
+global $Ice_Encoding_1_1;
 
 $Ice_Protocol_1_0 = new Ice\ProtocolVersion(1, 0);
 $Ice_Encoding_1_0 = new Ice\EncodingVersion(1, 0);
