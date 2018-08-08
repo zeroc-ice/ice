@@ -36,7 +36,7 @@ class TestHelper:
         if properties is None:
             properties = self._communicator.getProperties()
 
-        return properties.getPropertyWithDefaultHost("Ice.Default.Host", "127.0.0.1")
+        return properties.getPropertyWithDefaul("Ice.Default.Host", "127.0.0.1")
 
     def getTestProtocol(self, properties=None):
 

@@ -3595,7 +3595,12 @@ class PhpMapping(CppBasedClientMapping):
 
         if hasattr(process, "getPhpArgs"):
             phpArgs += process.getPhpArgs(current)
-        return "{0} {1} -f {2} -- {3}".format(php, " ".join(phpArgs), exe, args)
+
+        return "{0} {1} -f {2} -- {3} {4}".format(php,
+                                                  " ".join(phpArgs),
+                                                  os.path.join(self.path, "test", "TestHelper.php"),
+                                                  exe,
+                                                  args)
 
     def _getDefaultSource(self, processType):
         return { "client" : "Client.php" }[processType]

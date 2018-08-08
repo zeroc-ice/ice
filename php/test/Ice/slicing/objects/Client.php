@@ -8,37 +8,17 @@
 //
 // **********************************************************************
 
-error_reporting(E_ALL | E_STRICT);
-
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
-$NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
 require_once('ClientPrivate.php');
 
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
-
-function allTests($communicator)
+function allTests($helper)
 {
     global $NS;
     global $Ice_Encoding_1_0;
 
     $d1cls = $NS ? "Test\\D1" : "Test_D1";
     $d3cls = $NS ? "Test\\D3" : "Test_D3";
-
-    $obj = $communicator->stringToProxy("Test:default -p 12010");
+    $communicator = $helper->communicator();
+    $obj = $communicator->stringToProxy(sprintf("Test:%s", $helper->getTestEndpoint()));
     $test = $obj->ice_checkedCast("::Test::TestIntf");
 
     echo "base as Object... ";
@@ -1075,10 +1055,20 @@ function allTests($communicator)
     return $test;
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
-                      eval("return Ice_initialize(\$argv);");
-$test = allTests($communicator);
-$test->shutdown();
-$communicator->destroy();
-exit();
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        try
+        {
+            $communicator = $this->initialize($args);
+            $proxy = allTests($this);
+            $proxy->shutdown();
+        }
+        finally
+        {
+            $communicator->destroy();
+       }
+    }
+}
 ?>

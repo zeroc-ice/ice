@@ -8,27 +8,8 @@
 //
 // **********************************************************************
 
-error_reporting(E_ALL | E_STRICT);
 
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
-$NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
 require_once('Test.php');
-
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
 
 function allTests()
 {
@@ -224,7 +205,12 @@ function allTests()
     echo "ok\n";
 }
 
-allTests();
 
-exit();
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        allTests();
+    }
+}
 ?>

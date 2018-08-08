@@ -8,50 +8,17 @@
 //
 // **********************************************************************
 
-error_reporting(E_ALL | E_STRICT);
-
-if(!extension_loaded("ice"))
+class Client extends TestHelper
 {
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
-function test($b)
-{
-    if(!$b)
+    function run($args)
     {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
+        global $NS;
+        $properties = call_user_func($NS ? "\\Ice\\getProperties" : "Ice_getProperties");
+        test($properties->getPropertyAsInt("Ice.Trace.Protocol") == 1);
+        test($properties->getPropertyAsInt("Ice.Trace.Network") == 1);
+        test($properties->getPropertyAsInt("Ice.Warn.Connections") == 1);
+        test($properties->getProperty("Hello.Proxy") == "hello:tcp -h localhost -p 10000");
     }
 }
-
-$NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
-
-$communicator = null;
-
-if($NS)
-{
-    $initData = eval("return new Ice\\InitializationData;");
-    $initData->properties = eval("return Ice\\getProperties();");
-    $communicator = eval("return Ice\\initialize(\$initData);");
-}
-else
-{
-    $initData = new Ice_InitializationData;
-    $initData->properties = Ice_getProperties();
-    $communicator = Ice_initialize($initData);
-}
-
-test($communicator != null);
-
-$properties = $communicator->getProperties();
-test($properties != null);
-
-//test($properties->getPropertyAsInt("Ice.Trace.Protocol") == 1);
-test($properties->getPropertyAsInt("Ice.Trace.Network") == 1);
-test($properties->getPropertyAsInt("Ice.Warn.Connections") == 1);
-test($properties->getProperty("Hello.Proxy") == "hello:tcp -h localhost -p 10000");
 
 ?>

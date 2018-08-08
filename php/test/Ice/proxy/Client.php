@@ -8,27 +8,7 @@
 //
 // **********************************************************************
 
-error_reporting(E_ALL | E_STRICT);
-
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
-$NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
 require_once('Test.php');
-
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
 
 function currentEncodingToString()
 {
@@ -37,7 +17,7 @@ function currentEncodingToString()
                  eval("return Ice_encodingVersionToString(Ice_currentEncoding());");
 }
 
-function allTests($communicator)
+function allTests($helper)
 {
     global $NS;
     global $Ice_Encoding_1_0;
@@ -56,7 +36,8 @@ function allTests($communicator)
 
     echo "testing stringToProxy... ";
     flush();
-    $ref = "test:default -p 12010";
+    $ref = sprintf("test:%s", $helper->getTestEndpoint());
+    $communicator = $helper->communicator();
     $base = $communicator->stringToProxy($ref);
     test($base != null);
 
@@ -346,7 +327,7 @@ function allTests($communicator)
     //test($b1->ice_getLocatorCacheTimeout() == 60);
     //$communicator->getProperties()->setProperty("Ice.Default.LocatorCacheTimeout", "");
 
-    $communicator->getProperties()->setProperty($propertyPrefix, "test:default -p 12010");
+    $communicator->getProperties()->setProperty($propertyPrefix, sprintf("test:%s", $helper->getTestEndpoint()));
 
     $property = $propertyPrefix . ".Router";
     test(!$b1->ice_getRouter());
@@ -581,7 +562,7 @@ function allTests($communicator)
 
     echo "testing encoding versioning... ";
     flush();
-    $ref20 = "test -e 2.0:default -p 12010";
+    $ref20 = sprintf("test -e 2.0:%s", $helper->getTestEndpoint());
     $cl20 = $communicator->stringToProxy($ref20)->ice_uncheckedCast("::Test::MyClass");
     try
     {
@@ -597,7 +578,7 @@ function allTests($communicator)
             throw $ex;
         }
     }
-    $ref10 = "test -e 1.0:default -p 12010";
+    $ref10 = sprintf("test -e 1.0:%s", $helper->getTestEndpoint());
     $cl10 = $communicator->stringToProxy($ref10)->ice_uncheckedCast("::Test::MyClass");
     $cl10->ice_ping();
     $cl10->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
@@ -605,7 +586,7 @@ function allTests($communicator)
 
     // 1.3 isn't supported but since a 1.3 proxy supports 1.1, the
     // call will use the 1.1 encoding
-    $ref13 = "test -e 1.3:default -p 12010";
+    $ref13 = sprintf("test -e 1.3:%s", $helper->getTestEndpoint());
     $cl13 = $communicator->stringToProxy($ref13)->ice_uncheckedCast("::Test::MyClass");
     $cl13->ice_ping();
     echo "ok\n";
@@ -879,11 +860,20 @@ function allTests($communicator)
     return $cl;
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
-                      eval("return Ice_initialize(\$argv);");
-$myClass = allTests($communicator);
-$myClass->shutdown();
-$communicator->destroy();
-
-exit();
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        try
+        {
+            $communicator = $this->initialize($args);
+            $proxy= allTests($this);
+            $proxy->shutdown();
+        }
+        finally
+        {
+            $communicator->destroy();
+        }
+    }
+}
 ?>

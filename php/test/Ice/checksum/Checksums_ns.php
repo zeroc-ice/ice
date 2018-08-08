@@ -8,9 +8,10 @@
 //
 // **********************************************************************
 
-function allTests($communicator)
+function allTests($helper)
 {
-    $ref = "test:default -p 12010";
+    $communicator = $helper->communicator();
+    $ref = sprintf("test:%s", $helper->getTestEndpoint());
     $base = $communicator->stringToProxy($ref);
     test($base);
 

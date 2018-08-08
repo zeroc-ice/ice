@@ -8,27 +8,7 @@
 //
 // **********************************************************************
 
-error_reporting(E_ALL | E_STRICT);
-
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
-$NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
 require_once('Test.php');
-
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
 
 function getTCPEndpointInfo($i)
 {
@@ -58,9 +38,11 @@ function getTCPConnectionInfo($i)
     }
 }
 
-function allTests($communicator)
+function allTests($helper)
 {
     global $NS;
+
+    $communicator = $helper->communicator();
 
     $tcpEndpointType = $NS ? constant("Ice\\TCPEndpointType") : constant("Ice_TCPEndpointType");
     $tcpEndpointInfoClass = $NS ? "Ice\\TCPEndpointInfo" : "Ice_TCPEndpointInfo";
@@ -122,15 +104,16 @@ function allTests($communicator)
     echo "ok\n";
 
     $defaultHost = $communicator->getProperties()->getProperty("Ice.Default.Host");
-    $base = $communicator->stringToProxy("test:default -p 12010:udp -p 12010");
+    $base = $communicator->stringToProxy(
+        sprintf("test:%s:%s", $helper->getTestEndpoint(), $helper->getTestEndpoint("udp")));
     $testIntf = $base->ice_checkedCast("::Test::TestIntf");
-
+    $testPort = $helper->getTestPort();
     echo "test connection endpoint information... ";
     flush();
     {
         $tcpinfo = getTCPEndpointInfo($base->ice_getConnection()->getEndpoint()->getInfo());
         test($tcpinfo instanceof $tcpEndpointInfoClass);
-        test($tcpinfo->port == 12010);
+        test($tcpinfo->port == $testPort);
         test(!$tcpinfo->compress);
         test($tcpinfo->host == $defaultHost);
 
@@ -141,7 +124,7 @@ function allTests($communicator)
 
         $udpinfo = $base->ice_datagram()->ice_getConnection()->getEndpoint()->getInfo();
         test($udpinfo instanceof $udpEndpointInfoClass);
-        test($udpinfo->port == 12010);
+        test($udpinfo->port == $testPort);
         test($udpinfo->host == $defaultHost);
     }
     echo "ok\n";
@@ -198,11 +181,20 @@ function allTests($communicator)
     return $testIntf;
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
-                      eval("return Ice_initialize(\$argv);");
-$server = allTests($communicator);
-$server->shutdown();
-$communicator->destroy();
-
-exit();
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        try
+        {
+            $communicator = $this->initialize($args);
+            $proxy= allTests($this);
+            $proxy->shutdown();
+        }
+        finally
+        {
+            $communicator->destroy();
+        }
+    }
+}
 ?>

@@ -8,35 +8,16 @@
 //
 // **********************************************************************
 
-$NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
 require_once('Test.php');
 
-error_reporting(E_ALL | E_STRICT);
-
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
-
-function allTests($communicator)
+function allTests($helper)
 {
     global $NS;
 
     echo "testing stringToProxy... ";
     flush();
-    $ref = "thrower:default -p 12010";
+    $ref = sprintf("thrower:%s", $helper->getTestEndpoint());
+    $communicator = $helper->communicator();
     $base = $communicator->stringToProxy($ref);
     test($base != null);
     echo "ok\n";
@@ -430,18 +411,27 @@ function allTests($communicator)
     return $thrower;
 }
 
-$initData = $NS ? eval("return new Ice\\InitializationData;") : eval("return new Ice_InitializationData;");
-$initData->properties = $NS ? eval("return Ice\\getProperties();") : eval("return Ice_getProperties();");
-$initData->properties->setProperty("Ice.MessageSizeMax", "10");
-$communicator = $NS ? eval("return Ice\\initialize(\$argv, \$initData);") :
-                      eval("return Ice_initialize(\$argv, \$initData);");
-
-// This property is set by the test suite, howerver we need to override it for this test.
-// Unlike C++, we can not pass $argv into Ice::createProperties, so we just set it after.
-$communicator->getProperties()->setProperty("Ice.Warn.Connections", "0");
-
-$thrower = allTests($communicator);
-$thrower->shutdown();
-$communicator->destroy();
-exit();
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        try
+        {
+            $properties = $this->createTestProperties($args);
+            $properties->setProperty("Ice.MessageSizeMax", "10");
+            //
+            // This property is set by the test suite, howerver we need to override it for this test.
+            // Unlike C++, we can not pass $argv into Ice::createProperties, so we just set it after.
+            //
+            $properties->setProperty("Ice.Warn.Connections", "0");
+            $communicator = $this->initialize($properties);
+            $proxy= allTests($this);
+            $proxy->shutdown();
+        }
+        finally
+        {
+            $communicator->destroy();
+        }
+    }
+}
 ?>
