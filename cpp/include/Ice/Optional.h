@@ -29,6 +29,61 @@
 
 #ifdef ICE_CPP11_MAPPING
 
+#if __cplusplus >= 201703L
+#if defined(__has_include)
+#if __has_include(<optional>)
+#define ICE_HAS_CXX17_OPTIONAL
+#endif
+#endif
+#endif
+
+#if defined(ICE_HAS_CXX17_OPTIONAL)
+
+#include <optional>
+
+namespace Ice
+{
+
+/**
+ * Ice::optional is a placeholder for std::optional.
+ * Refer to http://en.cppreference.com/w/cpp/utility/optional for more information.
+ */
+using std::optional;
+
+/** Creates an optional object. */
+using std::make_optional;
+
+/** This type indicates that no value is provided. */
+using std::nullopt_t;
+/** An instance of nullopt_t used as a marker value to indicate that no value is provided. */
+using std::nullopt;
+
+/** Raised when accessing an optional that doesn't contain a value. */
+using std::bad_optional_access;
+
+/** This type indicates that an optional value should be constructed in place. */
+using std::in_place_t;
+/** An instance of in_place_t that indicates that an optional value should be constructed in place. */
+using std::in_place;
+
+}
+
+namespace IceUtil
+{
+
+/**
+ * For compatibility with the Ice C++98 mapping, do not use in new code:
+ */
+template<class T> using Optional = std::optional<T>;
+/**
+ * For compatibility with the Ice C++98 mapping, do not use in new code:
+ */
+inline constexpr std::nullopt_t None{std::nullopt};
+
+}
+
+#else // defined(ICE_HAS_CXX17_OPTIONAL)
+
 # include <utility>
 # include <type_traits>
 # include <initializer_list>
@@ -1090,6 +1145,10 @@ template<class T> using Optional = std::experimental::Ice::optional<T>;
 constexpr std::experimental::Ice::nullopt_t None{std::experimental::Ice::nullopt_t::init()};
 
 }
+
+#endif // defined(ICE_HAS_CXX17_OPTIONAL)
+
+#undef ICE_HAS_CXX17_OPTIONAL
 
 #else // C++98 mapping
 
