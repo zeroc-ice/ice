@@ -172,7 +172,16 @@ Slice::Ruby::CodeVisitor::CodeVisitor(Output& out) :
 bool
 Slice::Ruby::CodeVisitor::visitModuleStart(const ModulePtr& p)
 {
-    _out << sp << nl << "module " << fixIdent(p->name(), IdentToUpper);
+    _out << sp << nl << "module ";
+    //
+    // Ensure that Slice top-level modules are defined as top
+    // level modules in Ruby
+    //
+    if(UnitPtr::dynamicCast(p->container()))
+    {
+        _out << "::";
+    }
+    _out << fixIdent(p->name(), IdentToUpper);
     _out.inc();
     return true;
 }
