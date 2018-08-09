@@ -1685,7 +1685,7 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
         // Add a temporary null value so that the foreach order is the
         // same as the index order.
         //
-        add_index_null(&zv, i);
+        add_index_null(zv, i);
         void* cl = reinterpret_cast<void*>(i);
         elementType->unmarshal(is, this, comm, zv, cl, false TSRMLS_CC);
     }
