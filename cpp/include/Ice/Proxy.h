@@ -107,9 +107,15 @@ namespace IceInternal
 {
 
 template<typename P>
-::std::shared_ptr<P> createProxy()
+inline ::std::shared_ptr<P> createProxy()
 {
-    return ::std::shared_ptr<P>(new P());
+    // Proxy default constructor is protected, we can't use make_shared to create it directly
+    struct ProxyHolder
+    {
+        P proxy;
+    };
+    ::std::shared_ptr<ProxyHolder> p(::std::make_shared<ProxyHolder>());
+    return ::std::shared_ptr<P>(p, &p->proxy);
 }
 
 inline ::std::pair<const Ice::Byte*, const Ice::Byte*>
