@@ -562,10 +562,12 @@ class Client extends TestHelper
             $communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
             $initial = allTests($this);
             $initial->shutdown();
+            $communicator->destroy();
         }
-        finally
+        catch(Exception $ex)
         {
             $communicator->destroy();
+            throw $ex;
         }
     }
 }

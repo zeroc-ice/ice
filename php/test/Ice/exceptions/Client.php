@@ -427,10 +427,12 @@ class Client extends TestHelper
             $communicator = $this->initialize($properties);
             $proxy= allTests($this);
             $proxy->shutdown();
+            $communicator->destroy();
         }
-        finally
+        catch(Exception $ex)
         {
             $communicator->destroy();
+            throw $ex;
         }
     }
 }

@@ -212,8 +212,17 @@ class Client extends TestHelper
 {
     function run($args)
     {
-        $communicator = $this->initialize($args);
-        allTests($this);
+        try
+        {
+            $communicator = $this->initialize($args);
+            allTests($this);
+            $communicator->destroy();
+        }
+        catch(Exception $ex)
+        {
+            $communicator->destroy();
+            throw $ex;
+        }
     }
 }
 ?>

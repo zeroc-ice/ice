@@ -117,10 +117,12 @@ class Client extends TestHelper
             testHeartbeatManual($this, $com);
 
             $com->shutdown();
+            $communicator->destroy();
         }
-        finally
+        catch(Exception $ex)
         {
             $communicator->destroy();
+            throw $ex;
         }
     }
 }

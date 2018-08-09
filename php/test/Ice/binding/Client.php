@@ -526,10 +526,12 @@ class Client extends TestHelper
         {
             $communicator = $this->initialize($args);
             allTests($this);
+            $communicator->destroy();
         }
-        finally
+        catch(Exception $ex)
         {
             $communicator->destroy();
+            throw $ex;
         }
     }
 }
