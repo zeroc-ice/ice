@@ -132,6 +132,47 @@ protected:
                                                                                                 memberFn)));
         }
 
+#if __cplusplus >= 201703L
+        // C++17 overloads with noexcept being part of the type
+        template<typename Y> void
+        add(const std::string& name, Y (Helper::*memberFn)() const noexcept)
+        {
+            typedef Y (Helper::*memberFn_t)() const;
+            add(name, (memberFn_t)memberFn);
+        }
+
+        template<typename I, typename O, typename Y> void
+        add(const std::string& name, O (Helper::*getFn)() const noexcept, Y I::*member)
+        {
+            typedef O (Helper::*getFn_t)() const;
+            add(name, (getFn_t)getFn, member);
+        }
+
+        template<typename I, typename O, typename Y> void
+        add(const std::string& name, O (Helper::*getFn)() const noexcept, Y (I::*memberFn)() const)
+        {
+            typedef O (Helper::*getFn_t)() const;
+            typedef Y (Helper::*memberFn_t)() const;
+            add(name, (getFn_t)getFn, (memberFn_t)memberFn);
+        }
+
+        template<typename I, typename O, typename Y> void
+        add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const noexcept)
+        {
+            typedef O (Helper::*getFn_t)() const;
+            typedef Y (Helper::*memberFn_t)() const;
+            add(name, (getFn_t)getFn, (memberFn_t)memberFn);
+        }
+
+        template<typename I, typename O, typename Y> void
+        add(const std::string& name, O (Helper::*getFn)() const noexcept, Y (I::*memberFn)() const noexcept)
+        {
+            typedef O (Helper::*getFn_t)() const;
+            typedef Y (Helper::*memberFn_t)() const;
+            add(name, (getFn_t)getFn, (memberFn_t)memberFn);
+        }
+#endif
+
     private:
 
         template<typename Y> class HelperMemberResolver : public Resolver
