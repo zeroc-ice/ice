@@ -15,17 +15,15 @@ function client(args)
         loadlibrary('ice', @iceproto)
     end
 
-    initData = TestApp.createInitData('client', args);
-    initData.properties_.setProperty('Ice.ThreadPool.Client.Size', '2');
-    initData.properties_.setProperty('Ice.ThreadPool.Client.SizeWarn', '0');
-    initData.properties_.setProperty('Ice.BatchAutoFlushSize', '100');
-    communicator = Ice.initialize(initData);
+    helper = TestHelper();
+    properties = helper.createTestProperties(args);
+    properties.setProperty('Ice.ThreadPool.Client.Size', '2');
+    properties.setProperty('Ice.ThreadPool.Client.SizeWarn', '0');
+    properties.setProperty('Ice.BatchAutoFlushSize', '100');
+    communicator = helper.initialize(properties);
     cleanup = onCleanup(@() communicator.destroy());
 
-    app = TestApp(communicator);
-
-    myClass = AllTests.allTests(app);
-
+    myClass = AllTests.allTests(helper);
     fprintf('testing server shutdown... ');
     myClass.shutdown();
     try

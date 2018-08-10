@@ -11,18 +11,18 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function r = allTests(app)
+        function allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
-            sref = ['test:', app.getTestEndpoint(0)];
+            sref = ['test:', helper.getTestEndpoint()];
             obj = communicator.stringToProxy(sref);
             assert(~isempty(obj));
 
             p = TestIntfPrx.uncheckedCast(obj);
 
-            sref = ['testController:', app.getTestEndpoint(1)];
+            sref = ['testController:', helper.getTestEndpoint(1)];
             obj = communicator.stringToProxy(sref);
             assert(~isempty(obj));
 
@@ -96,8 +96,7 @@ classdef AllTests
             % Check that CommunicatorDestroyedException is raised directly.
             %
             if ~isempty(p.ice_getConnection())
-                initData = app.cloneInitData();
-                ic = Ice.initialize(initData);
+                ic = helper.initialize(communicator.getProperties().clone());
                 o = ic.stringToProxy(p.ice_toString());
                 p2 = TestIntfPrx.checkedCast(o);
                 ic.destroy();

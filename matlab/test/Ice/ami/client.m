@@ -15,19 +15,18 @@ function client(args)
         loadlibrary('ice', @iceproto)
     end
 
-    initData = TestApp.createInitData('client', args);
-    initData.properties_.setProperty('Ice.Warn.AMICallback', '0');
-    initData.properties_.setProperty('Ice.Warn.Connections', '0');
+    helper = TestHelper();
+    properties = helper.createTestProperties(args);
+    properties.setProperty('Ice.Warn.AMICallback', '0');
+    properties.setProperty('Ice.Warn.Connections', '0');
     %
     % Limit the send buffer size, this test relies on the socket
     % send() blocking after sending a given amount of data.
     %
-    initData.properties_.setProperty('Ice.TCP.SndSize', '50000');
-    communicator = Ice.initialize(initData);
+    properties.setProperty('Ice.TCP.SndSize', '50000');
+    communicator = helper.initialize(properties);
     cleanup = onCleanup(@() communicator.destroy());
-
-    app = TestApp(communicator);
-    AllTests.allTests(app);
+    AllTests.allTests(helper);
 
     clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

@@ -11,10 +11,10 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function allTests(app)
+        function allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
             fprintf('testing default values... ');
 

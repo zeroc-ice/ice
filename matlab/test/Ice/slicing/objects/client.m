@@ -15,12 +15,10 @@ function client(args)
         loadlibrary('ice', @iceproto)
     end
 
-    initData = TestApp.createInitData('client', args);
-    communicator = Ice.initialize(initData);
+    helper = TestHelper();
+    communicator = helper.initialize(args);
     cleanup = onCleanup(@() communicator.destroy());
-
-    app = TestApp(communicator);
-    test = AllTests.allTests(app);
+    test = AllTests.allTests(helper);
     test.shutdown();
 
     clear('classes'); % Avoids conflicts with tests that define the same symbols.

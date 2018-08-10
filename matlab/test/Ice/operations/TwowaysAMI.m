@@ -11,10 +11,8 @@ ICE_LICENSE file included in this distribution.
 
 classdef TwowaysAMI
     methods(Static)
-        function twowaysAMI(app, p)
+        function twowaysAMI(helper, p)
             import Test.*;
-
-            communicator = app.communicator();
 
             call(p, 'ice_ping');
 
@@ -1151,17 +1149,17 @@ classdef TwowaysAMI
             %
             impls = {'Shared', 'PerThread'};
             for i = 1:2
-                initData = app.cloneInitData();
-                initData.properties_.setProperty('Ice.ImplicitContext', impls{i});
+                properties = helper.communicator().getProperties().clone();
+                properties.setProperty('Ice.ImplicitContext', impls{i});
 
-                ic = Ice.initialize(initData);
+                ic = helper.initialize(properties);
 
                 ctx = containers.Map('KeyType', 'char', 'ValueType', 'char');
                 ctx('one') = 'ONE';
                 ctx('two') = 'TWO';
                 ctx('three') = 'THREE';
 
-                p3 = MyClassPrx.uncheckedCast(ic.stringToProxy(['test:', app.getTestEndpoint(0)]));
+                p3 = MyClassPrx.uncheckedCast(ic.stringToProxy(['test:', helper.getTestEndpoint()]));
 
                 ic.getImplicitContext().setContext(ctx);
                 assert(isequal(ic.getImplicitContext().getContext(), ctx));

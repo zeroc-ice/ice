@@ -34,12 +34,12 @@ classdef AllTests
             end
         end
 
-        function r = allTests(app)
+        function allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
-            ref = ['communicator:', app.getTestEndpoint(0)];
+            ref = ['communicator:', helper.getTestEndpoint()];
             rcom = RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             fprintf('testing binding with single endpoint... ');

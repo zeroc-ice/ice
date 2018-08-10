@@ -14,10 +14,10 @@ ICE_LICENSE file included in this distribution.
 %
 classdef LocalTests
     methods(Static)
-        function localTests(app)
+        function localTests(helper)
             import LocalTest.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
             props = communicator.getProperties();
 
             fprintf('testing class members locally... ');

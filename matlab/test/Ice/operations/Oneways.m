@@ -11,7 +11,7 @@ ICE_LICENSE file included in this distribution.
 
 classdef Oneways
     methods(Static)
-        function oneways(app, p)
+        function oneways(p)
             p = p.ice_oneway();
 
             p.ice_ping();

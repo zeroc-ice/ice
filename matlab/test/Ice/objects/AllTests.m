@@ -11,11 +11,11 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function r = allTests(app)
+        function r = allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
-            ref = ['initial:', app.getTestEndpoint(0)];
+            communicator = helper.communicator();
+            ref = ['initial:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             initial = InitialPrx.checkedCast(base);
 
@@ -219,7 +219,7 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing UnexpectedObjectException... ');
-            ref = ['uoet:', app.getTestEndpoint(0)];
+            ref = ['uoet:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
             uoet = UnexpectedObjectExceptionTestPrx.uncheckedCast(base);

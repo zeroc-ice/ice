@@ -11,10 +11,10 @@ ICE_LICENSE file included in this distribution.
 
 classdef BatchOneways
     methods(Static)
-        function batchOneways(app, p)
+        function batchOneways(helper, p)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
             properties = communicator.getProperties();
             bs1 = zeros(1, 10  * 1024);
 

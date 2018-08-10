@@ -15,12 +15,11 @@ function client(args)
         loadlibrary('ice', @iceproto)
     end
 
-    initData = TestApp.createInitData('client', args);
-    initData.properties_.setProperty('Ice.Warn.Connections', '0');
-    communicator = Ice.initialize(initData);
+    helper = TestHelper();
+    properties = helper.createTestProperties(args);
+    properties.setProperty('Ice.Warn.Connections', '0');
+    communicator = helper.initialize(properties);
     cleanup = onCleanup(@() communicator.destroy());
-
-    app = TestApp(communicator);
 
     %
     % Remote tests
@@ -35,7 +34,7 @@ function client(args)
     vfm.add(@(id) JI(), Test.JPrx.ice_staticId());
     vfm.add(@(id) HI(), Test.H.ice_staticId());
 
-    initial = AllTests.allTests(app);
+    initial = AllTests.allTests(helper);
     initial.shutdown();
 
     %
@@ -49,7 +48,7 @@ function client(args)
     vfm.add(@(id) CB6I(), LocalTest.CB6.ice_staticId());
     vfm.add(@(id) CB7I(), LocalTest.CB7.ice_staticId());
     vfm.add(@(id) CB8I(), LocalTest.CB8.ice_staticId());
-    LocalTests.localTests(app);
+    LocalTests.localTests(helper);
 
     clear('classes'); % Avoids conflicts with tests that define the same symbols.
 end

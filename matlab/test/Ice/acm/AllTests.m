@@ -11,12 +11,12 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function allTests(app)
+        function allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
-            ref = 'communicator:default -p 12010';
+            ref = ['communicator:', helper.getTestEndpoint()];
             com = RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             AllTests.testSetACM(communicator, com);

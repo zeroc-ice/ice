@@ -11,10 +11,10 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function allTests(app)
+        function allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
             fprintf('testing proxy endpoint information... ');
 
@@ -61,11 +61,10 @@ classdef AllTests
 
             fprintf('ok\n');
 
-            base = communicator.stringToProxy(['test:', app.getTestEndpoint(0), ':', ...
-                                              app.getTestEndpoint(0, 'udp')]);
+            base = communicator.stringToProxy(['test:', helper.getTestEndpoint(), ':', helper.getTestEndpoint('udp')]);
             testIntf = TestIntfPrx.checkedCast(base);
 
-            endpointPort = app.getTestPort(0);
+            endpointPort = helper.getTestPort();
 
             defaultHost = communicator.getProperties().getProperty('Ice.Default.Host');
             fprintf('test connection endpoint information... ');

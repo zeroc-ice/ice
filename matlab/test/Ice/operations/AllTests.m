@@ -11,42 +11,42 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function r = allTests(app)
+        function r = allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
-            ref = ['test:', app.getTestEndpoint(0)];
+            communicator = helper.communicator();
+            ref = ['test:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             cl = MyClassPrx.checkedCast(base);
             derived = MyDerivedClassPrx.checkedCast(cl);
 
             fprintf('testing twoway operations... ');
-            Twoways.twoways(app, cl);
-            Twoways.twoways(app, derived);
+            Twoways.twoways(helper, cl);
+            Twoways.twoways(helper, derived);
             derived.opDerived();
             fprintf('ok\n');
 
             fprintf('testing oneway operations... ');
-            Oneways.oneways(app, cl);
+            Oneways.oneways(cl);
             fprintf('ok\n');
 
             fprintf('testing twoway operations with AMI... ');
-            TwowaysAMI.twowaysAMI(app, cl);
-            TwowaysAMI.twowaysAMI(app, derived);
+            TwowaysAMI.twowaysAMI(helper, cl);
+            TwowaysAMI.twowaysAMI(helper, derived);
             fprintf('ok\n');
 
             fprintf('testing oneway operations with AMI... ');
-            OnewaysAMI.onewaysAMI(app, cl);
+            OnewaysAMI.onewaysAMI(cl);
             fprintf('ok\n');
 
             fprintf('testing batch oneway operations... ');
-            BatchOneways.batchOneways(app, cl);
-            BatchOneways.batchOneways(app, derived);
+            BatchOneways.batchOneways(helper, cl);
+            BatchOneways.batchOneways(helper, derived);
             fprintf('ok\n');
 
             fprintf('testing batch AMI oneway operations... ');
-            BatchOnewaysAMI.batchOneways(app, cl);
-            BatchOnewaysAMI.batchOneways(app, derived);
+            BatchOnewaysAMI.batchOneways(cl);
+            BatchOnewaysAMI.batchOneways(derived);
             fprintf('ok\n');
 
             r = cl;

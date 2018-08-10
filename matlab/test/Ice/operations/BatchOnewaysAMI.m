@@ -11,9 +11,7 @@ ICE_LICENSE file included in this distribution.
 
 classdef BatchOnewaysAMI
     methods(Static)
-        function batchOneways(app, p)
-            communicator = app.communicator();
-            properties = communicator.getProperties();
+        function batchOneways(p)
             bs1 = zeros(1, 10  * 1024);
 
             batch = p.ice_batchOneway();

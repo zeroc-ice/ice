@@ -11,10 +11,10 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function r = allTests(app)
+        function r = allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
             fprintf('testing value factory registration exception... ');
             of = @(id) [];
@@ -28,7 +28,7 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing stringToProxy... ');
-            ref = ['thrower:', app.getTestEndpoint(0, '')];
+            ref = ['thrower:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
             fprintf('ok\n');
@@ -241,7 +241,7 @@ classdef AllTests
 
                 try
                     thrower2 = ThrowerPrx.uncheckedCast(...
-                        communicator.stringToProxy(['thrower:', app.getTestEndpoint(1, '')]));
+                        communicator.stringToProxy(['thrower:', helper.getTestEndpoint(1)]));
                     try
                         thrower2.throwMemoryLimitException(zeros(1, 2 * 1024 * 1024)); % 2MB (no limits)
                     catch ex
@@ -250,7 +250,7 @@ classdef AllTests
                         end
                     end
                     thrower3 = ThrowerPrx.uncheckedCast(...
-                        communicator.stringToProxy(['thrower:', app.getTestEndpoint(2, '')]));
+                        communicator.stringToProxy(['thrower:', helper.getTestEndpoint(2)]));
                     try
                         thrower3.throwMemoryLimitException(zeros(1, 1024)); % 1KB limit
                         assert(false);

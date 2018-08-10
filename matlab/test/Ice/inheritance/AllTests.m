@@ -11,14 +11,14 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function r = allTests(app)
+        function r = allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
             fprintf('testing stringToProxy... ');
 
-            ref = ['initial:', app.getTestEndpoint(0)];
+            ref = ['initial:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
             fprintf('ok\n');

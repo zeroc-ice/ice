@@ -11,8 +11,8 @@ ICE_LICENSE file included in this distribution.
 
 classdef AllTests
     methods(Static)
-        function allTests(app)
-            communicator = app.communicator();
+        function allTests(helper)
+            communicator = helper.communicator();
 
             fprintf('testing enum... ');
 
