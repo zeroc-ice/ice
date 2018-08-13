@@ -1073,38 +1073,43 @@ IceUtilInternal::lastErrorToString()
 string
 IceUtilInternal::errorToString(int error)
 {
-    char buf[500];
-#if !defined(__GLIBC__) || defined(BSD) || ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE)
-    //
-    // Use the XSI-compliant version of strerror_r
-    //
-    if(strerror_r(error, &buf[0], 500) != 0)
+    vector<char> buffer(500);
+    while(true)
     {
-        ostringstream os;
-        os << "Unknown error `" << error << "'";
-        return os.str();
-    }
-    else
-    {
-        return string(buf);
-    }
+#if !defined(__GLIBC__) || ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE)
+        //
+        // Use the XSI-compliant version of strerror_r
+        //
+        int err = strerror_r(error, &buffer[0], buffer.size());
+        if(err == 0)
+        {
+            return string(&buffer[0]);
+        }
 #else
-    //
-    // Use the GNU-specific version of strerror_r
-    //
-    errno = 0;
-    const char* msg = strerror_r(error, &buf[0], 500);
-    if(errno != 0)
-    {
-        ostringstream os;
-        os << "Unknown error `" << error << "'";
-        return os.str();
-    }
-    else
-    {
-        return msg;
-    }
+        //
+        // Use the GNU-specific version of strerror_r
+        //
+        int oerrno = errno;
+        errno = 0;
+        const char* msg = strerror_r(error, &buffer[0], buffer.size());
+        int err = errno;
+        errno = oerrno;
+        if(err == 0)
+        {
+            return msg;
+        }
 #endif
+        if(err == ERANGE && buffer.size() < 1024 * 1024)
+        {
+            buffer.resize(buffer.size() * 2);
+        }
+        else
+        {
+            ostringstream os;
+            os << "Unknown error `" << error << "'";
+            return os.str();
+        }
+    }
 }
 
 string

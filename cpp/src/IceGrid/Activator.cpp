@@ -90,7 +90,7 @@ reportChildError(int err, int fd, const char* cannot, const char* name, const Tr
         os << ": " << IceUtilInternal::errorToString(err) << endl;
     }
     const string msg = os.str();
-    ssize_t sz = write(fd, msg.c_str(), msg.size() + 1);
+    ssize_t sz = write(fd, msg.c_str(), msg.size());
     if(sz == -1)
     {
         Ice::Warning out(traceLevels->logger);
