@@ -1116,11 +1116,12 @@ class Client extends TestHelper
                 }
                 echo "ok\n";
             }
-        }
-        finally
-        {
             # Test multiple destroy calls
             $communicator->destroy();
+            $communicator->destroy();
+        }
+        catch(Exception $ex)
+        {
             $communicator->destroy();
         }
     }
