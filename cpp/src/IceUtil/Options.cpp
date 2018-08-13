@@ -662,40 +662,35 @@ IceUtilInternal::Options::parse(const StringVector& args)
             //
             // Short option.
             //
-            opt = args[i][1];
-            pos = checkOpt(opt, ShortOpt);
-
-            if(pos->second->repeat == NoRepeat)
+            for(string::size_type p = 1; p < args[i].size(); ++p)
             {
-                set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
-                if(seenPos != seenNonRepeatableOpts.end())
-                {
-                    string err = "`-";
-                    err += opt + ":' option cannot be repeated";
-                    throw BadOptException(__FILE__, __LINE__, err);
-                }
-                seenNonRepeatableOpts.insert(seenPos, opt);
-                string synonym = getSynonym(opt);
-                if(!synonym.empty())
-                {
-                    seenNonRepeatableOpts.insert(synonym);
-                }
-            }
+                opt.clear();
+                opt.push_back(args[i][p]);
+                pos = checkOpt(opt, ShortOpt);
 
-            if(args[i].size() > 2)
-            {
-                if(pos->second->arg == NeedArg)
+                if(pos->second->repeat == NoRepeat)
                 {
-                    string optArg = args[i].substr(2);
+                    set<string>::iterator seenPos = seenNonRepeatableOpts.find(opt);
+                    if(seenPos != seenNonRepeatableOpts.end())
+                    {
+                        string err = "`-";
+                        err += opt + ":' option cannot be repeated";
+                        throw BadOptException(__FILE__, __LINE__, err);
+                    }
+                    seenNonRepeatableOpts.insert(seenPos, opt);
+                    string synonym = getSynonym(opt);
+                    if(!synonym.empty())
+                    {
+                        seenNonRepeatableOpts.insert(synonym);
+                    }
+                }
+
+                if(pos->second->arg == NeedArg && p != args[i].size() - 1)
+                {
+                    string optArg = args[i].substr(p + 1);
                     setOpt(opt, "", optArg, pos->second->repeat);
                     argDone = true;
-                }
-                else
-                {
-                    string err = "invalid option: `-";
-                    err += args[i].substr(1);
-                    err.push_back('\'');
-                    throw BadOptException(__FILE__, __LINE__, err);
+                    break;
                 }
             }
         }
