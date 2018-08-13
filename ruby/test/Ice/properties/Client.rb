@@ -25,7 +25,6 @@ class App < Ice::Application
     end
 end
 
-
 class Client < ::TestHelper
     def run(args)
 

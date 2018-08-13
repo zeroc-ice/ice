@@ -8,7 +8,6 @@
 #
 # **********************************************************************
 
-
 require 'Ice'
 Ice::loadSlice("'-I#{Ice.getSliceDir()}' Test.ice")
 require './AllTests'

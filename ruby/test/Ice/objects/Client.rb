@@ -13,7 +13,6 @@ Ice::loadSlice('Test.ice')
 Ice::loadSlice('ClientPrivate.ice')
 require './AllTests'
 
-
 class Client < ::TestHelper
     def run(args)
         self.init(args:args) do |communicator|

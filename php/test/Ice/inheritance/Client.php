@@ -218,7 +218,6 @@ function allTests($helper)
     return $initial;
 }
 
-
 class Client extends TestHelper
 {
     function run($args)

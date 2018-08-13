@@ -8,7 +8,6 @@
 //
 // **********************************************************************
 
-
 require_once('Test.php');
 
 function allTests()
@@ -204,7 +203,6 @@ function allTests()
     }
     echo "ok\n";
 }
-
 
 class Client extends TestHelper
 {

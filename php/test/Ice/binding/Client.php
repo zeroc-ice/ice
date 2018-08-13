@@ -517,7 +517,6 @@ function allTests($helper)
     $com->shutdown();
 }
 
-
 class Client extends TestHelper
 {
     function run($args)
