@@ -36,8 +36,8 @@ class Callback(CallbackBase):
     def noException(self, ex):
         test(False)
 
-def onewaysAMI(communicator, proxy):
-
+def onewaysAMI(helper, proxy):
+    communicator = helper.communicator()
     p = Test.MyClassPrx.uncheckedCast(proxy.ice_oneway())
 
     cb = Callback()

@@ -46,7 +46,7 @@ class Server(TestHelper):
         for arg in args:
 
             if arg[0] == '-':
-                raise RuntimeError("unknown option `" + arg + "'")
+                continue
 
             if port > 0:
                 raise RuntimeError("only one port can be specified")

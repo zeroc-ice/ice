@@ -174,7 +174,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     base = communicator.stringToProxy("anothercat/locate:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
-    base = communicator.stringToProxy("locate:default -p 12010")
+    base = communicator.stringToProxy("locate:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
     try:
         Test.TestIntfPrx.checkedCast(

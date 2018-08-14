@@ -898,7 +898,8 @@ class Callback(CallbackBase):
     def opDerived(self, f):
         self.called()
 
-def twowaysFuture(communicator, p):
+def twowaysFuture(helper, p):
+    communicator = helper.communicator()
     f = p.ice_pingAsync()
     test(f.result() is None)
 
@@ -1271,7 +1272,7 @@ def twowaysFuture(communicator, p):
 
             ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
 
-            p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"))
+            p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:{0}".format(helper.getTestEndpoint())))
 
             ic.getImplicitContext().setContext(ctx)
             test(ic.getImplicitContext().getContext() == ctx)

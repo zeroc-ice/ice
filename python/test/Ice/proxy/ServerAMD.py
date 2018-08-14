@@ -8,16 +8,11 @@
 #
 # **********************************************************************
 
-import os, sys, traceback, time
-
 import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
-
-Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import Test
+import TestI
 
 class MyDerivedClassI(Test.MyDerivedClass):
     def __init__(self):
@@ -36,23 +31,15 @@ class MyDerivedClassI(Test.MyDerivedClass):
         self.ctx = current.ctx
         return Test.MyDerivedClass.ice_isA(self, s, current)
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(MyDerivedClassI(), Ice.stringToIdentity("test"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Warn.Connections", "0")
-    initData.properties.setProperty("Ice.Warn.Dispatch", "0")
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+class ServerAMD(TestHelper):
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.Warn.Connections", "0")
+        properties.setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(MyDerivedClassI(), Ice.stringToIdentity("test"))
+            adapter.activate()
+            communicator.waitForShutdown()

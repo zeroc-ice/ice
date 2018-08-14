@@ -13,8 +13,8 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def oneways(communicator, p):
-
+def oneways(helper, p):
+    communicator = helper.communicator()
     p = Test.MyClassPrx.uncheckedCast(p.ice_oneway())
 
     #

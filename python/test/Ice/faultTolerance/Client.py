@@ -27,7 +27,7 @@ class Client(TestHelper):
         ports = []
         for arg in args:
             if arg[0] == '-':
-                raise RuntimeError("unknown option `" + arg + "'")
+                continue
             ports.append(int(arg))
 
         if len(ports) == 0:

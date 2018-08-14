@@ -27,10 +27,10 @@ class Server(TestHelper):
 
     def run(self, args):
         with self.initialize(args=args) as communicator:
-            communicator.getProperties().setProperty("DeactivatedAdapter.Endpoints", "default -p 12011")
+            communicator.getProperties().setProperty("DeactivatedAdapter.Endpoints", self.getTestEndpoint(num=1))
             communicator.createObjectAdapter("DeactivatedAdapter")
 
-            communicator.getProperties().setProperty("CallbackAdapter.Endpoints", "default -p 12010")
+            communicator.getProperties().setProperty("CallbackAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("CallbackAdapter")
             adapter.add(CallbackI(), Ice.stringToIdentity("callback"))
             adapter.activate()

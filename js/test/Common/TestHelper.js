@@ -109,8 +109,8 @@
         createTestProperties(args = [])
         {
             const properties = Ice.createProperties(args);
-            properties.parseCommandLineOptions("Test", args);
-            return properties;
+            args = properties.parseCommandLineOptions("Test", args);
+            return [properties, args];
         }
 
         initialize(...args)
@@ -129,7 +129,7 @@
                 }
                 else
                 {
-                    initData.properties = this.createTestProperties(args[0]);
+                    [initData.properties, args[0]] = this.createTestProperties(args[0]);
                 }
             }
 
@@ -138,7 +138,7 @@
             {
                 this._communicator = communicator;
             }
-            return communicator;
+            return [communicator, args[0]];
         }
 
         communicator()

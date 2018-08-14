@@ -503,9 +503,9 @@
             let communicator;
             try
             {
-                const properties = this.createTestProperties(args);
+                const [properties] = this.createTestProperties(args);
                 properties.setProperty("Ice.Default.Locator", "locator:" + this.getTestEndpoint(properties));
-                communicator = this.initialize(properties);
+                [communicator] = this.initialize(properties);
                 await this.allTests();
             }
             finally

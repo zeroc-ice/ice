@@ -104,7 +104,7 @@
             let communicator2;
             try
             {
-                let properties = this.createTestProperties(args);
+                let [properties] = this.createTestProperties(args);
 
                 //
                 // For this test, we want to disable retries.
@@ -116,7 +116,7 @@
                 //
                 properties.setProperty("Ice.Warn.Connections", "0");
 
-                communicator = this.initialize(properties);
+                [communicator] = this.initialize(properties);
 
                 //
                 // Configure a second communicator for the invocation timeout
@@ -125,7 +125,7 @@
                 //
                 properties = communicator.getProperties().clone();
                 properties.setProperty("Ice.RetryIntervals", "0 1 10000");
-                communicator2 = this.initialize(properties);
+                [communicator2] = this.initialize(properties);
 
                 await this.allTests(communicator, communicator2);
             }

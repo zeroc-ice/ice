@@ -16,6 +16,6 @@ import AllTests
 class Client(TestHelper):
 
     def run(self, args):
-        with self.initialize(args) as communicator:
+        with self.initialize(args=args) as communicator:
             myClass = AllTests.allTests(self, communicator, False)
             myClass.shutdown()

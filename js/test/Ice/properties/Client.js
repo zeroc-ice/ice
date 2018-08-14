@@ -95,7 +95,7 @@
             let communicator;
             try
             {
-                communicator = this.initialize(args);
+                [communicator, args] = this.initialize(args);
                 await this.allTests(args);
             }
             finally

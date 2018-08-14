@@ -269,7 +269,7 @@ def allTests(helper, communicator):
     if initial.ice_getConnection():
         sys.stdout.write("testing UnexpectedObjectException... ")
         sys.stdout.flush()
-        ref = "uoet:default -p 12010"
+        ref = "uoet:{0}".format(helper.getTestEndpoint())
         base = communicator.stringToProxy(ref)
         test(base)
         uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base)

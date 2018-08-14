@@ -751,7 +751,8 @@ class Callback(CallbackBase):
     def exCB(self, ex):
         test(False)
 
-def twowaysAMI(communicator, p):
+def twowaysAMI(helper, p):
+    communicator = helper.communicator()
     cb = Callback()
     p.begin_ice_ping(cb.ping, cb.exCB)
     cb.check()
@@ -1128,7 +1129,7 @@ def twowaysAMI(communicator, p):
 
             ctx = {'one': 'ONE', 'two': 'TWO', 'three': 'THREE'}
 
-            p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"))
+            p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:{0}".format(helper.getTestEndpoint())))
 
             ic.getImplicitContext().setContext(ctx)
             test(ic.getImplicitContext().getContext() == ctx)

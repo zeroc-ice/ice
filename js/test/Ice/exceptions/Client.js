@@ -475,11 +475,11 @@
             let communicator;
             try
             {
-                const properties = this.createTestProperties(args);
+                const [properties] = this.createTestProperties(args);
                 properties.setProperty("Ice.MessageSizeMax", "10");
                 properties.setProperty("Ice.Warn.Connections", "0");
                 properties.setProperty("Ice.PrintStackTraces", "1");
-                communicator = this.initialize(properties);
+                [communicator] = this.initialize(properties);
                 await this.allTests(Test);
             }
             finally

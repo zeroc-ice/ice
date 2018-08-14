@@ -16,40 +16,41 @@ def test(b):
 
 def allTests(helper, communicator):
     ref = "test:{0}".format(helper.getTestEndpoint())
+    print("Client endpoint: {}".format(ref))
     base = communicator.stringToProxy(ref)
     cl = Test.MyClassPrx.checkedCast(base)
     derived = Test.MyDerivedClassPrx.checkedCast(cl)
 
     sys.stdout.write("testing twoway operations... ")
     sys.stdout.flush()
-    Twoways.twoways(communicator, cl)
-    Twoways.twoways(communicator, derived)
+    Twoways.twoways(helper, cl)
+    Twoways.twoways(helper, derived)
     derived.opDerived()
     print("ok")
 
     sys.stdout.write("testing oneway operations... ")
     sys.stdout.flush()
-    Oneways.oneways(communicator, cl)
+    Oneways.oneways(helper, cl)
     print("ok")
 
     sys.stdout.write("testing twoway operations with futures... ")
     sys.stdout.flush()
-    TwowaysFuture.twowaysFuture(communicator, cl)
+    TwowaysFuture.twowaysFuture(helper, cl)
     print("ok")
 
     sys.stdout.write("testing twoway operations with AMI... ")
     sys.stdout.flush()
-    TwowaysAMI.twowaysAMI(communicator, cl)
+    TwowaysAMI.twowaysAMI(helper, cl)
     print("ok")
 
     sys.stdout.write("testing oneway operations with futures... ")
     sys.stdout.flush()
-    OnewaysFuture.onewaysFuture(communicator, cl)
+    OnewaysFuture.onewaysFuture(helper, cl)
     print("ok")
 
     sys.stdout.write("testing oneway operations with AMI... ")
     sys.stdout.flush()
-    OnewaysAMI.onewaysAMI(communicator, cl)
+    OnewaysAMI.onewaysAMI(helper, cl)
     print("ok")
 
     sys.stdout.write("testing batch oneway operations...  ")

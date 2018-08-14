@@ -354,7 +354,7 @@
             let communicator;
             try
             {
-                const properties = this.createTestProperties(args);
+                const [properties] = this.createTestProperties(args);
                 //
                 // For this test, we want to disable retries.
                 //
@@ -366,7 +366,7 @@
                 properties.setProperty("Ice.Warn.Connections", "0");
                 properties.setProperty("Ice.PrintStackTraces", "1");
 
-                communicator = this.initialize(properties);
+                [communicator] = this.initialize(properties);
                 await this.allTests();
             }
             finally

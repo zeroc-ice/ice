@@ -65,9 +65,9 @@
             let communicator;
             try
             {
-                const properties = this.createTestProperties(args);
+                const [properties] = this.createTestProperties(args);
                 properties.setProperty("Ice.BatchAutoFlushSize", "100");
-                communicator = this.initialize(properties);
+                [communicator] = this.initialize(properties);
                 await this.allTests(Test, false);
             }
             finally

@@ -28,8 +28,8 @@ class Collocated(TestHelper):
 
         with self.initialize(properties=properties) as communicator:
 
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011")
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.getTestEndpoint(num=1))
             communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
 
             adapter = communicator.createObjectAdapter("TestAdapter")

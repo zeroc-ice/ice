@@ -17,7 +17,7 @@ import TestI
 class Server(TestHelper):
 
     def run(self, args):
-        with self.initialize(args) as communicator:
+        with self.initialize(args=args) as communicator:
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI.DI(), Ice.stringToIdentity("d"))

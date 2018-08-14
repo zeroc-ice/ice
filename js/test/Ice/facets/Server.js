@@ -28,7 +28,7 @@
             let echo;
             try
             {
-                communicator = this.initialize(args);
+                [communicator] = this.initialize(args);
                 const out = this.getWriter();
                 echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
 

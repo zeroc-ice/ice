@@ -75,11 +75,12 @@ class ServerLocator(Test.TestLocator):
 
 
 class ServerManagerI(Test.ServerManager):
-    def __init__(self, registry, initData):
+    def __init__(self, registry, initData, helper):
         self._registry = registry
         self._communicators = []
         self._initData = initData
         self._nextPort = 1
+        self._helper = helper;
         self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
         self._initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter")
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
@@ -97,22 +98,22 @@ class ServerManagerI(Test.ServerManager):
         serverCommunicator = Ice.initialize(self._initData)
         self._communicators.append(serverCommunicator)
 
-        def getTestEndpoint():
-            self._nextPort += 1
-            return "default -p {}".format(12010 + self._nextPort)
-
         nRetry = 10
         while --nRetry > 0:
             adapter = None
             adapter2 = None
             try:
-                serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint())
-                serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint())
+                serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints",
+                                                               self._helper.getTestEndpoint(num=self._nextPort))
+                self._nextPort += 1
+                serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints",
+                                                               self._helper.getTestEndpoint(num=self._nextPort))
+                self._nextPort += 1
 
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter")
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
 
-                locator = serverCommunicator.stringToProxy("locator:default -p 12010")
+                locator = serverCommunicator.stringToProxy("locator:{0}".format(self._helper.getTestEndpoint()))
                 adapter.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
                 adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
@@ -195,7 +196,7 @@ class Server(TestHelper):
             #
             registry = ServerLocatorRegistry()
             registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
-            adapter.add(ServerManagerI(registry, initData), Ice.stringToIdentity("ServerManager"))
+            adapter.add(ServerManagerI(registry, initData, self), Ice.stringToIdentity("ServerManager"))
 
             registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry, Ice.stringToIdentity("registry")))
 

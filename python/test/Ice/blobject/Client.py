@@ -24,7 +24,7 @@ def test(b):
 class Client(TestHelper):
 
     def allTests(self, communicator, sync):
-        hello = Test.HelloPrx.checkedCast(communicator.stringToProxy("test:default -p 12010"))
+        hello = Test.HelloPrx.checkedCast(communicator.stringToProxy("test:{0}".format(self.getTestEndpoint())))
         hello.sayHello(False)
         hello.sayHello(False, {"_fwd": "o"})
         test(hello.add(10, 20) == 30)
@@ -35,7 +35,7 @@ class Client(TestHelper):
             pass
 
         try:
-            Test.HelloPrx.checkedCast(communicator.stringToProxy("unknown:default -p 12010 -t 10000"))
+            Test.HelloPrx.checkedCast(communicator.stringToProxy("unknown:{0} -t 10000".format(self.getTestEndpoint())))
             test(False)
         except Ice.ObjectNotExistException:
             pass

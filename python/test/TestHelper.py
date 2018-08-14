@@ -55,7 +55,7 @@ class TestHelper:
     def createTestProperties(self, args=[]):
 
         properties = Ice.createProperties(args)
-        properties.parseCommandLineOptions("Test", args)
+        args = properties.parseCommandLineOptions("Test", args)
         return properties
 
     def initialize(self, initData=None, properties=None, args=[]):

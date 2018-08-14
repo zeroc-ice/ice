@@ -22,7 +22,7 @@
             let echo;
             try
             {
-                communicator = this.initialize(args);
+                [communicator] = this.initialize(args);
                 echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
                 const adapter = await communicator.createObjectAdapter("");
                 const base = communicator.stringToProxy("initial:" + this.getTestEndpoint());

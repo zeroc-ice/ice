@@ -43,11 +43,12 @@ class CallbackReceiverI(Test.CallbackReceiver):
 
 class Application(Glacier2.Application):
 
-    def __init__(self):
+    def __init__(self, helper):
         Glacier2.Application.__init__(self)
         self._restart = 0
         self._destroyed = False
         self._receiver = CallbackReceiverI()
+        self._helper = helper
 
     def createSession(self):
         return Glacier2.SessionPrx.uncheckedCast(self.router().createSession("userid", "abc123"))
@@ -62,7 +63,8 @@ class Application(Glacier2.Application):
             sys.stdout.write("testing Glacier2::Application restart... ")
             sys.stdout.flush()
 
-        base = self.communicator().stringToProxy("callback:default -p 12010");
+        base = self.communicator().stringToProxy("callback:{0}".format(
+            self._helper.getTestEndpoint(properties=self.communicator().getProperties())));
         callback = Test.CallbackPrx.uncheckedCast(base)
         self._restart += 1
         if self._restart < 5:
@@ -87,10 +89,11 @@ class Client(TestHelper):
 
     def run(self, args):
         initData = Ice.InitializationData()
-        initData.properties = self.createTestProperties(sys.argv)
-        initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12060")
+        initData.properties = self.createTestProperties(args)
+        initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:{0}".format(
+            self.getTestEndpoint(properties=initData.properties, num=50)))
 
-        app = Application()
+        app = Application(self)
         status = app.main(sys.argv, initData=initData)
         test(status == 0)
         test(app._restart == 5)
@@ -100,7 +103,8 @@ class Client(TestHelper):
         with self.initialize(initData=initData) as communicator:
             sys.stdout.write("testing stringToProxy for process object... ")
             sys.stdout.flush()
-            processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12061")
+            processBase = communicator.stringToProxy("Glacier2/admin -f Process:{0}".format(
+                self.getTestEndpoint(properties=initData.properties, num=51)))
             print("ok")
 
             sys.stdout.write("testing checked cast for admin object... ")

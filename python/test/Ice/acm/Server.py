@@ -22,7 +22,7 @@ class Server(TestHelper):
         properties.setProperty("Ice.Warn.Connections", "0")
         properties.setProperty("Ice.ACM.Timeout", "1")
         with self.initialize(properties=properties) as communicator:
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             communicator.getProperties().setProperty("TestAdapter.ACM.Timeout", "0")
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(TestI.RemoteCommunicatorI(), Ice.stringToIdentity("communicator"))

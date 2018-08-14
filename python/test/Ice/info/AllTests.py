@@ -148,7 +148,7 @@ def allTests(helper, communicator):
     test(port > 0)
 
     udp = base.ice_datagram().ice_getConnection().getEndpoint().getInfo()
-    test(udp.port == 12010)
+    test(udp.port == port)
     test(udp.host == defaultHost)
 
     print("ok")
@@ -163,7 +163,7 @@ def allTests(helper, communicator):
     tcpinfo = getTCPConnectionInfo(info)
     test(not info.incoming)
     test(len(info.adapterName) == 0)
-    test(tcpinfo.remotePort == 12010)
+    test(tcpinfo.remotePort == port)
     if defaultHost == '127.0.0.1':
         test(tcpinfo.remoteAddress == defaultHost)
         test(tcpinfo.localAddress == defaultHost)

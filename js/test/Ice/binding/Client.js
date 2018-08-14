@@ -90,7 +90,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = this.initialize(properties);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing binding with multiple endpoints... ");
@@ -198,7 +198,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = this.initialize(properties);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             //
@@ -297,7 +297,7 @@
             }
 
             await communicator.destroy();
-            communicator = this.initialize(properties);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing random endpoint selection... ");
@@ -344,7 +344,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = this.initialize(properties);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing ordered endpoint selection... ");
@@ -417,7 +417,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = this.initialize(properties);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing per request binding with single endpoint... ");
@@ -449,7 +449,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = this.initialize(properties);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing per request binding with multiple endpoints... ");
@@ -509,7 +509,7 @@
                 //
 
                 await communicator.destroy();
-                communicator = this.initialize(properties);
+                [communicator] = this.initialize(properties);
                 com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
                 out.write("testing per request binding and ordered endpoint selection... ");
@@ -586,7 +586,7 @@
             try
             {
                 const out = this.getWriter();
-                communicator = this.initialize(args);
+                [communicator, args] = this.initialize(args);
                 if(typeof navigator !== 'undefined' && isSafari() && isWorker())
                 {
                     //

@@ -622,7 +622,7 @@
             let communicator;
             try
             {
-                communicator = this.initialize(args);
+                [communicator] = this.initialize(args);
                 this.allTests();
             }
             finally
