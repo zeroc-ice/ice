@@ -15,24 +15,17 @@ class Glacier2HashPasswordTestCase(ClientTestCase):
         import passlib.hash
 
         hashpassword = os.path.join(toplevel, "scripts", "icehashpassword.py")
+        usePBKDF2 = sys.platform == "win32" or sys.platform == "darwin"
+        useCryptExt = sys.platform.startswith("linux")
 
         def test(b):
             if not b:
                 raise RuntimeError('test assertion failed')
 
         def hashPasswords(password, args = ""):
-            p = subprocess.Popen('"%s" "%s" %s' % (sys.executable, hashpassword, args), shell=True, stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT, stdin=subprocess.PIPE)
-            p.stdin.write(password.encode('UTF-8'))
-            p.stdin.write('\r\n'.encode('UTF-8'))
-            p.stdin.flush()
-            if(p.wait() != 0):
-                raise RuntimeError("icehashpassword.py failed:\n" + p.stdout.read().decode('UTF-8').strip())
-            hash = p.stdout.readline().decode('UTF-8').strip()
-            return hash
-
-        usePBKDF2 = sys.platform == "win32" or sys.platform == "darwin"
-        useCryptExt = sys.platform.startswith("linux")
+            return run('"%s" "%s" %s' % (sys.executable, hashpassword, args),
+                       stdin=(password + "\r\n").encode('UTF-8'),
+                       stdinRepeat=False)
 
         if usePBKDF2:
 
