@@ -1825,7 +1825,7 @@ class TestSuite(object):
         for m in [XamarinUWPMapping, AndroidMappingMixin, XamarinIOSMapping]:
             if isinstance(self.mapping, m):
                 return True
-        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, JavaScriptMapping]:
+        for m in [CppMapping, JavaMapping, CSharpMapping]:
             if component.isMainThreadOnly(self.id):
                 return True
             elif isinstance(self.mapping, m):
