@@ -17,5 +17,5 @@ class Client(TestHelper):
 
     def run(self, args):
 
-        with self.initialize(args) as communicator:
+        with self.initialize(args=args) as communicator:
             AllTests.allTests(self, communicator)
