@@ -33,6 +33,7 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
             try:
                 while True:
                     p.stdin.write(stdin)
+                    p.stdin.flush()
                     if not stdinRepeat:
                         break
                     time.sleep(1)
