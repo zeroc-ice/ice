@@ -49,7 +49,8 @@ local enum CompressBatch
 
 /**
  *
- * Base class providing access to the connection details. *
+ * Base class providing access to the connection details. 
+ *
  **/
 ["php:internal", "matlab:internal"]
 local class ConnectionInfo
