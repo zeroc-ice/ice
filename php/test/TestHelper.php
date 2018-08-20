@@ -203,8 +203,8 @@ class TestHelper
         {
             $filename = $args[1];
             require_once($args[1]);
-            $classname = pathinfo($filename)["filename"];
-            $helper = new $classname;
+            $classname = pathinfo($filename);
+            $helper = new $classname["filename"];
             $helper->run(array_slice($args, 1));
             exit(0);
         }
