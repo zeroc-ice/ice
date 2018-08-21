@@ -113,6 +113,6 @@ failure, the tests abort with `failed`.
 [2]: https://doc.zeroc.com/display/Ice36/Supported+Platforms+for+Ice+and+Ice+Touch+3.6.4
 [3]: https://libexpat.github.io
 [4]: http://openssl.org
-[5]: http://bzip.org
+[5]: https://github.com/zeroc-ice/bzip2
 [6]: http://www.oracle.com/us/products/database/berkeley-db/overview/index.htm
 [7]: https://github.com/zeroc-ice/mcpp

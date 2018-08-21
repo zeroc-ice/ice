@@ -91,6 +91,6 @@ failure, the tests abort with `failed`.
 
 [1]: https://doc.zeroc.com/display/Ice36/Using+the+Ruby+Distribution
 [2]: http://www.msys2.org
-[3]: http://bzip.org
+[3]: https://github.com/zeroc-ice/bzip2
 [4]: https://github.com/zeroc-ice/mcpp
 [5]: https://www.nuget.org
