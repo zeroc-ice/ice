@@ -405,7 +405,7 @@ failure, the tests abort with `failed`.
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
-[3]: http://bzip.org
+[3]: https://github.com/zeroc-ice/bzip2
 [4]: https://libexpat.github.io
 [5]: https://symas.com/lightning-memory-mapped-database/
 [6]: https://github.com/zeroc-ice/mcpp
