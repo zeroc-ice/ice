@@ -38,13 +38,6 @@ subprojects {
         }
 
         mavenCentral()
-
-        //
-        // The thirdparty repository is required on macOS for appblunder
-        //
-        maven {
-            url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
-        }
     }
 
     jar {
