@@ -2510,13 +2510,19 @@ class BrowserProcessController(RemoteProcessController):
                 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
                 (driver, capabilities, port) = current.config.browser.split(":")
                 self.driver = webdriver.Remote("http://localhost:{0}".format(port),
-                                               getattr(DesiredCapabilities, capabilities))
+                                               desired_capabilities=getattr(DesiredCapabilities, capabilities),
+                                               keep_alive=True)
             elif current.config.browser != "Manual":
                 from selenium import webdriver
-                if not hasattr(webdriver, current.config.browser):
-                    raise RuntimeError("unknown browser `{0}'".format(current.config.browser))
+                if current.config.browser.find(":") > 0:
+                    (driver, port) = current.config.browser.split(":")
+                else:
+                    (driver, port) = (current.config.browser, 0)
 
-                if current.config.browser == "Firefox":
+                if not hasattr(webdriver, driver):
+                    raise RuntimeError("unknown browser `{0}'".format(driver))
+
+                if driver == "Firefox":
                     if isinstance(platform, Linux) and os.environ.get("DISPLAY", "") != ":1" and os.environ.get("USER", "") == "ubuntu":
                         current.writeln("error: DISPLAY is unset, setting it to :1")
                         os.environ["DISPLAY"] = ":1"
@@ -2528,13 +2534,15 @@ class BrowserProcessController(RemoteProcessController):
                     #
                     profile = webdriver.FirefoxProfile(os.path.join(toplevel, "scripts", "selenium", "firefox"))
                     self.driver = webdriver.Firefox(firefox_profile=profile)
-                elif current.config.browser == "Ie":
+                elif driver == "Ie":
                     # Make sure we start with a clean cache
                     capabilities = webdriver.DesiredCapabilities.INTERNETEXPLORER.copy()
                     capabilities["ie.ensureCleanSession"] = True
                     self.driver = webdriver.Ie(capabilities=capabilities)
+                elif driver == "Safari" and port > 0:
+                    self.driver = webdriver.Safari(port=int(port), reuse_service=True)
                 else:
-                    self.driver = getattr(webdriver, current.config.browser)()
+                    self.driver = getattr(webdriver, driver)()
         except:
             self.destroy(current.driver)
             raise
