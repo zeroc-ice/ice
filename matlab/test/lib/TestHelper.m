@@ -48,7 +48,7 @@ classdef TestHelper < handle
                 end
             end
 
-            if strlength(protocol) == 0
+            if length(protocol) == 0
                 protocol = properties.getPropertyWithDefault('Ice.Default.Protocol', 'default');
             end
             port = properties.getPropertyAsIntWithDefault('Test.BasePort', 12010) + num;
