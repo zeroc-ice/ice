@@ -81,7 +81,7 @@ classdef TestHelper < handle
             if nargs == 0
                 properties = obj.communicator_.getProperties();
             else
-                if isa(varargin{1}, "Ice.Properties")
+                if isa(varargin{1}, 'Ice.Properties')
                     properties = varargin{1};
                     if nargs > 1
                         num = varargin{2};
