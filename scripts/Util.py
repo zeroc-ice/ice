@@ -3041,7 +3041,7 @@ class CppMapping(Mapping):
                             self.getIOSAppName(current))
         if not os.path.exists(path):
             path = os.path.join(self.getTestsPath(), "ios/controller/build", "Release-iphonesimulator",
-                                self.getIOSAppName(Current))
+                                self.getIOSAppName(current))
         return path
 
 class JavaMapping(Mapping):
@@ -3474,7 +3474,7 @@ class ObjCMapping(CppBasedMapping):
                             self.getIOSAppName(current))
         if not os.path.exists(path):
             path = os.path.join(mapping.getTestsPath(), "ios/controller/build", "Release-iphonesimulator",
-                                self.getIOSAppName(Current))
+                                self.getIOSAppName(current))
         return path
 
 class PythonMapping(CppBasedMapping):
