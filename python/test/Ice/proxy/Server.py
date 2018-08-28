@@ -28,4 +28,3 @@ class Server(TestHelper):
             adapter.add(TestI.MyDerivedClassI(), Ice.stringToIdentity("test"))
             adapter.activate()
             communicator.waitForShutdown()
-
