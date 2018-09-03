@@ -988,16 +988,6 @@ Ice::InputStream::read(Double& v)
     *dest = *src;
 #else
     Byte* dest = reinterpret_cast<Byte*>(&v);
-#  if defined(ICE_LITTLEBYTE_BIGWORD)
-    dest[4] = *src++;
-    dest[5] = *src++;
-    dest[6] = *src++;
-    dest[7] = *src++;
-    dest[0] = *src++;
-    dest[1] = *src++;
-    dest[2] = *src++;
-    dest[3] = *src;
-#  else
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -1006,7 +996,6 @@ Ice::InputStream::read(Double& v)
     *dest++ = *src++;
     *dest++ = *src++;
     *dest = *src;
-#  endif
 #endif
 }
 
@@ -1033,21 +1022,6 @@ Ice::InputStream::read(vector<Double>& v)
             *dest-- = *src++;
             *dest-- = *src++;
             dest += 2 * sizeof(Double);
-        }
-#elif defined(ICE_LITTLEBYTE_BIGWORD)
-        const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&v[0]);
-        for(int j = 0 ; j < sz ; ++j)
-        {
-            dest[4] = *src++;
-            dest[5] = *src++;
-            dest[6] = *src++;
-            dest[7] = *src++;
-            dest[0] = *src++;
-            dest[1] = *src++;
-            dest[2] = *src++;
-            dest[3] = *src++;
-            dest += sizeof(Double);
         }
 #else
         copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -1104,22 +1078,6 @@ Ice::InputStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArr
             *dest-- = *src++;
             dest += 2 * sizeof(Double);
         }
-#  elif defined(ICE_LITTLEBYTE_BIGWORD)
-        const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&result[0]);
-        for(int j = 0 ; j < sz ; ++j)
-        {
-            dest[4] = *src++;
-            dest[5] = *src++;
-            dest[6] = *src++;
-            dest[7] = *src++;
-            dest[0] = *src++;
-            dest[1] = *src++;
-            dest[2] = *src++;
-            dest[3] = *src++;
-            dest += sizeof(Double);
-        }
-
 #  else
         copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif
