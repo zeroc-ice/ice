@@ -379,6 +379,7 @@ getStackTrace(const vector<void*>& stackFrames)
     // Note: the Sym functions are not thread-safe
     //
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    bool refreshModuleList = process != 0;
     if(process == 0)
     {
         process = GetCurrentProcess();
@@ -412,8 +413,10 @@ getStackTrace(const vector<void*>& stackFrames)
 
     lock.acquire();
 
-    // TODO: call SymRefreshModuleList here? (not available on XP)
-
+    if(refreshModuleList && SymRefreshModuleList(process) == 0)
+    {
+        return "No stack trace: SymRefreshModuleList failed with " + IceUtilInternal::errorToString(GetLastError());
+    }
 #ifdef DBGHELP_TRANSLATE_TCHAR
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
 #endif
