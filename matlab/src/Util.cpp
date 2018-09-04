@@ -451,6 +451,7 @@ IceMatlab::convertException(const std::exception& exc)
         }
         catch(const Ice::UnsupportedProtocolException& e)
         {
+            params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createProtocolVersion(e.bad);
             params[idx++] = createProtocolVersion(e.supported);
         }
