@@ -8,7 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Options.h>
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Ice/ConsoleUtil.h>
 #include <Ice/SliceChecksums.h>
 #include <IceStorm/Parser.h>
@@ -19,21 +19,26 @@
 #endif
 
 using namespace std;
-using namespace Ice;
 using namespace IceInternal;
-using namespace IceStorm;
 
-class Client : public Ice::Application
+int run(Ice::StringSeq&);
+
+//
+// Global variable for destroyCommunicator
+//
+Ice::CommunicatorPtr communicator;
+
+//
+// Callback for CtrlCHandler
+//
+void
+destroyCommunicator(int)
 {
-public:
-
-    void usage();
-    virtual int run(int, char*[]);
-};
-
-#ifdef _WIN32
+    communicator->destroy();
+}
 
 int
+#ifdef _WIN32
 wmain(int argc, wchar_t* argv[])
 {
     //
@@ -41,24 +46,50 @@ wmain(int argc, wchar_t* argv[])
     //
     _setmode(_fileno(stdin), _O_BINARY);
 #else
-
-int
 main(int argc, char* argv[])
 {
 #endif
-    Client app;
-    Ice::InitializationData id;
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
-    id.properties = Ice::createProperties(args);
-    id.properties->setProperty("Ice.Warn.Endpoints", "0");
-    int rc = app.main(argc, argv, id);
-    return rc;
+    int status = 0;
+
+    try
+    {
+        //
+        // CtrlCHandler must be created before the communicator or any other threads are started
+        //
+        Ice::CtrlCHandler ctrlCHandler;
+
+        Ice::InitializationData id;
+        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
+        id.properties = Ice::createProperties(args);
+        id.properties->setProperty("Ice.Warn.Endpoints", "0");
+
+        //
+        // CommunicatorHolder's ctor initializes an Ice communicator,
+        // and it's dtor destroys this communicator.
+        //
+        Ice::CommunicatorHolder ich(argc, argv, id);
+        communicator = ich.communicator();
+
+        //
+        // Destroy communicator on Ctrl-C
+        //
+        ctrlCHandler.setCallback(&destroyCommunicator);
+
+        status = run(args);
+    }
+    catch(const std::exception& ex)
+    {
+        cerr << ex.what() << endl;
+        status = 1;
+    }
+
+    return status;
 }
 
 void
-Client::usage()
+usage(const string& name)
 {
-    consoleErr << "Usage: " << appName() << " [options]\n";
+    consoleErr << "Usage: " << name << " [options]\n";
     consoleErr <<
         "Options:\n"
         "-h, --help           Show this message.\n"
@@ -69,7 +100,7 @@ Client::usage()
 }
 
 int
-Client::run(int argc, char* argv[])
+run(Ice::StringSeq& args)
 {
     string commands;
     bool debug;
@@ -80,27 +111,25 @@ Client::run(int argc, char* argv[])
     opts.addOpt("e", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("d", "debug");
 
-    vector<string> args;
     try
     {
-        args = opts.parse(argc, const_cast<const char**>(argv));
+        if(!opts.parse(args).empty())
+        {
+            consoleErr << args[0] << ": too many arguments" << endl;
+            usage(args[0]);
+            return EXIT_FAILURE;
+        }
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
-        usage();
-        return EXIT_FAILURE;
-    }
-    if(!args.empty())
-    {
-        consoleErr << argv[0] << ": too many arguments" << endl;
-        usage();
+        usage(args[0]);
         return EXIT_FAILURE;
     }
 
     if(opts.isSet("help"))
     {
-        usage();
+        usage(args[0]);
         return EXIT_SUCCESS;
     }
     if(opts.isSet("version"))
@@ -120,10 +149,10 @@ Client::run(int argc, char* argv[])
 
     // The complete set of Ice::Identity -> manager proxies.
     map<Ice::Identity, IceStorm::TopicManagerPrx> managers;
-    PropertiesPtr properties = communicator()->getProperties();
+    Ice::PropertiesPtr properties = communicator->getProperties();
     IceStorm::TopicManagerPrx defaultManager;
 
-    Ice::PropertyDict props = communicator()->getProperties()->getPropertiesForPrefix("IceStormAdmin.TopicManager.");
+    Ice::PropertyDict props = communicator->getProperties()->getPropertiesForPrefix("IceStormAdmin.TopicManager.");
     {
         for(Ice::PropertyDict::const_iterator p = props.begin(); p != props.end(); ++p)
         {
@@ -135,13 +164,13 @@ Client::run(int argc, char* argv[])
                 try
                 {
                     IceStorm::TopicManagerPrx manager = IceStorm::TopicManagerPrx::uncheckedCast(
-                        communicator()->propertyToProxy(p->first));
+                        communicator->propertyToProxy(p->first));
                     managers.insert(map<Ice::Identity, IceStorm::TopicManagerPrx>::value_type(
                                         manager->ice_getIdentity(), manager));
                 }
                 catch(const Ice::ProxyParseException&)
                 {
-                    consoleErr << appName() << ": malformed proxy: " << p->second << endl;
+                    consoleErr << args[0] << ": malformed proxy: " << p->second << endl;
                     return EXIT_FAILURE;
                 }
             }
@@ -151,7 +180,7 @@ Client::run(int argc, char* argv[])
         if(!managerProxy.empty())
         {
             defaultManager = IceStorm::TopicManagerPrx::uncheckedCast(
-                communicator()->stringToProxy(managerProxy));
+                communicator->stringToProxy(managerProxy));
         }
         else if(!managers.empty())
         {
@@ -169,7 +198,7 @@ Client::run(int argc, char* argv[])
         os << "IceStorm/Finder";
         os << ":tcp" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
         os << ":ssl" << (host.empty() ? "" : (" -h \"" + host + "\"")) << " -p " << port << " -t " << timeout;
-        IceStorm::FinderPrx finder = IceStorm::FinderPrx::uncheckedCast(communicator()->stringToProxy(os.str()));
+        IceStorm::FinderPrx finder = IceStorm::FinderPrx::uncheckedCast(communicator->stringToProxy(os.str()));
         try
         {
             defaultManager = finder->getTopicManager();
@@ -182,11 +211,11 @@ Client::run(int argc, char* argv[])
 
     if(!defaultManager)
     {
-        consoleErr << appName() << ": no manager proxies configured" << endl;
+        consoleErr << args[0] << ": no manager proxies configured" << endl;
         return EXIT_FAILURE;
     }
 
-    ParserPtr p = Parser::createParser(communicator(), defaultManager, managers);
+    IceStorm::ParserPtr p = IceStorm::Parser::createParser(communicator, defaultManager, managers);
     int status = EXIT_SUCCESS;
 
     if(!commands.empty()) // Commands were given
