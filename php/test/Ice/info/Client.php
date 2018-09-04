@@ -66,7 +66,7 @@ function allTests($helper)
                 "opaque -e 1.8 -t 100 -v ABCD");
 
         $endps = $p1->ice_getEndpoints();
-
+        $port = $helper->getTestPort();
         $endpoint = $endps[0]->getInfo();
         $tcpEndpoint = getTCPEndpointInfo($endpoint);
         test($tcpEndpoint instanceof $tcpEndpointInfoClass);
@@ -132,6 +132,7 @@ function allTests($helper)
     echo "testing connection information... ";
     flush();
     {
+        $port = $helper->getTestPort();
         $ipConnectionInfoClass = $NS ? "Ice\\TCPConnectionInfo" : "Ice_TCPConnectionInfo";
         $wsConnectionInfoClass = $NS ? "Ice\\WSConnectionInfo" : "Ice_WSConnectionInfo";
 
@@ -143,7 +144,7 @@ function allTests($helper)
         test($tcpinfo instanceof $ipConnectionInfoClass);
         test(!$info->incoming);
         test(strlen($info->adapterName) == 0);
-        test($tcpinfo->remotePort == 12010);
+        test($tcpinfo->remotePort == $port);
         if($defaultHost == "127.0.0.1")
         {
             test($tcpinfo->remoteAddress == $defaultHost);

@@ -773,10 +773,6 @@ function allTests($helper)
     {
         $ssl = $communicator->getProperties()->getProperty("Ice.Default.Protocol") == "ssl";
         $tcp = $communicator->getProperties()->getProperty("Ice.Default.Protocol") == "tcp";
-        if($tcp)
-        {
-            $p1->ice_encodingVersion($Ice_Encoding_1_0)->ice_ping();
-        }
 
         // Two legal TCP endpoints expressed as opaque endpoints
         $p1 = $communicator->stringToProxy("test -e 1.0:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMeouAAAQJwAAAA==:opaque -t 1 -e 1.0 -v CTEyNy4wLjAuMusuAAAQJwAAAA==");

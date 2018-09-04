@@ -79,9 +79,9 @@ def allTests(helper, communicator)
 
     print "test connection endpoint information..."
     STDOUT.flush
-
+    port = helper.getTestPort()
     tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
-    test(tcpinfo.port == 12010)
+    test(tcpinfo.port == port)
     test(!tcpinfo.compress)
     test(tcpinfo.host == defaultHost)
 
@@ -92,7 +92,7 @@ def allTests(helper, communicator)
     test(port > 0)
 
     udp = base.ice_datagram().ice_getConnection().getEndpoint().getInfo()
-    test(udp.port == 12010)
+    test(udp.port == port)
     test(udp.host == defaultHost)
 
     puts "ok"
@@ -108,7 +108,7 @@ def allTests(helper, communicator)
 
     test(!info.incoming)
     test(info.adapterName.length == 0)
-    test(tcpinfo.remotePort == 12010)
+    test(tcpinfo.remotePort == port)
     if defaultHost == "127.0.0.1"
         test(tcpinfo.remoteAddress == defaultHost)
         test(tcpinfo.localAddress == defaultHost)
