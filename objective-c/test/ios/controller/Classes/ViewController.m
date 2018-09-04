@@ -289,6 +289,7 @@
         @throw [TestCommonProcessFailedException processFailedException:
                     [NSString stringWithFormat:@"couldn't find %@", func]];
     }
+    args = [@[[NSString stringWithFormat:@"%@ %@", testSuite, exe]] arrayByAddingObjectsFromArray:args];
     MainHelper* helper = ICE_AUTORELEASE([[MainHelper alloc] init:_controller func:sym args:args]);
     if([exe isEqualToString:@"client"] || [exe isEqualToString:@"collocated"])
     {
