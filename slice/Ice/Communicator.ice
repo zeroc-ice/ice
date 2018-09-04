@@ -537,7 +537,7 @@ local interface Communicator
      *
      * If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
      * initialization, after initialization of all plugins.
-
+     *
      * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no
      * Admin object is configured.
      *
