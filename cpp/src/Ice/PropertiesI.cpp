@@ -298,15 +298,16 @@ Ice::PropertiesI::load(const std::string& file)
     StringConverterPtr stringConverter = getProcessStringConverter();
 
 //
-// Metro style applications cannot access Windows registry.
+// UWP applications cannot access Windows registry.
 //
 #if defined (_WIN32) && !defined(ICE_OS_UWP)
-    if(file.find("HKLM\\") == 0)
+    if(file.find("HKCU\\") == 0 || file.find("HKLM\\") == 0)
     {
+        HKEY key = file.find("HKCU\\") == 0 ? HKEY_CURRENT_USER : HKEY_LOCAL_MACHINE;
         HKEY iceKey;
-        const wstring keyName = stringToWstring(file, stringConverter).substr(5).c_str();
+        const wstring keyName = stringToWstring(file, stringConverter).substr(file.find("\\") + 1).c_str();
         LONG err;
-        if((err = RegOpenKeyExW(HKEY_LOCAL_MACHINE, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
+        if((err = RegOpenKeyExW(key, keyName.c_str(), 0, KEY_QUERY_VALUE, &iceKey)) != ERROR_SUCCESS)
         {
             throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file + "':\n" +
                                           IceUtilInternal::errorToString(err));
@@ -317,12 +318,12 @@ Ice::PropertiesI::load(const std::string& file)
         DWORD numValues;
         try
         {
-            err = RegQueryInfoKey(iceKey, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, &numValues, &maxNameSize, &maxDataSize,
-                                  ICE_NULLPTR, ICE_NULLPTR);
+            err = RegQueryInfoKey(iceKey, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR, ICE_NULLPTR,
+                                  &numValues, &maxNameSize, &maxDataSize, ICE_NULLPTR, ICE_NULLPTR);
             if(err != ERROR_SUCCESS)
             {
-                throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file + "':\n" +
-                                              IceUtilInternal::errorToString(err));
+                throw InitializationException(__FILE__, __LINE__, "could not open Windows registry key `" + file +
+                                              "':\n" + IceUtilInternal::errorToString(err));
             }
 
             for(DWORD i = 0; i < numValues; ++i)

@@ -317,7 +317,8 @@ public final class PropertiesI implements Properties
     public void
     load(String file)
     {
-        if(System.getProperty("os.name").startsWith("Windows") && file.startsWith("HKLM\\"))
+        if(System.getProperty("os.name").startsWith("Windows") &&
+           (file.startsWith("HKCU\\") || file.startsWith("HKLM\\")))
         {
             String regQuery = "reg query " + file;
             try

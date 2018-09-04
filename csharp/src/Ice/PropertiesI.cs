@@ -313,9 +313,12 @@ namespace Ice
         public void load(string file)
         {
 #if NET45
-            if(file.StartsWith("HKLM\\", StringComparison.Ordinal))
+            if(file.StartsWith("HKCU\\", StringComparison.Ordinal) ||
+               file.StartsWith("HKLM\\", StringComparison.Ordinal))
             {
-                RegistryKey iceKey = Registry.LocalMachine.OpenSubKey(file.Substring(5));
+                RegistryKey key =
+                    file.StartsWith("HKCU\\", StringComparison.Ordinal) ? Registry.CurrentUser : Registry.LocalMachine;
+                RegistryKey iceKey = key.OpenSubKey(file.Substring(file.IndexOf("\\") + 1));
                 if(iceKey == null)
                 {
                     Ice.InitializationException ex = new Ice.InitializationException();
