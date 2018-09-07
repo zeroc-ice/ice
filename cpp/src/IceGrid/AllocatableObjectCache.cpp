@@ -216,8 +216,7 @@ AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocatio
     }
 
     vector<AllocatableObjectEntryPtr> objects = p->second.getObjects();
-    RandomNumberGenerator rng;
-    random_shuffle(objects.begin(), objects.end(), rng); // TODO: OPTIMIZE
+    IceUtilInternal::shuffle(objects.begin(), objects.end()); // TODO: OPTIMIZE
     int allocatable = 0;
     try
     {

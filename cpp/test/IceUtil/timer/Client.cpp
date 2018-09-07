@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <IceUtil/Timer.h>
+#include <IceUtil/Random.h>
 #include <TestHelper.h>
 
 #include <vector>
@@ -206,7 +207,7 @@ Client::run(int, char* argv[])
                 tasks.push_back(ICE_MAKE_SHARED(TestTask, IceUtil::Time::milliSeconds(500 + i * 50)));
             }
 
-            random_shuffle(tasks.begin(), tasks.end());
+            IceUtilInternal::shuffle(tasks.begin(), tasks.end());
             vector<TestTaskPtr>::const_iterator p;
             for(p = tasks.begin(); p != tasks.end(); ++p)
             {

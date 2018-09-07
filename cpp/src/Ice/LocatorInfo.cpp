@@ -778,8 +778,16 @@ IceInternal::LocatorInfo::trace(const string& msg, const ReferencePtr& ref, cons
 
     const char* sep = endpoints.size() > 1 ? ":" : "";
     ostringstream o;
+#ifdef ICE_CPP11_MAPPING
+    transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
+              [](const EndpointPtr& endpoint)
+              {
+                  return endpoint->toString();
+              });
+#else
     transform(endpoints.begin(), endpoints.end(), ostream_iterator<string>(o, sep),
               Ice::constMemFun(&Endpoint::toString));
+#endif
     out << "endpoints = " << o.str();
 }
 

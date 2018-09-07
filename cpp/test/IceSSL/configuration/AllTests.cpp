@@ -1675,7 +1675,7 @@ allTests(Test::TestHelper* helper, const string& testDir, bool p12)
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+                server->ice_getConnection()->getInfo();
                 import.cleanup();
                 test(false);
             }
@@ -1728,7 +1728,7 @@ allTests(Test::TestHelper* helper, const string& testDir, bool p12)
             Test::ServerPrxPtr server = fact->createServer(d);
             try
             {
-                ICE_DYNAMIC_CAST(IceSSL::ConnectionInfo, server->ice_getConnection()->getInfo());
+                server->ice_getConnection()->getInfo();
                 import.cleanup();
                 test(false);
             }

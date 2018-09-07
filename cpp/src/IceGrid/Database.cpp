@@ -1751,8 +1751,7 @@ Database::getObjectByTypeOnLeastLoadedNode(const string& type, LoadSample sample
         return 0;
     }
 
-    RandomNumberGenerator rng;
-    random_shuffle(objs.begin(), objs.end(), rng);
+    IceUtilInternal::shuffle(objs.begin(), objs.end());
     vector<pair<Ice::ObjectPrx, float> > objectsWithLoad;
     objectsWithLoad.reserve(objs.size());
     for(Ice::ObjectProxySeq::const_iterator p = objs.begin(); p != objs.end(); ++p)

@@ -116,6 +116,9 @@ public:
 };
 
 #ifndef ICE_OS_UWP
+
+#   ifndef ICE_CPP11_COMPILER
+
 struct AddressIsIPv6 : public unary_function<Address, bool>
 {
 public:
@@ -126,26 +129,36 @@ public:
         return ss.saStorage.ss_family == AF_INET6;
     }
 };
-
-struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
-{
-    ptrdiff_t operator()(ptrdiff_t d)
-    {
-        return IceUtilInternal::random(static_cast<int>(d));
-    }
-};
+#   endif
 
 void
 sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
 {
     if(selType == Ice::ICE_ENUM(EndpointSelectionType, Random))
     {
-        RandomNumberGenerator rng;
-        random_shuffle(addrs.begin(), addrs.end(), rng);
+        IceUtilInternal::shuffle(addrs.begin(), addrs.end());
     }
 
     if(protocol == EnableBoth)
     {
+#ifdef ICE_CPP11_COMPILER
+        if(preferIPv6)
+        {
+            stable_partition(addrs.begin(), addrs.end(),
+                             [](const Address& ss)
+                             {
+                                 return ss.saStorage.ss_family == AF_INET6;
+                             });
+        }
+        else
+        {
+            stable_partition(addrs.begin(), addrs.end(),
+                             [](const Address& ss)
+                             {
+                                 return ss.saStorage.ss_family != AF_INET6;
+                             });
+        }
+#else
         if(preferIPv6)
         {
             stable_partition(addrs.begin(), addrs.end(), AddressIsIPv6());
@@ -154,6 +167,7 @@ sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSel
         {
             stable_partition(addrs.begin(), addrs.end(), not1(AddressIsIPv6()));
         }
+#endif
     }
 }
 

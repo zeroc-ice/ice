@@ -132,6 +132,20 @@ protected:
                                                                                                 memberFn)));
         }
 
+#if ICE_CPLUSPLUS >= 201703L
+        //
+        // Since C++17 the noexcept-specification is part of the function type and we need a separate
+        // overload to handle memberFn being noexcept
+        //
+        template<typename I, typename O, typename Y> void
+        add(const std::string& name, O (Helper::*getFn)() const, Y (I::*memberFn)() const noexcept)
+        {
+            _attributes.insert(typename std::map<std::string,
+                               Resolver*>::value_type(name, new MemberFunctionResolver<I, O, Y>(name, getFn,
+                                                                                                memberFn)));
+        }
+#endif
+
     private:
 
         template<typename Y> class HelperMemberResolver : public Resolver

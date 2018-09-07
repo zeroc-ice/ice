@@ -645,8 +645,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
         {
             replicas = _replicas;
-            RandomNumberGenerator rng;
-            random_shuffle(replicas.begin(), replicas.end(), rng);
+            IceUtilInternal::shuffle(replicas.begin(), replicas.end());
             loadSample = _loadSample;
             adaptive = true;
         }
@@ -658,8 +657,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         else if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
         {
             replicas = _replicas;
-            RandomNumberGenerator rng;
-            random_shuffle(replicas.begin(), replicas.end(), rng);
+            IceUtilInternal::shuffle(replicas.begin(), replicas.end());
         }
     }
 
@@ -762,8 +760,7 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     }
     else
     {
-        RandomNumberGenerator rng;
-        random_shuffle(replicas.begin(), replicas.end(), rng);
+        IceUtilInternal::shuffle(replicas.begin(), replicas.end());
         vector<pair<float, ServerAdapterEntryPtr> > rl;
         transform(replicas.begin(), replicas.end(), back_inserter(rl), TransformToReplicaLoad(loadSample));
         return min_element(rl.begin(), rl.end(), ReplicaLoadComp())->first;
