@@ -328,7 +328,7 @@ private:
         {
             assert(_p->first.find("config_") == 0);
             const string service = _p->first.substr(7);
-            if(getPropertyAsInt(_properties.at("config"), "IceBox.UseSharedCommunicator." + service) > 0)
+            if(getPropertyAsInt(_properties["config"], "IceBox.UseSharedCommunicator." + service) > 0)
             {
                 facet = "IceBox.SharedCommunicator.Properties";
             }
@@ -366,7 +366,7 @@ private:
     const Ice::ObjectPrx _admin;
     const InternalServerDescriptorPtr _desc;
     const TraceLevelsPtr _traceLevels;
-    const PropertyDescriptorSeqDict _properties;
+    PropertyDescriptorSeqDict _properties;
     PropertyDescriptorSeqDict _oldProperties;
     PropertyDescriptorSeqDict::const_iterator _p;
 };
