@@ -16,6 +16,8 @@
 #ifdef ICE_CPP11_COMPILER
 #   include <algorithm>
 #   include <random>
+#else
+#   include <functional>
 #endif
 
 namespace IceUtilInternal
