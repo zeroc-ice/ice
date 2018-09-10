@@ -416,10 +416,16 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 
     {
         vector<string> seenType;
-        string type = (base ? getTypeVar(base) : "$Ice__t_Object");
+        string type;
         _out << sp;
-        _out << nl << "global " << type << ";";
-        seenType.push_back(type);
+
+        if(base || !p->isLocal())
+        {
+            type = (base ? getTypeVar(base) : "$Ice__t_Object");
+            _out << nl << "global " << type << ";";
+            seenType.push_back(type);
+        }
+
         for(DataMemberList::iterator q = members.begin(); q != members.end(); ++q)
         {
             type = getType((*q)->type());
@@ -438,7 +444,14 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
          << p->compactId() << ", " << (isAbstract ? "true" : "false") << ", " << (preserved ? "true" : "false") << ", ";
     if(!base)
     {
-        _out << "$Ice__t_Object";
+        if(p->isLocal())
+        {
+            _out << "null";
+        }
+        else
+        {
+            _out << "$Ice__t_Object";
+        }
     }
     else
     {
