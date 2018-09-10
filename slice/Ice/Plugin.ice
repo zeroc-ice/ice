@@ -33,6 +33,7 @@ module Ice
  * each one.
  *
  **/
+["php:internal"]
 local interface Plugin
 {
     /**
@@ -56,6 +57,7 @@ local interface Plugin
  * plug-ins.
  *
  **/
+["php:internal"]
 local interface PluginManager
 {
     /**

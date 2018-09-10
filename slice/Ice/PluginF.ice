@@ -19,7 +19,9 @@
 module Ice
 {
 
+["php:internal"]
 local interface Plugin;
+["php:internal"]
 local interface PluginManager;
 
 }
