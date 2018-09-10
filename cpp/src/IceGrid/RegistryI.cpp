@@ -40,6 +40,7 @@
 
 #include <fstream>
 
+#include <openssl/opensslv.h>
 #include <openssl/des.h> // For crypt() passwords
 
 #include <sys/types.h>

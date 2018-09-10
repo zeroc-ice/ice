@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Glacier2/CryptPermissionsVerifierI.h>
+#include <openssl/opensslv.h>
 #include <openssl/des.h>
 
 // Ignore OS X OpenSSL deprecation warnings
