@@ -21,6 +21,8 @@
 module Ice
 {
 
+#if !defined(__SLICE2PHP__)
+
 /**
  *
  * A property set used to configure Ice and Ice applications.
@@ -29,7 +31,6 @@ module Ice
  * <em>application-name</em>\[.<em>category</em>\[.<em>sub-category</em>]].<em>name</em>.
  *
  **/
-["php:internal"]
 local interface Properties
 {
     /**
@@ -228,5 +229,7 @@ local interface Properties
      **/
     ["cpp:noexcept"] Properties clone();
 }
+
+#endif
 
 }

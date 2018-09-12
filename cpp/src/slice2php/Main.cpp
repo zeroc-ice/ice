@@ -151,16 +151,6 @@ void
 CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 {
     //
-    // Do not generate any code for php:internal types, those are provided by
-    // IcePHP C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
-    {
-        return;
-    }
-
-    //
     // Handle forward declarations.
     //
     string scoped = p->scoped();
@@ -194,16 +184,6 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    //
-    // Do not generate any code for php:internal types, those are provided by
-    // IcePHP C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -730,16 +710,6 @@ CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 bool
 CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    //
-    // Do not generate any code for php:internal types, those are provided by
-    // IcePHP C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -897,16 +867,6 @@ CodeVisitor::visitExceptionStart(const ExceptionPtr& p)
 bool
 CodeVisitor::visitStructStart(const StructPtr& p)
 {
-    //
-    // Do not generate any code for php:internal types, those are provided by
-    // IcePHP C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
-    {
-        return false;
-    }
-
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -1003,16 +963,6 @@ CodeVisitor::visitStructStart(const StructPtr& p)
 void
 CodeVisitor::visitSequence(const SequencePtr& p)
 {
-    //
-    // Do not generate any code for php:internal types, those are provided by
-    // IcePHP C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
-    {
-        return;
-    }
-
     string type = getTypeVar(p);
     TypePtr content = p->type();
 
@@ -1037,16 +987,6 @@ CodeVisitor::visitSequence(const SequencePtr& p)
 void
 CodeVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    //
-    // Do not generate any code for php:internal types, those are provided by
-    // IcePHP C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
-    {
-        return;
-    }
-
     TypePtr keyType = p->keyType();
     BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
 
@@ -1113,16 +1053,6 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 void
 CodeVisitor::visitEnum(const EnumPtr& p)
 {
-    //
-    // Do not generate any code for php:internal types, those are provided by
-    // IcePHP C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
-    {
-        return;
-    }
-
     string scoped = p->scoped();
     string name = getName(p);
     string type = getTypeVar(p);
@@ -1165,16 +1095,6 @@ CodeVisitor::visitEnum(const EnumPtr& p)
 void
 CodeVisitor::visitConst(const ConstPtr& p)
 {
-    //
-    // Do not generate any code for php:internal types, those are provided by
-    // IcePHP C++ extension.
-    //
-    StringList metadata = p->getMetaData();
-    if(find(metadata.begin(), metadata.end(), "php:internal") != metadata.end())
-    {
-        return;
-    }
-
     string name = getName(p);
     string type = getTypeVar(p);
     string abs = getAbsolute(p, _ns);

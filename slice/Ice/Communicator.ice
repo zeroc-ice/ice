@@ -54,7 +54,9 @@ module Ice
  * @see ValueFactory
  *
  **/
-["clr:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable", "php:internal", "matlab:internal"]
+["clr:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable"]
+
+#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 local interface Communicator
 {
 
@@ -592,6 +594,8 @@ local interface Communicator
      **/
     FacetMap findAllAdminFacets();
 }
+
+#endif
 
 /**
  * The output mode for xxxToString method such as identityToString and proxyToString.
