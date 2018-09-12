@@ -410,7 +410,7 @@ generated from the section label.
         <property name="Warn.UnusedProperties" />
         <property name="CacheMessageBuffers" />
         <property name="ThreadInterruptSafe" />
-        <property name="Voip" />
+        <property name="Voip" deprecated="true" />
     </section>
 
     <section name="IceMX">
