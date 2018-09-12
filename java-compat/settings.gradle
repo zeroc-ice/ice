@@ -29,7 +29,12 @@ project(':icegrid-compat').projectDir = new File('src/IceGrid')
 
 // Tests
 include ':test'
+
 include ':testPlugins'
 project(':testPlugins').projectDir = new File('test/plugins')
-include ':testController'
-project(':testController').projectDir = new File('test/controller')
+
+if(org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString().toFloat() >= 1.8f) {
+    include ':testLambda'
+    project(':testLambda').projectDir = new File('test/lambda')
+}
+

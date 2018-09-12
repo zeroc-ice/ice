@@ -2455,6 +2455,7 @@ class UWPProcessController(RemoteProcessController):
 
         print("Registering application to run from layout...")
 
+        print(os.path.join(os.path.dirname(packageFullPath), "Dependencies", arch))
         for root, dirs, files in os.walk(os.path.join(os.path.dirname(packageFullPath), "Dependencies", arch)):
             for f in files:
                 self.installPackage(os.path.join(root, f), arch)
@@ -3105,6 +3106,12 @@ class JavaCompatMapping(JavaMapping):
             "IceLocatorDiscovery" : "IceLocatorDiscovery.PluginFactory"
         }[plugin]
 
+    def getEnv(self, process, current):
+        classPath = [os.path.join(self.path, "lib", "test.jar")]
+        if os.path.exists(os.path.join(self.path, "lib", "IceTestLambda.jar")):
+            classPath += [os.path.join(self.path, "lib", "IceTestLambda.jar")]
+        return { "CLASSPATH" : os.pathsep.join(classPath) }
+
     def _getDefaultExe(self, processType, config=None):
         return {
             "client" : "Client",
@@ -3148,13 +3155,13 @@ class AndroidMappingMixin():
         return props
 
     def getTestsPath(self):
-        return os.path.join(self.path, "../test/src/main/java/test")
+        return os.path.join(self.path, "../src/main/java/test")
 
     def getCommonTestsPath(self):
-        return os.path.join(self.path, "..", "..", "scripts", "tests")
+        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
 
     def getApk(self, current):
-        return os.path.join(self.getPath(), "controller", "build", "outputs", "apk", "debug", "testController-debug.apk")
+        return os.path.join(self.getPath(), "controller", "build", "outputs", "apk", "debug", "controller-debug.apk")
 
     def getActivityName(self):
         return "com.zeroc.testcontroller/.ControllerActivity"
@@ -3319,7 +3326,7 @@ class XamarinMapping(CSharpMapping):
         return {"mx" : ["False"]} if current.config.protocol in ["ssl", "wss"] else {}
 
     def getCommonTestsPath(self):
-        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
+        return os.path.join(self.path, "..", "..", "..", "..", "scripts", "tests")
 
 class XamarinAndroidMapping(AndroidMappingMixin, XamarinMapping):
 
@@ -3331,15 +3338,14 @@ class XamarinAndroidMapping(AndroidMappingMixin, XamarinMapping):
         return "system-images;android-27;google_apis;x86"
 
     def getTestsPath(self):
-        return os.path.join(self.path, "../../test")
+        return os.path.join(self.path, "../..")
 
     def getCommonTestsPath(self):
-        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
+        return os.path.join(self.path, "..", "..", "..", "..", "scripts", "tests")
 
     def getApk(self, current):
         buildConfig = current.config.buildConfig
-        return os.path.join(self.getPath(), "..", "controller", "controller.Android", "bin", buildConfig,
-                            "com.zeroc.testcontroller-Signed.apk")
+        return os.path.join(self.path, "bin", buildConfig, "com.zeroc.testcontroller-Signed.apk")
 
     def getActivityName(self):
         return "com.zeroc.testcontroller/controller.MainActivity"
@@ -3353,10 +3359,10 @@ class XamarinUWPMapping(XamarinMapping):
         CSharpMapping.__init__(self)
 
     def getTestsPath(self):
-        return os.path.join(self.path, "../../test")
+        return os.path.join(self.path, "../..")
 
     def getCommonTestsPath(self):
-        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
+        return os.path.join(self.path, "..", "..", "..", "..", "scripts", "tests")
 
     def getUWPPackageName(self):
         return "ice-uwp-controller.xamarin"
@@ -3369,8 +3375,9 @@ class XamarinUWPMapping(XamarinMapping):
                                                        "X86" if platform == "Win32" else platform)
 
     def getUWPPackageFullPath(self, platform, config):
-        prefix = "controller.UWP_1.0.0.0_{0}{1}".format(platform, "_{0}".format(config) if config == "Debug" else "")
-        return os.path.join(toplevel, "csharp", "xamarin", "controller", "controller.UWP", "AppPackages",
+        prefix = "controller.UWP_1.0.0.0_{0}{1}".format("X86" if platform == "Win32" else platform,
+                                                        "_{0}".format(config) if config == "Debug" else "")
+        return os.path.join(toplevel, "csharp", "test", "xamarin", "controller.UWP", "AppPackages",
                             "{0}_Test".format(prefix), "{0}.appx".format(prefix))
 
 class XamarinIOSMapping(XamarinMapping):
@@ -3379,10 +3386,10 @@ class XamarinIOSMapping(XamarinMapping):
         CSharpMapping.__init__(self)
 
     def getTestsPath(self):
-        return os.path.join(self.path, "../../test")
+        return os.path.join(self.path, "../..")
 
     def getCommonTestsPath(self):
-        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
+        return os.path.join(self.path, "..", "..", "..", "..", "scripts", "tests")
 
     def getIOSControllerIdentity(self, current):
         if current.config.buildPlatform == "iphonesimulator":
@@ -3394,8 +3401,8 @@ class XamarinIOSMapping(XamarinMapping):
         return "controller.iOS.app"
 
     def getIOSAppFullPath(self, current):
-        return os.path.join(self.getPath(), "..", "controller", "controller.iOS", "bin", "iPhoneSimulator",
-                            current.config.buildConfig, self.getIOSAppName(current))
+        return os.path.join(self.getPath(), "bin", "iPhoneSimulator", current.config.buildConfig,
+                            self.getIOSAppName(current))
 
 class CppBasedMapping(Mapping):
 

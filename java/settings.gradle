@@ -33,7 +33,6 @@ project(':IceGridGUI').projectDir = new File('src/IceGridGUI')
 
 // Tests
 include ':test'
+
 include ':testPlugins'
 project(':testPlugins').projectDir = new File('test/plugins')
-include ':testController'
-project(':testController').projectDir = new File('test/controller')
