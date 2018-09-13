@@ -422,7 +422,8 @@ public class AllTests
         try
         {
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
-            registry.setAdapterDirectProxy("TestAdapter3", communicator.stringToProxy("dummy:tcp"));
+            registry.setAdapterDirectProxy("TestAdapter3",
+                                           communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
             communicator.stringToProxy("test@TestAdapter3").ice_ping();
         }
         catch(Ice.LocalException ex)
@@ -476,7 +477,8 @@ public class AllTests
             test(ex.id.equals("TestUnknown"));
         }
         registry.addObject(communicator.stringToProxy("test3@TestAdapter4")); // Update
-        registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:tcp"));
+        registry.setAdapterDirectProxy("TestAdapter4",
+                                       communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
 
         try
         {
@@ -498,7 +500,8 @@ public class AllTests
             test(false);
         }
 
-        registry.setAdapterDirectProxy("TestAdapter4", communicator.stringToProxy("dummy:tcp"));
+        registry.setAdapterDirectProxy("TestAdapter4",
+                                       communicator.stringToProxy("dummy:" + helper.getTestEndpoint(99)));
         try
         {
             communicator.stringToProxy("test3").ice_ping();
@@ -573,7 +576,7 @@ public class AllTests
                 count += 3;
                 test(count == locator.getRequestCount());
                 registry.setAdapterDirectProxy("TestAdapter5", null);
-                registry.addObject(communicator.stringToProxy("test3:tcp"));
+                registry.addObject(communicator.stringToProxy("test3:" + helper.getTestEndpoint(99)));
                 ic.stringToProxy("test@TestAdapter5").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
                 ic.stringToProxy("test3").ice_locatorCacheTimeout(10).ice_ping(); // 10s timeout.
                 test(count == locator.getRequestCount());
