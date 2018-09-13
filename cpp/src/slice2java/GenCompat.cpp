@@ -953,7 +953,7 @@ Slice::JavaCompatVisitor::writePatcher(Output& out, const string& package, const
         BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
         if(b)
         {
-            assert(b->kind() == Builtin::KindObject);
+            assert(b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue);
         }
 
         if(classMembers.size() > 1)
