@@ -20,6 +20,8 @@ import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.H;
 import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.K;
+import test.Ice.objects.Test.L;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.B1;
 import test.Ice.objects.Test.D1;
@@ -193,6 +195,14 @@ public class AllTests
         test(j != null && j.ice_id().equals(J.ice_staticId()));
         com.zeroc.Ice.Value h = initial.getH();
         test(h != null && ((H)h) != null);
+        out.println("ok");
+
+        out.print("getting K... ");
+        out.flush();
+        K k = initial.getK();
+        test(k.value instanceof L);
+        L l = (L)k.value;
+        test(l.data.equals("l"));
         out.println("ok");
 
         out.print("getting D1... ");

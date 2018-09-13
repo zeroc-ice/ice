@@ -153,6 +153,9 @@ class InitialI(Test.Initial):
     def getH(self, current=None):
         return HI()
 
+    def getK(self, current=None):
+        return Test.K(Test.L("l"))
+
     def getD1(self, d1, current=None):
         return d1
 

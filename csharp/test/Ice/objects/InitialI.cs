@@ -93,6 +93,11 @@ namespace Ice
                 return new HI();
             }
 
+            public override Test.K getK(Ice.Current current)
+            {
+                return new Test.K(new Test.L("l"));
+            }
+
             public override void setRecursive(Test.Recursive r, Ice.Current current)
             {
             }

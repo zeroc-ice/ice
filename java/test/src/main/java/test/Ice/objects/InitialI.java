@@ -135,6 +135,12 @@ public final class InitialI implements Initial
     }
 
     @Override
+    public K getK(com.zeroc.Ice.Current current)
+    {
+        return new K(new L("l"));
+    }
+
+    @Override
     public D1 getD1(D1 d1, com.zeroc.Ice.Current current)
     {
         return d1;

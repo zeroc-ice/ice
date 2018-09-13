@@ -119,6 +119,8 @@ public:
     virtual Test::IPtr getH(const Ice::Current&);
 #endif
 
+    virtual Test::KPtr getK(const Ice::Current&);
+
     virtual Test::D1Ptr getD1(ICE_IN(Test::D1Ptr), const Ice::Current&);
     virtual void throwEDerived(const Ice::Current&);
 

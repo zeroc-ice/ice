@@ -20,6 +20,8 @@ import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.K;
+import test.Ice.objects.Test.L;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.D1;
 import test.Ice.objects.Test.EDerived;
@@ -172,6 +174,13 @@ public final class InitialI extends Initial
     getH(Ice.Current current)
     {
         return new HI();
+    }
+
+    @Override
+    public K
+    getK(Ice.Current current)
+    {
+        return new K(new L("l"));
     }
 
     @Override

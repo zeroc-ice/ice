@@ -113,6 +113,13 @@ classdef AllTests
             assert(~isempty(h) && isa(h, 'Test.H'));
             fprintf('ok\n');
 
+            fprintf('getting K... ');
+            k = initial.getK();
+            assert(~isempty(k));
+            assert(isa(k.value, 'Test.L'));
+            assert(strcmp(k.value.data, 'l'));
+            fprintf('ok\n');
+
             fprintf('getting D1... ');
             d1 = D1(A1('a1'), A1('a2'), A1('a3'), A1('a4'));
             d1 = initial.getD1(d1);

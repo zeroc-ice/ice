@@ -340,6 +340,13 @@ allTests(Test::TestHelper* helper)
 #endif
     cout << "ok" << endl;
 
+    cout << "getting K... " << flush;
+    KPtr k = initial->getK();
+    LPtr l = ICE_DYNAMIC_CAST(L, k->value);
+    test(l);
+    test(l->data == "l");
+    cout << "ok" << endl;
+
     cout << "getting D1... " << flush;
     D1Ptr d1 = ICE_MAKE_SHARED(D1,
                                ICE_MAKE_SHARED(A1, "a1"),
