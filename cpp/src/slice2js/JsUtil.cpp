@@ -103,7 +103,7 @@ bool
 Slice::JsGenerator::isClassType(const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type);
+    return (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(type);
 }
 
 //
