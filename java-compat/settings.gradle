@@ -37,4 +37,3 @@ if(org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString().toFloat() >
     include ':testLambda'
     project(':testLambda').projectDir = new File('test/lambda')
 }
-

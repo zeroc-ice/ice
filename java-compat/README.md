@@ -39,8 +39,8 @@ Make sure that the `javac` and `java` commands are present in your PATH.
 ### Gradle
 
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
-in the distribution. You cannot build the Ice for Java source distribution without 
-an Internet connection. Gradle will download all required packages automatically 
+in the distribution. You cannot build the Ice for Java source distribution without
+an Internet connection. Gradle will download all required packages automatically
 from Maven Central repository located at http://central.maven.org/maven2/
 
 ### Bzip2 Compression
@@ -184,7 +184,7 @@ Ice requires at minimum API level 21:
 - Android 5 (API21)
 
 If you want to target a later version of the Android API level for the test
-suite, edit `test/android/controller/gradle.properties` and change the 
+suite, edit `test/android/controller/gradle.properties` and change the
 following variables:
 
 ```

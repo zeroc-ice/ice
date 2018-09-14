@@ -49,8 +49,8 @@ JavaFX support, as the Metrics Graph feature is enabled dynamically.
 ### Gradle
 
 Ice for Java uses the [Gradle][3] build system, and includes the Gradle wrapper
-in the distribution. You cannot build the Ice for Java source distribution without 
-an Internet connection. Gradle will download all required packages automatically 
+in the distribution. You cannot build the Ice for Java source distribution without
+an Internet connection. Gradle will download all required packages automatically
 from Maven Central repository located at http://central.maven.org/maven2/
 
 ### Bzip2 Compression
@@ -143,7 +143,6 @@ values for `CPP_CONFIGURATION` are `Debug` and `Release`.
 Before building Ice for Java, review the settings in the file `gradle.properties`
 and edit as necessary.
 
-
 To build Ice, all services, and tests, run
 ```
 gradlew build
@@ -212,7 +211,7 @@ failure, the tests abort with `failed`.
 
 ## Building the Ice for Android Tests
 
-The `test/android/controller` directory contains an Android Studio project for 
+The `test/android/controller` directory contains an Android Studio project for
 the Ice test suite controller.
 
 ### Android Build Requirements

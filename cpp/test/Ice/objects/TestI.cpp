@@ -329,7 +329,6 @@ InitialI::getH(const Ice::Current&)
 }
 #endif
 
-
 KPtr
 InitialI::getK(const Ice::Current&)
 {
