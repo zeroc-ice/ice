@@ -8,6 +8,9 @@
 #
 # **********************************************************************
 
+import os
+
+
 class Glacier2StaticFilteringTestCase(ClientServerTestCase):
 
     def __init__(self, testcase, hostname):
@@ -80,6 +83,11 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
                 routerConfig.write("Glacier2.Filter.Identity.Accept=%s\n" % idFilter)
             if not len(adapterFilter) == 0:
                 routerConfig.write("Glacier2.Filter.AdapterId.Accept=%s\n" % adapterFilter)
+
+    def teardownServerSide(self, current, success):
+        for c in ["client.cfg", "router.cfg", "server.cfg"]:
+            os.remove(os.path.join(self.getTestSuite().getPath(), c))
+
 
 class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
 
