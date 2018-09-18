@@ -17,14 +17,8 @@ using namespace IceInternal;
 
 int run(Ice::StringSeq&);
 
-//
-// Global variable for destroyCommunicator
-//
 Ice::CommunicatorPtr communicator;
 
-//
-// Callback for CtrlCHandler
-//
 void
 destroyCommunicator(int)
 {
@@ -39,31 +33,24 @@ int
 wmain(int argc, wchar_t* argv[])
 {
     int status = 0;
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
 
     try
     {
-        //
-        // CtrlCHandler must be created before the communicator or any other threads are started
-        //
         Ice::CtrlCHandler ctrlCHandler;
-
         Ice::InitializationData id;
         id.properties = Ice::createProperties();
         id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
         Ice::CommunicatorHolder ich(argc, argv, id);
         communicator = ich.communicator();
 
-        //
-        // Destroy communicator on Ctrl-C
-        //
         ctrlCHandler.setCallback(&destroyCommunicator);
 
-        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
         status = run(args);
     }
     catch(const std::exception& ex)
     {
-        cerr << ex.what() << endl;
+        consoleErr << ex.what() << endl;
         status = 1;
     }
 
@@ -149,7 +136,7 @@ run(Ice::StringSeq& args)
     {
         consoleErr << "Error:" << e.reason << endl;
         usage(args[0]);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     pauseEnabled = !opts.isSet("nopause");
@@ -158,19 +145,19 @@ run(Ice::StringSeq& args)
     {
         usage(args[0]);
         pause = true;
-        return EXIT_SUCCESS;
+        return 0;
     }
     if(opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
         pause = true;
-        return EXIT_SUCCESS;
+        return 0;
     }
 
     if(commands.size() != 2)
     {
         usage(args[0]);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     int serviceType = -1;
@@ -186,7 +173,7 @@ run(Ice::StringSeq& args)
     if(serviceType == -1)
     {
         consoleErr << "Invalid service " << commands[0] << endl;
-        return EXIT_FAILURE;
+        return 1;
     }
 
     string configFile = commands[1];
@@ -219,7 +206,7 @@ run(Ice::StringSeq& args)
     catch(const exception& ex)
     {
         consoleErr << "Error: " << ex.what() << endl;
-        return EXIT_FAILURE;
+        return 1;
     }
-    return EXIT_SUCCESS;
+    return 0;
 }

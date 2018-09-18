@@ -44,6 +44,8 @@ namespace
 {
 
 IceUtil::Mutex* _staticMutex = 0;
+Ice::CommunicatorPtr communicator;
+IceGrid::ParserPtr parser;
 
 class Init
 {
@@ -155,21 +157,15 @@ private:
 int run(Ice::StringSeq&);
 
 //
-// Global variables for interruptCallback
-//
-Ice::CommunicatorPtr communicator;
-IceGrid::ParserPtr parserPtr;
-
-//
 // Callback for CtrlCHandler
 //
 static void
 interruptCallback(int /*signal*/)
 {
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
-    if(parserPtr) // If there's an interactive parser, notify the parser.
+    if(parser) // If there's an interactive parser, notify the parser.
     {
-        parserPtr->interrupt();
+        parser->interrupt();
     }
     else
     {
@@ -198,11 +194,7 @@ main(int argc, char* argv[])
 
     try
     {
-        //
-        // CtrlCHandler must be created before the communicator or any other threads are started
-        //
         Ice::CtrlCHandler ctrlCHandler;
-
         Ice::PropertiesPtr defaultProps = Ice::createProperties();
         defaultProps->setProperty("IceGridAdmin.Server.Endpoints", "tcp -h localhost");
         Ice::InitializationData id;
@@ -329,7 +321,7 @@ run(Ice::StringSeq& args)
     if(opts.isSet("help"))
     {
         usage(args[0]);
-        return 1;
+        return 0;
     }
     if(opts.isSet("version"))
     {
@@ -737,12 +729,12 @@ run(Ice::StringSeq& args)
 
         {
             IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(_staticMutex);
-            parserPtr = IceGrid::Parser::createParser(communicator, session, session->getAdmin(), commands.empty());
+            parser = IceGrid::Parser::createParser(communicator, session, session->getAdmin(), commands.empty());
         }
 
         if(!commands.empty()) // Commands were given
         {
-            int parseStatus = parserPtr->parse(commands, debug);
+            int parseStatus = parser->parse(commands, debug);
             if(parseStatus == 1)
             {
                 status = 1;
@@ -750,9 +742,9 @@ run(Ice::StringSeq& args)
         }
         else // No commands, let's use standard input
         {
-            parserPtr->showBanner();
+            parser->showBanner();
 
-            int parseStatus = parserPtr->parse(stdin, debug);
+            int parseStatus = parser->parse(stdin, debug);
             if(parseStatus == 1)
             {
                 status = 1;

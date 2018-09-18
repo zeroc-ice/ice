@@ -23,14 +23,8 @@ using namespace IceInternal;
 
 int run(Ice::StringSeq&);
 
-//
-// Global variable for destroyCommunicator
-//
 Ice::CommunicatorPtr communicator;
 
-//
-// Callback for CtrlCHandler
-//
 void
 destroyCommunicator(int)
 {
@@ -50,36 +44,25 @@ main(int argc, char* argv[])
 {
 #endif
     int status = 0;
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
 
     try
     {
-        //
-        // CtrlCHandler must be created before the communicator or any other threads are started
-        //
         Ice::CtrlCHandler ctrlCHandler;
 
         Ice::InitializationData id;
-        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
         id.properties = Ice::createProperties(args);
         id.properties->setProperty("Ice.Warn.Endpoints", "0");
-
-        //
-        // CommunicatorHolder's ctor initializes an Ice communicator,
-        // and it's dtor destroys this communicator.
-        //
         Ice::CommunicatorHolder ich(argc, argv, id);
         communicator = ich.communicator();
 
-        //
-        // Destroy communicator on Ctrl-C
-        //
         ctrlCHandler.setCallback(&destroyCommunicator);
 
         status = run(args);
     }
     catch(const std::exception& ex)
     {
-        cerr << ex.what() << endl;
+        consoleErr << ex.what() << endl;
         status = 1;
     }
 
@@ -117,25 +100,25 @@ run(Ice::StringSeq& args)
         {
             consoleErr << args[0] << ": too many arguments" << endl;
             usage(args[0]);
-            return EXIT_FAILURE;
+            return 1;
         }
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
         usage(args[0]);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     if(opts.isSet("help"))
     {
         usage(args[0]);
-        return EXIT_SUCCESS;
+        return 0;
     }
     if(opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
-        return EXIT_SUCCESS;
+        return 0;
     }
     if(opts.isSet("e"))
     {
@@ -171,7 +154,7 @@ run(Ice::StringSeq& args)
                 catch(const Ice::ProxyParseException&)
                 {
                     consoleErr << args[0] << ": malformed proxy: " << p->second << endl;
-                    return EXIT_FAILURE;
+                    return 1;
                 }
             }
         }
@@ -212,18 +195,18 @@ run(Ice::StringSeq& args)
     if(!defaultManager)
     {
         consoleErr << args[0] << ": no manager proxies configured" << endl;
-        return EXIT_FAILURE;
+        return 1;
     }
 
     IceStorm::ParserPtr p = IceStorm::Parser::createParser(communicator, defaultManager, managers);
-    int status = EXIT_SUCCESS;
+    int status = 0;
 
     if(!commands.empty()) // Commands were given
     {
         int parseStatus = p->parse(commands, debug);
-        if(parseStatus == EXIT_FAILURE)
+        if(parseStatus == 1)
         {
-            status = EXIT_FAILURE;
+            status = 1;
         }
     }
     else // No commands, let's use standard input
@@ -231,9 +214,9 @@ run(Ice::StringSeq& args)
         p->showBanner();
 
         int parseStatus = p->parse(stdin, debug);
-        if(parseStatus == EXIT_FAILURE)
+        if(parseStatus == 1)
         {
-            status = EXIT_FAILURE;
+            status = 1;
         }
     }
 

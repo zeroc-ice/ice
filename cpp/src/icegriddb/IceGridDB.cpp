@@ -125,14 +125,8 @@ struct StreamReader<IceGrid::ReplicaGroupDescriptor, Ice::InputStream>
 
 int run(Ice::StringSeq&);
 
-//
-// Global variable for destroyCommunicator
-//
 Ice::CommunicatorPtr communicator;
 
-//
-// Callback for CtrlCHandler
-//
 void
 destroyCommunicator(int)
 {
@@ -148,32 +142,21 @@ main(int argc, char* argv[])
 #endif
 { 
     int status = 0;
+    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
 
     try
     {
-        //
-        // CtrlCHandler must be created before the communicator or any other threads are started
-        //
         Ice::CtrlCHandler ctrlCHandler;
-
-        //
-        // CommunicatorHolder's ctor initializes an Ice communicator,
-        // and it's dtor destroys this communicator.
-        //
         Ice::CommunicatorHolder ich(argc, argv);
         communicator = ich.communicator();
 
-        //
-        // Destroy communicator on Ctrl-C
-        //
         ctrlCHandler.setCallback(&destroyCommunicator);
 
-        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
         status = run(args);
     }
     catch(const std::exception& ex)
     {
-        cerr << ex.what() << endl;
+        consoleErr << ex.what() << endl;
         status = 1;
     }
 
@@ -218,40 +201,40 @@ run(Ice::StringSeq& args)
         {
             consoleErr << args[0] << ": too many arguments" << endl;
             usage(args[0]);
-            return EXIT_FAILURE;
+            return 1;
         }
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
         consoleErr << args[0] << ": " << e.reason << endl;
         usage(args[0]);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     if(opts.isSet("help"))
     {
         usage(args[0]);
-        return EXIT_SUCCESS;
+        return 0;
     }
 
     if(opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
-        return EXIT_SUCCESS;
+        return 0;
     }
 
     if(!(opts.isSet("import") ^ opts.isSet("export")))
     {
         consoleErr << args[0] << ": either --import or --export must be set" << endl;
         usage(args[0]);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     if(!(opts.isSet("dbhome") ^ opts.isSet("dbpath")))
     {
         consoleErr << args[0] << ": set the database environment directory with either --dbhome or --dbpath" << endl;
         usage(args[0]);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     bool debug = opts.isSet("debug");
@@ -288,20 +271,20 @@ run(Ice::StringSeq& args)
             if(!IceUtilInternal::directoryExists(dbPath))
             {
                 consoleErr << args[0] << ": output directory does not exist: " << dbPath << endl;
-                return EXIT_FAILURE;
+                return 1;
             }
 
             if(!IceUtilInternal::isEmptyDirectory(dbPath))
             {
                 consoleErr << args[0] << ": output directory is not empty: " << dbPath << endl;
-                return EXIT_FAILURE;
+                return 1;
             }
 
             ifstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
                 consoleErr << args[0] << ": could not open input file: " << IceUtilInternal::errorToString(errno) << endl;
-                return EXIT_FAILURE;
+                return 1;
             }
             fs.unsetf(ios::skipws);
 
@@ -312,7 +295,7 @@ run(Ice::StringSeq& args)
             {
                 fs.close();
                 consoleErr << args[0] << ": empty input file" << endl;
-                return EXIT_FAILURE;
+                return 1;
             }
 
             fs.seekg(0, ios::beg);
@@ -339,7 +322,7 @@ run(Ice::StringSeq& args)
             if(type != "IceGrid")
             {
                 consoleErr << args[0] << ": incorrect input file type: " << type << endl;
-                return EXIT_FAILURE;
+                return 1;
             }
             stream.read(version);
             if(version / 100 == 305)
@@ -576,7 +559,7 @@ run(Ice::StringSeq& args)
             if(fs.fail())
             {
                 consoleErr << args[0] << ": could not open output file: " << IceUtilInternal::errorToString(errno) << endl;
-                return EXIT_FAILURE;
+                return 1;
             }
             fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());
             fs.close();
@@ -585,8 +568,8 @@ run(Ice::StringSeq& args)
     catch(const IceUtil::Exception& ex)
     {
         consoleErr << args[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
-        return EXIT_FAILURE;
+        return 1;
     }
 
-    return EXIT_SUCCESS;
+    return 0;
 }
