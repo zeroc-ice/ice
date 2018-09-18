@@ -33,7 +33,6 @@ int
 wmain(int argc, wchar_t* argv[])
 {
     int status = 0;
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
 
     try
     {
@@ -46,7 +45,7 @@ wmain(int argc, wchar_t* argv[])
 
         ctrlCHandler.setCallback(&destroyCommunicator);
 
-        status = run(args);
+        status = run(Ice::argsToStringSeq(argc, argv));
     }
     catch(const std::exception& ex)
     {

@@ -44,16 +44,16 @@ main(int argc, char* argv[])
 {
 #endif
     int status = 0;
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
 
     try
     {
         Ice::CtrlCHandler ctrlCHandler;
 
         Ice::InitializationData id;
+        Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
         id.properties = Ice::createProperties(args);
         id.properties->setProperty("Ice.Warn.Endpoints", "0");
-        Ice::CommunicatorHolder ich(argc, argv, id);
+        Ice::CommunicatorHolder ich(id);
         communicator = ich.communicator();
 
         ctrlCHandler.setCallback(&destroyCommunicator);

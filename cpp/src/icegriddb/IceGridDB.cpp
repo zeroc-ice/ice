@@ -133,7 +133,6 @@ destroyCommunicator(int)
     communicator->destroy();
 }
 
-
 int
 #ifdef _WIN32
 wmain(int argc, wchar_t* argv[])
@@ -142,7 +141,6 @@ main(int argc, char* argv[])
 #endif
 { 
     int status = 0;
-    Ice::StringSeq args = Ice::argsToStringSeq(argc, argv);
 
     try
     {
@@ -152,7 +150,7 @@ main(int argc, char* argv[])
 
         ctrlCHandler.setCallback(&destroyCommunicator);
 
-        status = run(args);
+        status = run(Ice::argsToStringSeq(argc, argv));
     }
     catch(const std::exception& ex)
     {
