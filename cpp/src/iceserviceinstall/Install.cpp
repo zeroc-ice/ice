@@ -15,7 +15,7 @@
 using namespace std;
 using namespace IceInternal;
 
-int run(Ice::StringSeq&);
+int run(const Ice::StringSeq&);
 
 Ice::CommunicatorPtr communicator;
 
@@ -112,7 +112,7 @@ usage(const string& name)
 }
 
 int
-run(Ice::StringSeq& args)
+run(const Ice::StringSeq& args)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");

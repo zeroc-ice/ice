@@ -154,7 +154,7 @@ private:
     const Ice::ObjectPrx _clientProxy;
 };
 
-int run(Ice::StringSeq&);
+int run(const Ice::StringSeq&);
 
 //
 // Callback for CtrlCHandler
@@ -283,7 +283,7 @@ extern "C" ICE_LOCATOR_DISCOVERY_API Ice::Plugin*
 createIceLocatorDiscovery(const Ice::CommunicatorPtr&, const string&, const Ice::StringSeq&);
 
 int
-run(Ice::StringSeq& args)
+run(const Ice::StringSeq& args)
 {
     string commands;
     bool debug;
