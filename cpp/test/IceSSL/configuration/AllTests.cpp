@@ -403,7 +403,7 @@ public:
 };
 #endif
 
-class PasswordPromptI
+class PasswordPromptI ICE_FINAL
 #ifndef ICE_CPP11_MAPPING
  : public IceSSL::PasswordPrompt
 #endif
@@ -432,7 +432,7 @@ private:
 };
 ICE_DEFINE_PTR(PasswordPromptIPtr, PasswordPromptI);
 
-class CertificateVerifierI
+class CertificateVerifierI ICE_FINAL
 #ifndef ICE_CPP11_MAPPING
 : public IceSSL::CertificateVerifier
 #endif

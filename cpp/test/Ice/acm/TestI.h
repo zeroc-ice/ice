@@ -49,7 +49,7 @@ public:
 
 private:
 
-    class HeartbeatCallbackI :
+    class HeartbeatCallbackI ICE_FINAL :
 #ifdef ICE_CPP11_MAPPING
                                 public std::enable_shared_from_this<HeartbeatCallbackI>,
 #else

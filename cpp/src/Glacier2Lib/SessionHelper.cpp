@@ -352,7 +352,7 @@ Glacier2::SessionCallback::~SessionCallback()
 namespace
 {
 
-class ConnectStrategySecureConnection : public ConnectStrategy
+class ConnectStrategySecureConnection ICE_FINAL : public ConnectStrategy
 {
 
 public:
@@ -373,7 +373,7 @@ private:
     const map<string, string> _context;
 };
 
-class ConnectStrategyUserPassword : public ConnectStrategy
+class ConnectStrategyUserPassword ICE_FINAL : public ConnectStrategy
 {
 
 public:

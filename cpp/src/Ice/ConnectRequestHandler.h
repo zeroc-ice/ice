@@ -26,10 +26,10 @@
 namespace IceInternal
 {
 
-class ConnectRequestHandler : public RequestHandler,
-                              public Reference::GetConnectionCallback,
-                              public RouterInfo::AddProxyCallback,
-                              public IceUtil::Monitor<IceUtil::Mutex>
+class ConnectRequestHandler ICE_FINAL : public RequestHandler,
+                                        public Reference::GetConnectionCallback,
+                                        public RouterInfo::AddProxyCallback,
+                                        public IceUtil::Monitor<IceUtil::Mutex>
 #ifdef ICE_CPP11_MAPPING
                             , public std::enable_shared_from_this<ConnectRequestHandler>
 #endif

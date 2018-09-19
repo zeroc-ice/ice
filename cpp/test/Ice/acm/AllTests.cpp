@@ -299,7 +299,7 @@ protected:
 };
 ICE_DEFINE_PTR(TestCasePtr, TestCase);
 
-class InvocationHeartbeatTest : public TestCase
+class InvocationHeartbeatTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -318,7 +318,7 @@ public:
     }
 };
 
-class InvocationHeartbeatOnHoldTest : public TestCase
+class InvocationHeartbeatOnHoldTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -348,7 +348,7 @@ public:
     }
 };
 
-class InvocationNoHeartbeatTest : public TestCase
+class InvocationNoHeartbeatTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -380,7 +380,7 @@ public:
     }
 };
 
-class InvocationHeartbeatCloseOnIdleTest : public TestCase
+class InvocationHeartbeatCloseOnIdleTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -402,7 +402,7 @@ public:
     }
 };
 
-class CloseOnIdleTest : public TestCase
+class CloseOnIdleTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -422,7 +422,7 @@ public:
     }
 };
 
-class CloseOnInvocationTest : public TestCase
+class CloseOnInvocationTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -441,7 +441,7 @@ public:
     }
 };
 
-class CloseOnIdleAndInvocationTest : public TestCase
+class CloseOnIdleAndInvocationTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -473,7 +473,7 @@ public:
     }
 };
 
-class ForcefulCloseOnIdleAndInvocationTest : public TestCase
+class ForcefulCloseOnIdleAndInvocationTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -495,7 +495,7 @@ public:
     }
 };
 
-class HeartbeatOnIdleTest : public TestCase
+class HeartbeatOnIdleTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -513,7 +513,7 @@ public:
     }
 };
 
-class HeartbeatAlwaysTest : public TestCase
+class HeartbeatAlwaysTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -535,7 +535,7 @@ public:
     }
 };
 
-class HeartbeatManualTest : public TestCase
+class HeartbeatManualTest ICE_FINAL : public TestCase
 {
 public:
 
@@ -561,7 +561,7 @@ public:
     }
 };
 
-class SetACMTest : public TestCase
+class SetACMTest ICE_FINAL : public TestCase
 {
 public:
 
