@@ -247,6 +247,42 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     }
     tprintf("ok\n");
 
+    tprintf("getting K... ");
+    {
+        TestObjectsK* k = (TestObjectsK*)[initial getK];
+        TestObjectsL* l = (TestObjectsL*)k.value;
+        test([l.data isEqualToString:@"l"]);
+    }
+    tprintf("ok\n");
+
+    tprintf("testing Value as parameter... ");
+    {
+        TestObjectsL* v1 = [[TestObjectsL alloc] init:@"l"];
+        ICEObject* v2;
+        TestObjectsL* v3 = (TestObjectsL*)[initial opValue:v1 v2:&v2];
+        test([v3.data isEqualToString:@"l"]);
+        test([((TestObjectsL*)v2).data isEqualToString:@"l"]);
+    }
+
+    {
+        TestObjectsL* l = [[TestObjectsL alloc] init:@"l"];
+        NSArray* v1 = @[l];
+        NSMutableArray* v2;
+        NSArray* v3 = [initial opValueSeq:v1 v2:&v2];
+        test([((TestObjectsL*)v3[0]).data isEqualToString:@"l"]);
+        test([((TestObjectsL*)v2[0]).data isEqualToString:@"l"]);
+    }
+
+    {
+        TestObjectsL* l = [[TestObjectsL alloc] init:@"l"];
+        NSDictionary* v1 = @{@"l" : l};
+        NSMutableDictionary* v2;
+        NSDictionary* v3 = [initial opValueMap:v1 v2:&v2];
+        test([((TestObjectsL*)v3[@"l"]).data isEqualToString:@"l"]);
+        test([((TestObjectsL*)v2[@"l"]).data isEqualToString:@"l"]);
+    }
+    tprintf("ok\n");
+
     tprintf("setting I... ");
     [initial setI:i];
     [initial setI:j];

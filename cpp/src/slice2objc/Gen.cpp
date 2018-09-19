@@ -2559,7 +2559,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr valueType = p->valueType();
     BuiltinPtr valueBuiltin = BuiltinPtr::dynamicCast(valueType);
     ClassDeclPtr valueClass = ClassDeclPtr::dynamicCast(valueType);
-    if((valueBuiltin && valueBuiltin->kind() == Builtin::KindObject) || valueClass)
+    if((valueBuiltin && (valueBuiltin->kind() == Builtin::KindObject || valueBuiltin->kind() == Builtin::KindValue)) ||
+       valueClass)
     {
         _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectDictionaryHelper";
         _H << nl << "@end";

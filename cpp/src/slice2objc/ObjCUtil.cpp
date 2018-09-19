@@ -445,6 +445,7 @@ Slice::ObjCGenerator::isValueType(const TypePtr& type)
         {
             case Builtin::KindString:
             case Builtin::KindObject:
+            case Builtin::KindValue:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
@@ -481,7 +482,7 @@ Slice::ObjCGenerator::isClass(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        return builtin->kind() == Builtin::KindObject;
+        return builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue;
     }
     return ClassDeclPtr::dynamicCast(type);
 }
@@ -551,6 +552,7 @@ Slice::ObjCGenerator::getBuiltinName(const BuiltinPtr& builtin)
             return "String";
         }
         case Builtin::KindObject:
+        case Builtin::KindValue:
         {
             return "Object";
         }
@@ -711,7 +713,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
     if(builtin)
     {
         string name;
-        if(builtin->kind() == Builtin::KindObject)
+        if(builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
         {
             if(marshal)
             {
