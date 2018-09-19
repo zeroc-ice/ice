@@ -365,7 +365,7 @@
                 const end = Date.now();
                 try
                 {
-                    test(end - start < 2000);
+                    test(end - start < mult * 2000);
                 }
                 finally
                 {
