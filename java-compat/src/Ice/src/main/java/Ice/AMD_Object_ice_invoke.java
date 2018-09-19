@@ -11,8 +11,7 @@ package Ice;
 
 /**
  * Callback interface for Blobject AMD servants.
- *
- @see BlobjectAsync
+ * @see BlobjectAsync
  **/
 public interface AMD_Object_ice_invoke
 {

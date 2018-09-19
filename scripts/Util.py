@@ -1289,15 +1289,6 @@ class ProcessFromBinDir:
         return True
 
 #
-# Executables for processes inheriting this marker class are looked up in the
-# Ice distribution bin directory.
-#
-class ProcessFromBinDir:
-
-    def isFromBinDir(self):
-        return True
-
-#
 # Executables for processes inheriting this marker class are only provided
 # as a Release executble on Windows
 #
