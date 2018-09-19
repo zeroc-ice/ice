@@ -17,7 +17,7 @@
 namespace IceInternal
 {
 
-class ConnectionRequestHandler : public RequestHandler
+class ConnectionRequestHandler ICE_FINAL : public RequestHandler
 #ifdef ICE_CPP11_MAPPING
                                , public std::enable_shared_from_this<ConnectionRequestHandler>
 #endif

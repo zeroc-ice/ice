@@ -317,7 +317,7 @@ public:
 };
 ICE_DEFINE_PTR(UpdaterPtr, Updater);
 
-template<typename T> class UpdaterT : public Updater
+template<typename T> class UpdaterT ICE_FINAL : public Updater
 {
 public:
 

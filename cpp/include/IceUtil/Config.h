@@ -119,9 +119,11 @@
 #if defined(ICE_CPP11_COMPILER) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
+#   define ICE_FINAL final
 #else
 #   define ICE_NOEXCEPT throw()
 #   define ICE_NOEXCEPT_FALSE /**/
+#   define ICE_FINAL /**/
 #endif
 
 //

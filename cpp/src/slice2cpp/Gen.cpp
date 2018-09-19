@@ -8311,18 +8311,21 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if(!amd)
     {
-        writeAllocateCode(C, outParams, 0, true, classScope, _useWstring | TypeContextCpp11);
         if(p->hasMarshaledResult())
         {
             C << nl << "inS.setMarshaledResult(";
         }
-        else if(ret)
-        {
-            C << nl << retS << " ret = ";
-        }
         else
         {
-            C << nl;
+            writeAllocateCode(C, outParams, 0, true, classScope, _useWstring | TypeContextCpp11);
+            if(ret)
+            {
+                C << nl << retS << " ret = ";
+            }
+            else
+            {
+                C << nl;
+            }
         }
 
         C << "this->" << opName << spar << args << epar;
