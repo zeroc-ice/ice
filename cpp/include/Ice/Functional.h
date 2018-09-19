@@ -10,7 +10,7 @@
 #ifndef ICE_FUNCTIONAL_H
 #define ICE_FUNCTIONAL_H
 
-#   if !defined(ICE_CPP11_MAPPING) || defined(ICE_BUILDING_SRC)
+#ifndef ICE_CPP11_MAPPING
 
 #include <IceUtil/Functional.h>
 #include <Ice/Handle.h>

@@ -177,6 +177,16 @@ class Recursive
     Recursive v;
 }
 
+class K
+{
+    Value value;
+}
+
+class L
+{
+    string data;
+}
+
 interface Initial
 {
     void shutdown();
@@ -195,9 +205,10 @@ interface Initial
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
+    I getH();
     I getI();
     I getJ();
-    I getH();
+    K getK();
 
     D1 getD1(D1 d1);
     void throwEDerived() throws EDerived;

@@ -264,18 +264,18 @@ elif not platform.hasDotNet():
 #
 try:
     run("adb version")
-    Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
-    Mapping.add(os.path.join("java", "android"), AndroidMapping())
+    Mapping.add(os.path.join("java-compat", "test", "android"), AndroidCompatMapping())
+    Mapping.add(os.path.join("java", "test", "android"), AndroidMapping())
     if (isinstance(platform, Windows) and platform.getCompiler() == "VC141") or isinstance(platform, Darwin):
-        Mapping.add(os.path.join("csharp", "xamarin", "android"), XamarinAndroidMapping())
+        Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.Android"), XamarinAndroidMapping())
 except:
     pass
 
 if isinstance(platform, Windows) and platform.getCompiler() == "VC141":
-    Mapping.add(os.path.join("csharp", "xamarin", "uwp"), XamarinUWPMapping())
+    Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.UWP"), XamarinUWPMapping())
 
 if isinstance(platform, Darwin):
-    Mapping.add(os.path.join("csharp", "xamarin", "ios"), XamarinIOSMapping())
+    Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.iOS"), XamarinIOSMapping())
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping

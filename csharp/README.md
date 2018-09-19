@@ -15,6 +15,7 @@ resulting binaries. As an alternative, you can download and install the
   * [Compiling Ice for \.NET on Linux or macOS](#compiling-ice-for-net-on-linux-or-macos)
 * [Running the Tests](#running-the-tests)
 * [NuGet Package](#nuget-package)
+* [Building Ice for Xamarin Test Suite](#buildin-ice-for-xamarin-test-suite)
 
 ## Building on Windows
 
@@ -169,6 +170,100 @@ This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 > for .NET Standard 2.0.
 
 *Temporary limitation: you currently cannot create NuGet packages on Linux and macOS.*
+
+## Building Ice for Xamarin Test Suite
+
+The `msbuild\ice.xamarin.test.sln` Visual Studio solution allows building
+the Ice test suite as a Xamarin application that can be deployed to iOS, Android
+or UWP platforms.
+
+The Xamarin test suite use the Ice assemblies for .NET Standard 2.0. either
+from the source distribution that must be build before this application or
+using the zeroc.ice.net NuGet package.
+
+### Building on Windows
+
+#### Windows Build Requirements
+
+* Visual Studio 2017 with following workloads:
+  * Universal Windows Platform development
+  * Mobile development with .NET
+  * .NET Core cross-platform development
+
+#### Building the Android test controller
+
+Open a Visual Studio 2017 command prompt:
+
+```
+MSBuild msbuild\msbuild.xamarin.test.sln /t:NuGetRestore
+MSBuild test\xamarin\controller.Android\controller.Android.csproj /t:SignAndroidPackage /p:Configuration=Release /p:Platform=AnyCPU
+```
+
+#### Building the UWP test controller
+
+Open a Visual Studio 2017 command prompt:
+
+```
+MSBuild msbuild\msbuild.xamarin.test.sln /t:NuGetRestore
+MSBuild test\xamarin\controller.UWP\controller.UWP.csproj /p:Configuration=Release
+```
+
+#### Running the Android test suite
+
+```
+set PATH=%LOCALAPPDATA%\Android\sdk\tools;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\tools\bin;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
+
+cd csharp\test\xamarin\controller.Android
+python allTests.py --androidemulator --controller-app --config Release --platform x64
+```
+
+#### Running the UWP test suite
+
+```
+cd csharp\test\xamarin\controller.UWP
+python allTests.py --controller-app --config Release --platform x64
+```
+
+### Building on macOS
+
+#### macOS Build Requirements
+
+* Visual Studio for Mac
+
+#### Building the Android test controller
+
+```
+nuget restore msbuild/ice.xamarin.test.sln
+msbuild test/xamarin/controller.Android/controller.Android.csproj  /t:SignAndroidPackage /p:Configuration=Release
+```
+
+#### Building the iOS test controller
+
+```
+nuget restore msbuild/ice.xamarin.test.sln
+msbuild test/xamarin/controller.iOS/controller.iOS.csproj /p:Configuration=Release
+```
+
+#### Running the Android test suite
+
+```
+export PATH=~/Library/Android/sdk/tools/bin:$PATH
+export PATH=~/Library/Android/sdk/platform-tools:$PATH
+export PATH=~/Library/Android/sdk/emulator:$PATH
+
+cd csharp/test/xamarin/controller.Android
+python allTests.py --androidemulator --controller-app --config Release --platform x64
+```
+
+#### Running the iOS test suite
+
+```
+cd csharp/test/xamarin/controller.iOS
+python allTests.py --controller-app --platform iphonesimulator --config Release
+```
 
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0

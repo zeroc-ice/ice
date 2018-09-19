@@ -15,11 +15,11 @@ def hasLambda = org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString(
 sourceSets {
     main {
         java {
-            if(!hasLambda) {
-                exclude '**/lambda'
-            }
+            exclude '**/lambda'
             exclude 'plugins'
-            exclude 'ejb'
+
+            sourceCompatibility = "1.7"
+            targetCompatibility = "1.7"
         }
     }
 }

@@ -10,6 +10,8 @@
 #ifndef ICE_UTIL_FUNCTIONAL_H
 #define ICE_UTIL_FUNCTIONAL_H
 
+#ifndef ICE_CPP11_MAPPING
+
 #include <IceUtil/Handle.h>
 #include <functional>
 
@@ -384,5 +386,7 @@ secondConstVoidMemFun1(void (T::*p)(A) const)
 }
 
 }
+
+#endif
 
 #endif

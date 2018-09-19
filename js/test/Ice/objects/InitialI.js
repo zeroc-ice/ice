@@ -254,6 +254,11 @@
             return new HI();
         }
 
+        getK(current)
+        {
+            return new Test.K(new Test.L("l"));
+        }
+
         getD1(d1, current)
         {
             return d1;

@@ -14,6 +14,10 @@
 #include <Glacier2/RouterI.h>
 #include <Glacier2/Session.h>
 
+#ifdef ICE_CPP11_COMPILER
+#   include<random>
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace Glacier2;
@@ -49,6 +53,15 @@ Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& con
         Identity ident;
         ident.name = "dummy";
         ident.category.resize(20);
+#ifdef ICE_CPP11_COMPILER
+        random_device rd;
+        mt19937 gen(rd());
+        uniform_int_distribution<> dist(33, 126);  // We use ASCII 33-126 (from ! to ~, w/o space).
+        for(unsigned int i = 0; i < ident.category.size(); ++i)
+        {
+            ident.category[i] = static_cast<unsigned char>(dist(gen));
+        }
+#else
         char buf[20];
         IceUtilInternal::generateRandom(buf, sizeof(buf));
         for(unsigned int i = 0; i < sizeof(buf); ++i)
@@ -56,6 +69,7 @@ Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& con
             const unsigned char c = static_cast<unsigned char>(buf[i]); // A value between 0-255
             ident.category[i] = 33 + c % (127-33); // We use ASCII 33-126 (from ! to ~, w/o space).
         }
+#endif
         serverProxy = _instance->serverObjectAdapter()->createProxy(ident);
 
         ServerBlobjectPtr& serverBlobject = const_cast<ServerBlobjectPtr&>(_serverBlobject);

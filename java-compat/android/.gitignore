@@ -1,8 +1,0 @@
-lib
-build
-.gradle
-local.properties
-*.bks
-*.iml
-/.idea
-test/src/

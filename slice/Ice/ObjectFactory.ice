@@ -19,6 +19,7 @@
 module Ice
 {
 
+#if !defined(__SLICE2PHP__)
 /**
  *
  * A factory for objects. Object factories are used when receiving "objects by value".
@@ -26,8 +27,7 @@ module Ice
  * with the communicator.
  *
  **/
-
-["deprecate:ObjectFactory has been deprecated, use ValueFactory instead.", "php:internal"]
+["deprecate:ObjectFactory has been deprecated, use ValueFactory instead."]
 local interface ObjectFactory
 {
     /**
@@ -58,5 +58,7 @@ local interface ObjectFactory
      **/
     void destroy();
 }
+
+#endif
 
 }

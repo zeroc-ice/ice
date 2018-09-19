@@ -1,0 +1,104 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+buildscript {
+    repositories {
+        jcenter()
+        google()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.1.4'
+        classpath "gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.5"
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: "com.zeroc.gradle.ice-builder.slice"
+
+slice {
+    cppConfiguration = this.cppConfiguration
+    cppPlatform = this.cppPlatform
+    if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
+        iceHome =  this.hasProperty('iceHome') ? this.iceHome
+            : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File("$rootProject.projectDir/../../../..").getCanonicalPath()
+    }
+    java {
+        files = fileTree(dir: "$rootProject.projectDir/../../../../scripts/", includes: ['*.ice'])
+    }
+}
+
+repositories {
+    jcenter()
+    google()
+}
+
+android {
+    compileSdkVersion ice_compileSdkVersion.toInteger()
+
+    defaultConfig {
+        applicationId "com.zeroc.testcontroller"
+        minSdkVersion  ice_minSdkVersion.toInteger()
+        targetSdkVersion ice_targetSdkVersion.toInteger()
+        multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+    }
+
+    buildTypes {
+        debug {
+            //
+            // Set minifyEnabled to false because the test app loads classes dynamically.
+            //
+            minifyEnabled false
+        }
+
+        release {
+            //
+            // Set minifyEnabled to false because the test app loads classes dynamically.
+            //
+            minifyEnabled false
+        }
+    }
+}
+
+task copyBksTask(type: Copy) {
+    from "${rootProject.projectDir}/../../../../certs/client.bks"
+    from "${rootProject.projectDir}/../../../../certs/server.bks"
+    into "src/main/res/raw"
+}
+preBuild.dependsOn(copyBksTask)
+
+clean {
+    delete("src/main/res/raw/client.bks")
+    delete("src/main/res/raw/server.bks")
+}
+
+ext.localDependency = { artifact ->
+    if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
+        return "com.zeroc:${artifact}:${iceVersion}"
+    }
+    else {
+        return files("${rootProject.projectDir}/../../../lib/${artifact}-${iceVersion}.jar")
+    }
+}
+dependencies {
+    implementation localDependency("glacier2")
+    implementation localDependency("ice")
+    implementation localDependency("icessl")
+    implementation localDependency("icediscovery")
+    implementation localDependency("icebt")
+
+    implementation files("${rootProject.projectDir}/../../../lib/test.jar")
+    runtimeOnly "org.apache.commons:commons-compress:1.14"
+}

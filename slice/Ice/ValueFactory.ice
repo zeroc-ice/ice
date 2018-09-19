@@ -19,6 +19,7 @@
 module Ice
 {
 
+#if !defined(__SLICE2PHP__)
 /**
  *
  * A factory for values. Value factories are used in several
@@ -28,7 +29,7 @@ module Ice
  * with the communicator.
  *
  **/
-["delegate", "php:internal"]
+["delegate"]
 local interface ValueFactory
 {
     /**
@@ -59,7 +60,6 @@ local interface ValueFactory
  * @see ValueFactory
  *
  **/
-["php:internal"]
 local interface ValueFactoryManager
 {
     /**
@@ -121,5 +121,6 @@ local interface ValueFactoryManager
      **/
     ["cpp:const", "cpp:noexcept"] ValueFactory find(string id);
 }
+#endif
 
 }

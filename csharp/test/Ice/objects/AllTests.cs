@@ -276,6 +276,14 @@ namespace Ice
                     test(h != null);
                     output.WriteLine("ok");
 
+                    output.Write("getting K... ");
+                    output.Flush();
+                    var k = initial.getK();
+                    var l = k.value as L;
+                    test(l != null);
+                    test(l.data.Equals("l"));
+                    output.WriteLine("ok");
+
                     output.Write("getting D1... ");
                     output.Flush();
                     D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));

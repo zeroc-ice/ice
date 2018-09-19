@@ -19,7 +19,11 @@
 module Ice
 {
 
+#if !defined(__SLICE2PHP__)
+
 local interface Plugin;
 local interface PluginManager;
+
+#endif
 
 }

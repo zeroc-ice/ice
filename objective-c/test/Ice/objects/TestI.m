@@ -234,6 +234,30 @@
     return (TestObjectsI*)[TestObjectsH h];
 }
 
+-(ICEObject*) getK:(ICECurrent*)current
+{
+    return [[TestObjectsK alloc] init:[[TestObjectsL alloc] init:@"l"]];
+}
+
+-(ICEObject*) opValue:(ICEObject*)v1 v2:(ICEObject**)v2 current:(ICECurrent*)current
+{
+    *v2 = v1;
+    return v1;
+}
+
+-(TestObjectsValueSeq*) opValueSeq:(TestObjectsMutableValueSeq*)v1 v2:(TestObjectsValueSeq**)v2 current:(ICECurrent*)current
+{
+    *v2 = v1;
+    return v1;
+}
+
+-(TestObjectsValueMap*) opValueMap:(TestObjectsMutableValueMap*)v1 v2:(TestObjectsValueMap**)v2 current:(ICECurrent*)current
+{
+    *v2 = v1;
+    return v1;
+}
+
+
 -(TestObjectsI*) getD1:(TestObjectsI*)d1 current:(ICECurrent*)current
 {
     return d1;

@@ -1523,8 +1523,8 @@ allTests(Test::TestHelper* helper, bool)
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
 #ifdef ICE_CPP11_MAPPING
-        out.write(1, make_optional(f));
-        out.write(2, make_optional(f->ae));
+        out.write(1, Ice::make_optional(f));
+        out.write(2, Ice::make_optional(f->ae));
 #else
         out.write(1, makeOptional(f));
         out.write(2, makeOptional(f->ae));

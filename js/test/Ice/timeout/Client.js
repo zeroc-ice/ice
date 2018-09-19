@@ -73,7 +73,10 @@
                 {
                     test(ex instanceof Ice.ConnectTimeoutException, ex);
                 }
-                await controller.resumeAdapter();
+                finally
+                {
+                    await controller.resumeAdapter();
+                }
                 await timeout.op(); // Ensure adapter is active.
             }
 
@@ -107,7 +110,10 @@
                 {
                     test(ex instanceof Ice.TimeoutException, ex);
                 }
-                await controller.resumeAdapter();
+                finally
+                {
+                    await controller.resumeAdapter();
+                }
                 await timeout.op(); // Ensure adapter is active.
             }
 
@@ -169,27 +175,29 @@
                 try
                 {
                     connection.getInfo(); // getInfo() doesn't throw in the closing state
+                    while(true)
+                    {
+                        try
+                        {
+                            connection.getInfo();
+                            await Ice.Promise.delay(10);
+                        }
+                        catch(ex)
+                        {
+                            test(ex instanceof Ice.ConnectionManuallyClosedException, ex); // Expected
+                            test(ex.graceful);
+                            break;
+                        }
+                    }
                 }
                 catch(ex)
                 {
                     test(false, ex);
                 }
-
-                while(true)
+                finally
                 {
-                    try
-                    {
-                        connection.getInfo();
-                        await Ice.Promise.delay(10);
-                    }
-                    catch(ex)
-                    {
-                        test(ex instanceof Ice.ConnectionManuallyClosedException, ex); // Expected
-                        test(ex.graceful);
-                        break;
-                    }
+                    await controller.resumeAdapter();
                 }
-                await controller.resumeAdapter();
                 await timeout.op();
             }
             out.writeLine("ok");
@@ -229,8 +237,10 @@
                 {
                     test(ex instanceof Ice.TimeoutException, ex);
                 }
-
-                await controller.resumeAdapter();
+                finally
+                {
+                    await controller.resumeAdapter();
+                }
                 await timeout.op();
                 //
                 // Calling ice_timeout() should have no effect.
@@ -247,7 +257,10 @@
                 {
                     test(ex instanceof Ice.TimeoutException, ex);
                 }
-                await controller.resumeAdapter();
+                finally
+                {
+                    await controller.resumeAdapter();
+                }
                 await timeout.op();
                 await comm.destroy();
             }
@@ -282,8 +295,10 @@
                 {
                     test(ex instanceof Ice.ConnectTimeoutException, ex);
                 }
-
-                await controller.resumeAdapter();
+                finally
+                {
+                    await controller.resumeAdapter();
+                }
                 await timeout.op();
                 await controller.holdAdapter(-1);
 
@@ -301,7 +316,10 @@
                 {
                     test(ex instanceof Ice.ConnectTimeoutException, ex);
                 }
-                await controller.resumeAdapter();
+                finally
+                {
+                    await controller.resumeAdapter();
+                }
                 await timeout.op(); // Ensure adapter is active
 
                 //
@@ -320,7 +338,10 @@
                 {
                     test(ex instanceof Ice.TimeoutException, ex);
                 }
-                await controller.resumeAdapter();
+                finally
+                {
+                    await controller.resumeAdapter();
+                }
                 await timeout.op();
                 await comm.destroy();
             }
@@ -342,8 +363,14 @@
                 const start = Date.now();
                 await comm.destroy();
                 const end = Date.now();
-                test(end - start < 1000);
-                await controller.resumeAdapter();
+                try
+                {
+                    test(end - start < mult * 2000);
+                }
+                finally
+                {
+                    await controller.resumeAdapter();
+                }
                 out.writeLine("ok");
                 await controller.shutdown();
             }

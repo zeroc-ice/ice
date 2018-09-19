@@ -23,6 +23,7 @@
 module Ice
 {
 
+#if !defined(__SLICE2PHP__)
 /**
  *
  * A communicator plug-in. A plug-in generally adds a feature to a
@@ -117,5 +118,7 @@ local interface PluginManager
      **/
     ["cpp:noexcept"] void destroy();
 }
+
+#endif
 
 }

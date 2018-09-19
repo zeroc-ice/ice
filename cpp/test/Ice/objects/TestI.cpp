@@ -329,6 +329,12 @@ InitialI::getH(const Ice::Current&)
 }
 #endif
 
+KPtr
+InitialI::getK(const Ice::Current&)
+{
+    return ICE_MAKE_SHARED(K, ICE_MAKE_SHARED(L, "l"));
+}
+
 D1Ptr
 InitialI::getD1(ICE_IN(Test::D1Ptr) d1, const Ice::Current&)
 {

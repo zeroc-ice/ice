@@ -1603,11 +1603,6 @@ CodeVisitor::CodeVisitor(const string& dir) :
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->hasMetaData("matlab:internal"))
-    {
-        return false;
-    }
-
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);

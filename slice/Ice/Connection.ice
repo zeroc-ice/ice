@@ -47,12 +47,12 @@ local enum CompressBatch
     BasedOnProxy
 }
 
+#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 /**
  *
  * Base class providing access to the connection details.
  *
  **/
-["php:internal", "matlab:internal"]
 local class ConnectionInfo
 {
     /**
@@ -85,6 +85,7 @@ local class ConnectionInfo
      **/
     string connectionId;
 }
+#endif
 
 local interface Connection;
 
@@ -204,12 +205,12 @@ local enum ConnectionClose
     GracefullyWithWait
 }
 
+#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 /**
  *
  * The user-level interface to a connection.
  *
  **/
-["php:internal", "matlab:internal"]
 local interface Connection
 {
     /**
@@ -416,7 +417,6 @@ local interface Connection
  * Provides access to the connection details of an IP connection
  *
  **/
-["php:internal", "matlab:internal"]
 local class IPConnectionInfo extends ConnectionInfo
 {
     /** The local address. */
@@ -437,7 +437,6 @@ local class IPConnectionInfo extends ConnectionInfo
  * Provides access to the connection details of a TCP connection
  *
  **/
-["php:internal", "matlab:internal"]
 local class TCPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -460,7 +459,6 @@ local class TCPConnectionInfo extends IPConnectionInfo
  * Provides access to the connection details of a UDP connection
  *
  **/
-["php:internal", "matlab:internal"]
 local class UDPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -500,11 +498,12 @@ dictionary<string, string> HeaderDict;
  * Provides access to the connection details of a WebSocket connection
  *
  **/
-["php:internal", "matlab:internal"]
 local class WSConnectionInfo extends ConnectionInfo
 {
     /** The headers from the HTTP upgrade request. */
     HeaderDict headers;
 }
+
+#endif
 
 }

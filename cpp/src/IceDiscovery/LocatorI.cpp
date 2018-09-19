@@ -14,6 +14,8 @@
 #include <Ice/Communicator.h>
 #include <Ice/ObjectAdapter.h>
 
+#include <IceUtil/Random.h>
+
 #include <iterator>
 
 using namespace std;
@@ -172,7 +174,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         return 0;
     }
 
-    random_shuffle(adapterIds.begin(), adapterIds.end());
+    IceUtilInternal::shuffle(adapterIds.begin(), adapterIds.end());
     return prx->ice_adapterId(adapterIds[0]);
 }
 

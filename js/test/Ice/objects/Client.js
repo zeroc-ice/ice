@@ -267,6 +267,12 @@
             test(h);
             out.writeLine("ok");
 
+            out.write("getting K...");
+            const k = await initial.getK();
+            test(k);
+            test(k.value.data == "l");
+            out.writeLine("ok");
+
             out.write("getting D1... ");
             const d1 = await initial.getD1(new Test.D1(new Test.A1("a1"),
                                                        new Test.A1("a2"),
