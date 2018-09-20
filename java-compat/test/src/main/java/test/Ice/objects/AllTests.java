@@ -22,6 +22,10 @@ import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.H;
 import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.K;
+import test.Ice.objects.Test.L;
+import test.Ice.objects.Test.ValueSeqHolder;
+import test.Ice.objects.Test.ValueMapHolder;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.B1;
 import test.Ice.objects.Test.D1;
@@ -200,6 +204,42 @@ public class AllTests
         test(j != null && ((J)j) != null);
         I h = initial.getH();
         test(h != null && ((H)h) != null);
+        out.println("ok");
+
+        out.print("getting K... ");
+        out.flush();
+        {
+            K k = initial.getK();
+            test(k.value instanceof L);
+            L l = (L)k.value;
+            test(l.data.equals("l"));
+        }
+        out.println("ok");
+
+        out.print("testing Value as parameter... ");
+        out.flush();
+        {
+            L v1 = new L("l");
+            Ice.ObjectHolder v2 = new Ice.ObjectHolder();
+            Ice.Object v3 = initial.opValue(v1, v2);
+            test(((L)v2.value).data.equals("l"));
+            test(((L)v3).data.equals("l"));
+        }
+        {
+            L[] v1 = { new L("l") };
+            ValueSeqHolder v2 = new ValueSeqHolder();
+            Ice.Object[] v3 = initial.opValueSeq(v1, v2);
+            test(((L)v2.value[0]).data.equals("l"));
+            test(((L)v3[0]).data.equals("l"));
+        }
+        {
+            java.util.Map<String, Ice.Object> v1 = new java.util.HashMap<String, Ice.Object>();
+            v1.put("l", new L("l"));
+            ValueMapHolder v2 = new ValueMapHolder();
+            java.util.Map<String, Ice.Object> v3 = initial.opValueMap(v1, v2);
+            test(((L)v2.value.get("l")).data.equals("l"));
+            test(((L)v3.get("l")).data.equals("l"));
+        }
         out.println("ok");
 
         out.print("getting D1... ");

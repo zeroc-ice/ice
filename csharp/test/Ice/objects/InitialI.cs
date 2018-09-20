@@ -8,6 +8,7 @@
 // **********************************************************************
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -96,6 +97,26 @@ namespace Ice
             public override Test.K getK(Ice.Current current)
             {
                 return new Test.K(new Test.L("l"));
+            }
+
+            public override Ice.Value opValue(Ice.Value v1, out Ice.Value v2, Ice.Current current)
+            {
+                v2 = v1;
+                return v1;
+            }
+
+            public override Ice.Value[] opValueSeq(Ice.Value[] v1, out Ice.Value[] v2, Ice.Current current)
+            {
+                v2 = v1;
+                return v1;
+            }
+
+            public override Dictionary<string, Ice.Value>
+            opValueMap(Dictionary<string, Ice.Value> v1, out Dictionary<string, Ice.Value> v2,
+                       Ice.Current current)
+            {
+                v2 = v1;
+                return v1;
             }
 
             public override void setRecursive(Test.Recursive r, Ice.Current current)

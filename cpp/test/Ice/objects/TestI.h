@@ -121,6 +121,10 @@ public:
 
     virtual Test::KPtr getK(const Ice::Current&);
 
+    virtual Ice::ValuePtr opValue(ICE_IN(Ice::ValuePtr), Ice::ValuePtr&, const Ice::Current&);
+    virtual Test::ValueSeq opValueSeq(ICE_IN(Test::ValueSeq), Test::ValueSeq&, const Ice::Current&);
+    virtual Test::ValueMap opValueMap(ICE_IN(Test::ValueMap), Test::ValueMap&, const Ice::Current&);
+
     virtual Test::D1Ptr getD1(ICE_IN(Test::D1Ptr), const Ice::Current&);
     virtual void throwEDerived(const Ice::Current&);
 

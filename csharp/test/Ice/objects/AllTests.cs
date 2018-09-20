@@ -9,6 +9,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -277,11 +278,40 @@ namespace Ice
                     output.WriteLine("ok");
 
                     output.Write("getting K... ");
+                    {
+                        output.Flush();
+                        var k = initial.getK();
+                        var l = k.value as L;
+                        test(l != null);
+                        test(l.data.Equals("l"));
+                    }
+                    output.WriteLine("ok");
+
+                    output.Write("testing Value as parameter... ");
                     output.Flush();
-                    var k = initial.getK();
-                    var l = k.value as L;
-                    test(l != null);
-                    test(l.data.Equals("l"));
+                    {
+                        Ice.Value v1 = new L("l");
+                        Ice.Value v2;
+                        Ice.Value v3 = initial.opValue(v1, out v2);
+                        test(((L)v2).data.Equals("l"));
+                        test(((L)v3).data.Equals("l"));
+                    }
+                    {
+                        L l = new L("l");
+                        Ice.Value[] v1 = new Ice.Value[]{ l };
+                        Ice.Value[] v2;
+                        Ice.Value[] v3 = initial.opValueSeq(v1, out v2);
+                        test(((L)v2[0]).data.Equals("l"));
+                        test(((L)v3[0]).data.Equals("l"));
+                    }
+                    {
+                        L l = new L("l");
+                        Dictionary<string, Ice.Value> v1 = new Dictionary<string, Ice.Value>{ {"l", l} };
+                        Dictionary<string, Ice.Value> v2;
+                        Dictionary<string, Ice.Value> v3 = initial.opValueMap(v1, out v2);
+                        test(((L)v2["l"]).data.Equals("l"));
+                        test(((L)v3["l"]).data.Equals("l"));
+                    }
                     output.WriteLine("ok");
 
                     output.Write("getting D1... ");

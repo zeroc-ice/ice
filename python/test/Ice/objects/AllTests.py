@@ -118,6 +118,21 @@ def allTests(helper, communicator):
     test(k.value.data == "l")
     print("ok")
 
+    sys.stdout.write("testing Value as parameter... ")
+    sys.stdout.flush()
+    v1, v2 = initial.opValue(Test.L("l"))
+    test(v1.data == "l")
+    test(v2.data == "l")
+
+    v1, v2 = initial.opValueSeq([Test.L("l")])
+    test(v1[0].data == "l")
+    test(v2[0].data == "l")
+
+    v1, v2 = initial.opValueMap({"l":Test.L("l")})
+    test(v1["l"].data == "l")
+    test(v2["l"].data == "l")
+    print("ok")
+
     sys.stdout.write("getting D1... ")
     sys.stdout.flush()
     d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")))

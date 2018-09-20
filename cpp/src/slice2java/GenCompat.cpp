@@ -669,7 +669,8 @@ Slice::JavaCompatVisitor::getArgsAsyncCB(const OperationPtr& op)
     if(ret)
     {
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+        if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+           ClassDeclPtr::dynamicCast(ret))
         {
             args.push_back("ret.value");
         }
@@ -685,7 +686,8 @@ Slice::JavaCompatVisitor::getArgsAsyncCB(const OperationPtr& op)
         if((*q)->isOutParam())
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
+            if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+               ClassDeclPtr::dynamicCast((*q)->type()))
             {
                 args.push_back(fixKwd((*q)->name()) + ".value");
             }
@@ -745,7 +747,8 @@ Slice::JavaCompatVisitor::writeMarshalUnmarshalParams(Output& out, const string&
         ret = op->returnType();
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(ret);
-        returnsObject = (builtin && builtin->kind() == Builtin::KindObject) || cl;
+        returnsObject = (builtin && (builtin->kind() == Builtin::KindObject ||
+                                     builtin->kind() == Builtin::KindValue)) || cl;
         const bool optional = optionalMapping && op->returnIsOptional();
 
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, optional);
@@ -889,7 +892,8 @@ Slice::JavaCompatVisitor::writeUnmarshalDataMember(Output& out, const string& pa
     if(needPatcher)
     {
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(member->type()))
+        if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+           ClassDeclPtr::dynamicCast(member->type()))
         {
             ostringstream ostr;
             ostr << "new Patcher(" << patchIter++ << ')';
@@ -1000,14 +1004,15 @@ Slice::JavaCompatVisitor::writePatcher(Output& out, const string& package, const
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
-        if(b && b->kind() != Builtin::KindObject)
+        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindValue)
         {
             continue;
         }
 
         TypePtr paramType = (*d)->type();
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+        if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+           ClassDeclPtr::dynamicCast(paramType))
         {
 
             if(classMembers.size() > 1)
@@ -1333,7 +1338,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                     else
                     {
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                        if((builtin && (builtin->kind() == Builtin::KindObject ||
+                                        builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(paramType))
                         {
                             out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
                         }
@@ -1392,7 +1398,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                 if(!(*pli)->optional())
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                    if((builtin && (builtin->kind() == Builtin::KindObject ||
+                                    builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(paramType))
                     {
                         out << ".value";
                     }
@@ -1462,7 +1469,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                     else
                     {
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                        if((builtin && (builtin->kind() == Builtin::KindObject ||
+                                        builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(paramType))
                         {
                             out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
                         }
@@ -1506,7 +1514,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                 if(!(*pli)->optional())
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                    if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+                       ClassDeclPtr::dynamicCast(paramType))
                     {
                         out << ".value";
                     }
@@ -4447,7 +4456,8 @@ Slice::GenCompat::HolderVisitor::writeHolder(const TypePtr& p)
 
     string typeS = typeToString(p, TypeModeIn, getPackage(contained));
     out << nl << "public final class " << name << "Holder";
-    if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
+    if(!p->isLocal() && ((builtin && (builtin->kind() == Builtin::KindObject ||
+                                      builtin->kind() == Builtin::KindValue)) || cl))
     {
         out << " extends " << getUnqualified("Ice.ObjectHolderBase", package) << "<" << typeS << ">";
     }
@@ -4455,7 +4465,8 @@ Slice::GenCompat::HolderVisitor::writeHolder(const TypePtr& p)
         out << " extends " << getUnqualified("Ice.Holder", package) << "<" << typeS << ">";
     }
     out << sb;
-    if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
+    if(!p->isLocal() && ((builtin && (builtin->kind() == Builtin::KindObject ||
+                                      builtin->kind() == Builtin::KindValue)) || cl))
     {
         out << sp << nl << "public" << nl << name << "Holder()";
         out << sb;
@@ -4668,7 +4679,8 @@ Slice::GenCompat::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
                 if(!op->returnIsOptional() &&
-                   ((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret)))
+                   ((builtin && (builtin->kind() == Builtin::KindObject ||
+                                 builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(ret)))
                 {
                     out << nl << "return ret_.value;";
                 }

@@ -273,6 +273,22 @@
             test(k.value.data == "l");
             out.writeLine("ok");
 
+            out.write("test Value as parameter...");
+            {
+                let [v1, v2] = await initial.opValue(new Test.L("l"));
+                test(v1.data == "l");
+                test(v2.data == "l");
+
+                [v1, v2] = await initial.opValueSeq([new Test.L("l")]);
+                test(v1[0].data == "l");
+                test(v2[0].data == "l");
+
+                [v1, v2] = await initial.opValueMap(new Map([["l", new Test.L("l")]]));
+                test(v1.get("l").data == "l");
+                test(v2.get("l").data == "l");
+            }
+            out.writeLine("ok");
+
             out.write("getting D1... ");
             const d1 = await initial.getD1(new Test.D1(new Test.A1("a1"),
                                                        new Test.A1("a2"),

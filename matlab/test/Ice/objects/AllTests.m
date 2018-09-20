@@ -120,6 +120,20 @@ classdef AllTests
             assert(strcmp(k.value.data, 'l'));
             fprintf('ok\n');
 
+            fprintf('testing Value as parameter... ');
+            [v2, v3] = initial.opValue(L('l'));
+            assert(strcmp(v2.data, 'l'));
+            assert(strcmp(v3.data, 'l'));
+            [v2, v3] = initial.opValueSeq({L('l')});
+            assert(strcmp(v2{1}.data, 'l'));
+            assert(strcmp(v3{1}.data, 'l'));
+            d = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            d('l') = L('l');
+            [v2, v3] = initial.opValueMap(d);
+            assert(strcmp(v2('l').data, 'l'));
+            assert(strcmp(v3('l').data, 'l'));
+            fprintf('ok\n');
+
             fprintf('getting D1... ');
             d1 = D1(A1('a1'), A1('a2'), A1('a3'), A1('a4'));
             d1 = initial.getD1(d1);

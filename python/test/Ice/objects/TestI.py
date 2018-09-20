@@ -156,6 +156,15 @@ class InitialI(Test.Initial):
     def getK(self, current=None):
         return Test.K(Test.L("l"))
 
+    def opValue(self, v1, current=None):
+        return v1, v1
+
+    def opValueSeq(self, v1, current=None):
+        return v1, v1
+
+    def opValueMap(self, v1, current=None):
+        return v1, v1
+
     def getD1(self, d1, current=None):
         return d1
 

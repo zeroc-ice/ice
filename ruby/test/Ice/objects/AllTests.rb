@@ -219,6 +219,31 @@ def allTests(helper, communicator)
     test(i)
     puts "ok"
 
+    print "getting K... "
+    STDOUT.flush
+    k = initial.getK()
+    test(k.value.data == "l")
+    puts "ok"
+
+    print "testing Value as parameter... "
+    STDOUT.flush
+    v1 = Test::L.new("l")
+    v2, v3 = initial.opValue(v1)
+    test(v2.data == "l")
+    test(v3.data == "l")
+
+    v1 = [Test::L.new("l")]
+    v2, v3 = initial.opValueSeq(v1)
+    test(v2[0].data == "l")
+    test(v3[0].data == "l")
+
+    v1 = {}
+    v1["l"] = Test::L.new("l")
+    v2, v3 = initial.opValueMap(v1)
+    test(v2["l"].data == "l")
+    test(v3["l"].data == "l")
+    puts "ok"
+
     print "getting D1... "
     STDOUT.flush
     d1 = initial.getD1(Test::D1.new(Test::A1.new("a1"), Test::A1.new("a2"), Test::A1.new("a3"), Test::A1.new("a4")))

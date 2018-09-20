@@ -31,7 +31,8 @@ const builtinHelpers =
     Ice.DoubleHelper,
     Ice.StringHelper,
     Ice.Value,
-    Ice.ObjectPrx
+    Ice.ObjectPrx,
+    Ice.Value
 ];
 
 function parseParam(p)

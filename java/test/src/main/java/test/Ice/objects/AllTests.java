@@ -22,6 +22,10 @@ import test.Ice.objects.Test.H;
 import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.K;
 import test.Ice.objects.Test.L;
+import test.Ice.objects.Test.Initial.OpValueResult;
+import test.Ice.objects.Test.Initial.OpValueSeqResult;
+import test.Ice.objects.Test.Initial.OpValueMapResult;
+import test.Ice.objects.Test.L;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.B1;
 import test.Ice.objects.Test.D1;
@@ -199,10 +203,36 @@ public class AllTests
 
         out.print("getting K... ");
         out.flush();
-        K k = initial.getK();
-        test(k.value instanceof L);
-        L l = (L)k.value;
-        test(l.data.equals("l"));
+        {
+            K k = initial.getK();
+            test(k.value instanceof L);
+            L l = (L)k.value;
+            test(l.data.equals("l"));
+        }
+        out.println("ok");
+
+        out.print("testing Value as parameter... ");
+        {
+            com.zeroc.Ice.Value v1 = new L("l");
+            OpValueResult result = initial.opValue(v1);
+            test(((L)result.returnValue).data.equals("l"));
+            test(((L)result.v2).data.equals("l"));
+        }
+        {
+            L l = new L("l");
+            com.zeroc.Ice.Value[] v1 = { l };
+            OpValueSeqResult result = initial.opValueSeq(v1);
+            test(((L)result.returnValue[0]).data.equals("l"));
+            test(((L)result.v2[0]).data.equals("l"));
+        }
+        {
+            L l = new L("l");
+            java.util.Map<String, com.zeroc.Ice.Value> v1 = new java.util.HashMap<String, com.zeroc.Ice.Value>();
+            v1.put("l", l);
+            OpValueMapResult result = initial.opValueMap(v1);
+            test(((L)result.returnValue.get("l")).data.equals("l"));
+            test(((L)result.v2.get("l")).data.equals("l"));
+        }
         out.println("ok");
 
         out.print("getting D1... ");

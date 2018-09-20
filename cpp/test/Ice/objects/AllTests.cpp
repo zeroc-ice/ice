@@ -347,6 +347,36 @@ allTests(Test::TestHelper* helper)
     test(l->data == "l");
     cout << "ok" << endl;
 
+    cout << "testing Value as parameter..." << flush;
+    {
+        LPtr v1 = ICE_MAKE_SHARED(L, "l");
+        Ice::ValuePtr v2;
+        Ice::ValuePtr v3 = initial->opValue(v1, v2);
+        test(ICE_DYNAMIC_CAST(L, v2)->data == "l");
+        test(ICE_DYNAMIC_CAST(L, v3)->data == "l");
+    }
+
+    {
+        LPtr l = ICE_MAKE_SHARED(L, "l");
+        Test::ValueSeq v1;
+        v1.push_back(l);
+        Test::ValueSeq v2;
+        Test::ValueSeq v3 = initial->opValueSeq(v1, v2);
+        test(ICE_DYNAMIC_CAST(L, v2[0])->data == "l");
+        test(ICE_DYNAMIC_CAST(L, v3[0])->data == "l");
+    }
+
+    {
+        LPtr l = ICE_MAKE_SHARED(L, "l");
+        Test::ValueMap v1;
+        v1["l"] = l;
+        Test::ValueMap v2;
+        Test::ValueMap v3 = initial->opValueMap(v1, v2);
+        test(ICE_DYNAMIC_CAST(L, v2["l"])->data == "l");
+        test(ICE_DYNAMIC_CAST(L, v3["l"])->data == "l");
+    }
+    cout << "ok" << endl;
+
     cout << "getting D1... " << flush;
     D1Ptr d1 = ICE_MAKE_SHARED(D1,
                                ICE_MAKE_SHARED(A1, "a1"),

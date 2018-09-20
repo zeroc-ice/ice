@@ -28,6 +28,7 @@ if($NS)
         class Ice_InterfaceByValue extends Ice\InterfaceByValue {}
         interface Ice_ObjectFactory extends Ice\ObjectFactory {}
         interface Ice_ValueFactory extends Ice\ValueFactory {}
+        class Test_L extends Test\L {}
 EOT;
     eval($code);
 }
@@ -343,6 +344,37 @@ function allTests($helper)
     test($j != null and $j instanceof JI);
     $h = $initial->getH();
     test($h != null and $h instanceof HI);
+    echo "ok\n";
+
+    echo "getting K... ";
+    flush();
+    $k = $initial->getK();
+    test($k->value->data == "l");
+    echo "ok\n";
+
+    echo "testing Value as parameter... ";
+    flush();
+    $v1 = new Test_L();
+    $v1->data = "l";
+    $v2 = null;
+    $v3 = $initial->opValue($v1, $v2);
+    test($v2->data == "l");
+    test($v3->data == "l");
+
+    $v1 = array(new Test_L());
+    $v1[0]->data = "l";
+    $v2 = null;
+    $v3 = $initial->opValueSeq($v1, $v2);
+    test($v2[0]->data == "l");
+    test($v3[0]->data == "l");
+
+    $v1 = array("l" => new Test_L());
+    $v1["l"]->data = "l";
+    $v2 = null;
+    $v3 = $initial->opValueMap($v1, $v2);
+    test($v2["l"]->data == "l");
+    test($v3["l"]->data == "l");
+    
     echo "ok\n";
 
     echo "getting D1... ";

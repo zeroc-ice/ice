@@ -335,6 +335,27 @@ InitialI::getK(const Ice::Current&)
     return ICE_MAKE_SHARED(K, ICE_MAKE_SHARED(L, "l"));
 }
 
+Ice::ValuePtr
+InitialI::opValue(ICE_IN(Ice::ValuePtr) v1, Ice::ValuePtr& v2, const Ice::Current&)
+{
+    v2 = v1;
+    return v1;
+}
+
+Test::ValueSeq
+InitialI::opValueSeq(ICE_IN(Test::ValueSeq) v1, Test::ValueSeq& v2, const Ice::Current&)
+{
+    v2 = v1;
+    return v1;
+}
+
+Test::ValueMap
+InitialI::opValueMap(ICE_IN(Test::ValueMap) v1, Test::ValueMap& v2, const Ice::Current&)
+{
+    v2 = v1;
+    return v1;
+}
+
 D1Ptr
 InitialI::getD1(ICE_IN(Test::D1Ptr) d1, const Ice::Current&)
 {

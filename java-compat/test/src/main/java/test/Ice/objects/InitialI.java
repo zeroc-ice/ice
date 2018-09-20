@@ -22,6 +22,8 @@ import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.I;
 import test.Ice.objects.Test.K;
 import test.Ice.objects.Test.L;
+import test.Ice.objects.Test.ValueSeqHolder;
+import test.Ice.objects.Test.ValueMapHolder;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.D1;
 import test.Ice.objects.Test.EDerived;
@@ -181,6 +183,30 @@ public final class InitialI extends Initial
     getK(Ice.Current current)
     {
         return new K(new L("l"));
+    }
+
+    @Override
+    public Ice.Object
+    opValue(Ice.Object v1, Ice.ObjectHolder v2, Ice.Current current)
+    {
+        v2.value = v1;
+        return v1;
+    }
+
+    @Override
+    public Ice.Object[]
+    opValueSeq(Ice.Object[] v1, ValueSeqHolder v2, Ice.Current current)
+    {
+        v2.value = v1;
+        return v1;
+    }
+
+    @Override
+    public java.util.Map<String, Ice.Object>
+    opValueMap(java.util.Map<String, Ice.Object> v1, ValueMapHolder v2, Ice.Current current)
+    {
+        v2.value = v1;
+        return v1;
     }
 
     @Override
