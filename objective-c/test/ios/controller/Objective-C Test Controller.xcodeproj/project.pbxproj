@@ -1649,7 +1649,6 @@
 		14905C661DF98FD8002AE61B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADDITIONAL_SDKS = "../../../../sdk/$(PLATFORM_NAME).sdk";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1705,7 +1704,6 @@
 		14905C671DF98FD8002AE61B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADDITIONAL_SDKS = "../../../../sdk/$(PLATFORM_NAME).sdk";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1763,10 +1761,12 @@
 				HEADER_SEARCH_PATHS = (
 					../../Ice,
 					../../include,
+					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
 				);
 				INFOPLIST_FILE = Classes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_LDFLAGS = (
 					"-lIceGridObjC",
 					"-lGlacier2ObjC",
@@ -1801,10 +1801,12 @@
 				HEADER_SEARCH_PATHS = (
 					../../Ice,
 					../../include,
+					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
 				);
 				INFOPLIST_FILE = Classes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_LDFLAGS = (
 					"-lIceGridObjC",
 					"-lGlacier2ObjC",
@@ -1837,10 +1839,12 @@
 				HEADER_SEARCH_PATHS = (
 					../../Ice,
 					../../include,
+					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
 				);
 				INFOPLIST_FILE = Classes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions ";
 				OTHER_LDFLAGS = (
 					"-lIceGridObjC",
@@ -1874,10 +1878,12 @@
 				HEADER_SEARCH_PATHS = (
 					../../Ice,
 					../../include,
+					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
 				);
 				INFOPLIST_FILE = Classes/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions ";
 				OTHER_LDFLAGS = (
 					"-lIceGridObjC",

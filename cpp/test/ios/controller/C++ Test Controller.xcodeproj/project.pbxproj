@@ -12,7 +12,6 @@
 		1419EB471E028A3A00352FD7 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1419EB441E028A0700352FD7 /* Controller.ice */; };
 		143A09B11EB38CAD00C8F91F /* cacert.pem in Resources */ = {isa = PBXBuildFile; fileRef = 143A09B01EB38CAD00C8F91F /* cacert.pem */; };
 		1440D8761E0187BA00CF7ED3 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14B70D0F1E0160FD00118DE3 /* UIKit.framework */; };
-		1440D8841E0188A600CF7ED3 /* Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 1440D8821E0188A600CF7ED3 /* Info.plist */; };
 		1440D88A1E0189F300CF7ED3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1440D8891E0189F300CF7ED3 /* Foundation.framework */; };
 		1440D88B1E018A2600CF7ED3 /* Cpp11ControllerBundle.bundle in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1440D86C1E0186FF00CF7ED3 /* Cpp11ControllerBundle.bundle */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		1440D88C1E018B0C00CF7ED3 /* ControllerI.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1440D8811E0188A600CF7ED3 /* ControllerI.mm */; };
@@ -420,7 +419,6 @@
 				14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */,
 				14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */,
 				148ABA1D1DFB12DB00594F70 /* certs in Resources */,
-				1440D8841E0188A600CF7ED3 /* Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -549,12 +547,16 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					ICE_CPP11_MAPPING,
-					"$(inherited)",
+					ICE_STATIC_LIBS,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ../../include;
+				HEADER_SEARCH_PATHS = (
+					../../include,
+					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
+				);
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
@@ -586,9 +588,13 @@
 					ICE_STATIC_LIBS,
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ../../include;
+				HEADER_SEARCH_PATHS = (
+					../../include,
+					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
+				);
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -617,8 +623,10 @@
 					ICE_STATIC_LIBS,
 					ICE_CPP11_MAPPING,
 				);
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
 					"-L../../Common/build/$(PLATFORM_NAME)/cpp11-xcodesdk",
@@ -645,8 +653,10 @@
 					ICE_STATIC_LIBS,
 					ICE_CPP11_MAPPING,
 				);
+				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
 					"-L../../Common/build/$(PLATFORM_NAME)/cpp11-xcodesdk",
@@ -666,7 +676,6 @@
 		14905C661DF98FD8002AE61B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADDITIONAL_SDKS = "../../../../sdk/$(PLATFORM_NAME).sdk";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -718,7 +727,6 @@
 		14905C671DF98FD8002AE61B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADDITIONAL_SDKS = "../../../../sdk/$(PLATFORM_NAME).sdk";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -773,6 +781,7 @@
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
 					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
@@ -797,6 +806,7 @@
 				DEVELOPMENT_TEAM = U4TBVKNQ7F;
 				INFOPLIST_FILE = Classes/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				OTHER_CFLAGS = "-fobjc-arc-exceptions";
 				OTHER_LDFLAGS = (
 					"-L../../Common/build/$(PLATFORM_NAME)/xcodesdk",
@@ -826,9 +836,13 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ../../include;
+				HEADER_SEARCH_PATHS = (
+					../../include,
+					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
+				);
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
@@ -857,9 +871,13 @@
 				GCC_INLINES_ARE_PRIVATE_EXTERN = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = ICE_STATIC_LIBS;
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				HEADER_SEARCH_PATHS = ../../include;
+				HEADER_SEARCH_PATHS = (
+					../../include,
+					"../../../../sdk/$(PLATFORM_NAME).sdk/usr/include",
+				);
 				INFOPLIST_FILE = Bundle/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Bundles";
+				LIBRARY_SEARCH_PATHS = "../../../../sdk/$(PLATFORM_NAME).sdk/usr/lib";
 				MACOSX_DEPLOYMENT_TARGET = 10.12;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (

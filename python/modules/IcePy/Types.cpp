@@ -22,6 +22,8 @@
 #include <Ice/OutputStream.h>
 #include <Ice/SlicedData.h>
 
+#include <IceUtil/DisableWarnings.h>
+
 #include <list>
 #include <limits>
 

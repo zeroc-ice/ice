@@ -31,7 +31,7 @@
 using namespace std;
 using namespace IcePy;
 
-static long _mainThreadId;
+static unsigned long _mainThreadId;
 
 namespace IcePy
 {

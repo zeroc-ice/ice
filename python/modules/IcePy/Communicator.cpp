@@ -39,7 +39,7 @@
 using namespace std;
 using namespace IcePy;
 
-static long _mainThreadId;
+static unsigned long _mainThreadId;
 
 typedef map<Ice::CommunicatorPtr, PyObject*> CommunicatorMap;
 static CommunicatorMap _communicatorMap;
