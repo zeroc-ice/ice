@@ -97,13 +97,19 @@
 #   endif
 #endif
 
+#if defined(_MSVC_LANG)
+#   define ICE_CPLUSPLUS _MSVC_LANG
+#else
+#   define ICE_CPLUSPLUS __cplusplus
+#endif
+
 //
 // Check for C++ 11 support
 //
 // For GCC, we recognize --std=c++0x only for GCC version 4.5 and greater,
 // as C++11 support in prior releases was too limited.
 //
-#if (__cplusplus >= 201103) || \
+#if (ICE_CPLUSPLUS >= 201103) || \
     ((defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) && ((__GNUC__* 100) + __GNUC_MINOR__) >= 405)) || \
     (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_CPP11_COMPILER
@@ -116,7 +122,7 @@
 #   error "you need a C++11 capable compiler to use the C++11 mapping"
 #endif
 
-#if defined(ICE_CPP11_COMPILER) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
+#if defined(ICE_CPP11_COMPILER)
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
 #   define ICE_FINAL final
@@ -158,12 +164,6 @@
 //
 #if defined(ICE_CPP11_MAPPING) || defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_HAS_THREAD_SAFE_LOCAL_STATIC
-#endif
-
-#if defined(_MSVC_LANG)
-#   define ICE_CPLUSPLUS _MSVC_LANG
-#else
-#   define ICE_CPLUSPLUS __cplusplus
 #endif
 
 //
