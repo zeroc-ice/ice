@@ -298,6 +298,12 @@ struct InitializationData
     Instrumentation::CommunicatorObserverPtr observer;
 
 #ifdef ICE_CPP11_MAPPING
+
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wdocumentation" // param/return is not recognized for std::function data members
+#endif
+
     /**
      * Called whenever the communicator starts a new thread.
      */
@@ -343,6 +349,11 @@ struct InitializationData
      * @param size The number of bytes consumed by the requests currently in the queue.
      */
     std::function<void(const Ice::BatchRequest& req, int count, int size)> batchRequestInterceptor;
+
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
+
 #else
     /**
      * The thread hook for the communicator.

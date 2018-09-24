@@ -62,7 +62,7 @@ public:
      * @param addr The target address.
      * @param v The unmarshaled value.
      */
-    typedef void (*PatchFunc)(void*, const ValuePtr&);
+    typedef void (*PatchFunc)(void* addr, const ValuePtr& v);
 
     /**
      * Constructs a stream using the latest encoding version but without a communicator.

@@ -23,7 +23,7 @@
 #elif defined(__clang__)
 #   pragma clang diagnostic push
 #   pragma clang diagnostic ignored "-Wredundant-decls" // expected when using forward Slice declarations
-#   pragma clang diagnostic ignored "-Wdocumentation"
+#   pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync" // see zeroc-ice/ice issue #211
 
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic push
