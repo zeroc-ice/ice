@@ -15,7 +15,7 @@ resulting binaries. As an alternative, you can download and install the
   * [Compiling Ice for \.NET on Linux or macOS](#compiling-ice-for-net-on-linux-or-macos)
 * [Running the Tests](#running-the-tests)
 * [NuGet Package](#nuget-package)
-* [Building Ice for Xamarin Test Suite](#buildin-ice-for-xamarin-test-suite)
+* [Building Ice for Xamarin Test Suite](#building-ice-for-xamarin-test-suite)
 
 ## Building on Windows
 
@@ -195,7 +195,7 @@ using the zeroc.ice.net NuGet package.
 Open a Visual Studio 2017 command prompt:
 
 ```
-MSBuild msbuild\msbuild.xamarin.test.sln /t:NuGetRestore
+nuget restore msbuild\xamarin.test.sln
 MSBuild test\xamarin\controller.Android\controller.Android.csproj /t:SignAndroidPackage /p:Configuration=Release /p:Platform=AnyCPU
 ```
 
@@ -204,7 +204,7 @@ MSBuild test\xamarin\controller.Android\controller.Android.csproj /t:SignAndroid
 Open a Visual Studio 2017 command prompt:
 
 ```
-MSBuild msbuild\msbuild.xamarin.test.sln /t:NuGetRestore
+nuget restore msbuild\xamarin.test.sln
 MSBuild test\xamarin\controller.UWP\controller.UWP.csproj /p:Configuration=Release
 ```
 
