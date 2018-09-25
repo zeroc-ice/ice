@@ -2446,7 +2446,6 @@ class UWPProcessController(RemoteProcessController):
 
         print("Registering application to run from layout...")
 
-        print(os.path.join(os.path.dirname(packageFullPath), "Dependencies", arch))
         for root, dirs, files in os.walk(os.path.join(os.path.dirname(packageFullPath), "Dependencies", arch)):
             for f in files:
                 self.installPackage(os.path.join(root, f), arch)
@@ -2470,6 +2469,15 @@ class UWPProcessController(RemoteProcessController):
         except:
             pass
 
+    def getPackageVersion(self, package):
+        import zipfile
+        import xml.etree.ElementTree as ElementTree
+        with zipfile.ZipFile(package) as zipfile:
+            with zipfile.open('AppxManifest.xml') as file:
+                xml = ElementTree.fromstring(file.read())
+                identity = xml.find("{http://schemas.microsoft.com/appx/manifest/foundation/windows10}Identity")
+                return tuple(map(int, identity.attrib['Version'].split(".")))
+
     def installPackage(self, package, arch):
         packages = {
             "Microsoft.VCLibs.x64.14.00.appx" : "Microsoft.VCLibs.140.00",
@@ -2480,7 +2488,10 @@ class UWPProcessController(RemoteProcessController):
         }
         packageName = packages[os.path.basename(package)]
         output = run("powershell Get-AppxPackage -Name {0}".format(packageName))
-        if packageName not in output or "Architecture      : {0}".format(arch) not in output:
+        m = re.search("Architecture.*: {0}\\r\\nResourceId.*:.*\\r\\nVersion.*: (.*)\\r\\n".format(arch), output)
+        installedVersion = tuple(map(int, m.group(1).split("."))) if m else (0, 0, 0, 0)
+        version = self.getPackageVersion(package)
+        if installedVersion <= version:
             run("powershell Add-AppxPackage -Path \"{0}\" -ForceApplicationShutdown".format(package))
 
 class BrowserProcessController(RemoteProcessController):
