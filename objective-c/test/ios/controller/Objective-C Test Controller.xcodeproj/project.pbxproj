@@ -11,10 +11,6 @@
 		140C3C701E02FCE000142503 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B821E02FCE000142503 /* Client.m */; };
 		140C3C741E02FCE000142503 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B841E02FCE000142503 /* Server.m */; };
 		140C3C761E02FCE000142503 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B861E02FCE000142503 /* TestI.m */; };
-		140C3C781E02FCE000142503 /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B881E02FCE000142503 /* AllTests.m */; };
-		140C3C7A1E02FCE000142503 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B891E02FCE000142503 /* Client.m */; };
-		140C3C821E02FCE000142503 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B8D1E02FCE000142503 /* Server.m */; };
-		140C3C841E02FCE000142503 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B8F1E02FCE000142503 /* TestI.m */; };
 		140C3C861E02FCE000142503 /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B911E02FCE000142503 /* AllTests.m */; };
 		140C3C881E02FCE000142503 /* BatchOneways.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B921E02FCE000142503 /* BatchOneways.m */; };
 		140C3C8A1E02FCE000142503 /* BatchOnewaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B931E02FCE000142503 /* BatchOnewaysAMI.m */; };
@@ -122,7 +118,6 @@
 		140C3DC61E02FCE100142503 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C691E02FCE000142503 /* Server.m */; };
 		140C3DCC1E02FCE100142503 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C6D1E02FCE000142503 /* TestI.m */; };
 		140C3DED1E02FF0900142503 /* MetricsTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B831E02FCE000142503 /* MetricsTest.ice */; };
-		140C3DEE1E02FF0900142503 /* ObjectsTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B8C1E02FCE000142503 /* ObjectsTest.ice */; };
 		140C3DEF1E02FF0900142503 /* OperationsTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B991E02FCE000142503 /* OperationsTest.ice */; };
 		140C3DF01E02FF0900142503 /* OptionalTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BA21E02FCE000142503 /* OptionalTest.ice */; };
 		140C3DF11E02FF0900142503 /* ProxyTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BAA1E02FCE000142503 /* ProxyTest.ice */; };
@@ -157,18 +152,9 @@
 		140C3E181E03E87D00142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E171E03E87D00142503 /* Collocated.m */; };
 		140C3E1A1E03EAAA00142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E191E03EAAA00142503 /* Collocated.m */; };
 		140C3E1C1E03EABE00142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E1B1E03EABE00142503 /* Collocated.m */; };
-		140C3E1E1E03EAD000142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E1D1E03EAD000142503 /* Collocated.m */; };
 		140C3E201E03EAF300142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E1F1E03EAF300142503 /* Collocated.m */; };
 		140C3E221E03EBE000142503 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E211E03EBE000142503 /* Collocated.m */; };
 		143A09AF1EB3895D00C8F91F /* cacert.pem in Resources */ = {isa = PBXBuildFile; fileRef = 143A09AE1EB3895D00C8F91F /* cacert.pem */; };
-		145C4BE61E36061900A855C7 /* TestIntfI.m in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE31E36061900A855C7 /* TestIntfI.m */; };
-		145C4BE71E36061900A855C7 /* ObjectsDerived.ice in Resources */ = {isa = PBXBuildFile; fileRef = 145C4BE41E36061900A855C7 /* ObjectsDerived.ice */; };
-		145C4BE81E36061900A855C7 /* ObjectsDerivedEx.ice in Resources */ = {isa = PBXBuildFile; fileRef = 145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */; };
-		145C4BE91E36064B00A855C7 /* ObjectsDerived.ice in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE41E36061900A855C7 /* ObjectsDerived.ice */; };
-		145C4BEA1E36064B00A855C7 /* ObjectsDerivedEx.ice in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */; };
-		145C4BEB1E36069B00A855C7 /* ObjectsDerived.ice in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE41E36061900A855C7 /* ObjectsDerived.ice */; };
-		145C4BEC1E36069B00A855C7 /* ObjectsDerivedEx.ice in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */; };
-		145C4BED1E3606FF00A855C7 /* TestIntfI.m in Sources */ = {isa = PBXBuildFile; fileRef = 145C4BE31E36061900A855C7 /* TestIntfI.m */; };
 		146148791EE15DFE000ECDB3 /* OnewaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 146148771EE15DFE000ECDB3 /* OnewaysAMI.m */; };
 		1461487A1EE15DFE000ECDB3 /* TwowaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 146148781EE15DFE000ECDB3 /* TwowaysAMI.m */; };
 		14863D8D1EE7682500D3AA9B /* OnewaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 146148771EE15DFE000ECDB3 /* OnewaysAMI.m */; };
@@ -182,6 +168,10 @@
 		14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		14905C641DF98FD8002AE61B /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C621DF98FD8002AE61B /* LaunchScreen.storyboard */; };
 		14905C711DF9923D002AE61B /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14905C6D1DF991F2002AE61B /* Controller.ice */; };
+		14A4CE0A215A4C31002AD8F7 /* ObjectsTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14A4CE08215A4C06002AD8F7 /* ObjectsTest.ice */; };
+		14A4CE0B215A4C3E002AD8F7 /* ObjectsTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14A4CE08215A4C06002AD8F7 /* ObjectsTest.ice */; };
+		14A4CE0C215A4C3E002AD8F7 /* ObjectsDerived.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14BE215A491100499968 /* ObjectsDerived.ice */; };
+		14A4CE0D215A4C3E002AD8F7 /* ObjectsDerivedEx.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14BC215A491100499968 /* ObjectsDerivedEx.ice */; };
 		14B7DEA21E04103F001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14B7DEA11E04103F001D0109 /* Collocated.m */; };
 		14B7DEA41E04113A001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14B7DEA31E04113A001D0109 /* Collocated.m */; };
 		14B7DEA61E041157001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14B7DEA51E041157001D0109 /* Collocated.m */; };
@@ -189,7 +179,6 @@
 		14B7DEAA1E04119D001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14B7DEA91E04119D001D0109 /* Collocated.m */; };
 		14B7DEAD1E043085001D0109 /* InheritanceTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E0C1E03004300142503 /* InheritanceTest.ice */; };
 		14B7DEAE1E043085001D0109 /* MetricsTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B831E02FCE000142503 /* MetricsTest.ice */; };
-		14B7DEAF1E043085001D0109 /* ObjectsTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B8C1E02FCE000142503 /* ObjectsTest.ice */; };
 		14B7DEB01E043085001D0109 /* OperationsTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B991E02FCE000142503 /* OperationsTest.ice */; };
 		14B7DEB11E043085001D0109 /* InterceptorTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E101E03007900142503 /* InterceptorTest.ice */; };
 		14B7DEB21E043085001D0109 /* OptionalTest.ice in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BA21E02FCE000142503 /* OptionalTest.ice */; };
@@ -260,9 +249,7 @@
 		14B7DEF41E043085001D0109 /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C271E02FCE000142503 /* AllTests.m */; };
 		14B7DEF51E043085001D0109 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C3B1E02FCE000142503 /* Client.m */; };
 		14B7DEF61E043085001D0109 /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BFD1E02FCE000142503 /* AllTests.m */; };
-		14B7DEF71E043085001D0109 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B8F1E02FCE000142503 /* TestI.m */; };
 		14B7DEF81E043085001D0109 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C2E1E02FCE000142503 /* Server.m */; };
-		14B7DEF91E043085001D0109 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B891E02FCE000142503 /* Client.m */; };
 		14B7DEFA1E043085001D0109 /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C181E02FCE000142503 /* AllTests.m */; };
 		14B7DEFB1E043085001D0109 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BDC1E02FCE000142503 /* Server.m */; };
 		14B7DEFC1E043085001D0109 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C581DF98FD8002AE61B /* AppDelegate.m */; };
@@ -305,7 +292,6 @@
 		14B7DF221E043085001D0109 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BA31E02FCE000142503 /* Server.m */; };
 		14B7DF231E043085001D0109 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BA11E02FCE000142503 /* Client.m */; };
 		14B7DF241E043085001D0109 /* MyObjectI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C481E02FCE000142503 /* MyObjectI.m */; };
-		14B7DF251E043085001D0109 /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B881E02FCE000142503 /* AllTests.m */; };
 		14B7DF261E043085001D0109 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C0A1E02FCE000142503 /* Client.m */; };
 		14B7DF271E043085001D0109 /* BatchOnewaysAMI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B931E02FCE000142503 /* BatchOnewaysAMI.m */; };
 		14B7DF281E043085001D0109 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C301E02FCE000142503 /* TestI.m */; };
@@ -317,7 +303,6 @@
 		14B7DF2E1E043085001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E1F1E03EAF300142503 /* Collocated.m */; };
 		14B7DF2F1E043085001D0109 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 14905C551DF98FD8002AE61B /* main.m */; };
 		14B7DF301E043085001D0109 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BD61E02FCE000142503 /* TestI.m */; };
-		14B7DF311E043085001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3E1D1E03EAD000142503 /* Collocated.m */; };
 		14B7DF321E043085001D0109 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C691E02FCE000142503 /* Server.m */; };
 		14B7DF331E043085001D0109 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BB31E02FCE000142503 /* Server.m */; };
 		14B7DF341E043085001D0109 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C641E02FCE000142503 /* TestI.m */; };
@@ -330,7 +315,6 @@
 		14B7DF3B1E043085001D0109 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3C5E1E02FCE000142503 /* Client.m */; };
 		14B7DF3C1E043085001D0109 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3BAB1E02FCE000142503 /* Server.m */; };
 		14B7DF3D1E043085001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14B7DEA51E041157001D0109 /* Collocated.m */; };
-		14B7DF3E1E043085001D0109 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B8D1E02FCE000142503 /* Server.m */; };
 		14B7DF3F1E043085001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14B7DEA11E04103F001D0109 /* Collocated.m */; };
 		14B7DF401E043085001D0109 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14B7DEA31E04113A001D0109 /* Collocated.m */; };
 		14B7DF411E043085001D0109 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 140C3B9C1E02FCE000142503 /* TestI.m */; };
@@ -355,6 +339,20 @@
 		14B7DF681E043085001D0109 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14905C601DF98FD8002AE61B /* Assets.xcassets */; };
 		14B7DF721E043085001D0109 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14905C5D1DF98FD8002AE61B /* Main.storyboard */; };
 		14C8F6201EB39722009B4CEC /* cacert.pem in Resources */ = {isa = PBXBuildFile; fileRef = 143A09AE1EB3895D00C8F91F /* cacert.pem */; };
+		14CF14A4215A485400499968 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF149B215A485300499968 /* Server.m */; };
+		14CF14A5215A485400499968 /* Server.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF149B215A485300499968 /* Server.m */; };
+		14CF14A6215A485400499968 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF149C215A485300499968 /* Client.m */; };
+		14CF14A7215A485400499968 /* Client.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF149C215A485300499968 /* Client.m */; };
+		14CF14AE215A485400499968 /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14A0215A485300499968 /* AllTests.m */; };
+		14CF14AF215A485400499968 /* AllTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14A0215A485300499968 /* AllTests.m */; };
+		14CF14B0215A485400499968 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14A1215A485400499968 /* TestI.m */; };
+		14CF14B1215A485400499968 /* TestI.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14A1215A485400499968 /* TestI.m */; };
+		14CF14B2215A485400499968 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14A2215A485400499968 /* Collocated.m */; };
+		14CF14B3215A485400499968 /* Collocated.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14A2215A485400499968 /* Collocated.m */; };
+		14CF14B4215A485400499968 /* TestIntfI.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14A3215A485400499968 /* TestIntfI.m */; };
+		14CF14B5215A485400499968 /* TestIntfI.m in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14A3215A485400499968 /* TestIntfI.m */; };
+		14CF14CB215A4A7800499968 /* ObjectsDerived.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14BE215A491100499968 /* ObjectsDerived.ice */; };
+		14CF14CC215A4A7800499968 /* ObjectsDerivedEx.ice in Sources */ = {isa = PBXBuildFile; fileRef = 14CF14BC215A491100499968 /* ObjectsDerivedEx.ice */; };
 		14FFBAA01E29361A00EA55AF /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */; };
 		14FFBAA11E29362900EA55AF /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */; };
 /* End PBXBuildFile section */
@@ -370,7 +368,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).m",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
-			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper";
+			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper\n";
 		};
 		14B7DF791E043085001D0109 /* PBXBuildRule */ = {
 			isa = PBXBuildRule;
@@ -382,7 +380,7 @@
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).m",
 				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).h",
 			);
-			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper";
+			script = "#export ICE_BIN_DIST=all\n../../../../scripts/ice-builder-xcode-wrapper\n";
 		};
 /* End PBXBuildRule section */
 
@@ -393,12 +391,6 @@
 		140C3B841E02FCE000142503 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Server.m; sourceTree = "<group>"; };
 		140C3B851E02FCE000142503 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestI.h; sourceTree = "<group>"; };
 		140C3B861E02FCE000142503 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestI.m; sourceTree = "<group>"; };
-		140C3B881E02FCE000142503 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AllTests.m; sourceTree = "<group>"; };
-		140C3B891E02FCE000142503 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Client.m; sourceTree = "<group>"; };
-		140C3B8C1E02FCE000142503 /* ObjectsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectsTest.ice; sourceTree = "<group>"; };
-		140C3B8D1E02FCE000142503 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Server.m; sourceTree = "<group>"; };
-		140C3B8E1E02FCE000142503 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestI.h; sourceTree = "<group>"; };
-		140C3B8F1E02FCE000142503 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestI.m; sourceTree = "<group>"; };
 		140C3B911E02FCE000142503 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AllTests.m; sourceTree = "<group>"; };
 		140C3B921E02FCE000142503 /* BatchOneways.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchOneways.m; sourceTree = "<group>"; };
 		140C3B931E02FCE000142503 /* BatchOnewaysAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BatchOnewaysAMI.m; sourceTree = "<group>"; };
@@ -566,13 +558,9 @@
 		140C3E171E03E87D00142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		140C3E191E03EAAA00142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		140C3E1B1E03EABE00142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
-		140C3E1D1E03EAD000142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		140C3E1F1E03EAF300142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		140C3E211E03EBE000142503 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		143A09AE1EB3895D00C8F91F /* cacert.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = cacert.pem; path = ../../../../certs/cacert.pem; sourceTree = "<group>"; };
-		145C4BE31E36061900A855C7 /* TestIntfI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestIntfI.m; sourceTree = "<group>"; };
-		145C4BE41E36061900A855C7 /* ObjectsDerived.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectsDerived.ice; sourceTree = "<group>"; };
-		145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectsDerivedEx.ice; sourceTree = "<group>"; };
 		146148771EE15DFE000ECDB3 /* OnewaysAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnewaysAMI.m; sourceTree = "<group>"; };
 		146148781EE15DFE000ECDB3 /* TwowaysAMI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TwowaysAMI.m; sourceTree = "<group>"; };
 		148ABA171DFB12C800594F70 /* client.p12 */ = {isa = PBXFileReference; lastKnownFileType = file; name = client.p12; path = ../../../../certs/client.p12; sourceTree = "<group>"; };
@@ -589,12 +577,22 @@
 		14905C631DF98FD8002AE61B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		14905C651DF98FD8002AE61B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14905C6D1DF991F2002AE61B /* Controller.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Controller.ice; path = ../../../../../scripts/Controller.ice; sourceTree = "<group>"; };
+		14A4CE08215A4C06002AD8F7 /* ObjectsTest.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ObjectsTest.ice; path = ../../Ice/objects/ObjectsTest.ice; sourceTree = "<group>"; };
 		14B7DEA11E04103F001D0109 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		14B7DEA31E04113A001D0109 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		14B7DEA51E041157001D0109 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		14B7DEA71E041173001D0109 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		14B7DEA91E04119D001D0109 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Collocated.m; sourceTree = "<group>"; };
 		14B7DF7D1E043085001D0109 /* Objective-C ARC Test Controller.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Objective-C ARC Test Controller.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		14CF149A215A485300499968 /* TestI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestI.h; path = ../../Ice/objects/TestI.h; sourceTree = "<group>"; };
+		14CF149B215A485300499968 /* Server.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Server.m; path = ../../Ice/objects/Server.m; sourceTree = "<group>"; };
+		14CF149C215A485300499968 /* Client.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Client.m; path = ../../Ice/objects/Client.m; sourceTree = "<group>"; };
+		14CF14A0215A485300499968 /* AllTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AllTests.m; path = ../../Ice/objects/AllTests.m; sourceTree = "<group>"; };
+		14CF14A1215A485400499968 /* TestI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestI.m; path = ../../Ice/objects/TestI.m; sourceTree = "<group>"; };
+		14CF14A2215A485400499968 /* Collocated.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = Collocated.m; path = ../../Ice/objects/Collocated.m; sourceTree = "<group>"; };
+		14CF14A3215A485400499968 /* TestIntfI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestIntfI.m; path = ../../Ice/objects/TestIntfI.m; sourceTree = "<group>"; };
+		14CF14BC215A491100499968 /* ObjectsDerivedEx.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ObjectsDerivedEx.ice; path = ../../Ice/objects/ObjectsDerivedEx.ice; sourceTree = "<group>"; };
+		14CF14BE215A491100499968 /* ObjectsDerived.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ObjectsDerived.ice; path = ../../Ice/objects/ObjectsDerived.ice; sourceTree = "<group>"; };
 		14FFBA9F1E29361A00EA55AF /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -621,8 +619,8 @@
 		140C31281E02F7FF00142503 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				14CF1432215A47DF00499968 /* objects */,
 				140C3B801E02FCE000142503 /* metrics */,
-				140C3B871E02FCE000142503 /* objects */,
 				140C3B901E02FCE000142503 /* operations */,
 				140C3B9F1E02FCE000142503 /* optional */,
 				140C3BA61E02FCE000142503 /* proxy */,
@@ -666,24 +664,6 @@
 			);
 			name = metrics;
 			path = ../../Ice/metrics;
-			sourceTree = "<group>";
-		};
-		140C3B871E02FCE000142503 /* objects */ = {
-			isa = PBXGroup;
-			children = (
-				145C4BE31E36061900A855C7 /* TestIntfI.m */,
-				145C4BE41E36061900A855C7 /* ObjectsDerived.ice */,
-				145C4BE51E36061900A855C7 /* ObjectsDerivedEx.ice */,
-				140C3E1D1E03EAD000142503 /* Collocated.m */,
-				140C3B881E02FCE000142503 /* AllTests.m */,
-				140C3B891E02FCE000142503 /* Client.m */,
-				140C3B8C1E02FCE000142503 /* ObjectsTest.ice */,
-				140C3B8D1E02FCE000142503 /* Server.m */,
-				140C3B8E1E02FCE000142503 /* TestI.h */,
-				140C3B8F1E02FCE000142503 /* TestI.m */,
-			);
-			name = objects;
-			path = ../../Ice/objects;
 			sourceTree = "<group>";
 		};
 		140C3B901E02FCE000142503 /* operations */ = {
@@ -1150,6 +1130,23 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		14CF1432215A47DF00499968 /* objects */ = {
+			isa = PBXGroup;
+			children = (
+				14A4CE08215A4C06002AD8F7 /* ObjectsTest.ice */,
+				14CF14BE215A491100499968 /* ObjectsDerived.ice */,
+				14CF14BC215A491100499968 /* ObjectsDerivedEx.ice */,
+				14CF14A0215A485300499968 /* AllTests.m */,
+				14CF149C215A485300499968 /* Client.m */,
+				14CF14A2215A485400499968 /* Collocated.m */,
+				14CF149B215A485300499968 /* Server.m */,
+				14CF149A215A485300499968 /* TestI.h */,
+				14CF14A1215A485400499968 /* TestI.m */,
+				14CF14A3215A485400499968 /* TestIntfI.m */,
+			);
+			name = objects;
+			sourceTree = "<group>";
+		};
 		14FFBA9E1E29361A00EA55AF /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1255,8 +1252,6 @@
 				143A09AF1EB3895D00C8F91F /* cacert.pem in Resources */,
 				14905C611DF98FD8002AE61B /* Assets.xcassets in Resources */,
 				14905C5F1DF98FD8002AE61B /* Main.storyboard in Resources */,
-				145C4BE81E36061900A855C7 /* ObjectsDerivedEx.ice in Resources */,
-				145C4BE71E36061900A855C7 /* ObjectsDerived.ice in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1280,12 +1275,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				145C4BEB1E36069B00A855C7 /* ObjectsDerived.ice in Sources */,
-				145C4BEC1E36069B00A855C7 /* ObjectsDerivedEx.ice in Sources */,
+				14A4CE0A215A4C31002AD8F7 /* ObjectsTest.ice in Sources */,
+				14CF14CB215A4A7800499968 /* ObjectsDerived.ice in Sources */,
+				14CF14CC215A4A7800499968 /* ObjectsDerivedEx.ice in Sources */,
 				140C3E0F1E03005200142503 /* InheritanceTest.ice in Sources */,
 				140C3DED1E02FF0900142503 /* MetricsTest.ice in Sources */,
-				140C3DEE1E02FF0900142503 /* ObjectsTest.ice in Sources */,
 				140C3DEF1E02FF0900142503 /* OperationsTest.ice in Sources */,
+				14CF14B0215A485400499968 /* TestI.m in Sources */,
 				140C3E131E03007D00142503 /* InterceptorTest.ice in Sources */,
 				140C3DF01E02FF0900142503 /* OptionalTest.ice in Sources */,
 				140C3DF11E02FF0900142503 /* ProxyTest.ice in Sources */,
@@ -1297,7 +1293,6 @@
 				140C3DF71E02FF0900142503 /* ACMTest.ice in Sources */,
 				140C3DF81E02FF0900142503 /* AdapterDeactivationTest.ice in Sources */,
 				140C3DF91E02FF0900142503 /* AdminTest.ice in Sources */,
-				145C4BE61E36061900A855C7 /* TestIntfI.m in Sources */,
 				140C3DFA1E02FF0900142503 /* AMITest.ice in Sources */,
 				140C3DFB1E02FF0900142503 /* BindingTest.ice in Sources */,
 				140C3DFC1E02FF0900142503 /* DefaultServantTest.ice in Sources */,
@@ -1313,11 +1308,13 @@
 				140C3E071E02FF0900142503 /* LocationTest.ice in Sources */,
 				140C3E081E02FF0900142503 /* SlicingExceptionsTestClient.ice in Sources */,
 				140C3E091E02FF0900142503 /* SlicingExceptionsTestServer.ice in Sources */,
+				14CF14AE215A485400499968 /* AllTests.m in Sources */,
 				140C3E0A1E02FF0900142503 /* SlicingObjectsTestClient.ice in Sources */,
 				140C3E0B1E02FF0900142503 /* SlicingObjectsTestServer.ice in Sources */,
 				140C3D141E02FCE100142503 /* TestI.m in Sources */,
 				146148791EE15DFE000ECDB3 /* OnewaysAMI.m in Sources */,
 				140C3CCA1E02FCE000142503 /* ServantLocatorI.m in Sources */,
+				14CF14A6215A485400499968 /* Client.m in Sources */,
 				140C3DA61E02FCE100142503 /* Client.m in Sources */,
 				140C3D521E02FCE100142503 /* Client.m in Sources */,
 				140C3CF41E02FCE100142503 /* AllTests.m in Sources */,
@@ -1357,14 +1354,14 @@
 				140C3D661E02FCE100142503 /* AllTests.m in Sources */,
 				140C3D841E02FCE100142503 /* Client.m in Sources */,
 				140C3D281E02FCE100142503 /* AllTests.m in Sources */,
-				140C3C841E02FCE000142503 /* TestI.m in Sources */,
 				140C3D721E02FCE100142503 /* Server.m in Sources */,
-				140C3C7A1E02FCE000142503 /* Client.m in Sources */,
 				140C3D501E02FCE100142503 /* AllTests.m in Sources */,
 				140C3CFA1E02FCE100142503 /* Server.m in Sources */,
 				14905C591DF98FD8002AE61B /* AppDelegate.m in Sources */,
 				140C3D801E02FCE100142503 /* TestI.m in Sources */,
 				140C3D0E1E02FCE100142503 /* Client.m in Sources */,
+				14CF14A4215A485400499968 /* Server.m in Sources */,
+				14CF14B2215A485400499968 /* Collocated.m in Sources */,
 				140C3D8C1E02FCE100142503 /* TestI.m in Sources */,
 				140C3CE41E02FCE100142503 /* TestI.m in Sources */,
 				140C3CEE1E02FCE100142503 /* Server.m in Sources */,
@@ -1373,6 +1370,7 @@
 				140C3C9C1E02FCE000142503 /* Twoways.m in Sources */,
 				140C3D441E02FCE100142503 /* AllTests.m in Sources */,
 				140C3CDE1E02FCE100142503 /* AllTests.m in Sources */,
+				14CF14B4215A485400499968 /* TestIntfI.m in Sources */,
 				140C3D001E02FCE100142503 /* AllTests.m in Sources */,
 				140C3CD41E02FCE100142503 /* Client.m in Sources */,
 				140C3D7E1E02FCE100142503 /* Server.m in Sources */,
@@ -1403,7 +1401,6 @@
 				140C3CA61E02FCE000142503 /* Server.m in Sources */,
 				140C3CA21E02FCE000142503 /* Client.m in Sources */,
 				140C3D961E02FCE100142503 /* MyObjectI.m in Sources */,
-				140C3C781E02FCE000142503 /* AllTests.m in Sources */,
 				140C3D3C1E02FCE100142503 /* Client.m in Sources */,
 				140C3C8A1E02FCE000142503 /* BatchOnewaysAMI.m in Sources */,
 				140C3D741E02FCE100142503 /* TestI.m in Sources */,
@@ -1415,7 +1412,6 @@
 				140C3E201E03EAF300142503 /* Collocated.m in Sources */,
 				14905C561DF98FD8002AE61B /* main.m in Sources */,
 				140C3CF01E02FCE100142503 /* TestI.m in Sources */,
-				140C3E1E1E03EAD000142503 /* Collocated.m in Sources */,
 				140C3DC61E02FCE100142503 /* Server.m in Sources */,
 				140C3CBE1E02FCE000142503 /* Server.m in Sources */,
 				140C3DBE1E02FCE100142503 /* TestI.m in Sources */,
@@ -1428,7 +1424,6 @@
 				140C3DB41E02FCE100142503 /* Client.m in Sources */,
 				140C3CB21E02FCE000142503 /* Server.m in Sources */,
 				14B7DEA61E041157001D0109 /* Collocated.m in Sources */,
-				140C3C821E02FCE000142503 /* Server.m in Sources */,
 				14B7DEA21E04103F001D0109 /* Collocated.m in Sources */,
 				14B7DEA41E04113A001D0109 /* Collocated.m in Sources */,
 				140C3C9A1E02FCE000142503 /* TestI.m in Sources */,
@@ -1454,14 +1449,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14A4CE0B215A4C3E002AD8F7 /* ObjectsTest.ice in Sources */,
+				14A4CE0C215A4C3E002AD8F7 /* ObjectsDerived.ice in Sources */,
+				14A4CE0D215A4C3E002AD8F7 /* ObjectsDerivedEx.ice in Sources */,
 				14863D8D1EE7682500D3AA9B /* OnewaysAMI.m in Sources */,
 				14863D8E1EE7682500D3AA9B /* TwowaysAMI.m in Sources */,
-				145C4BED1E3606FF00A855C7 /* TestIntfI.m in Sources */,
-				145C4BE91E36064B00A855C7 /* ObjectsDerived.ice in Sources */,
-				145C4BEA1E36064B00A855C7 /* ObjectsDerivedEx.ice in Sources */,
 				14B7DEAD1E043085001D0109 /* InheritanceTest.ice in Sources */,
+				14CF14B1215A485400499968 /* TestI.m in Sources */,
 				14B7DEAE1E043085001D0109 /* MetricsTest.ice in Sources */,
-				14B7DEAF1E043085001D0109 /* ObjectsTest.ice in Sources */,
 				14B7DEB01E043085001D0109 /* OperationsTest.ice in Sources */,
 				14B7DEB11E043085001D0109 /* InterceptorTest.ice in Sources */,
 				14B7DEB21E043085001D0109 /* OptionalTest.ice in Sources */,
@@ -1487,11 +1482,13 @@
 				14B7DEC61E043085001D0109 /* InfoTest.ice in Sources */,
 				14B7DEC71E043085001D0109 /* InvokeTest.ice in Sources */,
 				14B7DEC81E043085001D0109 /* LocationTest.ice in Sources */,
+				14CF14AF215A485400499968 /* AllTests.m in Sources */,
 				14B7DEC91E043085001D0109 /* SlicingExceptionsTestClient.ice in Sources */,
 				14B7DECA1E043085001D0109 /* SlicingExceptionsTestServer.ice in Sources */,
 				14B7DECB1E043085001D0109 /* SlicingObjectsTestClient.ice in Sources */,
 				14B7DECC1E043085001D0109 /* SlicingObjectsTestServer.ice in Sources */,
 				14B7DECD1E043085001D0109 /* TestI.m in Sources */,
+				14CF14A7215A485400499968 /* Client.m in Sources */,
 				14B7DECE1E043085001D0109 /* ServantLocatorI.m in Sources */,
 				14B7DECF1E043085001D0109 /* Client.m in Sources */,
 				14B7DED01E043085001D0109 /* Client.m in Sources */,
@@ -1532,13 +1529,13 @@
 				14B7DEF41E043085001D0109 /* AllTests.m in Sources */,
 				14B7DEF51E043085001D0109 /* Client.m in Sources */,
 				14B7DEF61E043085001D0109 /* AllTests.m in Sources */,
-				14B7DEF71E043085001D0109 /* TestI.m in Sources */,
 				14B7DEF81E043085001D0109 /* Server.m in Sources */,
-				14B7DEF91E043085001D0109 /* Client.m in Sources */,
 				14B7DEFA1E043085001D0109 /* AllTests.m in Sources */,
 				14B7DEFB1E043085001D0109 /* Server.m in Sources */,
 				14B7DEFC1E043085001D0109 /* AppDelegate.m in Sources */,
 				14B7DEFD1E043085001D0109 /* TestI.m in Sources */,
+				14CF14A5215A485400499968 /* Server.m in Sources */,
+				14CF14B3215A485400499968 /* Collocated.m in Sources */,
 				14B7DEFE1E043085001D0109 /* Client.m in Sources */,
 				14B7DEFF1E043085001D0109 /* TestI.m in Sources */,
 				14B7DF001E043085001D0109 /* TestI.m in Sources */,
@@ -1547,6 +1544,7 @@
 				14B7DF031E043085001D0109 /* Server.m in Sources */,
 				14B7DF041E043085001D0109 /* Twoways.m in Sources */,
 				14B7DF051E043085001D0109 /* AllTests.m in Sources */,
+				14CF14B5215A485400499968 /* TestIntfI.m in Sources */,
 				14B7DF071E043085001D0109 /* AllTests.m in Sources */,
 				14B7DF081E043085001D0109 /* AllTests.m in Sources */,
 				14B7DF091E043085001D0109 /* Client.m in Sources */,
@@ -1577,7 +1575,6 @@
 				14B7DF221E043085001D0109 /* Server.m in Sources */,
 				14B7DF231E043085001D0109 /* Client.m in Sources */,
 				14B7DF241E043085001D0109 /* MyObjectI.m in Sources */,
-				14B7DF251E043085001D0109 /* AllTests.m in Sources */,
 				14B7DF261E043085001D0109 /* Client.m in Sources */,
 				14B7DF271E043085001D0109 /* BatchOnewaysAMI.m in Sources */,
 				14B7DF281E043085001D0109 /* TestI.m in Sources */,
@@ -1589,7 +1586,6 @@
 				14B7DF2E1E043085001D0109 /* Collocated.m in Sources */,
 				14B7DF2F1E043085001D0109 /* main.m in Sources */,
 				14B7DF301E043085001D0109 /* TestI.m in Sources */,
-				14B7DF311E043085001D0109 /* Collocated.m in Sources */,
 				14B7DF321E043085001D0109 /* Server.m in Sources */,
 				14B7DF331E043085001D0109 /* Server.m in Sources */,
 				14B7DF341E043085001D0109 /* TestI.m in Sources */,
@@ -1602,7 +1598,6 @@
 				14B7DF3B1E043085001D0109 /* Client.m in Sources */,
 				14B7DF3C1E043085001D0109 /* Server.m in Sources */,
 				14B7DF3D1E043085001D0109 /* Collocated.m in Sources */,
-				14B7DF3E1E043085001D0109 /* Server.m in Sources */,
 				14B7DF3F1E043085001D0109 /* Collocated.m in Sources */,
 				14B7DF401E043085001D0109 /* Collocated.m in Sources */,
 				14B7DF411E043085001D0109 /* TestI.m in Sources */,
@@ -1685,6 +1680,7 @@
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
+					ICE_STATIC_LIBS,
 					"DEBUG=1",
 					"$(inherited)",
 				);
@@ -1737,6 +1733,7 @@
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = ICE_STATIC_LIBS;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
