@@ -104,8 +104,8 @@ def allTests(helper, communicator):
 
     adapter.destroy()
 
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 12020")
-    communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 15000")
+    communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 15000")
     adapter = communicator.createObjectAdapter("TestAdapter")
 
     endpoints = adapter.getEndpoints()
@@ -116,7 +116,7 @@ def allTests(helper, communicator):
 
     for i in range(0, len(endpoints)):
         tcpEndpoint = getTCPEndpointInfo(endpoints[i].getInfo())
-        test(tcpEndpoint.port == 12020)
+        test(tcpEndpoint.port == 15000)
 
     tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo())
     test(tcpEndpoint.host == "127.0.0.1")
