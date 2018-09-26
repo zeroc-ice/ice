@@ -26,10 +26,10 @@ public class Client extends test.TestHelper
         //
         properties.setProperty("Ice.MessageSizeMax", "20000");
         //
-        // Retry up to 2 times, sleep 1s for the last retry. This is
+        // Retry up to 2 times, sleep 2s for the last retry. This is
         // useful to test interrupting the retry sleep
         //
-        properties.setProperty("Ice.RetryIntervals", "0 1000");
+        properties.setProperty("Ice.RetryIntervals", "0 2000");
         //
         // Limit the send buffer size, this test relies on the socket
         // send() blocking after sending a given amount of data.
