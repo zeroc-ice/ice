@@ -120,7 +120,7 @@ def allTests(helper, communicator):
 
     tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo())
     test(tcpEndpoint.host == "127.0.0.1")
-    test(tcpEndpoint.port == 12020)
+    test(tcpEndpoint.port == 15000)
 
     adapter.destroy()
 
