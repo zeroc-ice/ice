@@ -284,7 +284,7 @@ TopicManagerImpl::TopicManagerImpl(const PersistentInstancePtr& instance) :
 
                     Ice::Identity topic = k.topic;
 
-                    bool moreTopics;
+                    //bool moreTopics;
                     SubscriberRecordSeq content;
                     while((moreTopics = cursor.get(k, v, MDB_NEXT)) && k.topic == topic)
                     {
