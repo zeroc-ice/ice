@@ -138,42 +138,27 @@ public abstract class TestHelper
 
     public Communicator initialize(String[] args)
     {
-        return initialize(args, true);
-    }
-
-    public Communicator initialize(String[] args, boolean defaultCommunicator)
-    {
         InitializationData initData = new InitializationData();
         initData.properties = createTestProperties(args);
-        return initialize(initData, defaultCommunicator);
+        return initialize(initData);
     }
 
     public Communicator initialize(Properties properties)
     {
-        return initialize(properties, false);
-    }
-
-    public Communicator initialize(Properties properties, boolean defaultCommunicator)
-    {
         InitializationData initData = new InitializationData();
         initData.properties = properties;
-        return  initialize(initData, defaultCommunicator);
+        return initialize(initData);
     }
 
     public Communicator initialize(InitializationData initData)
     {
-        return initialize(initData, true);
-    }
-
-    public Communicator initialize(InitializationData initData, boolean defaultCommunicator)
-    {
-        Communicator communicator = Ice.Util.initialize(initData);
         if(_classLoader != null && initData.classLoader == null)
         {
             initData.classLoader = _classLoader;
         }
 
-        if(defaultCommunicator || _communicator == null)
+        Communicator communicator = Ice.Util.initialize(initData);
+        if(_communicator == null)
         {
             _communicator = communicator;
         }

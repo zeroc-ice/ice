@@ -3,10 +3,6 @@
         <Configuration>Release</Configuration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(IceTestsTargetFrameworks)' == ''">
-        <IceTestsTargetFrameworks>netcoreapp2.0</IceTestsTargetFrameworks>
-    </PropertyGroup>
-
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"
             Condition="Exists('$(VCTargetsPath)\Microsoft.Cpp.Default.props')"/>
@@ -79,7 +75,7 @@
         </NetStandardDistSolution>
 
         <NetStandardTestSolution Include="ice.netstandard2.0.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;IceTestsTargetFrameworks=$(IceTestsTargetFrameworks)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
         </NetStandardTestSolution>
     </ItemGroup>
 
@@ -287,5 +283,16 @@
 
     <Target Name="NuGetPack"
             DependsOnTargets="WindowsNuGetPack;UnixNuGetPack">
+    </Target>
+
+    <!-- Build xamarin Android test controller -->
+    <Target Name="BuildXamarin" DependsOnTargets="BuildNetStandardDist">
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller.sln" Targets="Restore"
+                 Properties="Configuration=$(Configuration)"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller.sln"
+                 Properties="Configuration=$(Configuration)"/>
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller\controller.Android\controller.Android.csproj"
+                 Properties="IntermediateOutputPath=obj\;OutputPath=bin\$(Configuration)\;AndroidUseSharedRuntime=false;EmbedAssembliesIntoApk=true;Platform=AnyCPU"
+                 Targets="SignAndroidPackage"/>
     </Target>
 </Project>

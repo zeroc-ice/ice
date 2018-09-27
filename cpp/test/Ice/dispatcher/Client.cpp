@@ -41,10 +41,14 @@ Client::run(int argc, char** argv)
 #else
     initData.dispatcher = new Dispatcher();
 #endif
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    // The communicator must be destroyed before the dispatcher is terminated.
+    {
+        Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
-    void allTests(Test::TestHelper*);
-    allTests(this);
+        void allTests(Test::TestHelper*);
+        allTests(this);
+    }
+    Dispatcher::terminate();
 }
 
 DEFINE_TEST(Client)

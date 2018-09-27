@@ -11,6 +11,7 @@
 
 #include <Ice/BuiltinSequences.ice>
 
+[["cs:namespace:Ice.serialize"]]
 module Test
 {
 

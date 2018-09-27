@@ -259,6 +259,6 @@ runTest(int argc, char* argv[])
 
 #endif
 
-#define test(ex) ((ex) ? ((void)0) : Test::testFailed(#ex, __FILE__, __LINE__))
+#define test(ex) ((ex) ? ((void)0) : ::Test::testFailed(#ex, __FILE__, __LINE__))
 
 #endif

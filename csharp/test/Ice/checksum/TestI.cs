@@ -9,22 +9,26 @@
 
 using System.Collections.Generic;
 
-namespace Test
+namespace Ice
 {
-    public sealed class ChecksumI : ChecksumDisp_
+    namespace checksum
     {
-        public ChecksumI()
-        {
-        }
 
-        public override Dictionary<string, string> getSliceChecksums(Ice.Current current)
+        public sealed class ChecksumI : Test.ChecksumDisp_
         {
-            return Ice.SliceChecksums.checksums;
-        }
+            public ChecksumI()
+            {
+            }
 
-        public override void shutdown(Ice.Current current)
-        {
-            current.adapter.getCommunicator().shutdown();
+            public override Dictionary<string, string> getSliceChecksums(Ice.Current current)
+            {
+                return Ice.SliceChecksums.checksums;
+            }
+
+            public override void shutdown(Ice.Current current)
+            {
+                current.adapter.getCommunicator().shutdown();
+            }
         }
     }
 }

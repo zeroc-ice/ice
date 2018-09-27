@@ -10,7 +10,7 @@
 #pragma once
 
 [["suppress-warning:deprecated"]] // For classes with operations
-
+[["cs:namespace:Ice.inheritance"]]
 module Test
 {
 

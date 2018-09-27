@@ -37,17 +37,17 @@
     <Compile Include="..\..\..\..\..\TestCommon\TestHelper.cs">
       <Link>TestHelper.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\CookieI.cs">
-      <Link>CookieI.cs</Link>
+    <Compile Include="..\..\..\CookieAMDI.cs">
+      <Link>CookieAMDI.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\ServantLocatorI.cs">
-      <Link>ServantLocatorI.cs</Link>
+    <Compile Include="..\..\..\ServantLocatorAMDI.cs">
+      <Link>ServantLocatorAMDI.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Server.cs">
-      <Link>Server.cs</Link>
+    <Compile Include="..\..\..\ServerAMD.cs">
+      <Link>ServerAMD.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\TestActivationI.cs">
-      <Link>TestActivationI.cs</Link>
+    <Compile Include="..\..\..\TestActivationAMDI.cs">
+      <Link>TestActivationAMDI.cs</Link>
     </Compile>
     <Compile Include="..\..\..\TestAMDI.cs">
       <Link>TestAMDI.cs</Link>

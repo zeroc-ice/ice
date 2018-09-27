@@ -9,15 +9,19 @@
 
 using System;
 
-[assembly: CLSCompliant(true)]
-
-namespace Serialize
+namespace Ice
 {
+    namespace stream
+    {
+        namespace Serialize
+        {
 
-[Serializable]
-public class Small // Fewer than 254 bytes with a BinaryFormatter.
-{
-    public int i;
-}
+            [Serializable]
+            public class Small // Fewer than 254 bytes with a BinaryFormatter.
+            {
+                public int i;
+            }
 
+        }
+    }
 }

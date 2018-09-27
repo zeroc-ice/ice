@@ -153,4 +153,12 @@ namespace IceDiscovery
         private Ice.LocatorPrx _defaultLocator;
     }
 
+    public class Util
+    {
+        public static void
+        registerIceDiscovery(bool loadOnInitialize)
+        {
+            Ice.Util.registerPluginFactory("IceDiscovery", new PluginFactory(), loadOnInitialize);
+        }
+    }
 }

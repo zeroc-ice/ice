@@ -1779,6 +1779,30 @@
       <Filter>Tests\ARM\Release</Filter>
     </None>
     <None Include="packages.config" />
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\client\x64\Release\Ice_scope_client.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\server\x64\Release\Ice_scope_server.dll">
+      <Filter>Tests\x64\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\client\x64\Debug\Ice_scope_client.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\server\x64\Debug\Ice_scope_server.dll">
+      <Filter>Tests\x64\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\server\Win32\Debug\Ice_scope_server.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\client\Win32\Debug\Ice_scope_client.dll">
+      <Filter>Tests\Win32\Debug</Filter>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\client\Win32\Release\Ice_scope_client.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
+    <None Include="..\..\..\Ice\scope\msbuild\uwp\server\Win32\Release\Ice_scope_server.dll">
+      <Filter>Tests\Win32\Release</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <SliceCompile Include="..\..\..\..\..\scripts\Controller.ice">

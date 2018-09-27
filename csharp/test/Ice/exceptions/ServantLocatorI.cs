@@ -7,19 +7,25 @@
 //
 // **********************************************************************
 
-public sealed class ServantLocatorI : Ice.ServantLocator
+namespace Ice
 {
-    public Ice.Object locate(Ice.Current curr, out System.Object cookie)
+    namespace exceptions
     {
-        cookie = null;
-        return null;
-    }
+        public sealed class ServantLocatorI : Ice.ServantLocator
+        {
+            public Ice.Object locate(Ice.Current curr, out System.Object cookie)
+            {
+                cookie = null;
+                return null;
+            }
 
-    public void finished(Ice.Current curr, Ice.Object servant, System.Object cookie)
-    {
-    }
+            public void finished(Ice.Current curr, Ice.Object servant, System.Object cookie)
+            {
+            }
 
-    public void deactivate(string category)
-    {
+            public void deactivate(string category)
+            {
+            }
+        }
     }
 }

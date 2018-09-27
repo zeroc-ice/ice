@@ -262,9 +262,6 @@ namespace IceInternal
         public static Socket createServerSocket(bool udp, AddressFamily family, int protocol)
         {
             Socket socket = createSocket(udp, family);
-            //
-            // The IPv6Only enumerator was added in .NET 4.
-            //
             if(family == AddressFamily.InterNetworkV6 && protocol != EnableIPv4)
             {
                 try
@@ -449,7 +446,7 @@ namespace IceInternal
                 {
                     socket.SetSocketOption(SocketOptionLevel.IP,
                                            SocketOptionName.MulticastInterface,
-                                           IPAddress.HostToNetworkOrder(getInterfaceIndex(iface, family)));
+                                           getInterfaceAddress(iface, family).GetAddressBytes());
                 }
                 else
                 {
@@ -471,25 +468,26 @@ namespace IceInternal
                 var indexes = new HashSet<int>();
                 foreach(string intf in getInterfacesForMulticast(iface, getProtocolSupport(group)))
                 {
-                    int index = getInterfaceIndex(intf, group.AddressFamily);
-                    if(!indexes.Contains(index))
+                    if(group.AddressFamily == AddressFamily.InterNetwork)
                     {
-                        indexes.Add(index);
-                        if(group.AddressFamily == AddressFamily.InterNetwork)
+                        MulticastOption option;
+                        IPAddress addr = getInterfaceAddress(intf, group.AddressFamily);
+                        if(addr == null)
                         {
-                            MulticastOption option;
-                            if(index == -1)
-                            {
-                                option = new MulticastOption(group);
-                            }
-                            else
-                            {
-                                option = new MulticastOption(group, index);
-                            }
-                            s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
+                            option = new MulticastOption(group);
                         }
                         else
                         {
+                            option = new MulticastOption(group, addr);
+                        }
+                        s.SetSocketOption(SocketOptionLevel.IP, SocketOptionName.AddMembership, option);
+                    }
+                    else
+                    {
+                        int index = getInterfaceIndex(intf, group.AddressFamily);
+                        if(!indexes.Contains(index))
+                        {
+                            indexes.Add(index);
                             IPv6MulticastOption option;
                             if(index == -1)
                             {
@@ -1177,6 +1175,88 @@ namespace IceInternal
             {
             }
             return null;
+        }
+
+        private static IPAddress
+        getInterfaceAddress(string iface, AddressFamily family)
+        {
+            if(iface.Length == 0)
+            {
+                return null;
+            }
+
+            //
+            // The iface parameter must either be an IP address, an
+            // index or the name of an interface. If it's an index we
+            // just return it. If it's an IP addess we search for an
+            // interface which has this IP address. If it's a name we
+            // search an interface with this name.
+            //
+
+            try
+            {
+                return IPAddress.Parse(iface);
+            }
+            catch(FormatException)
+            {
+            }
+
+            NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
+            try
+            {
+                int index = int.Parse(iface, CultureInfo.InvariantCulture);
+                foreach(NetworkInterface ni in nics)
+                {
+                    IPInterfaceProperties ipProps = ni.GetIPProperties();
+                    int interfaceIndex = -1;
+                    if(family == AddressFamily.InterNetwork)
+                    {
+                        IPv4InterfaceProperties ipv4Props = ipProps.GetIPv4Properties();
+                        if(ipv4Props != null && ipv4Props.Index == index)
+                        {
+                            interfaceIndex = ipv4Props.Index;
+                        }
+                    }
+                    else
+                    {
+                        IPv6InterfaceProperties ipv6Props = ipProps.GetIPv6Properties();
+                        if(ipv6Props != null && ipv6Props.Index == index)
+                        {
+                            interfaceIndex = ipv6Props.Index;
+                        }
+                    }
+                    if(interfaceIndex >= 0)
+                    {
+                        foreach(UnicastIPAddressInformation a in ipProps.UnicastAddresses)
+                        {
+                            if(a.Address.AddressFamily == family)
+                            {
+                                return a.Address;
+                            }
+                        }
+                    }
+                }
+            }
+            catch(FormatException)
+            {
+            }
+
+            foreach(NetworkInterface ni in nics)
+            {
+                if(ni.Name == iface)
+                {
+                    IPInterfaceProperties ipProps = ni.GetIPProperties();
+                    foreach(UnicastIPAddressInformation a in ipProps.UnicastAddresses)
+                    {
+                        if(a.Address.AddressFamily == family)
+                        {
+                            return a.Address;
+                        }
+                    }
+                }
+            }
+
+            throw new ArgumentException("couldn't find interface `" + iface + "'");
         }
 
         private static int

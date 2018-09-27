@@ -37,14 +37,14 @@
     <Compile Include="..\..\..\..\..\TestCommon\TestHelper.cs">
       <Link>TestHelper.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\EmptyI.cs">
-      <Link>EmptyI.cs</Link>
+    <Compile Include="..\..\..\EmptyAMDI.cs">
+      <Link>EmptyAMDI.cs</Link>
     </Compile>
     <Compile Include="..\..\..\ServantLocatorI.cs">
       <Link>ServantLocatorI.cs</Link>
     </Compile>
-    <Compile Include="..\..\..\Server.cs">
-      <Link>Server.cs</Link>
+    <Compile Include="..\..\..\ServerAMD.cs">
+      <Link>ServerAMD.cs</Link>
     </Compile>
     <Compile Include="..\..\..\ThrowerAMDI.cs">
       <Link>ThrowerAMDI.cs</Link>

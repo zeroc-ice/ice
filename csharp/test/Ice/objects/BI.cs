@@ -7,17 +7,21 @@
 //
 // **********************************************************************
 
-using Test;
-
-public sealed class BI : B
+namespace Ice
 {
-    public override void ice_preMarshal()
+    namespace objects
     {
-        preMarshalInvoked = true;
-    }
+        public sealed class BI : Test.B
+        {
+            public override void ice_preMarshal()
+            {
+                preMarshalInvoked = true;
+            }
 
-    public override void ice_postUnmarshal()
-    {
-        postUnmarshalInvoked = true;
+            public override void ice_postUnmarshal()
+            {
+                postUnmarshalInvoked = true;
+            }
+        }
     }
 }

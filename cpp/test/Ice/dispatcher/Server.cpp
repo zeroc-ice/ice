@@ -41,27 +41,29 @@ Server::run(int argc, char** argv)
 #else
     initData.dispatcher = new Dispatcher();
 #endif
-    Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
+    // The communicator must be destroyed before the dispatcher is terminated.
+    {
+        Ice::CommunicatorHolder communicator = initialize(argc, argv, initData);
 
-    communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
-    communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
-    communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
+        communicator->getProperties()->setProperty("TestAdapter.Endpoints", getTestEndpoint());
+        communicator->getProperties()->setProperty("ControllerAdapter.Endpoints", getTestEndpoint(1, "tcp"));
+        communicator->getProperties()->setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-    Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
-    Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TestAdapter");
+        Ice::ObjectAdapterPtr adapter2 = communicator->createObjectAdapter("ControllerAdapter");
 
-    TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
+        TestIntfControllerIPtr testController = ICE_MAKE_SHARED(TestIntfControllerI, adapter);
 
-    adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
-    adapter->activate();
+        adapter->add(ICE_MAKE_SHARED(TestIntfI), Ice::stringToIdentity("test"));
+        adapter->activate();
 
-    adapter2->add(testController, Ice::stringToIdentity("testController"));
-    adapter2->activate();
+        adapter2->add(testController, Ice::stringToIdentity("testController"));
+        adapter2->activate();
 
-    serverReady();
+        serverReady();
 
-    communicator->waitForShutdown();
-
+        communicator->waitForShutdown();
+    }
     Dispatcher::terminate();
 }
 

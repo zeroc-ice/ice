@@ -102,22 +102,22 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <TargetName>Ice_operations_client</TargetName>
+    <TargetName>Ice_scope_client</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <TargetName>Ice_operations_client</TargetName>
+    <TargetName>Ice_scope_client</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <TargetName>Ice_operations_client</TargetName>
+    <TargetName>Ice_scope_client</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|ARM'">
-    <TargetName>Ice_operations_client</TargetName>
+    <TargetName>Ice_scope_client</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <TargetName>Ice_operations_client</TargetName>
+    <TargetName>Ice_scope_client</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|ARM'">
-    <TargetName>Ice_operations_client</TargetName>
+    <TargetName>Ice_scope_client</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -154,13 +154,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\AllTests.cpp" />
-    <ClCompile Include="..\..\..\BatchOneways.cpp" />
-    <ClCompile Include="..\..\..\BatchOnewaysAMI.cpp" />
     <ClCompile Include="..\..\..\Client.cpp" />
-    <ClCompile Include="..\..\..\Oneways.cpp" />
-    <ClCompile Include="..\..\..\OnewaysAMI.cpp" />
-    <ClCompile Include="..\..\..\Twoways.cpp" />
-    <ClCompile Include="..\..\..\TwowaysAMI.cpp" />
     <ClCompile Include="ARM\Debug\Test.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>

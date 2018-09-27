@@ -1,0 +1,45 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+//
+// This copy of Ice is licensed to you under the terms described in the
+// ICE_LICENSE file included in this distribution.
+//
+// **********************************************************************
+
+namespace Ice
+{
+    namespace proxy
+    {
+        namespace AMD
+        {
+            public class Server : global::Test.TestHelper
+            {
+                public override void run(string[] args)
+                {
+                    var properties = createTestProperties(ref args);
+                    //
+                    // We don't want connection warnings because of the timeout test.
+                    //
+                    properties.setProperty("Ice.Warn.Connections", "0");
+                    properties.setProperty("Ice.Warn.Dispatch", "0");
+                    properties.setProperty("Ice.Package.Test", "Ice.proxy");
+                    using(var communicator = initialize(properties))
+                    {
+                        communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                        var adapter = communicator.createObjectAdapter("TestAdapter");
+                        adapter.add(new MyDerivedClassI(), Ice.Util.stringToIdentity("test"));
+                        adapter.activate();
+                        serverReady();
+                        communicator.waitForShutdown();
+                    }
+                }
+
+                public static int Main(string[] args)
+                {
+                    return global::Test.TestDriver.runTest<Server>(args);
+                }
+            }
+        }
+    }
+}

@@ -7,29 +7,29 @@
 //
 // **********************************************************************
 
-using System;
-using System.Diagnostics;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace enums
     {
-        using(var communicator = initialize(ref args))
+        public class Client : TestHelper
         {
-            Test.TestIntfPrx proxy = AllTests.allTests(this);
-            proxy.shutdown();
-        }
-    }
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.enums");
+                using(var communicator = initialize(properties))
+                {
+                    var proxy = AllTests.allTests(this);
+                    proxy.shutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

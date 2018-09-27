@@ -7,54 +7,55 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Server : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace location
     {
-        //
-        // Register the server manager. The server manager creates a new
-        // 'server' (a server isn't a different process, it's just a new
-        // communicator and object adapter).
-        //
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-
-        using(var communicator = initialize(properties))
+        public class Server : TestHelper
         {
-            communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
+            public override void run(string[] args)
+            {
+                //
+                // Register the server manager. The server manager creates a new
+                // 'server'(a server isn't a different process, it's just a new
+                // communicator and object adapter).
+                //
+                Ice.Properties properties = createTestProperties(ref args);
+                properties.setProperty("Ice.ThreadPool.Server.Size", "2");
+                properties.setProperty("Ice.Package.Test", "Ice.location");
 
-            //
-            // We also register a sample server locator which implements the
-            // locator interface, this locator is used by the clients and the
-            // 'servers' created with the server manager interface.
-            //
-            ServerLocatorRegistry registry = new ServerLocatorRegistry();
-            Ice.Object @object = new ServerManagerI(registry, this);
-            adapter.add(@object, Ice.Util.stringToIdentity("ServerManager"));
-            registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
-            Ice.LocatorRegistryPrx registryPrx =
-                Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry, Ice.Util.stringToIdentity("registry")));
+                using(var communicator = initialize(properties))
+                {
+                    communicator.getProperties().setProperty("ServerManagerAdapter.Endpoints", getTestEndpoint(0));
+                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("ServerManagerAdapter");
 
-            ServerLocator locator = new ServerLocator(registry, registryPrx);
-            adapter.add(locator, Ice.Util.stringToIdentity("locator"));
+                    //
+                    // We also register a sample server locator which implements the
+                    // locator interface, this locator is used by the clients and the
+                    // 'servers' created with the server manager interface.
+                    //
+                    ServerLocatorRegistry registry = new ServerLocatorRegistry();
+                    Ice.Object @object = new ServerManagerI(registry, this);
+                    adapter.add(@object, Ice.Util.stringToIdentity("ServerManager"));
+                    registry.addObject(adapter.createProxy(Ice.Util.stringToIdentity("ServerManager")));
+                    Ice.LocatorRegistryPrx registryPrx =
+                        Ice.LocatorRegistryPrxHelper.uncheckedCast(adapter.add(registry, Ice.Util.stringToIdentity("registry")));
 
-            adapter.activate();
-            communicator.waitForShutdown();
+                    ServerLocator locator = new ServerLocator(registry, registryPrx);
+                    adapter.add(locator, Ice.Util.stringToIdentity("locator"));
+
+                    adapter.activate();
+                    serverReady();
+                    communicator.waitForShutdown();
+                }
+            }
+
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Server>(args);
+            }
         }
-    }
-
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
     }
 }

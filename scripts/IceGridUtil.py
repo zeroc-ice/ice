@@ -252,8 +252,8 @@ class IceGridTestCase(TestCase):
             varStr = " ".join(["{0}={1}".format(k, val(v, True)) for k,v in variables.items()])
             targets = " ".join(self.targets)
             application = self.application
-            if current.config.netframework == "netcoreapp2.0":
-                application = application.replace(".xml", ".{0}.xml".format("netcoreapp2.0"))
+            if isinstance(self.mapping, CSharpMapping) and current.config.dotnetcore:
+                application = application.replace(".xml", ".netcoreapp.xml")
             self.runadmin(current, "application add -n {0} {1} {2}".format(application, varStr, targets))
 
     def teardownClientSide(self, current, success):

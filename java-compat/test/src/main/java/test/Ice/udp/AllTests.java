@@ -135,9 +135,9 @@ public class AllTests
             // We occasionally encounter an IOException("No buffer space is available") on Linux/Android
             // when using a large packet (e.g., 50K), so we use a smaller value here.
             //
-            communicator.getProperties().setProperty("Ice.UDP.SndSize", "25000");
+            communicator.getProperties().setProperty("Ice.UDP.SndSize", "64000");
             obj.ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
-            seq = new byte[24000];
+            seq = new byte[50000];
             try
             {
                 replyI.reset();

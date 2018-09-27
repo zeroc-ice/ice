@@ -14,43 +14,51 @@
 
   <ItemGroup>
     <Projects Include="$(MSBuildThisFileDirectory)cpp\msbuild\ice.proj">
-      <Configuration>$(Configuration)</Configuration>
+      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
     <Projects Include="$(MSBuildThisFileDirectory)csharp\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
-      <Configuration>$(Configuration)</Configuration>
+      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
     <Projects Include="$(MSBuildThisFileDirectory)java\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
-      <Configuration>$(Configuration)</Configuration>
+      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
     <Projects Include="$(MSBuildThisFileDirectory)java-compat\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' != 'v100'">
-      <Configuration>$(Configuration)</Configuration>
+      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
     <!-- For PHP build both thread safe and non thread safe configurations -->
     <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
-      <Configuration>$(Configuration)</Configuration>
+      <Properties>Platform=$(Platform);Configuration=$(Configuration);BuildWithPhpVersion=7.1</Properties>
     </Projects>
 
     <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
-      <Configuration>NTS-$(Configuration)</Configuration>
+      <Properties>Platform=$(Platform);Configuration=NTS-$(Configuration);BuildWithPHPVersion=7.1</Properties>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v141'">
+      <Properties>Platform=$(Platform);Configuration=$(Configuration);BuildWithPhpVersion=7.2</Properties>
+    </Projects>
+
+    <Projects Include="$(MSBuildThisFileDirectory)php\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v141'">
+      <Properties>Platform=$(Platform);Configuration=NTS-$(Configuration);BuildWithPHPVersion=7.2</Properties>
     </Projects>
 
     <Projects Include="$(MSBuildThisFileDirectory)js\msbuild\ice.proj">
-      <Configuration>$(Configuration)</Configuration>
+      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
 
     <Projects Include="$(MSBuildThisFileDirectory)python\msbuild\ice.proj" Condition="'$(DefaultPlatformToolset)' == 'v140'">
-      <Configuration>$(Configuration)</Configuration>
+      <Properties>Platform=$(Platform);Configuration=$(Configuration)</Properties>
     </Projects>
   </ItemGroup>
 
   <Target Name="Build">
     <MSBuild Projects="@(Projects)"
              BuildInParallel="false"
-             Properties="Platform=$(Platform);Configuration=%(Configuration)" />
+             Properties="%(Properties)" />
   </Target>
 
   <Target Name="Clean">

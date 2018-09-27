@@ -19,5 +19,11 @@ namespace IceSSL
         {
             return new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
         }
+
+        public static void
+        registerIceSSL(bool loadOnInitialize)
+        {
+            Ice.Util.registerPluginFactory("IceSSL", new PluginFactory(), loadOnInitialize);
+        }
     }
 }

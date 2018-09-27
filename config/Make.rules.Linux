@@ -38,7 +38,7 @@ system-install-dir              := $(OECORE_TARGET_SYSROOT)/usr
 # distribution from $(OECORE_TARGET_SYSROOT) on the build platform.
 ice_bindir[$(build-platform)]   = $(if $(ice_system_install),$(OECORE_NATIVE_SYSROOT)/usr/bin)
 
-else ifneq ($(filter centos rhel fedora,$(linux_id)),)
+else ifneq ($(and $(filter centos rhel fedora,$(linux_id)),$(filter x86_64 i%86,$(shell uname -m))),)
 
 #
 # MultiLib Linux (x64 libraries go in the lib64 directory, x86 executable names are suffixed with 32)

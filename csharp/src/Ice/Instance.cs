@@ -672,7 +672,38 @@ namespace IceInternal
 
         public Type resolveClass(string id)
         {
-            Type c = AssemblyUtil.findType(this, typeToClass(id));
+            string className = typeToClass(id);
+
+            Type c = AssemblyUtil.findType(this, className);
+
+            //
+            // See if the application defined an Ice.Package.MODULE property.
+            //
+            if(c == null)
+            {
+                int pos = id.IndexOf(':', 2);
+                if(pos != -1)
+                {
+                    String topLevelModule = id.Substring(2, pos - 2);
+                    String pkg = _initData.properties.getProperty("Ice.Package." + topLevelModule);
+                    if(pkg.Length > 0)
+                    {
+                        c = AssemblyUtil.findType(this, pkg + "." + className);
+                    }
+                }
+            }
+
+            //
+            // See if the application defined a default package.
+            //
+            if(c == null)
+            {
+                String pkg = _initData.properties.getProperty("Ice.Default.Package");
+                if(pkg.Length > 0)
+                {
+                    c = AssemblyUtil.findType(this, pkg + "." + className);
+                }
+            }
 
             //
             // Ensure the class is instantiable.

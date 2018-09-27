@@ -9,6 +9,7 @@
 
 #pragma once
 
+[["cs:namespace:Ice.scope"]]
 module Test
 {
     struct S
@@ -112,4 +113,30 @@ module Test
         dictionary<string, I*> IMap;
         sequence<I*> ISeq;
     }
+}
+
+module Inner
+{
+
+module Test
+{
+
+module Inner2
+{
+    interface I
+    {
+        Test::S opS(Test::S s1, out Test::S s2);
+        Test::SSeq opSSeq(Test::SSeq s1, out Test::SSeq s2);
+        Test::SMap opSMap(Test::SMap s1, out Test::SMap s2);
+
+        Test::C opC(Test::C c1, out Test::C c2);
+        Test::CSeq opCSeq(Test::CSeq c1, out Test::CSeq c2);
+        Test::CMap opCMap(Test::CMap c1, out Test::CMap c2);
+
+        void shutdown();
+    }
+}
+
+}
+
 }

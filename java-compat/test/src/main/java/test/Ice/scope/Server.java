@@ -190,6 +190,56 @@ public class Server extends test.TestHelper
         }
     }
 
+    class I4 extends test.Ice.scope.Inner.Test.Inner2._IDisp
+    {
+        public test.Ice.scope.Test.S
+        opS(test.Ice.scope.Test.S s1, test.Ice.scope.Test.SHolder s2, Ice.Current current)
+        {
+            s2.value = s1;
+            return s1;
+        }
+
+        public test.Ice.scope.Test.S[]
+        opSSeq(test.Ice.scope.Test.S[] s1, test.Ice.scope.Test.SSeqHolder s2, Ice.Current current)
+        {
+            s2.value = s1;
+            return s1;
+        }
+
+        public java.util.Map<String, test.Ice.scope.Test.S>
+        opSMap(java.util.Map<String, test.Ice.scope.Test.S> s1, test.Ice.scope.Test.SMapHolder s2, Ice.Current current)
+        {
+            s2.value = s1;
+            return s1;
+        }
+
+        public test.Ice.scope.Test.C
+        opC(test.Ice.scope.Test.C c1, test.Ice.scope.Test.CHolder c2, Ice.Current current)
+        {
+            c2.value = c1;
+            return c1;
+        }
+
+        public test.Ice.scope.Test.C[]
+        opCSeq(test.Ice.scope.Test.C[] c1, test.Ice.scope.Test.CSeqHolder c2, Ice.Current current)
+        {
+            c2.value = c1;
+            return c1;
+        }
+
+        public java.util.Map<String, test.Ice.scope.Test.C>
+        opCMap(java.util.Map<String, test.Ice.scope.Test.C> c1, test.Ice.scope.Test.CMapHolder c2, Ice.Current current)
+        {
+            c2.value = c1;
+            return c1;
+        }
+
+        public void shutdown(Ice.Current current)
+        {
+            current.adapter.getCommunicator().shutdown();
+        }
+    }
+
     public void run(String[] args)
     {
         Ice.Properties properties = createTestProperties(args);
@@ -201,6 +251,7 @@ public class Server extends test.TestHelper
             adapter.add(new I1(), Ice.Util.stringToIdentity("i1"));
             adapter.add(new I2(), Ice.Util.stringToIdentity("i2"));
             adapter.add(new I3(), Ice.Util.stringToIdentity("i3"));
+            adapter.add(new I4(), Ice.Util.stringToIdentity("i4"));
             adapter.activate();
             serverReady();
             communicator.waitForShutdown();

@@ -375,22 +375,12 @@ public class ControllerApp extends Application
                     });
 
                 _helper.run(_args);
-                synchronized(this)
-                {
-                    _status = 0;
-                    _completed = true;
-                    notifyAll();
-                }
+                completed(0);
             }
             catch(Exception ex)
             {
                 ex.printStackTrace(_helper.getWriter());
-                synchronized(this)
-                {
-                    _status = -1;
-                    _completed = true;
-                    notifyAll();
-                }
+                completed(-1);
             }
         }
 
@@ -407,16 +397,16 @@ public class ControllerApp extends Application
             return _out.toString();
         }
 
+        synchronized public void serverReady()
+        {
+            _ready = true;
+            notifyAll();
+        }
+
         synchronized private void completed(int status)
         {
             _completed = true;
             _status = status;
-            notifyAll();
-        }
-
-        synchronized public void serverReady()
-        {
-            _ready = true;
             notifyAll();
         }
 

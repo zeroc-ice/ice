@@ -5,7 +5,7 @@ group: travis_latest
 
 env:
   global:
-  - DOCKER_BASE_TAG=3.7-ubuntu-16.04
+  - DOCKER_BASE_TAG=3.7-ubuntu-18.04
   - DOCKER_BASE_IMAGE=zerocci/ice-base:${DOCKER_BASE_TAG}
   - DOCKER_BUILD_IMAGE=zerocci/ice-travis-build:${TRAVIS_BUILD_NUMBER}
   - DOCKER_BUILD_CPP11_IMAGE=zerocci/ice-travis-build:${TRAVIS_BUILD_NUMBER}-cpp11
@@ -18,8 +18,6 @@ jobs:
   include:
     - stage: Build
       script:
-      # see https://github.com/travis-ci/travis-ci/issues/8920
-      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
       - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
       - |
         echo "FROM ${DOCKER_BASE_IMAGE}" >> Dockerfile
@@ -27,27 +25,22 @@ jobs:
       - docker build --cache-from ${DOCKER_BASE_IMAGE} -t ${DOCKER_BUILD_IMAGE} .
       - docker push ${DOCKER_BUILD_IMAGE}
 
-    - stage: Build C++11
-      script:
-      # see https://github.com/travis-ci/travis-ci/issues/8920
-      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
-      - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
-      - |
-        echo "FROM ${DOCKER_BUILD_IMAGE}" >> Dockerfile
-        echo "RUN make -C cpp ${MAKEFLAGS} CONFIGS='cpp11-shared'" >> Dockerfile
-      - docker build --cache-from ${DOCKER_BUILD_IMAGE} -t ${DOCKER_BUILD_CPP11_IMAGE} .
-      - docker push ${DOCKER_BUILD_CPP11_IMAGE}
+    # - stage: Build C++11
+    #   script:
+    #   - docker login --username "${DOCKER_USERNAME}" --password "${DOCKER_PASSWORD}"
+    #   - |
+    #     echo "FROM ${DOCKER_BUILD_IMAGE}" >> Dockerfile
+    #     echo "RUN make -C cpp ${MAKEFLAGS} CONFIGS='cpp11-shared'" >> Dockerfile
+    #   - docker build --cache-from ${DOCKER_BUILD_IMAGE} -t ${DOCKER_BUILD_CPP11_IMAGE} .
+    #   - docker push ${DOCKER_BUILD_CPP11_IMAGE}
 
     - &test-staging
       stage: Test
-      before_script:
-      # see https://github.com/travis-ci/travis-ci/issues/8920
-      - python -c "import fcntl; fcntl.fcntl(1, fcntl.F_SETFL, 0)"
       script: $DOCKER_RUN "${ALLTESTS} --language=cpp"
       env: comment=C++
-    - <<: *test-staging
-      script: $DOCKER_RUN_CPP11 "${ALLTESTS} --language=cpp --config=cpp11-shared"
-      env: comment=C++11
+    # - <<: *test-staging
+    #   script: $DOCKER_RUN_CPP11 "${ALLTESTS} --language=cpp --config=cpp11-shared"
+    #   env: comment=C++11
     - <<: *test-staging
       script: $DOCKER_RUN "${ALLTESTS} --language=csharp"
       env: comment=C#

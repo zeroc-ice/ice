@@ -7,68 +7,69 @@
 //
 // **********************************************************************
 
-using System;
-using System.Reflection;
 using System.Linq;
+using Test;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class ServantLocatorI : Ice.ServantLocator
+namespace Ice
 {
-    public ServantLocatorI(bool async)
+    namespace invoke
     {
-        if(async)
+        public class ServantLocatorI : Ice.ServantLocator
         {
-            _blobject = new BlobjectAsyncI();
+            public ServantLocatorI(bool async)
+            {
+                if(async)
+                {
+                    _blobject = new BlobjectAsyncI();
+                }
+                else
+                {
+                    _blobject = new BlobjectI();
+                }
+            }
+
+            public Ice.Object
+            locate(Ice.Current current, out System.Object cookie)
+            {
+                cookie = null;
+                return _blobject;
+            }
+
+            public void
+            finished(Ice.Current current, Ice.Object servant, System.Object cookie)
+            {
+            }
+
+            public void
+            deactivate(string category)
+            {
+            }
+
+            private Ice.Object _blobject;
         }
-        else
+
+        public class Server : TestHelper
         {
-            _blobject = new BlobjectI();
+            public override void run(string[] args)
+            {
+                bool async = args.Any(v => v.Equals("--async"));
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Package.Test", "Ice.invoke");
+                using(var communicator = initialize(properties))
+                {
+                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
+                    adapter.addServantLocator(new ServantLocatorI(async), "");
+                    adapter.activate();
+                    serverReady();
+                    communicator.waitForShutdown();
+                }
+            }
+
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Server>(args);
+            }
         }
     }
-
-    public Ice.Object
-    locate(Ice.Current current, out System.Object cookie)
-    {
-        cookie = null;
-        return _blobject;
-    }
-
-    public void
-    finished(Ice.Current current, Ice.Object servant, System.Object cookie)
-    {
-    }
-
-    public void
-    deactivate(string category)
-    {
-    }
-
-    private Ice.Object _blobject;
-}
-
-public class Server : Test.TestHelper
-{
-    public override void run(string[] args)
-    {
-        bool async = args.Any(v => v.Equals("--async"));
-        using(var communicator = initialize(ref args))
-        {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");
-            adapter.addServantLocator(new ServantLocatorI(async), "");
-            adapter.activate();
-            communicator.waitForShutdown();
-        }
-    }
-
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Server>(args);
-    }
-
 }

@@ -10,9 +10,35 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.IO;
 
 namespace Test
 {
+    public interface ControllerHelper
+    {
+        string getOutput();
+        void join();
+        void completed(int status);
+        void run();
+        string loggerPrefix();
+        void print(string message);
+        void serverReady();
+        void shutdown();
+        void waitReady(int msec);
+        int waitSuccess(int msec);
+        void communicatorInitialized(Ice.Communicator communicator);
+    }
+
+    public interface PlatformAdapter
+    {
+        bool isEmulator();
+        bool registerProcessController();
+
+        string processControllerRegistryHost();
+
+        string processControllerIdentity();
+    }
+
     public abstract class TestHelper
     {
         public abstract void run(string[] args);
@@ -62,6 +88,23 @@ namespace Test
             return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
         }
 
+        public TextWriter getWriter()
+        {
+            if(_writer == null)
+            {
+                return Console.Out;
+            }
+            else
+            {
+                return _writer;
+            }
+        }
+
+        public void setWriter(TextWriter writer)
+        {
+            _writer = writer;
+        }
+
         public Ice.Properties createTestProperties(ref string[] args)
         {
             Ice.Properties properties = Ice.Util.createProperties(ref args);
@@ -69,39 +112,37 @@ namespace Test
             return properties;
         }
 
-        public Ice.Communicator initialize(ref string[] args, bool defaultCommunicator = true)
+        public Ice.Communicator initialize(ref string[] args)
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = createTestProperties(ref args);
-            return initialize(initData, defaultCommunicator);
+            return initialize(initData);
         }
 
-        public Ice.Communicator initialize(Ice.Properties properties, bool defaultCommunicator = true)
+        public Ice.Communicator initialize(Ice.Properties properties)
         {
             Ice.InitializationData initData = new Ice.InitializationData();
             initData.properties = properties;
-            return initialize(initData, defaultCommunicator);
+            return initialize(initData);
         }
-        public Ice.Communicator initialize(Ice.InitializationData initData, bool defaultCommunicator = true)
+
+        public Ice.Communicator initialize(Ice.InitializationData initData)
         {
             Ice.Communicator communicator = Ice.Util.initialize(initData);
-            if(defaultCommunicator)
+            if(_communicator == null)
             {
                 _communicator = communicator;
             }
+            if(_controllerHelper != null)
+            {
+                _controllerHelper.communicatorInitialized(communicator);
+            }
             return  communicator;
         }
+
         public Ice.Communicator communicator()
         {
             return _communicator;
-        }
-
-        public void shutdown()
-        {
-            if(_communicator != null)
-            {
-                _communicator.shutdown();
-            }
         }
 
         protected static void test(bool b)
@@ -113,7 +154,22 @@ namespace Test
             }
         }
 
+        public void setControllerHelper(ControllerHelper controllerHelper)
+        {
+            _controllerHelper = controllerHelper;
+        }
+
+        public void serverReady()
+        {
+            if (_controllerHelper != null)
+            {
+                _controllerHelper.serverReady();
+            }
+        }
+
         private Ice.Communicator _communicator;
+        private ControllerHelper _controllerHelper;
+        private TextWriter _writer;
     }
 
     public abstract class AllTests
@@ -125,21 +181,6 @@ namespace Test
                 Debug.Assert(false);
                 throw new Exception();
             }
-        }
-
-        public static void Write(string msg)
-        {
-            Console.Out.Write(msg);
-        }
-
-        public static void WriteLine(string msg)
-        {
-            Console.Out.WriteLine(msg);
-        }
-
-        public static void Flush()
-        {
-            Console.Out.Flush();
         }
     }
 

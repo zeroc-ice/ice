@@ -24,6 +24,7 @@ public class AllTests
         Callback()
         {
             _called = false;
+            _exception = null;
         }
 
         public synchronized void check()
@@ -38,8 +39,26 @@ public class AllTests
                 {
                 }
             }
-
+            if(_exception != null)
+            {
+                throw _exception;
+            }
             _called = false;
+        }
+
+        public synchronized void exception(Throwable ex)
+        {
+            assert(!_called);
+            _called = true;
+            if(ex instanceof RuntimeException)
+            {
+                _exception = (RuntimeException)ex;
+            }
+            else
+            {
+                _exception = new RuntimeException(ex);
+            }
+            notify();
         }
 
         public synchronized void called()
@@ -50,6 +69,7 @@ public class AllTests
         }
 
         private boolean _called;
+        private RuntimeException _exception;
     }
 
     private static void test(boolean b)
@@ -70,7 +90,8 @@ public class AllTests
         test(obj != null);
 
         int mult = 1;
-        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp"))
+        if(!communicator.getProperties().getPropertyWithDefault("Ice.Default.Protocol", "tcp").equals("tcp") ||
+           helper.isAndroid())
         {
             mult = 4;
         }
@@ -94,8 +115,7 @@ public class AllTests
                     {
                         if(ex != null)
                         {
-                            ex.printStackTrace();
-                            test(false);
+                            cb.exception(ex);
                         }
                         else
                         {
@@ -112,8 +132,7 @@ public class AllTests
                     {
                         if(ex != null)
                         {
-                            ex.printStackTrace();
-                            test(false);
+                            cb.exception(ex);
                         }
                         else
                         {
@@ -137,7 +156,7 @@ public class AllTests
                         }
                         else
                         {
-                            test(false);
+                            cb.exception(new RuntimeException());
                         }
                     }, dispatcher);
                 cb.check();
@@ -156,7 +175,7 @@ public class AllTests
                         }
                         else
                         {
-                            test(false);
+                            cb.exception(new RuntimeException());
                         }
                     }, p.ice_executor());
                 cb.check();
@@ -166,7 +185,7 @@ public class AllTests
                 //
                 // Expect InvocationTimeoutException.
                 //
-                TestIntfPrx to = p.ice_invocationTimeout(250);
+                TestIntfPrx to = p.ice_invocationTimeout(10);
                 final Callback cb = new Callback();
                 CompletableFuture<Void> r = to.sleepAsync(500 * mult);
                 r.whenCompleteAsync((result, ex) ->
@@ -179,7 +198,7 @@ public class AllTests
                         }
                         else
                         {
-                            test(false);
+                            cb.exception(new RuntimeException());
                         }
                     }, dispatcher);
                 com.zeroc.Ice.Util.getInvocationFuture(r).whenSentAsync((sentSynchronously, ex) ->
@@ -194,7 +213,7 @@ public class AllTests
                 //
                 // Expect InvocationTimeoutException.
                 //
-                TestIntfPrx to = p.ice_invocationTimeout(250);
+                TestIntfPrx to = p.ice_invocationTimeout(10);
                 final Callback cb = new Callback();
                 CompletableFuture<Void> r = to.sleepAsync(500 * mult);
                 r.whenCompleteAsync((result, ex) ->
@@ -207,7 +226,7 @@ public class AllTests
                         }
                         else
                         {
-                            test(false);
+                            cb.exception(new RuntimeException());
                         }
                     }, dispatcher);
                 com.zeroc.Ice.Util.getInvocationFuture(r).whenSentAsync((sentSynchronously, ex) ->

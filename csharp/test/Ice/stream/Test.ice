@@ -14,6 +14,8 @@
 //
 [["suppress-warning:invalid-metadata, deprecated"]]
 
+[["cs:namespace:Ice.stream"]]
+
 #include <Ice/BuiltinSequences.ice>
 
 module Test
@@ -147,7 +149,7 @@ sequence<Ice::StringSeq> StringSStack;
 ["clr:generic:SortedDictionary"]
 dictionary<string, string> SortedStringStringD;
 
-["clr:serializable:Serialize.Small"] sequence<byte> SerialSmall;
+["clr:serializable:Ice.stream.Serialize.Small"] sequence<byte> SerialSmall;
 
 class MyClass
 {

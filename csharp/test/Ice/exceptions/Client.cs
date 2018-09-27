@@ -8,32 +8,31 @@
 // **********************************************************************
 
 using Test;
-using System;
-using System.Reflection;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace exceptions
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.Warn.Connections", "0");
-        properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-        using(var communicator = initialize(properties))
+        public class Client : TestHelper
         {
-            communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
-            ThrowerPrx thrower = AllTests.allTests(this);
-            thrower.shutdown();
-        }
-    }
+            public override void run(string[] args)
+            {
+                Ice.Properties properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Warn.Connections", "0");
+                properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
+                properties.setProperty("Ice.Package.Test", "Ice.exceptions");
+                using(var communicator = initialize(properties))
+                {
+                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    var thrower = AllTests.allTests(this);
+                    thrower.shutdown();
+                }
+            }
 
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
+            public static int Main(string[] args)
+            {
+                return TestDriver.runTest<Client>(args);
+            }
+        }
     }
 }

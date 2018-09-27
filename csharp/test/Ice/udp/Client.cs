@@ -7,48 +7,46 @@
 //
 // **********************************************************************
 
-using Test;
 using System;
-using System.Reflection;
 
-[assembly: CLSCompliant(true)]
-
-[assembly: AssemblyTitle("IceTest")]
-[assembly: AssemblyDescription("Ice test")]
-[assembly: AssemblyCompany("ZeroC, Inc.")]
-
-public class Client : Test.TestHelper
+namespace Ice
 {
-    public override void run(string[] args)
+    namespace udp
     {
-        Ice.Properties properties = createTestProperties(ref args);
-        properties.setProperty("Ice.Warn.Connections", "0");
-        properties.setProperty("Ice.UDP.SndSize", "16384");
-
-        using(var communicator = initialize(properties))
+        public class Client : global::Test.TestHelper
         {
-            AllTests.allTests(this);
+            public override void run(string[] args)
+            {
+                var properties = createTestProperties(ref args);
+                properties.setProperty("Ice.Warn.Connections", "0");
+                properties.setProperty("Ice.UDP.SndSize", "16384");
+                properties.setProperty("Ice.Package.Test", "Ice.udp");
+                using(var communicator = initialize(properties))
+                {
+                    AllTests.allTests(this);
 
-            int num;
-            try
-            {
-                num = args.Length == 1 ? Int32.Parse(args[0]) : 0;
-            }
-            catch(FormatException)
-            {
-                num = 0;
+                    int num;
+                    try
+                    {
+                        num = args.Length == 1 ? Int32.Parse(args[0]) : 1;
+                    }
+                    catch(FormatException)
+                    {
+                        num = 1;
+                    }
+
+                    for(int i = 0; i < num; ++i)
+                    {
+                        var prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
+                        Test.TestIntfPrxHelper.uncheckedCast(prx).shutdown();
+                    }
+                }
             }
 
-            for(int i = 0; i < num; ++i)
+            public static int Main(string[] args)
             {
-                Ice.ObjectPrx prx = communicator.stringToProxy("control:" + getTestEndpoint(i, "tcp"));
-                TestIntfPrxHelper.uncheckedCast(prx).shutdown();
+                return global::Test.TestDriver.runTest<Client>(args);
             }
         }
-    }
-
-    public static int Main(string[] args)
-    {
-        return Test.TestDriver.runTest<Client>(args);
     }
 }

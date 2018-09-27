@@ -154,7 +154,7 @@ class BatchOneways
             initData.properties = properties._clone();
             BatchRequestInterceptorI interceptor = new BatchRequestInterceptorI();
             initData.batchRequestInterceptor = interceptor;
-            try(Ice.Communicator ic = helper.initialize(initData, false))
+            try(Ice.Communicator ic = helper.initialize(initData))
             {
                 batch = MyClassPrxHelper.uncheckedCast(ic.stringToProxy(p.toString()).ice_batchOneway());
 

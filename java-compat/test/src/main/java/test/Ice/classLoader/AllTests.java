@@ -86,7 +86,7 @@ public class AllTests
             initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
-            try(Ice.Communicator ic = helper.initialize(initData, false))
+            try(Ice.Communicator ic = helper.initialize(initData))
             {
                 test(classLoader.check("test.Ice.classLoader.Test._Marker"));
                 out.println("ok");
@@ -104,7 +104,7 @@ public class AllTests
             initData.properties.setProperty("Ice.Plugin.Test", "test.Ice.classLoader.PluginFactoryI");
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
-            try(Ice.Communicator ic = helper.initialize(initData, false))
+            try(Ice.Communicator ic = helper.initialize(initData))
             {
                 test(classLoader.check("test.Ice.classLoader.PluginFactoryI"));
                 out.println("ok");
@@ -124,7 +124,7 @@ public class AllTests
             initData.properties.setProperty("IceSSL.PasswordCallback", "test.Ice.classLoader.PasswordCallbackI");
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
-            try(Ice.Communicator ic = helper.initialize(initData, false))
+            try(Ice.Communicator ic = helper.initialize(initData))
             {
                 test(classLoader.check("test.Ice.classLoader.CertificateVerifierI"));
                 test(classLoader.check("test.Ice.classLoader.PasswordCallbackI"));
@@ -140,7 +140,7 @@ public class AllTests
             initData.properties = communicator.getProperties()._clone();
             MyClassLoader classLoader = new MyClassLoader(helper.getClassLoader());
             initData.classLoader = classLoader;
-            try(Ice.Communicator ic = helper.initialize(initData, false))
+            try(Ice.Communicator ic = helper.initialize(initData))
             {
 
                 String ref = "initial:" + helper.getTestEndpoint(0);

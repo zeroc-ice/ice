@@ -10,7 +10,7 @@
 #pragma once
 
 [["suppress-warning:deprecated"]]
-
+[["cs:namespace:Ice.optional.AMD"]]
 module Test
 {
 
@@ -62,7 +62,7 @@ sequence<VarStruct> VarStructSeq;
 sequence<OneOptional> OneOptionalSeq;
 sequence<OneOptional*> OneOptionalPrxSeq;
 
-["clr:serializable:Test.SerializableClass"]
+["clr:serializable:Ice.optional.Test.SerializableClass"]
 sequence<byte> Serializable;
 
 dictionary<int, int> IntIntDict;

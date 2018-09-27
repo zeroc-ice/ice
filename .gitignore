@@ -100,3 +100,13 @@ SliceCompile.command.*.log
 **/msbuild/packages/*
 **/msbuild/zeroc.ice.*
 *.nupkg
+
+**/netstandard2.0/netstandard2.0/*
+
+AppPackages
+BundleArtifacts
+csharp/xamarin/uwp/AppX
+*.deps.json
+*.runtimeconfig.dev.json
+*.runtimeconfig.json
+cpp/AppX

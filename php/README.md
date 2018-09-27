@@ -94,6 +94,13 @@ extension with namespaces disabled by setting the MSBuild property
 msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 ```
 
+The PHP extension is build by default using PHP 7.1, you can build with 7.2 by set
+MSBuildProperty `BuildWithPhpVersion` to `7.2`:
+
+```
+msbuild msbuild\ice.proj /p:BuildWithPhpVersion=7.2
+```
+
 The PHP extension depends on Ice for C++ components from the `cpp` subdirectory,
 and those are built if required. It is also possible to build the PHP extension
 using the Ice for C++ NuGet packages by setting the`ICE_BIN_DIST` msbuild

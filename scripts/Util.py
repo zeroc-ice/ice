@@ -23,10 +23,23 @@ import Expect
 
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
-def run(cmd, cwd=None, err=False):
-    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
+    if stdout:
+        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
+    else:
+        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
     try:
-        out = p.stdout.read().decode('UTF-8').strip()
+        if stdin:
+            try:
+                while True:
+                    p.stdin.write(stdin)
+                    if not stdinRepeat:
+                        break
+                    time.sleep(1)
+            except:
+                pass
+
+        out = (p.stderr if stdout else p.stdout).read().decode('UTF-8').strip()
         if(not err and p.wait() != 0) or (err and p.wait() == 0) :
             raise RuntimeError(cmd + " failed:\n" + out)
     finally:
@@ -35,7 +48,8 @@ def run(cmd, cwd=None, err=False):
         #
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
-        p.stdout.close()
+        (p.stderr if stdout else p.stdout).close()
+        p.stdin.close()
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
@@ -358,7 +372,7 @@ class Windows(Platform):
             elif isinstance(process, SliceTranslator):
                 return os.path.join(installDir, "tools")
             elif isinstance(mapping, CSharpMapping):
-                return os.path.join(installDir, "tools", current.config.netframework or "net45")
+                return os.path.join(installDir, "tools", mapping.getBinTargetFramework(current))
             elif process.isReleaseOnly():
                 # Some services are only available in release mode in the Nuget package
                 return os.path.join(installDir, "build", "native", "bin", platform, "Release")
@@ -366,7 +380,7 @@ class Windows(Platform):
                 return os.path.join(installDir, "build", "native", "bin", platform, config)
         else:
             if isinstance(mapping, CSharpMapping):
-                return os.path.join(installDir, "bin", current.config.netframework or "net45")
+                return os.path.join(installDir, "bin", mapping.getBinTargetFramework(current))
             elif isinstance(mapping, PhpMapping):
                 return os.path.join(self.getNugetPackageDir(component, mapping, current),
                                     "build", "native", "bin", platform, config)
@@ -376,7 +390,7 @@ class Windows(Platform):
     def _getLibDir(self, component, process, mapping, current):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
-            return os.path.join(installDir, "lib", "netstandard2.0" if current.config.netframework else "net45")
+            return os.path.join(installDir, "lib", mapping.getLibTargetFramework(current))
         else:
             platform = current.driver.configs[mapping].buildPlatform
             config = "Debug" if current.driver.configs[mapping].buildConfig.find("Debug") >= 0 else "Release"
@@ -402,7 +416,7 @@ class Windows(Platform):
         return None # No default installation directory on Windows
 
     def getNugetPackageDir(self, component, mapping, current):
-        if isinstance(mapping, CSharpMapping) and current.config.netframework == "netcoreapp2.0":
+        if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
             return Platform.getNugetPackageDir(self, component, mapping, current)
         else:
             package = "{0}.{1}".format(component.getNugetPackage(mapping, self.getPlatformToolset()),
@@ -531,7 +545,10 @@ class Mapping(object):
             self.device = ""
             self.avd = ""
             self.androidemulator = False
-            self.netframework = ""
+
+            self.phpVersion = "7.1"
+
+            self.dotnetcore = False
 
         def __str__(self):
             s = []
@@ -1224,7 +1241,7 @@ class IceProcess(Process):
 #
 class Server(IceProcess):
 
-    def __init__(self, exe=None, waitForShutdown=True, readyCount=1, ready=None, startTimeout=120, *args, **kargs):
+    def __init__(self, exe=None, waitForShutdown=True, readyCount=1, ready=None, startTimeout=300, *args, **kargs):
         IceProcess.__init__(self, exe, *args, **kargs)
         self.waitForShutdown = waitForShutdown
         self.readyCount = readyCount
@@ -2151,8 +2168,12 @@ class RemoteProcessController(ProcessController):
 class AndroidProcessController(RemoteProcessController):
 
     def __init__(self, current):
-        run("adb kill-server")
-        RemoteProcessController.__init__(self, current, "tcp -h 127.0.0.1 -p 15001" if current.config.androidemulator else None)
+        endpoint = None
+        if current.config.androidemulator:
+            endpoint = "tcp -h 127.0.0.1 -p 15001"
+        elif isinstance(current.testcase.getMapping(), XamarinMapping):
+            endpoint = "tcp -h 0.0.0.0 -p 15001"
+        RemoteProcessController.__init__(self, current, endpoint)
         self.device = current.config.device
         self.avd = current.config.avd
         self.emulator = None # Keep a reference to the android emulator process
@@ -2161,7 +2182,8 @@ class AndroidProcessController(RemoteProcessController):
         return "Android"
 
     def getControllerIdentity(self, current):
-        if isinstance(current.testcase.getMapping(), AndroidMapping):
+        if (isinstance(current.testcase.getMapping(), AndroidMapping) or
+            isinstance(current.testcase.getMapping(), XamarinAndroidMapping)):
             return "Android/ProcessController"
         else:
             return "AndroidCompat/ProcessController"
@@ -2191,7 +2213,7 @@ class AndroidProcessController(RemoteProcessController):
             raise RuntimeError("cannot find free port in range 5554-5584, to run android emulator")
 
         self.device = "emulator-{}".format(port)
-        cmd = "emulator -avd {0} -port {1} -noaudio -partition-size 768 -no-window -no-snapshot".format(avd, port)
+        cmd = "emulator -avd {0} -port {1} -noaudio -partition-size 768 -no-snapshot".format(avd, port)
         self.emulator = subprocess.Popen(cmd, shell=True)
 
         if self.emulator.poll():
@@ -2216,7 +2238,6 @@ class AndroidProcessController(RemoteProcessController):
             if (time.time() - t) > 300:
                 raise RuntimeError("couldn't start the Android emulator `{}'".format(avd))
             time.sleep(2)
-        print(" ok")
 
     def startControllerApp(self, current, ident):
 
@@ -2229,20 +2250,20 @@ class AndroidProcessController(RemoteProcessController):
         elif current.config.androidemulator:
             # Create Android Virtual Device
             sdk = current.testcase.getMapping().getSDKPackage()
+            print("creating virtual device ({0})... ".format(sdk))
             try:
                 run("avdmanager delete avd -n IceTests") # Delete the created device
             except:
                 pass
-            run("sdkmanager \"{0}\"".format(sdk))
+            run("sdkmanager \"{0}\"".format(sdk), stdout=True, stdin="yes", stdinRepeat=True) # yes to accept licenses
             run("avdmanager create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
             self.startEmulator("IceTests")
         elif not self.device:
             raise RuntimeError("no Android device specified to run the controller application")
 
-        apk = os.path.join(current.testcase.getMapping().getPath(),
-                           "controller/build/outputs/apk/debug/testController-debug.apk")
-        run("{} install -t -r {}".format(self.adb(), apk))
-        run("{} shell am start -n com.zeroc.testcontroller/.ControllerActivity".format(self.adb()))
+        run("{} install -t -r {}".format(self.adb(), current.testcase.getMapping().getApk(current)))
+        run("{} shell am start -n \"{}\" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER".format(
+            self.adb(), current.testcase.getMapping().getActivityName()))
 
     def stopControllerApp(self, ident):
         try:
@@ -2285,17 +2306,20 @@ class iOSSimulatorProcessController(RemoteProcessController):
 
     device = "iOSSimulatorProcessController"
     deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-6"
-    appPath = "ios/controller/build"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current)
+        endpoint = "tcp -h 0.0.0.0 -p 15001" if isinstance(current.testcase.getMapping(), XamarinMapping) else None
+        RemoteProcessController.__init__(self, current, endpoint)
         self.simulatorID = None
         self.runtimeID = None
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
-        for r in run("xcrun simctl list runtimes").split('\n'):
-            m = re.search("iOS .* \(.*\) - (.*)", r)
-            if m:
-                self.runtimeID = m.group(1)
+        try:
+            for r in run("xcrun simctl list runtimes").split('\n'):
+                m = re.search("iOS .* \(.*\) - (.*)", r)
+                if m:
+                    self.runtimeID = m.group(1)
+        except:
+            pass
         if not self.runtimeID:
             self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-11-0" # Default value
 
@@ -2303,26 +2327,11 @@ class iOSSimulatorProcessController(RemoteProcessController):
         return "iOS Simulator"
 
     def getControllerIdentity(self, current):
-        if isinstance(current.testcase.getMapping(), ObjCMapping):
-            if current.config.arc:
-                return "iPhoneSimulator/com.zeroc.ObjC-ARC-Test-Controller"
-            else:
-                return "iPhoneSimulator/com.zeroc.ObjC-Test-Controller"
-        elif isinstance(current.testcase.getMapping(), CppMapping):
-            if current.config.cpp11:
-                return "iPhoneSimulator/com.zeroc.Cpp11-Test-Controller"
-            else:
-                return "iPhoneSimulator/com.zeroc.Cpp98-Test-Controller"
-        else:
-            raise RuntimeError("can't run tests from the `{0}' mapping on iOS".format(current.testcase.getMapping()))
+        return current.testcase.getMapping().getIOSControllerIdentity(current)
 
     def startControllerApp(self, current, ident):
         mapping = current.testcase.getMapping()
-        if isinstance(mapping, ObjCMapping):
-            appName = "Objective-C ARC Test Controller.app" if current.config.arc else "Objective-C Test Controller.app"
-        else:
-            assert(isinstance(mapping, CppMapping))
-            appName = "C++11 Test Controller.app" if current.config.cpp11 else "C++98 Test Controller.app"
+        appFullPath = mapping.getIOSAppFullPath(current)
 
         sys.stdout.write("launching simulator... ")
         sys.stdout.flush()
@@ -2339,14 +2348,12 @@ class iOSSimulatorProcessController(RemoteProcessController):
                 raise
         print("ok")
 
-        sys.stdout.write("launching {0}... ".format(appName))
+        sys.stdout.write("launching {0}... ".format(os.path.basename(appFullPath)))
         sys.stdout.flush()
-        path = os.path.join(mapping.getTestsPath(), self.appPath, "Debug-iphonesimulator", appName)
-        if not os.path.exists(path):
-            path = os.path.join(mapping.getTestsPath(), self.appPath, "Release-iphonesimulator", appName)
-        if not os.path.exists(path):
+
+        if not os.path.exists(appFullPath):
             raise RuntimeError("couldn't find iOS simulator controller application, did you build it?")
-        run("xcrun simctl install \"{0}\" \"{1}\"".format(self.device, path))
+        run("xcrun simctl install \"{0}\" \"{1}\"".format(self.device, appFullPath))
         run("xcrun simctl launch \"{0}\" {1}".format(self.device, ident.name))
         print("ok")
 
@@ -2388,23 +2395,14 @@ class iOSDeviceProcessController(RemoteProcessController):
     appPath = "cpp/test/ios/controller/build"
 
     def __init__(self, current):
-        RemoteProcessController.__init__(self, current)
+        endpoint = "tcp -h 0.0.0.0 -p 15001" if isinstance(current.testcase.getMapping(), XamarinMapping) else None
+        RemoteProcessController.__init__(self, current, endpoint)
 
     def __str__(self):
         return "iOS Device"
 
     def getControllerIdentity(self, current):
-        if isinstance(current.testcase.getMapping(), ObjCMapping):
-            if current.config.arc:
-                return "iPhoneOS/com.zeroc.ObjC-ARC-Test-Controller"
-            else:
-                return "iPhoneOS/com.zeroc.ObjC-Test-Controller"
-        else:
-            assert(isinstance(current.testcase.getMapping(), CppMapping))
-            if current.config.cpp11:
-                return "iPhoneOS/com.zeroc.Cpp11-Test-Controller"
-            else:
-                return "iPhoneOS/com.zeroc.Cpp98-Test-Controller"
+        return current.testcase.getMapping().getIOSControllerIdentity(current)
 
     def startControllerApp(self, current, ident):
         # TODO: use ios-deploy to deploy and run the application on an attached device?
@@ -2417,8 +2415,8 @@ class UWPProcessController(RemoteProcessController):
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "tcp -h 127.0.0.1 -p 15001")
-        self.name = "ice-uwp-controller"
-        self.appUserModelId = "ice-uwp-controller_3qjctahehqazm"
+        self.name = current.testcase.getMapping().getUWPPackageName()
+        self.appUserModelId = current.testcase.getMapping().getUWPUserModelId()
 
     def __str__(self):
         return "UWP"
@@ -2429,14 +2427,10 @@ class UWPProcessController(RemoteProcessController):
     def startControllerApp(self, current, ident):
         platform = current.config.buildPlatform
         config = current.config.buildConfig
-        layout = os.path.join(toplevel, "cpp", "test", platform, config, "AppX")
+        arch = "X86" if platform == "Win32" else "X64"
 
-        arch = "x86" if platform == "Win32" else platform
-        self.packageFullName = "{0}_1.0.0.0_{1}__3qjctahehqazm".format(self.name, arch)
-
-        prefix = "controller_1.0.0.0_{0}{1}".format(platform, "_{0}".format(config) if config == "Debug" else "")
-        package = os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller",
-            "{0}_Test".format(prefix), "{0}.appx".format(prefix))
+        self.packageFullName = current.testcase.getMapping().getUWPPackageFullName(platform)
+        packageFullPath = current.testcase.getMapping().getUWPPackageFullPath(platform, config)
 
         #
         # If the application is already installed remove it, this will also take care
@@ -2449,19 +2443,19 @@ class UWPProcessController(RemoteProcessController):
         # Remove any previous package we have extracted to ensure we use a
         # fresh build
         #
+        layout = os.path.join(current.testcase.getMapping().getPath(), "AppX")
         if os.path.exists(layout):
             shutil.rmtree(layout)
         os.makedirs(layout)
 
-        print("Unpacking package: {0} to {1}....".format(os.path.basename(package), layout))
-        run("MakeAppx.exe unpack /p \"{0}\" /d \"{1}\" /l".format(package, layout))
+        print("Unpacking package: {0} to {1}....".format(os.path.basename(packageFullPath), layout))
+        run("MakeAppx.exe unpack /p \"{0}\" /d \"{1}\" /l".format(packageFullPath, layout))
 
         print("Registering application to run from layout...")
-        vclibs = "Microsoft.VCLibs.140.00.Debug" if config == "Debug" else "Microsoft.VCLibs.140.00"
-        if vclibs not in run("powershell Get-AppxPackage -Name {0}".format(vclibs)):
-            dependenciesDir = os.path.join(os.path.dirname(package), "Dependencies", arch)
-            run("powershell Add-AppxPackage -Path \"{0}\" -ForceApplicationShutdown".format(
-                os.path.join(dependenciesDir, "Microsoft.VCLibs.{0}.14.00.appx".format(arch))))
+
+        for root, dirs, files in os.walk(os.path.join(os.path.dirname(packageFullPath), "Dependencies", arch)):
+            for f in files:
+                self.installPackage(os.path.join(root, f), arch)
 
         run("powershell Add-AppxPackage -Register \"{0}/AppxManifest.xml\" -ForceApplicationShutdown".format(layout))
         run("CheckNetIsolation LoopbackExempt -a -n={0}".format(self.appUserModelId))
@@ -2481,6 +2475,19 @@ class UWPProcessController(RemoteProcessController):
             run("CheckNetIsolation LoopbackExempt -c -n={0}".format(self.appUserModelId))
         except:
             pass
+
+    def installPackage(self, package, arch):
+        packages = {
+            "Microsoft.VCLibs.x64.14.00.appx" : "Microsoft.VCLibs.140.00",
+            "Microsoft.VCLibs.x86.14.00.appx" : "Microsoft.VCLibs.140.00",
+            "Microsoft.VCLibs.x64.Debug.14.00.appx" : "Microsoft.VCLibs.140.00.Debug",
+            "Microsoft.VCLibs.x86.Debug.14.00.appx" : "Microsoft.VCLibs.140.00.Debug",
+            "Microsoft.NET.CoreRuntime.2.1.appx" : "Microsoft.NET.CoreRuntime.2.1"
+        }
+        packageName = packages[os.path.basename(package)]
+        output = run("powershell Get-AppxPackage -Name {0}".format(packageName))
+        if packageName not in output or "Architecture      : {0}".format(arch) not in output:
+            run("powershell Add-AppxPackage -Path \"{0}\" -ForceApplicationShutdown".format(package))
 
 class BrowserProcessController(RemoteProcessController):
 
@@ -2869,6 +2876,8 @@ class Driver:
                 processController = UWPProcessController
         elif process and isinstance(process.getMapping(current), JavaScriptMapping) and current.config.browser:
             processController = BrowserProcessController
+        elif process and isinstance(process.getMapping(current), XamarinUWPMapping):
+            processController = UWPProcessController
         elif process and isinstance(process.getMapping(current), AndroidMappingMixin):
             processController = AndroidProcessController
         else:
@@ -2991,6 +3000,40 @@ class CppMapping(Mapping):
             "collocated" : "Collocated.cpp",
         }[processType]
 
+    def getUWPPackageName(self):
+        return "ice-uwp-controller.cpp"
+
+    def getUWPUserModelId(self):
+        return "ice-uwp-controller.cpp_3qjctahehqazm"
+
+    def getUWPPackageFullName(self, platform):
+        return "{0}_1.0.0.0_{1}__3qjctahehqazm".format(self.getUWPPackageName(),
+                                                       "X86" if platform == "Win32" else platform)
+
+    def getUWPPackageFullPath(self, platform, config):
+        prefix = "controller_1.0.0.0_{0}{1}".format(platform, "_{0}".format(config) if config == "Debug" else "")
+        return os.path.join(toplevel, "cpp", "msbuild", "AppPackages", "controller",
+                            "{0}_Test".format(prefix), "{0}.appx".format(prefix))
+
+    def getIOSControllerIdentity(self, current):
+        if current.config.buildPlatform == "iphonesimulator":
+            return ("iPhoneSimulator/com.zeroc.Cpp11-Test-Controller" if current.config.cpp11 else
+                    "iPhoneSimulator/com.zeroc.Cpp98-Test-Controller")
+        else:
+            return ("iPhoneOS/com.zeroc.Cpp11-Test-Controller" if current.config.cpp11 else
+                    "iPhoneOS/com.zeroc.Cpp98-Test-Controller")
+
+    def getIOSAppName(self, current):
+        return "C++11 Test Controller.app" if current.config.cpp11 else "C++98 Test Controller.app"
+
+    def getIOSAppFullPath(self, current):
+        path = os.path.join(self.getTestsPath(), "ios/controller/build", "Debug-iphonesimulator",
+                            self.getIOSAppName(current))
+        if not os.path.exists(path):
+            path = os.path.join(self.getTestsPath(), "ios/controller/build", "Release-iphonesimulator",
+                                self.getIOSAppName(Current))
+        return path
+
 class JavaMapping(Mapping):
 
     def getCommandLine(self, current, process, exe, args):
@@ -3100,6 +3143,12 @@ class AndroidMappingMixin():
     def getCommonTestsPath(self):
         return os.path.join(self.path, "..", "..", "scripts", "tests")
 
+    def getApk(self, current):
+        return os.path.join(self.getPath(), "controller", "build", "outputs", "apk", "debug", "testController-debug.apk")
+
+    def getActivityName(self):
+        return "com.zeroc.testcontroller/.ControllerActivity"
+
 class AndroidMapping(AndroidMappingMixin, JavaMapping): # Note: the inheritance order is important
 
     def __init__(self):
@@ -3107,7 +3156,7 @@ class AndroidMapping(AndroidMappingMixin, JavaMapping): # Note: the inheritance 
         AndroidMappingMixin.__init__(self, JavaMapping)
 
     def getSDKPackage(self):
-        return "system-images;android-25;google_apis;x86_64"
+        return "system-images;android-27;google_apis;x86"
 
 class AndroidCompatMapping(AndroidMappingMixin, JavaCompatMapping): # Note: the inheritance order is important
 
@@ -3124,36 +3173,34 @@ class CSharpMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["netframework="])
+            return ("", ["dotnetcore"])
 
         @classmethod
         def usage(self):
             print("")
-            print("--netframework           Run C# tests using Ice netstandard2.0 libraries and tests")
-            print("                         build with given .NET Framework [netcoreapp2.0|net4.6]")
+            print("--dotnetcore             Run C# tests using .NET Core")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
-            parseOptions(self, options, { "netframework" : "netframework" })
-            #
-            # For non Windows platforms the default is netcoreapp2.0 for windows empty
-            # means to run test agains .NET Framework 4.5 Ice build
-            #
-            supportedframeworks = ["netcoreapp2.0"]
-            if isinstance(platform, Windows):
-                supportedframeworks += ["net461", "net462", "net47", "net471"]
 
-            if self.netframework:
-                if not self.netframework in supportedframeworks:
-                    raise RuntimeError("Unssuported .NET Framework `{0}'".format(self.netframework))
-            else:
-                self.netframework = "" if isinstance(platform, Windows) else "netcoreapp2.0"
+            self.dotnetcore = not isinstance(platform, Windows)
+
+            parseOptions(self, options)
+
+    def getBinTargetFramework(self, current):
+        return "netcoreapp2.0" if current.config.dotnetcore else "net45" # Framework version for the bin subdir
+
+    def getLibTargetFramework(self, current):
+        return "netstandard2.0" if current.config.dotnetcore else "net45" # Framework version for the lib subdir
+
+    def getTargetFramework(self, current):
+        return "netcoreapp2.1" if current.config.dotnetcore else "net45" # Framework version for tests
 
     def getBuildDir(self, name, current):
-        if current.config.netframework:
-            return os.path.join("msbuild", name, "netstandard2.0", current.config.netframework)
+        if current.config.dotnetcore:
+            return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
         else:
-            return os.path.join("msbuild", name, "net45")
+            return os.path.join("msbuild", name, self.getTargetFramework(current))
 
     def getSSLProps(self, process, current):
         props = Mapping.getSSLProps(self, process, current)
@@ -3195,7 +3242,7 @@ class CSharpMapping(Mapping):
                 env['PATH'] = os.path.join(toplevel, "cpp", "msbuild", "packages",
                                            "bzip2.{0}.1.0.6.10".format(platform.getPlatformToolset()),
                                            "build", "native", "bin", "x64", "Release")
-            if not current.config.netframework:
+            if not current.config.dotnetcore:
                 env['DEVPATH'] = component.getLibDir(process, self, current)
         return env
 
@@ -3216,10 +3263,129 @@ class CSharpMapping(Mapping):
         else:
             path = os.path.join(current.testcase.getPath(), current.getBuildDir(exe))
 
-        if current.config.netframework == "netcoreapp2.0":
+        if current.config.dotnetcore:
             return "dotnet " + os.path.join(path, exe) + ".dll " + args
         else:
             return os.path.join(path, exe) + ".exe " + args
+
+class XamarinMapping(CSharpMapping):
+
+    def __init__(self):
+        CSharpMapping.__init__(self)
+
+    def getPluginEntryPoint(self, plugin, process, current):
+        return {
+            "IceSSL" : "IceSSL.dll:IceSSL.PluginFactory",
+            "IceDiscovery" : "IceDiscovery.dll:IceDiscovery.PluginFactory",
+            "IceLocatorDiscovery" : "IceLocatorDiscovery.dll:IceLocatorDiscovery.PluginFactory"
+        }[plugin]
+
+    def getSSLProps(self, process, current):
+        props = Mapping.getSSLProps(self, process, current)
+        props.update({
+            "IceSSL.Password": "password",
+            "IceSSL.DefaultDir": os.path.join(toplevel, "certs"),
+            "Ice.InitPlugins" : "0",
+            "IceSSL.VerifyPeer": "0" if current.config.protocol == "wss" else "2",
+            "IceSSL.CAs": "cacert.der",
+            "IceSSL.CertFile": "server.p12" if isinstance(process, Server) else "client.p12",
+        })
+        return props
+
+    def getProps(self, process, current):
+        props = Mapping.getProps(self, process, current)
+        #
+        # With SSL we need to delay the creation of the admin adapter until the plug-in has
+        # been initialized.
+        #
+        if current.config.protocol in ["ssl", "wss"] and current.config.mx:
+            props["Ice.Admin.DelayCreation"] = "1"
+        return props
+
+    def getOptions(self, current):
+        #
+        # Do not run MX tests with SSL it cause problems with Xamarin UWP implementation
+        #
+        return {"mx" : ["False"]} if current.config.protocol in ["ssl", "wss"] else {}
+
+    def getCommonTestsPath(self):
+        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
+
+class XamarinAndroidMapping(AndroidMappingMixin, XamarinMapping):
+
+    def __init__(self):
+        XamarinMapping.__init__(self)
+        AndroidMappingMixin.__init__(self, XamarinMapping)
+
+    def getSDKPackage(self):
+        return "system-images;android-27;google_apis;x86"
+
+    def getTestsPath(self):
+        return os.path.join(self.path, "../../test")
+
+    def getCommonTestsPath(self):
+        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
+
+    def getApk(self, current):
+        buildConfig = current.config.buildConfig
+        return os.path.join(self.getPath(), "..", "controller", "controller.Android", "bin", buildConfig,
+                            "com.zeroc.testcontroller-Signed.apk")
+
+    def getActivityName(self):
+        return "com.zeroc.testcontroller/controller.MainActivity"
+
+    def getSSLProps(self, process, current):
+        return XamarinMapping.getSSLProps(self, process, current)
+
+class XamarinUWPMapping(XamarinMapping):
+
+    def __init__(self):
+        CSharpMapping.__init__(self)
+
+    def getTestsPath(self):
+        return os.path.join(self.path, "../../test")
+
+    def getCommonTestsPath(self):
+        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
+
+    def getUWPPackageName(self):
+        return "ice-uwp-controller.xamarin"
+
+    def getUWPUserModelId(self):
+        return "ice-uwp-controller.xamarin_3qjctahehqazm"
+
+    def getUWPPackageFullName(self, platform):
+        return "{0}_1.0.0.0_{1}__3qjctahehqazm".format(self.getUWPPackageName(),
+                                                       "X86" if platform == "Win32" else platform)
+
+    def getUWPPackageFullPath(self, platform, config):
+        prefix = "controller.UWP_1.0.0.0_{0}{1}".format(platform, "_{0}".format(config) if config == "Debug" else "")
+        return os.path.join(toplevel, "csharp", "xamarin", "controller", "controller.UWP", "AppPackages",
+                            "{0}_Test".format(prefix), "{0}.appx".format(prefix))
+
+class XamarinIOSMapping(XamarinMapping):
+
+    def __init__(self):
+        CSharpMapping.__init__(self)
+
+    def getTestsPath(self):
+        return os.path.join(self.path, "../../test")
+
+    def getCommonTestsPath(self):
+        return os.path.join(self.path, "..", "..", "..", "scripts", "tests")
+
+    def getIOSControllerIdentity(self, current):
+        if current.config.buildPlatform == "iphonesimulator":
+            return "iPhoneSimulator/com.zeroc.Xamarin-Test-Controller"
+        else:
+            return "iPhoneOS/com.zeroc.Xamarin-Test-Controller"
+
+    def getIOSAppName(self, current):
+        return "controller.iOS.app"
+
+    def getIOSAppFullPath(self, current):
+        return os.path.join(self.getPath(), "..", "controller", "controller.iOS", "bin", "iPhoneSimulator",
+                            current.config.buildConfig, self.getIOSAppName(current))
 
 class CppBasedMapping(Mapping):
 
@@ -3281,6 +3447,25 @@ class ObjCMapping(CppBasedMapping):
             "server" : "Server.m",
             "collocated" : "Collocated.m",
         }[processType]
+
+    def getIOSControllerIdentity(self, current):
+        if current.config.buildPlatform == "iphonesimulator":
+            return ("iPhoneSimulator/com.zeroc.ObjC-ARC-Test-Controller" if current.config.arc else
+                    "iPhoneSimulator/com.zeroc.ObjC-Test-Controller")
+        else:
+            return ("iPhoneOS/com.zeroc.ObjC-ARC-Test-Controller" if current.config.arc else
+                    "iPhoneOS/com.zeroc.ObjC-Test-Controller")
+
+    def getIOSAppName(self, current):
+        return "Objective-C ARC Test Controller.app" if current.config.arc else "Objective-C Test Controller.app"
+
+    def getIOSAppFullPath(self, current):
+        path = os.path.join(self.getTestsPath(), "ios/controller/build", "Debug-iphonesimulator",
+                            self.getIOSAppName(current))
+        if not os.path.exists(path):
+            path = os.path.join(mapping.getTestsPath(), "ios/controller/build", "Release-iphonesimulator",
+                                self.getIOSAppName(Current))
+        return path
 
 class PythonMapping(CppBasedMapping):
 
@@ -3356,6 +3541,22 @@ class PhpMapping(CppBasedClientMapping):
         mappingName = "php"
         mappingDesc = "PHP"
 
+
+        @classmethod
+        def getSupportedArgs(self):
+            return ("", ["php-version="])
+
+        @classmethod
+        def usage(self):
+            print("")
+            print("PHP Mapping options:")
+            print("--php-version=[7.1|7.2]    PHP Version used for Windows builds")
+
+
+        def __init__(self, options=[]):
+            CppBasedClientMapping.Config.__init__(self, options)
+            parseOptions(self, options, { "php-version" : "phpVersion" })
+
     def getCommandLine(self, current, process, exe, args):
         phpArgs = []
         php = "php"
@@ -3365,9 +3566,11 @@ class PhpMapping(CppBasedClientMapping):
         # the Nuget PHP dependency.
         #
         if isinstance(platform, Windows) and not component.useBinDist(self, current):
+            nugetVersion = "7.1.17" if current.config.phpVersion == "7.1" else "7.2.8"
+            threadSafe = current.driver.configs[self].buildConfig in ["Debug", "Release"]
             buildPlatform = current.driver.configs[self].buildPlatform
             buildConfig = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
-            packageName = "php-7.1-ts.7.1.17" if buildConfig in ["Debug", "Release"] else "php-7.1-nts.7.1.17"
+            packageName = "php-{0}-{1}.{2}".format(current.config.phpVersion, "ts" if threadSafe else "nts", nugetVersion)
             php = os.path.join(self.path, "msbuild", "packages", packageName, "build", "native", "bin",
                                buildPlatform, buildConfig, "php.exe")
 

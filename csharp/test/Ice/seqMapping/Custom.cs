@@ -10,84 +10,90 @@
 using System;
 using System.Collections.Generic;
 
-public class Custom<T> : IEnumerable<T>
+namespace Ice
 {
-    System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
+    namespace seqMapping
     {
-        return _list.GetEnumerator();
-    }
-
-    public IEnumerator<T> GetEnumerator()
-    {
-        return _list.GetEnumerator();
-    }
-
-    public int Count
-    {
-        get
+        public class Custom<T> : IEnumerable<T>
         {
-            return _list.Count;
-        }
-    }
-
-    public T this[int index]
-    {
-        get
-        {
-            return _list[index];
-        }
-
-        set
-        {
-            _list[index] = value;
-        }
-
-    }
-
-    public void Add(T elmt)
-    {
-        _list.Add(elmt);
-    }
-
-    public override bool Equals(object o)
-    {
-        try
-        {
-            Custom<T> tmp = (Custom<T>)o;
-            IEnumerator<T> e = tmp.GetEnumerator();
-            foreach(T elmt in _list)
+            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
             {
-                if(!e.MoveNext())
+                return _list.GetEnumerator();
+            }
+
+            public IEnumerator<T> GetEnumerator()
+            {
+                return _list.GetEnumerator();
+            }
+
+            public int Count
+            {
+                get
+                {
+                    return _list.Count;
+                }
+            }
+
+            public T this[int index]
+            {
+                get
+                {
+                    return _list[index];
+                }
+
+                set
+                {
+                    _list[index] = value;
+                }
+
+            }
+
+            public void Add(T elmt)
+            {
+                _list.Add(elmt);
+            }
+
+            public override bool Equals(object o)
+            {
+                try
+                {
+                    Custom<T> tmp =(Custom<T>)o;
+                    IEnumerator<T> e = tmp.GetEnumerator();
+                    foreach(T elmt in _list)
+                    {
+                        if(!e.MoveNext())
+                        {
+                            return false;
+                        }
+                        if(elmt == null)
+                        {
+                            if(e.Current != null)
+                            {
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            if(!elmt.Equals(e.Current))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+                    return true;
+                }
+                catch(Exception)
                 {
                     return false;
                 }
-                if(elmt == null)
-                {
-                    if(e.Current != null)
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    if(!elmt.Equals(e.Current))
-                    {
-                        return false;
-                    }
-                }
             }
-            return true;
-        }
-        catch(Exception)
-        {
-            return false;
+
+            public override int GetHashCode()
+            {
+                return base.GetHashCode();
+            }
+
+            private List<T> _list = new List<T>();
         }
     }
-
-    public override int GetHashCode()
-    {
-        return base.GetHashCode();
-    }
-
-    private List<T> _list = new List<T>();
 }

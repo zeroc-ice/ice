@@ -527,8 +527,12 @@ namespace IceInternal
                     {
                         for(Ice.ConnectionInfo p = _current.con.getInfo(); p != null; p = p.underlying)
                         {
-                            Ice.IPConnectionInfo ipinfo = p as Ice.IPConnectionInfo;
-                            output.print("\nremote host: " + ipinfo.remoteAddress + " remote port: " + ipinfo.remotePort);
+                            if(p is Ice.IPConnectionInfo)
+                            {
+                                Ice.IPConnectionInfo ipinfo = p as Ice.IPConnectionInfo;
+                                output.print("\nremote host: " + ipinfo.remoteAddress + " remote port: " + ipinfo.remotePort);
+                                break;
+                            }
                         }
                     }
                     catch(Ice.LocalException)

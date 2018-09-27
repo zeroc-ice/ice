@@ -1211,7 +1211,7 @@ public class AMI
 
                 try
                 {
-                    Ice.Communicator ic = helper.initialize(initData, false);
+                    Ice.Communicator ic = helper.initialize(initData);
                     Ice.ObjectPrx o = ic.stringToProxy(p.toString());
                     TestIntfPrx p2 = TestIntfPrxHelper.uncheckedCast(o);
                     ic.destroy();
