@@ -62,6 +62,9 @@ These are the changes since Ice 3.6.4 included in this pre-release.
   with a cbBuffer value of 0. This occurred when running the JavaScript tests
   with Firefox and using a C++ debug build.
 
+- Fixed a bug in syslog logger that causes the program name not being correctly
+  displayed with log messages.
+
 ## Objective-C Changes
 
 - Fixed the generated code to specify the `__autoreleasing` qualifier on
