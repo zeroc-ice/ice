@@ -43,6 +43,9 @@ These are the changes since Ice 3.7.1 included in this pre-release.
   with a cbBuffer value of 0. This occurred when running the JavaScript tests
   with Firefox and using a C++ debug build.
 
+- Fixed a bug in syslog logger that causes the program name not being correctly
+  displayed with log messages.
+
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang
