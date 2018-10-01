@@ -185,7 +185,6 @@ class L
 sequence<Value> ValueSeq;
 dictionary<string, Value> ValueMap;
 
-
 interface Initial
 {
     void shutdown();

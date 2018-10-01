@@ -374,7 +374,7 @@ function allTests($helper)
     $v3 = $initial->opValueMap($v1, $v2);
     test($v2["l"]->data == "l");
     test($v3["l"]->data == "l");
-    
+
     echo "ok\n";
 
     echo "getting D1... ";

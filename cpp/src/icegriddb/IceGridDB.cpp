@@ -139,7 +139,7 @@ wmain(int argc, wchar_t* argv[])
 #else
 main(int argc, char* argv[])
 #endif
-{ 
+{
     int status = 0;
 
     try

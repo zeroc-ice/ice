@@ -257,7 +257,6 @@
     return v1;
 }
 
-
 -(TestObjectsI*) getD1:(TestObjectsI*)d1 current:(ICECurrent*)current
 {
     return d1;

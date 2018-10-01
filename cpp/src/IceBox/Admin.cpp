@@ -34,7 +34,7 @@ main(int argc, char* argv[])
 #endif
 {
     int status = 0;
-   
+
     try
     {
         Ice::CtrlCHandler ctrlCHandler;
