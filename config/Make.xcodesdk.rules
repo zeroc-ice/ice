@@ -62,7 +62,8 @@ $1[$2-$3]: $$($1_dependencies)
 	           -project "$1/$$(call $1_project,$2,$3)" \
 	           -configuration "$$(call $1_configuration,$2,$3)" \
 		   -scheme "$$(call $1_scheme,$2,$3)" \
-		   $(if $(ICE_BIN_DIST),ADDITIONAL_SDKS=$(sdkdir)/$2.sdk) \
+		   $(if $(ICE_BIN_DIST),HEADER_SEARCH_PATHS=../../Ice\ ../../include\ $(sdkdir)/$2.sdk/usr/include \
+                   LIBRARY_SEARCH_PATHS=$(sdkdir)/$2.sdk/usr/lib) \
 		   $(if $(V),,-quiet) SYMROOT=./build OBJROOT=./objs-$2-$3 \
 		   clean build
 
