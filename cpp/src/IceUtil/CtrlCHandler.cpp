@@ -131,6 +131,7 @@ CtrlCHandler::~CtrlCHandler()
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         _handler = 0;
+        _callback = ICE_NULLPTR;
     }
 }
 
@@ -242,6 +243,7 @@ CtrlCHandler::~CtrlCHandler()
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         _handler = 0;
+        _callback = ICE_NULLPTR;
     }
 
     //

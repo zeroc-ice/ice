@@ -38,6 +38,12 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 
 ## C++ Changes
 
+- Fixed a bug where the callback set with the IceUtil::CtrlCHandler was not
+  cleared on destruction of the CtrlCHandler object. Variables captured by the
+  callback were therefore not released until static destruction. This fix
+  ensures that the destruction of the CtrlCHandler object now clears the
+  callback.
+
 - Fixed a debug assert in the Windows SChannel IceSSL implementation which would
   occur in rare circumstances where SChannel returned SEC_E_INCOMPLETE_MESSAGE
   with a cbBuffer value of 0. This occurred when running the JavaScript tests
