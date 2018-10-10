@@ -3029,23 +3029,18 @@ class CppMapping(Mapping):
                             "{0}_Test".format(prefix), "{0}.appx".format(prefix))
 
     def getIOSControllerIdentity(self, current):
-        if current.config.buildPlatform == "iphonesimulator":
-            return ("iPhoneSimulator/com.zeroc.Cpp11-Test-Controller" if current.config.cpp11 else
-                    "iPhoneSimulator/com.zeroc.Cpp98-Test-Controller")
-        else:
-            return ("iPhoneOS/com.zeroc.Cpp11-Test-Controller" if current.config.cpp11 else
-                    "iPhoneOS/com.zeroc.Cpp98-Test-Controller")
+        category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
+        mapping = "Cpp11" if current.config.cpp11 else "Cpp98"
+        return "{0}/com.zeroc.{1}-Test-Controller".format(category, mapping)
 
     def getIOSAppName(self, current):
         return "C++11 Test Controller.app" if current.config.cpp11 else "C++98 Test Controller.app"
 
     def getIOSAppFullPath(self, current):
-        path = os.path.join(self.getTestsPath(), "ios/controller/build", "Debug-iphonesimulator",
-                            self.getIOSAppName(current))
-        if not os.path.exists(path):
-            path = os.path.join(self.getTestsPath(), "ios/controller/build", "Release-iphonesimulator",
-                                self.getIOSAppName(current))
-        return path
+        path = os.path.join(self.getTestsPath(), "ios", "controller")
+        path = os.path.join(path, "build-{0}-{1}".format(current.config.buildPlatform, current.config.buildConfig))
+        build = "Debug" if os.path.exists(os.path.join(path, "Debug-{0}".format(current.config.buildPlatform))) else "Release"
+        return os.path.join(path, "{0}-{1}".format(build, current.config.buildPlatform), self.getIOSAppName(current))
 
 class JavaMapping(Mapping):
 
@@ -3468,23 +3463,18 @@ class ObjCMapping(CppBasedMapping):
         }[processType]
 
     def getIOSControllerIdentity(self, current):
-        if current.config.buildPlatform == "iphonesimulator":
-            return ("iPhoneSimulator/com.zeroc.ObjC-ARC-Test-Controller" if current.config.arc else
-                    "iPhoneSimulator/com.zeroc.ObjC-Test-Controller")
-        else:
-            return ("iPhoneOS/com.zeroc.ObjC-ARC-Test-Controller" if current.config.arc else
-                    "iPhoneOS/com.zeroc.ObjC-Test-Controller")
+        category = "iPhoneSimulator" if current.config.buildPlatform == "iphonesimulator" else "iPhoneOS"
+        mapping = "ObjC-ARC" if current.config.arc else "ObjC"
+        return "{0}/com.zeroc.{1}-Test-Controller".format(category, mapping)
 
     def getIOSAppName(self, current):
         return "Objective-C ARC Test Controller.app" if current.config.arc else "Objective-C Test Controller.app"
 
     def getIOSAppFullPath(self, current):
-        path = os.path.join(self.getTestsPath(), "ios/controller/build", "Debug-iphonesimulator",
-                            self.getIOSAppName(current))
-        if not os.path.exists(path):
-            path = os.path.join(mapping.getTestsPath(), "ios/controller/build", "Release-iphonesimulator",
-                                self.getIOSAppName(current))
-        return path
+        path = os.path.join(self.getTestsPath(), "ios", "controller")
+        path = os.path.join(path, "build-{0}-{1}".format(current.config.buildPlatform, current.config.buildConfig))
+        build = "Debug" if os.path.exists(os.path.join(path, "Debug-{0}".format(current.config.buildPlatform))) else "Release"
+        return os.path.join(path, "{0}-{1}".format(build, current.config.buildPlatform), self.getIOSAppName(current))
 
 class PythonMapping(CppBasedMapping):
 
