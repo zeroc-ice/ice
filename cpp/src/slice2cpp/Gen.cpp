@@ -6075,7 +6075,7 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(p->compactId() >= 0)
         {
             string n = "iceC" + p->flattenedScope() + p->name() + "_compactIdInit ";
-            C << "const ::IceInternal::CompactIdInit " << n << "(\"" << p->scoped() << "\", " << p->compactId()
+            C << nl << "const ::IceInternal::CompactIdInit " << n << "(\"" << p->scoped() << "\", " << p->compactId()
               << ");";
         }
     }
