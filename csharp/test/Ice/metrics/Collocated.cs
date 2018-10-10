@@ -25,7 +25,6 @@ public class Collocated : Test.TestHelper
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.observer = observer;
         initData.properties = createTestProperties(ref args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
