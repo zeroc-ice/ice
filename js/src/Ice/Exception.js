@@ -51,17 +51,6 @@ const toString = function(key, object, objectTable, ident)
     return s;
 };
 
-class ServantError extends Error
-{
-    constructor(cause)
-    {
-        super();
-        this.cause = cause;
-    }
-}
-
-Ice.ServantError = ServantError;
-
 //
 // Ice.Exception
 //

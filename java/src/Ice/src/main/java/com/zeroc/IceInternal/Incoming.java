@@ -252,6 +252,10 @@ final public class Incoming implements com.zeroc.Ice.Request
                 }
             }
         }
+        catch(ServantError ex)
+        {
+            throw ex;
+        }
         catch(Throwable ex)
         {
             completed(ex, false);

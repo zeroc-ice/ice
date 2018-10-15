@@ -221,6 +221,10 @@ final public class Incoming extends IncomingBase implements Ice.Request
                 response(false);
             }
         }
+        catch(IceInternal.ServantError ex)
+        {
+            throw ex;
+        }
         catch(java.lang.Throwable ex)
         {
             if(_inAsync != null)

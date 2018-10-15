@@ -349,11 +349,6 @@ class IncomingAsync
             {
                 this._connection.sendNoResponse();
             }
-
-            if(!amd)
-            {
-                throw new Ice.ServantError(ex);
-            }
         }
 
         this._connection = null;

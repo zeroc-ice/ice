@@ -1942,10 +1942,6 @@ class ConnectionI
             {
                 this.invokeException(ex, invokeNum);
             }
-            else if(ex instanceof Ice.ServantError)
-            {
-                // Ignore
-            }
             else
             {
                 //
