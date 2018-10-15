@@ -198,8 +198,8 @@
                 }
                 else
                 {
-                    test(o2.sh.Value == o.sh.Value);
-                    test(o2.i.Value == o.i.Value);
+                    test(o2.sh == o.sh);
+                    test(o2.i == o.i);
                 }
             }
 
@@ -397,7 +397,7 @@
                 s.by = 1;
                 s.sh = 2;
                 s.i = 3;
-                s.l = 4;
+                s.l = new Ice.Long(4);
                 s.f = 5.0;
                 s.d = 6.0;
                 s.str = "7";
@@ -443,8 +443,8 @@
                 inS = new Ice.InputStream(communicator, data);
                 const arr2 = Test.MyClassSHelper.read(inS);
                 inS.readPendingValues();
-                test(arr2.Length == myClassArray.Length);
-                for(let i = 0; i < arr2.Length; ++i)
+                test(arr2.length == myClassArray.length);
+                for(let i = 0; i < arr2.length; ++i)
                 {
                     test(arr2[i] !== null);
                     test(arr2[i].c == arr2[i]);
@@ -481,17 +481,17 @@
                 inS = new Ice.InputStream(communicator, data);
                 const arr2 = Test.MyInterfaceSHelper.read(inS);
                 inS.readPendingValues();
-                test(arr2.Length == myInterfaceArray.Length);
+                test(arr2.length == myInterfaceArray.length);
                 const arrS = [myInterfaceArray, [], myInterfaceArray];
                 outS = new Ice.OutputStream(communicator);
                 Test.MyInterfaceSSHelper.write(outS, arrS);
                 data = outS.finished();
                 inS = new Ice.InputStream(communicator, data);
                 const arr2S = Test.MyInterfaceSSHelper.read(inS);
-                test(arr2S.Length == arrS.Length);
-                test(arr2S[0].Length == arrS[0].Length);
-                test(arr2S[1].Length == arrS[1].Length);
-                test(arr2S[2].Length == arrS[2].Length);
+                test(arr2S.length == arrS.length);
+                test(arr2S[0].length == arrS[0].length);
+                test(arr2S[1].length == arrS[1].length);
+                test(arr2S[2].length == arrS[2].length);
             }
 
             {

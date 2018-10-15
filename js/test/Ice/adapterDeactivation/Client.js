@@ -39,7 +39,7 @@
                 let adapter = await communicator.createObjectAdapter("TransientTestAdapter");
                 try
                 {
-                    await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter");
+                    await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "");
                     test(false);
                 }
                 catch(ex)
@@ -51,7 +51,7 @@
                 //
                 // Use a different port than the first adapter to avoid an "address already in use" error.
                 //
-                adapter = await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter");
+                adapter = await communicator.createObjectAdapterWithEndpoints("TransientTestAdapter", "");
                 await adapter.destroy();
                 out.writeLine("ok");
             }

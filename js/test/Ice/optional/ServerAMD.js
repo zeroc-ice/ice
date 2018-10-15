@@ -40,7 +40,7 @@
 
                 if(communicator)
                 {
-                    communicator.destroy();
+                    await communicator.destroy();
                 }
             }
         }

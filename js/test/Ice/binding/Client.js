@@ -231,7 +231,6 @@
                         await com.deactivateObjectAdapter(adapters[4]);
                         --adapterCount;
                     }
-                    proxies = new Array(!0);
 
                     for(let i = 0; i < proxies.length; ++i)
                     {
@@ -254,7 +253,7 @@
                                     // ignore exception
                                 });
                     }
-                    for(let i = 0; i < proxies.Length; i++)
+                    for(let i = 0; i < proxies.length; i++)
                     {
                         try
                         {

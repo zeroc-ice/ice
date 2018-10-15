@@ -18,7 +18,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
+["objc:prefix:ICE", "js:module:ice"]
 module Ice
 {
 

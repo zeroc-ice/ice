@@ -362,10 +362,11 @@ Slice::SyntaxTreeBase::visit(ParserVisitor*, bool)
 {
 }
 
-Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) :
-    _unit(unit)
+Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit, const DefinitionContextPtr& definitionContext) :
+    _unit(unit),
+    _definitionContext(definitionContext)
 {
-    if(_unit)
+    if(!_definitionContext && _unit)
     {
         _definitionContext = unit->currentDefinitionContext();
     }
@@ -4359,8 +4360,8 @@ Slice::Proxy::_class() const
 }
 
 Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
-     SyntaxTreeBase(cl->unit()),
-     Type(cl->unit()),
+    SyntaxTreeBase(cl->unit(), cl->definitionContext()),
+    Type(cl->unit()),
     _classDecl(cl)
 {
 }

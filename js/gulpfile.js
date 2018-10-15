@@ -9,6 +9,7 @@
 
 var babel       = require("gulp-babel"),
     bundle      = require("./gulp/bundle"),
+    tsbundle    = require("./gulp/ts-bundle"),
     concat      = require('gulp-concat'),
     del         = require("del"),
     extreplace  = require("gulp-ext-replace"),
@@ -16,16 +17,14 @@ var babel       = require("gulp-babel"),
     gulp        = require("gulp"),
     gzip        = require('gulp-gzip'),
     iceBuilder  = require('gulp-ice-builder'),
-    jshint      = require('gulp-jshint'),
-    cleancss    = require('gulp-clean-css'),
     newer       = require('gulp-newer'),
-    open        = require("gulp-open"),
     path        = require('path'),
     paths       = require('vinyl-paths'),
     pump        = require('pump'),
     rollup      = require("rollup").rollup,
     sourcemaps  = require('gulp-sourcemaps'),
-    spawn       = require("child_process").spawn,
+    tsc         = require('gulp-typescript'),
+    tsformat    = require('gulp-typescript-formatter'),
     uglify      = require('gulp-uglifyes');
 
 var sliceDir   = path.resolve(__dirname, '..', 'slice');
@@ -160,7 +159,7 @@ gulp.task("common:clean", [],
              "test/es5/Common/TestHelper.js"]);
     });
 
-gulp.task("import:slice2js", [],
+gulp.task("import:slice2js", ["dist"],
     function(cb){
         pump([
             gulp.src(["test/Ice/import/Demo/Point.ice",
@@ -238,12 +237,111 @@ gulp.task("test", tests.map(testBabelTask).concat(
 
 gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:clean", "import:clean"]));
 
+// TypeScript tests
+var tstests = [
+    "test/ts/Ice/acm",
+    "test/ts/Ice/adapterDeactivation",
+    "test/ts/Ice/ami",
+    "test/ts/Ice/binding",
+    "test/ts/Ice/defaultValue",
+    "test/ts/Ice/enums",
+    "test/ts/Ice/exceptions",
+    "test/ts/Ice/facets",
+    "test/ts/Ice/hold",
+    "test/ts/Ice/info",
+    "test/ts/Ice/inheritance",
+    "test/ts/Ice/location",
+    "test/ts/Ice/number",
+    "test/ts/Ice/objects",
+    "test/ts/Ice/operations",
+    "test/ts/Ice/optional",
+    "test/ts/Ice/properties",
+    "test/ts/Ice/proxy",
+    "test/ts/Ice/retry",
+    "test/ts/Ice/scope",
+    "test/ts/Ice/servantLocator",
+    "test/ts/Ice/slicing/exceptions",
+    "test/ts/Ice/slicing/objects",
+    "test/ts/Ice/stream",
+    "test/ts/Ice/timeout",
+    "test/ts/Glacier2/router",
+    "test/ts/Slice/macros"
+];
+
+function testTypeScriptSliceCompileJsTask(name) { return testTask(name) + ":ts:slice-compile-js"; }
+function testTypeScriptSliceCompileTsTask(name) { return testTask(name) + ":ts:slice-compile-ts"; }
+function testTypeScriptCompileTask(name) { return testTask(name) + ":ts:compile"; }
+
+function testTypeScriptSliceJsCleanTask(name) { return testTask(name) + ":ts:slice:js-clean"; }
+function testTypeScriptSliceTsCleanTask(name) { return testTask(name) + ":ts:slice:ts-clean"; }
+function testTypeScriptCleanTask(name) { return testTask(name) + ":ts:clean"; }
+
+tstests.forEach((name) =>
+                {
+                    gulp.task(testTypeScriptSliceCompileJsTask(name), [],
+                              function(cb){
+                                  pump([
+                                      gulp.src(path.join(name, "*.ice")),
+                                      slice2js({include:[name], dest: name}),
+                                      gulp.dest(name)
+                                  ], cb);
+                              });
+
+                    gulp.task(testTypeScriptSliceCompileTsTask(name), [],
+                              function(cb){
+                                  pump([
+                                      gulp.src(path.join(name, "*.ice")),
+                                      slice2js({include:[name], dest:name, args: ["--typescript"]}),
+                                      gulp.dest(name)
+                                  ], cb);
+                              });
+
+                    gulp.task(testTypeScriptCompileTask(name),
+                              [
+                                testTypeScriptSliceCompileJsTask(name),
+                                testTypeScriptSliceCompileTsTask(name),
+                              ].concat(useBinDist ? [] : ["ice-module"]),
+                              function(cb){
+                                  pump([
+                                      gulp.src(path.join(name, "*.ts")),
+                                      tsc(
+                                          {
+                                              lib: ["dom", "es2017"],
+                                              target: "es2017",
+                                              module: "commonjs",
+                                              noImplicitAny:true
+                                          }),
+                                      gulp.dest(name)
+                                  ], cb);
+                              });
+
+                    gulp.task(testTypeScriptSliceJsCleanTask(name), [],
+                              function(cb){
+                                  pump([gulp.src(path.join(name, "*.ice")), extreplace(".js"), paths(del)], cb);
+                              });
+
+                    gulp.task(testTypeScriptSliceTsCleanTask(name), [],
+                              function(cb){
+                                  pump([gulp.src(path.join(name, "*.ice")), extreplace(".d.ts"), paths(del)], cb);
+                              });
+
+                    gulp.task(testTypeScriptCleanTask(name),
+                              [testTypeScriptSliceJsCleanTask(name), testTypeScriptSliceTsCleanTask(name)],
+                              function(cb){
+                                  pump([gulp.src(path.join(name, "*.ts")), extreplace(".js"), paths(del)], cb);
+                              });
+                });
+
+gulp.task("test:ts", tstests.map(testTypeScriptCompileTask));
+gulp.task("test:ts:clean", tstests.map(testTypeScriptCleanTask));
+
 //
 // Tasks to build IceJS Distribution
 //
 var root = path.resolve(path.join('__dirname', '..'));
 var libs = ["Ice", "Glacier2", "IceStorm", "IceGrid"];
 
+function generateTypeScriptTask(name) { return name.toLowerCase() + ":generate-typescript"; }
 function generateTask(name){ return name.toLowerCase() + ":generate"; }
 function libTask(name){ return name.toLowerCase() + ":lib"; }
 function minLibTask(name){ return name.toLowerCase() + ":lib-min"; }
@@ -321,13 +419,22 @@ libs.forEach(
     function(lib){
         var sources = JSON.parse(fs.readFileSync(path.join(srcDir(lib), "sources.json"), {encoding: "utf8"}));
 
-        gulp.task(generateTask(lib),
-            function(cb){
-                pump([
-                    gulp.src(sources.slice.map(sliceFile)),
-                    slice2js({dest: srcDir(lib)}),
-                    gulp.dest(srcDir(lib))], cb);
-            });
+        gulp.task(generateTypeScriptTask(lib),
+                  function(cb){
+                      var sliceSources = sources.typescriptSlice || sources.slice;
+                      pump([
+                          gulp.src(sliceSources.map(sliceFile)),
+                          slice2js({dest: srcDir(lib), args: ["--typescript"]}),
+                          gulp.dest(srcDir(lib))], cb);
+                  });
+
+        gulp.task(generateTask(lib), [generateTypeScriptTask(lib)],
+                  function(cb){
+                      pump([
+                          gulp.src(sources.slice.map(sliceFile)),
+                          slice2js({dest: srcDir(lib)}),
+                          gulp.dest(srcDir(lib))], cb);
+                  });
 
         gulp.task(libTask(lib), [generateTask(lib)],
             function(cb){
@@ -398,15 +505,30 @@ libs.forEach(
         gulp.task(libCleanTask(lib), [], function(){ del(libGeneratedFiles(lib, sources)); });
     });
 
+gulp.task("ts:bundle", libs.map(generateTypeScriptTask),
+    function(cb){
+        pump([
+            gulp.src("./src/index.d.ts"),
+            tsbundle(),
+            tsformat({}),
+            gulp.dest("lib")], cb);
+    });
+
+gulp.task("ts:bundle:clean", [],
+    function(){
+        del("./lib/index.d.ts");
+    });
+
 gulp.task("dist", useBinDist ? [] :
     libs.map(libTask).concat(libs.map(minLibTask))
                      .concat(libs.map(babelMinLibTask))
-                     .concat(libs.map(babelTask)));
+                     .concat(libs.map(babelTask))
+                     .concat(["ts:bundle"]));
 
-gulp.task("dist:clean", libs.map(libCleanTask));
+gulp.task("dist:clean", libs.map(libCleanTask).concat("ts:bundle:clean"));
 
-var buildDepends = ["dist", "test"];
-var cleanDepends = ["test:clean", "common:clean"];
+var buildDepends = ["dist", "test", "test:ts"];
+var cleanDepends = ["test:clean", "test:ts:clean", "common:clean"];
 
 if(!useBinDist)
 {

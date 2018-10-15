@@ -44,6 +44,10 @@ normalizePath(const string& path)
     {
         startReplace = 2;
     }
+    else
+    {
+        result[0] = toUpper(result.substr(0, 1))[0];
+    }
 #endif
     string::size_type pos;
     while((pos = result.find("//", startReplace)) != string::npos)

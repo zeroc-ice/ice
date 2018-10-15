@@ -319,7 +319,7 @@ public:
 
 protected:
 
-    SyntaxTreeBase(const UnitPtr&);
+    SyntaxTreeBase(const UnitPtr&, const DefinitionContextPtr& = 0);
 
     UnitPtr _unit;
     DefinitionContextPtr _definitionContext;

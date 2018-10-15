@@ -14,10 +14,6 @@ const bufferOverflowExceptionMsg = "BufferOverflowException";
 const bufferUnderflowExceptionMsg = "BufferUnderflowException";
 const indexOutOfBoundsExceptionMsg = "IndexOutOfBoundsException";
 
-//
-// Buffer implementation to be used by web browsers, it uses ArrayBuffer as
-// the store.
-//
 class Buffer
 {
     constructor(buffer)

@@ -9,13 +9,13 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESSL_API", "cpp:doxygen:include:IceSSL/IceSSL.h", "objc:header-dir:objc", "objc:dll-export:ICESSL_API", "js:ice-build", "python:pkgdir:IceSSL"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESSL_API", "cpp:doxygen:include:IceSSL/IceSSL.h", "objc:header-dir:objc", "objc:dll-export:ICESSL_API", "python:pkgdir:IceSSL"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICESSL"]
+["objc:prefix:ICESSL", "js:module:ice"]
 module IceSSL
 {
 

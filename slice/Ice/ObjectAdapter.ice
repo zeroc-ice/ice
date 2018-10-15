@@ -22,7 +22,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
+["objc:prefix:ICE", "js:module:ice"]
 module Ice
 {
 
@@ -71,7 +71,7 @@ local interface ObjectAdapter
      * @see #deactivate
      *
      **/
-    void activate();
+    ["js:async"] void activate();
 
     /**
      *
@@ -101,7 +101,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    void waitForHold();
+    ["js:async"] void waitForHold();
 
     /**
      *
@@ -128,7 +128,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    ["cpp:noexcept"] void deactivate();
+    ["cpp:noexcept", "js:async"] void deactivate();
 
     /**
      *
@@ -142,7 +142,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    ["cpp:noexcept"] void waitForDeactivate();
+    ["cpp:noexcept", "js:async"] void waitForDeactivate();
 
     /**
      *
@@ -169,7 +169,7 @@ local interface ObjectAdapter
      * @see Communicator#destroy
      *
      **/
-    ["cpp:noexcept"] void destroy();
+    ["cpp:noexcept", "js:async"] void destroy();
 
     /**
      *
@@ -659,7 +659,7 @@ local interface ObjectAdapter
      * an object adapter if the network interfaces used by a host changes.
      *
      **/
-    void refreshPublishedEndpoints();
+    ["js:async"] void refreshPublishedEndpoints();
 
     /**
      *

@@ -38,7 +38,7 @@
                 {
                     if(value != this.expected)
                     {
-                        this.condition.value = value;
+                        this.condition.value = false;
                     }
                 }
             }

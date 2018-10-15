@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
@@ -19,7 +19,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
+["objc:prefix:ICE", "js:module:ice"]
 module Ice
 {
 
@@ -221,7 +221,7 @@ local interface Connection
      *
      * @see ConnectionClose
      **/
-    ["cpp:noexcept"] void close(ConnectionClose mode);
+    ["cpp:noexcept", "js:async"] void close(ConnectionClose mode);
 
     /**
      *

@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc", "objc:dll-export:ICESTORM_API", "js:ice-build", "python:pkgdir:IceStorm"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc", "objc:dll-export:ICESTORM_API", "python:pkgdir:IceStorm"]]
 [["cpp:include:IceStorm/Config.h"]]
 
 #include <Ice/Metrics.ice>
@@ -18,7 +18,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX"]
+["objc:prefix:ICEMX", "js:module:ice"]
 module IceMX
 {
 

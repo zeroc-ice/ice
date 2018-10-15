@@ -16,3 +16,9 @@ src/es5/IceMX
 src/es5/IceSSL
 src/es5/IceStorm
 test/es5
+
+#
+# Typescript test generated files
+#
+test/ts/**/*.js
+test/ts/**/*.d.ts

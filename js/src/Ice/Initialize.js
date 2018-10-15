@@ -21,20 +21,23 @@ const Protocol = Ice.Protocol;
 //
 // Ice.InitializationData
 //
-Ice.InitializationData = function()
+Ice.InitializationData = class
 {
-    this.properties = null;
-    this.logger = null;
-    this.valueFactoryManager = null;
-};
+    constructor()
+    {
+        this.properties = null;
+        this.logger = null;
+        this.valueFactoryManager = null;
+    }
 
-Ice.InitializationData.prototype.clone = function()
-{
-    const r = new Ice.InitializationData();
-    r.properties = this.properties;
-    r.logger = this.logger;
-    r.valueFactoryManager = this.valueFactoryManager;
-    return r;
+    clone()
+    {
+        const r = new Ice.InitializationData();
+        r.properties = this.properties;
+        r.logger = this.logger;
+        r.valueFactoryManager = this.valueFactoryManager;
+        return r;
+    }
 };
 
 //

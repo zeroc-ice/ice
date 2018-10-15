@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
 
 #include <Ice/BuiltinSequences.ice>
 
@@ -24,7 +24,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX"]
+["objc:prefix:ICEMX", "js:module:ice"]
 module IceMX
 {
 
@@ -352,8 +352,7 @@ class CollocatedMetrics extends ChildInvocationMetrics
 /**
  *
  * Provides information on invocations that are specifically sent over
- * Ice connections. Remote metrics are embedded within {@link
- * InvocationMetrics}.
+ * Ice connections. Remote metrics are embedded within {@link InvocationMetrics}.
  *
  **/
 class RemoteMetrics extends ChildInvocationMetrics

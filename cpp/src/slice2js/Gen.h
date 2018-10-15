@@ -19,14 +19,18 @@ class JsVisitor : public JsGenerator, public ParserVisitor
 {
 public:
 
-    JsVisitor(::IceUtilInternal::Output&);
+    JsVisitor(::IceUtilInternal::Output&,
+              const std::vector<std::pair<std::string, std::string>>& imports =
+                    std::vector<std::pair<std::string, std::string>>());
     virtual ~JsVisitor();
+
+    std::vector<std::pair<std::string, std::string>> imports() const;
 
 protected:
 
     void writeMarshalDataMembers(const DataMemberList&, const DataMemberList&);
     void writeUnmarshalDataMembers(const DataMemberList&, const DataMemberList&);
-    void writeInitDataMembers(const DataMemberList&, const std::string&);
+    void writeInitDataMembers(const DataMemberList&);
 
     std::string getValue(const std::string&, const TypePtr&);
 
@@ -36,6 +40,8 @@ protected:
     void writeDocComment(const ContainedPtr&, const std::string&, const std::string& = "");
 
     ::IceUtilInternal::Output& _out;
+
+    std::vector<std::pair<std::string, std::string>> _imports;
 };
 
 class Gen : public JsGenerator
@@ -44,11 +50,13 @@ public:
 
     Gen(const std::string&,
         const std::vector<std::string>&,
-        const std::string&);
+        const std::string&,
+        bool);
 
     Gen(const std::string&,
         const std::vector<std::string>&,
         const std::string&,
+        bool,
         std::ostream&);
 
     ~Gen();
@@ -58,14 +66,14 @@ public:
 
 private:
 
-    std::ofstream _stdout;
     IceUtilInternal::Output _out;
 
     std::vector<std::string> _includePaths;
     std::string _fileBase;
     bool _useStdout;
-
-    void printHeader();
+    bool _typeScript;
+    bool _buildModule;
+    bool _noModule;
 
     class RequireVisitor : public JsVisitor
     {
@@ -95,7 +103,9 @@ private:
         bool _seenLocalException;
         bool _seenEnum;
         bool _seenObjectSeq;
+        bool _seenObjectProxySeq;
         bool _seenObjectDict;
+        bool _seenObjectProxyDict;
         std::vector<std::string> _includePaths;
     };
 
@@ -103,7 +113,7 @@ private:
     {
     public:
 
-        TypesVisitor(::IceUtilInternal::Output&, std::vector< std::string>, bool);
+        TypesVisitor(::IceUtilInternal::Output&, std::vector<std::string>, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
@@ -130,11 +140,80 @@ private:
         ExportVisitor(::IceUtilInternal::Output&, bool, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
+
     private:
 
         bool _icejs;
         bool _es6modules;
         std::vector<std::string> _exported;
+    };
+
+    class TypeScriptRequireVisitor : public JsVisitor
+    {
+    public:
+
+        TypeScriptRequireVisitor(::IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
+
+        void writeRequires(const UnitPtr&);
+
+    private:
+
+        void addImport(const TypePtr&, const ContainedPtr&);
+        void addImport(const ContainedPtr&, const ContainedPtr&);
+        void addImport(const std::string&, const std::string&, const std::string&, const std::string&);
+
+        std::string nextImportPrefix();
+
+        int _nextImport;
+        std::map<std::string, std::string> _modulePrefix;
+    };
+
+    class TypeScriptAliasVisitor : public JsVisitor
+    {
+    public:
+
+        TypeScriptAliasVisitor(::IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
+
+        void writeAlias(const UnitPtr&);
+
+    private:
+
+        void addAlias(const ExceptionPtr&, const ContainedPtr&);
+        void addAlias(const TypePtr&, const ContainedPtr&);
+        void addAlias(const std::string&, const std::string&, const ContainedPtr&);
+        std::vector<std::pair<std::string, std::string>> _aliases;
+    };
+
+    class TypeScriptVisitor : public JsVisitor
+    {
+    public:
+
+        TypeScriptVisitor(::IceUtilInternal::Output&,
+                          const std::vector<std::pair<std::string, std::string>>&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
+        virtual void visitEnum(const EnumPtr&);
+        virtual void visitConst(const ConstPtr&);
     };
 };
 

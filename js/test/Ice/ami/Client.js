@@ -39,7 +39,7 @@
                 const bf = b1.opBatch();
                 test(bf.isCompleted());
                 test(!bf.isSent());
-                test(b1.opBatch());
+                b1.opBatch();
                 await b1.ice_flushBatchRequests();
                 await p.waitForBatch(2);
                 await b1.ice_flushBatchRequests();

@@ -38,7 +38,7 @@
         {
         }
 
-        javaException(current)
+        jsException(current)
         {
         }
 

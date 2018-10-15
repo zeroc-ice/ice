@@ -21,7 +21,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEGRID"]
+["objc:prefix:ICEGRID", "js:module:ice"]
 module IceGrid
 {
 

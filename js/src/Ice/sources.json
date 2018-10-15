@@ -1,6 +1,7 @@
 {
     "modules": [
         "Ice", "IceMX", "IceSSL"],
+
     "slice":[
         "Ice/BuiltinSequences.ice",
         "Ice/Connection.ice",
@@ -20,6 +21,35 @@
         "Ice/RemoteLogger.ice",
         "Ice/Router.ice",
         "Ice/SliceChecksumDict.ice",
+        "Ice/Version.ice",
+        "IceSSL/EndpointInfo.ice",
+        "IceSSL/ConnectionInfo.ice"],
+
+    "typescriptSlice":[
+        "Ice/BuiltinSequences.ice",
+        "Ice/Communicator.ice",
+        "Ice/Connection.ice",
+        "Ice/Current.ice",
+        "Ice/Endpoint.ice",
+        "Ice/EndpointF.ice",
+        "Ice/EndpointTypes.ice",
+        "Ice/FacetMap.ice",
+        "Ice/Identity.ice",
+        "Ice/ImplicitContext.ice",
+        "Ice/LocalException.ice",
+        "Ice/Locator.ice",
+        "Ice/Logger.ice",
+        "Ice/Metrics.ice",
+        "Ice/ObjectAdapter.ice",
+        "Ice/ObjectFactory.ice",
+        "Ice/Process.ice",
+        "Ice/Properties.ice",
+        "Ice/PropertiesAdmin.ice",
+        "Ice/RemoteLogger.ice",
+        "Ice/Router.ice",
+        "Ice/ServantLocator.ice",
+        "Ice/SliceChecksumDict.ice",
+        "Ice/ValueFactory.ice",
         "Ice/Version.ice",
         "IceSSL/EndpointInfo.ice",
         "IceSSL/ConnectionInfo.ice"],

@@ -17,7 +17,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
+["objc:prefix:ICE", "js:module:ice"]
 module Ice
 {
 
@@ -211,6 +211,7 @@ local interface Properties
      **/
     StringSeq parseIceCommandLineOptions(StringSeq options);
 
+#ifndef __SLICE2JS__
     /**
      *
      * Load properties from a file.
@@ -219,6 +220,7 @@ local interface Properties
      *
      **/
     void load(string file);
+#endif
 
     /**
      *

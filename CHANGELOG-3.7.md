@@ -57,6 +57,13 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed Android IceSSL issue which would cause SSL connections to hang
   with Android >= 8.0.
 
+## JavaScript Changes
+
+- Added TypeScript declaration files for Ice for JavaScript.
+
+- Slice to JavaScript compiler can now generate TypeScript declaration files
+  for JavaScript generated code using `--typescript` command line option.
+
 # Changes in Ice 3.7.1
 
 These are the changes since Ice 3.7.0.

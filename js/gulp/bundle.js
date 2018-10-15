@@ -326,12 +326,14 @@ function bundle(args)
 
                 sb.write(preamble);
                 sb.write("    var root = typeof(window) !== \"undefined\" ? window : typeof(global) !== \"undefined\" ? global : typeof(self) !== \"undefined\" ? self : {};\n");
-                lineOffset += 3;
+                sb.write("    var ice = root.ice || {};\n");
+                lineOffset += 4;
                 args.modules.forEach(
                     function(m){
                         sb.write("    root." + m + " = root." + m + " || {};\n");
                         lineOffset++;
-
+                        sb.write("    ice." + m + " = root." + m + ";\n");
+                        lineOffset++;
                         if(m == "Ice")
                         {
                             sb.write("    Ice.Slice = Ice.Slice || {};\n");

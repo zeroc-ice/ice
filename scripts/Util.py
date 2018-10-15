@@ -543,6 +543,7 @@ class Mapping(object):
             self.uwp = False
             self.openssl = False
             self.browser = False
+            self.typescript = False
             self.device = ""
             self.avd = ""
             self.androidemulator = False
@@ -3647,7 +3648,7 @@ class JavaScriptMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["es5", "browser=", "worker"])
+            return ("", ["es5", "browser=", "worker", "typescript"])
 
         @classmethod
         def usage(self):
@@ -3656,10 +3657,12 @@ class JavaScriptMapping(Mapping):
             print("--es5                 Use JavaScript ES5 (Babel compiled code).")
             print("--browser=<name>      Run with the given browser.")
             print("--worker              Run with Web workers enabled.")
+            print("--typescript          Run TypeScript tests.")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
             self.es5 = False
+            self.typescript = False
             self.browser = ""
             self.worker = False
             parseOptions(self, options)
@@ -3671,6 +3674,7 @@ class JavaScriptMapping(Mapping):
                 self.es5 = True
 
     def loadTestSuites(self, tests, config, filters, rfilters):
+        #filters = filters + ["ts"] if filters else ["ts"]
         Mapping.loadTestSuites(self, tests, config, filters, rfilters)
         self.getServerMapping().loadTestSuites(list(self.testsuites.keys()) + ["Ice/echo"], config)
 
@@ -3703,7 +3707,12 @@ class JavaScriptMapping(Mapping):
         if current.config.es5:
             commonPath = os.path.join(commonPath, "es5")
         commonPath = os.path.join(commonPath, "Common")
-        env["NODE_PATH"] = os.pathsep.join([commonPath, self.getTestCwd(process, current)])
+        testDir = self.getTestCwd(process, current)
+        if current.config.typescript:
+            env["NODE_PATH"] = os.pathsep.join([commonPath, testDir.replace(os.path.join("js", "test"),
+                                                                            os.path.join("js", "test", "ts"))])
+        else:
+            env["NODE_PATH"] = os.pathsep.join([commonPath, testDir])
         return env
 
     def getSSLProps(self, process, current):

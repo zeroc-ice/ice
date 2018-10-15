@@ -75,6 +75,7 @@ usage(const string& n)
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--validate               Validate command line options.\n"
         "--stdout                 Print generated code to stdout.\n"
+        "--typescript             Generate TypeScript declaration file\n"
         "--depend-json            Generate dependency information in JSON format.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
         "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
@@ -95,6 +96,7 @@ compile(const vector<string>& argv)
     opts.addOpt("I", "", IceUtilInternal::Options::NeedArg, "", IceUtilInternal::Options::Repeat);
     opts.addOpt("E");
     opts.addOpt("", "stdout");
+    opts.addOpt("", "typescript");
     opts.addOpt("", "output-dir", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "depend");
     opts.addOpt("", "depend-json");
@@ -172,6 +174,8 @@ compile(const vector<string>& argv)
 
     bool underscore = opts.isSet("underscore");
 
+    bool typeScript = opts.isSet("typescript");
+
     if(args.empty())
     {
         consoleErr << argv[0] << ": error: no input file" << endl;
@@ -247,16 +251,16 @@ compile(const vector<string>& argv)
 
     for(vector<string>::const_iterator i = sources.begin(); i != sources.end();)
     {
+        PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
+        FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2JS__");
+
+        if(cppHandle == 0)
+        {
+            return EXIT_FAILURE;
+        }
+
         if(depend || dependJSON || dependxml)
         {
-            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(false, "-D__SLICE2JS__");
-
-            if(cppHandle == 0)
-            {
-                return EXIT_FAILURE;
-            }
-
             UnitPtr u = Unit::createUnit(false, false, ice, underscore);
             int parseStatus = u->parse(*i, cppHandle, debug);
             u->destroy();
@@ -292,13 +296,6 @@ compile(const vector<string>& argv)
         }
         else
         {
-            PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
-            FILE* cppHandle = icecpp->preprocess(true, "-D__SLICE2JS__");
-
-            if(cppHandle == 0)
-            {
-                return EXIT_FAILURE;
-            }
             if(preprocess)
             {
                 char buf[4096];
@@ -335,12 +332,12 @@ compile(const vector<string>& argv)
                     {
                         if(useStdout)
                         {
-                            Gen gen(icecpp->getBaseName(), includePaths, output, cout);
+                            Gen gen(icecpp->getBaseName(), includePaths, output, typeScript, cout);
                             gen.generate(p);
                         }
                         else
                         {
-                            Gen gen(icecpp->getBaseName(), includePaths, output);
+                            Gen gen(icecpp->getBaseName(), includePaths, output, typeScript);
                             gen.generate(p);
                         }
                     }

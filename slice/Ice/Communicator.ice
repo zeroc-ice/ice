@@ -38,7 +38,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE"]
+["objc:prefix:ICE", "js:module:ice"]
 module Ice
 {
 
@@ -83,7 +83,7 @@ local interface Communicator
      * @see ObjectAdapter#destroy
      *
      **/
-    ["cpp:noexcept"] void destroy();
+    ["cpp:noexcept", "js:async"] void destroy();
 
     /**
      *
@@ -102,7 +102,7 @@ local interface Communicator
      * @see ObjectAdapter#deactivate
      *
      **/
-    ["cpp:noexcept"] void shutdown();
+    ["cpp:noexcept", "js:async"] void shutdown();
 
     /**
      *
@@ -123,7 +123,7 @@ local interface Communicator
      * @see ObjectAdapter#waitForDeactivate
      *
      **/
-    ["cpp:noexcept"] void waitForShutdown();
+    ["cpp:noexcept", "js:async"] void waitForShutdown();
 
     /**
      *
@@ -252,7 +252,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ObjectAdapter createObjectAdapter(string name);
+    ["js:async"] ObjectAdapter createObjectAdapter(string name);
 
     /**
      *
@@ -275,7 +275,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
+    ["js:async"] ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
     /**
      *
@@ -296,7 +296,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ObjectAdapter createObjectAdapterWithRouter(string name, ["objc:param:router"] Router* rtr);
+    ["js:async"] ObjectAdapter createObjectAdapterWithRouter(string name, ["objc:param:router"] Router* rtr);
 
     /**
      *
@@ -400,6 +400,7 @@ local interface Communicator
      **/
     ["cpp:const", "cpp:noexcept"] Logger getLogger();
 
+#ifndef __SLICE2JS__
     /**
      *
      * Get the observer resolver object for this communicator.
@@ -408,6 +409,7 @@ local interface Communicator
      *
      **/
     ["cpp:const", "cpp:noexcept"] Instrumentation::CommunicatorObserver getObserver();
+#endif
 
     /**
      *
@@ -473,6 +475,7 @@ local interface Communicator
      **/
     void setDefaultLocator(Locator* loc);
 
+#ifndef __SLICE2JS__
     /**
      *
      * Get the plug-in manager for this communicator.
@@ -483,6 +486,7 @@ local interface Communicator
      *
      **/
     ["cpp:const"] PluginManager getPluginManager();
+#endif
 
     /**
      *
@@ -508,6 +512,7 @@ local interface Communicator
      **/
     ["async-oneway"] void flushBatchRequests(CompressBatch compress);
 
+#ifndef __SLICE2JS__
     /**
      *
      * Add the Admin object with all its facets to the provided object adapter.
@@ -593,6 +598,7 @@ local interface Communicator
      *
      **/
     FacetMap findAllAdminFacets();
+#endif
 }
 
 #endif

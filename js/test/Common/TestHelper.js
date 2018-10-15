@@ -29,7 +29,7 @@
                         num = args[1];
                         if(args.length > 2)
                         {
-                            num = args[2];
+                            protocol = args[2];
                         }
                     }
                 }
