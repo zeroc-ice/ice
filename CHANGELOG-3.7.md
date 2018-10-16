@@ -52,6 +52,9 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed a bug in syslog logger that causes the program name not being correctly
   displayed with log messages.
 
+- Fixed an IceStorm bug that prevents topics to being correctly restored from
+  the database when there are multiple topics.
+
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang
