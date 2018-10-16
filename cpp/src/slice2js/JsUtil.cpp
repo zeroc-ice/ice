@@ -267,7 +267,7 @@ Slice::JsGenerator::fixId(const ContainedPtr& cont)
 string
 Slice::JsGenerator::importPrefix(const TypePtr& type,
                                  const ContainedPtr& toplevel,
-                                 const vector<pair<string, string>>& imports)
+                                 const vector<pair<string, string> >& imports)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -310,7 +310,7 @@ Slice::JsGenerator::importPrefix(const TypePtr& type,
 string
 Slice::JsGenerator::importPrefix(const ContainedPtr& contained,
                                  const ContainedPtr& toplevel,
-                                 const vector<pair<string, string>>& imports)
+                                 const vector<pair<string, string> >& imports)
 {
     string m1 = getModuleMetadata(contained);
     string m2 = getModuleMetadata(toplevel);
@@ -341,9 +341,9 @@ Slice::JsGenerator::importPrefix(const ContainedPtr& contained,
 
     if(!p.empty())
     {
-        for (vector<pair<string, string>>::const_iterator i = imports.begin(); i != imports.end(); ++i)
+        for(vector<pair<string, string> >::const_iterator i = imports.begin(); i != imports.end(); ++i)
         {
-            if (i->first == p)
+            if(i->first == p)
             {
                 return i->second + ".";
             }
@@ -396,7 +396,7 @@ Slice::JsGenerator::getUnqualified(const string& type, const string& scope, cons
 string
 Slice::JsGenerator::typeToString(const TypePtr& type,
                                  const ContainedPtr& toplevel,
-                                 const vector<pair<string, string>>& imports,
+                                 const vector<pair<string, string> >& imports,
                                  bool typescript,
                                  bool definition)
 {
@@ -597,7 +597,7 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
 string
 Slice::JsGenerator::typeToString(const TypePtr& type,
                                  const ContainedPtr& toplevel,
-                                 const std::vector<std::pair<std::string, std::string>>& imports,
+                                 const std::vector<std::pair<std::string, std::string> >& imports,
                                  bool typeScript,
                                  bool definition,
                                  bool usealias)

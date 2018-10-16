@@ -358,7 +358,7 @@ writeOpDocSummary(Output& out, const OperationPtr& op, const CommentPtr& doc, Op
 
 }
 
-Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string>>& imports) :
+Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string> >& imports) :
     _out(out),
     _imports(imports)
 {
@@ -368,7 +368,7 @@ Slice::JsVisitor::~JsVisitor()
 {
 }
 
-vector<pair<string, string>>
+vector<pair<string, string> >
 Slice::JsVisitor::imports() const
 {
     return _imports;
@@ -2221,7 +2221,7 @@ Slice::Gen::TypeScriptRequireVisitor::addImport(const string& m1, const string& 
                 relpath.erase(pos);
             }
 
-            for(vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+            for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
             {
                 if(i->first == relpath)
                 {
@@ -2233,7 +2233,7 @@ Slice::Gen::TypeScriptRequireVisitor::addImport(const string& m1, const string& 
     }
     else if(m1 != m2)
     {
-        for(vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+        for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
         {
             if(i->first == m1)
             {
@@ -2364,7 +2364,7 @@ Slice::Gen::TypeScriptRequireVisitor::visitDictionary(const DictionaryPtr& dict)
 void
 Slice::Gen::TypeScriptRequireVisitor::writeRequires(const UnitPtr& p)
 {
-    for(vector<pair<string, string>>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+    for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
     {
         _out << nl << "import * as " << i->second << " from \"" << i->first << "\"";
     }
@@ -2428,7 +2428,7 @@ Slice::Gen::TypeScriptAliasVisitor::addAlias(const string& type, const string& p
     {
         if(scope.find("." + type.substr(0, i + 1)) != string::npos)
         {
-            for(vector<pair<string, string>>::const_iterator j = _aliases.begin(); j != _aliases.end(); ++j)
+            for(vector<pair<string, string> >::const_iterator j = _aliases.begin(); j != _aliases.end(); ++j)
             {
                 if(j->first == type)
                 {
@@ -2554,7 +2554,7 @@ Slice::Gen::TypeScriptAliasVisitor::writeAlias(const UnitPtr& p)
     if(!_aliases.empty())
     {
         _out << sp;
-        for(vector<pair<string, string>>::const_iterator i = _aliases.begin(); i != _aliases.end(); ++i)
+        for(vector<pair<string, string> >::const_iterator i = _aliases.begin(); i != _aliases.end(); ++i)
         {
             _out << nl << "type " << i->second << " = " << i->first << ";";
         }
@@ -2562,7 +2562,7 @@ Slice::Gen::TypeScriptAliasVisitor::writeAlias(const UnitPtr& p)
 }
 
 Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(::IceUtilInternal::Output& out,
-                                                 const vector<pair<string, string>>& imports) :
+                                                 const vector<pair<string, string> >& imports) :
     JsVisitor(out, imports)
 {
 }

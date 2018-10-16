@@ -20,11 +20,11 @@ class JsVisitor : public JsGenerator, public ParserVisitor
 public:
 
     JsVisitor(::IceUtilInternal::Output&,
-              const std::vector<std::pair<std::string, std::string>>& imports =
-                    std::vector<std::pair<std::string, std::string>>());
+              const std::vector<std::pair<std::string, std::string> >& imports =
+                    std::vector<std::pair<std::string, std::string> >());
     virtual ~JsVisitor();
 
-    std::vector<std::pair<std::string, std::string>> imports() const;
+    std::vector<std::pair<std::string, std::string> > imports() const;
 
 protected:
 
@@ -41,7 +41,7 @@ protected:
 
     ::IceUtilInternal::Output& _out;
 
-    std::vector<std::pair<std::string, std::string>> _imports;
+    std::vector<std::pair<std::string, std::string> > _imports;
 };
 
 class Gen : public JsGenerator
@@ -72,8 +72,6 @@ private:
     std::string _fileBase;
     bool _useStdout;
     bool _typeScript;
-    bool _buildModule;
-    bool _noModule;
 
     class RequireVisitor : public JsVisitor
     {
@@ -195,7 +193,7 @@ private:
         void addAlias(const ExceptionPtr&, const ContainedPtr&);
         void addAlias(const TypePtr&, const ContainedPtr&);
         void addAlias(const std::string&, const std::string&, const ContainedPtr&);
-        std::vector<std::pair<std::string, std::string>> _aliases;
+        std::vector<std::pair<std::string, std::string> > _aliases;
     };
 
     class TypeScriptVisitor : public JsVisitor
@@ -203,7 +201,7 @@ private:
     public:
 
         TypeScriptVisitor(::IceUtilInternal::Output&,
-                          const std::vector<std::pair<std::string, std::string>>&);
+                          const std::vector<std::pair<std::string, std::string> >&);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual void visitModuleEnd(const ModulePtr&);
