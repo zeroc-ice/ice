@@ -16,7 +16,6 @@ const PluginError = gutil.PluginError;
 const PLUGIN_NAME = "gulp-ts-bundle";
 const through = require("through2");
 
-
 const namespaces = [""];
 const definitions = new Map();
 definitions.set("", "");
