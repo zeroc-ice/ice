@@ -61,7 +61,7 @@ dependencies {
       compile project(':icegrid')
       compile "com.jgoodies:jgoodies-looks:${jgoodiesLooksVersion}"
       compile "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
-      bundleapp 'com.oracle:appbundler:1.0'
+      bundleapp 'com.panayotis:appbundler:1.0.2'
 }
 
 project.ext.tmpJarName = "IceGridGUITEMP.jar"

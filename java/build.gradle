@@ -29,11 +29,13 @@ subprojects {
             }
         }
 
-        mavenCentral()
-
-        maven {
-            url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
+        if(this.devRepo) {
+            maven {
+                url this.devRepo
+            }
         }
+
+        mavenCentral()
     }
 
     jar {
