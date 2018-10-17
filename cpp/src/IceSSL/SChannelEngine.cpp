@@ -1098,7 +1098,11 @@ SChannel::SSLEngine::getCipherName(ALG_ID cipher) const
         case CALG_SHA_512:
             return "SHA_512";
         default:
-            return "Unknown";
+        {
+            ostringstream os;
+            os << "Unknown cipher: " << cipher;
+            return os.str();
+        }
     }
 }
 
