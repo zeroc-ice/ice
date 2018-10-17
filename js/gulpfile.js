@@ -21,11 +21,11 @@ var babel       = require("gulp-babel"),
     path        = require('path'),
     paths       = require('vinyl-paths'),
     pump        = require('pump'),
-    rollup      = require("rollup").rollup,
+    rollup      = require('gulp-rollup'),
     sourcemaps  = require('gulp-sourcemaps'),
+    terser      = require('gulp-terser');
     tsc         = require('gulp-typescript'),
-    tsformat    = require('gulp-typescript-formatter'),
-    uglify      = require('gulp-uglifyes');
+    tsformat    = require('gulp-typescript-formatter');
 
 var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
@@ -142,7 +142,7 @@ gulp.task("common:slice-babel", ["common:slice"],
 gulp.task("common:slice-es5-controllerworker", ["common:slice-babel"],
           function(cb){
               pump([
-                  gulp.src(["node_modules/babel-polyfill/dist/polyfill.js",
+                  gulp.src(["node_modules/@babel/polyfill/dist/polyfill.js",
                             "test/es5/Common/ControllerWorker.js"]),
                   concat("ControllerWorker.js"),
                   gulp.dest("test/es5/Common/")
@@ -171,17 +171,16 @@ gulp.task("import:slice2js", ["dist"],
     });
 
 gulp.task("import:bundle", ["import:slice2js"],
-    function(){
-        return rollup({
-            entry: "test/Ice/import/main.js",
-            external: "ice"
-        }).then(function(bundle){
-            return bundle.write({
-                format: "cjs",
-                dest: "test/Ice/import/bundle.js"
-            });
-        });
-    });
+          function(cb){
+              pump([
+                  rollup({
+                      input: "test/Ice/import/main.js",
+                      external: "ice",
+                      format: "cjs",
+                  }),
+                  gulp.dest("test/Ice/import/bundle.js")], cb);
+
+          });
 
 gulp.task("import:clean", [],
     function() {
@@ -459,7 +458,7 @@ libs.forEach(
                     gulp.src(libFile(lib)),
                     newer(libFileMin(lib)),
                     sourcemaps.init({loadMaps: false}),
-                    uglify({compress:false}),
+                    terser(),
                     extreplace(".min.js"),
                     sourcemaps.write(".", {includeContent: false, addComment: false}),
                     gulp.dest("lib"),
@@ -494,7 +493,7 @@ libs.forEach(
                 pump([
                     gulp.src(babelLibFile(lib)),
                     newer(babelLibFileMin(lib)),
-                    uglify({compress:false}),
+                    terser(),
                     extreplace(".min.js"),
                     sourcemaps.write(".", {includeContent: false, addComment: false}),
                     gulp.dest("lib/es5"),

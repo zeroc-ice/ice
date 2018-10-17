@@ -75,7 +75,7 @@ function Init()
             var testpath = path.resolve(path.join(this._basePath, "test", matchController[1]))
             var worker = req.url.query.worker == "True";
             var scripts = es5 ? [
-                "/node_modules/babel-polyfill/dist/polyfill.js",
+                "/node_modules/@babel/polyfill/dist/polyfill.js",
                 "/lib/es5/Ice.js",
                 "/test/es5/Common/TestHelper.js",
                 "/test/es5/Common/Controller.js",
