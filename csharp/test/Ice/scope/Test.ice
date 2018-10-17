@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["cs:namespace:Ice.scope"]]
+[["cs:typeid-namespace:Ice.scope.TypeId"]]
+["cs:namespace:Ice.scope"]
 module Test
 {
     struct S

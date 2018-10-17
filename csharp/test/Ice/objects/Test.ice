@@ -9,8 +9,8 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For classes with operations
-[["cs:namespace:Ice.objects"]]
+[["cs:typeid-namespace:Ice.objects.TypeId", "suppress-warning:deprecated"]] // For classes with operations
+["cs:namespace:Ice.objects"]
 module Test
 {
 

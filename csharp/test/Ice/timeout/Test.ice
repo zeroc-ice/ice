@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.timeout"]]
+["cs:namespace:Ice.timeout"]
 module Test
 {
 

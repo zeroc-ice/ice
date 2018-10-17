@@ -11,7 +11,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["cs:namespace:Ice.exceptions"]]
+[["cs:typeid-namespace:Ice.exceptions.TypeId"]]
+
+["cs:namespace:Ice.exceptions"]
 module Test
 {
 

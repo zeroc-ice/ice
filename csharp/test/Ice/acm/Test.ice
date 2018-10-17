@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.acm"]]
+["cs:namespace:Ice.acm"]
 module Test
 {
 

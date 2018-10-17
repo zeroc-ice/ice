@@ -11,7 +11,7 @@
 
 #include <Ice/SliceChecksumDict.ice>
 
-[["cs:namespace:Ice.checksum"]]
+["cs:namespace:Ice.checksum"]
 module Test
 {
 

@@ -9,8 +9,8 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]]
-[["cs:namespace:Ice.optional"]]
+[["cs:typeid-namespace:Ice.optional.TypeId", "suppress-warning:deprecated"]]
+["cs:namespace:Ice.optional"]
 module Test
 {
 

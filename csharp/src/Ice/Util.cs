@@ -106,6 +106,11 @@ namespace Ice
         /// The value factory manager.
         /// </summary>
         public ValueFactoryManager valueFactoryManager;
+
+        /// <summary>
+        /// The list of TypeId namespaces. Default is Ice.TypeId.
+        /// </summary>
+        public string[] typeIdNamespaces = { "Ice.TypeId" };
     }
 
     /// <summary>

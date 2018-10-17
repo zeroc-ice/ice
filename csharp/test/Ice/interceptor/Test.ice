@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.interceptor"]]
+["cs:namespace:Ice.interceptor"]
 module Test
 {
 

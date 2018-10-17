@@ -11,7 +11,7 @@
 
 #include <Ice/Current.ice>
 
-[["cs:namespace:Ice.proxy"]]
+["cs:namespace:Ice.proxy"]
 module Test
 {
 

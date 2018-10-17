@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.enums"]]
+["cs:namespace:Ice.enums"]
 module Test
 {
 

@@ -11,7 +11,9 @@
 
 #include <Ice/Current.ice>
 
-[["cs:namespace:Ice.operations"]]
+[["cs:typeid-namespace:Ice.operations.TypeId"]]
+
+["cs:namespace:Ice.operations"]
 module Test
 {
 

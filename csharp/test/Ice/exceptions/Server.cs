@@ -46,11 +46,10 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                Ice.Properties properties = createTestProperties(ref args);
+                var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Dispatch", "0");
                 properties.setProperty("Ice.Warn.Connections", "0");
                 properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-                properties.setProperty("Ice.Package.Test", "Ice.exceptions");
                 using(var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

@@ -18,9 +18,10 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.seqMapping");
-                using(var communicator = initialize(properties))
+                var initData = new InitializationData();
+                initData.typeIdNamespaces = new string[]{"Ice.seqMapping.TypeId"};
+                initData.properties = createTestProperties(ref args);
+                using(var communicator = initialize(initData))
                 {
                     var myClass = AllTests.allTests(this, false);
                     Console.Out.Write("shutting down server... ");

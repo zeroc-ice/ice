@@ -12,12 +12,11 @@
 //
 // Suppress invalid metadata warnings
 //
-[["suppress-warning:invalid-metadata, deprecated"]]
-
-[["cs:namespace:Ice.stream"]]
+[["cs:typeid-namespace:Ice.stream.TypeId", "suppress-warning:invalid-metadata, deprecated"]]
 
 #include <Ice/BuiltinSequences.ice>
 
+["cs:namespace:Ice.stream"]
 module Test
 {
 

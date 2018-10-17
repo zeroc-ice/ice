@@ -1092,7 +1092,8 @@ public:
     ContainedList findUsedBy(const ContainedPtr&) const;
 
     void addTypeId(int, const std::string&);
-    std::string getTypeId(int);
+    std::string getTypeId(int) const;
+    bool hasCompactTypeId() const;
 
     bool usesNonLocals() const;
     bool usesConsts() const;

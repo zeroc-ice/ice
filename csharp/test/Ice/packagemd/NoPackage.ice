@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.packagemd"]]
+["cs:namespace:Ice.packagemd"]
 module Test1
 {
 class C1

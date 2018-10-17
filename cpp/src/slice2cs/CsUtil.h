@@ -35,7 +35,7 @@ public:
     //
     // Returns the namespace of a Contained entity.
     //
-    static std::string getPackage(const ContainedPtr&);
+    static std::string getNamespace(const ContainedPtr&);
 
     static std::string getUnqualified(const std::string&, const std::string&, bool builtin = false);
     static std::string getUnqualified(const ContainedPtr&,
@@ -48,7 +48,8 @@ protected:
     //
     // Returns the namespace prefix of a Contained entity.
     //
-    static std::string getPackagePrefix(const ContainedPtr&);
+    static std::string getNamespacePrefix(const ContainedPtr&);
+    static std::string getCustomTypeIdNamespace(const UnitPtr&);
 
     static std::string resultStructName(const std::string&, const std::string&, bool = false);
     static std::string resultType(const OperationPtr&, const std::string&, bool = false);

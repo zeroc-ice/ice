@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.dictMapping"]]
+["cs:namespace:Ice.dictMapping"]
 module Test
 {
 

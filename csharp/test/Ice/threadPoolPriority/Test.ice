@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.threadPoolPriority"]]
+["cs:namespace:Ice.threadPoolPriority"]
 module Test
 {
 

@@ -9,7 +9,9 @@
 
 #pragma once
 
-[["cs:namespace:Ice.seqMapping"]]
+[["cs:typeid-namespace:Ice.seqMapping.TypeId"]]
+
+["cs:namespace:Ice.seqMapping"]
 module Test
 {
 

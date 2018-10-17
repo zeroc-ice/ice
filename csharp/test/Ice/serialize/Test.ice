@@ -11,7 +11,9 @@
 
 #include <Ice/BuiltinSequences.ice>
 
-[["cs:namespace:Ice.serialize"]]
+[["cs:typeid-namespace:Ice.serialize.TypeId"]]
+
+["cs:namespace:Ice.serialize"]
 module Test
 {
 
