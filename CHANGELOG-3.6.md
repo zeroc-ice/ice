@@ -11,10 +11,11 @@ particular aspect of Ice.
 - [Changes in Ice 3.6.5 (Pre-Release Snapshot)](#changes-in-ice-365-pre-release-snapshot)
   - [C++ Changes](#c-changes)
   - [Objective-C Changes](#objective-c-changes)
+  - [Java Changes](#java-changes)
 - [Changes in Ice 3.6.4](#changes-in-ice-364)
   - [General Changes](#general-changes)
   - [C++ Changes](#c-changes-1)
-  - [Java Changes](#java-changes)
+  - [Java Changes](#java-changes-1)
   - [JavaScript Changes](#javascript-changes)
   - [C# Changes](#csharp-changes)
 - [Changes in Ice 3.6.3](#changes-in-ice-363)
@@ -27,7 +28,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-1)
   - [C++ Changes](#c-changes-3)
   - [C# Changes](#c-changes-4)
-  - [Java Changes](#java-changes)
+  - [Java Changes](#java-changes-2)
   - [Python Changes](#python-changes-1)
   - [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.6.1](#changes-in-ice-361)
@@ -39,7 +40,7 @@ particular aspect of Ice.
   - [General Changes](#general-changes-3)
   - [C++ Changes](#c-changes-6)
   - [C# Changes](#c-changes-7)
-  - [Java Changes](#java-changes-1)
+  - [Java Changes](#java-changes-3)
   - [JavaScript Changes](#javascript-changes-1)
   - [Objective-C Changes](#objective-c-changes-2)
   - [PHP Changes](#php-changes-2)
@@ -70,6 +71,11 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 - Fixed the generated code to specify the `__autoreleasing` qualifier on
   parameters returned by reference. Xcode 9.0 now emits a warning if this
   qualifier is omitted.
+
+## Java Changes
+
+- Protocol compression can now use Bzip2 implementation from Apache Commons
+  Compress if the Bizp2 implementation from Apache Ant isn't found.
 
 ## C# Changes
 

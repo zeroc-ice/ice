@@ -2591,12 +2591,15 @@ public class BasicStream
             // compressed BasicStream in an OutputStream wrapper.
             //
             BufferedOutputStream bos = new BufferedOutputStream(compressed);
-            //
-            // For interoperability with the bzip2 C library, we insert the magic bytes
-            // 'B', 'Z' before invoking the Java implementation.
-            //
-            bos.write('B');
-            bos.write('Z');
+            if(_checkBZip2Magic)
+            {
+                //
+                // For interoperability with the bzip2 C library, we insert the magic bytes
+                // 'B', 'Z' before invoking the Java implementation.
+                //
+                bos.write('B');
+                bos.write('Z');
+            }
             java.lang.Object[] args = new java.lang.Object[]{ bos, Integer.valueOf(compressionLevel) };
             java.io.OutputStream os = (java.io.OutputStream)_bzOutputStreamCtor.newInstance(args);
             os.write(data, offset + headerSize, uncompressedLen);
@@ -2692,18 +2695,21 @@ public class BasicStream
             //
             java.io.ByteArrayInputStream bais =
                 new java.io.ByteArrayInputStream(compressed, offset + headerSize + 4, compressedLen);
-            //
-            // For interoperability with the bzip2 C library, we insert the magic bytes
-            // 'B', 'Z' during compression and therefore must extract them before we
-            // invoke the Java implementation.
-            //
-            byte magicB = (byte)bais.read();
-            byte magicZ = (byte)bais.read();
-            if(magicB != (byte)'B' || magicZ != (byte)'Z')
+            if(_checkBZip2Magic)
             {
-                Ice.CompressionException e = new Ice.CompressionException();
-                e.reason = "bzip2 uncompression failure: invalid magic bytes";
-                throw e;
+                //
+                // For interoperability with the bzip2 C library, we insert the magic bytes
+                // 'B', 'Z' during compression and therefore must extract them before we
+                // invoke the Java implementation.
+                //
+                byte magicB = (byte)bais.read();
+                byte magicZ = (byte)bais.read();
+                if(magicB != (byte)'B' || magicZ != (byte)'Z')
+                {
+                    Ice.CompressionException e = new Ice.CompressionException();
+                    e.reason = "bzip2 uncompression failure: invalid magic bytes";
+                    throw e;
+                }
             }
             java.lang.Object[] args = new java.lang.Object[]{ bais };
             java.io.InputStream is = (java.io.InputStream)_bzInputStreamCtor.newInstance(args);
@@ -4901,6 +4907,7 @@ public class BasicStream
     private static final byte FLAG_IS_LAST_SLICE            = (byte)(1<<5);
 
     private static boolean _checkedBZip2 = false;
+    private static boolean _checkBZip2Magic = false;
     private static java.lang.reflect.Constructor<?> _bzInputStreamCtor;
     private static java.lang.reflect.Constructor<?> _bzOutputStreamCtor;
 
@@ -4932,10 +4939,40 @@ public class BasicStream
                     types[1] = Integer.TYPE;
                     _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
                 }
+                _checkBZip2Magic = true;
             }
             catch(Exception ex)
             {
                 // Ignore - bzip2 compression not available.
+            }
+            if(_bzInputStreamCtor == null || _bzOutputStreamCtor == null)
+            {
+                try
+                {
+                    Class<?> cls;
+                    Class<?>[] types = new Class<?>[1];
+                    cls = IceInternal.Util.findClass(
+                        "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream", null);
+                    if(cls != null)
+                    {
+                        types[0] = java.io.InputStream.class;
+                        _bzInputStreamCtor = cls.getDeclaredConstructor(types);
+                    }
+                    cls = IceInternal.Util.findClass(
+                        "org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream", null);
+                    if(cls != null)
+                    {
+                        types = new Class[2];
+                        types[0] = java.io.OutputStream.class;
+                        types[1] = Integer.TYPE;
+                        _bzOutputStreamCtor = cls.getDeclaredConstructor(types);
+                    }
+                    _checkBZip2Magic = false;
+                }
+                catch(Exception ex)
+                {
+                    // Ignore - bzip2 compression not available.
+                }
             }
         }
         return _bzInputStreamCtor != null && _bzOutputStreamCtor != null;
