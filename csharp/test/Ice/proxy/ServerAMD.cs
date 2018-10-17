@@ -23,7 +23,6 @@ namespace Ice
                     //
                     properties.setProperty("Ice.Warn.Connections", "0");
                     properties.setProperty("Ice.Warn.Dispatch", "0");
-                    properties.setProperty("Ice.Package.Test", "Ice.proxy");
                     using(var communicator = initialize(properties))
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

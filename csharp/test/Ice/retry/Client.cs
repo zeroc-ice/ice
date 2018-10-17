@@ -27,7 +27,6 @@ namespace Ice
                 // This test kills connections, so we don't want warnings.
                 //
                 initData.properties.setProperty("Ice.Warn.Connections", "0");
-                initData.properties.setProperty("Ice.Package.Test", "Ice.retry");
                 using(var communicator = initialize(initData))
                 {
                     //

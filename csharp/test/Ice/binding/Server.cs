@@ -19,7 +19,6 @@ namespace Ice
             {
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ServerIdleTime", "30");
-                properties.setProperty("Ice.Package.Test", "Ice.binding");
                 using(var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

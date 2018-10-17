@@ -19,7 +19,6 @@ namespace Ice
             {
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Dispatch", "0");
-                properties.setProperty("Ice.Package.Test", "Ice.retry");
                 using(var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

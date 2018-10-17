@@ -21,7 +21,6 @@ namespace Ice
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Connections", "0");
                 properties.setProperty("Ice.UDP.RcvSize", "16384");
-                properties.setProperty("Ice.Package.Test", "Ice.udp");
                 if(IceInternal.AssemblyUtil.isMacOS && properties.getPropertyAsInt("Ice.IPv6") > 0)
                 {
                     // Disable dual mode sockets on macOS, see https://github.com/dotnet/corefx/issues/31182

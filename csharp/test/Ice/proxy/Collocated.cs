@@ -22,7 +22,6 @@ namespace Ice
                 properties.setProperty("Ice.ThreadPool.Client.Size", "2"); // For nested AMI.
                 properties.setProperty("Ice.ThreadPool.Client.SizeWarn", "0");
                 properties.setProperty("Ice.Warn.Dispatch", "0");
-                properties.setProperty("Ice.Package.Test", "Ice.proxy");
 
                 using(var communicator = initialize(properties))
                 {

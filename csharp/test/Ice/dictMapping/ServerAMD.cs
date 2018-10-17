@@ -19,9 +19,7 @@ namespace Ice
             {
                 public override void run(string[] args)
                 {
-                    var properties = createTestProperties(ref args);
-                    properties.setProperty("Ice.Package.Test", "Ice.dictMapping.AMD");
-                    using(var communicator = initialize(properties))
+                    using(var communicator = initialize(ref args))
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

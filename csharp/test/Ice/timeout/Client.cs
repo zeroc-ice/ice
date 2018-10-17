@@ -32,7 +32,6 @@ namespace Ice
                 // send() blocking after sending a given amount of data.
                 //
                 properties.setProperty("Ice.TCP.SndSize", "50000");
-                properties.setProperty("Ice.Package.Test", "Ice.timeout");
                 using(var communicator = initialize(properties))
                 {
                     AllTests.allTests(this);

@@ -52,7 +52,6 @@ namespace Ice
                     properties.setProperty("Ice.Warn.Dispatch", "0");
                     properties.setProperty("Ice.Warn.Connections", "0");
                     properties.setProperty("Ice.MessageSizeMax", "10"); // 10KB max
-                    properties.setProperty("Ice.Package.Test", "Ice.exceptions.AMD");
                     using(var communicator = initialize(properties))
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
