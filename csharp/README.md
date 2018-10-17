@@ -148,11 +148,10 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 On Windows, `allTests.py` executes by default the tests for .NET Framework 4.5.
-In order to execute the tests for a target framework that implements .NET Standard
-2.0, add the `--netframework` option with the moniker of a target framework used
-to build the tests. For example:
+In order to execute the tests with .NET Core framework add the `--dotnetcore` option.
+For example:
 ```
-python allTests.py --netframework netcoreapp2.0
+python allTests.py --dotnetcore
 ```
 
 ## NuGet Package
