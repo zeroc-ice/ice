@@ -764,11 +764,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\scope
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\scope\msbuild\server\netstandard2.0\server.csproj", "{F67DF0EA-3830-4D17-B60B-0F6BAD76AEAA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packagemd", "packagemd", "{2988E030-1F8E-490B-B8A3-D1F02073500A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "namespacemd", "namespacemd", "{2988E030-1F8E-490B-B8A3-D1F02073500A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\packagemd\msbuild\client\netstandard2.0\client.csproj", "{C56E9BC5-37E6-4001-A45C-D11E64C7385E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "client", "..\test\Ice\namespacemd\msbuild\client\netstandard2.0\client.csproj", "{C56E9BC5-37E6-4001-A45C-D11E64C7385E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\packagemd\msbuild\server\netstandard2.0\server.csproj", "{33983EDC-CF67-4697-81D4-AA5337733FE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "server", "..\test\Ice\namespacemd\msbuild\server\netstandard2.0\server.csproj", "{33983EDC-CF67-4697-81D4-AA5337733FE0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

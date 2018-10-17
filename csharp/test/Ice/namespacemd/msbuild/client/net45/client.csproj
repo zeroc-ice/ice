@@ -69,11 +69,11 @@
     <Compile Include="..\..\..\Client.cs">
       <Link>Client.cs</Link>
     </Compile>
-    <Compile Include="generated\NoPackage.cs">
-      <SliceCompileSource>..\..\..\NoPackage.ice</SliceCompileSource>
+    <Compile Include="generated\NoNamespace.cs">
+      <SliceCompileSource>..\..\..\NoNamespace.ice</SliceCompileSource>
     </Compile>
-    <Compile Include="generated\Package.cs">
-      <SliceCompileSource>..\..\..\Package.ice</SliceCompileSource>
+    <Compile Include="generated\Namespace.cs">
+      <SliceCompileSource>..\..\..\Namespace.ice</SliceCompileSource>
     </Compile>
     <Compile Include="generated\Test.cs" />
   </ItemGroup>
@@ -87,11 +87,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <SliceCompile Include="..\..\..\NoPackage.ice">
-      <Link>NoPackage.ice</Link>
+    <SliceCompile Include="..\..\..\NoNamespace.ice">
+      <Link>NoNamespace.ice</Link>
     </SliceCompile>
-    <SliceCompile Include="..\..\..\Package.ice">
-      <Link>Package.ice</Link>
+    <SliceCompile Include="..\..\..\Namespace.ice">
+      <Link>Namespace.ice</Link>
     </SliceCompile>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

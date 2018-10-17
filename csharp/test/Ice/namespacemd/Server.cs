@@ -11,18 +11,15 @@ using Test;
 
 namespace Ice
 {
-    namespace packagemd
+    namespace namespacemd
     {
         public class Server : TestHelper
         {
             public override void run(string[] args)
             {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.packagemd");
-                properties.setProperty("Ice.Package.Test1", "Ice.packagemd");
-                using(var communicator = initialize(properties))
+                using(var communicator = initialize(ref args))
                 {
-                    properties.setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
+                    communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     var adapter = communicator.createObjectAdapter("TestAdapter");
                     adapter.add(new InitialI(), Ice.Util.stringToIdentity("initial"));
                     adapter.activate();

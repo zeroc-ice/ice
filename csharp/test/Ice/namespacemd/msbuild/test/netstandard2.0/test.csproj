@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <Import Project="../../../../../../msbuild/ice.common.props" />
   <PropertyGroup>
-    <AssemblyName>Ice.packagemd</AssemblyName>
+    <AssemblyName>Ice.namespacemd</AssemblyName>
     <TargetFramework>netstandard2.0</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
@@ -21,20 +21,20 @@
     <Compile Include="../../../Client.cs" />
     <Compile Include="../../../InitialI.cs" />
       <Compile Include="../../../Server.cs" />
-    <Compile Include="generated/NoPackage.cs">
-      <SliceCompileSource>../../../NoPackage.ice</SliceCompileSource>
+    <Compile Include="generated/NoNamespace.cs">
+      <SliceCompileSource>../../../NoNamespace.ice</SliceCompileSource>
     </Compile>
 
-    <Compile Include="generated/Package.cs">
-      <SliceCompileSource>../../../Package.ice</SliceCompileSource>
+    <Compile Include="generated/Namespace.cs">
+      <SliceCompileSource>../../../Namespace.ice</SliceCompileSource>
     </Compile>
 
     <Compile Include="generated/Test.cs">
       <SliceCompileSource>../../../Test.ice</SliceCompileSource>
     </Compile>
 
-    <SliceCompile Include="../../../NoPackage.ice" />
-    <SliceCompile Include="../../../Package.ice" />
+    <SliceCompile Include="../../../NoNamespace.ice" />
+    <SliceCompile Include="../../../Namespace.ice" />
     <SliceCompile Include="../../../Test.ice" />
 
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" />

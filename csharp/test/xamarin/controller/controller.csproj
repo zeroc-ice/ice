@@ -76,7 +76,7 @@
     <ProjectReference Include="..\..\Ice\objects\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\operations\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\optional\msbuild\test\netstandard2.0\test.csproj" />
-    <ProjectReference Include="..\..\Ice\packagemd\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\namespacemd\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\proxy\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\retry\msbuild\test\netstandard2.0\test.csproj" />
     <ProjectReference Include="..\..\Ice\scope\msbuild\test\netstandard2.0\test.csproj" />

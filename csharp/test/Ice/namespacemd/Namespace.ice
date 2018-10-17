@@ -9,8 +9,8 @@
 
 #pragma once
 
-["cs:namespace:Ice.packagemd"]
-module Test1
+["cs:namespace:Ice.namespacemd"]
+module WithNamespace
 {
 class C1
 {
@@ -30,10 +30,5 @@ exception E1
 exception E2 extends E1
 {
     long l;
-}
-
-exception notify /* Test keyword escape. */
-{
-    int i;
 }
 }
