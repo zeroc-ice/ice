@@ -1,24 +1,27 @@
 {
-"presets":
-    [
-        "babel-preset-es2015-script"
+    "presets": [
+        "@babel/preset-env",
     ],
-"plugins":
-    [
+    "plugins": [
         [
             "babel-plugin-transform-builtin-extend",
-                {
-                    "globals": ["Error", "Promise"]
-                }
+            {
+                "globals": [
+                    "Error",
+                    "Promise"
+                ]
+            }
         ],
         [
             "rewrite-require",
-                {
-                    "aliases": { "ice": "ice/src/es5"}
+            {
+                "aliases": {
+                    "ice": "ice/src/es5"
                 }
+            }
         ],
         [
-                "transform-async-to-generator"
+            "@babel/plugin-transform-async-to-generator"
         ]
     ]
 }

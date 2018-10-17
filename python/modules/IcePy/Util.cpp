@@ -73,6 +73,11 @@ getVersion(PyObject* p, T& v, const char* type)
         }
         v.major = static_cast<Ice::Byte>(m);
     }
+    else
+    {
+        v.major = 0;
+    }
+
     if(minor.get())
     {
         major = PyNumber_Long(minor.get());
@@ -88,6 +93,10 @@ getVersion(PyObject* p, T& v, const char* type)
             return false;
         }
         v.minor = static_cast<Ice::Byte>(m);
+    }
+    else
+    {
+        v.minor = 0;
     }
     return true;
 }

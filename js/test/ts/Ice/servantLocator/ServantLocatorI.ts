@@ -63,7 +63,6 @@ export class ServantLocatorI implements Ice.ServantLocator
 
     finished(current:Ice.Current, servant:Ice.Object, cookie:Object):void
     {
-        console.log("finished", new Error().stack);
         test(!this._deactivated);
 
         //

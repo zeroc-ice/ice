@@ -23,8 +23,7 @@ export class Server extends TestHelper
         try
         {
             const [properties] = this.createTestProperties(args);
-            properties.setProperty("Ice.Warn.Dispatch", "1");
-            properties.setProperty("Ice.Trace.Protocol", "1");
+            properties.setProperty("Ice.Warn.Dispatch", "0");
             [communicator] = this.initialize(properties);
 
             echo = await Test.EchoPrx.checkedCast(communicator.stringToProxy("__echo:" + this.getTestEndpoint()));
