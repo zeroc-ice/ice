@@ -77,7 +77,6 @@ export class Client extends TestHelper
                         ex.unknown == "::Test::TestIntfUserException"), ex);
             }
 
-            console.log("localException");
             try
             {
                 await obj.localException();
@@ -89,9 +88,7 @@ export class Client extends TestHelper
                 test(ex.unknown.indexOf("Ice::SocketException") >= 0 ||
                         ex.unknown.indexOf("Ice.SocketException") >= 0);
             }
-            console.log("localException ok");
 
-            console.log("jsException");
             try
             {
                 await obj.jsException();
@@ -102,7 +99,6 @@ export class Client extends TestHelper
                 test((ex instanceof Ice.OperationNotExistException) ||
                         (ex instanceof Ice.UnknownException || ex.unknown.indexOf("") >= 0), ex);
             }
-            console.log("jsException ok");
 
             try
             {

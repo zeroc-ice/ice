@@ -569,11 +569,20 @@ class LocalDriver(Driver):
                 # interrupted by potential KeyboardInterrupt exceptions which could leave some servers
                 # behind.
                 #
-                t=threading.Thread(target = lambda: self.runner.stopServerSide(server, current, success))
+                failure = []
+                def stopServerSide():
+                    try:
+                        self.runner.stopServerSide(server, current, success)
+                    except Exception as ex:
+                        failure.append(ex)
+
+                t=threading.Thread(target = stopServerSide)
                 t.start()
                 while True:
                     try:
                         t.join()
+                        if failure:
+                            raise failure[0]
                         break
                     except KeyboardInterrupt:
                         pass # Ignore keyboard interrupts
