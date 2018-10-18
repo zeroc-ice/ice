@@ -25,7 +25,7 @@ var babel       = require("gulp-babel"),
     sourcemaps  = require('gulp-sourcemaps'),
     terser      = require('gulp-terser');
     tsc         = require('gulp-typescript'),
-    tsformat    = require('gulp-typescript-formatter');
+    tsformat    = require('./gulp/ts-formatter');
 
 var sliceDir   = path.resolve(__dirname, '..', 'slice');
 
