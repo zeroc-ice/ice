@@ -215,14 +215,14 @@ set PATH=%LOCALAPPDATA%\Android\sdk\tools\bin;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 
-cd csharp\test\xamarin\controller.Android
+cd test\xamarin\controller.Android
 python allTests.py --androidemulator --controller-app --config Release --platform x64
 ```
 
 #### Running the UWP test suite
 
 ```
-cd csharp\test\xamarin\controller.UWP
+cd test\xamarin\controller.UWP
 python allTests.py --controller-app --config Release --platform x64
 ```
 
@@ -253,14 +253,14 @@ export PATH=~/Library/Android/sdk/tools/bin:$PATH
 export PATH=~/Library/Android/sdk/platform-tools:$PATH
 export PATH=~/Library/Android/sdk/emulator:$PATH
 
-cd csharp/test/xamarin/controller.Android
+cd test/xamarin/controller.Android
 python allTests.py --androidemulator --controller-app --config Release --platform x64
 ```
 
 #### Running the iOS test suite
 
 ```
-cd csharp/test/xamarin/controller.iOS
+cd test/xamarin/controller.iOS
 python allTests.py --controller-app --platform iphonesimulator --config Release
 ```
 
