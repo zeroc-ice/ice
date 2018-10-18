@@ -13,7 +13,7 @@ class IceGridDistributionTestCase(IceGridTestCase):
     def setupClientSide(self, current):
         IceGridTestCase.setupClientSide(self, current)
 
-        datadir = os.path.join(self.getPath(), "data")
+        datadir = os.path.join(current.testsuite.getPath(), "data")
 
         files = [
           [ "original/rootfile", "rootfile" ],

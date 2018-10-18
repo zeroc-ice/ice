@@ -17,7 +17,7 @@ class ConfigurationTestCase(ClientServerTestCase):
         if not isinstance(self.getMapping(), CppMapping):
             return
 
-        certsPath = os.path.abspath(os.path.join(self.getPath(), "..", "certs"))
+        certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             keychainPath = os.path.join(certsPath, "Find.keychain")
             os.system("mkdir -p {0}".format(os.path.join(certsPath, "keychain")))
@@ -40,7 +40,7 @@ class ConfigurationTestCase(ClientServerTestCase):
         if not isinstance(self.getMapping(), CppMapping):
             return
 
-        certsPath = os.path.abspath(os.path.join(self.getPath(), "..", "certs"))
+        certsPath = os.path.abspath(os.path.join(current.testsuite.getPath(), "..", "certs"))
         if isinstance(platform, Darwin) and current.config.buildPlatform == "macosx":
             os.system("rm -rf {0} {1}".format(os.path.join(certsPath, "keychain"), os.path.join(certsPath, "Find.keychain")))
         elif current.config.openssl or platform.hasOpenSSL():
@@ -49,17 +49,18 @@ class ConfigurationTestCase(ClientServerTestCase):
                 out =  run("{openssl} x509 -subject_hash -noout -in {pem}".format(pem=pem, openssl=self.getOpenSSLCommand()))
                 os.remove("{dir}/{out}.0".format(out=out, dir=certsPath))
             if isinstance(platform, Windows):
-                os.remove(os.path.join(self.getPath(), "openssl.cnf"))
+                os.remove(os.path.join(current.testsuite.getPath(), "openssl.cnf"))
                 del os.environ["OPENSSL_CONF"]
 
     def getOpenSSLCommand(self):
         if isinstance(platform, Windows):
-            conf = os.path.join(self.getPath(), "openssl.cnf")
+            conf = os.path.join(current.testsuite.getPath(), "openssl.cnf")
             os.environ["OPENSSL_CONF"] = conf
             with open(conf, "w") as file:
                 file.write("# Dummy openssl configuration file to avoid warnings with Windows testing")
-            return os.path.join(self.getPath(), "..", "..", "..", "msbuild", "packages", "zeroc.openssl.v140.1.0.2.5",
-                                "build", "native", "bin", "Win32", "Release", "openssl.exe")
+            return os.path.join(current.testsuite.getPath(), "..", "..", "..", "msbuild", "packages",
+                                "zeroc.openssl.v140.1.0.2.5", "build", "native", "bin", "Win32", "Release",
+                                "openssl.exe")
         else:
             return "openssl"
 

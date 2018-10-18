@@ -13,7 +13,7 @@ import glob
 class SliceErrorDetectionTestCase(ClientTestCase):
 
     def runClientSide(self, current):
-        testdir = self.getPath()
+        testdir = current.testsuite.getPath()
         slice2cpp = SliceTranslator("slice2cpp")
 
         files = glob.glob("{0}/*.ice".format(testdir))

@@ -405,7 +405,7 @@ class Windows(Platform):
     def getBuildSubDir(self, mapping, name, current):
         buildPlatform = current.driver.configs[mapping].buildPlatform
         buildConfig = current.driver.configs[mapping].buildConfig
-        if os.path.exists(os.path.join(current.testcase.getPath(), "msbuild", name)):
+        if os.path.exists(os.path.join(current.testcase.getPath(current), "msbuild", name)):
             return os.path.join("msbuild", name, buildPlatform, buildConfig)
         else:
             return os.path.join("msbuild", buildPlatform, buildConfig)
@@ -527,6 +527,7 @@ class Mapping(object):
             else:
                 self.buildPlatform = platform.getDefaultBuildPlatform()
 
+            self.pathOverride = ""
             self.protocol = "tcp"
             self.compress = False
             self.serialize = False
@@ -882,7 +883,7 @@ class Mapping(object):
         return os.path.join(self.path, "..", "scripts", "tests")
 
     def getTestCwd(self, process, current):
-        return current.testcase.getPath()
+        return current.testcase.getPath(current)
 
     def getDefaultSource(self, processType):
         defaultSource = component.getDefaultSource(self, processType)
@@ -935,7 +936,7 @@ class Mapping(object):
             cmd = os.path.join(component.getBinDir(process, self, current), exe)
         elif current.testcase:
             # If it's a process from a testcase, the binary is in the test build directory.
-            cmd = os.path.join(current.testcase.getPath(), current.getBuildDir(exe), exe)
+            cmd = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe), exe)
         else:
             cmd = exe
 
@@ -1449,8 +1450,12 @@ class TestCase(Runnable):
     def getName(self):
         return self.name
 
-    def getPath(self):
-        return self.testsuite.getPath()
+    def getPath(self, current):
+        path = self.testsuite.getPath()
+        if current.config.pathOverride:
+            return path.replace(toplevel, current.config.pathOverride)
+        else:
+            return path
 
     def getMapping(self):
         return self.mapping
@@ -2924,12 +2929,13 @@ class CppMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["cpp-config=", "cpp-platform=", "uwp", "openssl"])
+            return ("", ["cpp-config=", "cpp-platform=", "cpp-path=", "uwp", "openssl"])
 
         @classmethod
         def usage(self):
             print("")
             print("C++ Mapping options:")
+            print("--cpp-path=<path>         Path of alternate source tree for the C++ mapping.")
             print("--cpp-config=<config>     C++ build configuration for native executables (overrides --config).")
             print("--cpp-platform=<platform> C++ build platform for native executables (overrides --platform).")
             print("--uwp                     Run UWP (Universal Windows Platform).")
@@ -2942,7 +2948,12 @@ class CppMapping(Mapping):
             # tests on the cpp11 value in the testcase options specification
             self.cpp11 = self.buildConfig.lower().find("cpp11") >= 0
 
-            parseOptions(self, options, { "cpp-config" : "buildConfig", "cpp-platform" : "buildPlatform" })
+            parseOptions(self, options, { "cpp-config" : "buildConfig",
+                                          "cpp-platform" : "buildPlatform",
+                                          "cpp-path" : "pathOverride" })
+
+            if self.pathOverride:
+                self.pathOverride = os.path.abspath(self.pathOverride)
 
     def getOptions(self, current):
         return { "compress" : [False] } if current.config.uwp else {}
@@ -3051,8 +3062,8 @@ class JavaMapping(Mapping):
         if process.isFromBinDir():
             return "{0} -ea {1} {2}".format(java, exe, args)
 
-        assert(current.testcase.getPath().startswith(self.getTestsPath()))
-        package = "test." + current.testcase.getPath()[len(self.getTestsPath()) + 1:].replace(os.sep, ".")
+        assert(current.testcase.getPath(current).startswith(self.getTestsPath()))
+        package = "test." + current.testcase.getPath(current)[len(self.getTestsPath()) + 1:].replace(os.sep, ".")
         javaArgs = self.getJavaArgs(process, current)
         if javaArgs:
             return "{0} -ea {1} -Dtest.class={2}.{3} test.TestDriver {4}".format(java, " ".join(javaArgs), package, exe, args)
@@ -3238,7 +3249,7 @@ class CSharpMapping(Mapping):
         #
         proccessType = current.testcase.getProcessType(process)
         if proccessType:
-            testdir = os.path.join(current.testcase.getPath(), self.getBuildDir(proccessType, current))
+            testdir = os.path.join(current.testcase.getPath(current), self.getBuildDir(proccessType, current))
             if os.path.isfile(os.path.join(testdir, plugin + ".dll")):
                 plugindir = testdir
 
@@ -3276,7 +3287,7 @@ class CSharpMapping(Mapping):
         if process.isFromBinDir():
             path = component.getBinDir(process, self, current)
         else:
-            path = os.path.join(current.testcase.getPath(), current.getBuildDir(exe))
+            path = os.path.join(current.testcase.getPath(current), current.getBuildDir(exe))
 
         if current.config.dotnetcore:
             return "dotnet " + os.path.join(path, exe) + ".dll " + args
@@ -3496,7 +3507,7 @@ class PythonMapping(CppBasedMapping):
             # If not installed in the default platform installation directory, add
             # the Ice python directory to PYTHONPATH
             dirs += self.getPythonDirs(component.getInstallDir(self, current), current.config)
-        dirs += [current.testcase.getPath()]
+        dirs += [current.testcase.getPath(current)]
         env["PYTHONPATH"] = os.pathsep.join(dirs)
         return env
 
@@ -3546,7 +3557,7 @@ class RubyMapping(CppBasedClientMapping):
             # If not installed in the default platform installation directory, add
             # the Ice ruby directory to RUBYLIB
             dirs += [os.path.join(self.path, "ruby")]
-        dirs += [current.testcase.getPath()]
+        dirs += [current.testcase.getPath(current)]
         env["RUBYLIB"] = os.pathsep.join(dirs)
         return env
 
