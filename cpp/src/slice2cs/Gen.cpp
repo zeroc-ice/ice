@@ -2284,7 +2284,7 @@ Slice::Gen::TypeIdVisitor::generateHelperClass(const ContainedPtr& p)
     emitGeneratedCodeAttribute();
     _out << nl << "public sealed class " << name;
     _out << sb;
-    _out << nl << "public global::" << getNamespace(p) << "." << name << " targetClass { get; set; }";
+    _out << nl << "public global::" << getNamespace(p) << "." << name << " targetClass { get; }";
     _out << eb;
 }
 
