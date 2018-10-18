@@ -3793,7 +3793,7 @@ Slice::Gen::ProxyVisitor::ProxyVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls())
+    if(!p->hasNonLocalAbstractClassDefs())
     {
         return false;
     }
@@ -3990,10 +3990,14 @@ Slice::Gen::AsyncDelegateVisitor::AsyncDelegateVisitor(IceUtilInternal::Output& 
 bool
 Slice::Gen::AsyncDelegateVisitor::visitModuleStart(const ModulePtr& p)
 {
-    moduleStart(p);
-    _out << sp << nl << "namespace " << fixId(p->name());
-    _out << sb;
-    return true;
+    if(p->hasOperations())
+    {
+        moduleStart(p);
+        _out << sp << nl << "namespace " << fixId(p->name());
+        _out << sb;
+        return true;
+    }
+    return false;
 }
 
 void
@@ -4006,7 +4010,7 @@ Slice::Gen::AsyncDelegateVisitor::visitModuleEnd(const ModulePtr& p)
 bool
 Slice::Gen::AsyncDelegateVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    return !p->operations().empty();
+    return p->hasOperations();
 }
 
 void
@@ -4050,7 +4054,7 @@ Slice::Gen::OpsVisitor::OpsVisitor(IceUtilInternal::Output& out)
 bool
 Slice::Gen::OpsVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasAbstractClassDefs())
+    if(!p->hasNonLocalAbstractClassDefs())
     {
         return false;
     }
@@ -4148,7 +4152,7 @@ Slice::Gen::HelperVisitor::HelperVisitor(IceUtilInternal::Output& out) :
 bool
 Slice::Gen::HelperVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls() && !p->hasNonLocalSequences() && !p->hasDictionaries())
+    if(!p->hasNonLocalAbstractClassDefs() && !p->hasNonLocalSequences() && !p->hasDictionaries())
     {
         return false;
     }
@@ -5080,7 +5084,7 @@ Slice::Gen::DispatcherVisitor::DispatcherVisitor(::IceUtilInternal::Output& out,
 bool
 Slice::Gen::DispatcherVisitor::visitModuleStart(const ModulePtr& p)
 {
-    if(!p->hasNonLocalClassDecls())
+    if(!p->hasNonLocalAbstractClassDefs())
     {
         return false;
     }

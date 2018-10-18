@@ -2443,18 +2443,39 @@ Slice::Container::hasOnlyClassDecls() const
 }
 
 bool
-Slice::Container::hasAbstractClassDefs() const
+Slice::Container::hasOperations() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isAbstract())
+        if(cl && cl->hasOperations())
         {
             return true;
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasAbstractClassDefs())
+        if(container && container->hasOperations())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+Slice::Container::hasNonLocalAbstractClassDefs() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
+        if(cl && cl->isAbstract() && !cl->isLocal())
+        {
+            return true;
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasNonLocalAbstractClassDefs())
         {
             return true;
         }

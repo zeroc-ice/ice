@@ -507,7 +507,8 @@ public:
     bool hasNonLocalInterfaceDefs() const;
     bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
-    bool hasAbstractClassDefs() const;
+    bool hasOperations() const; // interfaces or classes with operations
+    bool hasNonLocalAbstractClassDefs() const; // interfaces or abstract classes
     bool hasNonLocalDataOnlyClasses() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
