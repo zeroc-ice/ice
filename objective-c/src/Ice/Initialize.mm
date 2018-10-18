@@ -166,7 +166,6 @@ private:
 {
     Ice::InitializationData data;
     data.properties = [(ICEProperties*)properties properties];
-    data.logger = [ICELogger loggerWithLogger:logger];
     if(batchRequestInterceptor)
     {
         data.batchRequestInterceptor = [ICEBatchRequestInterceptor
@@ -415,6 +414,17 @@ private:
         if(argc != nil && argv != nil)
         {
             data.properties = createProperties(*argc, argv, data.properties);
+        }
+
+        //
+        // If no logger is specified, install a default logger unless Ice.UseSyslog
+        // or Ice.LogFile is configured
+        //
+        if(!data.logger && data.properties->getPropertyAsInt("Ice.UseSyslog") <= 0 &&
+           data.properties->getProperty("Ice.LogFile").empty())
+        {
+            id<ICELogger> logger = initData ? initData.logger : nil;
+            data.logger = [ICELogger loggerWithLogger:logger];
         }
 
         Ice::CommunicatorPtr communicator;

@@ -20,153 +20,153 @@ class LoggerWrapperI : public Ice::Logger
 {
 public:
 
-// We must explicitely CFRetain/CFRelease so that the garbage
-// collector does not trash the logger.
-LoggerWrapperI(id<ICELogger> logger) : _logger(logger)
-{
-    CFRetain(_logger);
-}
-
-virtual ~LoggerWrapperI()
-{
-    CFRelease(_logger);
-}
-
-virtual void
-print(const std::string& msg)
-{
-    NSException* ex = nil;
-    @autoreleasepool
+    // We must explicitely CFRetain/CFRelease so that the garbage
+    // collector does not trash the logger.
+    LoggerWrapperI(id<ICELogger> logger) : _logger(logger)
     {
-        NSString* s = toNSString(msg);
+        CFRetain(_logger);
+    }
+
+    virtual ~LoggerWrapperI()
+    {
+        CFRelease(_logger);
+    }
+
+    virtual void
+    print(const std::string& msg)
+    {
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            NSString* s = toNSString(msg);
+            @try
+            {
+                [_logger print:s];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+            @finally
+            {
+                [s release];
+            }
+        }
+        if(ex != nil)
+        {
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
+    }
+
+    virtual void
+    trace(const std::string& category, const std::string& msg)
+    {
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            NSString* s1 = toNSString(category);
+            NSString* s2 = toNSString(msg);
+            @try
+            {
+                [_logger trace:s1 message:s2];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+            @finally
+            {
+                [s1 release];
+                [s2 release];
+            }
+        }
+        if(ex != nil)
+        {
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
+    }
+
+    virtual void
+    warning(const std::string& msg)
+    {
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            NSString* s = toNSString(msg);
+            @try
+            {
+                [_logger warning:s];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+            @finally
+            {
+                [s release];
+            }
+        }
+        if(ex != nil)
+        {
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
+    }
+
+    virtual void
+    error(const std::string& msg)
+    {
+        NSException* ex = nil;
+        @autoreleasepool
+        {
+            NSString* s = toNSString(msg);
+            @try
+            {
+                [_logger error:s];
+            }
+            @catch(id e)
+            {
+                ex = [e retain];
+            }
+            @finally
+            {
+                [s release];
+            }
+        }
+        if(ex != nil)
+        {
+            rethrowCxxException(ex, true); // True = release the exception.
+        }
+    }
+
+    virtual Ice::LoggerPtr
+    cloneWithPrefix(const std::string& prefix)
+    {
+        NSString* s = toNSString(prefix);
         @try
         {
-            [_logger print:s];
-        }
-        @catch(id e)
-        {
-            ex = [e retain];
+            return [ICELogger loggerWithLogger:[_logger cloneWithPrefix:s]];
         }
         @finally
         {
             [s release];
         }
     }
-    if(ex != nil)
-    {
-        rethrowCxxException(ex, true); // True = release the exception.
-    }
-}
 
-virtual void
-trace(const std::string& category, const std::string& msg)
-{
-    NSException* ex = nil;
-    @autoreleasepool
+    virtual std::string
+    getPrefix()
     {
-        NSString* s1 = toNSString(category);
-        NSString* s2 = toNSString(msg);
-        @try
-        {
-            [_logger trace:s1 message:s2];
-        }
-        @catch(id e)
-        {
-            ex = [e retain];
-        }
-        @finally
-        {
-            [s1 release];
-            [s2 release];
-        }
+        return fromNSString([_logger getPrefix]);
     }
-    if(ex != nil)
-    {
-        rethrowCxxException(ex, true); // True = release the exception.
-    }
-}
 
-virtual void
-warning(const std::string& msg)
-{
-    NSException* ex = nil;
-    @autoreleasepool
+    id<ICELogger>
+    getLogger()
     {
-        NSString* s = toNSString(msg);
-        @try
-        {
-            [_logger warning:s];
-        }
-        @catch(id e)
-        {
-            ex = [e retain];
-        }
-        @finally
-        {
-            [s release];
-        }
+        return _logger;
     }
-    if(ex != nil)
-    {
-        rethrowCxxException(ex, true); // True = release the exception.
-    }
-}
-
-virtual void
-error(const std::string& msg)
-{
-    NSException* ex = nil;
-    @autoreleasepool
-    {
-        NSString* s = toNSString(msg);
-        @try
-        {
-            [_logger error:s];
-        }
-        @catch(id e)
-        {
-            ex = [e retain];
-        }
-        @finally
-        {
-            [s release];
-        }
-    }
-    if(ex != nil)
-    {
-        rethrowCxxException(ex, true); // True = release the exception.
-    }
-}
-
-virtual Ice::LoggerPtr
-cloneWithPrefix(const std::string& prefix)
-{
-    NSString* s = toNSString(prefix);
-    @try
-    {
-        return [ICELogger loggerWithLogger:[_logger cloneWithPrefix:s]];
-    }
-    @finally
-    {
-        [s release];
-    }
-}
-
-virtual std::string
-getPrefix()
-{
-    return fromNSString([_logger getPrefix]);
-}
-
-id<ICELogger>
-getLogger()
-{
-    return _logger;
-}
 
 private:
 
-id<ICELogger> _logger;
+    id<ICELogger> _logger;
 
 };
 typedef IceUtil::Handle<LoggerWrapperI> LoggerWrapperIPtr;
