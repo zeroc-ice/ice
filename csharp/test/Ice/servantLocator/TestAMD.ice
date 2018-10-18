@@ -9,7 +9,9 @@
 
 #pragma once
 
-[["cs:namespace:Ice.servantLocator.AMD"]]
+[["cs:typeid-namespace:Ice.servantLocator.AMD.TypeId"]]
+
+["cs:namespace:Ice.servantLocator.AMD"]
 module Test
 {
 

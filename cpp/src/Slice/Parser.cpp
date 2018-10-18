@@ -6679,7 +6679,7 @@ Slice::Unit::addTypeId(int compactId, const std::string& typeId)
 }
 
 std::string
-Slice::Unit::getTypeId(int compactId)
+Slice::Unit::getTypeId(int compactId) const
 {
     map<int, string>::const_iterator p = _typeIds.find(compactId);
     if(p != _typeIds.end())
@@ -6687,6 +6687,12 @@ Slice::Unit::getTypeId(int compactId)
         return p->second;
     }
     return string();
+}
+
+bool
+Slice::Unit::hasCompactTypeId() const
+{
+    return _typeIds.size() > 0;
 }
 
 bool

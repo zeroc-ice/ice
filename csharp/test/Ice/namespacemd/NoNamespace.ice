@@ -9,9 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.packagemd.testpkg"]]
-
-module Test2
+module NoNamespace
 {
 class C1
 {
@@ -32,28 +30,9 @@ exception E2 extends E1
 {
     long l;
 }
-}
 
-["cs:namespace:Ice.packagemd.modpkg"]
-module Test3
-{
-class C1
+exception notify /* Test keyword escape. */
 {
     int i;
-}
-
-class C2 extends C1
-{
-    long l;
-}
-
-exception E1
-{
-    int i;
-}
-
-exception E2 extends E1
-{
-    long l;
 }
 }

@@ -172,9 +172,7 @@ namespace Ice
 
             public override void run(string[] args)
             {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.interceptor");
-                using(var communicator = initialize(properties))
+                using(var communicator = initialize(ref args))
                 {
                     //
                     // Create OA and servants

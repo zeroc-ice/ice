@@ -19,19 +19,21 @@ namespace Ice
             {
                 public override void run(string[] args)
                 {
-                    Ice.Properties properties = createTestProperties(ref args);
+                    var initData = new InitializationData();
+                    initData.typeIdNamespaces = new string[]{"Ice.operations.AMD.TypeId"};
+                    initData.properties = createTestProperties(ref args);
+
                     //
                     // Its possible to have batch oneway requests dispatched
                     // after the adapter is deactivated due to thread
                     // scheduling so we supress this warning.
                     //
-                    properties.setProperty("Ice.Warn.Dispatch", "0");
+                    initData.properties.setProperty("Ice.Warn.Dispatch", "0");
                     //
                     // We don't want connection warnings because of the timeout test.
                     //
-                    properties.setProperty("Ice.Warn.Connections", "0");
-                    properties.setProperty("Ice.Package.Test", "Ice.operations.AMD");
-                    using (var communicator = initialize(properties))
+                    initData.properties.setProperty("Ice.Warn.Connections", "0");
+                    using(var communicator = initialize(initData))
                     {
                         communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                         Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

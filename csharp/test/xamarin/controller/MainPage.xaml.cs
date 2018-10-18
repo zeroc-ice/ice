@@ -263,13 +263,13 @@ namespace controller
                 return new Ice.optional.AMD.Server();
             }
 
-            else if(type.Equals("Ice.packagemd.Client"))
+            else if(type.Equals("Ice.namespacemd.Client"))
             {
-                return new Ice.packagemd.Client();
+                return new Ice.namespacemd.Client();
             }
-            else if(type.Equals("Ice.packagemd.Server"))
+            else if(type.Equals("Ice.namespacemd.Server"))
             {
-                return new Ice.packagemd.Server();
+                return new Ice.namespacemd.Server();
             }
 
             else if(type.Equals("Ice.proxy.Client"))

@@ -18,7 +18,6 @@ namespace Ice
             override public void run(string[] args)
             {
                 var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.acm");
                 properties.setProperty("Ice.Warn.Connections", "0");
                 using(var communicator = initialize(properties))
                 {

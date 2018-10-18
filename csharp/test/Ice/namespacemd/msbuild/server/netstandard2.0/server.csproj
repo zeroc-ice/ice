@@ -26,19 +26,19 @@
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../../InitialI.cs" />
     <Compile Include="../../../Server.cs" />
-    <Compile Include="generated\NoPackage.cs">
-      <SliceCompileSource>../../../NoPackage.ice</SliceCompileSource>
+    <Compile Include="generated\NoNamespace.cs">
+      <SliceCompileSource>../../../NoNamespace.ice</SliceCompileSource>
     </Compile>
-    <Compile Include="generated\Package.cs">
-      <SliceCompileSource>../../../Package.ice</SliceCompileSource>
+    <Compile Include="generated\Namespace.cs">
+      <SliceCompileSource>../../../Namespace.ice</SliceCompileSource>
     </Compile>
     <Compile Include="generated\Test.cs">
       <SliceCompileSource>../../../Test.ice</SliceCompileSource>
     </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" />
     <SliceCompile Include="../../../Test.ice" />
-    <SliceCompile Include="../../../Package.ice" />
-    <SliceCompile Include="../../../NoPackage.ice" />
+    <SliceCompile Include="../../../Namespace.ice" />
+    <SliceCompile Include="../../../NoNamespace.ice" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">

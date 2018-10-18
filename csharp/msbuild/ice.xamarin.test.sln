@@ -97,9 +97,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "optional", "optional", "{15
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\optional\msbuild\test\netstandard2.0\test.csproj", "{FA714D0F-528A-49F5-A2A8-51AAD5CD4D79}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packagemd", "packagemd", "{76132143-9859-4F3C-9AB5-24E9905CAB77}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "namespacemd", "namespacemd", "{76132143-9859-4F3C-9AB5-24E9905CAB77}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\packagemd\msbuild\test\netstandard2.0\test.csproj", "{3E6D14B4-FB21-45EF-9B04-1AEC4F9DD72F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "test", "..\test\Ice\namespacemd\msbuild\test\netstandard2.0\test.csproj", "{3E6D14B4-FB21-45EF-9B04-1AEC4F9DD72F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "proxy", "proxy", "{1E33ACEE-1485-4452-B0FD-319E69AE0ACA}"
 EndProject

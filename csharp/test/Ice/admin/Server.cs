@@ -17,9 +17,7 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                Ice.Properties properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.admin");
-                using(var communicator = initialize(properties))
+                using(var communicator = initialize(ref args))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0) + " -t 10000");
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

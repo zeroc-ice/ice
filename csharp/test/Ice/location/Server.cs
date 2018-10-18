@@ -24,7 +24,6 @@ namespace Ice
                 //
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-                properties.setProperty("Ice.Package.Test", "Ice.location");
 
                 using(var communicator = initialize(properties))
                 {

@@ -100,7 +100,7 @@ splitScopedName(const string& scoped)
 }
 
 string
-Slice::CsGenerator::getPackagePrefix(const ContainedPtr& cont)
+Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 {
     //
     // Traverse to the top-level module.
@@ -124,41 +124,40 @@ Slice::CsGenerator::getPackagePrefix(const ContainedPtr& cont)
 
     assert(m);
 
-    //
-    // The cs:namespace metadata can be defined as global metadata or applied to a top-level module.
-    // We check for the metadata at the top-level module first and then fall back to the global scope.
-    //
     static const string prefix = "cs:namespace:";
 
     string q;
-    if(!m->findMetaData(prefix, q))
-    {
-        UnitPtr unit = cont->unit();
-        string file = cont->file();
-        assert(!file.empty());
-
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
-        assert(dc);
-        q = dc->findMetaData(prefix);
-    }
-
-    if(!q.empty())
+    if(m->findMetaData(prefix, q))
     {
         q = q.substr(prefix.size());
     }
-
     return q;
 }
 
 string
-Slice::CsGenerator::getPackage(const ContainedPtr& cont)
+Slice::CsGenerator::getCustomTypeIdNamespace(const UnitPtr& unit)
+{
+    DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
+    assert(dc);
+
+    static const string typeIdNsPrefix = "cs:typeid-namespace:";
+    string result = dc->findMetaData(typeIdNsPrefix);
+    if(!result.empty())
+    {
+        result = result.substr(typeIdNsPrefix.size());
+    }
+    return result;
+}
+
+string
+Slice::CsGenerator::getNamespace(const ContainedPtr& cont)
 {
     string scope = fixId(cont->scope());
     if(scope.rfind(".") == scope.size() - 1)
     {
         scope = scope.substr(0, scope.size() - 1);
     }
-    string prefix = getPackagePrefix(cont);
+    string prefix = getNamespacePrefix(cont);
     if(!prefix.empty())
     {
         if(!scope.empty())
@@ -196,7 +195,7 @@ Slice::CsGenerator::getUnqualified(const ContainedPtr& p, const string& package,
                                    const string& suffix)
 {
     string name = fixId(prefix + p->name() + suffix);
-    string contPkg = getPackage(p);
+    string contPkg = getNamespace(p);
     if(contPkg == package || contPkg.empty())
     {
         return name;
@@ -1303,7 +1302,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
     assert(cont);
     if(useHelper)
     {
-        string helperName = getUnqualified(getPackage(seq) + "." + seq->name() + "Helper", scope);
+        string helperName = getUnqualified(getNamespace(seq) + "." + seq->name() + "Helper", scope);
         if(marshal)
         {
             out << nl << helperName << ".write(" << stream << ", " << param << ");";
@@ -2486,8 +2485,8 @@ Slice::CsGenerator::MetaDataVisitor::visitUnitStart(const UnitPtr& p)
             if(s.find(csPrefix) == 0)
             {
                 static const string csAttributePrefix = csPrefix + "attribute:";
-                static const string csNamespacePrefix = csPrefix + "namespace:";
-                if(!(s.find(csNamespacePrefix) == 0 && s.size() > csNamespacePrefix.size()) &&
+                static const string csTypeIdNsPrefix = csPrefix + "typeid-namespace:";
+                if(!(s.find(csTypeIdNsPrefix) == 0 && s.size() > csTypeIdNsPrefix.size()) &&
                    !(s.find(csAttributePrefix) == 0 && s.size() > csAttributePrefix.size()))
                 {
                     dc->warning(InvalidMetaData, file, -1, "ignoring invalid global metadata `" + oldS + "'");

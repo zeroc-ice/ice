@@ -36,10 +36,11 @@ namespace Ice
 
             public override void run(string[] args)
             {
-                Ice.Properties properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Warn.Dispatch", "0");
-                properties.setProperty("Ice.Package.Test", "Ice.objects");
-                using(var communicator = initialize(properties))
+                var initData = new InitializationData();
+                initData.typeIdNamespaces = new string[]{"Ice.objects.TypeId"};
+                initData.properties = createTestProperties(ref args);
+                initData.properties.setProperty("Ice.Warn.Dispatch", "0");
+                using(var communicator = initialize(initData))
                 {
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::I");
                     communicator.getValueFactoryManager().add(MyValueFactory, "::Test::J");

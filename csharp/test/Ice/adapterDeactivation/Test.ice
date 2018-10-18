@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.adapterDeactivation"]]
+["cs:namespace:Ice.adapterDeactivation"]
 module Test
 {
 

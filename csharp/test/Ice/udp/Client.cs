@@ -20,7 +20,6 @@ namespace Ice
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Connections", "0");
                 properties.setProperty("Ice.UDP.SndSize", "16384");
-                properties.setProperty("Ice.Package.Test", "Ice.udp");
                 using(var communicator = initialize(properties))
                 {
                     AllTests.allTests(this);

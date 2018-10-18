@@ -21,8 +21,6 @@ namespace Ice
                 properties.setProperty("Ice.Warn.AMICallback", "0");
                 properties.setProperty("Ice.Warn.Connections", "0");
 
-                properties.setProperty("Ice.Package.Test", "Ice.ami");
-
                 //
                 // We use a client thread pool with more than one thread to test
                 // that task inlining works.

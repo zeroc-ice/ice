@@ -17,9 +17,7 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.enums");
-                using(var communicator = initialize(properties))
+                using(var communicator = initialize(ref args))
                 {
                     var proxy = AllTests.allTests(this);
                     proxy.shutdown();

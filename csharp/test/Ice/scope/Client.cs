@@ -17,9 +17,10 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.scope");
-                using(var communicator = initialize(properties))
+                var initData = new InitializationData();
+                initData.typeIdNamespaces = new string[]{"Ice.scope.TypeId"};
+                initData.properties = createTestProperties(ref args);
+                using(var communicator = initialize(initData))
                 {
                     var output = getWriter();
                     output.Write("test same Slice type name in different scopes... ");

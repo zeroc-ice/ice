@@ -11,7 +11,7 @@ using Test;
 
 namespace Ice
 {
-    namespace packagemd
+    namespace namespacemd
     {
         public class Client : TestHelper
         {
@@ -19,8 +19,6 @@ namespace Ice
             {
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.Warn.Dispatch", "0");
-                properties.setProperty("Ice.Package.Test", "Ice.packagemd");
-                properties.setProperty("Ice.Package.Test1", "Ice.packagemd");
                 using(var communicator = initialize(properties))
                 {
                     var initial = AllTests.allTests(this);

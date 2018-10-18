@@ -17,7 +17,6 @@ namespace Ice
             {
                 var properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ThreadPool.Server.ThreadPriority", "AboveNormal");
-                properties.setProperty("Ice.Package.Test", "Ice.threadPoolPriority");
                 using(var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

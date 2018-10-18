@@ -17,9 +17,10 @@ namespace Ice
         {
             public override void run(string[] args)
             {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.objects");
-                using(var communicator = initialize(properties))
+                var initData = new InitializationData();
+                initData.typeIdNamespaces = new string[]{"Ice.objects.TypeId"};
+                initData.properties = createTestProperties(ref args);
+                using(var communicator = initialize(initData))
                 {
                     var initial = Test.AllTests.allTests(this);
                     initial.shutdown();

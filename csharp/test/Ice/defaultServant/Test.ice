@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["cs:namespace:Ice.defaultServant"]]
+["cs:namespace:Ice.defaultServant"]
 module Test
 {
 
