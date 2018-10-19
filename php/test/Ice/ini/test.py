@@ -39,5 +39,5 @@ TestSuite(__name__, [
     ClientTestCase("php INI settings with profiles",
                    client=IniClient("--Ice.Trace.Network=1 --Ice.Warn.Connections=1",
                                     "Test",
-                                    exe="ClientWithProfile.php"))
+                                    exe="ClientWithProfile"))
 ])

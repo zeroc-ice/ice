@@ -48,21 +48,11 @@ class Ice(Component):
         else:
             return "ice.so"
 
-    def getNugetPackage(self, mapping, compiler=None):
+    def getNugetPackageVersionFile(self, mapping):
         if isinstance(mapping, CSharpMapping):
-            return "zeroc.ice.net"
+            return os.path.join(toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec")
         else:
-            return "zeroc.ice.{0}".format(compiler)
-
-    def getNugetPackageVersion(self, mapping):
-        if not self.nugetVersion:
-            if isinstance(mapping, CSharpMapping):
-                with open(os.path.join(toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec"), "r") as configFile:
-                    self.nugetVersion = re.search("<version>(.*)</version>", configFile.read()).group(1)
-            else:
-                with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-                    self.nugetVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        return self.nugetVersion
+            return os.path.join(toplevel, "cpp", "msbuild", "zeroc.ice.{0}.nuspec".format(platform.getPlatformToolset()))
 
     def getFilters(self, mapping, config):
         if "xcodesdk" in config.buildConfig:
@@ -167,7 +157,8 @@ class Ice(Component):
         return True
 
     def isMainThreadOnly(self, testId):
-        return testId.startswith("IceStorm") # TODO: WORKAROUND for ICE-8175
+        #return testId.startswith("IceStorm") # TODO: WORKAROUND for ICE-8175
+        return False # By default, tests support being run concurrently
 
     def getDefaultProcesses(self, mapping, processType, testId):
         if testId.startswith("IceUtil") or testId.startswith("Slice"):
@@ -233,23 +224,23 @@ from IceStormUtil import *
 #
 for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
     if m == "cpp" or re.match("cpp-.*", m):
-        Mapping.add(m, CppMapping())
+        Mapping.add(m, CppMapping(), component)
     elif m == "java-compat" or re.match("java-compat-.*", m):
-        Mapping.add(m, JavaCompatMapping())
+        Mapping.add(m, JavaCompatMapping(), component)
     elif m == "java" or re.match("java-.*", m):
-        Mapping.add(m, JavaMapping())
+        Mapping.add(m, JavaMapping(), component)
     elif m == "python" or re.match("python-.*", m):
-        Mapping.add(m, PythonMapping())
+        Mapping.add(m, PythonMapping(), component)
     elif m == "ruby" or re.match("ruby-.*", m):
-        Mapping.add(m, RubyMapping())
+        Mapping.add(m, RubyMapping(), component)
     elif m == "php" or re.match("php-.*", m):
-        Mapping.add(m, PhpMapping())
+        Mapping.add(m, PhpMapping(), component)
     elif m == "js" or re.match("js-.*", m):
-        Mapping.add(m, JavaScriptMapping())
+        Mapping.add(m, JavaScriptMapping(), component)
     elif m == "objective-c" or re.match("objective-c-*", m):
-        Mapping.add(m, ObjCMapping())
+        Mapping.add(m, ObjCMapping(), component)
     elif m == "csharp" or re.match("charp-.*", m):
-        Mapping.add("csharp", CSharpMapping())
+        Mapping.add("csharp", CSharpMapping(), component)
 
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
@@ -267,24 +258,24 @@ elif not platform.hasDotNet():
 #
 try:
     run("adb version")
-    Mapping.add(os.path.join("java-compat", "test", "android"), AndroidCompatMapping())
-    Mapping.add(os.path.join("java", "test", "android"), AndroidMapping())
+    Mapping.add(os.path.join("java-compat", "test", "android"), AndroidCompatMapping(), component)
+    Mapping.add(os.path.join("java", "test", "android"), AndroidMapping(), component)
     if (isinstance(platform, Windows) and platform.getCompiler() == "VC141") or isinstance(platform, Darwin):
-        Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.Android"), XamarinAndroidMapping())
+        Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.Android"), XamarinAndroidMapping(), component)
 except:
     pass
 
 if isinstance(platform, Windows) and platform.getCompiler() == "VC141":
-    Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.UWP"), XamarinUWPMapping())
+    Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.UWP"), XamarinUWPMapping(), component)
 
 if isinstance(platform, Darwin):
-    Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.iOS"), XamarinIOSMapping())
+    Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.iOS"), XamarinIOSMapping(), component)
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping
 #
 try:
     run("where matlab" if isinstance(platform, Windows) else "which matlab")
-    Mapping.add("matlab", MatlabMapping())
+    Mapping.add("matlab", MatlabMapping(), component)
 except:
     pass

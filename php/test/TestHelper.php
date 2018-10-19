@@ -202,7 +202,7 @@ class TestHelper
         try
         {
             $filename = $args[1];
-            require_once($args[1]);
+            require_once($filename . ".php");
             $classname = pathinfo($filename);
             $helper = new $classname["filename"];
             $helper->run(array_slice($args, 1));

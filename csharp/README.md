@@ -173,12 +173,13 @@ This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 ## Building Ice for Xamarin Test Suite
 
 The `msbuild\ice.xamarin.test.sln` Visual Studio solution allows building
-the Ice test suite as a Xamarin application that can be deployed to iOS, Android
+the Ice test suite as a Xamarin application that can be deployed on iOS, Android
 or UWP platforms.
 
-The Xamarin test suite use the Ice assemblies for .NET Standard 2.0. either
-from the source distribution that must be build before this application or
-using the zeroc.ice.net NuGet package.
+The Xamarin test suite uses the Ice assemblies for .NET Standard 2.0. either
+from the source distribution or using the zeroc.ice.net NuGet package. If using
+the assembles from the source distribution, they must be built before this
+application.
 
 ### Building on Windows
 
@@ -194,7 +195,7 @@ using the zeroc.ice.net NuGet package.
 Open a Visual Studio 2017 command prompt:
 
 ```
-nuget restore msbuild\xamarin.test.sln
+nuget restore msbuild\ice.xamarin.test.sln
 MSBuild test\xamarin\controller.Android\controller.Android.csproj /t:SignAndroidPackage /p:Configuration=Release /p:Platform=AnyCPU
 ```
 
@@ -203,7 +204,7 @@ MSBuild test\xamarin\controller.Android\controller.Android.csproj /t:SignAndroid
 Open a Visual Studio 2017 command prompt:
 
 ```
-nuget restore msbuild\xamarin.test.sln
+nuget restore msbuild\ice.xamarin.test.sln
 MSBuild test\xamarin\controller.UWP\controller.UWP.csproj /p:Configuration=Release
 ```
 
