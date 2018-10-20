@@ -3340,6 +3340,9 @@ class CSharpMapping(Mapping):
             "collocated" : "Collocated.cs",
         }[processType]
 
+    def _getDefaultExe(self, processType):
+        return Mapping._getDefaultExe(self, processType).lower()
+
     def getCommandLine(self, current, process, exe, args):
         if process.isFromBinDir():
             path = self.component.getBinDir(process, self, current)
