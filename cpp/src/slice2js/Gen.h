@@ -159,8 +159,6 @@ private:
         virtual void visitSequence(const SequencePtr&);
         virtual void visitDictionary(const DictionaryPtr&);
 
-        void writeRequires(const UnitPtr&);
-
     private:
 
         void addImport(const TypePtr&, const ContainedPtr&);
@@ -212,6 +210,11 @@ private:
         virtual void visitDictionary(const DictionaryPtr&);
         virtual void visitEnum(const EnumPtr&);
         virtual void visitConst(const ConstPtr&);
+
+    private:
+
+        void writeImports();
+        bool _wroteImports;
     };
 };
 
