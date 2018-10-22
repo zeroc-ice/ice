@@ -465,7 +465,12 @@ class Windows(Platform):
             return Platform.getNugetPackageDir(self, component, mapping, current)
         else:
             package = "{0}.{1}".format(component.getNugetPackage(mapping), component.getNugetPackageVersion(mapping))
-            return os.path.join(mapping.path, "msbuild", "packages", package)
+            # The package directory is either under the msbuild directory or in the mapping directory depending
+            # on where the solution is located.
+            if os.path.exists(os.path.join(mapping.path, "msbuild", "packages")):
+                return os.path.join(mapping.path, "msbuild", "packages", package)
+            else:
+                return os.path.join(mapping.path, "packages", package)
 
     def getDotNetExe(self):
         try:
@@ -945,7 +950,7 @@ class Mapping(object):
         name, ext = os.path.splitext(self.getDefaultSource(processType))
         if name in globals():
             return [globals()[name]()]
-        return [Server()] if processType in ["server", "serveramd"] else [Client()] if processType else []
+        return [Server()] if processType.startswith("server") else [Client()] if processType else []
 
     def _getDefaultExe(self, processType):
         return os.path.splitext(self.getDefaultSource(processType))[0]
@@ -3732,7 +3737,7 @@ class JavaScriptMapping(Mapping):
             return Mapping.getByName("cpp") # Run clients against C++ mapping servers if no JS server provided
 
     def _getDefaultProcesses(self, processType):
-        if processType in ["server", "serveramd"]:
+        if processType.startswith("server"):
             return [EchoServer(), Server()]
         return Mapping._getDefaultProcesses(self, processType)
 
