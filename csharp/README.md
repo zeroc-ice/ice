@@ -55,7 +55,7 @@ You can skip the build of the test suite with the `BuildDist` target:
 msbuild msbuild\ice.proj /t:BuildDist
 ```
 
-The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist` targets
+The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist` targets
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
