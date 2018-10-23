@@ -200,6 +200,19 @@ class K
 sequence<Value> ValueSeq;
 dictionary<string, Value> ValueMap;
 
+struct StructKey
+{
+    int i;
+    string s;
+}
+
+dictionary<StructKey, L> LMap;
+
+class M
+{
+    LMap v;
+}
+
 class Initial
 {
     void shutdown();
@@ -255,6 +268,7 @@ class Initial
     ObjectPrxDict getObjectPrxDict(ObjectPrxDict d);
     BaseDict getBaseDict(BaseDict d);
     BasePrxDict getBasePrxDict(BasePrxDict d);
+    M opM(M v1, out M v2);
 }
 
 interface TestIntf

@@ -67,6 +67,12 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Slice to JavaScript compiler can now generate TypeScript declaration files
   for JavaScript generated code using `--typescript` command line option.
 
+## Matlab Changes
+
+- Fixed a bug that cause slice2matab generated code to throw type conversion
+  exception, this affects classes or struct containing an array mapped to an
+  structure array.
+
 # Changes in Ice 3.7.1
 
 These are the changes since Ice 3.7.0.

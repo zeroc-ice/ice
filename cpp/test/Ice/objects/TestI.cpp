@@ -371,6 +371,13 @@ InitialI::throwEDerived(const Ice::Current&)
                    ICE_MAKE_SHARED(A1, "a4"));
 }
 
+Test::MPtr
+InitialI::opM(ICE_IN(Test::MPtr) v1, Test::MPtr& v2, const Ice::Current&)
+{
+    v2 = v1;
+    return v1;
+}
+
 bool
 UnexpectedObjectExceptionTestI::ice_invoke(ICE_IN(std::vector<Ice::Byte>),
                                            std::vector<Ice::Byte>& outParams,

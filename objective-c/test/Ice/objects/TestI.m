@@ -349,6 +349,12 @@
 {
     return d;
 }
+
+-(TestObjectsM *) opM:(TestObjectsM *)v1 v2:(TestObjectsM **)v2 current:(ICECurrent *)current
+{
+    *v2 = v1;
+    return v1;
+}
 @end
 
 @implementation UnexpectedObjectExceptionTestI

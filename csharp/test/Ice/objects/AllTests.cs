@@ -487,6 +487,29 @@ namespace Ice
                     var sc1 = new SC1();
                     test(sc1.id.Equals("My id"));
                     output.WriteLine("ok");
+
+                    output.Write("testing class containing complex dictionary... ");
+                    output.Flush();
+                    {
+                        var m = new Test.M();
+                        m.v = new Dictionary<StructKey, L>();
+                        var k1 = new StructKey(1, "1");
+                        m.v[k1] = new L("one");
+                        var k2 = new StructKey(2, "2");
+                        m.v[k2] = new L("two");
+                        Test.M m1;
+                        var m2 = initial.opM(m, out m1);
+                        test(m1.v.Count == 2);
+                        test(m2.v.Count == 2);
+
+                        test(m1.v[k1].data.Equals("one"));
+                        test(m2.v[k1].data.Equals("one"));
+
+                        test(m1.v[k2].data.Equals("two"));
+                        test(m2.v[k2].data.Equals("two"));
+
+                    }
+                    output.WriteLine("ok");
                     return initial;
                 }
             }

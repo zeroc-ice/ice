@@ -37,7 +37,9 @@ import test.Ice.objects.Test.InitialPrx;
 import test.Ice.objects.Test.J;
 import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.UnexpectedObjectExceptionTestPrx;
-
+import test.Ice.objects.Test.M;
+import test.Ice.objects.Test.StructKey;
+import test.Ice.objects.Test.Initial.OpMResult;
 public class AllTests
 {
     private static void test(boolean b)
@@ -382,6 +384,29 @@ public class AllTests
         out.println("ok");
         out.print("testing getting ObjectFactory as ValueFactory...");
         test(communicator.getValueFactoryManager().find("TestOF") != null);
+        out.println("ok");
+
+        out.print("testing class containing complex dictionary... ");
+        out.flush();
+        {
+            M m = new M();
+            m.v = new java.util.HashMap<StructKey, L>();
+            StructKey k1 = new StructKey(1, "1");
+            m.v.put(k1, new L("one"));
+            StructKey k2 = new StructKey(2, "2");
+            m.v.put(k2, new L("two"));
+
+            Initial.OpMResult opMResult = initial.opM(m);
+            test(opMResult.returnValue.v.size() == 2);
+            test(opMResult.v2.v.size() == 2);
+
+            test(opMResult.returnValue.v.get(k1).data.equals("one"));
+            test(opMResult.v2.v.get(k1).data.equals("one"));
+
+            test(opMResult.returnValue.v.get(k2).data.equals("two"));
+            test(opMResult.v2.v.get(k2).data.equals("two"));
+
+        }
         out.println("ok");
 
         return initial;

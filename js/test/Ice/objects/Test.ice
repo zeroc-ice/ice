@@ -189,6 +189,19 @@ class L
 sequence<Value> ValueSeq;
 dictionary<string, Value> ValueMap;
 
+struct StructKey
+{
+    int i;
+    string s;
+}
+
+dictionary<StructKey, L> LMap;
+
+class M
+{
+    LMap v;
+}
+
 interface Initial
 {
     void shutdown();
@@ -232,6 +245,8 @@ interface Initial
 
     void throwInnerEx() throws Inner::Ex;
     void throwInnerSubEx() throws Inner::Sub::Ex;
+
+    M opM(M v1, out M v2);
 }
 
 class Empty

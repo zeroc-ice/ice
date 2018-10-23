@@ -195,6 +195,9 @@ class InitialI(Test.Initial):
     def throwInnerSubEx(self, current=None):
         raise Test.Inner.Sub.Ex("Inner::Sub::Ex")
 
+    def opM(self, m, current=None):
+        return (m, m)
+
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):
         return Test.AlsoEmpty()

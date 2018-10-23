@@ -33,6 +33,8 @@ import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.Initial;
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
+import test.Ice.objects.Test.M;
+import test.Ice.objects.Test.MHolder;
 
 public final class InitialI extends Initial
 {
@@ -283,6 +285,14 @@ public final class InitialI extends Initial
     shutdown(Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
+    }
+
+    @Override
+    public M
+    opM(M v1, MHolder v2, Ice.Current current)
+    {
+        v2.value = v1;
+        return v1;
     }
 
     private Ice.ObjectAdapter _adapter;

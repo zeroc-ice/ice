@@ -155,6 +155,19 @@ class L
 sequence<Value> ValueSeq;
 dictionary<string, Value> ValueMap;
 
+struct StructKey
+{
+    int i;
+    string s;
+}
+
+dictionary<StructKey, L> LMap;
+
+class M
+{
+    LMap v;
+}
+
 class Initial
 {
     void shutdown();
@@ -192,6 +205,8 @@ class Initial
     BaseSeq opBaseSeq(BaseSeq inSeq, out BaseSeq outSeq);
 
     Compact getCompact();
+
+    M opM(M v1, out M v2);
 }
 
 }

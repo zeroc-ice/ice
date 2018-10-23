@@ -194,6 +194,13 @@ namespace Ice
                 return Task.FromResult(new Test.Initial_GetAMDMBMarshaledResult(_b1, current));
             }
 
+            public override Test.M
+            opM(Test.M v1, out Test.M v2, Ice.Current current)
+            {
+                v2 = v1;
+                return v1;
+            }
+
             private Ice.ObjectAdapter _adapter;
             private Test.B _b1;
             private Test.B _b2;

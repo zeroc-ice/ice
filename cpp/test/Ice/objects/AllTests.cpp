@@ -536,5 +536,34 @@ allTests(Test::TestHelper* helper)
     {
     }
 
+    cout << "testing class containing complex dictionary... " << flush;
+    {
+        Test::MPtr m = ICE_MAKE_SHARED(Test::M);
+
+        Test::StructKey k1;
+        k1.i = 1;
+        k1.s = "1";
+        m->v[k1] = ICE_MAKE_SHARED(L, "one");
+
+        Test::StructKey k2;
+        k2.i = 2;
+        k2.s = "2";
+        m->v[k2] = ICE_MAKE_SHARED(L, "two");
+
+        Test::MPtr m1;
+        Test::MPtr m2 = initial->opM(m, m1);
+
+        test(m1->v.size() == 2);
+        test(m2->v.size() == 2);
+
+        test(m1->v[k1]->data == "one");
+        test(m2->v[k1]->data == "one");
+
+        test(m1->v[k2]->data == "two");
+        test(m2->v[k2]->data == "two");
+
+    }
+    cout << "ok" << endl;
+
     return initial;
 }

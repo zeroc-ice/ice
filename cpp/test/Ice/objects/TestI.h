@@ -145,6 +145,8 @@ public:
     virtual void throwInnerEx(const Ice::Current&);
     virtual void throwInnerSubEx(const Ice::Current&);
 
+    virtual Test::MPtr opM(ICE_IN(Test::MPtr), Test::MPtr&, const Ice::Current&);
+
 private:
 
     Ice::ObjectAdapterPtr _adapter;

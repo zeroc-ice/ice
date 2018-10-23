@@ -670,5 +670,28 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         // cross-test server does not implement this object
     }
 
+    {
+        tprintf("testing class containing a complex dictionary... ");
+        TestObjectsMutableLMap* v = [TestObjectsMutableLMap dictionary];
+        TestObjectsStructKey* k1 = [[TestObjectsStructKey alloc] init:1 s:@"1"];
+        [v setObject:[[TestObjectsL alloc] init:@"one"] forKey:k1];
+        TestObjectsStructKey* k2 = [[TestObjectsStructKey alloc] init:2 s:@"2"];
+        [v setObject:[[TestObjectsL alloc] init:@"two"] forKey:k2];
+        TestObjectsM* m = [[TestObjectsM alloc] init:v];
+
+        TestObjectsM* m1;
+        TestObjectsM* m2 = [initial opM:m v2:&m1];
+        test([m1.v count] == 2);
+        test([m2.v count] == 2);
+
+        test([((TestObjectsL*)[m1.v objectForKey:k1]).data isEqualToString:@"one"]);
+        test([((TestObjectsL*)[m1.v objectForKey:k2]).data isEqualToString:@"two"]);
+
+        test([((TestObjectsL*)[m2.v objectForKey:k1]).data isEqualToString:@"one"]);
+        test([((TestObjectsL*)[m2.v objectForKey:k2]).data isEqualToString:@"two"]);
+
+        tprintf("ok\n");
+    }
+
     return initial;
 }

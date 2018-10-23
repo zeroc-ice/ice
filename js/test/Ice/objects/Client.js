@@ -446,6 +446,29 @@
             test(communicator.getValueFactoryManager().find("TestOF") !== null);
             out.writeLine("ok");
 
+            out.write("testing class containing complex dictionary... ");
+            {
+                let m = new Test.M();
+                m.v = new Test.MMap();
+                let k1 = new Test.StructKey(1, "1");
+                m.v.put(k1, new Test.L("one"));
+                let k2 = new Test.StructKey(2, "2");
+                m.v.put(k2, new L("two"));
+
+                let [m1, m2] = initial.opM(m);
+
+                test(m1.v.size == 2);
+                test(m2.v.size == 2);
+
+                test(m1.v.get(k1).data == "one");
+                test(m2.v.get(k1).data == "one");
+
+                test(m1.v.get(k2).data == "two");
+                test(m2.v.get(k2).data == "two");
+
+            }
+            out.println("ok");
+
             await initial.shutdown();
         }
 

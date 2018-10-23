@@ -320,4 +320,24 @@ def allTests(helper, communicator):
     test(communicator.getValueFactoryManager().find("TestOF") != None)
     print("ok")
 
+    sys.stdout.write("testing class containing complex dictionary... ")
+    sys.stdout.flush()
+    m = Test.M()
+    m.v = {}
+    k1 = Test.StructKey(1, "1")
+    m.v[k1] = Test.L("one")
+    k2 = Test.StructKey(2, "2")
+    m.v[k2] = Test.L("two")
+    m1, m2 = initial.opM(m)
+    test(len(m1.v) == 2)
+    test(len(m2.v) == 2)
+
+    test(m1.v[k1].data == "one")
+    test(m2.v[k1].data == "one")
+
+    test(m1.v[k2].data == "two")
+    test(m2.v[k2].data == "two")
+
+    print("ok")
+
     return initial

@@ -370,5 +370,24 @@ def allTests(helper, communicator)
     test(communicator.getValueFactoryManager().find('TestOF') != nil)
     puts "ok"
 
+    print "testing class containing complex dictionary... "
+    STDOUT.flush
+    m = Test::M.new
+    m.v = {}
+    k1 = Test::StructKey.new(1, "1")
+    m.v[k1] = Test::L.new("one")
+    k2 = Test::StructKey.new(2, "2")
+    m.v[k2] = Test::L.new("two")
+    m1, m2 = initial.opM(m)
+    test(m1.v.length == 2)
+    test(m2.v.length == 2)
+
+    test(m1.v[k1].data == "one")
+    test(m2.v[k1].data == "one")
+
+    test(m1.v[k2].data == "two")
+    test(m2.v[k2].data == "two")
+    puts "ok"
+
     return initial
 end

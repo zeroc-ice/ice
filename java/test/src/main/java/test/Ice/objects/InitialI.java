@@ -239,6 +239,15 @@ public final class InitialI implements Initial
         _adapter.getCommunicator().shutdown();
     }
 
+    @Override
+    public Initial.OpMResult opM(M v1, com.zeroc.Ice.Current current)
+    {
+        Initial.OpMResult r = new Initial.OpMResult();
+        r.returnValue = v1;
+        r.v2 = v1;
+        return r;
+    }
+
     private com.zeroc.Ice.ObjectAdapter _adapter;
     private B _b1;
     private B _b2;
