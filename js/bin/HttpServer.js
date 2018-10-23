@@ -116,7 +116,7 @@ function Init()
             if(worker)
             {
                 // Do not include babel polyfill when using workers, it is bundle with the controllerwoker
-                TestData.workerScripts = TestData.scripts.filter(script => script.indexOf("/babel-polyfill/") === -1);
+                TestData.workerScripts = TestData.scripts.filter(script => script.indexOf("/@babel/polyfill/") === -1);
             }
 
             res.writeHead(200, {"Content-Type": "text/html"});
