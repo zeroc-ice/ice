@@ -468,6 +468,9 @@ function bundle(args)
                         lineOffset++;
                     });
 
+                sb.write("    root.ice = ice;\n");
+                lineOffset++;
+
                 sb.write(epilogue);
                 lineOffset++;
 
