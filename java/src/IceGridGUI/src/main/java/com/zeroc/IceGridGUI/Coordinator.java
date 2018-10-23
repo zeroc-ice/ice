@@ -1692,11 +1692,6 @@ public class Coordinator
                 return _session;
             }
 
-            synchronized public void setSessionTimeout(long sessionTimeout)
-            {
-                _sessionTimeout = sessionTimeout;
-            }
-
             synchronized public void setACMTimeout(int acmTimeout)
             {
                 _acmTimeout = acmTimeout;
@@ -1719,7 +1714,7 @@ public class Coordinator
                 _newApplicationWithDefaultTemplates.setEnabled(true);
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
-                _sessionKeeper.loginSuccess(parent, _sessionTimeout, _acmTimeout, _session, _replicaName, info);
+                _sessionKeeper.loginSuccess(parent, _acmTimeout, _session, _replicaName, info);
             }
 
             synchronized public void loginFailed()
@@ -1740,7 +1735,6 @@ public class Coordinator
             }
 
             private AdminSessionPrx _session;
-            private long _sessionTimeout = 0;
             private int _acmTimeout = 0;
             private String _replicaName;
             private boolean _failed = false;
@@ -1814,14 +1808,7 @@ public class Coordinator
                                    }
                                }
                                cb.setSession(AdminSessionPrx.uncheckedCast(s));
-                               cb.setSessionTimeout(router.getSessionTimeout());
-                               try
-                               {
-                                   cb.setACMTimeout(router.getACMTimeout());
-                               }
-                               catch(com.zeroc.Ice.OperationNotExistException ex)
-                               {
-                               }
+                               cb.setACMTimeout(router.getACMTimeout());
                                cb.setReplicaName(cb.getSession().getReplicaName());
                                SwingUtilities.invokeLater(() -> cb.loginSuccess());
                            }
@@ -2051,14 +2038,7 @@ public class Coordinator
                                                                                              info.getPassword() != null ? new String(info.getPassword()) : ""));
                                            assert cb.getSession() != null;
                                        }
-                                       cb.setSessionTimeout(cb.getRegistry().getSessionTimeout());
-                                       try
-                                       {
-                                           cb.setACMTimeout(cb.getRegistry().getACMTimeout());
-                                       }
-                                       catch(com.zeroc.Ice.OperationNotExistException ex)
-                                       {
-                                       }
+                                       cb.setACMTimeout(cb.getRegistry().getACMTimeout());
                                    }
                                    catch(final com.zeroc.IceGrid.PermissionDeniedException e)
                                    {
@@ -3370,7 +3350,7 @@ public class Coordinator
         return _sessionKeeper.connectedToMaster();
     }
 
-    SessionKeeper getSessionKeeper()
+    public SessionKeeper getSessionKeeper()
     {
         return _sessionKeeper;
     }

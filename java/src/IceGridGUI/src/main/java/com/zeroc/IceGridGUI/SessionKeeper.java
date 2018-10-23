@@ -80,7 +80,7 @@ public class SessionKeeper
     //
     private class Session
     {
-        Session(AdminSessionPrx session, long sessionTimeout, int acmTimeout, boolean routed, final Component parent)
+        Session(AdminSessionPrx session, int acmTimeout, boolean routed, final Component parent)
             throws java.lang.Throwable
         {
             _session = session;
@@ -216,7 +216,7 @@ public class SessionKeeper
                     {
                         try
                         {
-                            con.getInfo(); // This throws when the connection is closed.
+                            con.throwException(); // This throws when the connection is closed.
                             assert(false);
                         }
                         catch(final com.zeroc.Ice.LocalException ex)
@@ -227,22 +227,6 @@ public class SessionKeeper
                                 });
                         }
                     });
-            }
-            else
-            {
-                _keepAliveFuture = _coordinator.getScheduledExecutor().scheduleAtFixedRate(() ->
-                    {
-                        _session.keepAliveAsync().whenComplete((result, ex) ->
-                            {
-                                if(ex != null)
-                                {
-                                    SwingUtilities.invokeLater(() ->
-                                        {
-                                            sessionLost();
-                                        });
-                                }
-                            });
-                    }, sessionTimeout / 2, sessionTimeout / 2, java.util.concurrent.TimeUnit.SECONDS);
             }
         }
 
@@ -5079,8 +5063,8 @@ public class SessionKeeper
         }
     }
 
-    public void loginSuccess(final JDialog parent, final long sessionTimeout, final int acmTimeout,
-                             final AdminSessionPrx adminSession, final String replicaName, final ConnectionInfo info)
+    public void loginSuccess(final JDialog parent, final int acmTimeout, final AdminSessionPrx adminSession,
+                             final String replicaName, final ConnectionInfo info)
     {
         try
         {
@@ -5126,7 +5110,7 @@ public class SessionKeeper
             {
                 try
                 {
-                    final Session session = new Session(adminSession, sessionTimeout, acmTimeout, !info.getDirect(), parent);
+                    final Session session = new Session(adminSession, acmTimeout, !info.getDirect(), parent);
                     SwingUtilities.invokeAndWait(() ->
                                                  {
                                                      _session = session;
@@ -5404,7 +5388,7 @@ public class SessionKeeper
         _authDialog.showDialog();
     }
 
-    void sessionLost()
+    public void sessionLost()
     {
         JOptionPane.showMessageDialog(
             _coordinator.getMainFrame(),

@@ -224,6 +224,10 @@ public abstract class TreeNode extends TreeNodeBase
             com.zeroc.IceGrid.DeploymentException de = (com.zeroc.IceGrid.DeploymentException)e;
             amiFailure(prefix, title, "Deployment exception: " + de.reason);
         }
+        else if(e instanceof com.zeroc.Ice.ObjectNotExistException)
+        {
+            SwingUtilities.invokeLater(() -> { getCoordinator().getSessionKeeper().sessionLost(); });
+        }
         else
         {
             amiFailure(prefix, title, title + ":\n" + e.toString());

@@ -67,56 +67,6 @@ Init init;
 
 }
 
-class SessionKeepAliveThread : public IceUtil::Thread, public IceUtil::Monitor<IceUtil::Mutex>
-{
-public:
-
-    SessionKeepAliveThread(const IceGrid::AdminSessionPrx& session, long timeout) :
-        IceUtil::Thread("IceGrid admin session keepalive thread"),
-        _session(session),
-        _timeout(IceUtil::Time::seconds(timeout)),
-        _destroy(false)
-    {
-    }
-
-    virtual void
-    run()
-    {
-        Lock sync(*this);
-        while(!_destroy)
-        {
-            timedWait(_timeout);
-            if(_destroy)
-            {
-                break;
-            }
-            try
-            {
-                _session->keepAlive();
-            }
-            catch(const Ice::Exception&)
-            {
-                break;
-            }
-        }
-    }
-
-    void
-    destroy()
-    {
-        Lock sync(*this);
-        _destroy = true;
-        notify();
-    }
-
-private:
-
-    IceGrid::AdminSessionPrx _session;
-    const IceUtil::Time _timeout;
-    bool _destroy;
-};
-typedef IceUtil::Handle<SessionKeepAliveThread> SessionKeepAliveThreadPtr;
-
 class ReuseConnectionRouter : public Ice::Router
 {
 public:
@@ -331,8 +281,7 @@ run(const Ice::StringSeq& args)
 
     if(opts.isSet("server"))
     {
-        Ice::ObjectAdapterPtr adapter =
-            communicator->createObjectAdapter("IceGridAdmin.Server");
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("IceGridAdmin.Server");
         adapter->activate();
         Ice::ObjectPrx proxy = adapter->add(new FileParserI, Ice::stringToIdentity("FileParser"));
         consoleOut << proxy << endl;
@@ -400,11 +349,9 @@ run(const Ice::StringSeq& args)
 
     Glacier2::RouterPrx router;
     IceGrid::AdminSessionPrx session;
-    SessionKeepAliveThreadPtr keepAlive;
     int status = 0;
     try
     {
-        int sessionTimeout;
         int acmTimeout = 0;
         if(!communicator->getDefaultLocator() && !communicator->getDefaultRouter())
         {
@@ -558,13 +505,15 @@ run(const Ice::StringSeq& args)
                     return 1;
                 }
             }
-            sessionTimeout = static_cast<int>(router->getSessionTimeout());
+
             try
             {
                 acmTimeout = router->getACMTimeout();
             }
             catch(const Ice::OperationNotExistException&)
             {
+                consoleErr << args[0] << ": can't talk to old Glacier2 router version" << endl;
+                return 1;
             }
         }
         else if(communicator->getDefaultLocator())
@@ -701,13 +650,14 @@ run(const Ice::StringSeq& args)
                 fill(password.begin(), password.end(), '\0'); // Zero the password string.
             }
 
-            sessionTimeout = registry->getSessionTimeout();
             try
             {
                 acmTimeout = registry->getACMTimeout();
             }
             catch(const Ice::OperationNotExistException&)
             {
+                consoleErr << args[0] << ": can't talk to old IceGrid registry version" << endl;
+                return 1;
             }
         }
         else // No default locator or router set.
@@ -720,11 +670,6 @@ run(const Ice::StringSeq& args)
         if(acmTimeout > 0)
         {
             session->ice_getConnection()->setACM(acmTimeout, IceUtil::None, Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
-        }
-        else if(sessionTimeout > 0)
-        {
-            keepAlive = new SessionKeepAliveThread(session, sessionTimeout / 2);
-            keepAlive->start();
         }
 
         {
@@ -768,12 +713,6 @@ run(const Ice::StringSeq& args)
     }
     catch(...)
     {
-        if(keepAlive)
-        {
-            keepAlive->destroy();
-            keepAlive->getThreadControl().join();
-        }
-
         try
         {
             if(router)
@@ -789,12 +728,6 @@ run(const Ice::StringSeq& args)
         {
         }
         throw;
-    }
-
-    if(keepAlive)
-    {
-        keepAlive->destroy();
-        keepAlive->getThreadControl().join();
     }
 
     if(session)
