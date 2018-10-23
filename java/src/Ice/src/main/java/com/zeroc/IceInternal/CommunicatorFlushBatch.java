@@ -17,8 +17,6 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
     {
         super(communicator, instance, "flushBatchRequests");
 
-        _observer = ObserverHelper.get(instance, "flushBatchRequests");
-
         //
         // _useCount is initialized to 1 to prevent premature callbacks.
         // The caller must invoke ready() after all flush requests have
@@ -150,8 +148,11 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         }
     }
 
-    public void ready()
+    public void invoke(com.zeroc.Ice.CompressBatch compressBatch)
     {
+        _observer = ObserverHelper.get(_instance, "flushBatchRequests");
+        _instance.outgoingConnectionFactory().flushAsyncBatchRequests(compressBatch, this);
+        _instance.objectAdapterFactory().flushAsyncBatchRequests(compressBatch, this);
         doCheck(true);
     }
 

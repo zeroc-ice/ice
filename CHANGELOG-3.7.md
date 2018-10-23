@@ -60,6 +60,9 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed Android IceSSL issue which would cause SSL connections to hang
   with Android >= 8.0.
 
+- Fixed metrics bug where remote invocations for flushBatchRequests weren't
+  counted.
+
 ## JavaScript Changes
 
 - Added TypeScript declaration files for Ice for JavaScript.
@@ -72,6 +75,11 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed a bug that cause slice2matab generated code to throw type conversion
   exception, this affects classes or struct containing an array mapped to an
   structure array.
+
+## C# Changes
+
+- Fixed metrics bug where remote invocations for flushBatchRequests weren't
+  counted.
 
 # Changes in Ice 3.7.1
 

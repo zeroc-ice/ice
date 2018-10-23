@@ -34,10 +34,11 @@ public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
 
     public final void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId)
     {
-        if(_observer != null)
+        Ice.Instrumentation.InvocationObserver observer = getObserver();
+        if(observer != null)
         {
             final int size = _os.size() - IceInternal.Protocol.headerSize - 4;
-            _childObserver = getObserver().getRemoteObserver(info, endpt, requestId, size);
+            _childObserver = observer.getRemoteObserver(info, endpt, requestId, size);
             if(_childObserver != null)
             {
                 _childObserver.attach();
@@ -47,10 +48,11 @@ public abstract class OutgoingAsyncBase extends IceInternal.AsyncResultI
 
     public final void attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
     {
-        if(_observer != null)
+        Ice.Instrumentation.InvocationObserver observer = getObserver();
+        if(observer != null)
         {
             final int size = _os.size() - IceInternal.Protocol.headerSize - 4;
-            _childObserver = getObserver().getCollocatedObserver(adapter, requestId, size);
+            _childObserver = observer.getCollocatedObserver(adapter, requestId, size);
             if(_childObserver != null)
             {
                 _childObserver.attach();

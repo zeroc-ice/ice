@@ -1426,6 +1426,82 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     testAttribute(clientMetrics, clientProps, update.get(), "Invocation", "mode", "batch-oneway",
                   InvokeOp(metricsBatchOneway));
 
+    //
+    // Tests flushBatchRequests
+    //
+    props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
+    props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
+    updateProps(clientProps, serverProps, update.get(), props, "Invocation");
+
+    metricsBatchOneway = metrics->ice_batchOneway();
+    metricsBatchOneway->op();
+
+    metricsBatchOneway->ice_flushBatchRequests();
+#ifdef ICE_CPP11_MAPPING
+    metricsBatchOneway->ice_flushBatchRequestsAsync().get();
+    metricsBatchOneway->ice_flushBatchRequestsAsync([cb](exception_ptr) {});
+#else
+    metricsBatchOneway->end_ice_flushBatchRequests(metricsBatchOneway->begin_ice_flushBatchRequests());
+    metricsBatchOneway->begin_ice_flushBatchRequests(
+                    Ice::newCallback_Object_ice_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
+#endif
+
+    map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
+    test(map.size() == 2);
+
+    im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["ice_flushBatchRequests"]);
+    test(im1->current == 0 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
+    if(!collocated)
+    {
+        test(im1->remotes.size() == 1); // The first operation got sent over a connection
+    }
+
+    if(!collocated)
+    {
+        clearView(clientProps, serverProps, update.get());
+
+        Ice::ConnectionPtr con = metricsBatchOneway->ice_getConnection();
+
+        metricsBatchOneway = metricsBatchOneway->ice_fixed(con);
+        metricsBatchOneway->op();
+
+        con->flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No));
+#ifdef ICE_CPP11_MAPPING
+        con->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No)).get();
+        con->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No), [cb](exception_ptr) {});
+#else
+        con->end_flushBatchRequests(con->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No)));
+        con->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
+            Ice::newCallback_Connection_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
+#endif
+        map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
+        test(map.size() == 3);
+
+        im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["flushBatchRequests"]);
+        test(im1->current == 0 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
+        test(im1->remotes.size() == 1); // The first operation got sent over a connection
+
+        clearView(clientProps, serverProps, update.get());
+        metricsBatchOneway->op();
+
+        communicator->flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No));
+#ifdef ICE_CPP11_MAPPING
+        communicator->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No)).get();
+        communicator->flushBatchRequestsAsync(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
+                                              [cb](exception_ptr) {});
+#else
+        communicator->end_flushBatchRequests(
+            communicator->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No)));
+        communicator->begin_flushBatchRequests(ICE_SCOPED_ENUM(Ice::CompressBatch, No),
+            Ice::newCallback_Communicator_flushBatchRequests(cb, &Callback::exception))->waitForCompleted();
+#endif
+        map = toMap(clientMetrics->getMetricsView("View", timestamp)["Invocation"]);
+        test(map.size() == 2);
+
+        im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["flushBatchRequests"]);
+        test(im1->current == 0 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
+        test(im1->remotes.size() == 1); // The first operation got sent over a connection
+    }
     cout << "ok" << endl;
 
     cout << "testing metrics view enable/disable..." << flush;

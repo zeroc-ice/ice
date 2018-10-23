@@ -34,6 +34,7 @@ public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
 
     public void invoke(com.zeroc.Ice.CompressBatch compressBatch)
     {
+        _observer = ObserverHelper.get(_instance, "flushBatchRequests");
         try
         {
             final BatchRequestQueue.SwapResult r = _connection.getBatchRequestQueue().swap(_os);

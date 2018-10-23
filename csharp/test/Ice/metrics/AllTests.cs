@@ -1149,6 +1149,60 @@ public class AllTests : Test.AllTests
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway",
                       () => { invokeOp(metricsBatchOneway); }, output);
 
+        //
+        // Tests flushBatchRequests
+        //
+        props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
+        props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
+        updateProps(clientProps, serverProps, update, props, "Invocation");
+
+        metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
+        metricsBatchOneway.op();
+
+        metricsBatchOneway.ice_flushBatchRequests();
+        metricsBatchOneway.ice_flushBatchRequestsAsync().Wait();
+
+        map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+        test(map.Count == 2);
+
+        im1 = (IceMX.InvocationMetrics)map["ice_flushBatchRequests"];
+        test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+        if(!collocated)
+        {
+            test(im1.remotes.Length == 1); // The first operation got sent over a connection
+        }
+
+        if(!collocated)
+        {
+            clearView(clientProps, serverProps, update);
+
+            Ice.Connection con = metricsBatchOneway.ice_getConnection();
+
+            metricsBatchOneway = (MetricsPrx)metricsBatchOneway.ice_fixed(con);
+            metricsBatchOneway.op();
+
+            con.flushBatchRequests(Ice.CompressBatch.No);
+            con.flushBatchRequestsAsync(Ice.CompressBatch.No).Wait();
+
+            map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+            test(map.Count == 3);
+
+            im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
+            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            test(im1.remotes.Length == 1); // The first operation got sent over a connection
+
+            clearView(clientProps, serverProps, update);
+            metricsBatchOneway.op();
+
+            communicator.flushBatchRequests(Ice.CompressBatch.No);
+            communicator.flushBatchRequestsAsync(Ice.CompressBatch.No).Wait();
+            map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+            test(map.Count == 2);
+
+            im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
+            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            test(im1.remotes.Length == 1); // The first operation got sent over a connection
+        }
         output.WriteLine("ok");
 
         output.Write("testing metrics view enable/disable...");

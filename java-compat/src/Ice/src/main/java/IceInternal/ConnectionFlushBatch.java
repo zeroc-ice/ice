@@ -44,6 +44,7 @@ public class ConnectionFlushBatch extends OutgoingAsyncBase
 
     public void invoke(final Ice.CompressBatch compressBatch)
     {
+        _observer = ObserverHelper.get(_instance, "flushBatchRequests");
         try
         {
             final Ice.BooleanHolder compress = new Ice.BooleanHolder();

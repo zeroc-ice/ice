@@ -47,7 +47,6 @@ private:
     void check(bool);
 
     int _useCount;
-    InvocationObserver _observer;
 };
 
 }

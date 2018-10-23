@@ -157,8 +157,10 @@ public class CommunicatorFlushBatch extends IceInternal.AsyncResultI
         }
     }
 
-    public void ready()
+    public void invoke(Ice.CompressBatch compressBatch)
     {
+        _instance.outgoingConnectionFactory().flushAsyncBatchRequests(compressBatch, this);
+        _instance.objectAdapterFactory().flushAsyncBatchRequests(compressBatch, this);
         doCheck(true);
     }
 

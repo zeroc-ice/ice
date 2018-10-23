@@ -289,9 +289,6 @@ public final class CommunicatorI implements Communicator
     private Ice.AsyncResult
     begin_flushBatchRequestsInternal(Ice.CompressBatch compressBatch, IceInternal.CallbackBase cb)
     {
-        IceInternal.OutgoingConnectionFactory connectionFactory = _instance.outgoingConnectionFactory();
-        IceInternal.ObjectAdapterFactory adapterFactory = _instance.objectAdapterFactory();
-
         //
         // This callback object receives the results of all invocations
         // of Connection.begin_flushBatchRequests.
@@ -300,16 +297,7 @@ public final class CommunicatorI implements Communicator
                                                                                            _instance,
                                                                                            _flushBatchRequests_name,
                                                                                            cb);
-
-        connectionFactory.flushAsyncBatchRequests(compressBatch, result);
-        adapterFactory.flushAsyncBatchRequests(compressBatch, result);
-
-        //
-        // Inform the callback that we have finished initiating all of the
-        // flush requests.
-        //
-        result.ready();
-
+        result.invoke(compressBatch);
         return result;
     }
 

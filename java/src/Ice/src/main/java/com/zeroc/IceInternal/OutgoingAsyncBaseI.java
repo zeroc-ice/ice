@@ -39,10 +39,11 @@ public abstract class OutgoingAsyncBaseI<T> extends InvocationFutureI<T> impleme
     public final void attachRemoteObserver(com.zeroc.Ice.ConnectionInfo info, com.zeroc.Ice.Endpoint endpt,
                                            int requestId)
     {
-        if(_observer != null)
+        com.zeroc.Ice.Instrumentation.InvocationObserver observer = getObserver();
+        if(observer != null)
         {
             final int size = _os.size() - Protocol.headerSize - 4;
-            _childObserver = getObserver().getRemoteObserver(info, endpt, requestId, size);
+            _childObserver = observer.getRemoteObserver(info, endpt, requestId, size);
             if(_childObserver != null)
             {
                 _childObserver.attach();
@@ -53,10 +54,11 @@ public abstract class OutgoingAsyncBaseI<T> extends InvocationFutureI<T> impleme
     @Override
     public final void attachCollocatedObserver(com.zeroc.Ice.ObjectAdapter adapter, int requestId)
     {
-        if(_observer != null)
+        com.zeroc.Ice.Instrumentation.InvocationObserver observer = getObserver();
+        if(observer != null)
         {
             final int size = _os.size() - Protocol.headerSize - 4;
-            _childObserver = getObserver().getCollocatedObserver(adapter, requestId, size);
+            _childObserver = observer.getCollocatedObserver(adapter, requestId, size);
             if(_childObserver != null)
             {
                 _childObserver.attach();
