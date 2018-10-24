@@ -448,14 +448,14 @@
 
             out.write("testing class containing complex dictionary... ");
             {
-                let m = new Test.M();
-                m.v = new Test.MMap();
-                let k1 = new Test.StructKey(1, "1");
-                m.v.put(k1, new Test.L("one"));
-                let k2 = new Test.StructKey(2, "2");
-                m.v.put(k2, new L("two"));
+                const m = new Test.M();
+                m.v = new Test.LMap();
+                const k1 = new Test.StructKey(1, "1");
+                m.v.set(k1, new Test.L("one"));
+                const k2 = new Test.StructKey(2, "2");
+                m.v.set(k2, new Test.L("two"));
 
-                let [m1, m2] = initial.opM(m);
+                const [m1, m2] = await initial.opM(m);
 
                 test(m1.v.size == 2);
                 test(m2.v.size == 2);
@@ -467,7 +467,7 @@
                 test(m2.v.get(k2).data == "two");
 
             }
-            out.println("ok");
+            out.writeLine("ok");
 
             await initial.shutdown();
         }

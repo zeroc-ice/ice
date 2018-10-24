@@ -322,6 +322,11 @@
             throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
         }
 
+        opM(v1, current)
+        {
+            return [v1, v1];
+        }
+
         shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
