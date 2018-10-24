@@ -253,8 +253,8 @@ classdef Connection < IceInternal.WrapperObject
                                               info.remotePort, info.rcvSize, info.sndSize);
 
                 case 'ssl'
-                    r = Ice.IPConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...
-                                             info.localAddress, info.localPort, info.remoteAddress, info.remotePort);
+                    r = IceSSL.ConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...
+                                             info.cipher, info.certs, info.verified);
 
                 case 'udp'
                     r = Ice.UDPConnectionInfo(underlying, info.incoming, info.adapterName, info.connectionId, ...

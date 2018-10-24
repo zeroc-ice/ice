@@ -9,6 +9,7 @@
 
 #include <Ice/Identity.h>
 #include <Ice/Version.h>
+#include <IceSSL/IceSSL.h>
 #include <mex.h>
 
 typedef struct mxArray_tag mxArray; // Forward declaration to avoid importing mex.h here
@@ -43,6 +44,7 @@ mxArray* createOptionalValue(bool, mxArray*);
 mxArray* createStringList(const std::vector<std::string>&);
 void getStringList(mxArray*, std::vector<std::string>&);
 mxArray* createByteArray(const Ice::Byte*, const Ice::Byte*);
+mxArray* createCertificateList(const std::vector<IceSSL::CertificatePtr>&);
 
 std::string idToClass(const std::string&);
 

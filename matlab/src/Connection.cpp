@@ -8,6 +8,7 @@
 // **********************************************************************
 
 #include <Ice/Ice.h>
+#include <IceSSL/IceSSL.h>
 #include "ice.h"
 #include "Future.h"
 #include "Util.h"
@@ -34,6 +35,9 @@ enum Field
     McastAddress,
     McastPort,
     Headers,
+    Cipher,
+    Certs,
+    Verified,
     NumFields // Number of fields in structure, must be last
 };
 
@@ -52,7 +56,10 @@ static const char* infoFields[] =
     "sndSize",
     "mcastAddress",
     "mcastPort",
-    "headers"
+    "headers",
+    "cipher",
+    "certs",
+    "verified"
 };
 
 mxArray*
@@ -112,12 +119,14 @@ createInfo(const shared_ptr<Ice::ConnectionInfo>& info)
         mxSetFieldByNumber(r, 0, Field::Headers, createStringMap(wsInfo->headers));
     }
 
-    /* TODO: If we link with IceSSL
-    if(dynamic_pointer_cast<IceSSL::ConnectionInfo>(info))
+    shared_ptr<IceSSL::ConnectionInfo> sslInfo = dynamic_pointer_cast<IceSSL::ConnectionInfo>(info);
+    if(sslInfo)
     {
         type = "ssl";
+        mxSetFieldByNumber(r, 0, Field::Cipher, createStringFromUTF8(sslInfo->cipher));
+        mxSetFieldByNumber(r, 0, Field::Certs, createCertificateList(sslInfo->certs));
+        mxSetFieldByNumber(r, 0, Field::Verified, createBool(sslInfo->verified));
     }
-    */
 
     mxSetFieldByNumber(r, 0, Field::Type, createStringFromUTF8(type));
 

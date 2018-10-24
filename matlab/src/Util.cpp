@@ -598,6 +598,18 @@ IceMatlab::createByteArray(const Ice::Byte* begin, const Ice::Byte* end)
     return r;
 }
 
+mxArray*
+IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& v)
+{
+    auto r = mxCreateCellMatrix(1, static_cast<int>(v.size()));
+    mwIndex i = 0;
+    for(auto p = v.begin(); p != v.end(); ++p, ++i)
+    {
+        mxSetCell(r, i, createStringFromUTF8((*p)->encode()));
+    }
+    return r;
+}
+
 namespace
 {
 
