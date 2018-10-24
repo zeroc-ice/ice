@@ -111,7 +111,7 @@ class Ice(Component):
                      "Ice/properties"])
         elif isinstance(mapping, JavaScriptMapping):
             return (["Ice/.*", "Glacier2/.*"],
-                    (["Slice/escape", "Ice/properties"] if config.typescript else []))
+                    (["ts/.*"] + (["Slice/escape", "Ice/properties"] if config.typescript else [])))
         return ([], [])
 
     def canRun(self, testId, mapping, current):
