@@ -260,22 +260,22 @@ classdef AllTests
 
             fprintf('testing class containing complex dictionary... ');
             m = M();
-            m.v(1).key = StructKey(1, "1");
-            m.v(1).value = L("one");
+            m.v(1).key = StructKey(1, '1');
+            m.v(1).value = L('one');
 
-            m.v(2).key = StructKey(2, "2");
-            m.v(2).value = L("two");
+            m.v(2).key = StructKey(2, '2');
+            m.v(2).value = L('two');
 
             [m1, m2] = initial.opM(m);
 
             assert(length(m1.v) == 2);
             assert(length(m2.v) == 2);
 
-            assert(strcmp(m1.v(1).value.data, "one"));
-            assert(strcmp(m1.v(2).value.data, "two"));
+            assert(strcmp(m1.v(1).value.data, 'one'));
+            assert(strcmp(m1.v(2).value.data, 'two'));
 
-            assert(strcmp(m2.v(1).value.data, "one"));
-            assert(strcmp(m2.v(2).value.data, "two"));
+            assert(strcmp(m2.v(1).value.data, 'one'));
+            assert(strcmp(m2.v(2).value.data, 'two'));
 
             fprintf('ok\n');
             r = initial;
