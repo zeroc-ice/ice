@@ -764,12 +764,6 @@ Ice::Service::name() const
     return _name;
 }
 
-bool
-Ice::Service::checkSystem() const
-{
-    return true;
-}
-
 #ifdef _WIN32
 int
 Ice::Service::run(int argc, const wchar_t* const argv[], const InitializationData& initData, int version)
@@ -1056,12 +1050,6 @@ int
 Ice::Service::runService(int argc, const char* const argv[], const InitializationData& initData)
 {
     assert(_service);
-
-    if(!checkSystem())
-    {
-        error("Win32 service not supported on Windows 9x/ME");
-        return EXIT_FAILURE;
-    }
 
     if(_name.empty())
     {
