@@ -15,6 +15,16 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
+function isSafari()
+{
+    return (/^((?!chrome).)*safari/i).test(navigator.userAgent);
+}
+
+function isWorker()
+{
+    return typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
+}
+
 //
 // Create a timer object that uses the default browser methods. Note that we also
 // have to use apply with null as the first argument to workaround an issue where
@@ -47,7 +57,11 @@ function createTimerObject()
 
         static setImmediate(cb)
         {
-            if(typeof setImmediate == "function")
+            //
+            // BUGFIX: setImediate callback is some times not fired when used
+            // from a Safari worker.
+            //
+            if(typeof setImmediate == "function" && !(isWorker() && isSafari()))
             {
                 return setImmediate(cb);
             }
