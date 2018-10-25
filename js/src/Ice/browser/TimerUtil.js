@@ -205,7 +205,7 @@ if(typeof navigator !== "undefined" &&
     //
     Ice.Timer = createTimerObject();
 }
-else if(typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope)
+else if(isWorker())
 {
     //
     // If we are running in a worker don't spawn a separate worker for the timer
