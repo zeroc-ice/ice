@@ -23,6 +23,10 @@ public:
 void
 Server::run(int argc, char** argv)
 {
+#ifdef ICE_STATIC_LIBS
+    Ice::registerIceDiscovery();
+#endif
+
     Ice::CommunicatorHolder communicator = initialize(argc, argv);
     Ice::PropertiesPtr properties = communicator->getProperties();
 
