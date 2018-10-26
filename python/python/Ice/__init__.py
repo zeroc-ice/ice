@@ -11,7 +11,7 @@
 Ice module
 """
 
-import sys, string, imp, os, threading, warnings, datetime, logging, time, inspect, traceback
+import sys, string, os, threading, warnings, datetime, logging, time, inspect, traceback, types
 
 #
 # RTTI problems can occur in C++ code unless we modify Python's dlopen flags.
@@ -698,7 +698,7 @@ def createModule(name):
         elif curr in _pendingModules:
             mod = _pendingModules[curr]
         else:
-            nmod = imp.new_module(curr)
+            nmod = types.ModuleType(curr)
             _pendingModules[curr] = nmod
             mod = nmod
 
