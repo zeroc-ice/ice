@@ -285,9 +285,10 @@ def allTests(helper, communicator):
     comm = Ice.initialize(initData)
     connection = comm.stringToProxy(sref).ice_getConnection()
     controller.holdAdapter(-1)
-    now = time.clock()
+    s = time.perf_counter() if sys.version_info[:2] >= (3, 3) else time.clock()
     comm.destroy()
-    test((time.clock() - now) < 1.0)
+    e = time.perf_counter() if sys.version_info[:2] >= (3, 3) else time.clock()
+    test((s - e) < 1.0)
     controller.resumeAdapter()
 
     print("ok")
