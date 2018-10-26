@@ -301,7 +301,7 @@ printFrame(void* data, uintptr_t pc, const char* filename, int lineno, const cha
 #ifdef ICE_LIBBACKTRACE
 
 void
-handlePcInfoError(void* data, const char* msg, int errnum)
+handlePcInfoError(void* data, const char* /*msg*/, int /*errnum*/)
 {
     FrameInfo& frameInfo = *reinterpret_cast<FrameInfo*>(data);
     printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
