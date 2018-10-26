@@ -1434,39 +1434,44 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         if(isArray)
                         {
                             patcherName = "global::IceInternal.Patcher.arrayReadValue";
-                            out << "global::Ice.Value[" << param << "_lenx];";
+                            out << getUnqualified("Ice.Value", scope) << "[" << param << "_lenx];";
                         }
                         else if(isCustom)
                         {
                             patcherName = "global::IceInternal.Patcher.customSeqReadValue";
-                            out << "global::" << genericType << "<global::Ice.Value>();";
+                            out << "global::" << genericType << "<" << getUnqualified("Ice.Value", scope) << ">();";
                         }
                         else
                         {
                             patcherName = "global::IceInternal.Patcher.listReadValue";
-                            out << "global::System.Collections.Generic." << genericType << "<global::Ice.Value>(" << param << "_lenx);";
+                            out << "global::System.Collections.Generic." << genericType << "<"
+                                << getUnqualified("Ice.Value", scope) << ">(" << param << "_lenx);";
                         }
                         out << nl << "for(int ix = 0; ix < " << param << "_lenx; ++ix)";
                         out << sb;
-                        out << nl << stream << ".readValue(" << patcherName << "<global::Ice.Value>(" << param << ", ix));";
+                        out << nl << stream << ".readValue(" << patcherName << "<"
+                            << getUnqualified("Ice.Value", scope) << ">(" << param << ", ix));";
                     }
                     else
                     {
                         if(isStack)
                         {
-                            out << nl << "global::Ice.ObjectPrx[] " << param << "_tmp = new global::Ice.ObjectPrx[" << param << "_lenx];";
+                            out << nl << getUnqualified("Ice.ObjectPrx", scope) << "[] " << param << "_tmp = new "
+                                << getUnqualified("Ice.ObjectPrx", scope) << "[" << param << "_lenx];";
                         }
                         else if(isArray)
                         {
-                            out << "global::Ice.ObjectPrx[" << param << "_lenx];";
+                            out << getUnqualified("Ice.ObjectPrx", scope) << "[" << param << "_lenx];";
                         }
                         else if(isCustom)
                         {
-                            out << "global::" << genericType << "<global::Ice.ObjectPrx>();";
+                            out << "global::" << genericType << "<" << getUnqualified("Ice.ObjectPrx", scope)
+                                << ">();";
                         }
                         else
                         {
-                            out << "global::System.Collections.Generic." << genericType << "<global::Ice.ObjectPrx>(";
+                            out << "global::System.Collections.Generic." << genericType << "<"
+                                << getUnqualified("Ice.ObjectPrx", scope) << ">(";
                             if(!isLinkedList)
                             {
                                 out << param << "_lenx";
@@ -1483,7 +1488,8 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                         }
                         else
                         {
-                            out << nl << "global::Ice.ObjectPrx val = new global::Ice.ObjectPrxHelperBase();";
+                            out << nl << getUnqualified("Ice.ObjectPrx", scope) << " val = new "
+                                << getUnqualified("Ice.ObjectPrxHelperBase", scope) << "();";
                             out << nl << "val = " << stream << ".readProxy();";
                             out << nl << param << "." << addMethod << "(val);";
                         }
