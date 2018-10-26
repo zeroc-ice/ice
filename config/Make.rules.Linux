@@ -7,7 +7,9 @@
 #
 # **********************************************************************
 
-linux_id                        = $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID}),)
+known_distributions             := centos rhel fedora debian ubuntu amzn sles
+linux_ids                       := $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID} $${ID_LIKE}),)
+linux_id                        := $(word 1,$(or $(filter $(known_distributions),$(linux_ids)),$(linux_ids)))
 is-bin-program                  = $(and $(filter $(bindir)%,$($4_targetdir)),$(filter $($1_target),program))
 
 ifneq ($(OECORE_SDK_VERSION),)
