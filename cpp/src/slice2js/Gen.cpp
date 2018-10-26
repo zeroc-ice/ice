@@ -859,8 +859,10 @@ Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
         {
         case Builtin::KindObject:
             _seenObjectSeq = true;
+            break;
         case Builtin::KindObjectProxy:
             _seenObjectProxySeq = true;
+            break;
         default:
             break;
         }
