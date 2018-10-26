@@ -801,7 +801,7 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
     }
-    
+
     //
     // Test node session establishment.
     //

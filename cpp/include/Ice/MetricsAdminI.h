@@ -331,7 +331,7 @@ public:
         IceUtil::Shared(),
 #endif
         MetricsMapI(other),
-	IceUtil::Mutex(),
+        IceUtil::Mutex(),
         _destroyed(false)
     {
     }

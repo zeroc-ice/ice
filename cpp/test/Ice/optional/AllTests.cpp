@@ -924,7 +924,7 @@ allTests(Test::TestHelper* helper, bool)
         test(b2->mb == 11);
         test(b2->mc == 12);
         test(b2->md == 13);
-        
+
         factory->setEnabled(true);
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
