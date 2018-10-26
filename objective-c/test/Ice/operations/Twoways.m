@@ -598,32 +598,32 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
         rso = [p opByteSS:bsi1 p2:bsi2 p3:&bso];
 
-        const ICEByte *p;
+        const ICEByte *pb;
         test([bso count] == 2);
         test([[bso objectAtIndex:0] length] / sizeof(ICEByte) == 1);
-        p = [[bso objectAtIndex:0] bytes];
-        test(p[0] == (ICEByte)0x0ff);
+        pb = [[bso objectAtIndex:0] bytes];
+        test(pb[0] == (ICEByte)0x0ff);
         test([[bso objectAtIndex:1] length] / sizeof(ICEByte) == 3);
-        p = [[bso objectAtIndex:1] bytes];
-        test(p[0] == (ICEByte)0x01);
-        test(p[1] == (ICEByte)0x11);
-        test(p[2] == (ICEByte)0x12);
+        pb = [[bso objectAtIndex:1] bytes];
+        test(pb[0] == (ICEByte)0x01);
+        test(pb[1] == (ICEByte)0x11);
+        test(pb[2] == (ICEByte)0x12);
         test([rso count] == 4);
         test([[rso objectAtIndex:0] length] / sizeof(ICEByte) == 3);
-        p = [[rso objectAtIndex:0] bytes];
-        test(p[0] == (ICEByte)0x01);
-        test(p[1] == (ICEByte)0x11);
-        test(p[2] == (ICEByte)0x12);
+        pb = [[rso objectAtIndex:0] bytes];
+        test(pb[0] == (ICEByte)0x01);
+        test(pb[1] == (ICEByte)0x11);
+        test(pb[2] == (ICEByte)0x12);
         test([[rso objectAtIndex:1] length] / sizeof(ICEByte) == 1);
-        p = [[rso objectAtIndex:1] bytes];
-        test(p[0] == (ICEByte)0xff);
+        pb = [[rso objectAtIndex:1] bytes];
+        test(pb[0] == (ICEByte)0xff);
         test([[rso objectAtIndex:2] length] / sizeof(ICEByte) == 1);
-        p = [[rso objectAtIndex:2] bytes];
-        test(p[0] == (ICEByte)0x0e);
+        pb = [[rso objectAtIndex:2] bytes];
+        test(pb[0] == (ICEByte)0x0e);
         test([[rso objectAtIndex:3] length] / sizeof(ICEByte) == 2);
-        p = [[rso objectAtIndex:3] bytes];
-        test(p[0] == (ICEByte)0xf2);
-        test(p[1] == (ICEByte)0xf1);
+        pb = [[rso objectAtIndex:3] bytes];
+        test(pb[0] == (ICEByte)0xf2);
+        test(pb[1] == (ICEByte)0xf1);
     }
 
     {
@@ -1266,24 +1266,24 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableByteByteSD *_do;
         TestOperationsByteByteSD *ro = [p opByteByteSD:sdi1 p2:sdi2 p3:&_do];
 
-        const ICEByte *p;
+        const ICEByte *pb;
         test([_do count] == 1);
         test([[_do objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] length] / sizeof(ICEByte) == 2);
-        p = [[_do objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] bytes];
-        test(p[0] == 0xf2);
-        test(p[1] == 0xf3);
+        pb = [[_do objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] bytes];
+        test(pb[0] == 0xf2);
+        test(pb[1] == 0xf3);
         test([ro count] == 3);
         test([[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x01]] length] / sizeof(ICEByte) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x01]] bytes];
-        test(p[0] == 0x01);
-        test(p[1] == 0x11);
+        pb = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x01]] bytes];
+        test(pb[0] == 0x01);
+        test(pb[1] == 0x11);
         test([[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x22]] length] / sizeof(ICEByte) == 1);
-        p = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x22]] bytes];
-        test(p[0] == 0x12);
+        pb = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0x22]] bytes];
+        test(pb[0] == 0x12);
         test([[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] length] / sizeof(ICEByte) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] bytes];
-        test(p[0] == 0xf2);
-        test(p[1] == 0xf3);
+        pb = [[ro objectForKey:[NSNumber numberWithUnsignedChar:(ICEByte)0xf1]] bytes];
+        test(pb[0] == 0xf2);
+        test(pb[1] == 0xf3);
     }
 
     {
@@ -1306,22 +1306,22 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableBoolBoolSD *_do;
         TestOperationsBoolBoolSD *ro = [p opBoolBoolSD:sdi1 p2:sdi2 p3:&_do];
 
-        const BOOL *p;
+        const BOOL *pb;
         test([_do count] == 1);
         test([[_do objectForKey:[NSNumber numberWithBool:NO]] length] / sizeof(BOOL) == 2);
-        p = [[_do objectForKey:[NSNumber numberWithBool:NO]] bytes];
-        test(p[0] == YES);
-        test(p[1] == NO);
+        pb = [[_do objectForKey:[NSNumber numberWithBool:NO]] bytes];
+        test(pb[0] == YES);
+        test(pb[1] == NO);
         test([ro count] == 2);
         test([[ro objectForKey:[NSNumber numberWithBool:NO]] length] / sizeof(BOOL) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithBool:NO]] bytes];
-        test(p[0] == YES);
-        test(p[1] == NO);
+        pb = [[ro objectForKey:[NSNumber numberWithBool:NO]] bytes];
+        test(pb[0] == YES);
+        test(pb[1] == NO);
         test([[ro objectForKey:[NSNumber numberWithBool:YES]] length] / sizeof(BOOL) == 3);
-        p = [[ro objectForKey:[NSNumber numberWithBool:YES]] bytes];
-        test(p[0] == NO);
-        test(p[1] == YES);
-        test(p[2] == YES);
+        pb = [[ro objectForKey:[NSNumber numberWithBool:YES]] bytes];
+        test(pb[0] == NO);
+        test(pb[1] == YES);
+        test(pb[2] == YES);
     }
 
     {
@@ -1347,26 +1347,26 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableShortShortSD *_do;
         TestOperationsShortShortSD *ro = [p opShortShortSD:sdi1 p2:sdi2 p3:&_do];
 
-        const ICEShort *p;
+        const ICEShort *ps;
         test([_do count] == 1);
         test([[_do objectForKey:[NSNumber numberWithShort:4]] length] / sizeof(ICEShort) == 2);
-        p = [[_do objectForKey:[NSNumber numberWithShort:4]] bytes];
-        test(p[0] == 6);
-        test(p[1] == 7);
+        ps = [[_do objectForKey:[NSNumber numberWithShort:4]] bytes];
+        test(ps[0] == 6);
+        test(ps[1] == 7);
         test([ro count] == 3);
         test([[ro objectForKey:[NSNumber numberWithShort:1]] length] / sizeof(ICEShort) == 3);
-        p = [[ro objectForKey:[NSNumber numberWithShort:1]] bytes];
-        test(p[0] == 1);
-        test(p[1] == 2);
-        test(p[2] == 3);
+        ps = [[ro objectForKey:[NSNumber numberWithShort:1]] bytes];
+        test(ps[0] == 1);
+        test(ps[1] == 2);
+        test(ps[2] == 3);
         test([[ro objectForKey:[NSNumber numberWithShort:2]] length] / sizeof(ICEShort) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithShort:2]] bytes];
-        test(p[0] == 4);
-        test(p[1] == 5);
+        ps = [[ro objectForKey:[NSNumber numberWithShort:2]] bytes];
+        test(ps[0] == 4);
+        test(ps[1] == 5);
         test([[ro objectForKey:[NSNumber numberWithShort:4]] length] / sizeof(ICEShort) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithShort:4]] bytes];
-        test(p[0] == 6);
-        test(p[1] == 7);
+        ps = [[ro objectForKey:[NSNumber numberWithShort:4]] bytes];
+        test(ps[0] == 6);
+        test(ps[1] == 7);
     }
 
     {
@@ -1392,26 +1392,26 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableIntIntSD *_do;
         TestOperationsIntIntSD *ro = [p opIntIntSD:sdi1 p2:sdi2 p3:&_do];
 
-        const ICEInt *p;
+        const ICEInt *pint;
         test([_do count] == 1);
         test([[_do objectForKey:[NSNumber numberWithInt:400]] length] / sizeof(ICEInt) == 2);
-        p = [[_do objectForKey:[NSNumber numberWithInt:400]] bytes];
-        test(p[0] == 600);
-        test(p[1] == 700);
+        pint = [[_do objectForKey:[NSNumber numberWithInt:400]] bytes];
+        test(pint[0] == 600);
+        test(pint[1] == 700);
         test([ro count] == 3);
         test([[ro objectForKey:[NSNumber numberWithInt:100]] length] / sizeof(ICEInt) == 3);
-        p = [[ro objectForKey:[NSNumber numberWithInt:100]] bytes];
-        test(p[0] == 100);
-        test(p[1] == 200);
-        test(p[2] == 300);
+        pint = [[ro objectForKey:[NSNumber numberWithInt:100]] bytes];
+        test(pint[0] == 100);
+        test(pint[1] == 200);
+        test(pint[2] == 300);
         test([[ro objectForKey:[NSNumber numberWithInt:200]] length] / sizeof(ICEInt) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithInt:200]] bytes];
-        test(p[0] == 400);
-        test(p[1] == 500);
+        pint = [[ro objectForKey:[NSNumber numberWithInt:200]] bytes];
+        test(pint[0] == 400);
+        test(pint[1] == 500);
         test([[ro objectForKey:[NSNumber numberWithInt:400]] length] / sizeof(ICEInt) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithInt:400]] bytes];
-        test(p[0] == 600);
-        test(p[1] == 700);
+        pint = [[ro objectForKey:[NSNumber numberWithInt:400]] bytes];
+        test(pint[0] == 600);
+        test(pint[1] == 700);
     }
 
     {
@@ -1437,26 +1437,26 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableLongLongSD *_do;
         TestOperationsLongLongSD *ro = [p opLongLongSD:sdi1 p2:sdi2 p3:&_do];
 
-        const ICELong *p;
+        const ICELong *pl;
         test([_do count] == 1);
         test([[_do objectForKey:[NSNumber numberWithLong:999999992]] length] / sizeof(ICELong) == 2);
-        p = [[_do objectForKey:[NSNumber numberWithLong:999999992]] bytes];
-        test(p[0] == 999999110);
-        test(p[1] == 999999120);
+        pl = [[_do objectForKey:[NSNumber numberWithLong:999999992]] bytes];
+        test(pl[0] == 999999110);
+        test(pl[1] == 999999120);
         test([ro count] == 3);
         test([[ro objectForKey:[NSNumber numberWithLong:999999990]] length] / sizeof(ICELong) == 3);
-        p = [[ro objectForKey:[NSNumber numberWithLong:999999990]] bytes];
-        test(p[0] == 999999110);
-        test(p[1] == 999999111);
-        test(p[2] == 999999110);
+        pl = [[ro objectForKey:[NSNumber numberWithLong:999999990]] bytes];
+        test(pl[0] == 999999110);
+        test(pl[1] == 999999111);
+        test(pl[2] == 999999110);
         test([[ro objectForKey:[NSNumber numberWithLong:999999991]] length] / sizeof(ICELong) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithLong:999999991]] bytes];
-        test(p[0] == 999999120);
-        test(p[1] == 999999130);
+        pl = [[ro objectForKey:[NSNumber numberWithLong:999999991]] bytes];
+        test(pl[0] == 999999120);
+        test(pl[1] == 999999130);
         test([[ro objectForKey:[NSNumber numberWithLong:999999992]] length] / sizeof(ICELong) == 2);
-        p = [[ro objectForKey:[NSNumber numberWithLong:999999992]] bytes];
-        test(p[0] == 999999110);
-        test(p[1] == 999999120);
+        pl = [[ro objectForKey:[NSNumber numberWithLong:999999992]] bytes];
+        test(pl[0] == 999999110);
+        test(pl[1] == 999999120);
     }
 
     {
@@ -1482,26 +1482,26 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableStringFloatSD *_do;
         TestOperationsStringFloatSD *ro = [p opStringFloatSD:sdi1 p2:sdi2 p3:&_do];
 
-        const ICEFloat *p;
+        const ICEFloat *pf;
         test([_do count] == 1);
         test([[_do objectForKey:@"aBc"] length] / sizeof(ICEFloat) == 2);
-        p = [[_do objectForKey:@"aBc"] bytes];
-        test(p[0] == -3.14f);
-        test(p[1] == 3.14f);
+        pf = [[_do objectForKey:@"aBc"] bytes];
+        test(pf[0] == -3.14f);
+        test(pf[1] == 3.14f);
         test([ro count] == 3);
         test([[ro objectForKey:@"abc"] length] / sizeof(ICEFloat) == 3);
-        p = [[ro objectForKey:@"abc"] bytes];
-        test(p[0] == -1.1f);
-        test(p[1] == 123123.2f);
-        test(p[2] == 100.0f);
+        pf = [[ro objectForKey:@"abc"] bytes];
+        test(pf[0] == -1.1f);
+        test(pf[1] == 123123.2f);
+        test(pf[2] == 100.0f);
         test([[ro objectForKey:@"ABC"] length] / sizeof(ICEFloat) == 2);
-        p = [[ro objectForKey:@"ABC"] bytes];
-        test(p[0] == 42.24f);
-        test(p[1] == -1.61f);
+        pf = [[ro objectForKey:@"ABC"] bytes];
+        test(pf[0] == 42.24f);
+        test(pf[1] == -1.61f);
         test([[ro objectForKey:@"aBc"] length] / sizeof(ICEFloat) == 2);
-        p = [[ro objectForKey:@"aBc"] bytes];
-        test(p[0] == -3.14f);
-        test(p[1] == 3.14f);
+        pf = [[ro objectForKey:@"aBc"] bytes];
+        test(pf[0] == -3.14f);
+        test(pf[1] == 3.14f);
     }
 
     {
@@ -1527,26 +1527,26 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableStringDoubleSD *_do;
         TestOperationsStringDoubleSD *ro = [p opStringDoubleSD:sdi1 p2:sdi2 p3:&_do];
 
-        const ICEDouble *p;
+        const ICEDouble *pd;
         test([_do count] == 1);
         test([[_do objectForKey:@""] length] / sizeof(ICEDouble) == 2);
-        p = [[_do objectForKey:@""] bytes];
-        test(p[0] == 1.6E10);
-        test(p[1] == 1.7E10);
+        pd = [[_do objectForKey:@""] bytes];
+        test(pd[0] == 1.6E10);
+        test(pd[1] == 1.7E10);
         test([ro count] == 3);
         test([[ro objectForKey:@"Hello!!"] length] / sizeof(ICEDouble) == 3);
-        p = [[ro objectForKey:@"Hello!!"] bytes];
-        test(p[0] == 1.1E10);
-        test(p[1] == 1.2E10);
-        test(p[2] == 1.3E10);
+        pd = [[ro objectForKey:@"Hello!!"] bytes];
+        test(pd[0] == 1.1E10);
+        test(pd[1] == 1.2E10);
+        test(pd[2] == 1.3E10);
         test([[ro objectForKey:@"Goodbye"] length] / sizeof(ICEDouble) == 2);
-        p = [[ro objectForKey:@"Goodbye"] bytes];
-        test(p[0] == 1.4E10);
-        test(p[1] == 1.5E10);
+        pd = [[ro objectForKey:@"Goodbye"] bytes];
+        test(pd[0] == 1.4E10);
+        test(pd[1] == 1.5E10);
         test([[ro objectForKey:@""] length] / sizeof(ICEDouble) == 2);
-        p = [[ro objectForKey:@""] bytes];
-        test(p[0] == 1.6E10);
-        test(p[1] == 1.7E10);
+        pd = [[ro objectForKey:@""] bytes];
+        test(pd[0] == 1.6E10);
+        test(pd[1] == 1.7E10);
     }
 
     {
@@ -1611,26 +1611,26 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         TestOperationsMutableMyEnumMyEnumSD *_do;
         TestOperationsMyEnumMyEnumSD *ro = [p opMyEnumMyEnumSD:sdi1 p2:sdi2 p3:&_do];
 
-        const TestOperationsMyEnum *p;
+        const TestOperationsMyEnum *pe;
         test([_do count] == 1);
         test([[_do objectForKey:@(TestOperationsenum1)] length] / sizeof(TestOperationsMyEnum) == 2);
-        p = [[_do objectForKey:@(TestOperationsenum1)] bytes];
-        test(p[0] == TestOperationsenum3);
-        test(p[1] == TestOperationsenum3);
+        pe = [[_do objectForKey:@(TestOperationsenum1)] bytes];
+        test(pe[0] == TestOperationsenum3);
+        test(pe[1] == TestOperationsenum3);
         test([ro count] == 3);
         test([[ro objectForKey:@(TestOperationsenum3)] length] / sizeof(TestOperationsMyEnum) == 3);
-        p = [[ro objectForKey:@(TestOperationsenum3)] bytes];
-        test(p[0] == TestOperationsenum1);
-        test(p[1] == TestOperationsenum1);
-        test(p[2] == TestOperationsenum2);
+        pe = [[ro objectForKey:@(TestOperationsenum3)] bytes];
+        test(pe[0] == TestOperationsenum1);
+        test(pe[1] == TestOperationsenum1);
+        test(pe[2] == TestOperationsenum2);
         test([[ro objectForKey:@(TestOperationsenum2)] length] / sizeof(TestOperationsMyEnum) == 2);
-        p = [[ro objectForKey:@(TestOperationsenum2)] bytes];
-        test(p[0] == TestOperationsenum1);
-        test(p[1] == TestOperationsenum2);
+        pe = [[ro objectForKey:@(TestOperationsenum2)] bytes];
+        test(pe[0] == TestOperationsenum1);
+        test(pe[1] == TestOperationsenum2);
         test([[ro objectForKey:@(TestOperationsenum1)] length] / sizeof(TestOperationsMyEnum) == 2);
-        p = [[ro objectForKey:@(TestOperationsenum1)] bytes];
-        test(p[0] == TestOperationsenum3);
-        test(p[1] == TestOperationsenum3);
+        pe = [[ro objectForKey:@(TestOperationsenum1)] bytes];
+        test(pe[0] == TestOperationsenum3);
+        test(pe[1] == TestOperationsenum3);
     }
 
     {
@@ -1649,8 +1649,7 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
             TestOperationsIntS *r = [p opIntS:s];
             test([r length] == lengths[l] * sizeof(ICEInt));
             const ICEInt *rp = [r bytes];
-            int j;
-            for(j = 0; j < [r length] / sizeof(ICEInt); ++j)
+            for(int j = 0; j < (int)([r length] / sizeof(ICEInt)); ++j)
             {
                 test(rp[j] == -j);
             }
@@ -1702,18 +1701,18 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
             [ctx setObject:@"TWO" forKey:@"two" ];
             [ctx setObject:@"THREE" forKey:@"three"];
 
-            id<TestOperationsMyClassPrx> p = [TestOperationsMyClassPrx uncheckedCast:[ic stringToProxy:@"test:default -p 12010"]];
+            id<TestOperationsMyClassPrx> pc = [TestOperationsMyClassPrx uncheckedCast:[ic stringToProxy:@"test:default -p 12010"]];
 
             [[ic getImplicitContext] setContext:ctx];
             test([[[ic getImplicitContext] getContext] isEqual:ctx]);
-            test([[p opContext] isEqual:ctx]);
+            test([[pc opContext] isEqual:ctx]);
 
             test([[ic getImplicitContext] get:@"zero"] == nil);
             [[ic getImplicitContext] put:@"zero" value:@"ZERO"];
             test([[[ic getImplicitContext] get:@"zero"] isEqualToString:@"ZERO"]);
 
             ctx = [[ic getImplicitContext] getContext];
-            test([[p opContext] isEqual:ctx]);
+            test([[pc opContext] isEqual:ctx]);
 
             ICEMutableContext *prxContext = [ICEMutableContext dictionary];
             [prxContext setObject:@"UN" forKey:@"one"];
@@ -1722,20 +1721,20 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
             ICEMutableContext *combined = [ICEMutableContext dictionaryWithDictionary:ctx];
             [combined addEntriesFromDictionary:prxContext];
 
-            p = [TestOperationsMyClassPrx uncheckedCast:[p ice_context:prxContext]];
+            pc = [TestOperationsMyClassPrx uncheckedCast:[pc ice_context:prxContext]];
 
             [[ic getImplicitContext] setContext:[ICEContext dictionary]];
-            test([[p opContext] isEqualToDictionary:prxContext]);
+            test([[pc opContext] isEqualToDictionary:prxContext]);
 
             [[ic getImplicitContext] setContext:ctx];
-            test([[p opContext] isEqualToDictionary:combined]);
+            test([[pc opContext] isEqualToDictionary:combined]);
 
             test([[[ic getImplicitContext] get:@"one"] isEqualToString:@"ONE"]);
             [[ic getImplicitContext] remove:@"one"];
 
             if([impls[i] isEqualToString:@"PerThread"])
             {
-                PerThreadContextInvokeThread* thread = [PerThreadContextInvokeThread create:[p ice_context:[ICEMutableContext dictionary]]];
+                PerThreadContextInvokeThread* thread = [PerThreadContextInvokeThread create:[pc ice_context:[ICEMutableContext dictionary]]];
                 [thread start];
                 [thread join];
             }
@@ -1769,21 +1768,23 @@ twoways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
     test([p opDouble1:1.0] == 1.0);
     test([[p opString1:@"opString1"] isEqualToString:@"opString1"]);
 
-    id<TestOperationsMyDerivedClassPrx> d = [TestOperationsMyDerivedClassPrx uncheckedCast:p];
+    id<TestOperationsMyDerivedClassPrx> derived = [TestOperationsMyDerivedClassPrx uncheckedCast:p];
 
-    TestOperationsMyStruct1* s =
-        [TestOperationsMyStruct1 myStruct1:@"Test::MyStruct1::s" myClass:nil myStruct1:@"Test::MyStruct1::myStruct1"];
-    s = [d opMyStruct1:s];
-    test([s.tesT isEqualToString:@"Test::MyStruct1::s"]);
-    test(s.myClass == 0);
-    test([s.myStruct1 isEqualToString:@"Test::MyStruct1::myStruct1"]);
+    {
+        TestOperationsMyStruct1* s =
+            [TestOperationsMyStruct1 myStruct1:@"Test::MyStruct1::s" myClass:nil myStruct1:@"Test::MyStruct1::myStruct1"];
+        s = [derived opMyStruct1:s];
+        test([s.tesT isEqualToString:@"Test::MyStruct1::s"]);
+        test(s.myClass == 0);
+        test([s.myStruct1 isEqualToString:@"Test::MyStruct1::myStruct1"]);
 
-    TestOperationsMyClass1* c =
-        [TestOperationsMyClass1 myClass1:@"Test::MyClass1::testT" myClass:nil myClass1:@"Test::MyClass1::myClass1"];
-    c = [d opMyClass1:c];
-    test([c.tesT isEqualToString:@"Test::MyClass1::testT"]);
-    test(c.myClass == nil);
-    test([c.myClass1 isEqualToString:@"Test::MyClass1::myClass1"]);
+        TestOperationsMyClass1* c =
+            [TestOperationsMyClass1 myClass1:@"Test::MyClass1::testT" myClass:nil myClass1:@"Test::MyClass1::myClass1"];
+        c = [derived opMyClass1:c];
+        test([c.tesT isEqualToString:@"Test::MyClass1::testT"]);
+        test(c.myClass == nil);
+        test([c.myClass1 isEqualToString:@"Test::MyClass1::myClass1"]);
+    }
 
     [p opStringS1:[TestOperationsStringS array]];
     [p opByteBoolD1:[TestOperationsByteBoolD dictionary]];

@@ -483,7 +483,7 @@ IceProxy::Ice::Object::_iceI_begin_ice_invoke(const string& operation,
                                               const Context& ctx,
                                               const ::IceInternal::CallbackBasePtr& del,
                                               const ::Ice::LocalObjectPtr& cookie,
-                                              bool sync)
+                                              bool /*sync*/)
 {
     pair<const Byte*, const Byte*> inPair;
     if(inEncaps.empty())

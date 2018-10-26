@@ -255,7 +255,7 @@
     return nil; // Keep the compiler happy.
 }
 
--(id<ICEObjectAdapter>) createObjectAdapter:(NSString*)name;
+-(id<ICEObjectAdapter>) createObjectAdapter:(NSString*)name
 {
     NSException* nsex = nil;
     try
@@ -273,7 +273,7 @@
     return nil; // Keep the compiler happy.
 }
 
--(id<ICEObjectAdapter>) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints;
+-(id<ICEObjectAdapter>) createObjectAdapterWithEndpoints:(NSString*)name endpoints:(NSString*)endpoints
 {
     NSException* nsex = nil;
     try

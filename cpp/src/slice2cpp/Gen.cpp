@@ -981,20 +981,20 @@ Slice::Gen::generate(const UnitPtr& p)
         StringList globalMetaData = dc->getMetaData();
         for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end();)
         {
-            string s = *q++;
+            string md = *q++;
             static const string includePrefix = "cpp:include:";
-            if(s.find(includePrefix) == 0)
+            if(md.find(includePrefix) == 0)
             {
-                if(s.size() > includePrefix.size())
+                if(md.size() > includePrefix.size())
                 {
-                    H << nl << "#include <" << s.substr(includePrefix.size()) << ">";
+                    H << nl << "#include <" << md.substr(includePrefix.size()) << ">";
                 }
                 else
                 {
                     ostringstream ostr;
-                    ostr << "ignoring invalid global metadata `" << s << "'";
+                    ostr << "ignoring invalid global metadata `" << md << "'";
                     dc->warning(InvalidMetaData, file, -1, ostr.str());
-                    globalMetaData.remove(s);
+                    globalMetaData.remove(md);
                 }
             }
         }
@@ -1793,7 +1793,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList dataMembers = p->dataMembers();
 
     vector<string> params;
-    vector<string>::const_iterator pi;
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -2651,7 +2650,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 #endif
         for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
         {
-            string scoped = (*i)->scoped();
             C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
             C << sb;
             C << nl << "throw;";
@@ -2714,7 +2712,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 #endif
         for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
         {
-            string scoped = (*i)->scoped();
             C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
             C << sb;
             C << nl << "throw;";
@@ -3814,7 +3811,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         vector<string> paramsDeclAMI;
         vector<string> outParamsDeclAMI;
 
-        ParamDeclList paramList = p->parameters();
         for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
         {
             string paramName = fixKwd((*r)->name());
@@ -4841,8 +4837,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             H.restoreIndent();
 
-            string isConst = ((op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const")) ? " const" : "";
-
             H << ")" << isConst << ';';
 
             C << sp << nl << retS << nl;
@@ -5500,8 +5494,8 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 
     StringList metaData = p->getMetaData();
 
-    const UnitPtr unit = p->unit();
-    const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+    const UnitPtr ut = p->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
     assert(dc);
     if(!cl->isLocal() && p->hasMetaData("cpp:noexcept"))
     {
@@ -5582,8 +5576,8 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
     static const string cpp11Prefix = "cpp11:";
     static const string cpp98Prefix  = "cpp98:";
 
-    const UnitPtr unit = cont->unit();
-    const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    const UnitPtr ut = cont->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     StringList newMetaData = metaData;
     for(StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
@@ -5716,7 +5710,7 @@ Slice::Gen::NormalizeMetaDataVisitor::NormalizeMetaDataVisitor(bool cpp11) :
 }
 
 bool
-Slice::Gen::NormalizeMetaDataVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::NormalizeMetaDataVisitor::visitUnitStart(const UnitPtr&)
 {
     return true;
 }
@@ -5970,11 +5964,11 @@ Slice::Gen::resetUseWstring(list<int>& hist)
 }
 
 string
-Slice::Gen::getHeaderExt(const string& file, const UnitPtr& unit)
+Slice::Gen::getHeaderExt(const string& file, const UnitPtr& ut)
 {
     string ext;
     static const string headerExtPrefix = "cpp:header-ext:";
-    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     string meta = dc->findMetaData(headerExtPrefix);
     if(meta.size() > headerExtPrefix.size())
@@ -5985,11 +5979,11 @@ Slice::Gen::getHeaderExt(const string& file, const UnitPtr& unit)
 }
 
 string
-Slice::Gen::getSourceExt(const string& file, const UnitPtr& unit)
+Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
 {
     string ext;
     static const string sourceExtPrefix = "cpp:source-ext:";
-    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     string meta = dc->findMetaData(sourceExtPrefix);
     if(meta.size() > sourceExtPrefix.size())
@@ -6017,7 +6011,7 @@ Slice::Gen::Cpp11DeclVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::Cpp11DeclVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::Cpp11DeclVisitor::visitUnitEnd(const UnitPtr&)
 {
     C << sp << nl << "}";
 }
@@ -6679,7 +6673,7 @@ Slice::Gen::Cpp11ProxyVisitor::Cpp11ProxyVisitor(Output& h, Output& c, const str
 }
 
 bool
-Slice::Gen::Cpp11ProxyVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::Cpp11ProxyVisitor::visitUnitStart(const UnitPtr&)
 {
     return true;
 }

@@ -12,97 +12,97 @@
 #import <objc/Ice.h>
 
 @implementation TestSlicingExceptionsServerI
--(void) baseAsBase:(ICECurrent*)current
+-(void) baseAsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerBase base:@"Base.b"];
 }
 
--(void) unknownDerivedAsBase:(ICECurrent*)current
+-(void) unknownDerivedAsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerUnknownDerived unknownDerived:@"UnknownDerived.b" ud:@"UnknownDerived.ud"];
 }
 
--(void) knownDerivedAsBase:(ICECurrent*)current
+-(void) knownDerivedAsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownDerived knownDerived:@"KnownDerived.b" kd:@"KnownDerived.kd"];
 }
 
--(void) knownDerivedAsKnownDerived:(ICECurrent*)current
+-(void) knownDerivedAsKnownDerived:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownDerived knownDerived:@"KnownDerived.b" kd:@"KnownDerived.kd"];
 }
 
--(void) unknownIntermediateAsBase:(ICECurrent*)current
+-(void) unknownIntermediateAsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerUnknownIntermediate unknownIntermediate:@"UnknownIntermediate.b" ui:@"UnknownIntermediate.ui"];
 }
 
--(void) knownIntermediateAsBase:(ICECurrent*)current
+-(void) knownIntermediateAsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownIntermediate knownIntermediate:@"KnownIntermediate.b" ki:@"KnownIntermediate.ki"];
 }
 
--(void) knownMostDerivedAsBase:(ICECurrent*)current
+-(void) knownMostDerivedAsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownMostDerived knownMostDerived:@"KnownMostDerived.b" ki:@"KnownMostDerived.ki" kmd:@"KnownMostDerived.kmd"];
 }
 
--(void) knownIntermediateAsKnownIntermediate:(ICECurrent*)current
+-(void) knownIntermediateAsKnownIntermediate:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownIntermediate knownIntermediate:@"KnownIntermediate.b" ki:@"KnownIntermediate.ki"];
 }
 
--(void) knownMostDerivedAsKnownIntermediate:(ICECurrent*)current
+-(void) knownMostDerivedAsKnownIntermediate:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownMostDerived knownMostDerived:@"KnownMostDerived.b" ki:@"KnownMostDerived.ki" kmd:@"KnownMostDerived.kmd"];
 }
 
--(void) knownMostDerivedAsKnownMostDerived:(ICECurrent*)current
+-(void) knownMostDerivedAsKnownMostDerived:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownMostDerived knownMostDerived:@"KnownMostDerived.b" ki:@"KnownMostDerived.ki" kmd:@"KnownMostDerived.kmd"];
 }
 
--(void) unknownMostDerived1AsBase:(ICECurrent*)current
+-(void) unknownMostDerived1AsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerUnknownMostDerived1 unknownMostDerived1:@"UnknownMostDerived1.b" ki:@"UnknownMostDerived1.ki" umd1:@"UnknownMostDerived1.umd1"];
 }
 
--(void) unknownMostDerived1AsKnownIntermediate:(ICECurrent*)current
+-(void) unknownMostDerived1AsKnownIntermediate:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerUnknownMostDerived1 unknownMostDerived1:@"UnknownMostDerived1.b"
                                                                             ki:@"UnknownMostDerived1.ki"
                                                                           umd1:@"UnknownMostDerived1.umd1"];
 }
 
--(void) unknownMostDerived2AsBase:(ICECurrent*)current
+-(void) unknownMostDerived2AsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerUnknownMostDerived2 unknownMostDerived2:@"UnknownMostDerived2.b"
                                                                             ui:@"UnknownMostDerived2.ui"
                                                                           umd2:@"UnknownMostDerived2.umd2"];
 }
 
--(void) unknownMostDerived2AsBaseCompact:(ICECurrent*)current
+-(void) unknownMostDerived2AsBaseCompact:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerUnknownMostDerived2 unknownMostDerived2:@"UnknownMostDerived2.b"
                                                                             ui:@"UnknownMostDerived2.ui"
                                                                           umd2:@"UnknownMostDerived2.umd2"];
 }
 
--(void) knownPreservedAsBase:(ICECurrent*)current
+-(void) knownPreservedAsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownPreservedDerived knownPreservedDerived:@"base"
                                                                                 kp:@"preserved"
                                                                                kpd:@"derived"];
 }
 
--(void) knownPreservedAsKnownPreserved:(ICECurrent*)current
+-(void) knownPreservedAsKnownPreserved:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsServerKnownPreservedDerived knownPreservedDerived:@"base"
                                                                                 kp:@"preserved"
                                                                                kpd:@"derived"];
 }
 
--(void) relayKnownPreservedAsBase:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
+-(void) relayKnownPreservedAsBase:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)__unused current
 {
     TestSlicingExceptionsServerRelayPrx* p =
         [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
@@ -110,7 +110,7 @@
     test(NO);
 }
 
--(void) relayKnownPreservedAsKnownPreserved:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
+-(void) relayKnownPreservedAsKnownPreserved:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)__unused current
 {
     TestSlicingExceptionsServerRelayPrx* p =
         [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
@@ -118,7 +118,7 @@
     test(NO);
 }
 
--(void) unknownPreservedAsBase:(ICECurrent*)current
+-(void) unknownPreservedAsBase:(ICECurrent*)__unused current
 {
     TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 sPreserved2];
     ex.b = @"base";
@@ -129,7 +129,7 @@
     @throw ex;
 }
 
--(void) unknownPreservedAsKnownPreserved:(ICECurrent*)current
+-(void) unknownPreservedAsKnownPreserved:(ICECurrent*)__unused current
 {
     TestSlicingExceptionsServerSPreserved2* ex = [TestSlicingExceptionsServerSPreserved2 sPreserved2];
     ex.b = @"base";
@@ -140,7 +140,7 @@
     @throw ex;
 }
 
--(void) relayUnknownPreservedAsBase:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
+-(void) relayUnknownPreservedAsBase:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)__unused current
 {
     TestSlicingExceptionsServerRelayPrx* p =
         [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];
@@ -148,7 +148,7 @@
     test(NO);
 }
 
--(void) relayUnknownPreservedAsKnownPreserved:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)current
+-(void) relayUnknownPreservedAsKnownPreserved:(TestSlicingExceptionsServerRelayPrx*)relay current:(ICECurrent*)__unused current
 {
     TestSlicingExceptionsServerRelayPrx* p =
         [TestSlicingExceptionsServerRelayPrx uncheckedCast:[current.con createProxy:[relay ice_getIdentity]]];

@@ -24,8 +24,8 @@
     NSData* data_;
 }
 +(Ice::Object*)createObjectReader:(ICEObject*)obj;
--initWithCxxCommunicator:(Ice::Communicator*)com data:(const std::pair<const Byte*, const Byte*>&)data;
--initWithCommunicator:(id<ICECommunicator>)com data:(NSData*)data encoding:(ICEEncodingVersion*)e;
+-(id)initWithCxxCommunicator:(Ice::Communicator*)com data:(const std::pair<const Byte*, const Byte*>&)data;
+-(id)initWithCommunicator:(id<ICECommunicator>)com data:(NSData*)data encoding:(ICEEncodingVersion*)e;
 -(Ice::InputStream*) is;
 @end
 
@@ -35,8 +35,8 @@
     Ice::OutputStream stream_;
     std::map<ICEObject*, Ice::ObjectPtr>* objectWriters_;
 }
--initWithCxxCommunicator:(Ice::Communicator*)communicator;
--initWithCxxStream:(Ice::OutputStream*)stream;
--initWithCommunicator:(id<ICECommunicator>)com encoding:(ICEEncodingVersion*)e;
+-(id)initWithCxxCommunicator:(Ice::Communicator*)communicator;
+-(id)initWithCxxStream:(Ice::OutputStream*)stream;
+-(id)initWithCommunicator:(id<ICECommunicator>)com encoding:(ICEEncodingVersion*)e;
 -(Ice::OutputStream*) os;
 @end

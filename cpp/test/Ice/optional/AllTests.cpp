@@ -907,24 +907,24 @@ allTests(Test::TestHelper* helper, bool)
     cout << "ok" << endl;
 
     cout << "testing tag marshalling... " << flush;
-    BPtr b = ICE_MAKE_SHARED(B);
-    BPtr b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
-    test(!b2->ma);
-    test(!b2->mb);
-    test(!b2->mc);
-
-    b->ma = 10;
-    b->mb = 11;
-    b->mc = 12;
-    b->md = 13;
-
-    b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
-    test(b2->ma == 10);
-    test(b2->mb == 11);
-    test(b2->mc == 12);
-    test(b2->md == 13);
-
     {
+        BPtr b = ICE_MAKE_SHARED(B);
+        BPtr b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
+        test(!b2->ma);
+        test(!b2->mb);
+        test(!b2->mc);
+
+        b->ma = 10;
+        b->mb = 11;
+        b->mc = 12;
+        b->md = 13;
+
+        b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
+        test(b2->ma == 10);
+        test(b2->mb == 11);
+        test(b2->mc == 12);
+        test(b2->md == 13);
+        
         factory->setEnabled(true);
         Ice::OutputStream out(communicator);
         out.startEncapsulation();

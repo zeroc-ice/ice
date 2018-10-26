@@ -52,6 +52,10 @@
 #  include <sys/sockio.h>
 #endif
 
+#if defined(__GNUC__) && (__GNUC__ < 5)
+#  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+#endif
+
 #if defined(_WIN32)
 #   ifndef SIO_LOOPBACK_FAST_PATH
 #       define SIO_LOOPBACK_FAST_PATH _WSAIOW(IOC_VENDOR,16)
@@ -1156,7 +1160,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     struct addrinfo* info = 0;
     int retry = 5;
 
-    struct addrinfo hints = { 0 };
+    struct addrinfo hints = {};
     if(protocol == EnableIPv4)
     {
         hints.ai_family = PF_INET;

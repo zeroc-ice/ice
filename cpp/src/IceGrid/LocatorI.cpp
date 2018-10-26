@@ -123,12 +123,12 @@ public:
             _cb->ice_response(_obj);
             return;
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception& e)
         {
             //
             // Rethrow unexpected exception.
             //
-            _cb->ice_exception(ex);
+            _cb->ice_exception(e);
             return;
         }
 
@@ -779,11 +779,11 @@ public:
     }
 
     virtual void
-    synchronized(const Ice::Exception& ex)
+    synchronized(const Ice::Exception& sex)
     {
         try
         {
-            ex.ice_throw();
+            sex.ice_throw();
         }
         catch(const AdapterNotExistException&)
         {

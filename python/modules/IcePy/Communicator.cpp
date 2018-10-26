@@ -936,9 +936,9 @@ communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, Py
             result = (*self->communicator)->begin_flushBatchRequests(cb);
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& e)
     {
-        setPythonException(ex);
+        setPythonException(e);
         return 0;
     }
 

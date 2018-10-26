@@ -99,7 +99,7 @@ TestIntfI::close(Test::CloseMode mode, const Ice::Current& current)
 }
 
 void
-TestIntfI::sleep(Ice::Int ms, const Ice::Current& current)
+TestIntfI::sleep(Ice::Int ms, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     timedWait(IceUtil::Time::milliSeconds(ms));
@@ -107,7 +107,7 @@ TestIntfI::sleep(Ice::Int ms, const Ice::Current& current)
 
 #ifdef ICE_CPP11_MAPPING
 void
-TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)> ex,
+TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)>,
                               const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -143,7 +143,7 @@ TestIntfI::startDispatch_async(const Test::AMD_TestIntf_startDispatchPtr& cb, co
 #endif
 
 void
-TestIntfI::finishDispatch(const Ice::Current& current)
+TestIntfI::finishDispatch(const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_shutdown)

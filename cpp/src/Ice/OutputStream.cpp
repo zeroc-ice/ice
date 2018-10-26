@@ -662,9 +662,9 @@ Ice::OutputStream::write(const string* begin, const string* end, bool convert)
     writeSize(sz);
     if(sz > 0)
     {
-        for(int i = 0; i < sz; ++i)
+        for(int j = 0; j < sz; ++j)
         {
-            write(begin[i], convert);
+            write(begin[j], convert);
         }
     }
 }
@@ -757,9 +757,9 @@ Ice::OutputStream::write(const wstring* begin, const wstring* end)
     writeSize(sz);
     if(sz > 0)
     {
-        for(int i = 0; i < sz; ++i)
+        for(int j = 0; j < sz; ++j)
         {
-            write(begin[i]);
+            write(begin[j]);
         }
     }
 }

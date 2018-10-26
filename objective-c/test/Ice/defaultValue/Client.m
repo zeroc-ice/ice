@@ -24,7 +24,7 @@ run()
 #endif
 
 int
-main(int argc, char* argv[])
+main(int __unused argc, char* __unused argv[])
 {
 #ifdef ICE_STATIC_LIBS
     ICEregisterIceSSL(YES);

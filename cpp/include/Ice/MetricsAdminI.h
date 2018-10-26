@@ -325,7 +325,14 @@ public:
         }
     }
 
-    MetricsMapT(const MetricsMapT& other) : MetricsMapI(other), _destroyed(false)
+    MetricsMapT(const MetricsMapT& other)
+        :
+#ifndef ICE_CPP11_MAPPING
+        IceUtil::Shared(),
+#endif
+        MetricsMapI(other),
+	IceUtil::Mutex(),
+        _destroyed(false)
     {
     }
 

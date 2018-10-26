@@ -164,7 +164,7 @@ testSymbols()
 }
 
 static int
-run(id<ICECommunicator> communicator)
+run(id<ICECommunicator>__unused communicator)
 {
     if(0)
     {

@@ -176,22 +176,22 @@ Ice::LoggerI::write(const string& message, bool indent)
                 string date = IceUtil::Time::now().toString("%Y%m%d-%H%M%S");
                 while(true)
                 {
-                    ostringstream s;
-                    s << basename << "-" << date;
+                    ostringstream oss;
+                    oss << basename << "-" << date;
                     if(id > 0)
                     {
-                        s << "-" << id;
+                        oss << "-" << id;
                     }
                     if(!ext.empty())
                     {
-                        s << "." << ext;
+                        oss << "." << ext;
                     }
-                    if(IceUtilInternal::fileExists(s.str()))
+                    if(IceUtilInternal::fileExists(oss.str()))
                     {
                         id++;
                         continue;
                     }
-                    archive = s.str();
+                    archive = oss.str();
                     break;
                 }
 

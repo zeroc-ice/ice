@@ -150,13 +150,16 @@ shared_ldflags      = $(if $(filter-out program,$($1_target)),\
         -pie $(if $(filter yes,$(new_dtags)),-Wl$(comma)--enable-new-dtags,-Wl$(comma)--disable-new-dtags) \
         $$(call unique,$$(foreach d,$($4_dependencies),$$(call make-rpath-link-ldflags,$$d,$($4_dependencies)))))
 
-cppflags        = -Wall -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
+cppflags        = -Wall -Wextra -Wredundant-decls -Wshadow -Wdeprecated -Werror -pthread $(if $(filter yes,$(OPTIMIZE)),-DNDEBUG,-g)
 ldflags         = -pthread
-ifeq ($(MAXWARN),yes)
-    cppflags    += -Wextra -Wshadow -Wredundant-decls
+
+# -Wshadow is too strict with gcc 4
+ifeq ($(shell $(CXX) -dumpversion | cut -f1 -d\.),4)
+    cppflags    := $(filter-out -Wshadow,$(cppflags))
 endif
 
 nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations
+nounusedparameter-cppflags    := -Wno-unused-parameter
 
 loader_path     = \$$ORIGIN
 

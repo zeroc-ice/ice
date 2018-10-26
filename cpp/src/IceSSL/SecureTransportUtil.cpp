@@ -363,11 +363,11 @@ loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keycha
     UniqueRef<SecKeyRef> key;
     for(int i = 0; i < count; ++i)
     {
-        SecKeychainItemRef item =
+        SecKeychainItemRef itemRef =
             static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
-        if(SecKeyGetTypeID() == CFGetTypeID(item))
+        if(SecKeyGetTypeID() == CFGetTypeID(itemRef))
         {
-            key.retain(reinterpret_cast<SecKeyRef>(item));
+            key.retain(reinterpret_cast<SecKeyRef>(itemRef));
             break;
         }
     }

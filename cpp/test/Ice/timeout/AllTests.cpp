@@ -192,8 +192,8 @@ allTests(Test::TestHelper* helper)
         controller->holdAdapter(100);
         try
         {
-            ByteSeq seq(1000000);
-            to->sendData(seq);
+            ByteSeq seq2(1000000);
+            to->sendData(seq2);
         }
         catch(const Ice::TimeoutException&)
         {
@@ -485,7 +485,7 @@ allTests(Test::TestHelper* helper)
         Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("TimeoutCollocated");
         adapter->activate();
 
-        TimeoutPrxPtr timeout = ICE_UNCHECKED_CAST(TimeoutPrx, adapter->addWithUUID(ICE_MAKE_SHARED(TimeoutI)));
+        timeout = ICE_UNCHECKED_CAST(TimeoutPrx, adapter->addWithUUID(ICE_MAKE_SHARED(TimeoutI)));
         timeout = timeout->ice_invocationTimeout(100);
         try
         {

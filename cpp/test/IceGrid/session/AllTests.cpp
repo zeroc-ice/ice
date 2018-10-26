@@ -108,7 +108,7 @@ public:
     }
 
     virtual void
-    applicationInit(int serial, const ApplicationInfoSeq& apps, const Ice::Current&)
+    applicationInit(int serialP, const ApplicationInfoSeq& apps, const Ice::Current&)
     {
         Lock sync(*this);
         for(ApplicationInfoSeq::const_iterator p = apps.begin(); p != apps.end(); ++p)
@@ -118,27 +118,27 @@ public:
                 this->applications.insert(make_pair(p->descriptor.name, *p));
             }
         }
-        updated(updateSerial(serial, "init update"));
+        updated(updateSerial(serialP, "init update"));
     }
 
     virtual void
-    applicationAdded(int serial, const ApplicationInfo& app, const Ice::Current&)
+    applicationAdded(int serialP, const ApplicationInfo& app, const Ice::Current&)
     {
         Lock sync(*this);
         this->applications.insert(make_pair(app.descriptor.name, app));
-        updated(updateSerial(serial, "application added `" + app.descriptor.name + "'"));
+        updated(updateSerial(serialP, "application added `" + app.descriptor.name + "'"));
     }
 
     virtual void
-    applicationRemoved(int serial, const std::string& name, const Ice::Current&)
+    applicationRemoved(int serialP, const std::string& name, const Ice::Current&)
     {
         Lock sync(*this);
         this->applications.erase(name);
-        updated(updateSerial(serial, "application removed `" + name + "'"));
+        updated(updateSerial(serialP, "application removed `" + name + "'"));
     }
 
     virtual void
-    applicationUpdated(int serial, const ApplicationUpdateInfo& info, const Ice::Current&)
+    applicationUpdated(int serialP, const ApplicationUpdateInfo& info, const Ice::Current&)
     {
         Lock sync(*this);
         const ApplicationUpdateDescriptor& desc = info.descriptor;
@@ -150,7 +150,7 @@ public:
         {
             this->applications[desc.name].descriptor.variables[p->first] = p->second;
         }
-        updated(updateSerial(serial, "application updated `" + desc.name + "'"));
+        updated(updateSerial(serialP, "application updated `" + desc.name + "'"));
     }
 
     int serial;
@@ -159,9 +159,9 @@ public:
 private:
 
     string
-    updateSerial(int serial, const string& update)
+    updateSerial(int serialP, const string& update)
     {
-        this->serial = serial;
+        serial = serialP;
         ostringstream os;
         os << update << " (serial = " << serial << ")";
         return os.str();
@@ -178,12 +178,12 @@ public:
     }
 
     virtual void
-    adapterInit(const AdapterInfoSeq& adapters, const Ice::Current&)
+    adapterInit(const AdapterInfoSeq& adaptersP, const Ice::Current&)
     {
         Lock sync(*this);
-        for(AdapterInfoSeq::const_iterator q = adapters.begin(); q != adapters.end(); ++q)
+        for(AdapterInfoSeq::const_iterator q = adaptersP.begin(); q != adaptersP.end(); ++q)
         {
-            this->adapters.insert(make_pair(q->id, *q));
+            adapters.insert(make_pair(q->id, *q));
         }
         updated(updateSerial(0, "init update"));
     }
@@ -192,7 +192,7 @@ public:
     adapterAdded(const AdapterInfo& info, const Ice::Current&)
     {
         Lock sync(*this);
-        this->adapters.insert(make_pair(info.id, info));
+        adapters.insert(make_pair(info.id, info));
         updated(updateSerial(0, "adapter added `" + info.id + "'"));
     }
 
@@ -200,7 +200,7 @@ public:
     adapterUpdated(const AdapterInfo& info, const Ice::Current&)
     {
         Lock sync(*this);
-        this->adapters[info.id] = info;
+        adapters[info.id] = info;
         updated(updateSerial(0, "adapter updated `" + info.id + "'"));
     }
 
@@ -208,7 +208,7 @@ public:
     adapterRemoved(const string& id, const Ice::Current&)
     {
         Lock sync(*this);
-        this->adapters.erase(id);
+        adapters.erase(id);
         updated(updateSerial(0, "adapter removed `" + id + "'"));
     }
 
@@ -218,9 +218,9 @@ public:
 private:
 
     string
-    updateSerial(int serial, const string& update)
+    updateSerial(int serialP, const string& update)
     {
-        this->serial = serial;
+        serial = serialP;
         ostringstream os;
         os << update << " (serial = " << serial << ")";
         return os.str();
@@ -237,12 +237,12 @@ public:
     }
 
     virtual void
-    objectInit(const ObjectInfoSeq& objects, const Ice::Current&)
+    objectInit(const ObjectInfoSeq& objectsP, const Ice::Current&)
     {
         Lock sync(*this);
-        for(ObjectInfoSeq::const_iterator r = objects.begin(); r != objects.end(); ++r)
+        for(ObjectInfoSeq::const_iterator r = objectsP.begin(); r != objectsP.end(); ++r)
         {
-            this->objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
+            objects.insert(make_pair(r->proxy->ice_getIdentity(), *r));
         }
         updated(updateSerial(0, "init update"));
     }
@@ -251,7 +251,7 @@ public:
     objectAdded(const ObjectInfo& info, const Ice::Current&)
     {
         Lock sync(*this);
-        this->objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
+        objects.insert(make_pair(info.proxy->ice_getIdentity(), info));
         updated(updateSerial(0, "object added `" + info.proxy->ice_toString() + "'"));
     }
 
@@ -259,7 +259,7 @@ public:
     objectUpdated(const ObjectInfo& info, const Ice::Current&)
     {
         Lock sync(*this);
-        this->objects[info.proxy->ice_getIdentity()] = info;
+        objects[info.proxy->ice_getIdentity()] = info;
         updated(updateSerial(0, "object updated `" + info.proxy->ice_toString() + "'"));
     }
 
@@ -267,7 +267,7 @@ public:
     objectRemoved(const Ice::Identity& id, const Ice::Current& current)
     {
         Lock sync(*this);
-        this->objects.erase(id);
+        objects.erase(id);
         updated(updateSerial(0, "object removed `" +
                              current.adapter->getCommunicator()->identityToString(id) + "'"));
     }
@@ -278,9 +278,9 @@ public:
 private:
 
     string
-    updateSerial(int serial, const string& update)
+    updateSerial(int serialP, const string& update)
     {
-        this->serial = serial;
+        serial = serialP;
         ostringstream os;
         os << update << " (serial = " << serial << ")";
         return os.str();

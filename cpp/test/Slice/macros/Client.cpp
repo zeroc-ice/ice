@@ -22,7 +22,7 @@ public:
 };
 
 void
-Client::run(int argc, char** argv)
+Client::run(int, char**)
 {
     cout << "testing Slice predefined macros... " << flush;
     DefaultPtr d = ICE_MAKE_SHARED(Default);

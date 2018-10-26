@@ -27,7 +27,7 @@
     self = [super init];
     return self;
 }
--(void)tick:(NSString*)time current:(ICECurrent*)current
+-(void)tick:(NSString*)time current:(ICECurrent*)__unused current
 {
     NSLog(@"%@", time);
 }

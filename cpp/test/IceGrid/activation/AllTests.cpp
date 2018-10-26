@@ -96,13 +96,13 @@ allTests(Test::TestHelper* helper)
     IceGrid::QueryPrx query = IceGrid::QueryPrx::checkedCast(
         communicator->stringToProxy(communicator->getDefaultLocator()->ice_getIdentity().category + "/Query"));
 
-    IceGrid::AdminSessionPrx session = registry->createAdminSession("foo", "bar");
+    IceGrid::AdminSessionPrx adminSession = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(),
+    adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          IceUtil::None,
                                          Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
-    IceGrid::AdminPrx admin = session->getAdmin();
+    IceGrid::AdminPrx admin = adminSession->getAdmin();
     test(admin);
 
     admin->startServer("node-1");
@@ -741,5 +741,5 @@ allTests(Test::TestHelper* helper)
     admin->stopServer("node-1");
     admin->stopServer("node-2");
 
-    session->destroy();
+    adminSession->destroy();
 }

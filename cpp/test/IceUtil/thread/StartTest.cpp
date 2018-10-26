@@ -64,8 +64,8 @@ StartTest::run()
     {
         for(int j = 0; j < 40; j++)
         {
-            Thread* t = new StartTestThread;
-            t->start().detach();
+            Thread* thread = new StartTestThread;
+            thread->start().detach();
         }
         ThreadControl::sleep(Time::milliSeconds(5));
     }

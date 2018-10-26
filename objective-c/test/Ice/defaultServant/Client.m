@@ -96,7 +96,7 @@ run(id<ICECommunicator> communicator)
     for(NSString* name in stringArray)
     {
         [identity setName:name];
-        id<TestDefaultServantMyObjectPrx> prx = [TestDefaultServantMyObjectPrx uncheckedCast:[oa createProxy:identity]];
+        prx = [TestDefaultServantMyObjectPrx uncheckedCast:[oa createProxy:identity]];
 
         @try
         {
@@ -130,7 +130,7 @@ run(id<ICECommunicator> communicator)
     for(NSString* name in stringArray)
     {
         [identity setName:name];
-        id<TestDefaultServantMyObjectPrx> prx = [TestDefaultServantMyObjectPrx uncheckedCast:[oa createProxy:identity]];
+        prx = [TestDefaultServantMyObjectPrx uncheckedCast:[oa createProxy:identity]];
         [prx ice_ping];
         test([[prx getName] isEqualToString:name]);
     }

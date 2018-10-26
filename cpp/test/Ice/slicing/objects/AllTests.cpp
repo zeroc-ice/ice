@@ -3137,8 +3137,7 @@ allTests(Test::TestHelper* helper)
         //
         // Sending more than 254 objects exercises the encoding for object ids.
         //
-        int i;
-        for(i = 0; i < 300; ++i)
+        for(int i = 0; i < 300; ++i)
         {
             PCDerived2Ptr p2 = ICE_MAKE_SHARED(PCDerived2);
             p2->pi = i;

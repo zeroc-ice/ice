@@ -39,6 +39,10 @@ ifeq ($(shell uname),Darwin)
     endif
 endif
 
+ifeq ($(os),Linux)
+   cppflags   := $(filter-out -Wredundant-decls -Wshadow,$(cppflags))
+endif
+
 # Ruby linker flags
 ruby_ldflags    := $(call ruby-call,$$(LIBRUBYARG))
 ruby_libdir     := $(call ruby-call,$(if $(findstring MINGW,$(shell uname)),$$(bindir),$$(libdir)))

@@ -751,9 +751,9 @@ private:
             //
             string sig = ::dbus_message_iter_get_signature(_iter);
             string::iterator p = sig.begin();
-            TypePtr t = buildType(p);
+            TypePtr vt = buildType(p);
             VariantValuePtr v = new VariantValue;
-            v->v = readValue(t);
+            v->v = readValue(vt);
             popIter();
             return v;
         }

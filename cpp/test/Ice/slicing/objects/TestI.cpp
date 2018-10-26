@@ -441,15 +441,21 @@ TestI::returnTest2(BPtr& p1, BPtr& p2, const ::Ice::Current&)
     return p1;
 }
 
+#ifdef ICE_CPP11_MAPPING
 BPtr
 TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr) p2, const ::Ice::Current&)
 {
-#ifdef ICE_CPP11_MAPPING
     _values.push_back(p1);
     _values.push_back(p2);
-#endif
     return p1;
 }
+#else
+BPtr
+TestI::returnTest3(ICE_IN(BPtr) p1, ICE_IN(BPtr), const ::Ice::Current&)
+{
+    return p1;
+}
+#endif
 
 SS3
 TestI::sequenceTest(ICE_IN(SS1Ptr) p1, ICE_IN(SS2Ptr) p2, const ::Ice::Current&)

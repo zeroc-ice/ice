@@ -434,9 +434,9 @@ public:
             _proxy.handleException(ex);
             assert(false);
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception& e)
         {
-            _amdCB->ice_exception(ex);
+            _amdCB->ice_exception(e);
         }
     }
 
@@ -491,9 +491,9 @@ public:
         {
             _amdCB->ice_response();
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception& e)
         {
-            _amdCB->ice_exception(ex);
+            _amdCB->ice_exception(e);
         }
     }
 

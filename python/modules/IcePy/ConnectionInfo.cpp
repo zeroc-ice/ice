@@ -158,7 +158,7 @@ udpConnectionInfoGetMcastAddress(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-udpConnectionInfoGetMcastPort(ConnectionInfoObject* self, void* member)
+udpConnectionInfoGetMcastPort(ConnectionInfoObject* self, void* /*member*/)
 {
     Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);

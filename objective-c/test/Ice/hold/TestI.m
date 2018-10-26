@@ -111,7 +111,7 @@
         } timeout:0];
 }
 
--(ICEInt) set:(ICEInt)value delay:(ICEInt)delay current:(ICECurrent*)current
+-(ICEInt) set:(ICEInt)value delay:(ICEInt)delay current:(ICECurrent*)__unused current
 {
     [NSThread sleepForTimeInterval:delay / 1000.0];
     @synchronized(self)
@@ -123,7 +123,7 @@
     return 0;
 }
 
--(void) setOneway:(ICEInt)value expected:(ICEInt)expected current:(ICECurrent*)current
+-(void) setOneway:(ICEInt)value expected:(ICEInt)expected current:(ICECurrent*)__unused current
 {
     @synchronized(self)
     {

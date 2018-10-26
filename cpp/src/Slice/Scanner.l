@@ -394,7 +394,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                 case 'U':
                 {
                     string escape = "";
-                    char c = next;
+                    c = next;
                     int size = (c == 'u') ? 4 : 8;
                     while(size > 0)
                     {

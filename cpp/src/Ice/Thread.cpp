@@ -567,8 +567,8 @@ IceUtil::ThreadControl::join()
         throw BadThreadControlException(__FILE__, __LINE__);
     }
 
-    void* ignore = 0;
-    int rc = pthread_join(_thread, &ignore);
+    void* status = 0;
+    int rc = pthread_join(_thread, &status);
     if(rc != 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, rc);

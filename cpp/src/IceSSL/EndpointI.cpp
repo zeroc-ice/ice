@@ -342,36 +342,36 @@ IceSSL::EndpointI::operator<(const Ice::LocalObject& r) const
 }
 
 bool
-IceSSL::EndpointI::checkOption(const string& option, const string& argument, const string& endpoint)
+IceSSL::EndpointI::checkOption(const string& /*option*/, const string& /*argument*/, const string& /*endpoint*/)
 {
     return false;
 }
 
 IceSSL::EndpointFactoryI::EndpointFactoryI(const InstancePtr& instance, Short type) :
-    IceInternal::EndpointFactoryWithUnderlying(instance, type), _instance(instance.get())
+    IceInternal::EndpointFactoryWithUnderlying(instance, type), _sslInstance(instance.get())
 {
 }
 
 void
 IceSSL::EndpointFactoryI::destroy()
 {
-    _instance = 0;
+    _sslInstance = 0;
 }
 
 IceInternal::EndpointFactoryPtr
 IceSSL::EndpointFactoryI::cloneWithUnderlying(const IceInternal::ProtocolInstancePtr& instance, Short underlying) const
 {
-    return new EndpointFactoryI(new Instance(_instance->engine(), instance->type(), instance->protocol()), underlying);
+    return new EndpointFactoryI(new Instance(_sslInstance->engine(), instance->type(), instance->protocol()), underlying);
 }
 
 IceInternal::EndpointIPtr
 IceSSL::EndpointFactoryI::createWithUnderlying(const IceInternal::EndpointIPtr& underlying, vector<string>&, bool) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _instance, underlying);
+    return ICE_MAKE_SHARED(EndpointI, _sslInstance, underlying);
 }
 
 IceInternal::EndpointIPtr
-IceSSL::EndpointFactoryI::readWithUnderlying(const IceInternal::EndpointIPtr& underlying, Ice::InputStream* s) const
+IceSSL::EndpointFactoryI::readWithUnderlying(const IceInternal::EndpointIPtr& underlying, Ice::InputStream*) const
 {
-    return ICE_MAKE_SHARED(EndpointI, _instance, underlying);
+    return ICE_MAKE_SHARED(EndpointI, _sslInstance, underlying);
 }

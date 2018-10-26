@@ -113,7 +113,7 @@ IceUtil::RecMutex::lock(LockState& state) const
 #else
 
 void
-IceUtil::RecMutex::init(const MutexProtocol protocol)
+IceUtil::RecMutex::init(ICE_MAYBE_UNUSED const MutexProtocol protocol)
 {
     int rc;
     pthread_mutexattr_t attr;

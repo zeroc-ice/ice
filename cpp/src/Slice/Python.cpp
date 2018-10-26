@@ -148,21 +148,21 @@ createPackageDirectory(const string& output, const string& pkgdir)
         // PackageVisitor. We need every intermediate subdirectory to have an __init__.py file, which
         // can be empty.
         //
-        const string init = path + "/__init__.py";
-        if(!IceUtilInternal::fileExists(init))
+        const string initFile = path + "/__init__.py";
+        if(!IceUtilInternal::fileExists(initFile))
         {
             //
             // Create an empty file.
             //
             IceUtilInternal::Output out;
-            out.open(init.c_str());
+            out.open(initFile.c_str());
             if(!out)
             {
                 ostringstream os;
-                os << "cannot open '" << init << "': " << IceUtilInternal::errorToString(errno);
+                os << "cannot open '" << initFile << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
-            FileTracker::instance()->addFile(init);
+            FileTracker::instance()->addFile(initFile);
         }
     }
 }
@@ -233,16 +233,16 @@ PackageVisitor::createModules(const UnitPtr& unit, const string& module, const s
 
     for(StringList::iterator p = modules.begin(); p != modules.end(); ++p)
     {
-        vector<string> v;
-        if(!IceUtilInternal::splitString(*p, ".", v))
+        vector<string> vs;
+        if(!IceUtilInternal::splitString(*p, ".", vs))
         {
             assert(false);
         }
         string currentModule;
         string path = dir.empty() ? "." : dir;
-        for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+        for(vector<string>::iterator q = vs.begin(); q != vs.end(); ++q)
         {
-            if(q != v.begin())
+            if(q != vs.begin())
             {
                 addSubmodule(path, currentModule, *q);
                 currentModule += ".";
@@ -413,9 +413,9 @@ PackageVisitor::writeInit(const string& dir, const string& name, const StringLis
     ofstream os(IceUtilInternal::streamFilename(initPath).c_str());
     if(!os)
     {
-        ostringstream os;
-        os << "cannot open file '" << initPath << "': " << IceUtilInternal::errorToString(errno);
-        throw FileException(__FILE__, __LINE__, os.str());
+        ostringstream oss;
+        oss << "cannot open file '" << initPath << "': " << IceUtilInternal::errorToString(errno);
+        throw FileException(__FILE__, __LINE__, oss.str());
     }
     FileTracker::instance()->addFile(initPath);
 
@@ -749,9 +749,9 @@ Slice::Python::compile(const vector<string>& argv)
                             out.open(path.c_str());
                             if(!out)
                             {
-                                ostringstream os;
-                                os << "cannot open '" << path << "': " << IceUtilInternal::errorToString(errno);
-                                throw FileException(__FILE__, __LINE__, os.str());
+                                ostringstream oss;
+                                oss << "cannot open '" << path << "': " << IceUtilInternal::errorToString(errno);
+                                throw FileException(__FILE__, __LINE__, oss.str());
                             }
                             FileTracker::instance()->addFile(path);
 

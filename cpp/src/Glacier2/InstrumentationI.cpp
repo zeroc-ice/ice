@@ -109,7 +109,7 @@ namespace
 
 struct ForwardedUpdate
 {
-    ForwardedUpdate(bool client) : client(client)
+    ForwardedUpdate(bool clientP) : client(clientP)
     {
     }
 

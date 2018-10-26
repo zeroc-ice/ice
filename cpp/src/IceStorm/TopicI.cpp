@@ -394,12 +394,12 @@ TopicImpl::TopicImpl(
         //
         for(SubscriberRecordSeq::const_iterator p = subscribers.begin(); p != subscribers.end(); ++p)
         {
-            Ice::Identity id = p->obj->ice_getIdentity();
+            Ice::Identity ident = p->obj->ice_getIdentity();
             TraceLevelsPtr traceLevels = _instance->traceLevels();
             if(traceLevels->topic > 0)
             {
                 Ice::Trace out(traceLevels->logger, traceLevels->topicCat);
-                out << _name << " recreate " << _instance->communicator()->identityToString(id);
+                out << _name << " recreate " << _instance->communicator()->identityToString(ident);
                 if(traceLevels->topic > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(p->obj);
@@ -418,7 +418,7 @@ TopicImpl::TopicImpl(
             catch(const Ice::Exception& ex)
             {
                 Ice::Warning out(traceLevels->logger);
-                out << _name << " recreate " << _instance->communicator()->identityToString(id);
+                out << _name << " recreate " << _instance->communicator()->identityToString(ident);
                 if(traceLevels->topic > 1)
                 {
                     out << " endpoints: " << IceStormInternal::describeEndpoints(p->obj);
@@ -1058,7 +1058,6 @@ TopicImpl::observerAddSubscriber(const LogUpdate& llu, const SubscriberRecord& r
     {
         // If the subscriber is already in the database display a
         // diagnostic.
-        TraceLevelsPtr traceLevels = _instance->traceLevels();
         if(traceLevels->topic > 0)
         {
             Ice::Trace out(traceLevels->logger, traceLevels->topicCat);

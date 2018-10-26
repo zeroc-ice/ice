@@ -346,15 +346,15 @@ getX509AltName(SecCertificateRef cert, CFTypeRef key)
                 {
                     CFArrayRef section = (CFArrayRef)v;
                     ostringstream os;
-                    for(int i = 0, count = CFArrayGetCount(section); i < count;)
+                    for(int j = 0, count = CFArrayGetCount(section); j < count;)
                     {
-                        CFDictionaryRef d = (CFDictionaryRef)CFArrayGetValueAtIndex(section, i);
+                        CFDictionaryRef d = (CFDictionaryRef)CFArrayGetValueAtIndex(section, j);
 
                         CFStringRef sectionLabel = static_cast<CFStringRef>(CFDictionaryGetValue(d, kSecPropertyKeyLabel));
                         CFStringRef sectionValue = static_cast<CFStringRef>(CFDictionaryGetValue(d, kSecPropertyKeyValue));
 
                         os << certificateOIDAlias(fromCFString(sectionLabel)) << "=" << fromCFString(sectionValue);
-                        if(++i < count)
+                        if(++j < count)
                         {
                             os << ",";
                         }

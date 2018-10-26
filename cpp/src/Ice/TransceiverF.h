@@ -30,8 +30,8 @@ ICE_API IceUtil::Shared* upCast(UdpTransceiver*);
 typedef Handle<UdpTransceiver> UdpTransceiverPtr;
 
 class WSTransceiver;
-ICE_API IceUtil::Shared* upCast(Transceiver*);
-typedef Handle<Transceiver> TransceiverPtr;
+ICE_API IceUtil::Shared* upCast(WSTransceiver*);
+typedef Handle<WSTransceiver> WSTransceiverPtr;
 
 }
 

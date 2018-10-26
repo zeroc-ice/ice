@@ -375,7 +375,7 @@ ServerAdapterEntry::addSyncCallback(const SynchronizationCallbackPtr& callback, 
 
 void
 ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup,
-                                          bool& roundRobin, string& filter, const set<string>&)
+                                          bool& roundRobin, string&, const set<string>&)
 {
     nReplicas = 1;
     replicaGroup = false;

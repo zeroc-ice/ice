@@ -196,9 +196,9 @@ AdapterRequest::invokeWithLookup(const string& domainId, const LookupPrxPtr& loo
         {
             rethrow_exception(ex);
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException& e)
         {
-            self->_lookup->adapterRequestException(self, ex);
+            self->_lookup->adapterRequestException(self, e);
         }
     });
 #else
@@ -235,9 +235,9 @@ ObjectRequest::invokeWithLookup(const string& domainId, const LookupPrxPtr& look
         {
             rethrow_exception(ex);
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException& e)
         {
-            self->_lookup->objectRequestException(self, ex);
+            self->_lookup->objectRequestException(self, e);
         }
     });
 #else

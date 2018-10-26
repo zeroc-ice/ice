@@ -32,7 +32,7 @@
     return [TestBindingRemoteObjectAdapterPrx uncheckedCast:[current.adapter addWithUUID:remote]];
 }
 
--(void) deactivateObjectAdapter:(id<TestBindingRemoteObjectAdapterPrx>)adapter current:(ICECurrent*)current
+-(void) deactivateObjectAdapter:(id<TestBindingRemoteObjectAdapterPrx>)adapter current:(ICECurrent*)__unused current
 {
     [adapter deactivate]; // Collocated call
 }
@@ -68,12 +68,12 @@
 }
 #endif
 
--(id<TestBindingTestIntfPrx>) getTestIntf:(ICECurrent*)current
+-(id<TestBindingTestIntfPrx>) getTestIntf:(ICECurrent*)__unused current
 {
     return testIntf_;
 }
 
--(void) deactivate:(ICECurrent*)current
+-(void) deactivate:(ICECurrent*)__unused current
 {
     @try
     {

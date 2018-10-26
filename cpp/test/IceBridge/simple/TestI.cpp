@@ -146,7 +146,7 @@ MyClassI::incCounter(int expected, const Ice::Current& c)
 }
 
 void
-MyClassI::waitCounter(int value, const Ice::Current& c)
+MyClassI::waitCounter(int value, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     while(_counter != value)

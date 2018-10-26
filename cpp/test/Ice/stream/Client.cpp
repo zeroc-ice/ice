@@ -83,22 +83,22 @@ namespace Ice
 template<class S>
 struct StreamWriter<TestObjectWriter, S>
 {
-    static void write(S* ostr, const TestObjectWriter&) { assert(false); }
+    static void write(S*, const TestObjectWriter&) { assert(false); }
 };
 template<class S>
 struct StreamReader<TestObjectWriter, S>
 {
-    static void read(S* istr, TestObjectWriter&) { assert(false); }
+    static void read(S*, TestObjectWriter&) { assert(false); }
 };
 template<class S>
 struct StreamWriter<TestObjectReader, S>
 {
-    static void write(S* ostr, const TestObjectReader&) { assert(false); }
+    static void write(S*, const TestObjectReader&) { assert(false); }
 };
 template<class S>
 struct StreamReader<TestObjectReader, S>
 {
-    static void read(S* istr, TestObjectReader&) { assert(false); }
+    static void read(S*, TestObjectReader&) { assert(false); }
 };
 }
 #endif
@@ -900,8 +900,8 @@ allTests(Test::TestHelper* helper)
         test(arr2S[2].size() == arrS[2].size());
 
 #ifdef ICE_CPP11_MAPPING
-        auto clearS = [](MyClassS& arr) {
-            for(MyClassS::iterator p = arr.begin(); p != arr.end(); ++p)
+        auto clearS = [](MyClassS& arr3) {
+            for(MyClassS::iterator p = arr3.begin(); p != arr3.end(); ++p)
             {
                 if(*p)
                 {
@@ -911,8 +911,8 @@ allTests(Test::TestHelper* helper)
                 }
             }
         };
-        auto clearSS = [clearS](MyClassSS& arr) {
-            for(MyClassSS::iterator p = arr.begin(); p != arr.end(); ++p)
+        auto clearSS = [clearS](MyClassSS& arr3) {
+            for(MyClassSS::iterator p = arr3.begin(); p != arr3.end(); ++p)
             {
                 clearS(*p);
             }

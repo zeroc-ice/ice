@@ -127,7 +127,7 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
     [super dealloc];
 }
 #endif
--(void) init:(NSString*)prefix logMessages:(ICEMutableLogMessageSeq*)logMessages current:(ICECurrent*)current
+-(void) init:(NSString*)prefix logMessages:(ICEMutableLogMessageSeq*)logMessages current:(ICECurrent*)__unused current
 {
     [_cond lock];
     @try
@@ -142,7 +142,7 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
         [_cond unlock];
     }
 }
--(void) log:(ICELogMessage*)logMessage current:(ICECurrent*)current
+-(void) log:(ICELogMessage*)logMessage current:(ICECurrent*)__unused current
 {
     [_cond lock];
     @try

@@ -28,7 +28,7 @@ public:
 };
 
 void
-Client::run(int argc, char** argv)
+Client::run(int, char**)
 {
     {
         cout << "First ignore CTRL+C and the like for 10 seconds (try it!)" << endl;

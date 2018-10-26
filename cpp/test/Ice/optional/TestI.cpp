@@ -39,7 +39,7 @@ InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 }
 #else
 Ice::ValuePtr
-InitialI::pingPong(const Ice::ValuePtr& obj, const Current& current)
+InitialI::pingPong(const Ice::ValuePtr& obj, const Current&)
 {
   return obj;
 }

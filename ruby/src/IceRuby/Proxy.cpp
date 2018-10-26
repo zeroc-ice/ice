@@ -1057,7 +1057,7 @@ checkedCastImpl(const Ice::ObjectPrx& p, const string& id, VALUE facet, VALUE ct
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE self)
+IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE /*self*/)
 {
     //
     // ice_checkedCast is called from generated code, therefore we always expect
@@ -1123,7 +1123,7 @@ IceRuby_ObjectPrx_checkedCast(int argc, VALUE* args, VALUE self)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_uncheckedCast(int argc, VALUE* args, VALUE self)
+IceRuby_ObjectPrx_uncheckedCast(int argc, VALUE* args, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
@@ -1249,7 +1249,7 @@ IceRuby_ObjectPrx_ice_uncheckedCast(VALUE self, VALUE obj, VALUE facet)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_ice_staticId(VALUE self)
+IceRuby_ObjectPrx_ice_staticId(VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
@@ -1261,7 +1261,7 @@ IceRuby_ObjectPrx_ice_staticId(VALUE self)
 
 extern "C"
 VALUE
-IceRuby_ObjectPrx_new(int /*argc*/, VALUE* /*args*/, VALUE self)
+IceRuby_ObjectPrx_new(int /*argc*/, VALUE* /*args*/, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {

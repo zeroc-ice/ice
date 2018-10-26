@@ -235,7 +235,7 @@ tprintf(const char* fmt, ...)
 }
 
 void
-serverReady(id<ICECommunicator> c)
+serverReady(id<ICECommunicator>__unused c)
 {
 }
 

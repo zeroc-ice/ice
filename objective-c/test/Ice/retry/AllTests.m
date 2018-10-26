@@ -63,7 +63,7 @@
 {
     [self called];
 }
--(void) retryOpException:(ICEException*)ex
+-(void) retryOpException:(ICEException*)__unused ex
 {
     test(NO);
 }

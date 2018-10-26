@@ -203,6 +203,11 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
 }
 
 MetricsMapI::MetricsMapI(const MetricsMapI& map) :
+#ifdef ICE_CPP11_MAPPING
+    std::enable_shared_from_this<MetricsMapI>(),
+#else
+    IceUtil::Shared(),
+#endif
     _properties(map._properties),
     _groupByAttributes(map._groupByAttributes),
     _groupBySeparators(map._groupBySeparators),
@@ -451,11 +456,11 @@ MetricsAdminI::updateViews()
                 q = views.insert(make_pair(viewName, q->second)).first;
             }
 
-            for(map<string, MetricsMapFactoryPtr>::const_iterator p = _factories.begin(); p != _factories.end(); ++p)
+            for(map<string, MetricsMapFactoryPtr>::const_iterator r = _factories.begin(); r != _factories.end(); ++r)
             {
-                if(q->second->addOrUpdateMap(_properties, p->first, p->second, _logger))
+                if(q->second->addOrUpdateMap(_properties, r->first, r->second, _logger))
                 {
-                    updatedMaps.insert(p->second);
+                    updatedMaps.insert(r->second);
                 }
             }
         }

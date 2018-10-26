@@ -104,14 +104,14 @@ ObserverTopic::unsubscribe(const Ice::ObjectPrx& observer, const string& name)
 {
     Lock sync(*this);
     Ice::EncodingVersion v = IceInternal::getCompatibleEncoding(observer->ice_getEncodingVersion());
-    map<Ice::EncodingVersion, IceStorm::TopicPrx>::const_iterator p = _topics.find(v);
-    if(p == _topics.end())
+    map<Ice::EncodingVersion, IceStorm::TopicPrx>::const_iterator q = _topics.find(v);
+    if(q == _topics.end())
     {
         return;
     }
     try
     {
-        p->second->unsubscribe(observer);
+        q->second->unsubscribe(observer);
     }
     catch(const Ice::ObjectAdapterDeactivatedException&)
     {
@@ -468,9 +468,9 @@ NodeObserverTopic::updateServer(const string& node, const ServerDynamicInfo& ser
 
     try
     {
-        for(vector<NodeObserverPrx>::const_iterator p = _publishers.begin(); p != _publishers.end(); ++p)
+        for(vector<NodeObserverPrx>::const_iterator q = _publishers.begin(); q != _publishers.end(); ++q)
         {
-            (*p)->updateServer(node, server);
+            (*q)->updateServer(node, server);
         }
     }
     catch(const Ice::LocalException& ex)
@@ -524,9 +524,9 @@ NodeObserverTopic::updateAdapter(const string& node, const AdapterDynamicInfo& a
 
     try
     {
-        for(vector<NodeObserverPrx>::const_iterator p = _publishers.begin(); p != _publishers.end(); ++p)
+        for(vector<NodeObserverPrx>::const_iterator q = _publishers.begin(); q != _publishers.end(); ++q)
         {
-            (*p)->updateAdapter(node, adapter);
+            (*q)->updateAdapter(node, adapter);
         }
     }
     catch(const Ice::LocalException& ex)
@@ -1026,9 +1026,9 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
             q->second = *p;
             try
             {
-                for(vector<ObjectObserverPrx>::const_iterator q = _publishers.begin(); q != _publishers.end(); ++q)
+                for(vector<ObjectObserverPrx>::const_iterator r = _publishers.begin(); r != _publishers.end(); ++r)
                 {
-                    (*q)->objectUpdated(*p, getContext(_serial));
+                    (*r)->objectUpdated(*p, getContext(_serial));
                 }
             }
             catch(const Ice::LocalException& ex)
@@ -1042,9 +1042,9 @@ ObjectObserverTopic::wellKnownObjectsAddedOrUpdated(const ObjectInfoSeq& infos)
             _objects.insert(make_pair(p->proxy->ice_getIdentity(), *p));
             try
             {
-                for(vector<ObjectObserverPrx>::const_iterator q = _publishers.begin(); q != _publishers.end(); ++q)
+                for(vector<ObjectObserverPrx>::const_iterator r = _publishers.begin(); r != _publishers.end(); ++r)
                 {
-                    (*q)->objectAdded(*p, getContext(_serial));
+                    (*r)->objectAdded(*p, getContext(_serial));
                 }
             }
             catch(const Ice::LocalException& ex)

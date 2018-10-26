@@ -10,13 +10,13 @@
 #include <Ice/ArgVector.h>
 #include <cstring>
 
-IceInternal::ArgVector::ArgVector(int argc, const char* const argv[])
+IceInternal::ArgVector::ArgVector(int argcP, const char* const argvP[])
 {
-    assert(argc >= 0);
-    _args.resize(argc);
-    for(int i = 0; i < argc; ++i)
+    assert(argcP >= 0);
+    _args.resize(argcP);
+    for(int i = 0; i < argcP; ++i)
     {
-        _args[i] = argv[i];
+        _args[i] = argvP[i];
     }
     setupArgcArgv();
 }

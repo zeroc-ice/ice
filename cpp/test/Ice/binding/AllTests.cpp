@@ -1009,10 +1009,10 @@ allTests(Test::TestHelper* helper)
                 Ice::InitializationData clientInitData;
                 clientInitData.properties = *q;
                 Ice::CommunicatorHolder clientCommunicator(clientInitData);
-                Ice::ObjectPrxPtr prx = clientCommunicator->stringToProxy(strPrx);
+                Ice::ObjectPrxPtr clientPrx = clientCommunicator->stringToProxy(strPrx);
                 try
                 {
-                    prx->ice_ping();
+                    clientPrx->ice_ping();
                     test(false);
                 }
                 catch(const Ice::ObjectNotExistException&)

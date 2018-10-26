@@ -1620,8 +1620,6 @@ checkedCast(const ::std::shared_ptr<T>& b, const std::string& f, const ::Ice::Co
     return r;
 }
 
-ICE_API ::std::ostream& operator<<(::std::ostream&, const Ice::ObjectPrx&);
-
 }
 
 #else // C++98 mapping

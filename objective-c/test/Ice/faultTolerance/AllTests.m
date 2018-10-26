@@ -66,7 +66,7 @@
     [self called];
 }
 
--(void) pidException:(ICEException*)ex
+-(void) pidException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -79,7 +79,7 @@
     [self called];
 }
 
--(void) shutdownException:(ICEException*)ex
+-(void) shutdownException:(ICEException*)__unused ex
 {
     test(NO);
 }

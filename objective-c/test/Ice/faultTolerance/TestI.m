@@ -18,17 +18,17 @@
     [[current.adapter getCommunicator] shutdown];
 }
 
--(void) abort:(ICECurrent*)current
+-(void) abort:(ICECurrent*)__unused current
 {
     exit(0);
 }
 
--(void) idempotentAbort:(ICECurrent*)current
+-(void) idempotentAbort:(ICECurrent*)__unused current
 {
     exit(0);
 }
 
--(ICEInt) pid:(ICECurrent*)current
+-(ICEInt) pid:(ICECurrent*)__unused current
 {
     return getpid();
 }

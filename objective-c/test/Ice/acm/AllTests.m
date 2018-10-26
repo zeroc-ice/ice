@@ -59,7 +59,7 @@
     }
     [_cond unlock];
 }
--(void) trace:(NSString*)category message:(NSString*)message
+-(void) trace:(NSString*)__unused category message:(NSString*)message
 {
     [_cond lock];
     [_messages addObject:message];
@@ -93,13 +93,13 @@
 {
     return [@"" mutableCopy];
 }
--(id<ICELogger>) cloneWithPrefix:(NSString*)prefix
+-(id<ICELogger>) cloneWithPrefix:(NSString*)__unused prefix
 {
     return self;
 }
 -(void) dump
 {
-    for(int i = 0; i < _messages.count; ++i)
+    for(size_t i = 0; i < _messages.count; ++i)
     {
         tprintf([_messages[i] UTF8String]);
     }
@@ -264,14 +264,14 @@
 
     @try
     {
-        [[proxy ice_getConnection] setCloseCallback:^(id<ICEConnection> connection)
+        [[proxy ice_getConnection] setCloseCallback:^(id<ICEConnection> __unused connection)
         {
             [self->_cond lock];
             self->_closed = YES;
             [self->_cond signal];
             [self->_cond unlock];
         }];
-        [[proxy ice_getConnection] setHeartbeatCallback:^(id<ICEConnection> connection)
+        [[proxy ice_getConnection] setHeartbeatCallback:^(id<ICEConnection> __unused connection)
         {
             [self->_cond lock];
             ++self->_heartbeat;
@@ -292,7 +292,7 @@
     return nil; // To keep compiler happy
 }
 
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
     NSAssert(NO, @"Subclasses need to overwrite this method");
 }
@@ -393,7 +393,7 @@
 {
       return @"invocation heartbeat";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     [proxy sleep:4];
 
@@ -456,7 +456,7 @@
 {
       return @"invocation with no heartbeat";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     @try
     {
@@ -503,7 +503,7 @@
 {
       return @"invocation with no heartbeat and close on idle";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     // No close on invocation, the call should succeed this time.
     [proxy sleep:3];
@@ -538,7 +538,7 @@
 {
       return @"close on idle";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
     [_cond lock];
     [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
@@ -575,7 +575,7 @@
 {
       return @"close on invocation";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
     [_cond lock];
     [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]]; // Idle for 3 seconds
@@ -611,7 +611,7 @@
 {
       return @"close on idle and invocation";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
     //
     // Put the adapter on hold. The server will not respond to
@@ -661,7 +661,7 @@
 {
       return @"forceful close on idle and invocation";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
     [adapter hold];
 
@@ -700,7 +700,7 @@
 {
       return @"heartbeat on idle";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
     [_cond lock];
     [_cond waitUntilDate:[NSDate dateWithTimeIntervalSinceNow:3]];
@@ -735,7 +735,7 @@
 {
       return @"heartbeat always";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     for(int i = 0; i < 10; ++i)
     {
@@ -779,7 +779,7 @@
 {
       return @"manual heartbeats";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)__unused proxy
 {
     [proxy startHeartbeatCount];
     id<ICEConnection> con = [proxy ice_getConnection];
@@ -809,7 +809,7 @@
 {
       return @"setACM/getACM";
 }
--(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)adapter proxy:(id<TestACMTestIntfPrx>)proxy
+-(void) runTestCase:(id<TestACMRemoteObjectAdapterPrx>)__unused adapter proxy:(id<TestACMTestIntfPrx>)proxy
 {
     @try
     {
@@ -869,19 +869,19 @@ acmAllTests(id<ICECommunicator> communicator)
     [tests addObject:[HeartbeatManualTest testCase:com]];
     [tests addObject:[SetACMTest testCase:com]];
 
-    for(int i = 0; i < tests.count; ++i)
+    for(size_t i = 0; i < tests.count; ++i)
     {
         [tests[i] initialize];
     }
-    for(int i = 0; i < tests.count; ++i)
+    for(size_t i = 0; i < tests.count; ++i)
     {
         [tests[i] start];
     }
-    for(int i = 0; i < tests.count; ++i)
+    for(size_t i = 0; i < tests.count; ++i)
     {
         [tests[i] join];
     }
-    for(int i = 0; i < tests.count; ++i)
+    for(size_t i = 0; i < tests.count; ++i)
     {
         [tests[i] destroy];
     }

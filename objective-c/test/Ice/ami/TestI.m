@@ -32,17 +32,17 @@
 }
 #endif
 
--(void) op:(ICECurrent*)current
+-(void) op:(ICECurrent*)__unused current
 {
 }
--(void) opWithPayload:(ICEMutableByteSeq*)data current:(ICECurrent*)current
+-(void) opWithPayload:(ICEMutableByteSeq*)__unused data current:(ICECurrent*)__unused current
 {
 }
--(int) opWithResult:(ICECurrent*)current
+-(int) opWithResult:(ICECurrent*)__unused current
 {
     return 15;
 }
--(void) opWithUE:(ICECurrent*)current
+-(void) opWithUE:(ICECurrent*)__unused current
 {
     @throw [TestAMITestIntfException testIntfException];
 }
@@ -51,14 +51,14 @@
 {
     [[current.adapter getCommunicator] shutdown];
 }
--(void) opBatch:(ICECurrent *)current
+-(void) opBatch:(ICECurrent *)__unused current
 {
     [_cond lock];
     ++_batchCount;
     [_cond signal];
     [_cond unlock];
 }
--(ICEInt) opBatchCount:(ICECurrent *)current
+-(ICEInt) opBatchCount:(ICECurrent *)__unused current
 {
     [_cond lock];
     @try
@@ -71,7 +71,7 @@
     }
     return 0;
 }
--(BOOL) waitForBatch:(ICEInt)count current:(ICECurrent *)current
+-(BOOL) waitForBatch:(ICEInt)count current:(ICECurrent *)__unused current
 {
     [_cond lock];
     @try
@@ -94,7 +94,7 @@
 {
     [current.con close:(ICEConnectionClose)mode];
 }
--(void) sleep:(ICEInt)delay current:(ICECurrent *)current
+-(void) sleep:(ICEInt)delay current:(ICECurrent *)__unused current
 {
     [_cond lock];
     @try
@@ -106,7 +106,7 @@
         [_cond unlock];
     }
 }
--(void) startDispatch:(ICECurrent*)current
+-(void) startDispatch:(ICECurrent*)__unused current
 {
     [_cond lock];
     _dispatching = YES;
@@ -122,18 +122,18 @@
         [_cond unlock];
     }
 }
--(void) finishDispatch:(ICECurrent*)current
+-(void) finishDispatch:(ICECurrent*)__unused current
 {
     [_cond lock];
     _dispatching = NO;
     [_cond signal];
     [_cond unlock];
 }
--(BOOL) supportsAMD:(ICECurrent *)current
+-(BOOL) supportsAMD:(ICECurrent *)__unused current
 {
     return NO;
 }
--(BOOL) supportsFunctionalTests:(ICECurrent *)current
+-(BOOL) supportsFunctionalTests:(ICECurrent *)__unused current
 {
     return NO;
 }
@@ -145,7 +145,7 @@
 @end
 
 @implementation TestAMITestOuterInnerTestIntfI
--(int) op:(ICEInt)i j:(ICEInt*)j current:(ICECurrent*)current
+-(int) op:(ICEInt)i j:(ICEInt*)j current:(ICECurrent*)__unused current
 {
     *j = i;
     return i;
@@ -163,11 +163,11 @@
     _adapter = adapter;
     return self;
 }
--(void) holdAdapter:(ICECurrent*)current
+-(void) holdAdapter:(ICECurrent*)__unused current
 {
     [_adapter hold];
 }
--(void) resumeAdapter:(ICECurrent*)current
+-(void) resumeAdapter:(ICECurrent*)__unused current
 {
     [_adapter activate];
 }

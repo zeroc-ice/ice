@@ -212,22 +212,22 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
 
     if(p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
-        DefaultServantMap::const_iterator p = _defaultServantMap.find(ident.category);
-        if(p == _defaultServantMap.end())
+        DefaultServantMap::const_iterator d = _defaultServantMap.find(ident.category);
+        if(d == _defaultServantMap.end())
         {
-            p = _defaultServantMap.find("");
-            if(p == _defaultServantMap.end())
+            d = _defaultServantMap.find("");
+            if(d == _defaultServantMap.end())
             {
                 return 0;
             }
             else
             {
-                return p->second;
+                return d->second;
             }
         }
         else
         {
-            return p->second;
+            return d->second;
         }
     }
     else

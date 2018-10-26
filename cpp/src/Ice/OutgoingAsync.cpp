@@ -643,7 +643,7 @@ ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 }
 
 void
-ProxyOutgoingAsyncBase::retryException(const Exception& ex)
+ProxyOutgoingAsyncBase::retryException(const Exception&)
 {
     try
     {

@@ -36,7 +36,7 @@ ControllerI::activateObjectAdapter(ICE_IN(string) name,
 }
 
 void
-ControllerI::deactivateObjectAdapter(ICE_IN(string) name, const Ice::Current& current)
+ControllerI::deactivateObjectAdapter(ICE_IN(string) name, const Ice::Current&)
 {
     _adapters[name]->destroy();
     _adapters.erase(name);

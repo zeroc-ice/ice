@@ -1249,7 +1249,7 @@ YY_RULE_SETUP
                 case 'U':
                 {
                     string escape = "";
-                    char c = next;
+                    c = next;
                     int size = (c == 'u') ? 4 : 8;
                     while(size > 0)
                     {

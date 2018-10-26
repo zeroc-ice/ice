@@ -227,7 +227,7 @@ public:
     }
 
     virtual Ice::Instrumentation::RemoteObserverPtr
-    getRemoteObserver(const Ice::ConnectionInfoPtr& c, const Ice::EndpointPtr& e, Ice::Int, Ice::Int)
+    getRemoteObserver(const Ice::ConnectionInfoPtr&, const Ice::EndpointPtr&, Ice::Int, Ice::Int)
     {
         IceUtil::Mutex::Lock sync(*this);
         if(!remoteObserver)

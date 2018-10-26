@@ -169,7 +169,7 @@ public:
             current.adapter->deactivate();
             _count = _total;
             {
-                IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(_remainingMutex);
+                IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync2(_remainingMutex);
                 --_remaining;
                 if(_remaining == 0)
                 {

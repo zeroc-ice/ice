@@ -535,8 +535,7 @@ NodeI::patch_async(const AMD_Node_patchPtr& amdCB,
         }
     }
 
-    set<ServerIPtr>::iterator s = servers.begin();
-    while(s != servers.end())
+    for(set<ServerIPtr>::iterator s = servers.begin(); s != servers.end();)
     {
         if(!appDistrib->icepatch.empty() && (*s)->dependsOnApplicationDistrib())
         {

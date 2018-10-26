@@ -553,11 +553,11 @@ CreateSession::unexpectedAuthorizeException(const Ice::Exception& ex)
 }
 
 void
-CreateSession::createException(const Ice::Exception& ex)
+CreateSession::createException(const Ice::Exception& sex)
 {
     try
     {
-        ex.ice_throw();
+        sex.ice_throw();
     }
     catch(const CannotCreateSessionException& ex)
     {

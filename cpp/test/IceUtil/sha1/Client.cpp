@@ -83,7 +83,7 @@ public:
 };
 
 void
-Client::run(int argc, char* argv[])
+Client::run(int, char*[])
 {
     cout << "Testing sha1 hash computation... ";
     for(int i = 0; i < itemsSize; ++i)

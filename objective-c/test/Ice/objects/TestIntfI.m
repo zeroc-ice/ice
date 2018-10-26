@@ -13,7 +13,7 @@
 #import <ObjectsDerivedEx.h>
 
 @implementation TestObjectsTestIntfI
--(TestObjectsBase*) opDerived:(ICECurrent *)current
+-(TestObjectsBase*) opDerived:(ICECurrent *)__unused current
 {
    TestObjectsDerived *d = ICE_AUTORELEASE([[TestObjectsDerived alloc] init]);
    d.theS.str = @"S.str";
@@ -22,7 +22,7 @@
    return d;
 }
 
--(void) throwDerived:(ICECurrent *)current
+-(void) throwDerived:(ICECurrent *)__unused current
 {
    @throw [TestObjectsDerivedEx derivedEx:@"reason"];
 }

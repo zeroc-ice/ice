@@ -62,7 +62,7 @@ toOptional(const string& s, int typeCtx)
 }
 
 string
-stringTypeToString(const TypePtr& type, const StringList& metaData, int typeCtx)
+stringTypeToString(const TypePtr&, const StringList& metaData, int typeCtx)
 {
     string strType = findMetaData(metaData, typeCtx);
     if(strType == "wstring" || (typeCtx & TypeContextUseWstring && strType == ""))
@@ -192,10 +192,10 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
             seqType = findMetaData(seq->getMetaData(), typeCtx);
         }
 
-        string s;
+        string str;
         if(seqType == "%array")
         {
-            s = typeToString(seq, scope, metaData, TypeContextAMIPrivateEnd);
+            str = typeToString(seq, scope, metaData, TypeContextAMIPrivateEnd);
         }
         else if(seqType.find("%range") == 0)
         {
@@ -204,16 +204,16 @@ writeParamAllocateCode(Output& out, const TypePtr& type, bool optional, const st
             {
                 md.push_back("cpp:type:" + seqType.substr(strlen("%range:")));
             }
-            s = typeToString(seq, scope, md, 0);
+            str = typeToString(seq, scope, md, 0);
         }
 
-        if(!s.empty())
+        if(!str.empty())
         {
             if(optional)
             {
-                s = toOptional(s, typeCtx);
+                str = toOptional(str, typeCtx);
             }
-            out << nl << s << ' ' << fixedName << "_tmp_;";
+            out << nl << str << ' ' << fixedName << "_tmp_;";
         }
     }
 }

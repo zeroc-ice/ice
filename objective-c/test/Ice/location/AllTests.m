@@ -17,7 +17,7 @@
 @end
 
 @implementation DummyHelloI
--(void) sayHello:(ICECurrent*)current
+-(void) sayHello:(ICECurrent*)__unused current
 {
     // Do nothing, this is just a dummy servant.
 }

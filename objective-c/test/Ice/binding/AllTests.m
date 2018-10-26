@@ -98,7 +98,7 @@ getEndpoints(id<TestBindingTestIntfPrx> proxy)
     int length = 0;
     NSString* s = [proxy ice_toString];
     int index;
-    for(index = 0; index < [s length]; ++index)
+    for(index = 0; index < (int)[s length]; ++index)
     {
         unichar c = [s characterAtIndex:index];
         if(c == '"')

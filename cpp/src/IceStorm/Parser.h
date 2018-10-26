@@ -22,7 +22,6 @@
 #define YYSTYPE std::list<std::string>
 #define YY_DECL int yylex(YYSTYPE* yylvalp)
 YY_DECL;
-int yyparse();
 
 //
 // I must set the initial stack depth to the maximum stack depth to

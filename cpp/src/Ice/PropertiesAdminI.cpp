@@ -198,7 +198,7 @@ PropertiesAdminI::setProperties(const PropertyDict& props, const Current&)
         for(const auto& cb : callbacks)
 #else
         vector<PropertiesAdminUpdateCallbackPtr> callbacks = _updateCallbacks;
-        for(vector<PropertiesAdminUpdateCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
+        for(vector<PropertiesAdminUpdateCallbackPtr>::const_iterator q = callbacks.begin(); q != callbacks.end(); ++q)
 #endif
         {
             try
@@ -206,7 +206,7 @@ PropertiesAdminI::setProperties(const PropertyDict& props, const Current&)
 #ifdef ICE_CPP11_MAPPING
                 cb(changes);
 #else
-                (*p)->updated(changes);
+                (*q)->updated(changes);
 #endif
             }
             catch(const std::exception& ex)

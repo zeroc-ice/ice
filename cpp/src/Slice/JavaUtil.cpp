@@ -971,11 +971,11 @@ Slice::JavaCompatGenerator::getPackagePrefix(const ContainedPtr& cont) const
     string q;
     if(!m->findMetaData(prefix, q))
     {
-        UnitPtr unit = cont->unit();
+        UnitPtr ut = cont->unit();
         string file = cont->file();
         assert(!file.empty());
 
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        DefinitionContextPtr dc = ut->findDefinitionContext(file);
         assert(dc);
         q = dc->findMetaData(prefix);
     }
@@ -2777,7 +2777,7 @@ Slice::JavaCompatGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << nl << "else";
             out << sb;
             out << nl << stream << ".writeSize(" << v << ".size());";
-            string typeS = typeToString(type, TypeModeIn, package);
+            typeS = typeToString(type, TypeModeIn, package);
             out << nl << "for(" << typeS << " elem : " << v << ')';
             out << sb;
             writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", true, iter, false, customStream);
@@ -3451,11 +3451,11 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
     string q;
     if(!m->findMetaData(prefix, q))
     {
-        UnitPtr unit = cont->unit();
+        UnitPtr ut = cont->unit();
         string file = cont->file();
         assert(!file.empty());
 
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        DefinitionContextPtr dc = ut->findDefinitionContext(file);
         assert(dc);
         q = dc->findMetaData(prefix);
     }
@@ -4265,10 +4265,10 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     string s = optionalParam && optionalMapping ? param + ".get()" : param;
                     if(sz > 1)
                     {
-                        string ignore;
+                        string ignore2;
                         out << nl << "final int optSize = " << s << " == null ? 0 : ";
-                        if(findMetaData("java:buffer", seq->getMetaData(), ignore) ||
-                           findMetaData("java:buffer", metaData, ignore))
+                        if(findMetaData("java:buffer", seq->getMetaData(), ignore2) ||
+                           findMetaData("java:buffer", metaData, ignore2))
                         {
                             out << s << ".remaining() / " << sz << ";";
                         }
@@ -4470,7 +4470,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             out << nl << "final " << keyS << " key;";
             writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
 
-            string valueS = typeToObjectString(value, TypeModeIn, package);
+            valueS = typeToObjectString(value, TypeModeIn, package);
             ostringstream patchParams;
             patchParams << "value -> " << v << ".put(key, value), " << valueS << ".class";
             writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream,
@@ -4671,7 +4671,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        string typeS = getUnqualified(seq, package);
+        typeS = getUnqualified(seq, package);
         ostringstream o;
         o << origContentS;
         int d = depth;
@@ -4689,8 +4689,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << nl << "else";
             out << sb;
             out << nl << stream << ".writeSize(" << v << ".size());";
-            string typeS = typeToString(type, TypeModeIn, package);
-            out << nl << "for(" << typeS << " elem : " << v << ')';
+            string ctypeS = typeToString(type, TypeModeIn, package);
+            out << nl << "for(" << ctypeS << " elem : " << v << ')';
             out << sb;
             writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", true, iter, customStream);
             out << eb;

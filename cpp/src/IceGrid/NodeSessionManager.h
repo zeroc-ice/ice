@@ -44,7 +44,7 @@ protected:
     virtual NodeSessionPrx createSessionImpl(const InternalRegistryPrx&, IceUtil::Time&);
 
     const NodeIPtr _node;
-    const std::string _name;
+    const std::string _replicaName;
     NodeSessionManager& _manager;
 };
 typedef IceUtil::Handle<NodeSessionKeepAliveThread> NodeSessionKeepAliveThreadPtr;

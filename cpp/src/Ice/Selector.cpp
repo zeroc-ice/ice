@@ -379,8 +379,14 @@ Selector::enable(EventHandler* handler, SocketOperation status)
         epoll_event event;
         memset(&event, 0, sizeof(epoll_event));
         event.data.ptr = handler;
-        event.events |= newStatus & SocketOperationRead ? EPOLLIN : 0;
-        event.events |= newStatus & SocketOperationWrite ? EPOLLOUT : 0;
+        if(newStatus & SocketOperationRead)
+        {
+            event.events |= EPOLLIN;
+        }
+        if(newStatus & SocketOperationWrite)
+        {
+            event.events |= EPOLLOUT;
+        }
         if(epoll_ctl(_queueFd, previous ? EPOLL_CTL_MOD : EPOLL_CTL_ADD, fd, &event) != 0)
         {
             Ice::Error out(_instance->initializationData().logger);
@@ -426,8 +432,14 @@ Selector::disable(EventHandler* handler, SocketOperation status)
         epoll_event event;
         memset(&event, 0, sizeof(epoll_event));
         event.data.ptr = handler;
-        event.events |= newStatus & SocketOperationRead ? EPOLLIN : 0;
-        event.events |= newStatus & SocketOperationWrite ? EPOLLOUT : 0;
+        if(newStatus & SocketOperationRead)
+        {
+            event.events |= EPOLLIN;
+        }
+        if(newStatus & SocketOperationWrite)
+        {
+            event.events |= EPOLLOUT;
+        }
         if(epoll_ctl(_queueFd, newStatus ? EPOLL_CTL_MOD : EPOLL_CTL_DEL, fd, &event) != 0)
         {
             Ice::Error out(_instance->initializationData().logger);
@@ -929,8 +941,14 @@ Selector::updateSelectorForEventHandler(EventHandler* handler, SocketOperation r
         status = static_cast<SocketOperation>(status & ~handler->_disabled);
         previous = static_cast<SocketOperation>(previous & ~handler->_disabled);
     }
-    event.events |= status & SocketOperationRead ? EPOLLIN : 0;
-    event.events |= status & SocketOperationWrite ? EPOLLOUT : 0;
+    if(status & SocketOperationRead)
+    {
+        event.events |= EPOLLIN;
+    }
+    if(status & SocketOperationWrite)
+    {
+        event.events |= EPOLLOUT;
+    }
     int op;
     if(!previous && status)
     {

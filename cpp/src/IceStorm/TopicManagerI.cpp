@@ -422,13 +422,13 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
 
         for(TopicContentSeq::const_iterator p = content.begin(); p != content.end(); ++p)
         {
-            SubscriberRecordKey key;
-            key.topic = p->id;
+            SubscriberRecordKey srkey;
+            srkey.topic = p->id;
             SubscriberRecord rec;
             rec.link = false;
             rec.cost = 0;
 
-            _subscriberMap.put(txn, key, rec);
+            _subscriberMap.put(txn, srkey, rec);
 
             for(SubscriberRecordSeq::const_iterator q = p->records.begin(); q != p->records.end(); ++q)
             {
@@ -486,14 +486,14 @@ TopicManagerImpl::observerInit(const LogUpdate& llu, const TopicContentSeq& cont
     for(TopicContentSeq::const_iterator q = content.begin(); q != content.end(); ++q)
     {
         string name = identityToTopicName(q->id);
-        map<string, TopicImplPtr>::const_iterator p = _topics.find(name);
-        if(p == _topics.end())
+        map<string, TopicImplPtr>::const_iterator r = _topics.find(name);
+        if(r == _topics.end())
         {
             installTopic(name, q->id, true, q->records);
         }
         else
         {
-            p->second->update(q->records);
+            r->second->update(q->records);
         }
     }
     // Clear the set of observers.

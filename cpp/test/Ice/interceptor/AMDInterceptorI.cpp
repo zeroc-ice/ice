@@ -97,9 +97,9 @@ AMDInterceptorI::dispatch(Ice::Request& request)
         {
             rethrow_exception(ex);
         }
-        catch(const IceUtil::Exception& ex)
+        catch(const IceUtil::Exception& e)
         {
-            setException(ex);
+            setException(e);
         }
         catch(...)
         {

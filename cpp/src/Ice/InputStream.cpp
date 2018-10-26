@@ -224,22 +224,22 @@ Ice::InputStream::setCompactIdResolver(const CompactIdResolverPtr& r)
 
 #ifndef ICE_CPP11_MAPPING
 void
-Ice::InputStream::setCollectObjects(bool b)
+Ice::InputStream::setCollectObjects(bool on)
 {
-    _collectObjects = b;
+    _collectObjects = on;
 }
 #endif
 
 void
-Ice::InputStream::setSliceValues(bool b)
+Ice::InputStream::setSliceValues(bool on)
 {
-    _sliceValues = b;
+    _sliceValues = on;
 }
 
 void
-Ice::InputStream::setTraceSlicing(bool b)
+Ice::InputStream::setTraceSlicing(bool on)
 {
-    _traceSlicing = b;
+    _traceSlicing = on;
 }
 
 void

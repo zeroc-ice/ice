@@ -857,7 +857,6 @@ IceSSL::SecureTransport::SSLEngine::initialize()
     PasswordPromptPtr passwordPrompt = getPasswordPrompt();
 
     string certFile = properties->getProperty("IceSSL.CertFile");
-    string keyFile = properties->getProperty("IceSSL.KeyFile");
     string findCert = properties->getProperty("IceSSL.FindCert");
     string keychain = properties->getProperty("IceSSL.Keychain");
     string keychainPassword = properties->getProperty("IceSSL.KeychainPassword");
@@ -871,21 +870,24 @@ IceSSL::SecureTransport::SSLEngine::initialize()
                                                 "IceSSL: invalid value for IceSSL.CertFile:\n" + certFile);
         }
         vector<string> keyFiles;
-        if(!keyFile.empty())
         {
-            if(!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+            string keyFile = properties->getProperty("IceSSL.KeyFile");
+            if(!keyFile.empty())
             {
-                throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: invalid value for IceSSL.KeyFile:\n" + keyFile);
-            }
-            if(files.size() != keyFiles.size())
-            {
-                throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: IceSSL.KeyFile does not agree with IceSSL.CertFile");
+                if(!IceUtilInternal::splitString(keyFile, IceUtilInternal::pathsep, keyFiles) || keyFiles.size() > 2)
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__,
+                                                        "IceSSL: invalid value for IceSSL.KeyFile:\n" + keyFile);
+                }
+                if(files.size() != keyFiles.size())
+                {
+                    throw PluginInitializationException(__FILE__, __LINE__,
+                                                        "IceSSL: IceSSL.KeyFile does not agree with IceSSL.CertFile");
+                }
             }
         }
 
-        for(int i = 0; i < files.size(); ++i)
+        for(size_t i = 0; i < files.size(); ++i)
         {
             string file = files[i];
             string keyFile = keyFiles.empty() ? "" : keyFiles[i];

@@ -200,7 +200,7 @@ ThrowerI::throwCasCAsync(int a, int b, int c,
 void
 ThrowerI::throwModAAsync(int a, int a2,
                          function<void()>,
-                         function<void(exception_ptr)> exception,
+                         function<void(exception_ptr)>,
                          const Ice::Current&)
 {
     Mod::A ex;

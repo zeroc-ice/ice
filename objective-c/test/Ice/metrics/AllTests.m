@@ -53,7 +53,7 @@ NSCondition* cond;
     [cond unlock];
 }
 
--(void) updated:(ICEMutablePropertyDict*)properties
+-(void) updated:(ICEMutablePropertyDict*)__unused properties
 {
     [cond lock];
     updated = YES;
@@ -118,7 +118,7 @@ NSCondition* cond;
     [cond unlock];
 }
 
--(void) exception:(ICEException*)exception
+-(void) exception:(ICEException*)__unused exception
 {
     [self response];
 }
@@ -262,12 +262,12 @@ getClientProps(id<ICEPropertiesAdminPrx> p, ICEMutablePropertyDict* orig, NSStri
 {
     ICEMutablePropertyDict* props = [p getPropertiesForPrefix:@"IceMX.Metrics"];
     ICEPropertyDict* cprops = ICE_AUTORELEASE([props copy]);
-    [cprops enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop)
+    [cprops enumerateKeysAndObjectsUsingBlock: ^(id key, id __unused obj, BOOL* __unused stop)
         {
             [props setObject:@"" forKey:key];
         }];
 
-    [orig enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop)
+    [orig enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL* __unused stop)
         {
             [props setObject:obj forKey:key];
         }];
@@ -293,12 +293,12 @@ getServerProps(id<ICEPropertiesAdminPrx> p, ICEMutablePropertyDict* orig, NSStri
 {
     ICEMutablePropertyDict* props = [p getPropertiesForPrefix:@"IceMX.Metrics"];
     ICEPropertyDict* sprops = ICE_AUTORELEASE([props copy]);
-    [sprops enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop)
+    [sprops enumerateKeysAndObjectsUsingBlock: ^(id key, id __unused obj, BOOL* __unused stop)
         {
             [props setObject:@"" forKey:key];
         }];
 
-    [orig enumerateKeysAndObjectsUsingBlock: ^(id key, id obj, BOOL *stop)
+    [orig enumerateKeysAndObjectsUsingBlock: ^(id key, id __unused obj, BOOL* __unused stop)
         {
             [props setObject:obj forKey:key];
         }];
@@ -566,9 +566,9 @@ metricsAllTests(id<ICECommunicator> communicator)
     sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
     // 4 is for the seq variable size
-    test(cm2.sentBytes - cm1.sentBytes == requestSz + [bs length] + 4);
+    test(cm2.sentBytes - cm1.sentBytes == requestSz + (ICELong)[bs length] + 4);
     test(cm2.receivedBytes - cm1.receivedBytes == replySz);
-    test(sm2.receivedBytes - sm1.receivedBytes == requestSz + [bs length] + 4);
+    test(sm2.receivedBytes - sm1.receivedBytes == requestSz + (ICELong)[bs length] + 4);
     test(sm2.sentBytes - sm1.sentBytes == replySz);
 
     cm1 = cm2;
@@ -582,9 +582,9 @@ metricsAllTests(id<ICECommunicator> communicator)
     sm2 = getServerConnectionMetrics(serverMetrics, sm1.sentBytes + replySz);
 
     // 4 is for the seq variable size
-    test(cm2.sentBytes - cm1.sentBytes == requestSz + [bs length] + 4);
+    test(cm2.sentBytes - cm1.sentBytes == requestSz + (ICELong)[bs length] + 4);
     test(cm2.receivedBytes - cm1.receivedBytes == replySz);
-    test(sm2.receivedBytes - sm1.receivedBytes == requestSz + [bs length] + 4);
+    test(sm2.receivedBytes - sm1.receivedBytes == requestSz + (ICELong)[bs length] + 4);
     test(sm2.sentBytes - sm1.sentBytes == replySz);
 
     [props setObject:@"state" forKey:@"IceMX.Metrics.View.Map.Connection.GroupBy"];

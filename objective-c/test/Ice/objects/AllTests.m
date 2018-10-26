@@ -52,17 +52,17 @@ void breakRetainCycleD(TestObjectsD* d1)
 }
 
 @interface TestObjectsAbstractBaseI : TestObjectsAbstractBase<TestObjectsAbstractBase>
--(void) op:(ICECurrent *)current;
+-(void) op:(ICECurrent *)__unused current;
 @end
 
 @implementation TestObjectsAbstractBaseI
--(void) op:(ICECurrent *)current;
+-(void) op:(ICECurrent *)__unused current
 {
 }
 @end
 
 id<TestObjectsInitialPrx>
-objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
+objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
 {
     tprintf("testing stringToProxy... ");
     NSString* ref = @"initial:default -p 12010";
@@ -479,8 +479,8 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         TestObjectsMutableBasePrxSeq* seq = [TestObjectsMutableBasePrxSeq array];
 
         [seq addObject:[NSNull null]];
-        NSString* ref = @"base:default -p 12010";
-        id<ICEObjectPrx> base = [communicator stringToProxy:ref];
+        ref = @"base:default -p 12010";
+        base = [communicator stringToProxy:ref];
         id<TestObjectsBasePrx> b = [TestObjectsBasePrx uncheckedCast:base];
         [seq addObject:b];
 
@@ -543,7 +543,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         TestObjectsMutableObjectPrxDict* dict = [TestObjectsMutableObjectPrxDict dictionary];
 
         [dict setObject:[NSNull null] forKey:@"zero"];
-        NSString* ref = @"object:default -p 12010";
+        ref = @"object:default -p 12010";
         id<ICEObjectPrx> o = [communicator stringToProxy:ref];
         [dict setObject:o forKey:@"one"];
 
@@ -606,8 +606,8 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         TestObjectsMutableBasePrxDict* dict = [TestObjectsMutableBasePrxDict dictionary];
 
         [dict setObject:[NSNull null] forKey:@"zero"];
-        NSString* ref = @"base:default -p 12010";
-        id<ICEObjectPrx> base = [communicator stringToProxy:ref];
+        ref = @"base:default -p 12010";
+        base = [communicator stringToProxy:ref];
         id<TestObjectsBasePrx> b = [TestObjectsBasePrx uncheckedCast:base];
         [dict setObject:b forKey:@"one"];
 
@@ -640,14 +640,14 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
     @try
     {
-        NSString* ref = @"test:default -p 12010";
-        id<TestObjectsTestIntfPrx> p = [TestObjectsTestIntfPrx checkedCast:[communicator stringToProxy:ref]];
+        ref = @"test:default -p 12010";
+        id<TestObjectsTestIntfPrx> q = [TestObjectsTestIntfPrx checkedCast:[communicator stringToProxy:ref]];
 
         {
                tprintf("testing getting ObjectFactory registration... ");
-               TestObjectsBase *base = [p opDerived];
-               test(base);
-               test([[base ice_id] isEqualToString:@"::Test::Derived"]);
+               TestObjectsBase *base2 = [q opDerived];
+               test(base2);
+               test([[base2 ice_id] isEqualToString:@"::Test::Derived"]);
                tprintf("ok\n");
         }
 
@@ -655,7 +655,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
             tprintf("testing getting ExceptionFactory registration... ");
             @try
             {
-                [p throwDerived];
+                [q throwDerived];
                 test(NO);
             }
             @catch(TestObjectsBaseEx* ex)

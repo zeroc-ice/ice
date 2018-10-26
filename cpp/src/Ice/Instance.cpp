@@ -1845,9 +1845,9 @@ IceInternal::Instance::addObjectFactory(const Ice::ObjectFactoryPtr& factory, co
     // with the value factory manager. This may raise AlreadyRegisteredException.
     //
 #ifdef ICE_CPP11_MAPPING
-    _initData.valueFactoryManager->add([factory](const string& id)
+    _initData.valueFactoryManager->add([factory](const string& ident)
                                        {
-                                           return factory->create(id);
+                                           return factory->create(ident);
                                        },
                                        id);
 #else

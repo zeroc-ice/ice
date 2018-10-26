@@ -202,7 +202,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) SBaseAsObjectException:(ICEException*)exc
+-(void) SBaseAsObjectException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -213,7 +213,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) SBaseAsSBaseException:(ICEException*)exc
+-(void) SBaseAsSBaseException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -226,7 +226,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) SBSKnownDerivedAsSBaseException:(ICEException*)exc
+-(void) SBSKnownDerivedAsSBaseException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -237,7 +237,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) SBSKnownDerivedAsSBSKnownDerivedException:(ICEException*)exc
+-(void) SBSKnownDerivedAsSBSKnownDerivedException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -248,28 +248,28 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) SBSUnknownDerivedAsSBaseException:(ICEException*)exc
+-(void) SBSUnknownDerivedAsSBaseException:(ICEException*)__unused exc
 {
     test(NO);
 }
 
--(void) SBSUnknownDerivedAsSBaseCompactResponse:(TestSlicingObjectsClientSBase*)sb
+-(void) SBSUnknownDerivedAsSBaseCompactResponse:(TestSlicingObjectsClientSBase*)__unused sb
 {
     test(NO);
 }
 
--(void) SBSUnknownDerivedAsSBaseCompactException:(ICEException*)exc
+-(void) SBSUnknownDerivedAsSBaseCompactException:(ICEException*)__unused exc
 {
     test([[exc ice_id] isEqualToString:@"::Ice::NoValueFactoryException"]);
     [self called];
 }
 
--(void) SUnknownAsObjectResponse10:(ICEObject*)o
+-(void) SUnknownAsObjectResponse10:(ICEObject*)__unused o
 {
     test(NO);
 }
 
--(void) SUnknownAsObjectException10:(ICEException*)exc
+-(void) SUnknownAsObjectException10:(ICEException*)__unused exc
 {
     test([[exc ice_id] isEqualToString:@"::Ice::NoValueFactoryException"]);
     [self called];
@@ -281,7 +281,7 @@ static void breakCycles(id o)
     [[o ice_getSlicedData] clear];
 }
 
--(void) SUnknownAsObjectException11:(ICEException*)exc
+-(void) SUnknownAsObjectException11:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -296,7 +296,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) oneElementCycleException:(ICEException*)exc
+-(void) oneElementCycleException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -317,7 +317,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) twoElementCycleException:(ICEException*)exc
+-(void) twoElementCycleException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -347,7 +347,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) D1AsBException:(ICEException*)exc
+-(void) D1AsBException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -371,7 +371,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) D1AsD1Exception:(ICEException*)exc
+-(void) D1AsD1Exception:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -399,7 +399,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) D2AsBException:(ICEException*)exc
+-(void) D2AsBException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -425,7 +425,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) paramTest1Exception:(ICEException*)exc
+-(void) paramTest1Exception:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -439,7 +439,7 @@ static void breakCycles(id o)
     breakCycles(p2);
 }
 
--(void) returnTest1Exception:(ICEException*)exc
+-(void) returnTest1Exception:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -453,7 +453,7 @@ static void breakCycles(id o)
     breakCycles(p2);
 }
 
--(void) returnTest2Exception:(ICEException*)exc
+-(void) returnTest2Exception:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -464,7 +464,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) returnTest3Exception:(ICEException*)exc
+-(void) returnTest3Exception:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -492,7 +492,7 @@ static void breakCycles(id o)
     breakCycles(p2);
 }
 
--(void) paramTest3Exception:(ICEException*)exc
+-(void) paramTest3Exception:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -514,7 +514,7 @@ static void breakCycles(id o)
     breakCycles(b);
 }
 
--(void) paramTest4Exception:(ICEException*)exc
+-(void) paramTest4Exception:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -525,7 +525,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) sequenceTestException:(ICEException*)exc
+-(void) sequenceTestException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -537,7 +537,7 @@ static void breakCycles(id o)
     [self called];
 }
 
--(void) dictionaryTestException:(ICEException*)exc
+-(void) dictionaryTestException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -631,7 +631,7 @@ static void breakCycles(id o)
     breakCycles(f);
 }
 
--(void) useForwardException:(ICEException*)exc
+-(void) useForwardException:(ICEException*)__unused exc
 {
     test(NO);
 }
@@ -1974,7 +1974,7 @@ slicingObjectsAllTests(id<ICECommunicator> communicator)
             }
 
             TestSlicingObjectsClientCallback* cb = [TestSlicingObjectsClientCallback create];
-            [test begin_dictionaryTest:bin response:^(TestSlicingObjectsClientMutableBDict* o, TestSlicingObjectsClientMutableBDict* bout) { [cb dictionaryTestResponse:o bout:bout]; } exception:^(ICEException* e) { [cb dictionaryTestException:e]; }];
+            [test begin_dictionaryTest:bin response:^(TestSlicingObjectsClientMutableBDict* o, TestSlicingObjectsClientMutableBDict* boutP) { [cb dictionaryTestResponse:o bout:boutP]; } exception:^(ICEException* e) { [cb dictionaryTestException:e]; }];
             [cb check];
             bout = cb.bout;
             r = cb.r;

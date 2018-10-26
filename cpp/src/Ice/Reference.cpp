@@ -550,6 +550,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
 }
 
 IceInternal::Reference::Reference(const Reference& r) :
+    IceUtil::Shared(),
     _hashInitialized(false),
     _instance(r._instance),
     _communicator(r._communicator),

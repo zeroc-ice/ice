@@ -22,22 +22,10 @@ using namespace IceRuby;
 namespace
 {
 
-#ifndef NDEBUG
-bool
-checkIsInstance(VALUE p, const char* type)
-{
-    volatile VALUE rbType = callRuby(rb_path2class, type);
-    assert(!NIL_P(rbType));
-    return callRuby(rb_obj_is_instance_of, p, rbType) == Qtrue;
-}
-#endif
-
 template<typename T>
 bool
-setVersion(VALUE p, const T& version, const char* type)
+setVersion(VALUE p, const T& version)
 {
-    assert(checkIsInstance(p, type));
-
     volatile VALUE major = callRuby(rb_int2inum, version.major);
     volatile VALUE minor = callRuby(rb_int2inum, version.minor);
     rb_ivar_set(p, rb_intern("@major"), major);
@@ -48,9 +36,8 @@ setVersion(VALUE p, const T& version, const char* type)
 
 template<typename T>
 bool
-getVersion(VALUE p, T& v, const char* type)
+getVersion(VALUE p, T& v)
 {
-    assert(checkIsInstance(p, type));
     volatile VALUE major = callRuby(rb_ivar_get, p, rb_intern("@major"));
     volatile VALUE minor = callRuby(rb_ivar_get, p, rb_intern("@minor"));
 
@@ -84,7 +71,7 @@ createVersion(const T& version, const char* type)
 
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rbType);
 
-    if(!setVersion<T>(obj, version, type))
+    if(!setVersion<T>(obj, version))
     {
         return Qnil;
     }
@@ -104,7 +91,7 @@ versionToString(VALUE p, const char* type)
     }
 
     T v;
-    if(!getVersion<T>(p, v, type))
+    if(!getVersion<T>(p, v))
     {
         return Qnil;
     }
@@ -552,7 +539,7 @@ IceRuby::getEncodingVersion(VALUE p, Ice::EncodingVersion& v)
         throw RubyException(rb_eTypeError, "value is not an Ice::EncodingVersion");
     }
 
-    if(!getVersion<Ice::EncodingVersion>(p, v, Ice_EncodingVersion))
+    if(!getVersion<Ice::EncodingVersion>(p, v))
     {
         return false;
     }

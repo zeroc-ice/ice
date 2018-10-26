@@ -352,7 +352,7 @@ private:
 {
     ICENone = [[ICEInternalNone alloc] init];
 }
--(id) copyWithZone:(NSZone *)zone
+-(id) copyWithZone:(NSZone *)__unused zone
 {
     return self;
 }
@@ -2255,7 +2255,7 @@ private:
     return nil; // Keep the compiler happy.
 }
 
--(void) reset:(BOOL)clearBuffer
+-(void) reset:(BOOL)__unused clearBuffer
 {
     NSException* nsex = nil;
     try
@@ -2332,7 +2332,7 @@ private:
 @end
 
 @implementation ICEStreamHelper
-+(id) readRetained:(id<ICEInputStream>)stream
++(id) readRetained:(id<ICEInputStream>)__unused stream
 {
     NSAssert(NO, @"requires override");
     return nil;
@@ -2341,11 +2341,11 @@ private:
 {
     return [[self readRetained:stream] autorelease];
 }
-+(void) write:(id)obj stream:(id<ICEOutputStream>)stream
++(void) write:(id)__unused obj stream:(id<ICEOutputStream>)__unused stream
 {
     NSAssert(NO, @"requires override");
 }
-+(id) readOptionalRetained:(id<ICEInputStream>)stream tag:(ICEInt)tag
++(id) readOptionalRetained:(id<ICEInputStream>)__unused stream tag:(ICEInt)__unused tag
 {
     NSAssert(NO, @"requires override");
     return nil;
@@ -2355,7 +2355,7 @@ private:
     return [[self readOptionalRetained:stream tag:tag] autorelease];
     return nil;
 }
-+(void) writeOptional:(id)obj stream:(id<ICEOutputStream>)stream tag:(ICEInt)tag
++(void) writeOptional:(id)__unused obj stream:(id<ICEOutputStream>)__unused stream tag:(ICEInt)__unused tag
 {
     NSAssert(NO, @"requires override");
 }
@@ -2927,12 +2927,12 @@ private:
 @end
 
 @implementation ICEDataSequenceHelper
-+(id) readRetained:(id<ICEInputStream>)stream
++(id) readRetained:(id<ICEInputStream>)__unused stream
 {
     NSAssert(NO, @"readRetained requires override");
     return nil;
 }
-+(void) write:(id)obj stream:(id<ICEOutputStream>)stream
++(void) write:(id)__unused obj stream:(id<ICEOutputStream>)__unused stream
 {
     NSAssert(NO, @"write requires override");
 }
@@ -3216,13 +3216,13 @@ private:
 @end
 
 @implementation ICEObjectDictionaryHelper
-+(id) readRetained:(id<ICEInputStream>)stream
++(id) readRetained:(id<ICEInputStream>)__unused stream
 {
     NSAssert(NO, @"ICEObjectDictionaryHelper readRetained requires override");
     return nil;
 }
 
-+(void) write:(id)obj stream:(id<ICEOutputStream>)stream
++(void) write:(id)__unused obj stream:(id<ICEOutputStream>)__unused stream
 {
     NSAssert(NO, @"ICEObjectDictionaryHelper write requires override");
 }

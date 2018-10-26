@@ -95,7 +95,7 @@ extern "C"
 {
 
 ICESTORM_SERVICE_API ::IceBox::Service*
-createIceStorm(CommunicatorPtr communicator)
+createIceStorm(CommunicatorPtr)
 {
     return new ServiceI;
 }
@@ -300,11 +300,11 @@ ServiceI::start(
                 int nodeid = atoi(adapterid.substr(start, end-start).c_str());
                 ostringstream os;
                 os << "node" << nodeid;
-                Ice::Identity id;
-                id.category = instanceName;
-                id.name = os.str();
+                Ice::Identity ident;
+                ident.category = instanceName;
+                ident.name = os.str();
 
-                nodes[nodeid] = NodePrx::uncheckedCast((*p)->ice_adapterId(adapterid)->ice_identity(id));
+                nodes[nodeid] = NodePrx::uncheckedCast((*p)->ice_adapterId(adapterid)->ice_identity(ident));
             }
         }
 

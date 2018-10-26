@@ -25,18 +25,9 @@ using namespace Slice::Python;
 namespace IcePy
 {
 
-bool
-checkIsInstance(PyObject* p, const char* type)
-{
-    PyObject* pyType = lookupType(type);
-    return PyObject_IsInstance(p, pyType) == 1;
-}
-
 template<typename T> bool
-setVersion(PyObject* p, const T& version, const char* type)
+setVersion(PyObject* p, const T& version)
 {
-    assert(checkIsInstance(p, type));
-
     PyObjectHandle major = PyLong_FromLong(version.major);
     PyObjectHandle minor = PyLong_FromLong(version.minor);
     if(!major.get() || !minor.get())
@@ -52,9 +43,8 @@ setVersion(PyObject* p, const T& version, const char* type)
 }
 
 template<typename T> bool
-getVersion(PyObject* p, T& v, const char* type)
+getVersion(PyObject* p, T& v)
 {
-    assert(checkIsInstance(p, type));
     PyObjectHandle major = getAttr(p, "major", false);
     PyObjectHandle minor = getAttr(p, "minor", false);
     if(major.get())
@@ -112,7 +102,7 @@ createVersion(const T& version, const char* type)
         return 0;
     }
 
-    if(!setVersion<T>(obj.get(), version, type))
+    if(!setVersion<T>(obj.get(), version))
     {
         return 0;
     }
@@ -131,7 +121,7 @@ versionToString(PyObject* args, const char* type)
     }
 
     T v;
-    if(!getVersion<T>(p, v, type))
+    if(!getVersion<T>(p, v))
     {
         return ICE_NULLPTR;
     }
@@ -1109,7 +1099,7 @@ IcePy::createEncodingVersion(const Ice::EncodingVersion& v)
 bool
 IcePy::getEncodingVersion(PyObject* p, Ice::EncodingVersion& v)
 {
-    if(!getVersion<Ice::EncodingVersion>(p, v, Ice_EncodingVersion))
+    if(!getVersion<Ice::EncodingVersion>(p, v))
     {
         return false;
     }

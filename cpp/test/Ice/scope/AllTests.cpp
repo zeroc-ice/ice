@@ -63,7 +63,7 @@ public:
         called();
     }
 
-    void error(const Ice::Exception& ex)
+    void error(const Ice::Exception&)
     {
         test(false);
     }
@@ -139,7 +139,7 @@ public:
         called();
     }
 
-    void error(const Ice::Exception& ex)
+    void error(const Ice::Exception&)
     {
         test(false);
     }
@@ -215,7 +215,7 @@ public:
         called();
     }
 
-    void error(const Ice::Exception& ex)
+    void error(const Ice::Exception&)
     {
         test(false);
     }
@@ -303,7 +303,7 @@ public:
         called();
     }
 
-    void error(const Ice::Exception& ex)
+    void error(const Ice::Exception&)
     {
         test(false);
     }

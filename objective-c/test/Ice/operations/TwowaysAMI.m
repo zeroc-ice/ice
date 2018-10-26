@@ -83,24 +83,24 @@
 {
     [self called];
 }
--(void) opVoidException:(ICEException*)ex
+-(void) opVoidException:(ICEException*)__unused ex
 {
     test(NO);
 }
--(void) opByteExResponse:(ICEByte)ret p3:(ICEByte)p3
+-(void) opByteExResponse:(ICEByte)__unused ret p3:(ICEByte)__unused p3
 {
     test(NO);
 }
--(void) opByteExException:(ICEException*)ex
+-(void) opByteExException:(ICEException*)__unused ex
 {
     test([ex isKindOfClass:[ICENoEndpointException class]]);
     [self called];
 }
--(void) opByteResponse:(ICEByte)ret p3:(ICEByte)p3
+-(void) opByteResponse:(ICEByte)__unused ret p3:(ICEByte)__unused p3
 {
     [self called];
 }
--(void) opByteException:(ICEException*)ex
+-(void) opByteException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -110,7 +110,7 @@
     test(!r);
     [self called];
 }
--(void) opBoolException:(ICEException*)ex
+-(void) opBoolException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -122,7 +122,7 @@
     test(r == 12);
     [self called];
 }
--(void) opShortIntLongException:(ICEException*)ex
+-(void) opShortIntLongException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -133,7 +133,7 @@
     test(r == 1.1E10);
     [self called];
 }
--(void) opFloatDoubleException:(ICEException*)ex
+-(void) opFloatDoubleException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -144,7 +144,7 @@
     [self called];
 }
 
--(void) opStringException:(ICEException*)ex
+-(void) opStringException:(ICEException*)__unused ex
 {
     test(NO);
 };
@@ -156,7 +156,7 @@
     [self called];
 }
 
--(void) opMyEnumException:(ICEException*)ex
+-(void) opMyEnumException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -183,7 +183,7 @@
     [self called];
 }
 
--(void) opMyClassException:(ICEException*)ex
+-(void) opMyClassException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -204,7 +204,7 @@
     [self called];
 }
 
--(void) opStructException:(ICEException*)ex
+-(void) opStructException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -230,7 +230,7 @@
     [self called];
 }
 
--(void) opByteSException:(ICEException*)ex
+-(void) opByteSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -251,7 +251,7 @@
     [self called];
 }
 
--(void) opBoolSException:(ICEException*)ex
+-(void) opBoolSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -285,7 +285,7 @@
     [self called];
 }
 
--(void) opShortIntLongSException:(ICEException*)ex
+-(void) opShortIntLongSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -311,7 +311,7 @@
     [self called];
 }
 
--(void) opFloatDoubleSException:(ICEException*)ex
+-(void) opFloatDoubleSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -330,7 +330,7 @@
     [self called];
 }
 
--(void) opStringSException:(ICEException*)ex
+-(void) opStringSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -366,27 +366,27 @@
     [self called];
 }
 
--(void) opByteSSException:(ICEException*)ex
+-(void) opByteSSException:(ICEException*)__unused ex
 {
     test(NO);
 }
 
--(void) opBoolSSResponse:(TestOperationsBoolSS*)sso p3:(TestOperationsBoolSS*)bso
+-(void) opBoolSSResponse:(TestOperationsBoolSS*)__unused sso p3:(TestOperationsBoolSS*)__unused bso
 {
     [self called];
 }
 
--(void) opBoolSSException:(ICEException*)ex
+-(void) opBoolSSException:(ICEException*)__unused ex
 {
     test(NO);
 }
 
--(void) opShortIntLongSSResponse:(TestOperationsLongSS*)a p4:(TestOperationsShortSS*)p4 p5:(TestOperationsIntSS*)p5 p6:(TestOperationsLongSS*)p6
+-(void) opShortIntLongSSResponse:(TestOperationsLongSS*)__unused a p4:(TestOperationsShortSS*)__unused p4 p5:(TestOperationsIntSS*)__unused p5 p6:(TestOperationsLongSS*)__unused p6
 {
     [self called];
 }
 
--(void) opShortIntLongSSException:(ICEException*)ex
+-(void) opShortIntLongSSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -424,7 +424,7 @@
     [self called];
 }
 
--(void) opFloatDoubleSSException:(ICEException*)ex
+-(void) opFloatDoubleSSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -449,7 +449,7 @@
     [self called];
 }
 
--(void) opStringSSException:(ICEException*)ex
+-(void) opStringSSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -490,7 +490,7 @@
     test([[[[rsso objectAtIndex:2] objectAtIndex:1] objectAtIndex:0] isEqualToString:@"abcd"]);
     [self called];
 }
--(void) opStringSSSException:(ICEException*)ex
+-(void) opStringSSSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -506,7 +506,7 @@
     test([[ro objectForKey:[NSNumber numberWithUnsignedChar:101]] boolValue] == YES);
     [self called];
 }
--(void) opByteBoolDException:(ICEException*)ex
+-(void) opByteBoolDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -522,7 +522,7 @@
     test([[ro objectForKey:[NSNumber numberWithShort:1101]] intValue] == 0);
     [self called];
 }
--(void) opShortIntDException:(ICEException*)ex
+-(void) opShortIntDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -538,7 +538,7 @@
     test((ICEFloat)[[ro objectForKey:[NSNumber numberWithLong:999999130]] floatValue] == 0.5f);
     [self called];
 }
--(void) opLongFloatDException:(ICEException*)ex
+-(void) opLongFloatDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -554,7 +554,7 @@
     test([[ro objectForKey:@"BAR"] isEqualToString:@"abc 0.5"]);
     [self called];
 }
--(void) opStringStringDException:(ICEException*)ex
+-(void) opStringStringDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -570,7 +570,7 @@
     test([[ro objectForKey:@"Hello!!"] intValue] == TestOperationsenum2);
     [self called];
 }
--(void) opStringMyEnumDException:(ICEException*)ex
+-(void) opStringMyEnumDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -583,7 +583,7 @@
     test([[ro objectForKey:@(TestOperationsenum3)] isEqualToString:@"querty"]);
     [self called];
 }
--(void) opMyEnumStringDException:(ICEException*)ex
+-(void) opMyEnumStringDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -599,7 +599,7 @@
     test([[ro objectForKey:s23] isEqual:@(TestOperationsenum2)]);
     [self called];
 }
--(void) opMyStructMyEnumDException:(ICEException*)ex
+-(void) opMyStructMyEnumDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -626,7 +626,7 @@
     test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithUnsignedChar:101]] boolValue] == YES);
     [self called];
 }
--(void) opByteBoolDSException:(ICEException*)ex
+-(void) opByteBoolDSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -652,7 +652,7 @@
     test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithShort:1101]] intValue] == 0);
     [self called];
 }
--(void) opShortIntDSException:(ICEException*)ex
+-(void) opShortIntDSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -678,7 +678,7 @@
     test([[[_do objectAtIndex:2] objectForKey:[NSNumber numberWithLong:999999130]] floatValue] == 0.5f);
     [self called];
 }
--(void) opLongFloatDSException:(ICEException*)ex
+-(void) opLongFloatDSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -704,7 +704,7 @@
     test([[[_do objectAtIndex:2] objectForKey:@"BAR"] isEqualToString:@"abc 0.5"]);
     [self called];
 }
--(void) opStringStringDSException:(ICEException*)ex
+-(void) opStringStringDSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -730,7 +730,7 @@
     test([[[_do objectAtIndex:2] objectForKey:@"Hello!!"] intValue] == TestOperationsenum2);
     [self called];
 }
--(void) opStringMyEnumDSException:(ICEException*)ex
+-(void) opStringMyEnumDSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -752,7 +752,7 @@
     test([[[_do objectAtIndex:2] objectForKey:@(TestOperationsenum3)] isEqualToString:@"querty"]);
     [self called];
 }
--(void) opMyEnumStringDSException:(ICEException*)ex
+-(void) opMyEnumStringDSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -780,7 +780,7 @@
     test([[[_do objectAtIndex:2] objectForKey:s23] intValue] == TestOperationsenum2);
     [self called];
 }
--(void) opMyStructMyEnumDSException:(ICEException*)ex
+-(void) opMyStructMyEnumDSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -806,7 +806,7 @@
     test(p[1] == 0xf3);
     [self called];
 }
--(void) opByteByteSDException:(ICEException*)ex
+-(void) opByteByteSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -830,7 +830,7 @@
     test(p[2] == YES);
     [self called];
 }
--(void) opBoolBoolSDException:(ICEException*)ex
+-(void) opBoolBoolSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -858,7 +858,7 @@
     test(p[1] == 7);
     [self called];
 }
--(void) opShortShortSDException:(ICEException*)ex
+-(void) opShortShortSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -886,7 +886,7 @@
     test(p[1] == 700);
     [self called];
 }
--(void) opIntIntSDException:(ICEException*)ex
+-(void) opIntIntSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -914,7 +914,7 @@
     test(p[1] == 999999120);
     [self called];
 }
--(void) opLongLongSDException:(ICEException*)ex
+-(void) opLongLongSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -942,7 +942,7 @@
     test(p[1] == 3.14f);
     [self called];
 }
--(void) opStringFloatSDException:(ICEException*)ex
+-(void) opStringFloatSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -970,7 +970,7 @@
     test(p[1] == 1.7E10);
     [self called];
 }
--(void) opStringDoubleSDException:(ICEException*)ex
+-(void) opStringDoubleSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -992,7 +992,7 @@
     test([[[ro objectForKey:@"ghi"] objectAtIndex:1] isEqualToString:@"xor"]);
     [self called];
 }
--(void) opStringStringSDException:(ICEException*)ex
+-(void) opStringStringSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -1020,21 +1020,20 @@
     test(p[1] == TestOperationsenum3);
     [self called];
 }
--(void) opMyEnumMyEnumSDException:(ICEException*)ex
+-(void) opMyEnumMyEnumSDException:(ICEException*)__unused ex
 {
     test(NO);
 }
 -(void) opIntSResponse:(TestOperationsIntS*)r
 {
     const ICEInt *rp = [r bytes];
-    int j;
-    for(j = 0; j < [r length] / sizeof(ICEInt); ++j)
+    for(int j = 0; j < (int)([r length] / sizeof(ICEInt)); ++j)
     {
         test(rp[j] == -j);
     }
     [self called];
 }
--(void) opIntSException:(ICEException*)ex
+-(void) opIntSException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -1051,7 +1050,7 @@
     test([[ctx objectForKey:@"three"] isEqualToString:@"THREE"]);
     [self called];
 }
--(void) opContextException:(ICEException*)ex
+-(void) opContextException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -1059,7 +1058,7 @@
 {
     [self called];
 }
--(void) opDoubleMarshalingException:(ICEException*)ex
+-(void) opDoubleMarshalingException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -1960,23 +1959,23 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
         [ctx setObject:@"THREE" forKey:@"three"];
         {
                 TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
-                [p begin_opContext:^(ICEMutableContext* ctx) { [cb opEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
+                [p begin_opContext:^(ICEMutableContext* ctxP) { [cb opEmptyContextResponse:ctxP]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
                 test([cb check]);
         }
         {
             TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
-            [p begin_opContext:ctx response:^(ICEMutableContext* ctx) { [cb opNonEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
+            [p begin_opContext:ctx response:^(ICEMutableContext* ctxP) { [cb opNonEmptyContextResponse:ctxP]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
             test([cb check]);
         }
         {
             id<TestOperationsMyClassPrx> p2 = [TestOperationsMyClassPrx checkedCast:[p ice_context:ctx]];
             test([[p2 ice_getContext] isEqual:ctx]);
             TestAMIOperationsCallback* cb = [TestAMIOperationsCallback create];
-            [p2 begin_opContext:^(ICEMutableContext* ctx) { [cb opNonEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
+            [p2 begin_opContext:^(ICEMutableContext* ctxP) { [cb opNonEmptyContextResponse:ctxP]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
             test([cb check]);
 
             cb = [TestAMIOperationsCallback create];
-            [p2 begin_opContext:ctx response:^(ICEMutableContext* ctx) { [cb opNonEmptyContextResponse:ctx]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
+            [p2 begin_opContext:ctx response:^(ICEMutableContext* ctxP) { [cb opNonEmptyContextResponse:ctxP]; } exception:^(ICEException* ex) { [cb opContextException:ex]; }];
             test([cb check]);
         }
     }
@@ -2001,14 +2000,14 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
             [ctx setObject:@"TWO" forKey:@"two" ];
             [ctx setObject:@"THREE" forKey:@"three"];
 
-            id<TestOperationsMyClassPrx> p = [TestOperationsMyClassPrx uncheckedCast:
+            id<TestOperationsMyClassPrx> pc = [TestOperationsMyClassPrx uncheckedCast:
                                                                     [ic stringToProxy:@"test:default -p 12010"]];
 
             [[ic getImplicitContext] setContext:(ctx)];
             test([[[ic getImplicitContext] getContext] isEqualToDictionary:ctx]);
             {
-                id<ICEAsyncResult> r = [p begin_opContext];
-                ICEContext* c = [p end_opContext:r];
+                id<ICEAsyncResult> r = [pc begin_opContext];
+                ICEContext* c = [pc end_opContext:r];
                 test([c isEqualToDictionary:ctx]);
             }
 
@@ -2018,8 +2017,8 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
 
             ctx = [[ic getImplicitContext] getContext];
             {
-                id<ICEAsyncResult> r = [p begin_opContext];
-                ICEContext* c = [p end_opContext:r];
+                id<ICEAsyncResult> r = [pc begin_opContext];
+                ICEContext* c = [pc end_opContext:r];
                 test([c isEqualToDictionary:ctx]);
             }
 
@@ -2030,19 +2029,19 @@ twowaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> p)
             ICEMutableContext *combined = [ICEMutableContext dictionaryWithDictionary:ctx];
             [combined addEntriesFromDictionary:prxContext];
 
-            p = [TestOperationsMyClassPrx uncheckedCast:[p ice_context:prxContext]];
+            pc = [TestOperationsMyClassPrx uncheckedCast:[pc ice_context:prxContext]];
 
             [[ic getImplicitContext] setContext:[ICEMutableContext dictionary]];
             {
-                id<ICEAsyncResult> r = [p begin_opContext];
-                ICEContext* c = [p end_opContext:r];
+                id<ICEAsyncResult> r = [pc begin_opContext];
+                ICEContext* c = [pc end_opContext:r];
                 test([c isEqualToDictionary:prxContext]);
             }
 
             [[ic getImplicitContext] setContext:ctx];
             {
-                id<ICEAsyncResult> r = [p begin_opContext];
-                ICEContext* c = [p end_opContext:r];
+                id<ICEAsyncResult> r = [pc begin_opContext];
+                ICEContext* c = [pc end_opContext:r];
                 test([c isEqualToDictionary:combined]);
             }
 

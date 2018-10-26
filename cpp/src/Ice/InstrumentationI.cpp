@@ -52,7 +52,7 @@ getThreadStateMetric(ThreadState s)
 
 struct ThreadStateChanged
 {
-    ThreadStateChanged(ThreadState oldState, ThreadState newState) : oldState(oldState), newState(newState)
+    ThreadStateChanged(ThreadState oldStateP, ThreadState newStateP) : oldState(oldStateP), newState(newStateP)
     {
     }
 

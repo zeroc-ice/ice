@@ -1680,8 +1680,8 @@ Ice::ConnectionI::message(ThreadPoolCurrent& current)
 
                     Byte messageType;
                     _readStream.read(messageType);
-                    Byte compress;
-                    _readStream.read(compress);
+                    Byte compressByte;
+                    _readStream.read(compressByte);
                     Int size;
                     _readStream.read(size);
                     if(size < headerSize)

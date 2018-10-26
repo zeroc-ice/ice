@@ -12,7 +12,7 @@
 #import <OperationsTest.h>
 
 void
-oneways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> proxy)
+oneways(id<ICECommunicator>__unused communicator, id<TestOperationsMyClassPrx> proxy)
 {
     id<TestOperationsMyClassPrx> p = [TestOperationsMyClassPrx uncheckedCast:[proxy ice_oneway]];
 

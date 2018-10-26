@@ -224,7 +224,7 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
 }
 
 void
-IceSSL::SSLEngine::verifyPeer(const string& address, const ConnectionInfoPtr& info, const string& desc)
+IceSSL::SSLEngine::verifyPeer(const string& /*address*/, const ConnectionInfoPtr& info, const string& desc)
 {
     const CertificateVerifierPtr verifier = getCertificateVerifier();
     if(_verifyDepthMax > 0 && static_cast<int>(info->certs.size()) > _verifyDepthMax)

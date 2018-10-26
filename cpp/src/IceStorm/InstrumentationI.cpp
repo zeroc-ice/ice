@@ -241,7 +241,7 @@ namespace
 
 struct QueuedUpdate
 {
-    QueuedUpdate(int count) : count(count)
+    QueuedUpdate(int countP) : count(countP)
     {
     }
 
@@ -265,7 +265,7 @@ namespace
 
 struct OutstandingUpdate
 {
-    OutstandingUpdate(int count) : count(count)
+    OutstandingUpdate(int countP) : count(countP)
     {
     }
 
@@ -294,7 +294,7 @@ namespace
 
 struct DeliveredUpdate
 {
-    DeliveredUpdate(int count) : count(count)
+    DeliveredUpdate(int countP) : count(countP)
     {
     }
 

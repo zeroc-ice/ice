@@ -68,7 +68,7 @@
 {
     [self called];
 }
--(void) exception:(ICEException*)ex
+-(void) exception:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -184,8 +184,8 @@ timeoutAllTests(id<ICECommunicator> communicator)
         [controller holdAdapter:200];
         @try
         {
-            TestTimeoutByteSeq* seq = [TestTimeoutMutableByteSeq dataWithLength:1000000];
-            [to sendData:seq];
+            TestTimeoutByteSeq* seq2 = [TestTimeoutMutableByteSeq dataWithLength:1000000];
+            [to sendData:seq2];
         }
         @catch(ICETimeoutException*)
         {

@@ -43,7 +43,7 @@ public:
 };
 
 void
-Client::run(int argc, char** argv)
+Client::run(int, char**)
 {
     initializeTestSuite();
 

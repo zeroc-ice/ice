@@ -70,7 +70,7 @@ static ICEValueFactory factory = ^ICEObject* (NSString* type)
 
 @implementation ClientMyObjectFactory
 
--(ICEObject*) create:(NSString*)type
+-(ICEObject*) create:(NSString*)__unused type
 {
     return nil;
 }

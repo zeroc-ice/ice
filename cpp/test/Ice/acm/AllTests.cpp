@@ -130,7 +130,7 @@ class TestCase :
 public:
 
     TestCase(const string& name, const RemoteCommunicatorPrxPtr& com) :
-        _name(name), _com(com), _logger(new LoggerI()),
+        _testCaseName(name), _com(com), _logger(new LoggerI()),
         _clientACMTimeout(-1), _clientACMClose(-1), _clientACMHeartbeat(-1),
         _serverACMTimeout(-1), _serverACMClose(-1), _serverACMHeartbeat(-1),
         _heartbeat(0), _closed(false)
@@ -176,7 +176,7 @@ public:
     void join()
 #endif
     {
-        cout << "testing " << _name << "... " << flush;
+        cout << "testing " << _testCaseName << "... " << flush;
         _logger->start();
 #ifdef ICE_CPP11_MAPPING
         t.join();
@@ -279,7 +279,7 @@ public:
 
 protected:
 
-    const string _name;
+    const string _testCaseName;
     const RemoteCommunicatorPrxPtr _com;
     string _msg;
     LoggerIPtr _logger;
@@ -309,7 +309,7 @@ public:
         setServerACM(1, -1, -1); // Faster ACM to make sure we receive enough ACM heartbeats
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr& proxy)
     {
         proxy->sleep(4);
 
@@ -358,7 +358,7 @@ public:
         setServerACM(2, 2, 0); // Disable heartbeat on invocations
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr& proxy)
     {
         try
         {
@@ -391,7 +391,7 @@ public:
         setServerACM(1, 2, 0); // Disable heartbeat on invocations
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr& proxy)
     {
         // No close on invocation, the call should succeed this time.
         proxy->sleep(3);
@@ -411,7 +411,7 @@ public:
         setClientACM(1, 1, 0); // Only close on idle
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
 
@@ -431,7 +431,7 @@ public:
         setClientACM(1, 2, 0); // Only close on invocation
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
 
@@ -450,7 +450,7 @@ public:
         setClientACM(1, 3, 0); // Only close on idle and invocation
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr&)
     {
         //
         // Put the adapter on hold. The server will not respond to
@@ -483,7 +483,7 @@ public:
         setClientACM(1, 4, 0); // Only close on idle and invocation
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr&)
     {
         adapter->hold();
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000)); // Idle for 3 seconds
@@ -504,7 +504,7 @@ public:
         setServerACM(1, -1, 2); // Enable server heartbeats.
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr&)
     {
         IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(3000));
 
@@ -522,7 +522,7 @@ public:
         setServerACM(1, -1, 3); // Enable server heartbeats.
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr& proxy)
     {
         for(int i = 0; i < 10; ++i)
         {
@@ -548,7 +548,7 @@ public:
         setServerACM(10, -1, 0);
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr& proxy)
     {
         proxy->startHeartbeatCount();
         Ice::ConnectionPtr con = proxy->ice_getConnection();
@@ -614,7 +614,7 @@ public:
         setClientACM(15, 4, 0);
     }
 
-    virtual void runTestCase(const RemoteObjectAdapterPrxPtr& adapter, const TestIntfPrxPtr& proxy)
+    virtual void runTestCase(const RemoteObjectAdapterPrxPtr&, const TestIntfPrxPtr& proxy)
     {
         Ice::ConnectionPtr con = proxy->ice_getConnection();
 

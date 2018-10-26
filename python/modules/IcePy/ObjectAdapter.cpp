@@ -219,7 +219,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
 }
 
 void
-IcePy::ServantLocatorWrapper::finished(const Ice::Current& current, const Ice::ObjectPtr&,
+IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr&,
                                        const Ice::LocalObjectPtr& cookie)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.

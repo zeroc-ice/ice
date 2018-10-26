@@ -227,6 +227,12 @@
 #   define ICE_DEPRECATED_API(msg) /**/
 #endif
 
+#if defined(__clang__) || defined(__GNUC__)
+#   define ICE_MAYBE_UNUSED __attribute__((unused))
+#else
+#   define ICE_MAYBE_UNUSED /**/
+#endif
+
 #ifdef _WIN32
 #   include <windows.h>
 

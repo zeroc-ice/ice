@@ -22,6 +22,8 @@
 extern FILE* yyin;
 extern int yydebug;
 
+int yyparse();
+
 using namespace std;
 using namespace Ice;
 using namespace IceInternal;
@@ -45,9 +47,9 @@ class UnknownManagerException : public Exception
 {
 public:
 
-    UnknownManagerException(const string& name, const char* file, int line) :
+    UnknownManagerException(const string& nameP, const char* file, int line) :
         Exception(file, line),
-        name(name)
+        name(nameP)
     {
     }
 
@@ -681,12 +683,12 @@ Parser::Parser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin
 }
 
 void
-Parser::exception(const Ice::Exception& ex, bool warn)
+Parser::exception(const Ice::Exception& pex, bool warn)
 {
     ostringstream os;
     try
     {
-        ex.ice_throw();
+        pex.ice_throw();
     }
     catch(const LinkExists& ex)
     {

@@ -77,7 +77,7 @@ private:
         SSLWantWrite = 0x2
     };
 
-    mutable Ice::Byte _flags;
+    mutable Ice::Byte _tflags;
     size_t _maxSendPacketSize;
     size_t _maxRecvPacketSize;
     std::string _cipher;

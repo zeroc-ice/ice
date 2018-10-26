@@ -28,7 +28,7 @@
     [super dealloc];
 }
 #endif
--(void) heartbeat:(id<ICEConnection>)c
+-(void) heartbeat:(id<ICEConnection>)__unused connection
 {
     [_cond lock];
     ++_count;
@@ -115,19 +115,19 @@
 }
 #endif
 
--(id<TestACMTestIntfPrx>) getTestIntf:(ICECurrent*)current
+-(id<TestACMTestIntfPrx>) getTestIntf:(ICECurrent*)__unused current
 {
     return _testIntf;
 }
--(void) activate:(ICECurrent*)current
+-(void) activate:(ICECurrent*)__unused current
 {
     [_adapter activate];
 }
--(void) hold:(ICECurrent*)current
+-(void) hold:(ICECurrent*)__unused current
 {
     [_adapter hold];
 }
--(void) deactivate:(ICECurrent*)current
+-(void) deactivate:(ICECurrent*)__unused current
 {
     @try
     {
@@ -158,7 +158,7 @@
     [super dealloc];
 }
 #endif
--(void) sleep:(ICEInt)delay current:(ICECurrent*)current
+-(void) sleep:(ICEInt)delay current:(ICECurrent*)__unused current
 {
     [_cond lock];
     @try
@@ -183,13 +183,13 @@
         [_cond unlock];
     }
 }
--(void) interruptSleep:(ICECurrent*)current
+-(void) interruptSleep:(ICECurrent*)__unused current
 {
     [_cond lock];
     [_cond signal];
     [_cond unlock];
 }
--(void) startHeartbeatCount:(ICECurrent*)current
+-(void) startHeartbeatCount:(ICECurrent*) current
 {
     ACMConnectionCallbackI* callback = [ACMConnectionCallbackI new];
     _callback = callback;
@@ -198,7 +198,7 @@
         [callback heartbeat:c];
     }];
 }
--(void) waitForHeartbeatCount:(int)count current:(ICECurrent*)current
+-(void) waitForHeartbeatCount:(int)count current:(ICECurrent*)__unused current
 {
     [_callback waitForCount:count];
     ICE_RELEASE(_callback);

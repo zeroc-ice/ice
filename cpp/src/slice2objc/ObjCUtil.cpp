@@ -148,7 +148,7 @@ Slice::ObjCGenerator::moduleName(const ModulePtr& m)
 }
 
 ModulePtr
-Slice::ObjCGenerator::findModule(const ContainedPtr& cont, int baseTypes, bool mangleCasts)
+Slice::ObjCGenerator::findModule(const ContainedPtr& cont, int /*baseTypes*/, bool /*mangleCasts*/)
 {
     ModulePtr m = ModulePtr::dynamicCast(cont);
     ContainerPtr container = cont->container();
@@ -244,13 +244,13 @@ Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
     }
     else
     {
-        for(string::iterator p = name.begin(); p != name.end() && isalpha(*p); ++p)
+        for(string::iterator q = name.begin(); q != name.end() && isalpha(*q); ++q)
         {
-            if(p != name.end() - 1 && isalpha(*(p + 1)) && !isupper(*(p + 1)))
+            if(q != name.end() - 1 && isalpha(*(q + 1)) && !isupper(*(q + 1)))
             {
                 break;
             }
-            *p = tolower(*p);
+            *q = tolower(*q);
         }
     }
     return name;

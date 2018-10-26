@@ -356,7 +356,7 @@ extern "C"
 {
 
 ICE_DECLSPEC_EXPORT ::Ice::Plugin*
-createPlugin(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq& args)
+createPlugin(const Ice::CommunicatorPtr& communicator, const string&, const Ice::StringSeq&)
 {
     return new Plugin(communicator);
 }

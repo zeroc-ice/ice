@@ -387,8 +387,8 @@ run(const Ice::StringSeq& args)
                 // to lookup for locator proxies. We destroy the plugin, once we have selected a
                 // locator.
                 //
-                Ice::PluginPtr p = createIceLocatorDiscovery(communicator, "IceGridAdmin.Discovery", Ice::StringSeq());
-                IceLocatorDiscovery::PluginPtr plugin = IceLocatorDiscovery::PluginPtr::dynamicCast(p);
+                Ice::PluginPtr pluginObj = createIceLocatorDiscovery(communicator, "IceGridAdmin.Discovery", Ice::StringSeq());
+                IceLocatorDiscovery::PluginPtr plugin = IceLocatorDiscovery::PluginPtr::dynamicCast(pluginObj);
                 plugin->initialize();
 
                 vector<Ice::LocatorPrx> locators = plugin->getLocators(instanceName, IceUtil::Time::milliSeconds(300));
@@ -610,8 +610,8 @@ run(const Ice::StringSeq& args)
             if(registry->ice_getIdentity() == localRegistry->ice_getIdentity())
             {
                 Ice::ObjectAdapterPtr colloc = communicator->createObjectAdapter(""); // colloc-only adapter
-                Ice::ObjectPrx router = colloc->addWithUUID(new ReuseConnectionRouter(locator));
-                communicator->setDefaultRouter(Ice::RouterPrx::uncheckedCast(router));
+                communicator->setDefaultRouter(Ice::RouterPrx::uncheckedCast(
+                    colloc->addWithUUID(new ReuseConnectionRouter(locator))));
                 registry = registry->ice_router(communicator->getDefaultRouter());
             }
 

@@ -434,9 +434,9 @@ LoggerAdminI::attachRemoteLogger(const RemoteLoggerPrx& prx,
                 {
                     rethrow_exception(e);
                 }
-                catch(const Ice::LocalException& e)
+                catch(const Ice::LocalException& le)
                 {
-                    self->deadRemoteLogger(remoteLogger, logger, e, "init");
+                    self->deadRemoteLogger(remoteLogger, logger, le, "init");
                 }
             });
     }
@@ -618,16 +618,16 @@ LoggerAdminI::log(const LogMessage& logMessage)
         //
         // Queue updated, now find which remote loggers want this message
         //
-        for(RemoteLoggerMap::const_iterator p = _remoteLoggerMap.begin(); p != _remoteLoggerMap.end(); ++p)
+        for(RemoteLoggerMap::const_iterator q = _remoteLoggerMap.begin(); q != _remoteLoggerMap.end(); ++q)
         {
-            const Filters& filters = p->second;
+            const Filters& filters = q->second;
 
             if(filters.messageTypes.empty() || filters.messageTypes.count(logMessage.type) != 0)
             {
                 if(logMessage.type != ICE_ENUM(LogMessageType, TraceMessage) || filters.traceCategories.empty() ||
                    filters.traceCategories.count(logMessage.traceCategory) != 0)
                 {
-                    remoteLoggers.push_back(p->first);
+                    remoteLoggers.push_back(q->first);
                 }
             }
         }

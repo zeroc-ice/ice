@@ -10,34 +10,34 @@
 #import <servantLocator/TestI.h>
 
 @implementation TestServantLocatorTestIntfI
--(void) requestFailedException:(ICECurrent*)current
+-(void) requestFailedException:(ICECurrent*)__unused current
 {
 }
--(void) unknownUserException:(ICECurrent*)current
+-(void) unknownUserException:(ICECurrent*)__unused current
 {
 }
--(void) unknownLocalException:(ICECurrent*)current
+-(void) unknownLocalException:(ICECurrent*)__unused current
 {
 }
--(void) unknownException:(ICECurrent*)current
+-(void) unknownException:(ICECurrent*)__unused current
 {
 }
--(void) userException:(ICECurrent*)current
+-(void) userException:(ICECurrent*)__unused current
 {
 }
--(void) localException:(ICECurrent*)current
+-(void) localException:(ICECurrent*)__unused current
 {
 }
--(void) stdException:(ICECurrent*)current
+-(void) stdException:(ICECurrent*)__unused current
 {
 }
--(void) cppException:(ICECurrent*)current
+-(void) cppException:(ICECurrent*)__unused current
 {
 }
--(void) unknownExceptionWithServantException:(ICECurrent*)current
+-(void) unknownExceptionWithServantException:(ICECurrent*)__unused current
 {
 }
--(NSString*) impossibleException:(BOOL)throw current:(ICECurrent*)current
+-(NSString*) impossibleException:(BOOL)throw current:(ICECurrent*)__unused current
 {
     if(throw)
     {
@@ -49,7 +49,7 @@
     //
     return @"Hello";
 }
--(NSString*) intfUserException:(BOOL)throw current:(ICECurrent*)current
+-(NSString*) intfUserException:(BOOL)throw current:(ICECurrent*)__unused current
 {
     if(throw)
     {
@@ -61,10 +61,10 @@
     //
     return @"Hello";
 }
--(void) asyncResponse:(ICECurrent*)current
+-(void) asyncResponse:(ICECurrent*)__unused current
 {
 }
--(void) asyncException:(ICECurrent*)current
+-(void) asyncException:(ICECurrent*)__unused current
 {
 }
 -(void) shutdown:(ICECurrent*)current

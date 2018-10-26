@@ -106,7 +106,7 @@ public:
 
     private:
 
-        const ReferencePtr _ref;
+        const ReferencePtr _reference;
         const int _ttl;
         const GetEndpointsCallbackPtr _callback;
     };
@@ -128,7 +128,7 @@ public:
         virtual void send() = 0;
 
         const LocatorInfoPtr _locatorInfo;
-        const ReferencePtr _ref;
+        const ReferencePtr _reference;
 
     private:
 

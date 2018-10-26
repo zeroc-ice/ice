@@ -1835,7 +1835,7 @@ Slice::CsVisitor::writeDocCommentAMD(const OperationPtr& p, const string& extraP
 }
 
 void
-Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType, bool amd)
+Slice::CsVisitor::writeDocCommentParam(const OperationPtr& p, ParamDir paramType, bool /*amd*/)
 {
     //
     // Collect the names of the in- or -out parameters to be documented.
@@ -2195,7 +2195,7 @@ Slice::Gen::CompactIdVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::CompactIdVisitor::visitUnitEnd(const UnitPtr&)
 {
     _out << eb;
 }
@@ -2676,7 +2676,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitSequence(const SequencePtr& p)
+Slice::Gen::TypesVisitor::visitSequence(const SequencePtr&)
 {
     //
     // No need to generate anything for sequences.
@@ -2810,8 +2810,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
     _out << sb;
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
-        string name = fixId((*q)->name(), DotNet::Exception, false);
-        writeSerializeDeserializeCode(_out, (*q)->type(), ns, name, (*q)->optional(), (*q)->tag(), false);
+        string memberName = fixId((*q)->name(), DotNet::Exception, false);
+        writeSerializeDeserializeCode(_out, (*q)->type(), ns, memberName, (*q)->optional(), (*q)->tag(), false);
     }
     _out << eb;
 
@@ -2825,8 +2825,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             _out << sb;
             for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
             {
-                string name = fixId((*q)->name(), DotNet::Exception, false);
-                _out << nl << "this." << name << " = " << fixId((*q)->name()) << ';';
+                string memberName = fixId((*q)->name(), DotNet::Exception, false);
+                _out << nl << "this." << memberName << " = " << fixId((*q)->name()) << ';';
             }
             _out << eb;
         }
@@ -2931,8 +2931,8 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         _out << sb;
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
-            string name = fixId((*q)->name(), DotNet::Exception, false);
-            writeSerializeDeserializeCode(_out, (*q)->type(), ns, name, (*q)->optional(), (*q)->tag(), true);
+            string memberName = fixId((*q)->name(), DotNet::Exception, false);
+            writeSerializeDeserializeCode(_out, (*q)->type(), ns, memberName, (*q)->optional(), (*q)->tag(), true);
         }
         _out << sp << nl << "base.GetObjectData(info, context);";
         _out << eb;
@@ -3314,7 +3314,7 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+Slice::Gen::TypesVisitor::visitDictionary(const DictionaryPtr&)
 {
 }
 
@@ -4122,7 +4122,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
         bool amd = !p->isLocal() && (p->hasMetaData("amd") || op->hasMetaData("amd"));
         string retS;
         vector<string> params, args;
-        string name = getDispatchParams(op, retS, params, args, ns);
+        string opName = getDispatchParams(op, retS, params, args, ns);
         _out << sp;
         if(amd)
         {
@@ -4137,7 +4137,7 @@ Slice::Gen::OpsVisitor::visitClassDefStart(const ClassDefPtr& p)
         emitAttributes(op);
         emitDeprecate(op, op, _out, "operation");
         emitGeneratedCodeAttribute();
-        _out << nl << retS << " " << name << spar << params << epar << ";";
+        _out << nl << retS << " " << opName << spar << params << epar << ";";
     }
 
     _out << eb;
@@ -5053,10 +5053,10 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     else
     {
         _out << nl << valueS << " v;";
-        StructPtr st = StructPtr::dynamicCast(value);
-        if(st)
+        StructPtr stv = StructPtr::dynamicCast(value);
+        if(stv)
         {
-            if(isValueType(st))
+            if(isValueType(stv))
             {
                 _out << nl << "v = new " << typeToString(value, ns) << "();";
             }
@@ -5160,8 +5160,8 @@ Slice::Gen::DispatcherVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         string retS;
         vector<string> params, args;
-        string name = getDispatchParams(*i, retS, params, args, ns);
-        _out << sp << nl << "public abstract " << retS << " " << name << spar << params << epar << ';';
+        string opName = getDispatchParams(*i, retS, params, args, ns);
+        _out << sp << nl << "public abstract " << retS << " " << opName << spar << params << epar << ';';
     }
 
     if(!ops.empty())
@@ -5275,11 +5275,11 @@ Slice::Gen::DispatcherVisitor::writeTieOperations(const ClassDefPtr& p, NameSet*
 
     if(!opNames)
     {
-        NameSet opNames;
+        NameSet opNamesTmp;
         ClassList bases = p->bases();
         for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
         {
-            writeTieOperations(*i, &opNames);
+            writeTieOperations(*i, &opNamesTmp);
         }
     }
     else
@@ -5330,7 +5330,6 @@ Slice::Gen::BaseImplVisitor::writeOperation(const OperationPtr& op, bool comment
 
     if(!cl->isLocal() && (cl->hasMetaData("amd") || op->hasMetaData("amd")))
     {
-        ParamDeclList::const_iterator i;
         vector<string> pDecl = getInParams(op, ns);
         string resultType = CsGenerator::resultType(op, ns, true);
 

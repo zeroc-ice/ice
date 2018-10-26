@@ -1635,7 +1635,7 @@ IceInternal::IncomingConnectionFactory::connectionStartCompleted(const Ice::Conn
 
 void
 IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::ConnectionIPtr& /*connection*/,
-                                                              const Ice::LocalException& ex)
+                                                              const Ice::LocalException&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)

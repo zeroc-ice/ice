@@ -180,9 +180,9 @@ public:
         {
             ex.ice_throw();
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception& e)
         {
-            _amiCB->exception(ex);
+            _amiCB->exception(e);
         }
     }
 
@@ -221,11 +221,11 @@ public:
     }
 
     virtual void
-    synchronized(const Ice::Exception& ex)
+    synchronized(const Ice::Exception& sex)
     {
         try
         {
-            ex.ice_throw();
+            sex.ice_throw();
         }
         catch(const ServerNotExistException&)
         {

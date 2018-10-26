@@ -37,7 +37,7 @@
    }
 }
 
--(ICEInt) opIdempotent:(ICEInt)nRetry current:(ICECurrent*)current
+-(ICEInt) opIdempotent:(ICEInt)nRetry current:(ICECurrent*)__unused current
 {
     if(nRetry < 0)
     {
@@ -55,7 +55,7 @@
     return counter;
 }
 
--(void) opNotIdempotent:(ICECurrent*)current
+-(void) opNotIdempotent:(ICECurrent*)__unused current
 {
     @throw [ICEConnectionLostException connectionLostException:__FILE__ line:__LINE__];
 }

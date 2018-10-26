@@ -58,7 +58,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         FlushBatch(const CommunicatorFlushBatchAsyncPtr& outAsync,
                    const InstancePtr& instance,
                    InvocationObserver& observer) :
-            OutgoingAsyncBase(instance), _outAsync(outAsync), _observer(observer)
+            OutgoingAsyncBase(instance), _outAsync(outAsync), _parentObserver(observer)
         {
         }
 
@@ -82,7 +82,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         virtual InvocationObserver&
         getObserver()
         {
-            return _observer;
+            return _parentObserver;
         }
 
         virtual bool handleSent(bool, bool)
@@ -118,7 +118,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
     private:
 
         const CommunicatorFlushBatchAsyncPtr _outAsync;
-        InvocationObserver& _observer;
+        InvocationObserver& _parentObserver;
     };
 
     {

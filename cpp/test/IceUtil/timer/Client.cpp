@@ -161,7 +161,7 @@ public:
 };
 
 void
-Client::run(int, char* argv[])
+Client::run(int, char*[])
 {
     cout << "testing timer... " << flush;
     {

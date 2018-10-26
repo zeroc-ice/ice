@@ -18,7 +18,7 @@
     return self;
 }
 
--(void) op:(ICECurrent*)current
+-(void) op:(ICECurrent*)__unused current
 {
 }
 
@@ -27,27 +27,27 @@
     [current.con close:ICEConnectionCloseForcefully];
 }
 
--(void) opWithUserException:(ICECurrent*)current
+-(void) opWithUserException:(ICECurrent*)__unused current
 {
     @throw [TestMetricsUserEx userEx];
 }
 
--(void) opWithRequestFailedException:(ICECurrent*)current
+-(void) opWithRequestFailedException:(ICECurrent*)__unused current
 {
     @throw [ICEObjectNotExistException objectNotExistException:__FILE__ line:__LINE__];
 }
 
--(void) opWithLocalException:(ICECurrent*)current
+-(void) opWithLocalException:(ICECurrent*)__unused current
 {
     @throw [ICESyscallException syscallException:__FILE__ line:__LINE__];
 }
 
--(void) opWithUnknownException:(ICECurrent*)current
+-(void) opWithUnknownException:(ICECurrent*)__unused current
 {
     @throw @"TEST";
 }
 
--(void) opByteS:(ICEByteSeq*)bs current:(ICECurrent*)current
+-(void) opByteS:(ICEByteSeq*)__unused bs current:(ICECurrent*)__unused current
 {
 }
 
@@ -81,13 +81,13 @@
 }
 #endif
 
--(void) hold:(ICECurrent*)current
+-(void) hold:(ICECurrent*)__unused current
 {
     [adapter hold];
     [adapter waitForHold];
 }
 
--(void) resume:(ICECurrent*)current
+-(void) resume:(ICECurrent*)__unused current
 {
     [adapter activate];
 }

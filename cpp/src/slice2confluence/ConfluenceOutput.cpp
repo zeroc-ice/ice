@@ -13,6 +13,15 @@
 #include <sstream>
 #include <algorithm>
 
+#if defined(__clang__)
+#   pragma clang diagnostic ignored "-Wshadow"
+#   pragma clang diagnostic ignored "-Wshadow-field"
+#   pragma clang diagnostic ignored "-Wunused-parameter"
+#elif defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wshadow"
+#   pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 using namespace std;
 using namespace IceUtilInternal;
 

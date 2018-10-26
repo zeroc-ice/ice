@@ -587,7 +587,7 @@ allTests(Test::TestHelper* helper, const string& ref)
         registry->setAdapterDirectProxy("TestAdapter5", locator->findAdapterById("TestAdapter"));
         registry->addObject(communicator->stringToProxy("test3@TestAdapter"));
 
-        int count = locator->getRequestCount();
+        count = locator->getRequestCount();
         ic->stringToProxy("test@TestAdapter5")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
         ic->stringToProxy("test3")->ice_locatorCacheTimeout(0)->ice_ping(); // No locator cache.
         count += 3;

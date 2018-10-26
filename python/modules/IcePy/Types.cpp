@@ -483,10 +483,10 @@ IcePy::StreamUtil::setSlicedDataMember(PyObject* obj, const Ice::SlicedDataPtr& 
             assert(*q);
             ObjectReaderPtr r = ObjectReaderPtr::dynamicCast(*q);
             assert(r);
-            PyObject* obj = r->getObject();
-            assert(obj != Py_None); // Should be non-nil.
-            PyTuple_SET_ITEM(instances.get(), j++, obj);
-            Py_INCREF(obj); // PyTuple_SET_ITEM steals a reference.
+            PyObject* pobj = r->getObject();
+            assert(pobj != Py_None); // Should be non-nil.
+            PyTuple_SET_ITEM(instances.get(), j++, pobj);
+            Py_INCREF(pobj); // PyTuple_SET_ITEM steals a reference.
         }
 
         //
@@ -582,15 +582,15 @@ IcePy::StreamUtil::getSlicedDataMember(PyObject* obj, ObjectMap* objectMap)
 
                     Ice::ObjectPtr writer;
 
-                    ObjectMap::iterator i = objectMap->find(o);
-                    if(i == objectMap->end())
+                    ObjectMap::iterator k = objectMap->find(o);
+                    if(k == objectMap->end())
                     {
                         writer = new ObjectWriter(o, objectMap, 0);
                         objectMap->insert(ObjectMap::value_type(o, writer));
                     }
                     else
                     {
-                        writer = i->second;
+                        writer = k->second;
                     }
 
                     info->instances.push_back(writer);
@@ -1115,7 +1115,7 @@ IcePy::EnumInfo::optionalFormat() const
 }
 
 void
-IcePy::EnumInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool optional, const Ice::StringSeq*)
+IcePy::EnumInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap*, bool /*optional*/, const Ice::StringSeq*)
 {
     //
     // Validate value.
@@ -1567,7 +1567,7 @@ IcePy::SequenceInfo::usesClasses() const
 
 void
 IcePy::SequenceInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool optional,
-                             const Ice::StringSeq* metaData)
+                             const Ice::StringSeq* /*metaData*/)
 {
     PrimitiveInfoPtr pi = PrimitiveInfoPtr::dynamicCast(elementType);
 
@@ -2467,8 +2467,8 @@ IcePy::CustomInfo::usesClasses() const
 }
 
 void
-IcePy::CustomInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool,
-                           const Ice::StringSeq* metaData)
+IcePy::CustomInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* /*objectMap*/, bool,
+                           const Ice::StringSeq* /*metaData*/)
 {
     assert(PyObject_IsInstance(p, pythonType) == 1); // validate() should have caught this.
 
@@ -2503,7 +2503,7 @@ IcePy::CustomInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* object
 
 void
 IcePy::CustomInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target,
-                             void* closure, bool, const Ice::StringSeq* metaData)
+                             void* closure, bool, const Ice::StringSeq* /*metaData*/)
 {
     //
     // Unmarshal the raw byte sequence.
@@ -2567,7 +2567,7 @@ IcePy::CustomInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& c
 }
 
 void
-IcePy::CustomInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory* history)
+IcePy::CustomInfo::print(PyObject* value, IceUtilInternal::Output& out, PrintObjectHistory*)
 {
     if(!validate(value))
     {
@@ -2858,7 +2858,7 @@ IcePy::ClassInfo::getId() const
 }
 
 bool
-IcePy::ClassInfo::validate(PyObject* val)
+IcePy::ClassInfo::validate(PyObject*)
 {
     assert(false);
     return true;
@@ -2890,7 +2890,7 @@ IcePy::ClassInfo::usesClasses() const
 }
 
 void
-IcePy::ClassInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectMap, bool,
+IcePy::ClassInfo::marshal(PyObject*, Ice::OutputStream*, ObjectMap*, bool,
                           const Ice::StringSeq*)
 {
     assert(false);
@@ -2898,8 +2898,8 @@ IcePy::ClassInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* objectM
 }
 
 void
-IcePy::ClassInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr& cb, PyObject* target,
-                            void* closure, bool, const Ice::StringSeq*)
+IcePy::ClassInfo::unmarshal(Ice::InputStream*, const UnmarshalCallbackPtr&, PyObject*,
+                            void*, bool, const Ice::StringSeq*)
 {
     assert(false);
     throw AbortMarshaling();
@@ -3679,10 +3679,10 @@ IcePy::ExceptionInfo::marshal(PyObject* p, Ice::OutputStream* os, ObjectMap* obj
 }
 
 void
-IcePy::ExceptionInfo::writeMembers(PyObject* p, Ice::OutputStream* os, const DataMemberList& members,
+IcePy::ExceptionInfo::writeMembers(PyObject* p, Ice::OutputStream* os, const DataMemberList& membersP,
                                    ObjectMap* objectMap) const
 {
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    for(DataMemberList::const_iterator q = membersP.begin(); q != membersP.end(); ++q)
     {
         DataMemberPtr member = *q;
 

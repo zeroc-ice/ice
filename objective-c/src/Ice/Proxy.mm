@@ -186,7 +186,7 @@ BOOL _returnsData;
 @implementation ICEAsyncResult
 -(ICEAsyncResult*) initWithAsyncResult:(const Ice::AsyncResultPtr&)arg
                                operation:(NSString*)op
-                                   proxy:(id<ICEObjectPrx>)p;
+                                   proxy:(id<ICEObjectPrx>)p
 {
     self = [super init];
     if(!self)
@@ -875,7 +875,7 @@ BOOL _returnsData;
     }
 }
 
--(id) copyWithZone:(NSZone *)zone
+-(id) copyWithZone:(NSZone *)__unused zone
 {
     return [self retain];
 }
@@ -1489,7 +1489,7 @@ BOOL _returnsData;
     return [ICEEncodingVersion encodingVersionWithEncodingVersion:OBJECTPRX->ice_getEncodingVersion()];
 }
 
--(id) ice_encodingVersion:(ICEEncodingVersion*)encoding;
+-(id) ice_encodingVersion:(ICEEncodingVersion*)encoding
 {
     return [[self class] iceObjectPrxWithObjectPrx:OBJECTPRX->ice_encodingVersion([encoding encodingVersion])];
 }

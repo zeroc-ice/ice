@@ -190,7 +190,7 @@ private:
 
 -(id) init:(id<ICEProperties>)props logger:(id<ICELogger>)log
                                 dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d
-                   batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i;
+                   batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i
 {
     self = [super init];
     if(!self)
@@ -204,7 +204,7 @@ private:
     return self;
 }
 
-+(id) initializationData;
++(id) initializationData
 {
    ICEInitializationData *s = [[ICEInitializationData alloc] init];
    [s autorelease];
@@ -213,7 +213,7 @@ private:
 
 +(id) initializationData:(id<ICEProperties>)p logger:(id<ICELogger>)l
                                           dispatcher:(void(^)(id<ICEDispatcherCall>, id<ICEConnection>))d
-                             batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i;
+                             batchRequestInterceptor:(void(^)(id<ICEBatchRequest>, int, int))i
 {
    return [[((ICEInitializationData *)[ICEInitializationData alloc]) init:p logger:l dispatcher:d
             batchRequestInterceptor:i] autorelease];
@@ -230,7 +230,7 @@ private:
     return copy;
 }
 
--(NSUInteger) hash;
+-(NSUInteger) hash
 {
     NSUInteger h = 0;
     h = (h << 5 ^ [properties hash]);
@@ -241,7 +241,7 @@ private:
     return h;
 }
 
--(BOOL) isEqual:(id)anObject;
+-(BOOL) isEqual:(id)anObject
 {
     if(self == anObject)
     {
@@ -325,7 +325,7 @@ private:
     return YES;
 }
 
--(void) dealloc;
+-(void) dealloc
 {
     [properties release];
     [logger release];

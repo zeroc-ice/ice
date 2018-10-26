@@ -588,10 +588,10 @@ LocatorI::LocatorI(const string& name,
     // datagram on each endpoint.
     //
     Ice::EndpointSeq endpoints = lookup->ice_getEndpoints();
-    for(vector<Ice::EndpointPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
+    for(vector<Ice::EndpointPtr>::const_iterator q = endpoints.begin(); q != endpoints.end(); ++q)
     {
         Ice::EndpointSeq single;
-        single.push_back(*p);
+        single.push_back(*q);
         _lookups.push_back(make_pair(lookup->ice_endpoints(single), LookupReplyPrxPtr()));
     }
     assert(!_lookups.empty());

@@ -32,7 +32,7 @@
 }
 #endif
 
--(void) setAdapterDirectProxy:(NSMutableString *)adapter proxy:(id<ICEObjectPrx>)proxy current:(ICECurrent *)current
+-(void) setAdapterDirectProxy:(NSMutableString *)adapter proxy:(id<ICEObjectPrx>)proxy current:(ICECurrent *)__unused current
 {
     if(proxy == nil)
     {
@@ -46,7 +46,7 @@
 -(void) setReplicatedAdapterDirectProxy:(NSMutableString *)adapterId
                          replicaGroupId:(NSMutableString *)replicaGroupId
                                       p:(id<ICEObjectPrx>)p
-                                current:(ICECurrent *)current
+                                current:(ICECurrent *)__unused current
 {
     if(p == nil)
     {
@@ -59,10 +59,10 @@
         [adapters_ setObject:p forKey:replicaGroupId];
     }
 }
--(void) setServerProcessProxy:(NSMutableString *)id_ proxy:(id<ICEProcessPrx>)proxy current:(ICECurrent *)current
+-(void) setServerProcessProxy:(NSMutableString *)__unused id_ proxy:(id<ICEProcessPrx>)__unused proxy current:(ICECurrent *)__unused current
 {
 }
--(void) addObject:(id<ICEObjectPrx>)object current:(ICECurrent*)current
+-(void) addObject:(id<ICEObjectPrx>)object current:(ICECurrent*)__unused current
 {
     [self addObject:object];
 }
@@ -103,7 +103,7 @@
     requestCount_ = 0;
     return self;
 }
--(id<ICEObjectPrx>) findObjectById:(ICEIdentity *)id_ current:(ICECurrent *)current
+-(id<ICEObjectPrx>) findObjectById:(ICEIdentity *)id_ current:(ICECurrent *)__unused current
 {
     ++requestCount_;
     return [registry_ getObject:id_];
@@ -118,11 +118,11 @@
     }
     return [registry_ getAdapter:id_];
 }
--(id<ICELocatorRegistryPrx>) getRegistry:(ICECurrent *)current
+-(id<ICELocatorRegistryPrx>) getRegistry:(ICECurrent *)__unused current
 {
     return registryPrx_;
 }
--(int) getRequestCount:(ICECurrent*)current
+-(int) getRequestCount:(ICECurrent*)__unused current
 {
     return requestCount_;
 }

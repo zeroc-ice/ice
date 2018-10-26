@@ -42,8 +42,8 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
     ReplicaEntryPtr entry;
     while((entry = getImpl(name)))
     {
-        ReplicaSessionIPtr session = entry->getSession();
-        if(session->isDestroyed())
+        ReplicaSessionIPtr s = entry->getSession();
+        if(s->isDestroyed())
         {
             wait(); // Wait for the session to be removed.
         }
@@ -56,14 +56,14 @@ ReplicaCache::add(const string& name, const ReplicaSessionIPtr& session)
             sync.release();
             try
             {
-                session->getInternalRegistry()->ice_ping();
+                s->getInternalRegistry()->ice_ping();
                 throw ReplicaActiveException();
             }
             catch(const Ice::LocalException&)
             {
                 try
                 {
-                    session->destroy(Ice::emptyCurrent);
+                    s->destroy(Ice::emptyCurrent);
                 }
                 catch(const Ice::LocalException&)
                 {

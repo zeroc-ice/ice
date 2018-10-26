@@ -230,8 +230,8 @@ compile(const vector<string>& argv)
         //
         // Ignore duplicates.
         //
-        vector<string>::iterator p = find(args.begin(), args.end(), *i);
-        if(p != i)
+        vector<string>::iterator j = find(args.begin(), args.end(), *i);
+        if(j != i)
         {
             continue;
         }

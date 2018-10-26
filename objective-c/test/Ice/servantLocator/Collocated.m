@@ -28,7 +28,7 @@
     test([[co message] isEqual:@"blahblah"]);
 
 }
--(void) throwTestIntfUserException;
+-(void) throwTestIntfUserException
 {
     @throw [TestServantLocatorTestIntfUserException testIntfUserException];
 }

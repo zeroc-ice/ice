@@ -27,7 +27,7 @@ IceRuby_Properties_free(Ice::PropertiesPtr* p)
 
 extern "C"
 VALUE
-IceRuby_createProperties(int argc, VALUE* argv, VALUE self)
+IceRuby_createProperties(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {

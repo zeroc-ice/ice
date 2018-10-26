@@ -278,7 +278,7 @@ struct Void
 
 struct Connect
 {
-    Connect(const Ice::ObjectPrxPtr& proxy) : proxy(proxy)
+    Connect(const Ice::ObjectPrxPtr& proxyP) : proxy(proxyP)
     {
     }
 
@@ -307,7 +307,7 @@ struct Connect
 
 struct InvokeOp
 {
-    InvokeOp(const Test::MetricsPrxPtr& proxy) : proxy(proxy)
+    InvokeOp(const Test::MetricsPrxPtr& proxyP) : proxy(proxyP)
     {
     }
 

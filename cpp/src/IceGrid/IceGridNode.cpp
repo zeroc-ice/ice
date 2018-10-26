@@ -562,13 +562,13 @@ NodeService::startImpl(int argc, char* argv[], int& status)
             }
             else
             {
-                string id = communicator()->getProperties()->getProperty("IceGridAdmin.Username");
+                string username = communicator()->getProperties()->getProperty("IceGridAdmin.Username");
                 string password = communicator()->getProperties()->getProperty("IceGridAdmin.Password");
-                while(id.empty())
+                while(username.empty())
                 {
                     consoleOut << "user id: " << flush;
-                    getline(cin, id);
-                    id = IceUtilInternal::trim(id);
+                    getline(cin, username);
+                    username = IceUtilInternal::trim(username);
                 }
 
                 if(password.empty())
@@ -578,7 +578,7 @@ NodeService::startImpl(int argc, char* argv[], int& status)
                     password = IceUtilInternal::trim(password);
                 }
 
-                session = registry->createAdminSession(id, password);
+                session = registry->createAdminSession(username, password);
             }
             assert(session);
 

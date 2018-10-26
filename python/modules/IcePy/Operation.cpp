@@ -1172,11 +1172,12 @@ extern "C"
 static int
 marshaledResultInit(MarshaledResultObject* self, PyObject* args, PyObject* /*kwds*/)
 {
+    PyObject* versionType = IcePy::lookupType("Ice.EncodingVersion");
     PyObject* result;
     OperationObject* opObj;
     PyObject* communicatorObj;
     PyObject* encodingObj;
-    if(!PyArg_ParseTuple(args, STRCAST("OOOO"), &result, &opObj, &communicatorObj, &encodingObj))
+    if(!PyArg_ParseTuple(args, STRCAST("OOOO!"), &result, &opObj, &communicatorObj, versionType, &encodingObj))
     {
         return -1;
     }
@@ -3214,12 +3215,12 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         if(!out.empty())
         {
             void* buf;
-            Py_ssize_t sz;
-            if(PyObject_AsWriteBuffer(op.get(), &buf, &sz))
+            Py_ssize_t ssz;
+            if(PyObject_AsWriteBuffer(op.get(), &buf, &ssz))
             {
                 throwPythonException();
             }
-            memcpy(buf, &out[0], sz);
+            memcpy(buf, &out[0], ssz);
         }
 #endif
 
@@ -3403,12 +3404,12 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
             }
         }
     }
-    catch(const Ice::CommunicatorDestroyedException& ex)
+    catch(const Ice::CommunicatorDestroyedException& e)
     {
         //
         // CommunicatorDestroyedException is the only exception that can propagate directly.
         //
-        setPythonException(ex);
+        setPythonException(e);
         return 0;
     }
     catch(const Ice::Exception&)
@@ -4026,9 +4027,9 @@ IcePy::TypedUpcall::exception(PyException& ex)
             throwPythonException();
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& e)
     {
-        exception(ex);
+        exception(e);
     }
 }
 
@@ -4193,9 +4194,9 @@ IcePy::BlobjectUpcall::exception(PyException& ex)
 
         ex.raise();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& e)
     {
-        exception(ex);
+        exception(e);
     }
 }
 

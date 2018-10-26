@@ -213,7 +213,6 @@ public:
 #define YYSTYPE Slice::GrammarBasePtr
 #define YY_DECL int slice_lex(YYSTYPE* yylvalp)
 YY_DECL;
-int slice_parse();
 
 //
 // I must set the initial stack depth to the maximum stack depth to

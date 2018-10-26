@@ -340,7 +340,6 @@ Slice::Ruby::CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
         //
         // read/write accessors for data members.
         //
-        DataMemberList members = p->dataMembers();
         if(!members.empty())
         {
             bool prot = p->hasMetaData("protected");

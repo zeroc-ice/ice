@@ -140,7 +140,6 @@ private:
 
     std::vector<Ice::Byte> _pingPayload;
 };
-typedef IceUtil::Handle<WSTransceiver> WSTransceiverPtr;
 
 }
 

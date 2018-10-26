@@ -48,7 +48,7 @@ public:
 #ifdef ICE_CPP11_MAPPING
             LocatorInfo::RequestPtr request = this;
             _locatorInfo->getLocator()->findObjectByIdAsync(
-                _ref->getIdentity(),
+                _reference->getIdentity(),
                 [request](const ObjectPrxPtr& object)
                 {
                     request->response(object);
@@ -66,7 +66,7 @@ public:
                 });
 #else
             _locatorInfo->getLocator()->begin_findObjectById(
-                _ref->getIdentity(),
+                _reference->getIdentity(),
                 newCallback_Locator_findObjectById(static_cast<LocatorInfo::Request*>(this),
                                                    &LocatorInfo::Request::response,
                                                    &LocatorInfo::Request::exception));
@@ -94,7 +94,7 @@ public:
         {
 #ifdef ICE_CPP11_MAPPING
             LocatorInfo::RequestPtr request = this;
-            _locatorInfo->getLocator()->findAdapterByIdAsync(_ref->getAdapterId(),
+            _locatorInfo->getLocator()->findAdapterByIdAsync(_reference->getAdapterId(),
                 [request](const shared_ptr<Ice::ObjectPrx>& object)
                 {
                     request->response(object);
@@ -112,7 +112,7 @@ public:
                 });
 #else
             _locatorInfo->getLocator()->begin_findAdapterById(
-                _ref->getAdapterId(),
+                _reference->getAdapterId(),
                 newCallback_Locator_findAdapterById(static_cast<LocatorInfo::Request*>(this),
                                                     &LocatorInfo::Request::response,
                                                     &LocatorInfo::Request::exception));
@@ -352,7 +352,7 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
     if(proxy)
     {
         ReferencePtr r = proxy->_getReference();
-        if(_ref->isWellKnown() && !isSupported(_ref->getEncoding(), r->getEncoding()))
+        if(_reference->isWellKnown() && !isSupported(_reference->getEncoding(), r->getEncoding()))
         {
             //
             // If a well-known proxy and the returned proxy encoding
@@ -364,26 +364,26 @@ IceInternal::LocatorInfo::RequestCallback::response(const LocatorInfoPtr& locato
         {
             endpoints = r->getEndpoints();
         }
-        else if(_ref->isWellKnown() && !r->isWellKnown())
+        else if(_reference->isWellKnown() && !r->isWellKnown())
         {
             //
             // We're resolving the endpoints of a well-known object and the proxy returned
             // by the locator is an indirect proxy. We now need to resolve the endpoints
             // of this indirect proxy.
             //
-            if(_ref->getInstance()->traceLevels()->location >= 1)
+            if(_reference->getInstance()->traceLevels()->location >= 1)
             {
                 locatorInfo->trace("retrieved adapter for well-known object from locator, adding to locator cache",
-                                   _ref, r);
+                                   _reference, r);
             }
-            locatorInfo->getEndpoints(r, _ref, _ttl, _callback);
+            locatorInfo->getEndpoints(r, _reference, _ttl, _callback);
             return;
         }
     }
 
-    if(_ref->getInstance()->traceLevels()->location >= 1)
+    if(_reference->getInstance()->traceLevels()->location >= 1)
     {
-        locatorInfo->getEndpointsTrace(_ref, endpoints, false);
+        locatorInfo->getEndpointsTrace(_reference, endpoints, false);
     }
     if(_callback)
     {
@@ -396,7 +396,7 @@ IceInternal::LocatorInfo::RequestCallback::exception(const LocatorInfoPtr& locat
 {
     try
     {
-        locatorInfo->getEndpointsException(_ref, exc); // This throws.
+        locatorInfo->getEndpointsException(_reference, exc); // This throws.
     }
     catch(const Ice::LocalException& ex)
     {
@@ -410,7 +410,7 @@ IceInternal::LocatorInfo::RequestCallback::exception(const LocatorInfoPtr& locat
 IceInternal::LocatorInfo::RequestCallback::RequestCallback(const ReferencePtr& ref,
                                                            int ttl,
                                                            const GetEndpointsCallbackPtr& cb) :
-    _ref(ref),  _ttl(ttl), _callback(cb)
+    _reference(ref),  _ttl(ttl), _callback(cb)
 {
 }
 
@@ -452,7 +452,7 @@ IceInternal::LocatorInfo::Request::addCallback(const ReferencePtr& ref,
 }
 
 IceInternal::LocatorInfo::Request::Request(const LocatorInfoPtr& locatorInfo, const ReferencePtr& ref) :
-    _locatorInfo(locatorInfo), _ref(ref), _sent(false), _response(false)
+    _locatorInfo(locatorInfo), _reference(ref), _sent(false), _response(false)
 {
 }
 
@@ -461,7 +461,7 @@ IceInternal::LocatorInfo::Request::response(const Ice::ObjectPrxPtr& proxy)
 {
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-        _locatorInfo->finishRequest(_ref, _wellKnownRefs, proxy, false);
+        _locatorInfo->finishRequest(_reference, _wellKnownRefs, proxy, false);
         _response = true;
         _proxy = proxy;
         _monitor.notifyAll();
@@ -477,7 +477,7 @@ IceInternal::LocatorInfo::Request::exception(const Ice::Exception& ex)
 {
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
-        _locatorInfo->finishRequest(_ref, _wellKnownRefs, 0, dynamic_cast<const Ice::UserException*>(&ex));
+        _locatorInfo->finishRequest(_reference, _wellKnownRefs, 0, dynamic_cast<const Ice::UserException*>(&ex));
 
         ICE_SET_EXCEPTION_FROM_CLONE(_exception, ex.ice_clone());
         _monitor.notifyAll();

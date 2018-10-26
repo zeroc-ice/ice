@@ -26,6 +26,8 @@ using namespace Slice;
 extern FILE* slice_in;
 extern int slice_debug;
 
+int slice_parse();
+
 //
 // Operation attributes
 //
@@ -376,8 +378,8 @@ Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit, const DefinitionConte
 // Type
 // ----------------------------------------------------------------------
 
-Slice::Type::Type(const UnitPtr& unit) :
-    SyntaxTreeBase(unit)
+Slice::Type::Type(const UnitPtr& ut) :
+    SyntaxTreeBase(ut)
 {
 }
 
@@ -524,9 +526,9 @@ const char* Slice::Builtin::builtinTable[] =
         "Value"
     };
 
-Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) :
-    SyntaxTreeBase(unit),
-    Type(unit),
+Slice::Builtin::Builtin(const UnitPtr& ut, Kind kind) :
+    SyntaxTreeBase(ut),
+    Type(ut),
     _kind(kind)
 {
     //
@@ -2072,10 +2074,10 @@ Slice::Container::enumerators(const string& scoped) const
                 string name = scoped.substr(lastColon + 1);
                 for(EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
                 {
-                    ContainedList cl = (*p)->lookupContained(name, false);
-                    if(!cl.empty())
+                    ContainedList cl2 = (*p)->lookupContained(name, false);
+                    if(!cl2.empty())
                     {
-                        result.push_back(EnumeratorPtr::dynamicCast(cl.front()));
+                        result.push_back(EnumeratorPtr::dynamicCast(cl2.front()));
                     }
                 }
             }
@@ -3527,7 +3529,7 @@ Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
 
 void
 Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, const ClassList& bases,
-                                     const UnitPtr& unit)
+                                     const UnitPtr& ut)
 {
     //
     // Local definitions cannot have non-local bases, and vice versa.
@@ -3540,7 +3542,7 @@ Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, 
             msg << (local ? "local" : "non-local") << " " << (intf ? "interface" : "class") << " `"
                 << name << "' cannot have " << ((*p)->isLocal() ? "local" : "non-local") << " base "
                 << ((*p)->isInterface() ? "interface" : "class") << " `" << (*p)->name() << "'";
-            unit->error(msg.str());
+            ut->error(msg.str());
         }
     }
 
@@ -3577,7 +3579,7 @@ Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, 
         // name (that is, if the union of the intersections of all possible pairs
         // of partitions is empty).
         //
-        checkPairIntersections(spl, name, unit);
+        checkPairIntersections(spl, name, ut);
     }
 }
 
@@ -3679,7 +3681,7 @@ Slice::ClassDecl::toStringPartitionList(const GraphPartitionList& gpl)
 // in the other and, if so, complain.
 //
 void
-Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const string& name, const UnitPtr& unit)
+Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const string& name, const UnitPtr& ut)
 {
     set<string> reported;
     for(StringPartitionList::const_iterator i = l.begin(); i != l.end(); ++i)
@@ -3696,7 +3698,7 @@ Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const str
                     {
                         string msg = "ambiguous multiple inheritance: `" + name;
                         msg += "' inherits operation `" + *s1 + "' from two or more unrelated base interfaces";
-                        unit->error(msg);
+                        ut->error(msg);
                         reported.insert(*s1);
                     }
                     else if(!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
@@ -3705,7 +3707,7 @@ Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const str
                         string msg = "ambiguous multiple inheritance: `" + name;
                         msg += "' inherits operations `" + *s1 + "' and `" + *s2;
                         msg += "', which differ only in capitalization, from unrelated base interfaces";
-                        unit->error(msg);
+                        ut->error(msg);
                         reported.insert(*s1);
                         reported.insert(*s2);
                     }
@@ -3807,8 +3809,8 @@ Slice::ClassDef::createOperation(const string& name,
             }
 
             string baseName = IceUtilInternal::toLower((*q)->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            string newName2 = IceUtilInternal::toLower(name);
+            if(baseName == newName2)
             {
                 string msg = "operation `" + name + "' differs only in capitalization from " + (*q)->kindOf();
                 msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
@@ -3903,8 +3905,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
             }
 
             string baseName = IceUtilInternal::toLower((*q)->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            string newName2 = IceUtilInternal::toLower(name);
+            if(baseName == newName2)
             {
                 string msg = "data member `" + name + "' differs only in capitalization from " + (*q)->kindOf();
                 msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
@@ -4449,8 +4451,8 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
             }
 
             string baseName = IceUtilInternal::toLower((*r)->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            string newName2 = IceUtilInternal::toLower(name);
+            if(baseName == newName2)
             {
                 string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
                 msg += (*r)->name() + "', which is defined in a base exception";
@@ -6002,7 +6004,7 @@ Slice::Operation::attributes() const
             //
             freezeMD = freezeMD.substr(1);
 
-            int i = 0;
+            i = 0;
             while(i < 4)
             {
                 if(freezeMD.find(txAttribute[i]) == 0)

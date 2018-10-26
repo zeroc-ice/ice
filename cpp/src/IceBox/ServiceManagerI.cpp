@@ -361,12 +361,11 @@ IceBox::ServiceManagerI::start()
             throw FailureException(__FILE__, __LINE__, "ServiceManager: configuration must include at least one IceBox service");
         }
 
-        PropertyDict::iterator p;
         StringSeq loadOrder = properties->getPropertyAsList("IceBox.LoadOrder");
         vector<StartServiceInfo> servicesInfo;
         for(StringSeq::const_iterator q = loadOrder.begin(); q != loadOrder.end(); ++q)
         {
-            p = services.find(prefix + *q);
+            PropertyDict::iterator p = services.find(prefix + *q);
             if(p == services.end())
             {
                 throw FailureException(__FILE__, __LINE__, "ServiceManager: no service definition for `" +
@@ -375,7 +374,7 @@ IceBox::ServiceManagerI::start()
             servicesInfo.push_back(StartServiceInfo(*q, p->second, _argv));
             services.erase(p);
         }
-        for(p = services.begin(); p != services.end(); ++p)
+        for(PropertyDict::iterator p = services.begin(); p != services.end(); ++p)
         {
             servicesInfo.push_back(StartServiceInfo(p->first.substr(prefix.size()), p->second, _argv));
         }
@@ -1060,9 +1059,9 @@ ServiceManagerI::observerCompleted(const shared_ptr<ServiceObserverPrx>& observe
     auto p = _observers.find(observer);
     if(p != _observers.end())
     {
-        auto observer = *p;
+        auto found = *p;
         _observers.erase(p);
-        observerRemoved(observer, ex);
+        observerRemoved(found, ex);
     }
 }
 #else
@@ -1085,7 +1084,7 @@ ServiceManagerI::observerCompleted(const Ice::AsyncResultPtr& result)
         set<ServiceObserverPrx>::iterator p = _observers.find(observer);
         if(p != _observers.end())
         {
-            ServiceObserverPrx observer = *p;
+            observer = *p;
             _observers.erase(p);
             observerRemoved(observer, ex);
         }

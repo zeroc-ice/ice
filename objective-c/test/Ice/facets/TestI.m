@@ -11,66 +11,66 @@
 #import <facets/TestI.h>
 
 @implementation TestFacetsAI
--(NSString*) callA:(ICECurrent*)current
+-(NSString*) callA:(ICECurrent*)__unused current
 {
     return @"A";
 }
 @end
 
 @implementation TestFacetsBI
--(NSString*) callA:(ICECurrent*)current
+-(NSString*) callA:(ICECurrent*)__unused current
 {
     return @"A";
 }
--(NSString*) callB:(ICECurrent*)current
+-(NSString*) callB:(ICECurrent*)__unused current
 {
     return @"B";
 }
 @end
 
 @implementation TestFacetsCI
--(NSString*) callA:(ICECurrent*)current
+-(NSString*) callA:(ICECurrent*)__unused current
 {
     return @"A";
 }
--(NSString*) callC:(ICECurrent*)current
+-(NSString*) callC:(ICECurrent*)__unused current
 {
     return @"C";
 }
 @end
 
 @implementation TestFacetsDI
--(NSString*) callA:(ICECurrent*)current
+-(NSString*) callA:(ICECurrent*)__unused current
 {
     return @"A";
 }
--(NSString*) callB:(ICECurrent*)current
+-(NSString*) callB:(ICECurrent*)__unused current
 {
     return @"B";
 }
--(NSString*) callC:(ICECurrent*)current
+-(NSString*) callC:(ICECurrent*)__unused current
 {
     return @"C";
 }
--(NSString*) callD:(ICECurrent*)current
+-(NSString*) callD:(ICECurrent*)__unused current
 {
     return @"D";
 }
 @end
 
 @implementation TestFacetsEI
--(NSString*) callE:(ICECurrent*)current
+-(NSString*) callE:(ICECurrent*)__unused current
 {
     return @"E";
 }
 @end
 
 @implementation TestFacetsFI
--(NSString*) callE:(ICECurrent*)current
+-(NSString*) callE:(ICECurrent*)__unused current
 {
     return @"E";
 }
--(NSString*) callF:(ICECurrent*)current
+-(NSString*) callF:(ICECurrent*)__unused current
 {
     return @"F";
 }
@@ -81,7 +81,7 @@
 {
     [[current.adapter getCommunicator] shutdown];
 }
--(NSString*) callG:(ICECurrent*)current
+-(NSString*) callG:(ICECurrent*)__unused current
 {
     return @"G";
 }
@@ -92,11 +92,11 @@
 {
     [[current.adapter getCommunicator] shutdown];
 }
--(NSString*) callG:(ICECurrent*)current
+-(NSString*) callG:(ICECurrent*)__unused current
 {
     return @"G";
 }
--(NSString*) callH:(ICECurrent*)current
+-(NSString*) callH:(ICECurrent*)__unused current
 {
     return @"H";
 }

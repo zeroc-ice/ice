@@ -64,10 +64,10 @@ testUOE(const Ice::CommunicatorPtr& communicator)
 
 void clear(const CPtr&);
 
+#ifdef ICE_CPP11_MAPPING
 void
 clear(const BPtr& b)
 {
-#ifdef ICE_CPP11_MAPPING
     // No GC with the C++11 mapping
     if(dynamic_pointer_cast<B>(b->theA))
     {
@@ -82,23 +82,33 @@ clear(const BPtr& b)
         clear(dynamic_pointer_cast<B>(tmp));
     }
     b->theC = nullptr;
-#endif
 }
+#else
+void
+clear(const BPtr&)
+{
+}
+#endif
 
+#ifdef ICE_CPP11_MAPPING
 void
 clear(const CPtr& c)
 {
-#ifdef ICE_CPP11_MAPPING
     // No GC with the C++11 mapping
     clear(c->theB);
     c->theB = nullptr;
-#endif
 }
+#else
+void
+clear(const CPtr&)
+{
+}
+#endif
 
+#ifdef ICE_CPP11_MAPPING
 void
 clear(const DPtr& d)
 {
-#ifdef ICE_CPP11_MAPPING
     // No GC with the C++11 mapping
     if(dynamic_pointer_cast<B>(d->theA))
     {
@@ -107,8 +117,13 @@ clear(const DPtr& d)
     d->theA = nullptr;
     clear(d->theB);
     d->theB = nullptr;
-#endif
 }
+#else
+void
+clear(const DPtr&)
+{
+}
+#endif
 
 }
 
@@ -341,10 +356,12 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "getting K... " << flush;
-    KPtr k = initial->getK();
-    LPtr l = ICE_DYNAMIC_CAST(L, k->value);
-    test(l);
-    test(l->data == "l");
+    {
+        KPtr k = initial->getK();
+        LPtr l = ICE_DYNAMIC_CAST(L, k->value);
+        test(l);
+        test(l->data == "l");
+    }
     cout << "ok" << endl;
 
     cout << "testing Value as parameter..." << flush;
@@ -434,10 +451,10 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing recursive type... " << flush;
     RecursivePtr top = ICE_MAKE_SHARED(Recursive);
-    RecursivePtr p = top;
     int depth = 0;
     try
     {
+        RecursivePtr p = top;
 #if defined(NDEBUG) || !defined(__APPLE__)
         const int maxDepth = 2000;
 #else
@@ -513,9 +530,9 @@ allTests(Test::TestHelper* helper)
 
         cout << "testing Object factory registration... " << flush;
         {
-            BasePtr base = p->opDerived();
-            test(base);
-            test(base->ice_id() == "::Test::Derived");
+            BasePtr basePtr = p->opDerived();
+            test(basePtr);
+            test(basePtr->ice_id() == "::Test::Derived");
         }
         cout << "ok" << endl;
 

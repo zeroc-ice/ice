@@ -16,6 +16,11 @@
 
 #include <iterator>
 
+#if defined(__clang__)
+// TODO: fix these warnings!
+#   pragma clang diagnostic ignored "-Wshadow-field"
+#endif
+
 namespace Slice
 {
 

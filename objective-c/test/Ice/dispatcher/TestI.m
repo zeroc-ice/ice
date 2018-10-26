@@ -13,14 +13,14 @@
 #import <Foundation/NSThread.h>
 
 @implementation TestDispatcherTestIntfI
--(void) op:(ICECurrent*)current
+-(void) op:(ICECurrent*)__unused current
 {
 }
--(void) sleep:(ICEInt)to current:(ICECurrent*)current
+-(void) sleep:(ICEInt)to current:(ICECurrent*)__unused current
 {
     [NSThread sleepForTimeInterval:to / 1000.0];
 }
--(void) opWithPayload:(ICEMutableByteSeq*)data current:(ICECurrent*)current
+-(void) opWithPayload:(ICEMutableByteSeq*)__unused data current:(ICECurrent*)__unused current
 {
 }
 -(void) shutdown:(ICECurrent*)current
@@ -40,11 +40,11 @@
     _adapter = adapter;
     return self;
 }
--(void) holdAdapter:(ICECurrent*)current
+-(void) holdAdapter:(ICECurrent*)__unused current
 {
     [_adapter hold];
 }
--(void) resumeAdapter:(ICECurrent*)current
+-(void) resumeAdapter:(ICECurrent*)__unused current
 {
     [_adapter activate];
 }

@@ -748,10 +748,10 @@ OpenSSL::SSLEngine::initialize()
                         }
                         else
                         {
-                            string err = sslErrors();
-                            if(!err.empty())
+                            string errStr = sslErrors();
+                            if(!errStr.empty())
                             {
-                                msg += ":\n" + err;
+                                msg += ":\n" + errStr;
                             }
                         }
                         throw PluginInitializationException(__FILE__, __LINE__, msg);
@@ -847,13 +847,13 @@ OpenSSL::SSLEngine::initialize()
         //
         // Establish the cipher list.
         //
-        string ciphers = properties->getProperty(propPrefix + "Ciphers");
-        if(!ciphers.empty())
+        string ciphersStr = properties->getProperty(propPrefix + "Ciphers");
+        if(!ciphersStr.empty())
         {
-            if(!SSL_CTX_set_cipher_list(_ctx, ciphers.c_str()))
+            if(!SSL_CTX_set_cipher_list(_ctx, ciphersStr.c_str()))
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
-                                        "IceSSL: unable to set ciphers using `" + ciphers + "':\n" + sslErrors());
+                                        "IceSSL: unable to set ciphers using `" + ciphersStr + "':\n" + sslErrors());
             }
         }
 

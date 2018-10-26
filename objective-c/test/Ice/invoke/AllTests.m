@@ -233,8 +233,8 @@ invokeAllTests(id<ICECommunicator> communicator)
 
         TestInvokeCallback* cb = [[TestInvokeCallback alloc] initWithCommunicator:communicator];
         [cl begin_ice_invoke:@"opString" mode:ICENormal inEncaps:inEncaps
-            response:^(BOOL ok, NSMutableData* outEncaps) { [cb opString:ok outEncaps:outEncaps]; }
-            exception:^(ICEException* ex) { test(NO); }];
+            response:^(BOOL ok, NSMutableData* outEncapsP) { [cb opString:ok outEncaps:outEncapsP]; }
+            exception:^(ICEException* __unused ex) { test(NO); }];
         [cb check];
         ICE_RELEASE(cb);
     }
@@ -271,7 +271,7 @@ invokeAllTests(id<ICECommunicator> communicator)
         TestInvokeCallback* cb = [[TestInvokeCallback alloc] initWithCommunicator:communicator];
         [cl begin_ice_invoke:@"opException" mode:ICENormal inEncaps:inEncaps
             response:^(BOOL ok, NSMutableData* outP) { [cb opException:ok outEncaps:outP]; }
-            exception:^(ICEException* ex) { test(NO); }];
+            exception:^(ICEException* __unused ex) { test(NO); }];
         [cb check];
         ICE_RELEASE(cb);
     }

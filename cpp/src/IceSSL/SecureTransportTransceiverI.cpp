@@ -253,8 +253,8 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         }
         else if(err == errSSLWouldBlock)
         {
-            assert(_flags & SSLWantRead || _flags & SSLWantWrite);
-            return _flags & SSLWantRead ? IceInternal::SocketOperationRead : IceInternal::SocketOperationWrite;
+            assert(_tflags & SSLWantRead || _tflags & SSLWantWrite);
+            return _tflags & SSLWantRead ? IceInternal::SocketOperationRead : IceInternal::SocketOperationWrite;
         }
         else if(err == errSSLPeerAuthCompleted)
         {
@@ -294,9 +294,11 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
     }
 
     assert(_ssl);
-    SSLCipherSuite cipher;
-    SSLGetNegotiatedCipher(_ssl.get(), &cipher);
-    _cipher = _engine->getCipherName(cipher);
+    {
+        SSLCipherSuite cipher;
+        SSLGetNegotiatedCipher(_ssl.get(), &cipher);
+        _cipher = _engine->getCipherName(cipher);
+    }
 
     _engine->verifyPeer(_host, ICE_DYNAMIC_CAST(ConnectionInfo, getInfo()), toString());
 
@@ -381,7 +383,7 @@ IceSSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
                 {
                     _buffered = processed;
                 }
-                assert(_flags & SSLWantWrite);
+                assert(_tflags & SSLWantWrite);
                 return IceInternal::SocketOperationWrite;
             }
 
@@ -420,9 +422,9 @@ IceSSL::SecureTransport::TransceiverI::write(IceInternal::Buffer& buf)
             buf.i += processed;
         }
 
-        if(packetSize > buf.b.end() - buf.i)
+        if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
-            packetSize = buf.b.end() - buf.i;
+            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
     }
 
@@ -454,7 +456,7 @@ IceSSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
             if(err == errSSLWouldBlock)
             {
                 buf.i += processed;
-                assert(_flags & SSLWantRead);
+                assert(_tflags & SSLWantRead);
                 return IceInternal::SocketOperationRead;
             }
 
@@ -485,9 +487,9 @@ IceSSL::SecureTransport::TransceiverI::read(IceInternal::Buffer& buf)
 
         buf.i += processed;
 
-        if(packetSize > buf.b.end() - buf.i)
+        if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
-            packetSize = buf.b.end() - buf.i;
+            packetSize = static_cast<size_t>(buf.b.end() - buf.i);
         }
     }
 
@@ -570,7 +572,7 @@ IceSSL::SecureTransport::TransceiverI::~TransceiverI()
 OSStatus
 IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length) const
 {
-    _flags &= ~SSLWantWrite;
+    _tflags &= ~SSLWantWrite;
 
     try
     {
@@ -579,7 +581,7 @@ IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length
         if(op == IceInternal::SocketOperationWrite)
         {
             *length = buf.i - buf.b.begin();
-            _flags |= SSLWantWrite;
+            _tflags |= SSLWantWrite;
             return errSSLWouldBlock;
         }
         assert(op == IceInternal::SocketOperationNone);
@@ -603,7 +605,7 @@ IceSSL::SecureTransport::TransceiverI::writeRaw(const char* data, size_t* length
 OSStatus
 IceSSL::SecureTransport::TransceiverI::readRaw(char* data, size_t* length) const
 {
-    _flags &= ~SSLWantRead;
+    _tflags &= ~SSLWantRead;
 
     try
     {
@@ -612,7 +614,7 @@ IceSSL::SecureTransport::TransceiverI::readRaw(char* data, size_t* length) const
         if(op == IceInternal::SocketOperationRead)
         {
             *length = buf.i - buf.b.begin();
-            _flags |= SSLWantRead;
+            _tflags |= SSLWantRead;
             return errSSLWouldBlock;
         }
         assert(op == IceInternal::SocketOperationNone);

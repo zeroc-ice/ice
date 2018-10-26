@@ -259,9 +259,9 @@ IceInternal::RouterInfo::addProxy(const Ice::ObjectPrxPtr& proxy, const AddProxy
 #ifdef ICE_CPP11_MAPPING
     RouterInfoPtr self = this;
     _router->addProxiesAsync(proxies,
-        [self, cookie](const Ice::ObjectProxySeq& proxies)
+        [self, cookie](const Ice::ObjectProxySeq& p)
         {
-            self->addProxyResponse(proxies, cookie);
+            self->addProxyResponse(p, cookie);
         },
         [self, cookie](exception_ptr e)
         {

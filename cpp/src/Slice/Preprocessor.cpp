@@ -309,7 +309,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
 
 bool
 Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, const vector<string>& includePaths,
-                                               const vector<string>& extraArgs, const string& cppSourceExt,
+                                               const vector<string>& extraArgs, const string& /*cppSourceExt*/,
                                                const string& optValue)
 {
     if(!checkInputFile())
@@ -548,7 +548,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             }
         }
 
-        string::size_type pos = 0;
+        pos = 0;
         while((pos = result.find("\\", pos + 1)) != string::npos)
         {
             result.insert(pos, 1, '\\');
@@ -590,7 +590,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             //
             // Change .o[bj] suffix to the h header extension suffix.
             //
-            string::size_type pos = result.find(suffix);
+            pos = result.find(suffix);
             if(pos != string::npos)
             {
                 string name = result.substr(0, pos);
@@ -621,7 +621,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             //
             // Find end of next file.
             //
-            string::size_type pos = 0;
+            pos = 0;
             while((pos = result.find_first_of(" :\t\r\n\\", pos + 1)) != string::npos)
             {
                 if(result[pos] == ':')
@@ -654,7 +654,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             //
             // Change .o[bj] suffix to .cs suffix.
             //
-            string::size_type pos;
+            pos = 0;
             if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".cs");
@@ -668,7 +668,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             //
             // Change .o[bj] suffix to .js suffix.
             //
-            string::size_type pos;
+            pos = 0;
             if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".js");
@@ -684,7 +684,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             {
                 result = pyPrefix + result;
             }
-            string::size_type pos;
+            pos = 0;
             if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, "_ice.py");
@@ -696,7 +696,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             //
             // Change .o[bj] suffix to .rb suffix.
             //
-            string::size_type pos;
+            pos = 0;
             if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".rb");
@@ -708,7 +708,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
             //
             // Change .o[bj] suffix to .php suffix.
             //
-            string::size_type pos;
+            pos = 0;
             if((pos = result.find(suffix)) != string::npos)
             {
                 result.replace(pos, suffix.size() - 1, ".php");
@@ -717,7 +717,7 @@ Slice::Preprocessor::printMakefileDependencies(ostream& out, Language lang, cons
         }
         case ObjC:
         {
-            string::size_type pos = result.find(suffix);
+            pos = result.find(suffix);
             if(pos != string::npos)
             {
                 string name = result.substr(0, pos);

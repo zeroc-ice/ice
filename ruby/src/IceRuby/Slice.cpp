@@ -21,7 +21,7 @@ using namespace Slice::Ruby;
 
 extern "C"
 VALUE
-IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
+IceRuby_loadSlice(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {
@@ -163,7 +163,7 @@ IceRuby_loadSlice(int argc, VALUE* argv, VALUE self)
 
 extern "C"
 VALUE
-IceRuby_compile(int argc, VALUE* argv, VALUE self)
+IceRuby_compile(int argc, VALUE* argv, VALUE /*self*/)
 {
     ICE_RUBY_TRY
     {

@@ -24,8 +24,9 @@ Transceiver::getNativeInfo()
 IceInternal::SocketOperation
 Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
+    IceInternal::SocketOperation status = IceInternal::SocketOperationNone;
 #ifndef ICE_USE_IOCP
-    IceInternal::SocketOperation status = _configuration->initializeSocketOperation();
+    status = _configuration->initializeSocketOperation();
     if(status == IceInternal::SocketOperationConnect)
     {
         return status;
@@ -52,7 +53,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     _configuration->checkInitializeException();
     if(!_initialized)
     {
-        IceInternal::SocketOperation status = _transceiver->initialize(readBuffer, writeBuffer);
+        status = _transceiver->initialize(readBuffer, writeBuffer);
         if(status != IceInternal::SocketOperationNone)
         {
             return status;

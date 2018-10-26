@@ -64,7 +64,7 @@ main(int argc, char* argv[])
             ICEInitializationData* initData = [ICEInitializationData initializationData];
             initData.properties = defaultServerProperties(&argc, argv);
             dispatch_queue_t queue = dispatch_queue_create("Dispatcher", DISPATCH_QUEUE_SERIAL);
-            initData.dispatcher = ^(id<ICEDispatcherCall> call, id<ICEConnection> con) {
+            initData.dispatcher = ^(id<ICEDispatcherCall> call, id<ICEConnection> __unused con) {
                 dispatch_sync(queue, ^ { [call run]; });
             };
 #if TARGET_OS_IPHONE

@@ -118,7 +118,7 @@ public:
 }
 
 bool
-ClearMembers::visit(GCObject* obj)
+ClearMembers::visit(GCObject*)
 {
     return true;
 }

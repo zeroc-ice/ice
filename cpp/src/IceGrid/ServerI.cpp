@@ -3185,8 +3185,8 @@ ServerI::getProperties(const InternalServerDescriptorPtr& desc)
     //
     // Copy the descriptor properties.
     //
-    PropertyDescriptorSeqDict properties = desc->properties;
-    PropertyDescriptorSeq& props = properties["config"];
+    PropertyDescriptorSeqDict propDict = desc->properties;
+    PropertyDescriptorSeq& props = propDict["config"];
 
     //
     // Cache the path of the stderr/stdout file, first check if the
@@ -3216,7 +3216,7 @@ ServerI::getProperties(const InternalServerDescriptorPtr& desc)
     //
     {
         const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
-        for(PropertyDescriptorSeqDict::iterator p = properties.begin(); p != properties.end(); ++p)
+        for(PropertyDescriptorSeqDict::iterator p = propDict.begin(); p != propDict.end(); ++p)
         {
             if(getProperty(p->second, "Ice.Default.Locator").empty())
             {
@@ -3244,5 +3244,5 @@ ServerI::getProperties(const InternalServerDescriptorPtr& desc)
         }
     }
 
-    return properties;
+    return propDict;
 }

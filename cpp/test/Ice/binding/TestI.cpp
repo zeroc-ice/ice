@@ -91,7 +91,7 @@ RemoteObjectAdapterI::getTestIntf(const Ice::Current&)
 }
 
 void
-RemoteObjectAdapterI::deactivate(const Ice::Current& current)
+RemoteObjectAdapterI::deactivate(const Ice::Current&)
 {
     try
     {

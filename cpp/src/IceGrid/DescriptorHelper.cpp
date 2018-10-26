@@ -995,8 +995,8 @@ Resolver::getProperties(const Ice::StringSeq& references, set<string>& resolved)
         if(!desc.references.empty())
         {
             resolved.insert(*p);
-            PropertyDescriptorSeq p = getProperties(desc.references, resolved);
-            properties.insert(properties.end(), p.begin(), p.end());
+            PropertyDescriptorSeq q = getProperties(desc.references, resolved);
+            properties.insert(properties.end(), q.begin(), q.end());
         }
 
         PropertyDescriptorSeq pds = operator()(desc.properties);
@@ -2655,11 +2655,11 @@ NodeHelper::printDiff(Output& out, const NodeHelper& helper) const
 }
 
 ApplicationHelper::ApplicationHelper(const Ice::CommunicatorPtr& communicator,
-                                     const ApplicationDescriptor& desc,
+                                     const ApplicationDescriptor& appDesc,
                                      bool enableWarning,
                                      bool instantiate) :
     _communicator(communicator),
-    _def(desc)
+    _def(appDesc)
 {
     if(_def.name.empty())
     {

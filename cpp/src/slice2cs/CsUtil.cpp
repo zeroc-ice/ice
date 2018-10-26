@@ -135,9 +135,9 @@ Slice::CsGenerator::getNamespacePrefix(const ContainedPtr& cont)
 }
 
 string
-Slice::CsGenerator::getCustomTypeIdNamespace(const UnitPtr& unit)
+Slice::CsGenerator::getCustomTypeIdNamespace(const UnitPtr& ut)
 {
-    DefinitionContextPtr dc = unit->findDefinitionContext(unit->topLevelFile());
+    DefinitionContextPtr dc = ut->findDefinitionContext(ut->topLevelFile());
     assert(dc);
 
     static const string typeIdNsPrefix = "cs:typeid-namespace:";
@@ -480,23 +480,23 @@ Slice::CsGenerator::typeToString(const TypePtr& type, const string& package, boo
         string meta;
         if(seq->findMetaData(prefix, meta))
         {
-            string type = meta.substr(prefix.size());
-            if(type == "List" || type == "LinkedList" || type == "Queue" || type == "Stack")
+            string customType = meta.substr(prefix.size());
+            if(customType == "List" || customType == "LinkedList" || customType == "Queue" || customType == "Stack")
             {
-                return "global::System.Collections.Generic." + type + "<" +
+                return "global::System.Collections.Generic." + customType + "<" +
                     typeToString(seq->type(), package, optional, local) + ">";
             }
             else
             {
-                return "global::" + type + "<" + typeToString(seq->type(), package, optional, local) + ">";
+                return "global::" + customType + "<" + typeToString(seq->type(), package, optional, local) + ">";
             }
         }
 
         prefix = "cs:serializable:";
         if(seq->findMetaData(prefix, meta))
         {
-            string type = meta.substr(prefix.size());
-            return "global::" + type;
+            string customType = meta.substr(prefix.size());
+            return "global::" + customType;
         }
 
         return typeToString(seq->type(), package, optional, local) + "[]";
@@ -561,7 +561,6 @@ Slice::CsGenerator::resultType(const OperationPtr& op, const string& package, bo
         }
         else if(op->returnType() || outParams.size() > 1)
         {
-            ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
             t = getUnqualified(cl, package, "", resultStructName("", op->name()));
         }
         else
@@ -2185,7 +2184,7 @@ Slice::CsGenerator::writeSerializeDeserializeCode(Output &out,
                                                   const string& scope,
                                                   const string& param,
                                                   bool optional,
-                                                  int tag,
+                                                  int /*tag*/,
                                                   bool serialize)
 {
     //
@@ -2617,8 +2616,8 @@ Slice::CsGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
     StringList localMetaData = cont->getMetaData();
     StringList newLocalMetaData;
 
-    const UnitPtr unit = cont->unit();
-    const DefinitionContextPtr dc = unit->findDefinitionContext(cont->file());
+    const UnitPtr ut = cont->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);
 
     for(StringList::iterator p = localMetaData.begin(); p != localMetaData.end(); ++p)

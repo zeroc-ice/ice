@@ -45,7 +45,7 @@ public:
 };
 
 void
-Client5::run(int argc, char** argv)
+Client5::run(int, char**)
 {
     //
     // Run Client application 20 times, each times it generate 512 bytes of log messages,

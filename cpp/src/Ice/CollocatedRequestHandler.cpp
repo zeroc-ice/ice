@@ -270,7 +270,7 @@ CollocatedRequestHandler::systemException(Int requestId, const SystemException& 
 }
 
 void
-CollocatedRequestHandler::invokeException(Int requestId, const LocalException& ex, int invokeNum, bool amd)
+CollocatedRequestHandler::invokeException(Int requestId, const LocalException& ex, int /*invokeNum*/, bool amd)
 {
     handleException(requestId, ex, amd);
     _adapter->decDirectCount();

@@ -77,13 +77,6 @@ private:
     Ice::ObjectPtr _blobject;
 };
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
-{
-
-    return EXIT_SUCCESS;
-}
-
 class Server : public Test::TestHelper
 {
 public:

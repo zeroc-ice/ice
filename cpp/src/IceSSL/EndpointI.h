@@ -97,7 +97,7 @@ protected:
 
 private:
 
-    InstancePtr _instance;
+    InstancePtr _sslInstance;
 };
 
 }

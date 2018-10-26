@@ -98,7 +98,7 @@ public:
         assert(_destroyed);
     }
 
-    virtual Ice::ValuePtr create(const string& type)
+    virtual Ice::ValuePtr create(const string&)
     {
         return ICE_NULLPTR;
     }
