@@ -510,7 +510,7 @@ class ConnectionI
     {
         if(timeout !== undefined && timeout < 0)
         {
-            throw new Error("invalid negative ACM timeout value");
+            throw new RangeError("invalid negative ACM timeout value");
         }
         if(this._monitor === null || this._state >= StateClosed)
         {

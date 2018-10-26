@@ -397,7 +397,7 @@ class HashMap
 
         if(v === undefined)
         {
-            throw new Error("cannot compute hash for undefined value");
+            throw new RangeError("cannot compute hash for undefined value");
         }
 
         if(typeof v.hashCode === "function")
@@ -428,7 +428,7 @@ class HashMap
             return {key: v, hash: v ? 1 : 0};
         }
 
-        throw new Error("cannot compute hash for value of type " + type);
+        throw new RangeError("cannot compute hash for value of type " + type);
     }
 
     keysEqual(k1, k2)

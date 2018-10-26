@@ -243,7 +243,7 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
         {
             if(ctx !== null && !(ctx instanceof Map))
             {
-                throw new Error("illegal context value, expecting null or Map");
+                throw new RangeError("illegal context value, expecting null or Map");
             }
 
             //
