@@ -114,13 +114,13 @@ HANDLE process = 0;
 backtrace_state* bstate = 0;
 
 void
-ignoreErrorCallback(void*, const char* msg, int errnum)
+ignoreErrorCallback(void*, const char* /*msg*/, int /*errnum*/)
 {
     // cerr << "Error callback: " << msg << ", errnum = " << errnum << endl;
 }
 
 int
-ignoreFrame(void*, uintptr_t pc, const char*, int, const char*)
+ignoreFrame(void*, ICE_MAYBE_UNUSED uintptr_t pc, const char*, int, const char*)
 {
     assert(pc == 0);
     return 0;
