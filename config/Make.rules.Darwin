@@ -34,7 +34,7 @@ iphonesimulator_targetdir       = $(if $(filter %/build,$5),/iphonesimulator)
 shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
 cppflags        = -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls \
-                  -Wdeprecated -Wstrict-prototypes -Werror -pthread \
+                  -Wdeprecated -Wstrict-prototypes -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 
 ifeq ($(MAXWARN),yes)
