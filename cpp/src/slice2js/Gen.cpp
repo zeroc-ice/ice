@@ -879,8 +879,10 @@ Slice::Gen::RequireVisitor::visitDictionary(const DictionaryPtr& dict)
         {
         case Builtin::KindObject:
             _seenObjectDict = true;
+            break;
         case Builtin::KindObjectProxy:
             _seenObjectProxyDict = true;
+            break;
         default:
             break;
         }

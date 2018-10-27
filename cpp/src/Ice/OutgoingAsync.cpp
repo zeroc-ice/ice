@@ -1036,6 +1036,7 @@ OutgoingAsync::response()
                 ex->facet = facet;
                 ex->operation = operation;
                 ex->ice_throw();
+                break;
             }
 
             case replyUnknownException:
@@ -1075,6 +1076,7 @@ OutgoingAsync::response()
 
                 ex->unknown = unknown;
                 ex->ice_throw();
+                break;
             }
 
             default:

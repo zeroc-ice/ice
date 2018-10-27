@@ -24,7 +24,12 @@
 #   pragma clang diagnostic push
 #   pragma clang diagnostic ignored "-Wredundant-decls" // expected when using forward Slice declarations
 #   pragma clang diagnostic ignored "-Wdocumentation-deprecated-sync" // see zeroc-ice/ice issue #211
-#   pragma clang diagnostic ignored "-Wshadow-field-in-constructor" // expected in some generated header files
+
+#   if (__clang_major__ >= 4)
+#       pragma clang diagnostic ignored "-Wshadow-field-in-constructor" // expected in some generated header files
+#   else
+#       pragma clang diagnostic ignored "-Wshadow-all" // expected in some generated header files
+#   endif
 
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic push

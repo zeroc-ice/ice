@@ -79,7 +79,6 @@ ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 50400 ] && echo 0),0)
 endif
 
 ifeq ($(os),Darwin)
-    cppflags            := $(filter-out -Wshadow,$(cppflags))
     php_cppflags        := $(php_cppflags) -Wno-unused-parameter -Wno-missing-field-initializers
     php_ldflags         := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
 endif

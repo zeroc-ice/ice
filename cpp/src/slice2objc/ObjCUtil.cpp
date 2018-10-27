@@ -76,6 +76,7 @@ lookupKwd(const string& name, int baseType, bool mangleCasts = false)
             {
                 break;
             }
+            /* FALLTHROUGH */
 
         case BaseTypeObject:
             found = binary_search(&nsObjectList[0],

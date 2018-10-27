@@ -685,8 +685,8 @@ Subscriber::queue(bool forwarded, const EventDataSeq& events)
         // State transition to online.
         //
         setState(SubscriberStateOnline);
-        // fall through
     }
+    /* FALLTHROUGH */
 
     case SubscriberStateOnline:
     {
