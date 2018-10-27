@@ -94,7 +94,7 @@ void
 IceObjC::Instance::setupStreams(CFReadStreamRef readStream,
                                 CFWriteStreamRef writeStream,
                                 bool server,
-                                const string& host) const
+                                const string& /*host*/) const
 {
     if(_voip)
     {
@@ -126,7 +126,7 @@ IceObjC::Instance::clone(const ProtocolInstancePtr& instance)
 IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, const string& ho, Int po,
                                           const Address& sourceAddr, Int ti, const string& conId, bool co) :
     IceInternal::IPEndpointI(instance, ho, po, sourceAddr, conId),
-    _instance(instance),
+    _streamInstance(instance),
     _timeout(ti),
     _compress(co)
 {
@@ -134,7 +134,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, const str
 
 IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance) :
     IceInternal::IPEndpointI(instance),
-    _instance(instance),
+    _streamInstance(instance),
     _timeout(instance->defaultTimeout()),
     _compress(false)
 {
@@ -142,7 +142,7 @@ IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance) :
 
 IceObjC::StreamEndpointI::StreamEndpointI(const InstancePtr& instance, Ice::InputStream* s) :
     IPEndpointI(instance, s),
-    _instance(instance),
+    _streamInstance(instance),
     _timeout(-1),
     _compress(false)
 {
@@ -175,7 +175,7 @@ IceObjC::StreamEndpointI::timeout(Int t) const
     }
     else
     {
-        return ICE_MAKE_SHARED(StreamEndpointI, _instance, _host, _port, _sourceAddr, t, _connectionId, _compress);
+        return ICE_MAKE_SHARED(StreamEndpointI, _streamInstance, _host, _port, _sourceAddr, t, _connectionId, _compress);
     }
 }
 
@@ -194,7 +194,7 @@ IceObjC::StreamEndpointI::compress(bool c) const
     }
     else
     {
-        return ICE_MAKE_SHARED(StreamEndpointI, _instance, _host, _port, _sourceAddr, _timeout, _connectionId, c);
+        return ICE_MAKE_SHARED(StreamEndpointI, _streamInstance, _host, _port, _sourceAddr, _timeout, _connectionId, c);
     }
 }
 
@@ -207,14 +207,15 @@ IceObjC::StreamEndpointI::datagram() const
 bool
 IceObjC::StreamEndpointI::secure() const
 {
-    return _instance->secure();
+    return _streamInstance->secure();
 }
 
 void
-IceObjC::StreamEndpointI::connectors_async(Ice::EndpointSelectionType selType, const EndpointI_connectorsPtr& cb) const
+IceObjC::StreamEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*/,
+                                           const EndpointI_connectorsPtr& cb) const
 {
     vector<ConnectorPtr> connectors;
-    connectors.push_back(new StreamConnector(_instance, _host, _port, _timeout, _connectionId));
+    connectors.push_back(new StreamConnector(_streamInstance, _host, _port, _timeout, _connectionId));
     cb->connectors(connectors);
 }
 
@@ -227,7 +228,7 @@ IceObjC::StreamEndpointI::transceiver() const
 AcceptorPtr
 IceObjC::StreamEndpointI::acceptor(const string&) const
 {
-    return new StreamAcceptor(ICE_SHARED_FROM_CONST_THIS(StreamEndpointI), _instance, _host, _port);
+    return new StreamAcceptor(ICE_SHARED_FROM_CONST_THIS(StreamEndpointI), _streamInstance, _host, _port);
 }
 
 IceObjC::StreamEndpointIPtr
@@ -240,7 +241,8 @@ IceObjC::StreamEndpointI::endpoint(const StreamAcceptorPtr& a) const
     }
     else
     {
-        return ICE_MAKE_SHARED(StreamEndpointI, _instance, _host, port, _sourceAddr, _timeout, _connectionId, _compress);
+        return ICE_MAKE_SHARED(StreamEndpointI, _streamInstance, _host, port, _sourceAddr, _timeout, _connectionId,
+                               _compress);
     }
 }
 
@@ -424,7 +426,7 @@ IceObjC::StreamEndpointI::checkOption(const string& option, const string& argume
 }
 
 ConnectorPtr
-IceObjC::StreamEndpointI::createConnector(const Address& address, const NetworkProxyPtr& proxy) const
+IceObjC::StreamEndpointI::createConnector(const Address& /*address*/, const NetworkProxyPtr& /*proxy*/) const
 {
     assert(false);
     return 0;
@@ -433,7 +435,8 @@ IceObjC::StreamEndpointI::createConnector(const Address& address, const NetworkP
 IPEndpointIPtr
 IceObjC::StreamEndpointI::createEndpoint(const string& host, int port, const string& connectionId) const
 {
-    return ICE_MAKE_SHARED(StreamEndpointI, _instance, host, port, _sourceAddr, _timeout, connectionId, _compress);
+    return ICE_MAKE_SHARED(StreamEndpointI, _streamInstance, host, port, _sourceAddr, _timeout, connectionId,
+                           _compress);
 }
 
 IceObjC::StreamEndpointFactory::StreamEndpointFactory(const InstancePtr& instance) : _instance(instance)

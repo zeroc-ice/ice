@@ -227,7 +227,7 @@ IceObjC::StreamTransceiver::closeStreams()
 }
 
 SocketOperation
-IceObjC::StreamTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
+IceObjC::StreamTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
 {
     IceUtil::Mutex::Lock sync(_mutex);
     if(_state == StateNeedConnect)
@@ -344,7 +344,7 @@ IceObjC::StreamTransceiver::write(Buffer& buf)
 
         buf.i += ret;
 
-        if(packetSize > buf.b.end() - buf.i)
+        if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
             packetSize = buf.b.end() - buf.i;
         }
@@ -389,7 +389,7 @@ IceObjC::StreamTransceiver::read(Buffer& buf)
 
         buf.i += ret;
 
-        if(packetSize > buf.b.end() - buf.i)
+        if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
             packetSize = buf.b.end() - buf.i;
         }
@@ -427,7 +427,7 @@ IceObjC::StreamTransceiver::getInfo() const
 }
 
 void
-IceObjC::StreamTransceiver::checkSendSize(const Buffer& buf)
+IceObjC::StreamTransceiver::checkSendSize(const Buffer& /*buf*/)
 {
 }
 

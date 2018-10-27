@@ -688,7 +688,11 @@ void verify(const IceSSL::CertificatePtr& cert, const IceSSL::CertificatePtr& ca
 }
 
 Test::ServerFactoryPrxPtr
+#if !defined(__APPLE__) || TARGET_OS_IPHONE == 0
 allTests(Test::TestHelper* helper, const string& testDir, bool p12)
+#else
+allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
+#endif
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     bool elCapitanUpdate2OrLower = false;

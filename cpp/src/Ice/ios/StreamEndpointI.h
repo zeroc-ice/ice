@@ -121,7 +121,7 @@ protected:
 
 private:
 
-    const InstancePtr _instance;
+    const InstancePtr _streamInstance;
 
     //
     // All members are const, because endpoints are immutable.

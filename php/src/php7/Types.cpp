@@ -485,6 +485,10 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 zval* e;
                 info->bytes.resize(zend_hash_num_elements(barr));
 
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wshadow"
+#endif
                 vector<Ice::Byte>::size_type i = 0;
                 ZEND_HASH_FOREACH_VAL(barr, e)
                 {
@@ -493,6 +497,9 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                     info->bytes[i++] = static_cast<Ice::Byte>(l);
                 }
                 ZEND_HASH_FOREACH_END();
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
                 zval* instances = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("instances"), sizeof("instances") - 1);
                 assert(Z_TYPE_P(instances) == IS_INDIRECT);
@@ -501,6 +508,10 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 HashTable* oarr = Z_ARRVAL_P(instances);
                 zval* o;
 
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wshadow"
+#endif
                 ZEND_HASH_FOREACH_VAL(oarr, o)
                 {
                     assert(Z_TYPE_P(o) == IS_OBJECT);
@@ -521,6 +532,9 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                     info->instances.push_back(writer);
                 }
                 ZEND_HASH_FOREACH_END();
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
                 zval* hasOptionalMembers =
                     zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("hasOptionalMembers"), sizeof("hasOptionalMembers") - 1);

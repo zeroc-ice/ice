@@ -34,7 +34,7 @@ using namespace IceInternal;
 @end
 
 @implementation iAPTransceiverCallback
--(id) init:(SelectorReadyCallback*)cb;
+-(id) init:(SelectorReadyCallback*)cb
 {
     if(![super init])
     {
@@ -223,7 +223,7 @@ IceObjC::iAPTransceiver::getNativeInfo()
 }
 
 SocketOperation
-IceObjC::iAPTransceiver::initialize(Buffer& readBuffer, Buffer& writeBuffer)
+IceObjC::iAPTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeBuffer*/)
 {
     IceUtil::Mutex::Lock sync(_mutex);
     if(_state == StateNeedConnect)
@@ -289,7 +289,7 @@ IceObjC::iAPTransceiver::write(Buffer& buf)
 
         buf.i += ret;
 
-        if(packetSize > buf.b.end() - buf.i)
+        if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
             packetSize = buf.b.end() - buf.i;
         }
@@ -334,7 +334,7 @@ IceObjC::iAPTransceiver::read(Buffer& buf)
 
         buf.i += ret;
 
-        if(packetSize > buf.b.end() - buf.i)
+        if(packetSize > static_cast<size_t>(buf.b.end() - buf.i))
         {
             packetSize = buf.b.end() - buf.i;
         }
@@ -375,7 +375,7 @@ IceObjC::iAPTransceiver::getInfo() const
 }
 
 void
-IceObjC::iAPTransceiver::checkSendSize(const Buffer& buf)
+IceObjC::iAPTransceiver::checkSendSize(const Buffer& /*buf*/)
 {
 }
 

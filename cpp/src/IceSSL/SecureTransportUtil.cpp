@@ -524,9 +524,15 @@ loadCerts(const string& file)
 //
 CFArrayRef
 IceSSL::SecureTransport::loadCertificateChain(const string& file,
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+                                              const string& /*keyFile*/,
+                                              const std::string& /*keychainPath*/,
+                                              const string& /*keychainPassword*/,
+#else
                                               const string& keyFile,
                                               const std::string& keychainPath,
                                               const string& keychainPassword,
+#endif
                                               const string& password,
                                               const PasswordPromptPtr& prompt,
                                               int retryMax)
@@ -652,9 +658,15 @@ IceSSL::SecureTransport::loadCACertificates(const string& file)
 }
 
 CFArrayRef
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+IceSSL::SecureTransport::findCertificateChain(const std::string&,
+                                              const std::string&,
+                                              const string& value)
+#else
 IceSSL::SecureTransport::findCertificateChain(const std::string& keychainPath,
                                               const std::string& keychainPassword,
                                               const string& value)
+#endif
 {
     //
     //  Search the keychain using key:value pairs. The following keys are supported:

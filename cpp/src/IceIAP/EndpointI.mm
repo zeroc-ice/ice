@@ -234,7 +234,7 @@ IceObjC::iAPEndpointI::transceiver() const
 }
 
 void
-IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType selType,
+IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*/,
                                         const EndpointI_connectorsPtr& callback) const
 {
     try
