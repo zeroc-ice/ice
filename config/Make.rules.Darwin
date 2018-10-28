@@ -34,11 +34,16 @@ iphonesimulator_targetdir       = $(if $(filter %/build,$5),/iphonesimulator)
 shared_cppflags = $(if $(filter-out program,$($1_target)),-fPIC) -fvisibility=hidden
 
 cppflags        = -Wall -Wextra -Wshadow -Wshadow-all -Wredundant-decls \
-                  -Wdeprecated -Wstrict-prototypes -pthread \
+                  -Wdeprecated -Wstrict-prototypes -Werror -pthread \
                   $(if $(filter yes,$(OPTIMIZE)),-O2 -DNDEBUG,-g)
 
 ifeq ($(MAXWARN),yes)
     cppflags	+=  -Wweak-vtables
+endif
+
+# -Wshadow issues false warnings with clang 3.x
+ifeq ($(shell $(CXX) -dumpversion | cut -f1 -d\.),3)
+    cppflags    := $(filter-out -Wshadow -Wshadow-all,$(cppflags))
 endif
 
 nodeprecatedwarnings-cppflags := -Wno-deprecated-declarations

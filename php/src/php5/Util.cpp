@@ -13,6 +13,11 @@
 #include <algorithm>
 #include <ctype.h>
 
+#if defined(__GNUC__)
+// False warning with older GCC
+#   pragma GCC diagnostic ignored "-Wclobbered"
+#endif
+
 using namespace std;
 using namespace IcePHP;
 using namespace Slice::PHP;
