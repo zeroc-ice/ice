@@ -401,6 +401,7 @@ generated from the section label.
         <property name="TCP.SndSize" />
         <property name="UseApplicationClassLoader" />
         <property name="UseSyslog" />
+        <property name="UseSystemdJournal" />
         <property name="Warn.AMICallback" />
         <property name="Warn.Connections" />
         <property name="Warn.Datagrams" />

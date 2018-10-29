@@ -622,6 +622,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             if(initData.properties->getProperty("Ice.LogFile").empty()
 #ifndef _WIN32
                && initData.properties->getPropertyAsInt("Ice.UseSyslog") <= 0
+               && initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") <= 0
 #endif
                )
             {

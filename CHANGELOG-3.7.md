@@ -55,6 +55,16 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed an IceStorm bug that prevents topics to being correctly restored from
   the database when there are multiple topics.
 
+- Add support for systemd `Type=Notify` to `Ice::Service`, services
+  started without `--daemon` command line option will send notifications
+  to systemd using `sd_notify` systemd API.
+
+- Add systemd journal logger, this longer can be enabled by setting `Ice.UseSystemdJournal`
+  property to a value greater than 1.
+
+
+`Ice.UseSystemdJournal`
+
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang

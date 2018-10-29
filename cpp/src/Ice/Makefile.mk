@@ -26,6 +26,13 @@ ifeq ($(os),Darwin)
 Ice_excludes            += src/IceUtil/ConvertUTF.cpp src/IceUtil/Unicode.cpp
 endif
 
+ifeq ($(os),Linux)
+ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
+Ice_cppflags                            += -DICE_USE_SYSTEMD $(shell pkg-config --cflags libsystemd)
+Ice_ldflags                             += $(shell pkg-config --libs libsystemd)
+endif
+endif
+
 Ice[iphoneos]_excludes                  := $(wildcard $(addprefix $(currentdir)/,Tcp*.cpp))
 Ice[iphoneos]_extra_sources             := $(wildcard $(addprefix $(currentdir)/ios/,*.cpp *.mm))
 Ice[iphonesimulator]_excludes           = $(Ice[iphoneos]_excludes)

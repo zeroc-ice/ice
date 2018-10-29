@@ -34,6 +34,9 @@
 #   include <sys/types.h>
 #   include <sys/stat.h>
 #   include <csignal>
+#   ifdef ICE_USE_SYSTEMD
+#       include <systemd/sd-daemon.h>
+#   endif
 #endif
 
 using namespace std;
@@ -822,11 +825,20 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
         //
         if(start(av.argc, av.argv, status))
         {
+#ifdef ICE_USE_SYSTEMD
+            sd_notify(0, "READY=1");
+#endif
             //
             // Wait for service shutdown.
             //
             waitForShutdown();
 
+#ifdef ICE_USE_SYSTEMD
+            //
+            // Inform the service manager that the service is beginning its shutdown.
+            //
+            sd_notify(0, "STOPPING=1");
+#endif
             //
             // Stop the service.
             //
@@ -840,25 +852,42 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
     {
         ServiceError err(this);
         err << "service terminating after catching exception:\n" << ex;
+#ifdef ICE_USE_SYSTEMD
+        const string msg = err.str();
+        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
+#endif
     }
     catch(const std::exception& ex)
     {
         ServiceError err(this);
         err << "service terminating after catching exception:\n" << ex;
+#ifdef ICE_USE_SYSTEMD
+        const string msg = err.str();
+        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
+#endif
     }
     catch(const std::string& msg)
     {
         ServiceError err(this);
         err << "service terminating after catching exception:\n" << msg;
+#ifdef ICE_USE_SYSTEMD
+        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
+#endif
     }
     catch(const char* msg)
     {
         ServiceError err(this);
         err << "service terminating after catching exception:\n" << msg;
+#ifdef ICE_USE_SYSTEMD
+        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg);
+#endif
     }
     catch(...)
     {
         error("service terminating after catching unknown exception");
+#ifdef ICE_USE_SYSTEMD
+        sd_notify(0, "STATUS=Failed service terminating after catching unknown exception");
+#endif
     }
 
     if(_communicator)

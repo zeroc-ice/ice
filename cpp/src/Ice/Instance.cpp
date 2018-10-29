@@ -58,6 +58,7 @@
 
 #ifndef _WIN32
 #   include <Ice/SysLoggerI.h>
+#   include <Ice/SystemdJournalI.h>
 
 #   include <signal.h>
 #   include <syslog.h>
@@ -1100,6 +1101,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                                                    _initData.properties->getProperty("Ice.ProgramName"),
                                                    _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
             }
+#   ifdef ICE_USE_SYSTEMD
+            else if(_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
+            {
+                _initData.logger = ICE_MAKE_SHARED(SystemdJournalI,
+                                                   _initData.properties->getProperty("Ice.ProgramName"));
+            }
+#   endif
             else
 #endif
             if(!logfile.empty())
