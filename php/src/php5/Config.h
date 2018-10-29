@@ -51,6 +51,13 @@ extern "C"
 #endif
 
 //
+// Ignore redundant redeclarations from php 5.3 php-output.h header.
+//
+#if defined(__GNUC__) && PHP_VERSION_ID < 50400
+#   pragma GCC diagnostic ignored "-Wredundant-decls"
+#endif
+
+//
 // The php.h header defines/undefines NDEBUG based on how the PHP binary was built.
 // As a result, asserts are always disabled unless building against a php binary
 // built with --enable-debug. We want to enable asserts for the PHP Ice extension
