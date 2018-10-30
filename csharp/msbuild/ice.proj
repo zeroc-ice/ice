@@ -62,20 +62,20 @@
     <ItemGroup>
         <!-- .NET 4.5 Solution files -->
         <Net45DistSolution Include="ice.net45.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(Platform)</Properties>
         </Net45DistSolution>
 
         <Net45TestSolution Include="ice.net45.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(Platform)</Properties>
         </Net45TestSolution>
 
         <!-- .NET Standard Solution files -->
         <NetStandardDistSolution Include="ice.netstandard2.0.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(Platform)</Properties>
         </NetStandardDistSolution>
 
         <NetStandardTestSolution Include="ice.netstandard2.0.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(Platform)</Properties>
         </NetStandardTestSolution>
     </ItemGroup>
 
