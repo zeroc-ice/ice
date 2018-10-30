@@ -24,6 +24,7 @@
     "@babel/preset-env": "^7.1.0",
     "babel-plugin-rewrite-require": "^1.14.5",
     "babel-plugin-transform-builtin-extend": "^1.1.2",
+    "natives": "^1.1.6",
     "del": "^3.0.0",
     "esprima": "^4.0.1",
     "gulp": "^3.9.1",
