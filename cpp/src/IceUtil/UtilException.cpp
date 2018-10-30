@@ -56,7 +56,10 @@
 #   endif
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_UWP) && !defined(__MINGW32__)
+//
+// The Slice compilers don't retrieve the exception stack traces so we don't need the DbgHelp calls.
+//
+#if defined(_WIN32) && !defined(ICE_OS_UWP) && !defined(__MINGW32__) && !defined(ICE_BUILDING_SLICE_COMPILERS)
 #   define ICE_DBGHELP
 #   if defined(_MSC_VER) && (_MSC_VER >= 1700)
 #       define DBGHELP_TRANSLATE_TCHAR
