@@ -62,9 +62,6 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Add systemd journal logger, this longer can be enabled by setting `Ice.UseSystemdJournal`
   property to a value greater than 1.
 
-
-`Ice.UseSystemdJournal`
-
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang
