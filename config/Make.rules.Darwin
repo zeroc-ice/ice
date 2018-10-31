@@ -42,7 +42,7 @@ ifeq ($(MAXWARN),yes)
 endif
 
 # -Wshadow issues false warnings with clang 3.x (Apple LLVM 9.0)
-ifeq ($(shell clang -v 2>&1 | sed -ne 's/.*version \([0-9]\)\.\([0-9]\).*/\1\2/p'),90)
+ifeq ($(shell clang -v 2>&1 | sed -ne 's/.*version \([0-9]*\)\.\([0-9]*\).*/\1\2/p'),90)
     cppflags    := $(filter-out -Wshadow -Wshadow-all,$(cppflags))
 endif
 

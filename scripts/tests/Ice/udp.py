@@ -9,18 +9,23 @@
 
 from Util import *
 
+class UdpTestCase(ClientServerTestCase):
+
+    def setupServerSide(self, current):
+        if current.config.android or current.config.xamarin:
+            self.servers = [Server(ready="McastTestAdapter")]
+        else:
+            self.servers = [Server(args=[i], ready="McastTestAdapter") for i in range(0, 5)]
+
+    def setupClientSide(self, current):
+        if current.config.android:
+            self.clients = [Client()]
+        else:
+            self.clients = [Client(args=[5])]
+
 #
 # With UWP, we can't run the UDP tests with the C++ servers (used when SSL is enabled).
 #
 options=lambda current: { "protocol": ["tcp", "ws"] } if current.config.uwp else {}
 
-global currentMapping # The mapping for which this test suite is being loaded
-
-if (isinstance(currentMapping, AndroidMappingMixin) or
-    isinstance(currentMapping, XamarinMapping)):
-    testcase = ClientServerTestCase(server=Server(ready="McastTestAdapter"))
-else:
-    testcase = ClientServerTestCase(client=Client(args=[5]),
-                                    servers=[Server(args=[i], ready="McastTestAdapter") for i in range(0, 5)])
-
-TestSuite(__name__, [ testcase ], multihost=False, options=options)
+TestSuite(__name__, [ UdpTestCase() ], multihost=False, options=options)

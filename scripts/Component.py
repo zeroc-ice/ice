@@ -71,7 +71,7 @@ class Ice(Component):
         elif "static" in config.buildConfig:
             return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
                     ["Ice/library", "Ice/plugin"])
-        elif config.uwp:
+        elif isinstance(mapping, CppMapping) and config.uwp:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
                      "Ice/echo",
@@ -85,7 +85,7 @@ class Ice(Component):
                      "Ice/threadPoolPriority"])
         elif isinstance(platform, Windows) and platform.getCompiler() in ["VC100"]:
             return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
-        elif (isinstance(mapping, XamarinMapping)):
+        elif isinstance(mapping, CSharpMapping) and config.xamarin:
             return (["Ice/.*"],
                     ["Ice/hash",
                      "Ice/faultTolerance",
@@ -99,7 +99,7 @@ class Ice(Component):
                      "Ice/logger",
                      "Ice/properties",
                      "Ice/slicing/*"])
-        elif isinstance(mapping, AndroidMappingMixin):
+        elif isinstance(mapping, JavaMapping) and config.android:
             return (["Ice/.*"],
                     ["Ice/hash",
                      "Ice/faultTolerance",
@@ -110,8 +110,7 @@ class Ice(Component):
                      "Ice/logger",
                      "Ice/properties"])
         elif isinstance(mapping, JavaScriptMapping):
-            return (["Ice/.*", "Glacier2/.*"],
-                    (["ts/.*"] + (["Slice/escape", "Ice/properties"] if config.typescript else [])))
+            return ([], ["ts/.*", "es5/*"])
         return ([], [])
 
     def canRun(self, testId, mapping, current):
@@ -142,7 +141,7 @@ class Ice(Component):
             elif parent in ["Glacier2"] and testId not in ["Glacier2/application", "Glacier2/sessionHelper"]:
                 return False
 
-        if isinstance(mapping, XamarinAndroidMapping) or isinstance(mapping, XamarinIOSMapping):
+        if current.config.xamarin and not current.config.uwp:
             #
             # With Xamarin on Android and iOS Ice/udp is only supported with IPv4
             #
@@ -237,6 +236,7 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, PhpMapping(), component)
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component)
+        Mapping.add("ts", TypeScriptMapping(), component, "js")
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping(), component)
     elif m == "csharp" or re.match("charp-.*", m):
@@ -252,24 +252,6 @@ if isinstance(platform, Windows):
 elif not platform.hasDotNet():
     # Remove C# if Dot Net Core isn't supported
     Mapping.remove("csharp")
-
-#
-# Check if the Android SDK is installed and eventually add the Android mappings
-#
-try:
-    run("adb version")
-    Mapping.add(os.path.join("java-compat", "test", "android"), AndroidCompatMapping(), component)
-    Mapping.add(os.path.join("java", "test", "android"), AndroidMapping(), component)
-    if (isinstance(platform, Windows) and platform.getCompiler() == "VC141") or isinstance(platform, Darwin):
-        Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.Android"), XamarinAndroidMapping(), component)
-except:
-    pass
-
-if isinstance(platform, Windows) and platform.getCompiler() == "VC141":
-    Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.UWP"), XamarinUWPMapping(), component)
-
-if isinstance(platform, Darwin):
-    Mapping.add(os.path.join("csharp", "test", "xamarin", "controller.iOS"), XamarinIOSMapping(), component)
 
 #
 # Check if Matlab is installed and eventually add the Matlab mapping
