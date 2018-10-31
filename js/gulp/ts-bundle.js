@@ -138,10 +138,10 @@ class StringBuffer
     writeLine(data)
     {
         data += os.EOL;
-        // Use new Buffer.from(string, encoding) if Buffer.alloc is avilable, Buffer constructors are deprecated.
+        // Use new Buffer.from(string, encoding) if Buffer.from is avilable, Buffer constructors are deprecated.
         // NOTE: we don't check for Buffer.from which already exists but only accepts array.
         this.buffer = Buffer.concat([this.buffer,
-                                     typeof Buffer.alloc === 'function' ? Buffer.from(data, "utf8") :
+                                     typeof Buffer.from === 'function' ? Buffer.from(data, "utf8") :
                                      new Buffer(data, "utf8")]);
     }
 }

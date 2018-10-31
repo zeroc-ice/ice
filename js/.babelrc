@@ -1,17 +1,8 @@
 {
     "presets": [
-        "@babel/preset-env",
+        "@babel/preset-env"
     ],
     "plugins": [
-        [
-            "babel-plugin-transform-builtin-extend",
-            {
-                "globals": [
-                    "Error",
-                    "Promise"
-                ]
-            }
-        ],
         [
             "rewrite-require",
             {

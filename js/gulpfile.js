@@ -7,36 +7,40 @@
 //
 // **********************************************************************
 
-var babel       = require("gulp-babel"),
-    bundle      = require("./gulp/bundle"),
-    tsbundle    = require("./gulp/ts-bundle"),
-    concat      = require('gulp-concat'),
-    del         = require("del"),
-    extreplace  = require("gulp-ext-replace"),
-    fs          = require("fs"),
-    gulp        = require("gulp"),
-    gzip        = require('gulp-gzip'),
-    iceBuilder  = require('gulp-ice-builder'),
-    newer       = require('gulp-newer'),
-    path        = require('path'),
-    paths       = require('vinyl-paths'),
-    pump        = require('pump'),
-    rollup      = require('gulp-rollup'),
-    sourcemaps  = require('gulp-sourcemaps'),
-    terser      = require('gulp-terser');
-    tsc         = require('gulp-typescript'),
-    tsformat    = require('./gulp/ts-formatter');
+/* eslint no-sync: "off" */
+/* eslint no-process-env: "off" */
+/* eslint no-process-exit: "off" */
 
-var sliceDir   = path.resolve(__dirname, '..', 'slice');
+const babel = require("gulp-babel");
+const bundle = require("./gulp/bundle");
+const tsbundle = require("./gulp/ts-bundle");
+const concat = require('gulp-concat');
+const del = require("del");
+const extreplace = require("gulp-ext-replace");
+const fs = require("fs");
+const gulp = require("gulp");
+const gzip = require('gulp-gzip');
+const iceBuilder = require('gulp-ice-builder');
+const newer = require('gulp-newer');
+const path = require('path');
+const paths = require('vinyl-paths');
+const pump = require('pump');
+const rollup = require('rollup');
+const sourcemaps = require('gulp-sourcemaps');
+const terser = require('gulp-terser');
+const tsc = require('gulp-typescript');
+const tsformat = require('./gulp/ts-formatter');
 
-var iceBinDist = (process.env.ICE_BIN_DIST || "").split(" ");
-var useBinDist = iceBinDist.find(function(v) { return v == "js" || v == "all"; }) !== undefined;
+const sliceDir = path.resolve(__dirname, '..', 'slice');
+
+const iceBinDist = (process.env.ICE_BIN_DIST || "").split(" ");
+const useBinDist = iceBinDist.find(v => v == "js" || v == "all") !== undefined;
 
 function parseArg(argv, key)
 {
-    for(var i = 0; i < argv.length; ++i)
+    for(let i = 0; i < argv.length; ++i)
     {
-        var e = argv[i];
+        const e = argv[i];
         if(e == key)
         {
             return argv[i + 1];
@@ -48,14 +52,13 @@ function parseArg(argv, key)
     }
 }
 
-var platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM;
-var configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION;
-var host = parseArg(process.argv, "--host") || "127.0.0.1";
+const platform = parseArg(process.argv, "--cppPlatform") || process.env.CPP_PLATFORM;
+const configuration = parseArg(process.argv, "--cppConfiguration") || process.env.CPP_CONFIGURATION;
 
 function slice2js(options)
 {
-    var defaults = {};
-    var opts = options || {};
+    const defaults = {};
+    const opts = options || {};
     if(!useBinDist)
     {
         if(process.platform == "win32")
@@ -85,9 +88,236 @@ function slice2js(options)
 }
 
 //
-// Test tasks
+// Tasks to build IceJS Distribution
 //
-var tests = [
+const root = path.resolve(path.join('__dirname', '..'));
+const libs = ["Ice", "Glacier2", "IceStorm", "IceGrid"];
+
+const generateTypeScriptTask = name => name.toLowerCase() + ":generate-typescript";
+const generateTask = name => name.toLowerCase() + ":generate";
+const libTask = name => name.toLowerCase() + ":lib";
+const minLibTask = name => name.toLowerCase() + ":lib-min";
+const babelTask = name => name.toLowerCase() + ":babel";
+const babelLibTask = name => libTask(name) + "-babel";
+const babelMinLibTask = name => libTask(name) + "-babel-min";
+const libDistTask = name => name.toLowerCase() + ":dist";
+
+const libFile = name => path.join(root, "lib", name + ".js");
+const libFileMin = name => path.join(root, "lib", name + ".min.js");
+
+const babelLibFile = name => path.join(root, "lib", "es5", name + ".js");
+const babelLibFileMin = name => path.join(root, "lib", "es5", name + ".min.js");
+
+const srcDir = name => path.join(root, "src", name);
+const libCleanTask = lib => lib + ":clean";
+
+function libFiles(name)
+{
+    return [
+        path.join(root, "lib", name + ".js"),
+        path.join(root, "lib", name + ".js.gz"),
+        path.join(root, "lib", name + ".min.js"),
+        path.join(root, "lib", name + ".min.js.gz"),
+
+        path.join(root, "lib", "es5", name + ".js"),
+        path.join(root, "lib", "es5", name + ".js.gz"),
+        path.join(root, "lib", "es5", name + ".min.js"),
+        path.join(root, "lib", "es5", name + ".min.js.gz")];
+}
+
+function mapFiles(name)
+{
+    return [
+        path.join(root, "lib", name + ".js.map"),
+        path.join(root, "lib", name + ".js.map.gz"),
+        path.join(root, "lib", name + ".min.js.map"),
+        path.join(root, "lib", name + ".min.js.map.gz"),
+
+        path.join(root, "lib", "es5", name + ".js.map"),
+        path.join(root, "lib", "es5", name + ".js.map.gz"),
+        path.join(root, "lib", "es5", name + ".min.js.map"),
+        path.join(root, "lib", "es5", name + ".min.js.map.gz")];
+}
+
+function libSources(lib, sources)
+{
+    let srcs = sources.common || [];
+    if(sources.browser)
+    {
+        srcs = sources.common.concat(sources.browser);
+    }
+
+    srcs = srcs.map(f => path.join(srcDir(lib), f));
+
+    if(sources.slice)
+    {
+        srcs = srcs.concat(sources.slice.map(f => path.join(srcDir(lib), path.basename(f, ".ice") + ".js")));
+    }
+    return srcs;
+}
+
+function libGeneratedFiles(lib, sources)
+{
+    const tsSliceSources = sources.typescriptSlice || sources.slice;
+
+    return sources.slice.map(f => path.join(srcDir(lib), path.basename(f, ".ice") + ".js"))
+        .concat(tsSliceSources.map(f => path.join(srcDir(lib), path.basename(f, ".ice") + ".d.ts")))
+        .concat(path.join("src", "es5", lib, "*.js"))
+        .concat(libFiles(lib))
+        .concat(mapFiles(lib))
+        .concat([path.join(srcDir(lib), ".depend", "*")]);
+}
+
+const sliceFile = f => path.join(sliceDir, f);
+
+for(const lib of libs)
+{
+    const sources = JSON.parse(fs.readFileSync(path.join(srcDir(lib), "sources.json"), {encoding: "utf8"}));
+
+    gulp.task(generateTypeScriptTask(lib),
+              cb =>
+              {
+                  const sliceSources = sources.typescriptSlice || sources.slice;
+                  pump([gulp.src(sliceSources.map(sliceFile)),
+                        slice2js({dest: srcDir(lib), args: ["--typescript"]}),
+                        gulp.dest(srcDir(lib))], cb);
+              });
+
+    gulp.task(generateTask(lib),
+              cb =>
+              {
+                  pump([gulp.src(sources.slice.map(sliceFile)),
+                        slice2js({dest: srcDir(lib)}),
+                        gulp.dest(srcDir(lib))], cb);
+              });
+
+    gulp.task(libTask(lib),
+              cb =>
+              {
+                  pump([gulp.src(libSources(lib, sources)),
+                        sourcemaps.init(),
+                        bundle(
+                            {
+                                srcDir: srcDir(lib),
+                                modules: sources.modules,
+                                target: libFile(lib)
+                            }),
+                        sourcemaps.write("../lib", {sourceRoot: "/src", addComment: false}),
+                        gulp.dest("lib"),
+                        gzip(),
+                        gulp.dest("lib")], cb);
+              });
+
+    gulp.task(minLibTask(lib),
+              cb =>
+              {
+                  pump([gulp.src(libFile(lib)),
+                        newer(libFileMin(lib)),
+                        sourcemaps.init({loadMaps: false}),
+                        terser(),
+                        extreplace(".min.js"),
+                        sourcemaps.write(".", {includeContent: false, addComment: false}),
+                        gulp.dest(path.join(root, "lib")),
+                        gzip(),
+                        gulp.dest(path.join(root, "lib"))], cb);
+              });
+
+    gulp.task(babelTask(lib),
+              cb =>
+              {
+                  pump([gulp.src(path.join(root, "src", lib, "*.js")),
+                        newer(path.join(root, "src", "es5", lib)),
+                        babel({compact: false}),
+                        gulp.dest(path.join(root, "src", "es5", lib))], cb);
+              });
+
+    gulp.task(babelLibTask(lib),
+              cb =>
+              {
+                  pump([gulp.src(libFile(lib)),
+                        newer(babelLibFile(lib)),
+                        sourcemaps.init(),
+                        babel({compact: false}),
+                        sourcemaps.write("."),
+                        gulp.dest(path.join(root, "lib", "es5")),
+                        gzip(),
+                        gulp.dest("lib/es5")], cb);
+              });
+
+    gulp.task(babelMinLibTask(lib),
+              cb =>
+              {
+                  pump([gulp.src(babelLibFile(lib)),
+                        newer(babelLibFileMin(lib)),
+                        terser(),
+                        extreplace(".min.js"),
+                        sourcemaps.write(".", {includeContent: false, addComment: false}),
+                        gulp.dest("lib/es5"),
+                        gzip(),
+                        gulp.dest("lib/es5")], cb);
+              });
+
+    gulp.task(libCleanTask(lib),
+              cb =>
+              {
+                  del(libGeneratedFiles(lib, sources));
+                  cb();
+              });
+
+    gulp.task(libDistTask(lib),
+              gulp.series(
+                  gulp.parallel(generateTypeScriptTask(lib), generateTask(lib)),
+                  libTask(lib),
+                  gulp.parallel(babelTask(lib), babelLibTask(lib), minLibTask(lib)),
+                  babelMinLibTask(lib)));
+}
+
+gulp.task("ts:bundle",
+          cb =>
+          {
+              pump([gulp.src("./src/index.d.ts"),
+                    tsbundle(),
+                    tsformat({}),
+                    gulp.dest("lib")], cb);
+          });
+
+gulp.task("ts:bundle:clean", () => del("./lib/index.d.ts"));
+
+if(useBinDist)
+{
+    gulp.task("ice:module", cb => cb());
+    gulp.task("ice:module:clean", cb => cb());
+    gulp.task("dist", cb => cb());
+    gulp.task("dist:clean", cb => cb());
+}
+else
+{
+    gulp.task("dist", gulp.series(gulp.parallel(libs.map(libDistTask)), "ts:bundle"));
+
+    gulp.task("dist:clean",
+              gulp.series(gulp.parallel(libs.map(libCleanTask).concat("ts:bundle:clean")),
+                          cb =>
+                          {
+                              pump([gulp.src(path.join(root, "lib", "es5"), {allowEmpty: true}),
+                                    paths(del)], cb);
+                          }));
+
+    gulp.task("ice:module:package",
+              () => gulp.src(['package.json']).pipe(gulp.dest(path.join("node_modules", "ice"))));
+
+    gulp.task("ice:module",
+              gulp.series("ice:module:package",
+                          cb =>
+                          {
+                              pump([
+                                  gulp.src([path.join(root, 'src/**/*')]),
+                                  gulp.dest(path.join(root, "node_modules", "ice", "src"))], cb);
+                          }));
+
+    gulp.task("ice:module:clean", () => gulp.src(['node_modules/ice'], {allowEmpty: true}).pipe(paths(del)));
+}
+
+const tests = [
     "test/Ice/acm",
     "test/Ice/adapterDeactivation",
     "test/Ice/ami",
@@ -119,125 +349,140 @@ var tests = [
     "test/Slice/macros"
 ];
 
-gulp.task("common:slice", [],
-    function(cb){
-        pump([
-            gulp.src(["../scripts/Controller.ice"]),
-            slice2js({dest: "test/Common"}),
-            gulp.dest("test/Common")], cb);
-    });
-
-gulp.task("common:slice-babel", ["common:slice"],
-    function(cb){
-        pump([
-            gulp.src(["test/Common/Controller.js",
-                      "test/Common/ControllerI.js",
-                      "test/Common/ControllerWorker.js",
-                      "test/Common/TestHelper.js",
-                      "test/Common/run.js"]),
-            babel({compact: false}),
-            gulp.dest("test/es5/Common")], cb);
-    });
-
-gulp.task("common:slice-es5-controllerworker", ["common:slice-babel"],
-          function(cb){
-              pump([
-                  gulp.src(["node_modules/@babel/polyfill/dist/polyfill.js",
-                            "test/es5/Common/ControllerWorker.js"]),
-                  concat("ControllerWorker.js"),
-                  gulp.dest("test/es5/Common/")
-              ], cb);
+gulp.task("test:common:generate",
+          cb =>
+          {
+              pump([gulp.src(["../scripts/Controller.ice"]),
+                    slice2js({dest: "test/Common"}),
+                    gulp.dest("test/Common")], cb);
           });
 
-gulp.task("common:clean", [],
-    function(){
-        del(["test/Common/Controller.js",
-             "test/Common/.depend",
-             "test/es5/Common/Controller.js",
-             "test/es5/Common/ControllerI.js",
-             "test/es5/Common/ControllerWorker.js",
-             "test/es5/Common/TestHelper.js"]);
-    });
-
-gulp.task("import:slice2js", ["dist"],
-    function(cb){
-        pump([
-            gulp.src(["test/Ice/import/Demo/Point.ice",
-                      "test/Ice/import/Demo/Circle.ice",
-                      "test/Ice/import/Demo/Square.ice",
-                      "test/Ice/import/Demo/Canvas.ice"]),
-            slice2js({ dest: "test/Ice/import/Demo", include:["test/Ice/import"]}),
-            gulp.dest("test/Ice/import/Demo")], cb);
-    });
-
-gulp.task("import:bundle", ["import:slice2js"],
-          function(cb){
-              pump([
-                  rollup({
-                      input: "test/Ice/import/main.js",
-                      external: "ice",
-                      format: "cjs",
-                  }),
-                  gulp.dest("test/Ice/import/bundle.js")], cb);
-
-          });
-
-gulp.task("import:clean", [],
-    function() {
-        del(["test/Ice/import/Demo/Point.js",
-             "test/Ice/import/Demo/Circle.js",
-             "test/Ice/import/Demo/Square.js",
-             "test/Ice/import/Demo/Canvas.js",
-             "test/Ice/import/bundle.js"]);
-    });
-
-function testTask(name) { return name.replace(/\//g, "_"); }
-function testBabelTask(name) { return testTask(name) + "-babel"; }
-function testCleanDependTask(name) { return testTask(name) + "-depend:clean"; }
-function testCleanTask(name) { return testTask(name) + ":clean"; }
-function testBabelCleanTask(name) { return testCleanTask(name) + "-babel"; }
-
-tests.forEach(
-    function(name){
-        gulp.task(testTask(name), (useBinDist ? [] : ["ice-module"]),
-            function(cb){
-                pump([
-                    gulp.src(path.join(name, "*.ice")),
-                    slice2js({ include: [name], dest: name }),
-                    gulp.dest(name)], cb);
-            });
-
-        gulp.task(testBabelTask(name), [testTask(name)],
-            function(cb){
-                pump([
-                    gulp.src([path.join(name, "*.js")]),
+gulp.task("test:common:babel",
+          cb =>
+          {
+              pump([gulp.src(["test/Common/Controller.js",
+                              "test/Common/ControllerI.js",
+                              "test/Common/ControllerWorker.js",
+                              "test/Common/TestHelper.js",
+                              "test/Common/run.js"]),
                     babel({compact: false}),
-                    gulp.dest(name.replace("test/", "test/es5/"))], cb);
-            });
+                    gulp.dest("test/es5/Common")], cb);
+          });
 
-        gulp.task(testCleanDependTask(name), [],
-            function(cb){
-                pump([gulp.src(path.join(name, ".depend")), paths(del)], cb);
-            });
+gulp.task("test:common:controllerworker",
+          cb =>
+          {
+              pump([gulp.src(["node_modules/@babel/polyfill/dist/polyfill.js",
+                              "test/es5/Common/ControllerWorker.js"]),
+                    concat("ControllerWorker.js"),
+                    gulp.dest("test/es5/Common/")], cb);
+          });
 
-        gulp.task(testCleanTask(name), [testCleanDependTask(name)],
-            function(cb){
-                pump([gulp.src(path.join(name, "*.ice")), extreplace(".js"), paths(del)], cb);
-            });
+gulp.task("test:common:clean",
+          cb =>
+          {
+              del(["test/Common/Controller.js",
+                   "test/Common/.depend",
+                   "test/es5/Common/Controller.js",
+                   "test/es5/Common/ControllerI.js",
+                   "test/es5/Common/ControllerWorker.js",
+                   "test/es5/Common/TestHelper.js"]);
+              cb();
+          });
 
-        gulp.task(testBabelCleanTask(name), [testCleanTask(name)],
-            function(cb){
-                pump([gulp.src([path.join(name.replace("test/", "test/es5/"), "*.js")]), paths(del)], cb);
-            });
-    });
+gulp.task("test:import:generate",
+          cb =>
+          {
+              pump([gulp.src(["test/Ice/import/Demo/Point.ice",
+                              "test/Ice/import/Demo/Circle.ice",
+                              "test/Ice/import/Demo/Square.ice",
+                              "test/Ice/import/Demo/Canvas.ice"]),
+                    slice2js({dest: "test/Ice/import/Demo", include: ["test/Ice/import"]}),
+                    gulp.dest("test/Ice/import/Demo")], cb);
+          });
 
-gulp.task("test", tests.map(testBabelTask).concat(
-    ["common:slice-es5-controllerworker", "import:bundle"]));
+gulp.task("test:import:bundle",
+          () =>
+          {
+              const p = rollup.rollup(
+                  {
+                      input: "test/Ice/import/main.js",
+                      external: ["ice"]
+                  }).then(bundle => bundle.write(
+                      {
+                          file: "test/Ice/import/bundle.js",
+                          format: "cjs"
+                      }));
+              return p;
+          });
 
-gulp.task("test:clean", tests.map(testBabelCleanTask).concat(["common:clean", "import:clean"]));
+gulp.task("test:import:clean",
+          cb =>
+          {
+              del(["test/Ice/import/Demo/Point.js",
+                   "test/Ice/import/Demo/Circle.js",
+                   "test/Ice/import/Demo/Square.js",
+                   "test/Ice/import/Demo/Canvas.js",
+                   "test/Ice/import/bundle.js"]);
+              cb();
+          });
 
+const testTask = name => name.replace(/\//g, "_");
+const testBabelTask = name => testTask(name) + ":babel";
+const testCleanTask = name => testTask(name) + ":clean";
+const testBuildTask = name => testTask(name) + ":build";
+
+for(const name of tests)
+{
+    gulp.task(testTask(name),
+              cb =>
+              {
+                  const outdir = path.join(root, name);
+                  pump([gulp.src(path.join(outdir, "*.ice")),
+                        slice2js({include: [outdir], dest: outdir}),
+                        gulp.dest(outdir)], cb);
+              });
+
+    gulp.task(testBabelTask(name),
+              cb =>
+              {
+                  const outdir = path.join(root, name).replace("test", path.join("test", "es5"));
+                  pump([gulp.src([path.join(root, name, "*.js")]),
+                        babel({compact: false}),
+                        gulp.dest(outdir)], cb);
+              });
+
+    gulp.task(testBuildTask(name), gulp.series(testTask(name), testBabelTask(name)));
+
+    gulp.task(testCleanTask(name),
+              cb =>
+              {
+                  pump([gulp.src(path.join(name, "*.ice")),
+                        extreplace(".js"),
+                        gulp.src(path.join(name, ".depend"), {allowEmpty: true}),
+                        gulp.src([path.join(name.replace("test/", "test/es5/"), "*.js")]),
+                        paths(del)], cb);
+              });
+}
+
+gulp.task("test",
+          gulp.series("test:common:generate", "test:common:babel", "test:common:controllerworker",
+                      "test:import:generate", "test:import:bundle",
+                      gulp.parallel(tests.map(testBuildTask))));
+
+gulp.task("test:clean",
+          gulp.series(
+              gulp.parallel("test:common:clean", "test:import:clean", tests.map(testCleanTask)),
+              cb =>
+              {
+                  pump([gulp.src(path.join(root, "test", "es5"), {allowEmpty: true}),
+                        paths(del)], cb);
+              }));
+
+//
 // TypeScript tests
-var tstests = [
+//
+const tstests = [
     "test/ts/Ice/acm",
     "test/ts/Ice/adapterDeactivation",
     "test/ts/Ice/ami",
@@ -267,287 +512,65 @@ var tstests = [
     "test/ts/Slice/macros"
 ];
 
-function testTypeScriptSliceCompileJsTask(name) { return testTask(name) + ":ts:slice-compile-js"; }
-function testTypeScriptSliceCompileTsTask(name) { return testTask(name) + ":ts:slice-compile-ts"; }
-function testTypeScriptCompileTask(name) { return testTask(name) + ":ts:compile"; }
+const testTypeScriptSliceCompileJsTask = name => testTask(name) + ":ts:slice-compile-js";
+const testTypeScriptSliceCompileTsTask = name => testTask(name) + ":ts:slice-compile-ts";
+const testTypeScriptCompileTask = name => testTask(name) + ":ts:compile";
+const testTypeScriptBuildTask = name => testTask(name) + ":ts:build";
+const testTypeScriptCleanTask = name => testTask(name) + ":ts:clean";
 
-function testTypeScriptSliceJsCleanTask(name) { return testTask(name) + ":ts:slice:js-clean"; }
-function testTypeScriptSliceTsCleanTask(name) { return testTask(name) + ":ts:slice:ts-clean"; }
-function testTypeScriptCleanTask(name) { return testTask(name) + ":ts:clean"; }
-
-tstests.forEach((name) =>
-                {
-                    gulp.task(testTypeScriptSliceCompileJsTask(name), [],
-                              function(cb){
-                                  pump([
-                                      gulp.src(path.join(name, "*.ice")),
-                                      slice2js({include:[name], dest: name}),
-                                      gulp.dest(name)
-                                  ], cb);
-                              });
-
-                    gulp.task(testTypeScriptSliceCompileTsTask(name), [],
-                              function(cb){
-                                  pump([
-                                      gulp.src(path.join(name, "*.ice")),
-                                      slice2js({include:[name], dest:name, args: ["--typescript"]}),
-                                      gulp.dest(name)
-                                  ], cb);
-                              });
-
-                    gulp.task(testTypeScriptCompileTask(name),
-                              [
-                                testTypeScriptSliceCompileJsTask(name),
-                                testTypeScriptSliceCompileTsTask(name),
-                              ].concat(useBinDist ? [] : ["ice-module"]),
-                              function(cb){
-                                  pump([
-                                      gulp.src(path.join(name, "*.ts")),
-                                      tsc(
-                                          {
-                                              lib: ["dom", "es2017"],
-                                              target: "es2017",
-                                              module: "commonjs",
-                                              noImplicitAny:true
-                                          }),
-                                      gulp.dest(name)
-                                  ], cb);
-                              });
-
-                    gulp.task(testTypeScriptSliceJsCleanTask(name), [],
-                              function(cb){
-                                  pump([gulp.src(path.join(name, "*.ice")), extreplace(".js"), paths(del)], cb);
-                              });
-
-                    gulp.task(testTypeScriptSliceTsCleanTask(name), [],
-                              function(cb){
-                                  pump([gulp.src(path.join(name, "*.ice")), extreplace(".d.ts"), paths(del)], cb);
-                              });
-
-                    gulp.task(testTypeScriptCleanTask(name),
-                              [testTypeScriptSliceJsCleanTask(name), testTypeScriptSliceTsCleanTask(name)],
-                              function(cb){
-                                  pump([gulp.src(path.join(name, "*.ts")), extreplace(".js"), paths(del)], cb);
-                              });
-                });
-
-gulp.task("test:ts", tstests.map(testTypeScriptCompileTask));
-gulp.task("test:ts:clean", tstests.map(testTypeScriptCleanTask));
-
-//
-// Tasks to build IceJS Distribution
-//
-var root = path.resolve(path.join('__dirname', '..'));
-var libs = ["Ice", "Glacier2", "IceStorm", "IceGrid"];
-
-function generateTypeScriptTask(name) { return name.toLowerCase() + ":generate-typescript"; }
-function generateTask(name){ return name.toLowerCase() + ":generate"; }
-function libTask(name){ return name.toLowerCase() + ":lib"; }
-function minLibTask(name){ return name.toLowerCase() + ":lib-min"; }
-function babelTask(name){ return name.toLowerCase() + ":babel"; }
-function babelLibTask(name){ return libTask(name) + "-babel";}
-function babelMinLibTask(name){ return libTask(name) + "-babel-min"; }
-
-function libFile(name) { return path.join(root, "lib", name + ".js"); }
-function libFileMin(name) { return path.join(root, "lib", name + ".min.js"); }
-
-function babelLibFile(name) { return path.join(root, "lib", "es5", name + ".js"); }
-function babelLibFileMin(name) { return path.join(root, "lib", "es5", name + ".min.js"); }
-
-function srcDir(name) { return "src/" + name; }
-function libCleanTask(lib) { return lib + ":clean"; }
-
-function libFiles(name){
-    return [
-        path.join(root, "lib", name + ".js"),
-        path.join(root, "lib", name + ".js.gz"),
-        path.join(root, "lib", name + ".min.js"),
-        path.join(root, "lib", name + ".min.js.gz"),
-
-        path.join(root, "lib", "es5", name + ".js"),
-        path.join(root, "lib", "es5", name + ".js.gz"),
-        path.join(root, "lib", "es5", name + ".min.js"),
-        path.join(root, "lib", "es5", name + ".min.js.gz")];
-}
-
-function mapFiles(name){
-    return [
-        path.join(root, "lib", name + ".js.map"),
-        path.join(root, "lib", name + ".js.map.gz"),
-        path.join(root, "lib", name + ".min.js.map"),
-        path.join(root, "lib", name + ".min.js.map.gz"),
-
-        path.join(root, "lib", "es5", name + ".js.map"),
-        path.join(root, "lib", "es5", name + ".js.map.gz"),
-        path.join(root, "lib", "es5", name + ".min.js.map"),
-        path.join(root, "lib", "es5", name + ".min.js.map.gz")];
-}
-
-function libSources(lib, sources){
-    var srcs = sources.common || [];
-    if(sources.browser){
-        srcs = sources.common.concat(sources.browser);
-    }
-
-    srcs = srcs.map(function(f){
-            return path.join(srcDir(lib), f);
-        });
-
-    if(sources.slice){
-        srcs = srcs.concat(sources.slice.map(function(f){
-                return path.join(srcDir(lib), path.basename(f, ".ice") + ".js");
-            }));
-    }
-    return srcs;
-}
-
-function libGeneratedFiles(lib, sources){
-    return sources.slice.map(function(f)
-            {
-                return path.join(srcDir(lib), path.basename(f, ".ice") + ".js");
-            })
-        .concat(path.join("src", "es5", lib, "*.js"))
-        .concat(libFiles(lib))
-        .concat(mapFiles(lib))
-        .concat([path.join(srcDir(lib), ".depend", "*")]);
-}
-
-function sliceFile(f){ return path.join(sliceDir, f); }
-
-libs.forEach(
-    function(lib){
-        var sources = JSON.parse(fs.readFileSync(path.join(srcDir(lib), "sources.json"), {encoding: "utf8"}));
-
-        gulp.task(generateTypeScriptTask(lib),
-                  function(cb){
-                      var sliceSources = sources.typescriptSlice || sources.slice;
-                      pump([
-                          gulp.src(sliceSources.map(sliceFile)),
-                          slice2js({dest: srcDir(lib), args: ["--typescript"]}),
-                          gulp.dest(srcDir(lib))], cb);
-                  });
-
-        gulp.task(generateTask(lib), [generateTypeScriptTask(lib)],
-                  function(cb){
-                      pump([
-                          gulp.src(sources.slice.map(sliceFile)),
-                          slice2js({dest: srcDir(lib)}),
-                          gulp.dest(srcDir(lib))], cb);
-                  });
-
-        gulp.task(libTask(lib), [generateTask(lib)],
-            function(cb){
-                pump([
-                    gulp.src(libSources(lib, sources)),
-                    sourcemaps.init(),
-                    bundle(
-                        {
-                            srcDir: srcDir(lib),
-                            modules: sources.modules,
-                            target: libFile(lib)
-                        }),
-                    sourcemaps.write("../lib", {sourceRoot:"/src", addComment: false}),
-                    gulp.dest("lib"),
-                    gzip(),
-                    gulp.dest("lib")], cb);
-            });
-
-        gulp.task(minLibTask(lib), [libTask(lib)],
-            function(cb){
-                pump([
-                    gulp.src(libFile(lib)),
-                    newer(libFileMin(lib)),
-                    sourcemaps.init({loadMaps: false}),
-                    terser(),
-                    extreplace(".min.js"),
-                    sourcemaps.write(".", {includeContent: false, addComment: false}),
-                    gulp.dest("lib"),
-                    gzip(),
-                    gulp.dest("lib")], cb);
-            });
-
-        gulp.task(babelTask(lib), [generateTask(lib)],
-            function(cb){
-                pump([
-                    gulp.src(path.join("src", lib, "*.js")),
-                    newer(path.join("src", "es5", lib)),
-                    babel({compact:false}),
-                    gulp.dest(path.join("src", "es5", lib))], cb);
-            });
-
-        gulp.task(babelLibTask(lib), [libTask(lib)],
-            function(cb){
-                pump([
-                    gulp.src(libFile(lib)),
-                    newer(babelLibFile(lib)),
-                    sourcemaps.init(),
-                    babel({compact:false}),
-                    sourcemaps.write("."),
-                    gulp.dest("lib/es5"),
-                    gzip(),
-                    gulp.dest("lib/es5")], cb);
-            });
-
-        gulp.task(babelMinLibTask(lib), [babelLibTask(lib)],
-            function(cb){
-                pump([
-                    gulp.src(babelLibFile(lib)),
-                    newer(babelLibFileMin(lib)),
-                    terser(),
-                    extreplace(".min.js"),
-                    sourcemaps.write(".", {includeContent: false, addComment: false}),
-                    gulp.dest("lib/es5"),
-                    gzip(),
-                    gulp.dest("lib/es5")], cb);
-            });
-
-        gulp.task(libCleanTask(lib), [], function(){ del(libGeneratedFiles(lib, sources)); });
-    });
-
-gulp.task("ts:bundle", libs.map(generateTypeScriptTask),
-    function(cb){
-        pump([
-            gulp.src("./src/index.d.ts"),
-            tsbundle(),
-            tsformat({}),
-            gulp.dest("lib")], cb);
-    });
-
-gulp.task("ts:bundle:clean", [],
-    function(){
-        del("./lib/index.d.ts");
-    });
-
-gulp.task("dist", useBinDist ? [] :
-    libs.map(libTask).concat(libs.map(minLibTask))
-                     .concat(libs.map(babelMinLibTask))
-                     .concat(libs.map(babelTask))
-                     .concat(["ts:bundle"]));
-
-gulp.task("dist:clean", libs.map(libCleanTask).concat("ts:bundle:clean"));
-
-var buildDepends = ["dist", "test", "test:ts"];
-var cleanDepends = ["test:clean", "test:ts:clean", "common:clean"];
-
-if(!useBinDist)
+for(const name of tstests)
 {
-    gulp.task("ice-module:package", ["dist"],
-        function(cb){
-            pump([gulp.src(['package.json']), gulp.dest(path.join("node_modules", "ice"))], cb);
-        });
-    gulp.task("ice-module", ["ice-module:package"],
-        function(cb){
-            pump([gulp.src(['src/**/*']), gulp.dest(path.join("node_modules", "ice", "src"))], cb);
-        });
-        buildDepends.push("ice-module");
+    gulp.task(testTypeScriptSliceCompileJsTask(name),
+              cb =>
+              {
+                  const outdir = path.join(root, name);
+                  pump([gulp.src(path.join(outdir, "*.ice")),
+                        slice2js({include: [outdir], dest: outdir}),
+                        gulp.dest(outdir)], cb);
+              });
 
-    gulp.task("ice-module:clean", [],
-        function(cb){
-            pump([gulp.src(['node_modules/ice']), paths(del)], cb);
-        });
-        cleanDepends.push("ice-module:clean");
+    gulp.task(testTypeScriptSliceCompileTsTask(name),
+              cb =>
+              {
+                  const outdir = path.join(root, name);
+                  pump([gulp.src(path.join(outdir, "*.ice")),
+                        slice2js({include: [outdir], dest: outdir, args: ["--typescript"]}),
+                        gulp.dest(outdir)], cb);
+              });
+
+    gulp.task(testTypeScriptCompileTask(name),
+              cb =>
+              {
+                  pump([gulp.src(path.join(name, "*.ts")),
+                        tsc(
+                            {
+                                lib: ["dom", "es2017"],
+                                target: "es2017",
+                                module: "commonjs",
+                                noImplicitAny: true
+                            }),
+                        gulp.dest(name)
+                       ], cb);
+              });
+
+    gulp.task(testTypeScriptBuildTask(name),
+              gulp.series(
+                  gulp.parallel(testTypeScriptSliceCompileJsTask(name), testTypeScriptSliceCompileTsTask(name)),
+                  testTypeScriptCompileTask(name)));
+
+
+    gulp.task(testTypeScriptCleanTask(name),
+              cb =>
+              {
+                  pump([gulp.src([path.join(name, "**/*.js"),
+                                  path.join(name, "**/*.d.ts")]),
+                        paths(del)], cb);
+              });
 }
 
-gulp.task("build", buildDepends);
-gulp.task("clean", cleanDepends.concat(useBinDist ? [] : ["dist:clean"]));
-gulp.task("default", ["build"]);
+gulp.task("test:ts", gulp.series(tstests.map(testTypeScriptBuildTask)));
+gulp.task("test:ts:clean", gulp.parallel(tstests.map(testTypeScriptCleanTask)));
+
+gulp.task("build", gulp.series("dist", "ice:module", "test", "test:ts"));
+gulp.task("clean", gulp.series("dist:clean", "ice:module:clean", "test:clean", "test:ts:clean"));
+gulp.task("default", gulp.series("build"));

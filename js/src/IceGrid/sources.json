@@ -12,5 +12,5 @@
         "IceGrid/UserAccountMapper.ice"],
 
     "common":
-        ["IceGrid/IceGrid.js"]
+        ["IceGrid.js"]
 }

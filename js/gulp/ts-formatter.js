@@ -8,6 +8,11 @@ var PLUGIN_NAME = "ts-formatter";
 var through     = require("through2");
 var formatter   = require('typescript-formatter');
 
+function createBuffer(data)
+{
+    return typeof Buffer.from === 'function' ? Buffer.from(data, "utf8") : new Buffer(data, "utf8");
+}
+
 function format(options)
 {
     return through.obj((file, enc, cb) =>
@@ -23,7 +28,7 @@ function format(options)
                                formatter.processString(file.path, String(file.contents), options).then(
                                    result =>
                                        {
-                                           file.contents = new Buffer(result.dest);
+                                           file.contents = createBuffer(result.dest);
                                            cb(null, file);
                                        });
                            }
