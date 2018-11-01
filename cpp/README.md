@@ -193,7 +193,7 @@ cd cpp
 
 Now you're ready to build Ice:
 ```
-msbuild msbuild\ice.proj
+msbuild /m msbuild\ice.proj
 ```
 
 This builds the Ice for C++ SDK and the Ice for C++ test suite, with
@@ -202,7 +202,7 @@ Release binaries for the default platform.
 Set the MSBuild `Configuration` property to `Debug` to build debug binaries
 instead:
 ```
-msbuild msbuild\ice.proj /p:Configuration=Debug
+msbuild /m msbuild\ice.proj /p:Configuration=Debug
 ```
 
 The `Configuration` property may be set to `Debug` or `Release`.
@@ -210,17 +210,17 @@ The `Configuration` property may be set to `Debug` or `Release`.
 Set the MSBuild `Platform` property to `Win32` or `x64` to build binaries
 for a specific platform, for example:
 ```
-msbuild msbuild\ice.proj /p:Configuration=Debug /p:Platform=x64
+msbuild /m msbuild\ice.proj /p:Configuration=Debug /p:Platform=x64
 ```
 
 You can also skip the build of the test suite with the `BuildDist` target:
 ```
-msbuild msbuild\ice.proj /t:BuildDist /p:Platform=x64
+msbuild /m msbuild\ice.proj /t:BuildDist /p:Platform=x64
 ```
 
 To build the test suite using the NuGet binary distribution use:
 ```
-msbuild msbuild\ice.proj /p:ICE_BIN_DIST=all
+msbuild /m msbuild\ice.proj /p:ICE_BIN_DIST=all
 ```
 
 You can also sign the Ice binaries with Authenticode, by setting the following
@@ -231,7 +231,7 @@ environment variables:
 
 ### Build Using Visual Studio
 
-Open the Visual Studio solution that correspond to the Visual Studio version you
+Open the Visual Studio solution that corresponds to the Visual Studio version you
 are using.
 
  - For Visual Studio 2017 use [msbuild/ice.v141.sln](./msbuild/ice.v141.sln)
@@ -240,41 +240,41 @@ are using.
  - For Visual Studio 2010 use [msbuild/ice.v100.sln](./msbuild/ice.v100.sln)
 
 Restore the solution NuGet packages using the NuGet package manager, if the automatic
-download of packages during build is enabled in Visual Studio that will be automatic.
+download of packages during build is not enabled.
 
 Using the configuration manager choose the platform and configuration you want to build.
 
-The solution provide a project for each Ice component and each component can be build
-separatelly, when you build a component its dependencies will be automatically build.
+The solution provide a project for each Ice component and each component can be built
+separatelly. When you build a component its dependencies are built automatically.
 
-For Visual Studio 2017 and Visual Studio 2015 the solutions organize the projects in two
-solution folders C++11 and C++98 corresponding to the C++11 and C++98 mappings, if you
-want to build all the C++11 mapping components you can build the C++11 solution folder
-likewise if you want to build all the C++98 mapping components you can build the C++98
+For Visual Studio 2017 and Visual Studio 2015, the solutions organize the projects in two
+solution folders, C++11 and C++98, which correspond to the C++11 and C++98 mappings. If you
+want to build all the C++11 mapping components, build the C++11 solution folder;
+likewise if you want to build all the C++98 mapping components, build the C++98
 solution folder.
 
-For Visual Studio 2013 and Visual Studio 2010 there is no separate solution folders because
+For Visual Studio 2013 and Visual Studio 2010. there is no separate solution folder because
 only the C++98 mapping is supported with these compilers.
 
-The test suite is build using separate Visual Studio Solutions:
+The test suite is built using separate Visual Studio solutions:
 
  - Ice Test Suite for Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.test.sln](./msbuild/ice.test.sln)
  - Ice Test Suite for Visual Studio 2010 [msbuild/ice.test.v100.sln](./msbuild/ice.test.v100.sln)
  - Ice OpenSSL Test Suite for Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
-The solution provide a separate project for each test component, the `Cpp11-Release` and `Cpp11-Debug` build
-configurations are setup to use the C++11 mapping in release and debug mode respectively and are only supported
+The solution provides a separate project for each test component, the `Cpp11-Release` and `Cpp11-Debug` build
+configurations are setup to use the C++11 mapping in release and debug mode respectively, and are only supported
 with Visual Studio 2017 and Visual Studio 2015. The `Release` and `Debug` build configurations are setup to
 use the C++98 mapping in release and debug mode respectively.
 
-The building of the test uses by default the local source build, and you must have build the Ice
+The building of the test uses by default the local source build, and you must have built the Ice
 source with the same platform and configuration than you are attemping to build the tests.
 
-For example to build the `Cpp11-Release/x64` tests you must have build first the C++11 mapping
+For example to build the `Cpp11-Release/x64` tests you must have built first the C++11 mapping
 using `Release/x64`.
 
 It is also possible to build the tests using a C++ binary distribution, to do that you must
-set `ICE_BIN_DIST` environment variable to `all` before starting Visual Studio.
+set the `ICE_BIN_DIST` environment variable to `all` before starting Visual Studio.
 
 Then launch Visual Studio and open the desired test solution, you must now use NuGet package
 manager to restore the NuGet packages, and the build will use Ice NuGet packages instead of
@@ -307,21 +307,21 @@ msbuild msbuild\ice.proj /t:UWPBuild /p:ICE_BIN_DIST=all
 Before building Ice for UWP using Visual Studio you must build the slice2cpp compiler
 from the C++98 mapping, refer to [Building Ice for Windows](#building-ice-for-windows).
 
-Using either Visual Studio 2017 or Visual Studio 2015 open the [msbuild/ice.uwp.sln](./msbuild/ice.uwp.sln)
+Using either Visual Studio 2017 or Visual Studio 2015, open the [msbuild/ice.uwp.sln](./msbuild/ice.uwp.sln)
 
 Choose the platform and configuration you want to build using the configuration manager.
 
-The solution provide a project for each Ice component and each component can be build
-separatelly, when you build a component its dependencies will be automatically build.
+The solution provides a project for each Ice component and each component can be built
+separately. When you build a component, its dependencies are built automatically.
 
-The test suite is build using separate Visual Studio Solution [msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln)
-the solution includes a project for each test and a project for the UWP test controller
+The test suite is built using a separate Visual Studio solution [msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln).
+This solution includes a project for each test and a project for the UWP test controller
 required to run the test suite.
 
 It is also possible to build the tests using a C++ binary distribution, to do that you must
 set `ICE_BIN_DIST` environment variable to `all` before starting Visual Studio.
 
-Then launch Visual Studio and open [msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln) solution,
+Then launch Visual Studio and open the [msbuild/ice.testuwp.sln](./msbuild/ice.testuwp.sln) solution,
 you must now use NuGet package manager to restore the NuGet packages, and the build will use
 Ice NuGet packages instead of your local source build.
 
