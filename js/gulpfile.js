@@ -298,8 +298,12 @@ else
               gulp.series(gulp.parallel(libs.map(libCleanTask).concat("ts:bundle:clean")),
                           cb =>
                           {
-                              pump([gulp.src(path.join(root, "lib", "es5"), {allowEmpty: true}),
-                                    paths(del)], cb);
+                              const srcs = [gulp.src(path.join(root, "lib", "es5"), {allowEmpty: true})];
+                              for(const lib of libs)
+                              {
+                                  srcs.push(gulp.src(path.join(root, "src", "es5", lib), {allowEmpty: true}));
+                              }
+                              pump([...srcs, paths(del)], cb);
                           }));
 
     gulp.task("ice:module:package",
@@ -446,7 +450,7 @@ for(const name of tests)
     gulp.task(testBabelTask(name),
               cb =>
               {
-                  const outdir = path.join(root, name).replace("test", path.join("test", "es5"));
+                  const outdir = path.join(root, name.replace("test/", "test/es5/"));
                   pump([gulp.src([path.join(root, name, "*.js")]),
                         babel({compact: false}),
                         gulp.dest(outdir)], cb);
@@ -557,7 +561,6 @@ for(const name of tstests)
               gulp.series(
                   gulp.parallel(testTypeScriptSliceCompileJsTask(name), testTypeScriptSliceCompileTsTask(name)),
                   testTypeScriptCompileTask(name)));
-
 
     gulp.task(testTypeScriptCleanTask(name),
               cb =>
