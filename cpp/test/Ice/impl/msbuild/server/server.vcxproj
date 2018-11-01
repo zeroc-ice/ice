@@ -126,56 +126,56 @@
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Debug|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Cpp11-Release|x64'">
     <ClCompile>
       <AdditionalIncludeDirectories>..\..;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>STRING_VIEW_IGNORE_STRING_CONVERTER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4503</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Label="IceBuilder">
