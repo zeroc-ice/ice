@@ -871,7 +871,7 @@ allTests(Test::TestHelper* helper)
         int i = 0;
         for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
-            *p = '1' + i++;
+            *p = static_cast<Ice::Byte>('1' + i++);
         }
 
         MyByteSeq out;
@@ -1585,7 +1585,7 @@ allTests(Test::TestHelper* helper)
             int i = 0;
             for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
             {
-                *p = '1' + i++;
+                *p = static_cast<Ice::Byte>('1' + i++);
             }
 
 #ifdef ICE_CPP11_MAPPING
@@ -2535,7 +2535,7 @@ allTests(Test::TestHelper* helper)
         int i = 0;
         for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
-            *p = '1' + i++;
+            *p = static_cast<Ice::Byte>('1' + i++);
         }
 
 #ifdef ICE_CPP11_MAPPING

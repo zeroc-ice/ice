@@ -900,7 +900,7 @@ SChannel::TransceiverI::startWrite(IceInternal::Buffer& buffer)
         _bufferedW = encryptMessage(buffer);
     }
 
-    return _delegate->startWrite(_writeBuffer) && _bufferedW == (buffer.b.end() - buffer.i);
+    return _delegate->startWrite(_writeBuffer) && _bufferedW == static_cast<size_t>((buffer.b.end() - buffer.i));
 }
 
 void

@@ -1470,7 +1470,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
                 return false;
             }
 
-            assert(buf.i = buf.b.begin());
+            assert(buf.i == buf.b.begin());
             prepareWriteHeader(OP_DATA, buf.b.size());
 
             _writeState = WriteStatePayload;

@@ -56,6 +56,7 @@ IceInternal::UdpTransceiver::getAsyncInfo(SocketOperation status)
         return 0;
     }
 #elif defined(ICE_OS_UWP)
+    UNREFERENCED_PARAMETER(status);
     return &_write;
 #endif
 }
@@ -499,8 +500,8 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             }
         }
     }
-#endif
     return true;
+#endif
 }
 
 #ifdef ICE_OS_UWP
@@ -587,7 +588,7 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
 #endif
     }
 
-    assert(_write.count == buf.b.size());
+    assert(static_cast<size_t>(_write.count) == buf.b.size());
     buf.i = buf.b.end();
 }
 
@@ -661,7 +662,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
     DatagramSocketMessageReceivedEventArgs^ args = _received.front();
     _received.pop_front();
 
-    int ret;
+    int ret = 0;
     try
     {
         DataReader^ reader = args->GetDataReader();

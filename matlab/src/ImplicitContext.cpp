@@ -35,7 +35,6 @@ Ice_ImplicitContext_getContext(void* self)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -65,7 +64,6 @@ Ice_ImplicitContext_containsKey(void* self, mxArray* key)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -79,7 +77,6 @@ Ice_ImplicitContext_get(void* self, mxArray* key)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -95,7 +92,6 @@ Ice_ImplicitContext_put(void* self, mxArray* key, mxArray* value)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -110,7 +106,6 @@ Ice_ImplicitContext_remove(void* self, mxArray* key)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 }

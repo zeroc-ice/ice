@@ -1522,7 +1522,7 @@ Slice::CsGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
                 }
 
                 string func = typeS;
-                func[0] = toupper(static_cast<unsigned char>(typeS[0]));
+                func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
                 if(marshal)
                 {
                     if(isArray)
@@ -2007,7 +2007,7 @@ Slice::CsGenerator::writeOptionalSequenceMarshalUnmarshalCode(Output& out,
         case Builtin::KindString:
         {
             string func = typeS;
-            func[0] = toupper(static_cast<unsigned char>(typeS[0]));
+            func[0] = static_cast<char>(toupper(static_cast<unsigned char>(typeS[0])));
             const bool isSerializable = seq->findMetaData("cs:serializable:", meta);
 
             if(marshal)

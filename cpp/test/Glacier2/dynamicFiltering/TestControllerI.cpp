@@ -64,7 +64,7 @@ TestControllerI::step(const Glacier2::SessionPrx& currentSession, const TestToke
     {
         case Test::Finished:
         {
-            assert("TestController::step() shouldn't have been called with a state of Finished" == 0);
+            assert(false);
             break;
         }
 

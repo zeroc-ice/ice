@@ -31,14 +31,7 @@ Ice_Communicator_unref(void* self)
 mxArray*
 Ice_Communicator_destroy(void* self)
 {
-    try
-    {
-        deref<Ice::Communicator>(self)->destroy();
-    }
-    catch(const std::exception& ex)
-    {
-        return convertException(ex);
-    }
+    deref<Ice::Communicator>(self)->destroy();
     return 0;
 }
 
@@ -101,7 +94,6 @@ Ice_Communicator_proxyToString(void* self, void* proxy)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -140,7 +132,6 @@ Ice_Communicator_proxyToProperty(void* self, void* proxy, const char* prop)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -156,7 +147,6 @@ Ice_Communicator_identityToString(void* self, mxArray* id)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*

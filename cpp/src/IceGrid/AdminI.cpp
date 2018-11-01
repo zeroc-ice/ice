@@ -802,7 +802,6 @@ AdminI::getNodeLoad(const string& name, const Current&) const
         os << ex;
         throw NodeUnreachableException(name, os.str());
     }
-    return LoadInfo(); // Keep the compiler happy.
 }
 
 int
@@ -865,7 +864,6 @@ AdminI::getNodeHostname(const string& name, const Current&) const
         ostringstream os;
         os << ex;
         throw NodeUnreachableException(name, os.str());
-        return ""; // Keep the compiler happy.
     }
 }
 
@@ -926,7 +924,6 @@ AdminI::pingRegistry(const string& name, const Current&) const
     {
         return false;
     }
-    return false;
 }
 
 void

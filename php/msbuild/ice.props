@@ -34,6 +34,7 @@
   </ItemGroup>
   <ItemDefinitionGroup>
     <ClCompile>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100;4127;4244;4310;4456;4611</DisableSpecificWarnings>
       <PreprocessorDefinitions>_CONSOLE;_WIN32_WINNT=0x601;WIN32</PreprocessorDefinitions>
     </ClCompile>
   </ItemDefinitionGroup>

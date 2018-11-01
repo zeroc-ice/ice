@@ -1224,7 +1224,7 @@ ZEND_FUNCTION(Ice_initialize)
 
         member = "properties";
         {
-            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size())))
+            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size())) != 0)
             {
                 assert(Z_TYPE_P(data) == IS_INDIRECT);
                 if(!fetchProperties(Z_INDIRECT_P(data), initData.properties))
@@ -1236,7 +1236,7 @@ ZEND_FUNCTION(Ice_initialize)
 
         member = "logger";
         {
-            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size())))
+            if((data = zend_hash_str_find(Z_OBJPROP_P(zvinit), STRCAST(member.c_str()), member.size())) != 0)
             {
                 assert(Z_TYPE_P(data) == IS_INDIRECT);
                 if(!fetchLogger(Z_INDIRECT_P(data), initData.logger))

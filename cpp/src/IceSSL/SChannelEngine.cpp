@@ -82,7 +82,7 @@ addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, co
     do
     {
         if((next = CertFindCertificateInStore(source, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
-                                              findType, findParam, next)))
+                                              findType, findParam, next)) != 0)
         {
             if(!CertAddCertificateContextToStore(target, next, CERT_STORE_ADD_ALWAYS, 0))
             {
@@ -95,7 +95,7 @@ addMatchingCertificates(HCERTSTORE source, HCERTSTORE target, DWORD findType, co
 }
 
 vector<PCCERT_CONTEXT>
-findCertificates(const string& location, const string& name, const string& value, vector<HCERTSTORE>& stores)
+findCertificates(const string& location, const string& storeName, const string& value, vector<HCERTSTORE>& stores)
 {
     DWORD storeLoc;
     if(location == "CurrentUser")
@@ -107,10 +107,10 @@ findCertificates(const string& location, const string& name, const string& value
         storeLoc = CERT_SYSTEM_STORE_LOCAL_MACHINE;
     }
 
-    HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, Ice::stringToWstring(name).c_str());
+    HCERTSTORE store = CertOpenStore(CERT_STORE_PROV_SYSTEM, 0, 0, storeLoc, Ice::stringToWstring(storeName).c_str());
     if(!store)
     {
-        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: failed to open certificate store `" + name +
+        throw PluginInitializationException(__FILE__, __LINE__, "IceSSL: failed to open certificate store `" + storeName +
                                             "':\n" + IceUtilInternal::lastErrorToString());
     }
 
@@ -274,7 +274,7 @@ findCertificates(const string& location, const string& name, const string& value
                     do
                     {
                         if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
-                                                              CERT_FIND_ANY, 0, next)))
+                                                              CERT_FIND_ANY, 0, next)) != 0)
                         {
                             if(CertCompareIntegerBlob(&serial, &next->pCertInfo->SerialNumber))
                             {
@@ -316,7 +316,7 @@ findCertificates(const string& location, const string& name, const string& value
         do
         {
             if((next = CertFindCertificateInStore(store, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0, CERT_FIND_ANY, 0,
-                                                  next)))
+                                                  next)) != 0)
             {
                 certs.push_back(next);
             }
@@ -783,21 +783,21 @@ SChannel::SSLEngine::initialize()
 
         for(size_t i = 0; i < certFiles.size(); ++i)
         {
-            string certFile = certFiles[i];
+            string cFile = certFiles[i];
             string resolved;
-            if(!checkPath(certFile, defaultDir, false, resolved))
+            if(!checkPath(cFile, defaultDir, false, resolved))
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: certificate file not found:\n" + certFile);
+                                                    "IceSSL: certificate file not found:\n" + cFile);
             }
-            certFile = resolved;
+            cFile = resolved;
 
             vector<char> buffer;
-            readFile(certFile, buffer);
+            readFile(cFile, buffer);
             if(buffer.empty())
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
-                                                    "IceSSL: certificate file is empty:\n" + certFile);
+                                                    "IceSSL: certificate file is empty:\n" + cFile);
             }
 
             CRYPT_DATA_BLOB pfxBlob;
@@ -994,7 +994,7 @@ SChannel::SSLEngine::initialize()
                                                         "store:\n" + lastErrorToString());
                 }
 
-                addCertificatesToStore(certFile, store, &cert);
+                addCertificatesToStore(cFile, store, &cert);
 
                 //
                 // Associate key & certificate

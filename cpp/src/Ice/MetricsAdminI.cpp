@@ -203,9 +203,9 @@ MetricsMapI::MetricsMapI(const std::string& mapPrefix, const PropertiesPtr& prop
 }
 
 MetricsMapI::MetricsMapI(const MetricsMapI& map) :
-#ifdef ICE_CPP11_MAPPING
+#if defined(ICE_CPP11_MAPPING)
     std::enable_shared_from_this<MetricsMapI>(),
-#else
+#elif defined(__GNUC__)
     IceUtil::Shared(),
 #endif
     _properties(map._properties),

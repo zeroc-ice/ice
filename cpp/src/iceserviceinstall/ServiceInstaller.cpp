@@ -853,14 +853,6 @@ IceServiceInstaller::removeSource(const string& source) const
         RegCloseKey(key);
         throw runtime_error("Error while searching EventLog with source '" + source + "': " + IceUtilInternal::errorToString(res));
     }
-
-    res = RegCloseKey(key);
-    if(res != ERROR_SUCCESS)
-    {
-        throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
-    }
-
-    return ""; // To keep compilers happy.
 }
 
 string

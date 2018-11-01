@@ -240,8 +240,8 @@ PlatformInfo::PlatformInfo(const string& prefix,
 #ifdef _WIN32
     _os = "Windows";
     char hostname[MAX_COMPUTERNAME_LENGTH + 1];
-    unsigned long size = sizeof(hostname);
-    if(GetComputerName(hostname, &size))
+    unsigned long hsize = sizeof(hostname);
+    if(GetComputerName(hostname, &hsize))
     {
         _hostname = hostname;
     }
@@ -627,7 +627,7 @@ PlatformInfo::runUpdateLoadInfo()
         }
 
         int usage = 100;
-        PDH_STATUS err = PdhCollectQueryData(query);
+        err = PdhCollectQueryData(query);
         if(err == ERROR_SUCCESS)
         {
             DWORD type;

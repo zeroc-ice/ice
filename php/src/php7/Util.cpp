@@ -265,9 +265,12 @@ IcePHP::extractIdentity(zval* zv, Ice::Identity& id)
     zval categoryVal;
     ZVAL_UNDEF(&categoryVal);
     zval nameVal;
+    ZVAL_UNDEF(&nameVal);
 
-    if(!getMember(zv, "category", &categoryVal, IS_STRING, false) ||
-       !getMember(zv, "name", &nameVal, IS_STRING, true))
+    bool catOk = getMember(zv, "category", &categoryVal, IS_STRING, false);
+    bool nameOk = getMember(zv, "name", &nameVal, IS_STRING, true);
+
+    if(!catOk || !nameOk)
     {
         return false;
     }

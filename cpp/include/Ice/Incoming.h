@@ -145,6 +145,12 @@ protected:
     DispatchInterceptorCallbacks _interceptorCBs;
 };
 
+// TODO: fix this warning
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#   pragma warning(push)
+#   pragma warning(disable:4239)
+#endif
+
 class ICE_API Incoming : public IncomingBase
 {
 public:
@@ -214,6 +220,10 @@ private:
 
     IncomingAsyncPtr _inAsync;
 };
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#   pragma warning(pop)
+#endif
 
 }
 

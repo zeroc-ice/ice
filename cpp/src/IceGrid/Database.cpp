@@ -546,8 +546,6 @@ Database::getApplications(Ice::Long& serial)
         logError(_communicator, ex);
         throw;
     }
-    assert(false);
-    return ApplicationInfoSeq();
 }
 
 AdapterInfoSeq
@@ -565,8 +563,6 @@ Database::getAdapters(Ice::Long& serial)
         logError(_communicator, ex);
         throw;
     }
-    assert(false);
-    return AdapterInfoSeq();
 }
 
 ObjectInfoSeq
@@ -584,8 +580,6 @@ Database::getObjects(Ice::Long& serial)
         logError(_communicator, ex);
         throw;
     }
-    assert(false);
-    return ObjectInfoSeq();
 }
 
 StringLongDict

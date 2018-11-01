@@ -459,7 +459,7 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
                 if((*oli)->hasMarshaledResult())
                 {
                     string name = (*oli)->name();
-                    name[0] = toupper(static_cast<unsigned char>(name[0]));
+                    name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
                     _out << sp;
                     _out << nl << "\"\"\"";
                     _out << nl << "Immediately marshals the result of an invocation of " << (*oli)->name()

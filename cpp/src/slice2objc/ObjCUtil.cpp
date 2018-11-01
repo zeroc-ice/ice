@@ -241,7 +241,7 @@ Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
     }
     else if(deprecated || name.size() < 2 || !isupper(*(name.begin() + 1)))
     {
-        *name.begin() = tolower(*name.begin());
+        *name.begin() = static_cast<char>(tolower(*name.begin()));
     }
     else
     {
@@ -251,7 +251,7 @@ Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
             {
                 break;
             }
-            *q = tolower(*q);
+            *q = static_cast<char>(tolower(*q));
         }
     }
     return name;

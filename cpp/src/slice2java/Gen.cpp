@@ -19,7 +19,11 @@
 #include <limits>
 
 // TODO: fix this warning!
-#if defined(__clang__)
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#elif defined(__clang__)
 #   pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wshadow"
@@ -176,7 +180,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
             abs = getUnqualified(c, package, "", "Disp");
         }
         string name = op->name();
-        name[0] = toupper(static_cast<unsigned char>(name[0]));
+        name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
         return abs + "." + name + "MarshaledResult";
     }
     else if(op->returnsMultipleValues())
@@ -185,7 +189,7 @@ Slice::JavaVisitor::getResultType(const OperationPtr& op, const string& package,
         assert(c);
         const string abs = getUnqualified(c, package);
         string name = op->name();
-        name[0] = toupper(static_cast<unsigned char>(name[0]));
+        name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
         return abs + "." + name + "Result";
     }
     else
@@ -230,7 +234,7 @@ void
 Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const string& package, const CommentPtr& dc)
 {
     string opName = op->name();
-    opName[0] = toupper(static_cast<unsigned char>(opName[0]));
+    opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
 
     out << sp << nl << "public static class " << opName << "Result";
     out << sb;
@@ -509,7 +513,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     const TypePtr ret = op->returnType();
     const ClassDefPtr cl = ClassDefPtr::dynamicCast(op->container());
     assert(cl);
-    opName[0] = toupper(static_cast<unsigned char>(opName[0]));
+    opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
 
     out << sp << nl << "public static class " << opName << "MarshaledResult implements "
         << getUnqualified("com.zeroc.Ice.MarshaledResult", package) << sb;
@@ -1690,7 +1694,7 @@ Slice::JavaVisitor::writeDataMemberInitializers(Output& out, const DataMemberLis
             if((*p)->optional())
             {
                 string capName = (*p)->name();
-                capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                 out << nl << "set" << capName << '(';
                 writeConstantValue(out, t, (*p)->defaultValueType(), (*p)->defaultValue(), package);
                 out << ");";
@@ -2578,7 +2582,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if((*d)->optional())
                 {
                     string capName = paramName;
-                    capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                    capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                     out << nl << "set" << capName << '(' << paramName << ");";
                 }
                 else
@@ -3008,7 +3012,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 if((*d)->optional())
                 {
                     string capName = paramName;
-                    capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                    capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                     out << nl << "set" << capName << '(' << paramName << ");";
                 }
                 else
@@ -3051,7 +3055,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     if((*d)->optional())
                     {
                         string capName = paramName;
-                        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                         out << nl << "set" << capName << '(' << paramName << ");";
                     }
                     else
@@ -3676,7 +3680,7 @@ Slice::Gen::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     if(getSet || optional)
     {
         string capName = p->name();
-        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
         //
         // If container is a class, get all of its operations so that we can check for conflicts.

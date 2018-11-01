@@ -45,6 +45,12 @@ public:
 namespace IceInternal
 {
 
+// TODO: fix this warning
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#   pragma warning(push)
+#   pragma warning(disable:4239)
+#endif
+
 //
 // We need virtual inheritance from AMDCallback, because we use multiple
 // inheritance from Ice::AMDCallback for generated AMD code.
@@ -117,6 +123,10 @@ private:
     //
     const ResponseHandlerPtr _responseHandlerCopy;
 };
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#   pragma warning(pop)
+#endif
 
 }
 

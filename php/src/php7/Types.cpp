@@ -1058,7 +1058,7 @@ IcePHP::EnumInfo::EnumInfo(const string& ident, zval* en) :
     zval* val;
 
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while((val = zend_hash_get_current_data_ex(arr, &pos)))
+    while((val = zend_hash_get_current_data_ex(arr, &pos)) != 0)
     {
         assert(Z_TYPE_P(val) == IS_STRING);
         string name = Z_STRVAL_P(val);

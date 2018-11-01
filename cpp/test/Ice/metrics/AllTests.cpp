@@ -515,13 +515,13 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     if(!collocated)
     {
         test(invoke->remotes.size() == 2);
-        test(invoke->remotes[0]->total = 2);
-        test(invoke->remotes[1]->total = 3);
+        test(invoke->remotes[0]->total == 2);
+        test(invoke->remotes[1]->total == 3);
     }
     else
     {
         test(invoke->collocated.size() == 1);
-        test(invoke->collocated[0]->total = 5);
+        test(invoke->collocated[0]->total == 5);
     }
 
     view = serverMetrics->getMetricsView("View", timestamp);

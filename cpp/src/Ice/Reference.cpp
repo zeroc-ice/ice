@@ -672,77 +672,66 @@ ReferencePtr
 IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& /*newEndpoints*/) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeAdapterId(const string& /*newAdapterId*/) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeLocator(const LocatorPrxPtr&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeRouter(const RouterPrxPtr&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeCollocationOptimized(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeCacheConnection(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changePreferSecure(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeEndpointSelection(EndpointSelectionType) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeTimeout(int) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeConnectionId(const string&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
@@ -779,9 +768,6 @@ PropertyDict
 IceInternal::FixedReference::toProperty(const string&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-
-    assert(false);   // Cannot be reached.
-    return PropertyDict(); // To keep the compiler from complaining.
 }
 
 RequestHandlerPtr

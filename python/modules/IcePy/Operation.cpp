@@ -3826,7 +3826,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     //
     // Ignore the return value of _iceDispatch -- it will use the dispatch callback.
     //
-    PyObjectHandle ignore = PyObject_Call(dispatchMethod.get(), dispatchArgs.get(), 0);
+    PyObjectHandle ignored = PyObject_Call(dispatchMethod.get(), dispatchArgs.get(), 0);
 
     //
     // Check for exceptions.

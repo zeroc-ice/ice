@@ -464,11 +464,11 @@ writeDocSummary(Output& out, const ContainedPtr& p)
         case Contained::ContainedTypeStruct:
         case Contained::ContainedTypeException:
         {
-            UnitPtr unit = p->container()->unit();
+            UnitPtr unt = p->container()->unit();
             string file = p->file();
             assert(!file.empty());
             static const string prefix = "cpp:doxygen:include:";
-            DefinitionContextPtr dc = unit->findDefinitionContext(file);
+            DefinitionContextPtr dc = unt->findDefinitionContext(file);
             assert(dc);
             string q = dc->findMetaData(prefix);
             if(!q.empty())
@@ -5150,6 +5150,14 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         }
     }
 
+    H.zeroIndent();
+    H << sp;
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+    H << nl << "#   pragma warning(push)";
+    H << nl << "#   pragma warning(disable:4239)";
+    H << nl << "#endif";
+    H.restoreIndent();
+
     H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
       << " : public " << classScopedAMD  << '_' << name << ", public ::IceInternal::IncomingAsync";
     H << sb;
@@ -5163,6 +5171,13 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     H << sp;
     H << nl << "virtual void ice_response(" << params << ");";
     H << eb << ';';
+
+    H.zeroIndent();
+    H << sp;
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+    H << nl << "#   pragma warning(pop)";
+    H << nl << "#endif";
+    H.restoreIndent();
 
     C << sp;
     C << nl << "/// \\cond INTERNAL";

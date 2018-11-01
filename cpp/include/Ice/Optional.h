@@ -554,6 +554,10 @@ public:
     return contained_val();
   }
 
+#ifdef _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable:4702) // unreachable code
+#endif
   constexpr T const& value() const {
     return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
   }
@@ -561,6 +565,10 @@ public:
   T& value() {
     return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
   }
+
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#endif
 
 # endif
 

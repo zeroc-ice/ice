@@ -74,7 +74,7 @@ allTests(Test::TestHelper* helper)
     TestIntfPrxPtr obj = ICE_UNCHECKED_CAST(TestIntfPrx, base);
 
     int nRetry = 5;
-    bool ret;
+    bool ret = false;
     while(nRetry-- > 0)
     {
         replyI->reset();

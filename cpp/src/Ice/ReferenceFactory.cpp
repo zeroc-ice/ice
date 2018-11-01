@@ -541,8 +541,6 @@ IceInternal::ReferenceFactory::create(const string& str, const string& propertyP
             throw ProxyParseException(__FILE__, __LINE__, "malformed proxy `" + s + "'");
         }
     }
-
-    return 0; // Unreachable, prevents compiler warning.
 }
 
 ReferencePtr

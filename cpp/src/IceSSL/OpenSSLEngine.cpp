@@ -31,6 +31,10 @@
 #include <openssl/ssl.h>
 #include <openssl/pkcs12.h>
 
+#ifdef _MSC_VER
+#   pragma warning(disable:4127) // conditional expression is constant
+#endif
+
 using namespace std;
 using namespace Ice;
 using namespace IceSSL;
@@ -496,7 +500,7 @@ OpenSSL::SSLEngine::initialize()
                     while(count < passwordRetryMax)
                     {
                         ERR_clear_error();
-                        if((success = SSL_CTX_load_verify_locations(_ctx, file, dir)) || !passwordError())
+                        if((success = SSL_CTX_load_verify_locations(_ctx, file, dir)) != 0 || !passwordError())
                         {
                             break;
                         }
@@ -584,7 +588,7 @@ OpenSSL::SSLEngine::initialize()
                                 key = 0;
                                 cert = 0;
                                 chain = 0;
-                                if(!(success = PKCS12_parse(p12, password(false).c_str(), &key, &cert, &chain)))
+                                if((success = PKCS12_parse(p12, password(false).c_str(), &key, &cert, &chain)) == 0)
                                 {
                                     if(passwordError())
                                     {
@@ -666,7 +670,7 @@ OpenSSL::SSLEngine::initialize()
                         while(count < passwordRetryMax)
                         {
                             ERR_clear_error();
-                            if(!(success = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str())))
+                            if((success = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str())) == 0)
                             {
                                 if(passwordError())
                                 {

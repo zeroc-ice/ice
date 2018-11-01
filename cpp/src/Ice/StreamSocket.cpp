@@ -542,7 +542,7 @@ StreamSocket::startWrite(Buffer& buf)
     {
         checkErrorCode(__FILE__, __LINE__, ex->HResult);
     }
-    return packetSize == static_cast<int>(buf.b.end() - buf.i);
+    return packetSize == static_cast<size_t>(buf.b.end() - buf.i);
 }
 
 void

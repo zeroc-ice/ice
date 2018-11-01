@@ -87,14 +87,14 @@ allTests(Test::TestHelper* helper)
         Ice::OutputStream out(communicator);
         out.write(ICE_ENUM(ShortEnum, senum11));
         out.finished(bytes);
-        test(bytes.size() == (encoding_1_0 ? 2 : 5));
+        test(bytes.size() == (encoding_1_0 ? size_t(2) : size_t(5)));
     }
 
     {
         Ice::OutputStream out(communicator);
         out.write(ICE_ENUM(IntEnum, ienum11));
         out.finished(bytes);
-        test(bytes.size() == (encoding_1_0 ? 4 : 5));
+        test(bytes.size() == (encoding_1_0 ? size_t(4) : size_t(5)));
     }
 
     {

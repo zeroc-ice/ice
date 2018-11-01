@@ -29,7 +29,11 @@ using namespace Slice;
 using namespace IceUtilInternal;
 
 // TODO: fix this warning!
-#if defined(__clang__)
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#elif defined(__clang__)
 #   pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wshadow"
@@ -2024,7 +2028,7 @@ Slice::Gen::TypesVisitor::writeOptionalDataMemberSelectors(const DataMemberList&
         string paramName = getParamName(*q, true);
 
         string capName = (*q)->name();
-        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
         _H << nl << "-(void)set" << capName << ":(" << typeString << ")" << name << ";";
 

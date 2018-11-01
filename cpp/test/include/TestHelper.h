@@ -124,7 +124,7 @@ private:
         if(ch != EOF)
         {
             assert(pptr() != epptr());
-            sputc(ch);
+            sputc(static_cast<char>(ch));
         }
         return 0;
     }

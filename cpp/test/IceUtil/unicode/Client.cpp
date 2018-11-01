@@ -17,6 +17,10 @@
 #endif
 #include <fstream>
 
+#ifdef _MSC_VER
+#   pragma warning(disable:4127) // conditional expression is constant
+#endif
+
 // Uncomment to include performance testing
 //#define TEST_PERF
 

@@ -14,6 +14,11 @@
 #include <iostream>
 #include <locale.h>
 
+#ifdef _MSC_VER
+#   pragma warning(disable:4127) // conditional expression is constant
+#   pragma warning(disable:4310) // cast truncates constant value
+#endif
+
 using namespace std;
 
 static bool useLocale = false;

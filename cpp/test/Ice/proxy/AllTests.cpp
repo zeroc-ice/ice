@@ -13,6 +13,10 @@
 #include <TestHelper.h>
 #include <Test.h>
 
+#ifdef _MSC_VER
+#   pragma warning(disable:4125) // decimal digit terminates octal escape sequence
+#endif
+
 using namespace std;
 
 Test::MyClassPrxPtr

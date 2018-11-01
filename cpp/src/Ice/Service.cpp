@@ -567,7 +567,6 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
     // First check for the --service option.
     //
     string name;
-    string eventLogSource;
     int idx = 1;
     const StringConverterPtr stringConverter = getProcessStringConverter();
     while(idx < av.argc)

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|x64">
@@ -39,12 +39,14 @@
     <ClCompile>
       <PreprocessorDefinitions>MX_COMPAT_32;MATLAB_MEX_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..;$(MatlabHome)\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <PreprocessorDefinitions>MX_COMPAT_32;MATLAB_MEX_FILE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\..;$(MatlabHome)\extern\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>%(DisableSpecificWarnings);4100</DisableSpecificWarnings>
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -60,7 +62,7 @@
   </ImportGroup>
   <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.sign.targets" />
   <Target Name="MatlabHome" BeforeTargets="PrepareForBuild">
-    <Error Text="Cannot detect a valid MATLAB installation" Condition="!Exists('$(MatlabHome)')"/>
+    <Error Text="Cannot detect a valid MATLAB installation" Condition="!Exists('$(MatlabHome)')" />
   </Target>
   <Target Name="MATLABPrototype" BeforeTargets="CLCompile">
     <MakeDir Directories="$(Platform)\$(Configuration)" />

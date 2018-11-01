@@ -11,8 +11,7 @@
 #define ICE_UTIL_DISABLEWARNINGS_H
 
 //
-// This header file disables or makes non-fatal various compiler warnings that
-// we don't want.
+// This header file disables various compiler warnings that we don't want.
 //
 // IMPORTANT: Do *not* include this header file in another public header file!
 //            Doing this may potentially disable the warnings in the source
@@ -25,11 +24,11 @@
 //
 #if defined(_MSC_VER)
 #    define _CRT_SECURE_NO_DEPRECATE 1  // C4996 '<C function>' was declared deprecated
-#    pragma warning( 4 : 4996 ) // C4996 '<function>' was declared deprecated
-#    pragma warning( 4 : 4800 ) // C4800 forcing value to bool 'true' or 'false' (performance warning)
+#    pragma warning(disable:4996) // C4996 '<function>' was declared deprecated
+#    pragma warning(disable:4800) // C4800 forcing value to bool 'true' or 'false' (performance warning)
 
 #    if (_MSC_VER < 1700)
-#       pragma warning( 4 : 4355 ) // C4355 'this' : used in base member initializer list
+#       pragma warning(disable:4355) // C4355 'this' : used in base member initializer list
 #    endif
 #endif
 

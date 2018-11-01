@@ -30,6 +30,11 @@
 #include <IceUtil/Random.h>
 #include <functional>
 
+// TODO: fix this warning
+#if defined(_MSC_VER)
+#   pragma warning(disable:4244) // 'argument': conversion from 'int' to 'u_short', possible loss of data
+#endif
+
 #if defined(ICE_OS_UWP)
 #   include <IceUtil/InputUtil.h>
 #elif defined(_WIN32)
@@ -224,8 +229,6 @@ setTcpLoopbackFastPath(SOCKET fd)
 SOCKET
 createSocketImpl(bool udp, int)
 {
-    SOCKET fd;
-
     if(udp)
     {
         return ref new DatagramSocket();
@@ -237,8 +240,6 @@ createSocketImpl(bool udp, int)
         socket->Control->NoDelay = true;
         return socket;
     }
-
-    return fd;
 }
 #else
 SOCKET
@@ -1731,7 +1732,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
 }
 
 vector<string>
-IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport protocolSupport)
+IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport)
 {
     vector<string> interfaces;
     if(intf.empty() || intf == "0.0.0.0" || intf == "::" || intf == "0:0:0:0:0:0:0:0")
@@ -1857,7 +1858,7 @@ IceInternal::getPort(const Address& addr)
         return -1;
     }
 #else
-    IceUtil::Int64 port;
+    IceUtil::Int64 port = 0;
     //
     // Don't need to use any string converter here as the port number use just ASCII characters.
     //

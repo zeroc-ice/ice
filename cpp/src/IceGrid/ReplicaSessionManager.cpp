@@ -35,7 +35,7 @@ public:
     virtual void
     applicationInit(int, const ApplicationInfoSeq& applications, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         _database->syncApplications(applications, getSerials(current.ctx, serial));
         receivedUpdate(ApplicationObserverTopicName, serial);
     }
@@ -43,7 +43,7 @@ public:
     virtual void
     applicationAdded(int, const ApplicationInfo& application, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {
@@ -61,7 +61,7 @@ public:
     virtual void
     applicationRemoved(int, const std::string& name, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {
@@ -79,7 +79,7 @@ public:
     virtual void
     applicationUpdated(int, const ApplicationUpdateInfo& update, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {
@@ -103,7 +103,7 @@ public:
     virtual void
     adapterInit(const AdapterInfoSeq& adapters, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         _database->syncAdapters(adapters, getSerials(current.ctx, serial));
         receivedUpdate(AdapterObserverTopicName, serial);
     }
@@ -111,7 +111,7 @@ public:
     virtual void
     adapterAdded(const AdapterInfo& info, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {
@@ -127,7 +127,7 @@ public:
     virtual void
     adapterUpdated(const AdapterInfo& info, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {
@@ -143,7 +143,7 @@ public:
     virtual void
     adapterRemoved(const std::string& id, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {
@@ -159,7 +159,7 @@ public:
     virtual void
     objectInit(const ObjectInfoSeq& objects, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         _database->syncObjects(objects, getSerials(current.ctx, serial));
         receivedUpdate(ObjectObserverTopicName, serial);
     }
@@ -167,7 +167,7 @@ public:
     virtual void
     objectAdded(const ObjectInfo& info, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {
@@ -186,7 +186,7 @@ public:
     virtual void
     objectUpdated(const ObjectInfo& info, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {
@@ -211,7 +211,7 @@ public:
     virtual void
     objectRemoved(const Ice::Identity& id, const Ice::Current& current)
     {
-        int serial;
+        int serial = 0;
         string failure;
         try
         {

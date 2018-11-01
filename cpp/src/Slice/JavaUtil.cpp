@@ -231,9 +231,9 @@ public:
         TypePtr returnType = p->returnType();
         StringList metaData = getMetaData(p);
 
-        UnitPtr unit = p->unit();
+        UnitPtr unt = p->unit();
         string file = p->file();
-        DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
 
         if(!returnType)
         {
@@ -284,8 +284,8 @@ public:
 
         const string file =  p->file();
         const string line = p->line();
-        const UnitPtr unit = p->unit();
-        const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc = unt->findDefinitionContext(file);
 
         for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
         {
@@ -363,9 +363,9 @@ private:
         StringList metaData = cont->getMetaData();
         StringList result;
 
-        UnitPtr unit = cont->container()->unit();
+        UnitPtr unt = cont->container()->unit();
         string file = cont->file();
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        DefinitionContextPtr dc = unt->findDefinitionContext(file);
         assert(dc);
 
         for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
@@ -452,8 +452,8 @@ private:
     StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file,
                             const string& line)
     {
-        const UnitPtr unit = p->unit();
-        const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc = unt->findDefinitionContext(file);
         assert(dc);
         StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
@@ -549,8 +549,8 @@ private:
     StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file,
                               const string& line)
     {
-        const UnitPtr unit = p->unit();
-        const DefinitionContextPtr dc= unit->findDefinitionContext(file);
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc= unt->findDefinitionContext(file);
         assert(dc);
         StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
@@ -2192,7 +2192,7 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
             }
 
-            string ignore;
+            string ignored;
             const size_t wireSize = elemType->minWireSize();
 
             if(marshal)
@@ -2220,8 +2220,8 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                     writeSequenceMarshalUnmarshalCode(out, package, seq, s, marshal, iter, true, customStream, metaData);
                     out << nl << stream << ".endSize(pos);";
                 }
-                else if(findMetaData("java:type:", metaData, ignore) ||
-                        findMetaData("java:type:", seq->getMetaData(), ignore))
+                else if(findMetaData("java:type:", metaData, ignored) ||
+                        findMetaData("java:type:", seq->getMetaData(), ignored))
                 {
                     //
                     // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
@@ -2247,8 +2247,8 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                     }
                     writeSequenceMarshalUnmarshalCode(out, package, seq, tmpName, marshal, iter, true, customStream, metaData);
                 }
-                else if(findMetaData("java:protobuf:", seq->getMetaData(), ignore) ||
-                        findMetaData("java:serializable:", seq->getMetaData(), ignore))
+                else if(findMetaData("java:protobuf:", seq->getMetaData(), ignored) ||
+                        findMetaData("java:serializable:", seq->getMetaData(), ignored))
                 {
                     //
                     // This just writes a byte sequence.
@@ -2309,8 +2309,8 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else if(wireSize > 1)
                 {
-                    if(findMetaData("java:type:", metaData, ignore) ||
-                       findMetaData("java:type:", seq->getMetaData(), ignore))
+                    if(findMetaData("java:type:", metaData, ignored) ||
+                       findMetaData("java:type:", seq->getMetaData(), ignored))
                     {
                         //
                         // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
@@ -2318,8 +2318,8 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
 
                         out << nl << stream << ".skipSize();";
                     }
-                    else if(!findMetaData("java:protobuf:", seq->getMetaData(), ignore) &&
-                            !findMetaData("java:serializable:", seq->getMetaData(), ignore))
+                    else if(!findMetaData("java:protobuf:", seq->getMetaData(), ignored) &&
+                            !findMetaData("java:serializable:", seq->getMetaData(), ignored))
                     {
                         out << nl << stream << ".skipSize();";
                     }
@@ -3208,8 +3208,8 @@ Slice::JavaCompatGenerator::getSequenceTypes(const SequencePtr& seq,
         {
             string prefix = "java:buffer";
             string meta;
-            string ignore;
-            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
+            string ignored;
+            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignored))
             {
                 instanceType = formalType = typeToBufferString(seq->type());
                 return true;
@@ -4182,7 +4182,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     {
         if(optionalParam || mode == OptionalMember)
         {
-            string ignore;
+            string ignored;
             TypePtr elemType = seq->type();
             BuiltinPtr eltBltin = BuiltinPtr::dynamicCast(elemType);
             if(!hasTypeMetaData(seq, metaData) && eltBltin && eltBltin->kind() < Builtin::KindObject)
@@ -4199,7 +4199,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     return;
                 }
             }
-            else if(findMetaData("java:serializable", seq->getMetaData(), ignore))
+            else if(findMetaData("java:serializable", seq->getMetaData(), ignored))
             {
                 if(marshal)
                 {
@@ -4213,8 +4213,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
             }
             else if(!hasTypeMetaData(seq, metaData) ||
-                    findMetaData("java:type", seq->getMetaData(), ignore) ||
-                    findMetaData("java:type", metaData, ignore))
+                    findMetaData("java:type", seq->getMetaData(), ignored) ||
+                    findMetaData("java:type", metaData, ignored))
             {
                 string instanceType, formalType, origInstanceType, origFormalType;
                 getSequenceTypes(seq, "", metaData, instanceType, formalType, false);
@@ -4265,10 +4265,10 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     string s = optionalParam && optionalMapping ? param + ".get()" : param;
                     if(sz > 1)
                     {
-                        string ignore2;
+                        string ignored2;
                         out << nl << "final int optSize = " << s << " == null ? 0 : ";
-                        if(findMetaData("java:buffer", seq->getMetaData(), ignore2) ||
-                           findMetaData("java:buffer", metaData, ignore2))
+                        if(findMetaData("java:buffer", seq->getMetaData(), ignored2) ||
+                           findMetaData("java:buffer", metaData, ignored2))
                         {
                             out << s << ".remaining() / " << sz << ";";
                         }
@@ -5112,8 +5112,8 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
         {
             string prefix = "java:buffer";
             string meta;
-            string ignore;
-            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
+            string ignored;
+            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignored))
             {
                 instanceType = formalType = typeToBufferString(seq->type());
                 return true;

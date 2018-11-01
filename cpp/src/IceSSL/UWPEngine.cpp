@@ -104,10 +104,10 @@ importPfxData(String^ friendlyName, String^ data, String^ password)
 }
 
 Certificates::Certificate^
-importPersonalCertificate(const string& file, function<string ()> password, bool passwordPrompt,
+importPersonalCertificate(const string& filename, function<string ()> password, bool passwordPrompt,
                           int passwordRetryMax)
 {
-    auto uri = ref new Uri(ref new String(stringToWstring(file).c_str()));
+    auto uri = ref new Uri(ref new String(stringToWstring(filename).c_str()));
     try
     {
         auto file = IceInternal::runSync(StorageFile::GetFileFromApplicationUriAsync(uri));
@@ -153,7 +153,7 @@ importPersonalCertificate(const string& file, function<string ()> password, bool
     {
         if(HRESULT_CODE(ex->HResult) == ERROR_FILE_NOT_FOUND)
         {
-            throw PluginInitializationException(__FILE__, __LINE__, "certificate file not found:\n" + file);
+            throw PluginInitializationException(__FILE__, __LINE__, "certificate file not found:\n" + filename);
         }
         else
         {

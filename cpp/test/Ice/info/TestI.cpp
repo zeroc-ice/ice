@@ -82,7 +82,7 @@ TestI::getEndpointInfoAsContext(const Ice::Current& c)
     {
         Ice::UDPEndpointInfoPtr udp = ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, ipinfo);
         ctx["mcastInterface"] = udp->mcastInterface;
-        ctx["mcastTtl"] = udp->mcastTtl;
+        ctx["mcastTtl"] = static_cast<char>(udp->mcastTtl);
     }
 
     return ctx;

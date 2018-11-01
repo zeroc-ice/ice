@@ -839,6 +839,10 @@ IceBox::ServiceManagerI::stopAll()
         // leak detector doesn't report potential leaks, and the communicator must be destroyed before
         // the library is released since the library will destroy its global state.
         //
+
+#ifdef ICE_CPP11_MAPPING
+        info.service = 0;
+#else
         try
         {
             info.service = 0;
@@ -854,7 +858,7 @@ IceBox::ServiceManagerI::stopAll()
             Warning out(_logger);
             out << "ServiceManager: unknown exception while stopping service " << info.name;
         }
-
+#endif
         if(info.communicator)
         {
             removeAdminFacets("IceBox.Service." + info.name + ".");
@@ -884,15 +888,7 @@ IceBox::ServiceManagerI::stopAll()
     {
         removeAdminFacets("IceBox.SharedCommunicator.");
 
-        try
-        {
-            _sharedCommunicator->destroy();
-        }
-        catch(const std::exception& ex)
-        {
-            Warning out(_logger);
-            out << "ServiceManager: exception while destroying shared communicator:\n" << ex;
-        }
+        _sharedCommunicator->destroy();
         _sharedCommunicator = 0;
     }
 

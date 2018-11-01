@@ -131,6 +131,9 @@ IceInternal::UdpConnector::UdpConnector(const ProtocolInstancePtr& instance, con
     _mcastTtl(mcastTtl),
     _connectionId(connectionId)
 {
+#ifdef ICE_OS_UWP
+    UNREFERENCED_PARAMETER(sourceAddr);
+#endif
 }
 
 IceInternal::UdpConnector::~UdpConnector()

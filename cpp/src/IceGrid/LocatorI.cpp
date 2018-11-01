@@ -639,8 +639,8 @@ private:
     LocatorAdapterInfo
     nextAdapter()
     {
-        bool replicaGroup;
-        bool roundRobin;
+        bool replicaGroup = false;
+        bool roundRobin = false;
 
         _adapters.clear();
 

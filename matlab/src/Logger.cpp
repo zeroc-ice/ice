@@ -91,7 +91,6 @@ Ice_Logger_getPrefix(void* self)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*

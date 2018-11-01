@@ -20,6 +20,11 @@
 #   include <io.h>
 #endif
 
+// TODO: fix this warning once we no longer support VS2013 and earlier
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#    pragma warning(disable:4589) // Constructor of abstract class 'Slice::Type' ignores initializer...
+#endif
+
 using namespace std;
 using namespace Slice;
 
@@ -116,18 +121,18 @@ isMutableAfterReturnType(const TypePtr& type)
 }
 
 void
-checkDeprecatedType(const UnitPtr& unit, const TypePtr& type)
+checkDeprecatedType(const UnitPtr& unt, const TypePtr& type)
 {
     ClassDeclPtr decl = ClassDeclPtr::dynamicCast(type);
     if(decl && !decl->isLocal() && decl->isInterface())
     {
-        unit->warning(Deprecated, "interface by value is deprecated");
+        unt->warning(Deprecated, "interface by value is deprecated");
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy && !proxy->_class()->isInterface())
     {
-        unit->warning(Deprecated, "proxy for a class is deprecated");
+        unt->warning(Deprecated, "proxy for a class is deprecated");
     }
 }
 
@@ -364,13 +369,13 @@ Slice::SyntaxTreeBase::visit(ParserVisitor*, bool)
 {
 }
 
-Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit, const DefinitionContextPtr& definitionContext) :
-    _unit(unit),
+Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unt, const DefinitionContextPtr& definitionContext) :
+    _unit(unt),
     _definitionContext(definitionContext)
 {
     if(!_definitionContext && _unit)
     {
-        _definitionContext = unit->currentDefinitionContext();
+        _definitionContext = unt->currentDefinitionContext();
     }
 }
 
@@ -378,8 +383,8 @@ Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit, const DefinitionConte
 // Type
 // ----------------------------------------------------------------------
 
-Slice::Type::Type(const UnitPtr& ut) :
-    SyntaxTreeBase(ut)
+Slice::Type::Type(const UnitPtr& unt) :
+    SyntaxTreeBase(unt)
 {
 }
 

@@ -225,11 +225,11 @@ PackageVisitor::PackageVisitor(StringList& modules) :
 }
 
 void
-PackageVisitor::createModules(const UnitPtr& unit, const string& module, const string& dir)
+PackageVisitor::createModules(const UnitPtr& unt, const string& module, const string& dir)
 {
     StringList modules;
     PackageVisitor v(modules);
-    unit->visit(&v, false);
+    unt->visit(&v, false);
 
     for(StringList::iterator p = modules.begin(); p != modules.end(); ++p)
     {

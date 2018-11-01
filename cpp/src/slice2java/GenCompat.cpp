@@ -19,7 +19,11 @@
 #include <limits>
 
 // TODO: fix this warning!
-#if defined(__clang__)
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#elif defined(__clang__)
 #   pragma clang diagnostic ignored "-Wshadow"
 #elif defined(__GNUC__)
 #   pragma GCC diagnostic ignored "-Wshadow"
@@ -1038,7 +1042,7 @@ Slice::JavaCompatVisitor::writePatcher(Output& out, const string& package, const
             }
 
             string capName = (*d)->name();
-            capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+            capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
             if(b)
             {
@@ -1871,7 +1875,7 @@ Slice::JavaCompatVisitor::writeDataMemberInitializers(Output& out, const DataMem
             if((*p)->optional())
             {
                 string capName = (*p)->name();
-                capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                 out << nl << "set" << capName << '(';
                 writeConstantValue(out, t, (*p)->defaultValueType(), (*p)->defaultValue(), package);
                 out << ");";
@@ -3027,7 +3031,7 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if((*d)->optional())
                 {
                     string capName = paramName;
-                    capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                    capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                     out << nl << "set" << capName << '(' << paramName << ");";
                 }
                 else
@@ -3371,7 +3375,7 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 if((*d)->optional())
                 {
                     string capName = paramName;
-                    capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                    capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                     out << nl << "set" << capName << '(' << paramName << ");";
                 }
                 else
@@ -3413,7 +3417,7 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     if((*d)->optional())
                     {
                         string capName = paramName;
-                        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                         out << nl << "set" << capName << '(' << paramName << ");";
                     }
                     else
@@ -3976,7 +3980,7 @@ Slice::GenCompat::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     if(getSet || optional)
     {
         string capName = p->name();
-        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
         //
         // If container is a class, get all of its operations so that we can check for conflicts.

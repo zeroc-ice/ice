@@ -307,7 +307,7 @@ IceInternal::ConnectionACMMonitor::~ConnectionACMMonitor()
 }
 
 void
-IceInternal::ConnectionACMMonitor::add(ICE_MAYBE_UNUSED const ConnectionIPtr& connection)
+IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
 {
     Lock sync(*this);
     assert(!_connection && connection);
@@ -321,6 +321,9 @@ IceInternal::ConnectionACMMonitor::add(ICE_MAYBE_UNUSED const ConnectionIPtr& co
 void
 IceInternal::ConnectionACMMonitor::remove(ICE_MAYBE_UNUSED const ConnectionIPtr& connection)
 {
+#ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(connection);
+#endif
     Lock sync(*this);
     assert(_connection == connection);
     if(_config.timeout != IceUtil::Time())

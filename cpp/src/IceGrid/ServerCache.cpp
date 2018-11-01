@@ -118,7 +118,6 @@ CheckUpdateResult::getResult()
         os << ex;
         throw NodeUnreachableException(_node, os.str());
     }
-    return false;
 }
 
 ServerCache::ServerCache(const Ice::CommunicatorPtr& communicator,

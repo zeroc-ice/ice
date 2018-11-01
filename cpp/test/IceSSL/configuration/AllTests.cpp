@@ -16,6 +16,10 @@
 
 #include <Ice/UniqueRef.h>
 
+#ifdef _MSC_VER
+#   pragma warning(disable:4189) // 'elCapitanUpdate2OrLower': local variable is initialized but not referenced
+#endif
+
 #if defined(__APPLE__)
 #   include <sys/sysctl.h>
 #   if TARGET_OS_IPHONE != 0
@@ -251,7 +255,7 @@ public:
             do
             {
                 if((next = CertFindCertificateInStore(p12, X509_ASN_ENCODING | PKCS_7_ASN_ENCODING, 0,
-                                                      CERT_FIND_ANY, 0, next)))
+                                                      CERT_FIND_ANY, 0, next)) != 0)
                 {
                     if(CertAddCertificateContextToStore(_store, next, CERT_STORE_ADD_ALWAYS, &newCert))
                     {

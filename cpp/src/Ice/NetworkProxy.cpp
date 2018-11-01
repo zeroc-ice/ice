@@ -303,6 +303,7 @@ IceInternal::createNetworkProxy(const Ice::PropertiesPtr& properties, ProtocolSu
     if(!proxyHost.empty())
     {
 #ifdef ICE_OS_UWP
+        UNREFERENCED_PARAMETER(protocolSupport);
         throw Ice::InitializationException(__FILE__, __LINE__, "SOCKS proxy not supported with UWP");
 #else
         if(protocolSupport == EnableIPv6)

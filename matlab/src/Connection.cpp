@@ -157,7 +157,6 @@ Ice_Connection_equals(void* self, void* other)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -372,7 +371,6 @@ Ice_Connection_getACM(void* self)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -386,7 +384,6 @@ Ice_Connection_type(void* self)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -400,7 +397,6 @@ Ice_Connection_timeout(void* self)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -414,7 +410,6 @@ Ice_Connection_toString(void* self)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*

@@ -826,7 +826,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
             }
             else
             {
-                fill(bytesSHA.begin(), bytesSHA.end(), 0);
+                fill(bytesSHA.begin(), bytesSHA.end(), Byte(0));
             }
             info.checksum.swap(bytesSHA);
 
@@ -887,7 +887,7 @@ getFileInfoSeqInternal(const string& basePath, const string& relPath, int compre
             if(relPath.size() + buf.st_size == 0)
             {
                 bytesSHA.resize(20);
-                fill(bytesSHA.begin(), bytesSHA.end(), 0);
+                fill(bytesSHA.begin(), bytesSHA.end(), Byte(0));
             }
             else
             {
@@ -1226,7 +1226,7 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
         }
         else
         {
-            fill(tree1.checksum.begin(), tree1.checksum.end(), 0);
+            fill(tree1.checksum.begin(), tree1.checksum.end(), Byte(0));
         }
 
         copy(tree1.checksum.begin(), tree1.checksum.end(), c0);
@@ -1238,6 +1238,6 @@ IcePatch2Internal::getFileTree0(const LargeFileInfoSeq& infoSeq, FileTree0& tree
     }
     else
     {
-        fill(tree0.checksum.begin(), tree0.checksum.end(), 0);
+        fill(tree0.checksum.begin(), tree0.checksum.end(), Byte(0));
     }
 }

@@ -27,7 +27,12 @@
 
 #include <string>
 
-#if defined(__clang__)
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#   pragma warning(disable:4100) // unreferenced parameter
+#elif defined(__clang__)
 #   pragma clang diagnostic ignored "-Wshadow"
 #   pragma clang diagnostic ignored "-Wshadow-all"
 #   pragma clang diagnostic ignored "-Wunused-parameter"

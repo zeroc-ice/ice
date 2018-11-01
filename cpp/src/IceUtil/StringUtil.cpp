@@ -1129,7 +1129,7 @@ IceUtilInternal::toLower(const std::string& s)
     {
         if(isascii(s[i]))
         {
-            result += tolower(static_cast<unsigned char>(s[i]));
+            result += static_cast<char>(tolower(static_cast<unsigned char>(s[i])));
         }
         else
         {
@@ -1148,7 +1148,7 @@ IceUtilInternal::toUpper(const std::string& s)
     {
         if(isascii(s[i]))
         {
-            result += toupper(static_cast<unsigned char>(s[i]));
+            result += static_cast<char>(toupper(static_cast<unsigned char>(s[i])));
         }
         else
         {

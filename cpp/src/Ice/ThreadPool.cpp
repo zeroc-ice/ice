@@ -506,6 +506,8 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
     _workQueue->queue(new FinishedWorkItem(handler, !closeNow));
     return closeNow;
 #else
+    UNREFERENCED_PARAMETER(closeNow);
+
     // If there are no pending asynchronous operations, we can call finish on the handler now.
     if(!handler->_pending)
     {

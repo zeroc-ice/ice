@@ -177,7 +177,7 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
         {
             status = info->status;
         }
-        count = SOCKET_ERROR;
+        count = static_cast<DWORD>(SOCKET_ERROR);
         error = WSAGetLastError();
         return reinterpret_cast<EventHandler*>(key);
     }

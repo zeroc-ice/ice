@@ -101,7 +101,6 @@ FileIteratorI::read(int size, Ice::StringSeq& lines, const Ice::Current&)
         os << ex;
         throw FileNotAvailableException(os.str());
     }
-    return false; // Keep the compiler happy.
 }
 
 void
@@ -291,7 +290,6 @@ AdminSessionI::openServerLog(const string& id, const string& path, int nLines, c
     catch(const SynchronizationException&)
     {
         throw DeploymentException("server is being updated");
-        return 0;
     }
 }
 
@@ -305,7 +303,6 @@ AdminSessionI::openServerStdOut(const string& id, int nLines, const Ice::Current
     catch(const SynchronizationException&)
     {
         throw DeploymentException("server is being updated");
-        return 0;
     }
 }
 
@@ -319,7 +316,6 @@ AdminSessionI::openServerStdErr(const string& id, int nLines, const Ice::Current
     catch(const SynchronizationException&)
     {
         throw DeploymentException("server is being updated");
-        return 0;
     }
 }
 

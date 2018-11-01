@@ -2479,9 +2479,9 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
         is.getline(line, 1024); // Ignore comments
         is.getline(line, 1024);
         is.getline(line, 1024);
-        string ignore;
-        is >> ignore >> descUUID;
-        is >> ignore >> descRevision;
+        string ignored;
+        is >> ignored >> descUUID;
+        is >> ignored >> descRevision;
     }
 
     if(uuid != descUUID)
@@ -3175,7 +3175,6 @@ ServerI::getFilePath(const string& filename) const
     else
     {
         throw FileNotAvailableException("unknown file");
-        return ""; // Keep the compiler happy.
     }
 }
 

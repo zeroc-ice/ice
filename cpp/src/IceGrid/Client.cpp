@@ -220,7 +220,7 @@ getPassword(const string& prompt)
     tcsetattr(0, TCSANOW, &oldConf);
 #else
     char c;
-    while((c = _getch()) != '\r')
+    while((c = static_cast<char>(_getch())) != '\r')
     {
         password += c;
     }

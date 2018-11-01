@@ -165,17 +165,17 @@ filetimeToTime(FILETIME ftime)
 }
 
 string
-certNameToString(CERT_NAME_BLOB* name)
+certNameToString(CERT_NAME_BLOB* certName)
 {
-    assert(name);
+    assert(certName);
     DWORD length = 0;
-    if(!(length = CertNameToStr(X509_ASN_ENCODING, name, CERT_OID_NAME_STR|CERT_NAME_STR_REVERSE_FLAG, 0, 0)))
+    if((length = CertNameToStr(X509_ASN_ENCODING, certName, CERT_OID_NAME_STR|CERT_NAME_STR_REVERSE_FLAG, 0, 0)) == 0)
     {
         throw CertificateEncodingException(__FILE__, __LINE__, IceUtilInternal::lastErrorToString());
     }
 
     vector<char> buffer(length);
-    if(!CertNameToStr(X509_ASN_ENCODING, name, CERT_OID_NAME_STR|CERT_NAME_STR_REVERSE_FLAG, &buffer[0], length))
+    if(!CertNameToStr(X509_ASN_ENCODING, certName, CERT_OID_NAME_STR|CERT_NAME_STR_REVERSE_FLAG, &buffer[0], length))
     {
         throw CertificateEncodingException(__FILE__, __LINE__,  IceUtilInternal::lastErrorToString());
     }
