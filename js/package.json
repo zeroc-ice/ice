@@ -30,7 +30,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-ext-replace": "^0.3.0",
     "gulp-gzip": "^1.4.2",
-    "gulp-ice-builder": "^2.0.2",
+    "gulp-ice-builder": "^2.0.3",
     "gulp-newer": "^1.4.0",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-terser": "^1.1.5",
@@ -44,7 +44,7 @@
     "rollup": "^0.66.6",
     "source-map": "^0.7.3",
     "through2": "^2.0.3",
-    "typescript": "^3.1.4",
+    "typescript": "^3.1.5",
     "typescript-formatter": "^7.2.2",
     "vinyl-paths": "^2.1.0"
   },
