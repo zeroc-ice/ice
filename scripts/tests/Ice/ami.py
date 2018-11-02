@@ -16,7 +16,6 @@ traceProps = {
 }
 
 testcases = [ ClientServerTestCase(traceProps=traceProps) ]
-
 if Mapping.getByPath(__name__).hasSource("Ice/ami", "collocated"):
     testcases += [ CollocatedTestCase() ]
 

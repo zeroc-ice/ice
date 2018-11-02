@@ -3247,9 +3247,8 @@ class CSharpMapping(Mapping):
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            self.dotnetcore = not isinstance(platform, Windows)
-
-            parseOptions(self, options)
+            if not self.dotnetcore:
+                self.dotnetcore = not isinstance(platform, Windows) # Force dotnetcore on non-Windows platforms
 
             # Set Xamarin flag if UWP/iOS or Android testing flag is also specified
             if self.uwp or self.android or "iphone" in self.buildPlatform:
