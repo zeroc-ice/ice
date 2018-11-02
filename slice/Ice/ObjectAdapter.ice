@@ -197,7 +197,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #add}, but with a facet. Calling <tt>add(servant, id)</tt>
+     * Like {@link #add}, but with a facet. Calling <code>add(servant, id)</code>
      * is equivalent to calling {@link #addFacet} with an empty facet.
      *
      * @param servant The servant to add.
@@ -224,7 +224,7 @@ local interface ObjectAdapter
      * Add a servant to this object adapter's Active Servant Map,
      * using an automatically generated UUID as its identity. Note that
      * the generated UUID identity can be accessed using the proxy's
-     * <tt>ice_getIdentity</tt> operation.
+     * <code>ice_getIdentity</code> operation.
      *
      * @param servant The servant to add.
      *
@@ -243,7 +243,7 @@ local interface ObjectAdapter
     /**
      *
      * Like {@link #addWithUUID}, but with a facet. Calling
-     * <tt>addWithUUID(servant)</tt> is equivalent to calling
+     * <code>addWithUUID(servant)</code> is equivalent to calling
      * {@link #addFacetWithUUID} with an empty facet.
      *
      * @param servant The servant to add.
@@ -325,7 +325,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #remove}, but with a facet. Calling <tt>remove(id)</tt>
+     * Like {@link #remove}, but with a facet. Calling <code>remove(id)</code>
      * is equivalent to calling {@link #removeFacet} with an empty facet.
      *
      * @param id The identity of the Ice object that is implemented by
@@ -400,7 +400,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #find}, but with a facet. Calling <tt>find(id)</tt>
+     * Like {@link #find}, but with a facet. Calling <code>find(id)</code>
      * is equivalent to calling {@link #findFacet} with an empty
      * facet.
      *
