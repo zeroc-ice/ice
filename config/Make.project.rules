@@ -240,11 +240,11 @@ $2/$(call mkshlibfilename,$1,$3,$4): $5 $(foreach d,$6,$($d_targets))
 ifneq ($(and $4,$(filter-out undefined,$(origin mksoname))),)
 $2/$(call mksoname,$1,$3,$4): $2/$(call mkshlibfilename,$1,$3,$4)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
+endif
 
 ifneq ($(and $3,$(filter-out undefined,$(origin mkshlibname))),)
 $2/$(call mkshlibname,$1,$3,$4): $2/$(call mkshlibnametarget,$1,$3,$4)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
-endif
 endif
 
 endef
@@ -261,13 +261,12 @@ ifneq ($(and $4,$(filter-out undefined,$(origin mksoname))),)
 $(DESTDIR)$5/$(call mksoname,$1,$3,$4): $(DESTDIR)$5/$(call mkshlibfilename,$1,$3,$4) \
 					$2/$(call mksoname,$1,$3,$4)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
+endif
 
 ifneq ($(and $(filter yes,$6),$3,$(filter-out undefined,$(origin mkshlibname))),)
 $(DESTDIR)$5/$(call mkshlibname,$1,$3,$4): $(DESTDIR)$5/$(call mkshlibnametarget,$1,$3,$4) \
 					   $2/$(call mkshlibname,$1,$3,$4)
 	@$(RM) $$@ ; ln -s $$(<F) $$@
-endif
-
 endif
 
 endef
