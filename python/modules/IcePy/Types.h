@@ -335,10 +335,12 @@ private:
 
     struct SequenceMapping : public UnmarshalCallback
     {
-        enum Type { SEQ_DEFAULT, SEQ_TUPLE, SEQ_LIST };
+        enum Type { SEQ_DEFAULT, SEQ_TUPLE, SEQ_LIST, SEQ_ARRAY, SEQ_NUMPYARRAY, SEQ_MEMORYVIEW };
 
         SequenceMapping(Type);
         SequenceMapping(const Ice::StringSeq&);
+
+        void init(const Ice::StringSeq&);
 
         static bool getType(const Ice::StringSeq&, Type&);
 
@@ -348,6 +350,7 @@ private:
         void setItem(PyObject*, int, PyObject*) const;
 
         Type type;
+        PyObjectHandle factory;
     };
     typedef IceUtil::Handle<SequenceMapping> SequenceMappingPtr;
 
@@ -355,6 +358,19 @@ private:
     void marshalPrimitiveSequence(const PrimitiveInfoPtr&, PyObject*, Ice::OutputStream*);
     void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&,
                                     PyObject*, void*, const SequenceMappingPtr&);
+
+    enum BuiltinType
+    {
+        BuiltinTypeBool = 0,
+        BuiltinTypeByte = 1,
+        BuiltinTypeShort = 2,
+        BuiltinTypeInt = 3,
+        BuiltinTypeLong = 4,
+        BuiltinTypeFloat = 5,
+        BuiltinTypeDouble = 6
+    };
+
+    PyObject* createSequenceFromBuffer(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType);
 
 public:
 

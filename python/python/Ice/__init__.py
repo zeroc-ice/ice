@@ -11,7 +11,7 @@
 Ice module
 """
 
-import sys, string, os, threading, warnings, datetime, logging, time, inspect, traceback, types
+import sys, string, os, threading, warnings, datetime, logging, time, inspect, traceback, types, array
 
 #
 # RTTI problems can occur in C++ code unless we modify Python's dlopen flags.
@@ -750,7 +750,7 @@ IcePy._t_LocalObject = IcePy.declareValue('::Ice::LocalObject')
 IcePy.SEQ_DEFAULT = 0
 IcePy.SEQ_TUPLE = 1
 IcePy.SEQ_LIST = 2
-#IcePy.SEQ_ARRAY = 3
+IcePy.SEQ_MEMORYVIEW = 3
 
 #
 # Slice checksum dictionary.
@@ -1969,3 +1969,37 @@ def getHash(o):
 Protocol_1_0 = ProtocolVersion(1, 0)
 Encoding_1_0 = EncodingVersion(1, 0)
 Encoding_1_1 = EncodingVersion(1, 1)
+
+
+BuiltinBool = 0
+BuiltinByte = 1
+BuiltinShort = 2
+BuiltinInt = 3
+BuiltinLong = 4
+BuiltinFloat = 5
+BuiltinDouble = 6
+
+BuiltinTypes = [BuiltinBool, BuiltinByte, BuiltinShort, BuiltinInt, BuiltinLong, BuiltinFloat, BuiltinDouble]
+BuiltinArrayTypes = ["b", "b", "h", "i", "l", "f", "d"]
+
+
+def createArray(view, t):
+    if t not in BuiltinTypes:
+        raise ValueError("`{0}' is not an array builtin type".format(t))
+    a = array.array(BuiltinArrayTypes[t])
+    a.frombytes(view)
+    return a
+
+
+try:
+    import numpy
+
+    BuiltinNumpyTypes = [numpy.bool_, numpy.int8, numpy.int16, numpy.int32, numpy.int64, numpy.float32, numpy.float64]
+
+    def createNumPyArray(view, t):
+        if t not in BuiltinTypes:
+            raise ValueError("`{0}' is not an array builtin type".format(t))
+        return numpy.frombuffer(view, BuiltinNumpyTypes[t])
+
+except ImportError:
+    pass

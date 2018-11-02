@@ -27,6 +27,12 @@
 #include <list>
 #include <limits>
 
+#ifndef ICE_UNALIGNED
+#   if defined(__i386) || defined(_M_IX86) || defined(__x86_64) || defined(_M_X64)
+#       define ICE_UNALIGNED
+#   endif
+#endif
+
 using namespace std;
 using namespace IcePy;
 using namespace IceUtil;
@@ -1526,6 +1532,7 @@ IcePy::SequenceInfo::SequenceInfo(const string& ident, PyObject* m, PyObject* t)
     assert(b);
 
     const_cast<SequenceMappingPtr&>(mapping) = new SequenceMapping(metaData);
+    mapping->init(metaData);
     const_cast<TypeInfoPtr&>(elementType) = getType(t);
 }
 
@@ -1696,6 +1703,7 @@ IcePy::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
         else
         {
             sm = new SequenceMapping(type);
+            sm->init(*metaData);
         }
     }
     else
@@ -1812,46 +1820,45 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     // For most types, we accept an object that implements the buffer protocol
     // (this includes the array.array type).
     //
-    const void* buf = 0;
-    Py_ssize_t sz;
-    if(PyObject_AsReadBuffer(p, &buf, &sz) == 0)
+    Py_buffer pybuf;
+    if(PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE) == 0)
     {
-        const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(buf);
+        const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(pybuf.buf);
         switch(pi->kind)
         {
         case PrimitiveInfo::KindBool:
         {
-            os->write(reinterpret_cast<const bool*>(b), reinterpret_cast<const bool*>(b + sz));
+            os->write(reinterpret_cast<const bool*>(b), reinterpret_cast<const bool*>(b + pybuf.len));
             break;
         }
         case PrimitiveInfo::KindByte:
         {
-            os->write(reinterpret_cast<const Ice::Byte*>(b), reinterpret_cast<const Ice::Byte*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Byte*>(b), reinterpret_cast<const Ice::Byte*>(b + pybuf.len));
             break;
         }
         case PrimitiveInfo::KindShort:
         {
-            os->write(reinterpret_cast<const Ice::Short*>(b), reinterpret_cast<const Ice::Short*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Short*>(b), reinterpret_cast<const Ice::Short*>(b + pybuf.len));
             break;
         }
         case PrimitiveInfo::KindInt:
         {
-            os->write(reinterpret_cast<const Ice::Int*>(b), reinterpret_cast<const Ice::Int*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Int*>(b), reinterpret_cast<const Ice::Int*>(b + pybuf.len));
             break;
         }
         case PrimitiveInfo::KindLong:
         {
-            os->write(reinterpret_cast<const Ice::Long*>(b), reinterpret_cast<const Ice::Long*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Long*>(b), reinterpret_cast<const Ice::Long*>(b + pybuf.len));
             break;
         }
         case PrimitiveInfo::KindFloat:
         {
-            os->write(reinterpret_cast<const Ice::Float*>(b), reinterpret_cast<const Ice::Float*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Float*>(b), reinterpret_cast<const Ice::Float*>(b + pybuf.len));
             break;
         }
         case PrimitiveInfo::KindDouble:
         {
-            os->write(reinterpret_cast<const Ice::Double*>(b), reinterpret_cast<const Ice::Double*>(b + sz));
+            os->write(reinterpret_cast<const Ice::Double*>(b), reinterpret_cast<const Ice::Double*>(b + pybuf.len));
             break;
         }
         case PrimitiveInfo::KindString:
@@ -1874,6 +1881,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
         return;
     }
 
+    Py_ssize_t sz = 0;
     switch(pi->kind)
     {
     case PrimitiveInfo::KindBool:
@@ -2108,6 +2116,52 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     }
 }
 
+PyObject*
+IcePy::SequenceInfo::createSequenceFromBuffer(const SequenceMappingPtr& sm,
+                                              const char* buffer,
+                                              Py_ssize_t size,
+                                              BuiltinType type)
+{
+#if PY_VERSION_HEX >= 0x03030000
+    PyObjectHandle memoryview = PyMemoryView_FromMemory(const_cast<char*>(buffer), size, PyBUF_READ);
+#else
+    Py_buffer pybuffer;
+    if(PyBuffer_FillInfo(&pybuffer, 0, const_cast<char*>(buffer), size, 1, PyBUF_SIMPLE) != 0)
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    PyObjectHandle memoryview = PyMemoryView_FromBuffer(&pybuffer);
+#endif
+    if(!memoryview.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    PyObjectHandle builtinType = PyLong_FromLong(static_cast<int>(type));
+    if(!builtinType.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+
+    AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
+    PyObjectHandle result = callMethod(sm->factory.get(), memoryview.get(), builtinType.get());
+    if(!result.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
+    else if(result.get() == Py_None)
+    {
+        PyErr_Format(PyExc_ValueError, STRCAST("invalid container return from factory"));
+        throw AbortMarshaling();
+    }
+    return result.release();
+}
+
 void
 IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice::InputStream* is,
                                                 const UnmarshalCallbackPtr& cb, PyObject* target, void* closure,
@@ -2123,16 +2177,32 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<bool> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        result = sm->createContainer(sz);
-        if(!result.get())
+        if(sm->factory.get())
         {
-            assert(PyErr_Occurred());
-            throw AbortMarshaling();
+#ifdef ICE_UNALIGNED
+            ScopedArray<bool> buffer;
+            buffer.reset(new bool[sz]);
+            copy(p.first, p.first + sz, &buffer[0]);
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(&buffer[0]), sz, BuiltinTypeBool);
+            buffer.release();
+#else
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeBool);
+            arr.release();
+#endif
         }
-
-        for(int i = 0; i < sz; ++i)
+        else
         {
-            sm->setItem(result.get(), i, p.first[i] ? getTrue() : getFalse());
+            result = sm->createContainer(sz);
+            if(!result.get())
+            {
+                assert(PyErr_Occurred());
+                throw AbortMarshaling();
+            }
+
+            for(int i = 0; i < sz; ++i)
+            {
+                sm->setItem(result.get(), i, p.first[i] ? getTrue() : getFalse());
+            }
         }
         break;
     }
@@ -2141,7 +2211,15 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         pair<const Ice::Byte*, const Ice::Byte*> p;
         is->read(p);
         int sz = static_cast<int>(p.second - p.first);
-        if(sm->type == SequenceMapping::SEQ_DEFAULT)
+        if(sm->factory.get())
+        {
+            ScopedArray<Ice::Byte> buffer;
+            buffer.reset(new Ice::Byte[sz]);
+            copy(p.first, p.first + sz, &buffer[0]);
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(&buffer[0]), sz, BuiltinTypeByte);
+            buffer.release();
+        }
+        else if(sm->type == SequenceMapping::SEQ_DEFAULT)
         {
 #if PY_VERSION_HEX >= 0x03000000
             result = PyBytes_FromStringAndSize(reinterpret_cast<const char*>(p.first), sz);
@@ -2182,22 +2260,38 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Short> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        result = sm->createContainer(sz);
-        if(!result.get())
+        if(sm->factory.get())
         {
-            assert(PyErr_Occurred());
-            throw AbortMarshaling();
+#ifdef ICE_UNALIGNED
+            ScopedArray<Ice::Short> buffer;
+            buffer.reset(new Ice::Short[sz]);
+            copy(p.first, p.first + sz, &buffer[0]);
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(&buffer[0]), sz * 2, BuiltinTypeShort);
+            buffer.release();
+#else
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(p.first), sz * 2, BuiltinTypeShort);
+            arr.release();
+#endif
         }
-
-        for(int i = 0; i < sz; ++i)
+        else
         {
-            PyObjectHandle item = PyLong_FromLong(p.first[i]);
-            if(!item.get())
+            result = sm->createContainer(sz);
+            if(!result.get())
             {
                 assert(PyErr_Occurred());
                 throw AbortMarshaling();
             }
-            sm->setItem(result.get(), i, item.get());
+
+            for(int i = 0; i < sz; ++i)
+            {
+                PyObjectHandle item = PyLong_FromLong(p.first[i]);
+                if(!item.get())
+                {
+                    assert(PyErr_Occurred());
+                    throw AbortMarshaling();
+                }
+                sm->setItem(result.get(), i, item.get());
+            }
         }
         break;
     }
@@ -2207,22 +2301,37 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Int> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        result = sm->createContainer(sz);
-        if(!result.get())
+        if(sm->factory.get())
         {
-            assert(PyErr_Occurred());
-            throw AbortMarshaling();
+#ifdef ICE_UNALIGNED
+            ScopedArray<Ice::Int> buffer;
+            buffer.reset(new Ice::Int[sz]);
+            copy(p.first, p.first + sz, &buffer[0]);
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(&buffer[0]), sz * 4, BuiltinTypeInt);
+            buffer.release();
+#else
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(p.first), sz * 4, BuiltinTypeInt);
+            arr.release();
+#endif
         }
-
-        for(int i = 0; i < sz; ++i)
+        else
         {
-            PyObjectHandle item = PyLong_FromLong(p.first[i]);
-            if(!item.get())
+            result = sm->createContainer(sz);
+            if(!result.get())
             {
                 assert(PyErr_Occurred());
                 throw AbortMarshaling();
             }
-            sm->setItem(result.get(), i, item.get());
+            for(int i = 0; i < sz; ++i)
+            {
+                PyObjectHandle item = PyLong_FromLong(p.first[i]);
+                if(!item.get())
+                {
+                    assert(PyErr_Occurred());
+                    throw AbortMarshaling();
+                }
+                sm->setItem(result.get(), i, item.get());
+            }
         }
         break;
     }
@@ -2232,22 +2341,38 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Long> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        result = sm->createContainer(sz);
-        if(!result.get())
+        if(sm->factory.get())
         {
-            assert(PyErr_Occurred());
-            throw AbortMarshaling();
+#ifdef ICE_UNALIGNED
+            ScopedArray<Ice::Long> buffer;
+            buffer.reset(new Ice::Long[sz]);
+            copy(p.first, p.first + sz, &buffer[0]);
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(&buffer[0]), sz * 8, BuiltinTypeLong);
+            buffer.release();
+#else
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(p.first), sz * 8, BuiltinTypeLong);
+            arr.release();
+#endif
         }
-
-        for(int i = 0; i < sz; ++i)
+        else
         {
-            PyObjectHandle item = PyLong_FromLongLong(p.first[i]);
-            if(!item.get())
+            result = sm->createContainer(sz);
+            if(!result.get())
             {
                 assert(PyErr_Occurred());
                 throw AbortMarshaling();
             }
-            sm->setItem(result.get(), i, item.get());
+
+            for(int i = 0; i < sz; ++i)
+            {
+                PyObjectHandle item = PyLong_FromLongLong(p.first[i]);
+                if(!item.get())
+                {
+                    assert(PyErr_Occurred());
+                    throw AbortMarshaling();
+                }
+                sm->setItem(result.get(), i, item.get());
+            }
         }
         break;
     }
@@ -2257,22 +2382,38 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Float> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        result = sm->createContainer(sz);
-        if(!result.get())
+        if(sm->factory.get())
         {
-            assert(PyErr_Occurred());
-            throw AbortMarshaling();
+#ifdef ICE_UNALIGNED
+            ScopedArray<Ice::Float> buffer;
+            buffer.reset(new Ice::Float[sz]);
+            copy(p.first, p.first + sz, &buffer[0]);
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(&buffer[0]), sz * 4, BuiltinTypeFloat);
+            buffer.release();
+#else
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(p.first), sz * 4, BuiltinTypeFloat);
+            arr.release();
+#endif
         }
-
-        for(int i = 0; i < sz; ++i)
+        else
         {
-            PyObjectHandle item = PyFloat_FromDouble(p.first[i]);
-            if(!item.get())
+            result = sm->createContainer(sz);
+            if(!result.get())
             {
                 assert(PyErr_Occurred());
                 throw AbortMarshaling();
             }
-            sm->setItem(result.get(), i, item.get());
+
+            for(int i = 0; i < sz; ++i)
+            {
+                PyObjectHandle item = PyFloat_FromDouble(p.first[i]);
+                if(!item.get())
+                {
+                    assert(PyErr_Occurred());
+                    throw AbortMarshaling();
+                }
+                sm->setItem(result.get(), i, item.get());
+            }
         }
         break;
     }
@@ -2282,22 +2423,38 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         IceUtil::ScopedArray<Ice::Double> arr;
         is->read(p, arr);
         int sz = static_cast<int>(p.second - p.first);
-        result = sm->createContainer(sz);
-        if(!result.get())
+        if(sm->factory.get())
         {
-            assert(PyErr_Occurred());
-            throw AbortMarshaling();
+#ifdef ICE_UNALIGNED
+            ScopedArray<Ice::Double> buffer;
+            buffer.reset(new Ice::Double[sz]);
+            copy(p.first, p.first + sz, &buffer[0]);
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(&buffer[0]), sz * 8, BuiltinTypeDouble);
+            buffer.release();
+#else
+            result = createSequenceFromBuffer(sm, reinterpret_cast<const char*>(p.first), sz * 8, BuiltinTypeDouble);
+            arr.release();
+#endif
         }
-
-        for(int i = 0; i < sz; ++i)
+        else
         {
-            PyObjectHandle item = PyFloat_FromDouble(p.first[i]);
-            if(!item.get())
+            result = sm->createContainer(sz);
+            if(!result.get())
             {
                 assert(PyErr_Occurred());
                 throw AbortMarshaling();
             }
-            sm->setItem(result.get(), i, item.get());
+
+            for(int i = 0; i < sz; ++i)
+            {
+                PyObjectHandle item = PyFloat_FromDouble(p.first[i]);
+                if(!item.get())
+                {
+                    assert(PyErr_Occurred());
+                    throw AbortMarshaling();
+                }
+                sm->setItem(result.get(), i, item.get());
+            }
         }
         break;
     }
@@ -2336,28 +2493,39 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
 bool
 IcePy::SequenceInfo::SequenceMapping::getType(const Ice::StringSeq& metaData, Type& t)
 {
-    if(!metaData.empty())
+    for(Ice::StringSeq::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
     {
-        for(Ice::StringSeq::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
+        if((*p) == "python:seq:default")
         {
-            if((*p) == "python:seq:default")
-            {
-                t = SEQ_DEFAULT;
-                return true;
-            }
-            else if((*p) == "python:seq:tuple")
-            {
-                t = SEQ_TUPLE;
-                return true;
-            }
-            else if((*p) == "python:seq:list")
-            {
-                t = SEQ_LIST;
-                return true;
-            }
+            t = SEQ_DEFAULT;
+            return true;
+        }
+        else if((*p) == "python:seq:tuple")
+        {
+            t = SEQ_TUPLE;
+            return true;
+        }
+        else if((*p) == "python:seq:list")
+        {
+            t = SEQ_LIST;
+            return true;
+        }
+        else if((*p) == "python:seq:array")
+        {
+            t = SEQ_ARRAY;
+            return true;
+        }
+        else if((*p) == "python:seq:numpyarray")
+        {
+            t = SEQ_NUMPYARRAY;
+            return true;
+        }
+        else if(p->find("python:seq:memoryview:") == 0)
+        {
+            t = SEQ_MEMORYVIEW;
+            return true;
         }
     }
-
     return false;
 }
 
@@ -2372,6 +2540,53 @@ IcePy::SequenceInfo::SequenceMapping::SequenceMapping(const Ice::StringSeq& meta
     {
         type = SEQ_DEFAULT;
     }
+}
+
+void
+IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
+{
+    if(type == SEQ_ARRAY)
+    {
+        factory = lookupType("Ice.createArray");
+        if(!factory.get())
+        {
+            PyErr_Format(PyExc_RuntimeError, STRCAST("factory type not found `Ice.createArray'"));
+            throw AbortMarshaling();
+        }
+    }
+    else if(type == SEQ_NUMPYARRAY)
+    {
+        factory = lookupType("Ice.createNumPyArray");
+        if(!factory.get())
+        {
+            PyErr_Format(PyExc_RuntimeError, STRCAST("factory type not found `Ice.createNumPyArray'"));
+            throw AbortMarshaling();
+        }
+    }
+    else if(type == SEQ_MEMORYVIEW)
+    {
+        const string prefix = "python:seq:memoryview:";
+        for(Ice::StringSeq::const_iterator i = meta.begin(); i != meta.end(); ++i)
+        {
+            if(i->find(prefix) == 0)
+            {
+                const string typestr = i->substr(prefix.size());
+                factory = lookupType(typestr);
+                if(!factory.get())
+                {
+                    PyErr_Format(PyExc_RuntimeError, STRCAST("factory type not found `%s'"), typestr.c_str());
+                    throw AbortMarshaling();
+                }
+                if(!PyCallable_Check(factory.get()))
+                {
+                    PyErr_Format(PyExc_RuntimeError, STRCAST("factory type `%s' is not callable"), typestr.c_str());
+                    throw AbortMarshaling();
+                }
+                break;
+            }
+        }
+    }
+    Py_XINCREF(factory.get());
 }
 
 void
@@ -2398,10 +2613,18 @@ IcePy::SequenceInfo::SequenceMapping::createContainer(int sz) const
     {
         return PyList_New(sz);
     }
+    else if(type == SEQ_TUPLE)
+    {
+        return PyTuple_New(sz);
+    }
     else
     {
-        assert(type == SEQ_TUPLE);
-        return PyTuple_New(sz);
+        //
+        // Must never be called for SEQ_MEMORYVIEW, as the container
+        // is created by the use factory function.
+        //
+        assert(false);
+        return 0;
     }
 }
 

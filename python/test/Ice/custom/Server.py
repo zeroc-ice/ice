@@ -13,6 +13,8 @@ TestHelper.loadSlice("Test.ice")
 import sys
 import Test
 import Ice
+import array
+import numpy
 
 
 def test(b):
@@ -87,6 +89,122 @@ class CustomI(Test.Custom):
         test(isinstance(val.s2, tuple))
         test(isinstance(val.s3, tuple))
         test(isinstance(val.s4, list))
+
+    def opBoolSeq(self, v1, v2, v3, current):
+        test(isinstance(v1, array.array))
+        test(isinstance(v2, numpy.ndarray))
+        test(isinstance(v3, numpy.ndarray))
+        test(len(v1) == len(v2))
+        test(len(v1) == len(v3))
+        return (v1, v2, v3)
+
+    def opByteSeq(self, v1, v2, v3, current):
+        test(isinstance(v1, array.array))
+        test(isinstance(v2, numpy.ndarray))
+        test(isinstance(v3, numpy.ndarray))
+        test(len(v1) == len(v2))
+        test(len(v1) == len(v3))
+        return v1, v2, v3
+
+    def opShortSeq(self, v1, v2, v3, current):
+        test(isinstance(v1, array.array))
+        test(isinstance(v2, numpy.ndarray))
+        test(isinstance(v3, numpy.ndarray))
+        test(len(v1) == len(v2))
+        test(len(v1) == len(v3))
+        return v1, v2, v3
+
+    def opIntSeq(self, v1, v2, v3, current):
+        test(isinstance(v1, array.array))
+        test(isinstance(v2, numpy.ndarray))
+        test(isinstance(v3, numpy.ndarray))
+        test(len(v1) == len(v2))
+        test(len(v1) == len(v3))
+        return v1, v2, v3
+
+    def opLongSeq(self, v1, v2, v3, current):
+        test(isinstance(v1, array.array))
+        test(isinstance(v2, numpy.ndarray))
+        test(isinstance(v3, numpy.ndarray))
+        test(len(v1) == len(v2))
+        test(len(v1) == len(v3))
+        return v1, v2, v3
+
+    def opFloatSeq(self, v1, v2, v3, current):
+        test(isinstance(v1, array.array))
+        test(isinstance(v2, numpy.ndarray))
+        test(isinstance(v3, numpy.ndarray))
+        test(len(v1) == len(v2))
+        test(len(v1) == len(v3))
+        return v1, v2, v3
+
+    def opDoubleSeq(self, v1, v2, v3, current):
+        test(isinstance(v1, array.array))
+        test(isinstance(v2, numpy.ndarray))
+        test(isinstance(v3, numpy.ndarray))
+        test(len(v1) == len(v2))
+        test(len(v1) == len(v3))
+        return v1, v2, v3
+
+    def opComplex128Seq(self, v1, current):
+        test(isinstance(v1, numpy.ndarray))
+        return v1
+
+    def opBogusArrayNotExistsFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayThrowFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayType(self, current):
+        return [True, False, True, False]
+
+    def opBogusNumpyArrayType(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayNoneFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArraySignatureFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayNoCallableFactory(self, current):
+        return [True, False, True, False]
+
+    def opBoolMatrix(self, current):
+        return numpy.array([[True, False, True],
+                            [True, False, True],
+                            [True, False, True]], numpy.bool_)
+
+    def opByteMatrix(self, current):
+        return numpy.array([[1, 0, 1],
+                            [1, 0, 1],
+                            [1, 0, 1]], numpy.int8)
+
+    def opShortMatrix(self, current):
+        return numpy.array([[1, 0, 1],
+                            [1, 0, 1],
+                            [1, 0, 1]], numpy.int16)
+
+    def opIntMatrix(self, current):
+        return numpy.array([[1, 0, 1],
+                            [1, 0, 1],
+                            [1, 0, 1]], numpy.int32)
+
+    def opLongMatrix(self, current):
+        return numpy.array([[1, 0, 1],
+                            [1, 0, 1],
+                            [1, 0, 1]], numpy.int64)
+
+    def opFloatMatrix(self, current):
+        return numpy.array([[1.1, 0.1, 1.1],
+                            [1.1, 0.1, 1.1],
+                            [1.1, 0.1, 1.1]], numpy.float32)
+
+    def opDoubleMatrix(self, current):
+        return numpy.array([[1.1, 0.1, 1.1],
+                            [1.1, 0.1, 1.1],
+                            [1.1, 0.1, 1.1]], numpy.float64)
 
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
