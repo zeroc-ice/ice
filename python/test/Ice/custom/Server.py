@@ -110,8 +110,6 @@ class CustomI(Test.Custom):
         test(isinstance(v1, array.array))
         test(isinstance(v2, numpy.ndarray))
         test(isinstance(v3, numpy.ndarray))
-        print(v1)
-        print(v2)
         test(len(v1) == len(v2))
         test(len(v1) == len(v3))
         return v1, v2, v3
