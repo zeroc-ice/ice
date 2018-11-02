@@ -3301,11 +3301,40 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
             {
                 static const string seqPrefix = "python:seq:";
                 string arg = s.substr(seqPrefix.size(), pos - seqPrefix.size());
-                if(SequencePtr::dynamicCast(type))
+                SequencePtr seq = SequencePtr::dynamicCast(type);
+                if(seq)
                 {
                     if(arg == "tuple" || arg == "list" || arg == "default")
                     {
                         continue;
+                    }
+                    else if(arg == "array" || arg == "numpyarray" || arg.find("memoryview:") == 0)
+                    {
+                        //
+                        // The memoryview sequence metadata is only valid for integral builtin
+                        // types excluding strings.
+                        //
+                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                        if(builtin)
+                        {
+                            switch(builtin->kind())
+                            {
+                                case Builtin::KindBool:
+                                case Builtin::KindByte:
+                                case Builtin::KindShort:
+                                case Builtin::KindInt:
+                                case Builtin::KindLong:
+                                case Builtin::KindFloat:
+                                case Builtin::KindDouble:
+                                {
+                                    continue;
+                                }
+                                default:
+                                {
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }

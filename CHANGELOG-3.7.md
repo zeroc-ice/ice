@@ -88,6 +88,12 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed metrics bug where remote invocations for flushBatchRequests weren't
   counted.
 
+## Python Changes
+
+- Add support for unmarshalling sequences of integral types using the buffer
+  protocol, the metadata `python:seq:memoryview` can be used to map a
+  sequence to a type that can be initialized for a memory view object.
+
 # Changes in Ice 3.7.1
 
 These are the changes since Ice 3.7.0.
