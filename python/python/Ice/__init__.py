@@ -1983,12 +1983,23 @@ BuiltinTypes = [BuiltinBool, BuiltinByte, BuiltinShort, BuiltinInt, BuiltinLong,
 BuiltinArrayTypes = ["b", "b", "h", "i", "l", "f", "d"]
 
 
-def createArray(view, t, copy):
-    if t not in BuiltinTypes:
-        raise ValueError("`{0}' is not an array builtin type".format(t))
-    a = array.array(BuiltinArrayTypes[t])
-    a.frombytes(view)
-    return a
+#
+# array.frombytes is new in Python 3.2
+#
+if sys.version_info[:2] >= (3, 2):
+    def createArray(view, t, copy):
+        if t not in BuiltinTypes:
+            raise ValueError("`{0}' is not an array builtin type".format(t))
+        a = array.array(BuiltinArrayTypes[t])
+        a.frombytes(view)
+        return a
+else:
+    def createArray(view, t, copy):
+        if t not in BuiltinTypes:
+            raise ValueError("`{0}' is not an array builtin type".format(t))
+        a = array.array(BuiltinArrayTypes[t])
+        a.fromstring(str(view.tobytes()))
+        return a
 
 
 try:
@@ -1996,10 +2007,20 @@ try:
 
     BuiltinNumpyTypes = [numpy.bool_, numpy.int8, numpy.int16, numpy.int32, numpy.int64, numpy.float32, numpy.float64]
 
-    def createNumPyArray(view, t, copy):
-        if t not in BuiltinTypes:
-            raise ValueError("`{0}' is not an array builtin type".format(t))
-        return numpy.frombuffer(view.tobytes() if copy else view, BuiltinNumpyTypes[t])
+    #
+    # With Python2.7 we cannot initialize numpy array from memoryview
+    # See: https://github.com/numpy/numpy/issues/5935
+    #
+    if sys.version_info[0] >= 3:
+        def createNumPyArray(view, t, copy):
+            if t not in BuiltinTypes:
+                raise ValueError("`{0}' is not an array builtin type".format(t))
+            return numpy.frombuffer(view.tobytes() if copy else view, BuiltinNumpyTypes[t])
+    else:
+        def createNumPyArray(view, t, copy):
+            if t not in BuiltinTypes:
+                raise ValueError("`{0}' is not an array builtin type".format(t))
+            return numpy.frombuffer(view.tobytes(), BuiltinNumpyTypes[t])
 
 except ImportError:
     pass

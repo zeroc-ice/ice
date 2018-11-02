@@ -2745,7 +2745,7 @@ IcePy::SequenceInfo::SequenceMapping::setItem(PyObject* cont, int i, PyObject* v
 //
 // Buffer implementation
 //
-Buffer::Buffer(const char* data, int size, SequenceInfo::BuiltinType type) :
+IcePy::Buffer::Buffer(const char* data, int size, SequenceInfo::BuiltinType type) :
     _data(data),
     _size(size),
     _type(type),
@@ -2753,38 +2753,38 @@ Buffer::Buffer(const char* data, int size, SequenceInfo::BuiltinType type) :
 {
 }
 
-Buffer::~Buffer()
+IcePy::Buffer::~Buffer()
 {
     assert(_exportCount == 0);
     assert(_data != 0);
     switch(_type)
     {
-        case SequenceInfo::BuiltinType::BuiltinTypeBool:
+        case SequenceInfo::BuiltinTypeBool:
         {
             delete [] reinterpret_cast<const bool*>(_data);
             break;
         }
-        case SequenceInfo::BuiltinType::BuiltinTypeShort:
+        case SequenceInfo::BuiltinTypeShort:
         {
             delete [] reinterpret_cast<const Ice::Short*>(_data);
             break;
         }
-        case SequenceInfo::BuiltinType::BuiltinTypeInt:
+        case SequenceInfo::BuiltinTypeInt:
         {
             delete [] reinterpret_cast<const Ice::Int*>(_data);
             break;
         }
-        case SequenceInfo::BuiltinType::BuiltinTypeLong:
+        case SequenceInfo::BuiltinTypeLong:
         {
             delete [] reinterpret_cast<const Ice::Long*>(_data);
             break;
         }
-        case SequenceInfo::BuiltinType::BuiltinTypeFloat:
+        case SequenceInfo::BuiltinTypeFloat:
         {
             delete [] reinterpret_cast<const Ice::Float*>(_data);
             break;
         }
-        case SequenceInfo::BuiltinType::BuiltinTypeDouble:
+        case SequenceInfo::BuiltinTypeDouble:
         {
             delete [] reinterpret_cast<const Ice::Double*>(_data);
             break;
@@ -2799,31 +2799,31 @@ Buffer::~Buffer()
 }
 
 const char*
-Buffer::data() const
+IcePy::Buffer::data() const
 {
     return _data;
 }
 
 int
-Buffer::size() const
+IcePy::Buffer::size() const
 {
     return _size;
 }
 
 SequenceInfo::BuiltinType
-Buffer::type()
+IcePy::Buffer::type()
 {
     return _type;
 }
 
 void
-Buffer::exportObject()
+IcePy::Buffer::exportObject()
 {
     _exportCount++;
 }
 
 int
-Buffer::releaseObject()
+IcePy::Buffer::releaseObject()
 {
     return --_exportCount;
 }
@@ -4596,6 +4596,12 @@ PyObject* Unset = &UnsetValue;
 
 static PyBufferProcs BufferProcs =
 {
+#if PY_VERSION_HEX < 0x03000000
+     0,
+     0,
+     0,
+     0,
+#endif
     (getbufferproc) bufferGetBuffer,
     (releasebufferproc) bufferReleaseBuffer
 };
