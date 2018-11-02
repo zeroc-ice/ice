@@ -104,7 +104,7 @@ class Component(object):
 
     def getTestDir(self, mapping):
         if isinstance(mapping, JavaMapping):
-            return os.path.join(mapping.getPath(), "test/src/main/java/test")
+            return os.path.join(mapping.getPath(), "test", "src", "main", "java", "test")
         elif isinstance(mapping, TypeScriptMapping):
             return os.path.join(mapping.getPath(), "test", "ts")
         return os.path.join(mapping.getPath(), "test")
@@ -756,9 +756,9 @@ class Mapping(object):
 
     @classmethod
     def getByPath(self, path):
-        path = os.path.abspath(path)
+        path = os.path.normpath(path)
         for m in self.mappings.values():
-            if path.startswith(m.getTestDir()):
+            if path.startswith(os.path.normpath(m.getTestDir())):
                 return m
 
     @classmethod
