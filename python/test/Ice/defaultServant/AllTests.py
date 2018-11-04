@@ -48,14 +48,14 @@ def allTests(helper, communicator):
     prx = Test.MyObjectPrx.uncheckedCast(oa.createProxy(identity))
     try:
         prx.ice_ping()
-        test(false)
+        test(False)
     except Ice.ObjectNotExistException:
         # Expected
         pass
 
     try:
         prx.getName()
-        test(false)
+        test(False)
     except Ice.ObjectNotExistException:
         # Expected
         pass
@@ -64,14 +64,14 @@ def allTests(helper, communicator):
     prx = Test.MyObjectPrx.uncheckedCast(oa.createProxy(identity))
     try:
         prx.ice_ping()
-        test(false)
+        test(False)
     except Ice.FacetNotExistException:
         # Expected
         pass
 
     try:
         prx.getName()
-        test(false)
+        test(False)
     except Ice.FacetNotExistException:
         # Expected
         pass
@@ -83,14 +83,14 @@ def allTests(helper, communicator):
 
         try:
             prx.ice_ping()
-            test(false)
+            test(False)
         except Ice.ObjectNotExistException:
             # Expected
             pass
 
         try:
             prx.getName()
-            test(false)
+            test(False)
         except Ice.ObjectNotExistException:
             # Expected
             pass
