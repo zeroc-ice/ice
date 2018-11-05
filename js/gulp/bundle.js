@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-var gutil       = require("gulp-util");
-var PluginError = gutil.PluginError;
+var PluginError = require("plugin-error");
 var PLUGIN_NAME = "gulp-slice2js-bundle";
 var through     = require("through2");
 var fs          = require("fs");
 var path        = require("path");
 var sourcemap   = require('source-map');
+var Vinyl = require("vinyl");
 
 function rmfile(path)
 {
@@ -473,12 +473,11 @@ function bundle(args)
 
                 sb.write(epilogue);
                 lineOffset++;
-
-                var target = new gutil.File(
+                var target = new Vinyl(
                     {
                         cwd: "",
-                        base:"",
-                        path:path.basename(args.target),
+                        base: path.dirname(args.target),
+                        path: args.target,
                         contents:sb.buffer
                     });
                 target.sourceMap = JSON.parse(sourceMap.toString());

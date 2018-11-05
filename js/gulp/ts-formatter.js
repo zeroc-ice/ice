@@ -2,11 +2,10 @@
 // Base on https://github.com/plgregoire/gulp-typescript-formatter/blob/master/index.js
 //
 
-var gutil       = require("gulp-util");
-var PluginError = gutil.PluginError;
-var PLUGIN_NAME = "ts-formatter";
-var through     = require("through2");
-var formatter   = require('typescript-formatter');
+const PluginError = require("plugin-error");
+const PLUGIN_NAME = "ts-formatter";
+const through = require("through2");
+const formatter = require('typescript-formatter');
 
 function createBuffer(data)
 {
@@ -35,7 +34,7 @@ function format(options)
 
                            if(file.isStream())
                            {
-                               return cb(new PluginError('ts-formatter', 'Streaming not supported'));
+                               return cb(new PluginError(PLUGIN_NAME, 'Streaming not supported'));
                            }
                        });
 
