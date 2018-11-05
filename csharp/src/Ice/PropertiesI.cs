@@ -380,14 +380,8 @@ namespace Ice
             }
         }
 
-        internal PropertiesI(PropertiesI p)
+        internal PropertiesI(PropertiesI p) : this()
         {
-            //
-            // NOTE: we can't just do a shallow copy of the map as the map values
-            // would otherwise be shared between the two PropertiesI object.
-            //
-            //_properties = new Dictionary<string, PropertyValue>(p._properties);
-            _properties = new Dictionary<string, PropertyValue>();
             foreach(KeyValuePair<string, PropertyValue> entry in p._properties)
             {
                 _properties[entry.Key] = new PropertyValue(entry.Value);
@@ -399,20 +393,10 @@ namespace Ice
             _properties = new Dictionary<string, PropertyValue>();
         }
 
-        internal PropertiesI(ref string[] args, Properties defaults)
+        internal PropertiesI(ref string[] args, Properties defaults) : this()
         {
-            if(defaults == null)
+            if(defaults != null)
             {
-                _properties = new Dictionary<string, PropertyValue>();
-            }
-            else
-            {
-                //
-                // NOTE: we can't just do a shallow copy of the map as the map values
-                // would otherwise be shared between the two PropertiesI object.
-                //
-                //_properties = ((PropertiesI)defaults)._properties;
-                _properties = new Dictionary<string, PropertyValue>();
                 foreach(KeyValuePair<string, PropertyValue> entry in ((PropertiesI)defaults)._properties)
                 {
                     _properties[entry.Key] = new PropertyValue(entry.Value);
