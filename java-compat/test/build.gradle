@@ -45,7 +45,7 @@ jar {
     archiveName = "test.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
     manifest {
-        attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+        attributes("Class-Path": configurations.runtime.resolve().collect { it.name }.join(' '))
     }
 }
 
