@@ -2974,7 +2974,7 @@ class Driver:
                 processController = UWPProcessController
         elif process and current.config.browser and isinstance(process.getMapping(current), JavaScriptMixin):
             processController = BrowserProcessController
-        elif process and current.config.android and isinstance(process.getMapping(current), JavaMapping):
+        elif process and current.config.android:
             processController = AndroidProcessController
         else:
             processController = LocalProcessController
@@ -3302,6 +3302,7 @@ class CSharpMapping(Mapping):
         })
         if current.config.xamarin:
             props["Ice.InitPlugins"] = 0
+            props["IceSSL.CAs"] = "cacert.der";
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
