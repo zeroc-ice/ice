@@ -3156,7 +3156,7 @@ class JavaMapping(Mapping):
         javaArgs = self.getJavaArgs(process, current)
         if process.isFromBinDir():
             if javaArgs:
-                return "{0} -ea {1} {2} {3}".format(java, javaArgs, exe, args)
+                return "{0} -ea {1} {2} {3}".format(java, " ".join(javaArgs), exe, args)
             else:
                 return "{0} -ea {1} {2}".format(java, exe, args)
 
