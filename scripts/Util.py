@@ -3153,8 +3153,12 @@ class JavaMapping(Mapping):
     def getCommandLine(self, current, process, exe, args):
         javaHome = os.getenv("JAVA_HOME", "")
         java = os.path.join(javaHome, "bin", "java") if javaHome else "java"
+        javaArgs = self.getJavaArgs(process, current)
         if process.isFromBinDir():
-            return "{0} -ea {1} {2}".format(java, exe, args)
+            if javaArgs:
+                return "{0} -ea {1} {2} {3}".format(java, javaArgs, exe, args)
+            else:
+                return "{0} -ea {1} {2}".format(java, exe, args)
 
         testdir = self.component.getTestDir(self)
         assert(current.testcase.getPath(current).startswith(testdir))
@@ -3166,6 +3170,9 @@ class JavaMapping(Mapping):
             return "{0} -ea -Dtest.class={1}.{2} test.TestDriver {3}".format(java, package, exe, args)
 
     def getJavaArgs(self, process, current):
+        # TODO: WORKAROUND for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=911925
+        if isinstance(platform, Linux) and platform.getLinuxId() in ["debian", "ubuntu"]:
+            return ["-Djdk.net.URLClassPath.disableClassPathURLCheck=true"]
         return []
 
     def getSSLProps(self, process, current):
