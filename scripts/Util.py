@@ -2972,9 +2972,9 @@ class Driver:
                 processController = LocalProcessController
             else:
                 processController = UWPProcessController
-        elif process and current.config.browser and isinstance(process.getMapping(), JavaScriptMixin):
+        elif process and current.config.browser and isinstance(process.getMapping(current), JavaScriptMixin):
             processController = BrowserProcessController
-        elif process and current.config.android and isinstance(process.getMapping(), JavaMapping):
+        elif process and current.config.android and isinstance(process.getMapping(current), JavaMapping):
             processController = AndroidProcessController
         else:
             processController = LocalProcessController
