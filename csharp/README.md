@@ -234,13 +234,13 @@ python allTests.py --controller-app --config Release --platform x64
 #### Building the Android test controller
 
 ```
-MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
+msbuild msbuild\ice.proj /t:AndroidXamarinBuild
 ```
 
 #### Building the iOS test controller
 
 ```
-MSBuild msbuild\ice.proj /t:iOSXamarinBuild
+msbuild msbuild\ice.proj /t:iOSXamarinBuild
 ```
 
 #### Running the Android test suite

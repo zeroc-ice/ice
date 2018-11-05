@@ -285,23 +285,38 @@
     </Target>
 
     <!-- UWP Xamarin Builds -->
-    <Target Name="UWPXamarinBuild" DependsOnTargets="BuildNetStandardDist">
+    <Target Name="UWPXamarinBuild" DependsOnTargets="BuildNetStandardDist" Condition="'$(OS)' == 'Windows_NT'">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.UWP\controller.UWP.csproj"
                  Properties="Configuration=$(Configuration);Platform=$(Platform)"/>
     </Target>
 
     <!-- Android Xamarin Builds -->
-    <Target Name="AndroidXamarinBuild" DependsOnTargets="BuildNetStandardDist">
+    <Target Name="AndroidXamarinBuildOnWindows" DependsOnTargets="BuildNetStandardDist" Condition="'$(OS)' == 'Windows_NT'">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.Android\controller.Android.csproj"
                  Properties="Configuration=$(Configuration);Platform=AnyCPU"
                  Targets="SignAndroidPackage"/>
     </Target>
 
+    <Target Name="AndroidXamarinBuildOnMac" DependsOnTargets="" Condition="'$(OS)' == 'Unix'">
+        <!-- We use exec to build the distribution instead of adding it to the DependsOnTargets as we have to use
+             "dotnet msbuid" to build the distribution and "msbuild" from Visual Studio to build the test controller -->
+        <Exec Command="dotnet msbuild $(MSBuildThisFileDirectory)ice.proj /t:BuildDist" />
+        <Exec Command="nuget restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.Android\controller.Android.csproj"
+                 Properties="Configuration=$(Configuration);Platform=AnyCPU"
+                 Targets="SignAndroidPackage"/>
+    </Target>
+
+    <Target Name="AndroidXamarinBuild" DependsOnTargets="AndroidXamarinBuildOnWindows;AndroidXamarinBuildOnMac"/>
+
     <!-- iOS Xamarin Builds -->
-    <Target Name="iOSXamarinBuild" DependsOnTargets="BuildNetStandardDist">
-        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
+    <Target Name="iOSXamarinBuild" Condition="'$(OS)' == 'Unix'">
+        <!-- We use exec to build the distribution instead of adding it to the DependsOnTargets as we have to use
+             "dotnet msbuid" to build the distribution and "msbuild" from Visual Studio to build the test controller -->
+        <Exec Command="dotnet msbuild $(MSBuildThisFileDirectory)ice.proj /t:BuildDist" />
+        <Exec Command="nuget restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.iOS\controller.iOS.csproj"
                  Properties="Configuration=$(Configuration)"/>
     </Target>
