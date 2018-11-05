@@ -136,7 +136,6 @@
     </Target>
 
     <!-- NET Standard Targets -->
-
     <Target Name="NuGetRestoreNetStandardDist"
             Condition="'$(ICE_BIN_DIST)' != 'all' and '$(BuildNetStandardTargets)' == 'true'">
         <MSBuild Projects="@(NetStandardDistSolution)"
@@ -285,14 +284,26 @@
             DependsOnTargets="WindowsNuGetPack;UnixNuGetPack">
     </Target>
 
-    <!-- Build xamarin Android test controller -->
-    <Target Name="BuildXamarin" DependsOnTargets="BuildNetStandardDist">
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller.sln" Targets="Restore"
-                 Properties="Configuration=$(Configuration)"/>
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller.sln"
-                 Properties="Configuration=$(Configuration)"/>
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\xamarin\controller\controller.Android\controller.Android.csproj"
-                 Properties="IntermediateOutputPath=obj\;OutputPath=bin\$(Configuration)\;AndroidUseSharedRuntime=false;EmbedAssembliesIntoApk=true;Platform=AnyCPU"
+    <!-- UWP Xamarin Builds -->
+    <Target Name="UWPXamarinBuild" DependsOnTargets="BuildNetStandardDist">
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.UWP\controller.UWP.csproj"
+                 Properties="Configuration=$(Configuration);Platform=$(Platform)"/>
+    </Target>
+
+    <!-- Android Xamarin Builds -->
+    <Target Name="AndroidXamarinBuild" DependsOnTargets="BuildNetStandardDist">
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.Android\controller.Android.csproj"
+                 Properties="Configuration=$(Configuration);Platform=AnyCPU"
                  Targets="SignAndroidPackage"/>
     </Target>
+
+    <!-- iOS Xamarin Builds -->
+    <Target Name="iOSXamarinBuild" DependsOnTargets="BuildNetStandardDist">
+        <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
+        <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.iOS\controller.iOS.csproj"
+                 Properties="Configuration=$(Configuration)"/>
+    </Target>
+
 </Project>
