@@ -570,7 +570,9 @@ class Mapping(object):
             # avoid having to check the configuration type)
             self.uwp = False
             self.openssl = False
-            self.browser = False
+            self.browser = ""
+            self.es5 = False
+            self.worker = False
             self.dotnetcore = False
             self.android = False
             self.xamarin = False
@@ -3692,10 +3694,7 @@ class JavaScriptMapping(JavaScriptMixin,Mapping):
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
-            self.es5 = False
-            self.browser = ""
-            self.worker = False
-            parseOptions(self, options)
+
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"
 
