@@ -1680,6 +1680,8 @@ public class AllTests
             d = createServerProps(defaultProperties, "s_rsa_dsa_ca1", "cacert1");
             d.put("IceSSL.Alias", "dsacert");
             d.put("IceSSL.VerifyPeer", "1");
+            // TLS 1.3 no longer supports DSA so disable TLS 1.3 for this test.
+            d.put("IceSSL.Protocols", "ssl3, tls1_0, tls1_1, tls1_2");
             ServerPrx server = fact.createServer(d);
             try
             {

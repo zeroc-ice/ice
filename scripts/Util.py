@@ -768,7 +768,7 @@ class Mapping(object):
         path = os.path.abspath(path)
         mappings = []
         for m in self.mappings.values():
-            if path.startswith(m.getPath()):
+            if path.startswith(m.getPath() + os.sep):
                 mappings.append(m)
         return mappings
 
