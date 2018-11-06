@@ -29,6 +29,11 @@ public class AllTests
         }
     }
 
+    private static X509Certificate2 createCertificate(string certPEM)
+    {
+        return new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
+    }
+
     private static Ice.InitializationData
     createClientProps(Ice.Properties defaultProperties)
     {
@@ -124,8 +129,8 @@ public class AllTests
         X509Certificate2 caCert1 = new X509Certificate2(caCert1File);
         X509Certificate2 caCert2 = new X509Certificate2(caCert2File);
 
-        test(Enumerable.SequenceEqual(IceSSL.Util.createCertificate(File.ReadAllText(caCert1File)).RawData, caCert1.RawData));
-        test(Enumerable.SequenceEqual(IceSSL.Util.createCertificate(File.ReadAllText(caCert2File)).RawData, caCert2.RawData));
+        test(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert1File)).RawData, caCert1.RawData));
+        test(Enumerable.SequenceEqual(createCertificate(File.ReadAllText(caCert2File)).RawData, caCert2.RawData));
 
         X509Store store = new X509Store(StoreName.AuthRoot, StoreLocation.LocalMachine);
         bool isAdministrator = false;

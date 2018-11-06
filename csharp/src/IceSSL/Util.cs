@@ -15,11 +15,6 @@ namespace IceSSL
 
     public sealed class Util
     {
-        public static X509Certificate2 createCertificate(string certPEM)
-        {
-            return new X509Certificate2(System.Text.Encoding.ASCII.GetBytes(certPEM));
-        }
-
         public static void
         registerIceSSL(bool loadOnInitialize)
         {
