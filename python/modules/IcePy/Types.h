@@ -373,9 +373,7 @@ private:
     void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&,
                                     PyObject*, void*, const SequenceMappingPtr&);
 
-    PyObject* createSequenceFromMemory(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType);
-    PyObject* createSequenceFromBuffer(const SequenceMappingPtr&, const BufferPtr&);
-    PyObject* createContainer(const SequenceMappingPtr&, PyObject*, BuiltinType, bool);
+    PyObject* createSequenceFromMemory(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType, bool);
 
 public:
 
@@ -394,15 +392,12 @@ public:
     const char* data() const;
     int size() const;
     SequenceInfo::BuiltinType type();
-    void exportObject();
-    int releaseObject();
 
 private:
 
     const char* _data;
     const int _size;
     const SequenceInfo::BuiltinType _type;
-    int _exportCount;
 };
 
 //

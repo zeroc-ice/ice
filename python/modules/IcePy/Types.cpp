@@ -239,7 +239,10 @@ extern "C"
 static void
 bufferDealloc(BufferObject* self)
 {
-    delete self->buffer;
+    if(self->buffer)
+    {
+        delete self->buffer;
+    }
     Py_TYPE(self)->tp_free(reinterpret_cast<PyObject*>(self));
 }
 
@@ -274,25 +277,9 @@ bufferGetBuffer(BufferObject* self, Py_buffer* view, int flags)
         return -1;
     }
 
-    buffer->exportObject();
-
     view->obj = reinterpret_cast<PyObject*>(self);
     Py_INCREF(view->obj);
     return 0;
-}
-
-
-#ifdef WIN32
-extern "C"
-#endif
-static void
-bufferReleaseBuffer(BufferObject* self, Py_buffer*)
-{
-    BufferPtr buffer = *self->buffer;
-    if(buffer->releaseObject() == 0)
-    {
-        delete self->buffer;
-    }
 }
 
 //
@@ -1953,7 +1940,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
     PyObjectHandle fs = getSequence(pi, p);
     if(!fs.get())
-    {
+   {
         assert(PyErr_Occurred());
         return;
     }
@@ -2194,54 +2181,46 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 }
 
 PyObject*
-IcePy::SequenceInfo::createSequenceFromBuffer(const SequenceMappingPtr& sm, const BufferPtr& buffer)
-{
-    PyObjectHandle bufferObject = createBuffer(buffer);
-    if(!bufferObject.get())
-    {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
-    }
-
-    PyObjectHandle memoryview = PyMemoryView_FromObject(bufferObject.get());
-    if(!memoryview.get())
-    {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
-    }
-    return createContainer(sm, memoryview.get(), buffer->type(), false);
-}
-
-PyObject*
 IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
                                               const char* buffer,
                                               Py_ssize_t size,
-                                              BuiltinType type)
+                                              BuiltinType type,
+                                              bool copy)
 {
-#if PY_VERSION_HEX >= 0x03030000
-    PyObjectHandle memoryview = PyMemoryView_FromMemory(const_cast<char*>(buffer), size, PyBUF_READ);
-#else
-    Py_buffer pybuffer;
-    if(PyBuffer_FillInfo(&pybuffer, 0, const_cast<char*>(buffer), size, 1, PyBUF_SIMPLE) != 0)
+    PyObjectHandle memoryview;
+    if(copy)
     {
-        assert(PyErr_Occurred());
-        throw AbortMarshaling();
+        PyObjectHandle bufferObject = createBuffer(new Buffer(buffer, size, type));
+        if(!bufferObject.get())
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+        memoryview = PyMemoryView_FromObject(bufferObject.get());
+        Py_XDECREF(bufferObject.get());
+    }
+    else
+    {
+#if PY_VERSION_HEX >= 0x03030000
+        memoryview = PyMemoryView_FromMemory(const_cast<char*>(buffer), size, PyBUF_READ);
+#else
+        Py_buffer pybuffer;
+        if(PyBuffer_FillInfo(&pybuffer, 0, const_cast<char*>(buffer), size, 1, PyBUF_SIMPLE) != 0)
+        {
+            assert(PyErr_Occurred());
+            throw AbortMarshaling();
+        }
+
+        PyObjectHandle memoryview = PyMemoryView_FromBuffer(&pybuffer);
+#endif
     }
 
-    PyObjectHandle memoryview = PyMemoryView_FromBuffer(&pybuffer);
-#endif
     if(!memoryview.get())
     {
         assert(PyErr_Occurred());
         throw AbortMarshaling();
     }
 
-    return createContainer(sm, memoryview.get(), type, true);
-}
-
-PyObject*
-IcePy::SequenceInfo::createContainer(const SequenceMappingPtr& sm, PyObject* memoryview, BuiltinType type, bool copy)
-{
     PyObjectHandle builtinType = PyLong_FromLong(static_cast<int>(type));
     if(!builtinType.get())
     {
@@ -2252,9 +2231,13 @@ IcePy::SequenceInfo::createContainer(const SequenceMappingPtr& sm, PyObject* mem
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.
 
     PyObjectHandle args = PyTuple_New(3);
-    PyTuple_SET_ITEM(args.get(), 0, incRef(memoryview));
+    PyTuple_SET_ITEM(args.get(), 0, incRef(memoryview.get()));
     PyTuple_SET_ITEM(args.get(), 1, incRef(builtinType.get()));
-    PyTuple_SET_ITEM(args.get(), 2, copy ? incTrue() : incFalse());
+    //
+    // If we copy the data to a Buffer object we set the copy factory argument to false
+    // to avoid a second copy in the factory.
+    //
+    PyTuple_SET_ITEM(args.get(), 2, copy ? incFalse() : incTrue());
     PyObjectHandle result = PyObject_Call(sm->factory.get(), args.get(), 0);
 
     if(!result.get())
@@ -2287,15 +2270,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory.get())
         {
-            if(arr.get() == 0)
-            {
-                result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeBool);
-            }
-            else
-            {
-                BufferPtr buffer = new Buffer(reinterpret_cast<const char*>(arr.release()), sz, BuiltinTypeBool);
-                result = createSequenceFromBuffer(sm, buffer);
-            }
+            result = createSequenceFromMemory(sm,
+                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
+                                              sz,
+                                              BuiltinTypeBool,
+                                              arr.get() != 0);
         }
         else
         {
@@ -2320,7 +2299,7 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory.get())
         {
-            result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeByte);
+            result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz, BuiltinTypeByte, false);
         }
         else if(sm->type == SequenceMapping::SEQ_DEFAULT)
         {
@@ -2365,15 +2344,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory.get())
         {
-            if(arr.get() == 0)
-            {
-                result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz * 2, BuiltinTypeShort);
-            }
-            else
-            {
-                BufferPtr buffer = new Buffer(reinterpret_cast<const char*>(arr.release()), sz * 2, BuiltinTypeShort);
-                result = createSequenceFromBuffer(sm, buffer);
-            }
+            result = createSequenceFromMemory(sm,
+                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
+                                              sz * 2,
+                                              BuiltinTypeShort,
+                                              arr.get() != 0);
         }
         else
         {
@@ -2405,15 +2380,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory.get())
         {
-            if(arr.get() == 0)
-            {
-                result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz * 4, BuiltinTypeInt);
-            }
-            else
-            {
-                BufferPtr buffer = new Buffer(reinterpret_cast<const char*>(arr.release()), sz * 4, BuiltinTypeInt);
-                result = createSequenceFromBuffer(sm, buffer);
-            }
+            result = createSequenceFromMemory(sm,
+                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
+                                              sz * 4,
+                                              BuiltinTypeInt,
+                                              arr.get() != 0);
         }
         else
         {
@@ -2444,15 +2415,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory.get())
         {
-            if(arr.get() == 0)
-            {
-                result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz * 8, BuiltinTypeLong);
-            }
-            else
-            {
-                BufferPtr buffer = new Buffer(reinterpret_cast<const char*>(arr.release()), sz * 8, BuiltinTypeLong);
-                result = createSequenceFromBuffer(sm, buffer);
-            }
+            result = createSequenceFromMemory(sm,
+                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
+                                              sz * 8,
+                                              BuiltinTypeLong,
+                                              arr.get() != 0);
         }
         else
         {
@@ -2484,15 +2451,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory.get())
         {
-            if(arr.get() == 0)
-            {
-                result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz * 4, BuiltinTypeFloat);
-            }
-            else
-            {
-                BufferPtr buffer = new Buffer(reinterpret_cast<const char*>(arr.release()), sz * 4, BuiltinTypeFloat);
-                result = createSequenceFromBuffer(sm, buffer);
-            }
+            result = createSequenceFromMemory(sm,
+                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
+                                              sz * 4,
+                                              BuiltinTypeFloat,
+                                              arr.get() != 0);
         }
         else
         {
@@ -2524,15 +2487,11 @@ IcePy::SequenceInfo::unmarshalPrimitiveSequence(const PrimitiveInfoPtr& pi, Ice:
         int sz = static_cast<int>(p.second - p.first);
         if(sm->factory.get())
         {
-            if(arr.get() == 0)
-            {
-                result = createSequenceFromMemory(sm, reinterpret_cast<const char*>(p.first), sz * 8, BuiltinTypeDouble);
-            }
-            else
-            {
-                BufferPtr buffer = new Buffer(reinterpret_cast<const char*>(arr.release()), sz * 8, BuiltinTypeDouble);
-                result = createSequenceFromBuffer(sm, buffer);
-            }
+            result = createSequenceFromMemory(sm,
+                                              reinterpret_cast<const char*>(arr.get() != 0 ? arr.release() : p.first),
+                                              sz * 8,
+                                              BuiltinTypeDouble,
+                                              arr.get() != 0);
         }
         else
         {
@@ -2748,14 +2707,12 @@ IcePy::SequenceInfo::SequenceMapping::setItem(PyObject* cont, int i, PyObject* v
 IcePy::Buffer::Buffer(const char* data, int size, SequenceInfo::BuiltinType type) :
     _data(data),
     _size(size),
-    _type(type),
-    _exportCount(0)
+    _type(type)
 {
 }
 
 IcePy::Buffer::~Buffer()
 {
-    assert(_exportCount == 0);
     assert(_data != 0);
     switch(_type)
     {
@@ -2814,18 +2771,6 @@ SequenceInfo::BuiltinType
 IcePy::Buffer::type()
 {
     return _type;
-}
-
-void
-IcePy::Buffer::exportObject()
-{
-    _exportCount++;
-}
-
-int
-IcePy::Buffer::releaseObject()
-{
-    return --_exportCount;
 }
 
 //
@@ -4603,7 +4548,7 @@ static PyBufferProcs BufferProcs =
      0,
 #endif
     (getbufferproc) bufferGetBuffer,
-    (releasebufferproc) bufferReleaseBuffer
+    0
 };
 
 PyTypeObject BufferType =
