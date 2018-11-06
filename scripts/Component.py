@@ -197,17 +197,17 @@ class Ice(Component):
         ]
 
     def getSoVersion(self):
-        config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
-        intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
-        majorVersion = int(intVersion / 10000)
-        minorVersion = int(intVersion / 100) - 100 * majorVersion
-        patchVersion = intVersion % 100
-        if patchVersion < 50:
-            return '%d' % (majorVersion * 10 + minorVersion)
-        elif patchVersion < 60:
-            return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
-        else:
-            return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
+        with open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r") as config:
+            intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+            majorVersion = int(intVersion / 10000)
+            minorVersion = int(intVersion / 100) - 100 * majorVersion
+            patchVersion = intVersion % 100
+            if patchVersion < 50:
+                return '%d' % (majorVersion * 10 + minorVersion)
+            elif patchVersion < 60:
+                return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
+            else:
+                return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
 
 component = Ice()
 
