@@ -2593,32 +2593,32 @@ IcePy::SequenceInfo::SequenceMapping::getType(const Ice::StringSeq& metaData, Ty
 {
     for(Ice::StringSeq::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
     {
-        if((*p) == "python:seq:default")
+        if((*p) == "python:seq:default" || (*p) == "python:default")
         {
             t = SEQ_DEFAULT;
             return true;
         }
-        else if((*p) == "python:seq:tuple")
+        else if((*p) == "python:seq:tuple" || (*p) == "python:tuple")
         {
             t = SEQ_TUPLE;
             return true;
         }
-        else if((*p) == "python:seq:list")
+        else if((*p) == "python:seq:list" || (*p) == "python:list")
         {
             t = SEQ_LIST;
             return true;
         }
-        else if((*p) == "python:seq:array")
+        else if((*p) == "python:array.array")
         {
             t = SEQ_ARRAY;
             return true;
         }
-        else if((*p) == "python:seq:numpyarray")
+        else if((*p) == "python:numpy.ndarray")
         {
             t = SEQ_NUMPYARRAY;
             return true;
         }
-        else if(p->find("python:seq:memoryview:") == 0)
+        else if(p->find("python:memoryview:") == 0)
         {
             t = SEQ_MEMORYVIEW;
             return true;
@@ -2663,7 +2663,7 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
     }
     else if(type == SEQ_MEMORYVIEW)
     {
-        const string prefix = "python:seq:memoryview:";
+        const string prefix = "python:memoryview:";
         for(Ice::StringSeq::const_iterator i = meta.begin(); i != meta.end(); ++i)
         {
             if(i->find(prefix) == 0)

@@ -3296,19 +3296,26 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
         string s = *p++;
         if(s.find(prefix) == 0)
         {
-            string::size_type pos = s.find(':', prefix.size());
-            if(pos != string::npos && s.substr(prefix.size(), pos - prefix.size()) == "seq")
+            SequencePtr seq = SequencePtr::dynamicCast(type);
+            if(seq)
             {
                 static const string seqPrefix = "python:seq:";
-                string arg = s.substr(seqPrefix.size(), pos - seqPrefix.size());
-                SequencePtr seq = SequencePtr::dynamicCast(type);
-                if(seq)
+                if(s.find(seqPrefix) == 0)
                 {
+                    string arg = s.substr(seqPrefix.size());
                     if(arg == "tuple" || arg == "list" || arg == "default")
                     {
                         continue;
                     }
-                    else if(arg == "array" || arg == "numpyarray" || arg.find("memoryview:") == 0)
+                }
+                else if(s.size() > prefix.size())
+                {
+                    string arg = s.substr(prefix.size());
+                    if(arg == "tuple" || arg == "list" || arg == "default")
+                    {
+                        continue;
+                    }
+                    else if(arg == "array.array" || arg == "numpy.ndarray" || arg.find("memoryview:") == 0)
                     {
                         //
                         // The memoryview sequence metadata is only valid for integral builtin
@@ -3319,17 +3326,17 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
                         {
                             switch(builtin->kind())
                             {
-                                case Builtin::KindBool:
-                                case Builtin::KindByte:
-                                case Builtin::KindShort:
-                                case Builtin::KindInt:
-                                case Builtin::KindLong:
-                                case Builtin::KindFloat:
-                                case Builtin::KindDouble:
+                            case Builtin::KindBool:
+                            case Builtin::KindByte:
+                            case Builtin::KindShort:
+                            case Builtin::KindInt:
+                            case Builtin::KindLong:
+                            case Builtin::KindFloat:
+                            case Builtin::KindDouble:
                                 {
                                     continue;
                                 }
-                                default:
+                            default:
                                 {
                                     break;
                                 }
