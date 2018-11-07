@@ -545,7 +545,7 @@ for(const name of tstests)
     gulp.task(testTypeScriptCompileTask(name),
               cb =>
               {
-                  pump([gulp.src(path.join(name, "*.ts")),
+                  pump([gulp.src(path.join(root, name, "*.ts")),
                         tsc(
                             {
                                 lib: ["dom", "es2017"],
@@ -553,7 +553,7 @@ for(const name of tstests)
                                 module: "commonjs",
                                 noImplicitAny: true
                             }),
-                        gulp.dest(name)
+                        gulp.dest(path.join(root, name))
                        ], cb);
               });
 
@@ -565,8 +565,8 @@ for(const name of tstests)
     gulp.task(testTypeScriptCleanTask(name),
               cb =>
               {
-                  pump([gulp.src([path.join(name, "**/*.js"),
-                                  path.join(name, "**/*.d.ts")]),
+                  pump([gulp.src([path.join(root, name, "**/*.js"),
+                                  path.join(root, name, "**/*.d.ts")]),
                         paths(del)], cb);
               });
 }

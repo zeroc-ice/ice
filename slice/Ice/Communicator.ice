@@ -139,8 +139,8 @@ local interface Communicator
     /**
      *
      * Convert a stringified proxy into a proxy. For example,
-     * <tt>MyCategory/MyObject:tcp -h some_host -p
-     * 10000</tt> creates a proxy that refers to the Ice object
+     * <code>MyCategory/MyObject:tcp -h some_host -p
+     * 10000</code> creates a proxy that refers to the Ice object
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000. If the stringified proxy does not parse correctly, the
@@ -150,7 +150,7 @@ local interface Communicator
      *
      * @param str The stringified proxy to convert into a proxy.
      *
-     * @return The proxy, or nil if <tt>str</tt> is an empty string.
+     * @return The proxy, or nil if <code>str</code> is an empty string.
      *
      * @see #proxyToString
      *
@@ -164,7 +164,7 @@ local interface Communicator
      * @param obj The proxy to convert into a stringified proxy.
      *
      * @return The stringified proxy, or an empty string if
-     * <tt>obj</tt> is nil.
+     * <code>obj</code> is nil.
      *
      * @see #stringToProxy
      *
@@ -174,11 +174,11 @@ local interface Communicator
     /**
      *
      * Convert a set of proxy properties into a proxy. The "base"
-     * name supplied in the <tt>property</tt> argument refers to a
+     * name supplied in the <code>property</code> argument refers to a
      * property containing a stringified proxy, such as
-     * <tt>MyProxy=id:tcp -h localhost -p 10000</tt>. Additional
+     * <code>MyProxy=id:tcp -h localhost -p 10000</code>. Additional
      * properties configure local settings for the proxy, such as
-     * <tt>MyProxy.PreferSecure=1</tt>. The "Properties"
+     * <code>MyProxy.PreferSecure=1</code>. The "Properties"
      * appendix in the Ice manual describes each of the supported
      * proxy properties.
      *
@@ -233,7 +233,7 @@ local interface Communicator
     /**
      *
      * Create a new object adapter. The endpoints for the object
-     * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.
+     * adapter are taken from the property <code><em>name</em>.Endpoints</code>.
      *
      * It is legal to create an object adapter with the empty string as
      * its name. Such an object adapter is accessible via bidirectional
@@ -257,7 +257,7 @@ local interface Communicator
     /**
      *
      * Create a new object adapter with endpoints. This operation sets
-     * the property <tt><em>name</em>.Endpoints</tt>, and then calls
+     * the property <code><em>name</em>.Endpoints</code>, and then calls
      * {@link #createObjectAdapter}. It is provided as a convenience
      * function.
      *
@@ -431,7 +431,7 @@ local interface Communicator
      * operation has no effect on existing proxies.
      *
      * You can also set a router for an individual proxy
-     * by calling the operation <tt>ice_router</tt> on the proxy.
+     * by calling the operation <code>ice_router</code> on the proxy.
      *
      * @param rtr The default router to use for this communicator.
      *
@@ -463,7 +463,7 @@ local interface Communicator
      * object adapters.
      *
      * You can also set a locator for an individual proxy by calling the
-     * operation <tt>ice_locator</tt> on the proxy, or for an object adapter
+     * operation <code>ice_locator</code> on the proxy, or for an object adapter
      * by calling {@link ObjectAdapter#setLocator} on the object adapter.
      *
      * @param loc The default locator to use for this communicator.

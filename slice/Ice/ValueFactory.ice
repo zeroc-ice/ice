@@ -37,10 +37,10 @@ local interface ValueFactory
      * Create a new value for a given value type. The type is the
      * absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute
-     * Slice type id for an interface <tt>Bar</tt> in the module
-     * <tt>Foo</tt> is <tt>"::Foo::Bar"</tt>.
+     * Slice type id for an interface <code>Bar</code> in the module
+     * <code>Foo</code> is <code>"::Foo::Bar"</code>.
      *
-     * Note that the leading "<tt>::</tt>" is required.
+     * Note that the leading "<code>::</code>" is required.
      *
      * @param type The value type.
      *

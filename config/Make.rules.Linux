@@ -193,6 +193,9 @@ endif
 
 IceUtil_system_libs                             = -lrt $(if $(filter yes,$(libbacktrace)),-lbacktrace)
 Ice_system_libs                                 = -ldl -lcrypto $(IceUtil_system_libs)
+ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
+Ice_system_libs                                 += $(shell pkg-config --libs libsystemd)
+endif
 IceSSL_system_libs                              = -lssl -lcrypto
 Glacier2CryptPermissionsVerifier_system_libs    = -lcrypt
 

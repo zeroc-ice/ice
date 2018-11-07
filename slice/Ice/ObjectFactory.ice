@@ -35,10 +35,10 @@ local interface ObjectFactory
      * Create a new object for a given object type. The type is the
      * absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute
-     * Slice type id for interfaces of type <tt>Bar</tt> in the module
-     * <tt>Foo</tt> is <tt>"::Foo::Bar"</tt>.
+     * Slice type id for interfaces of type <code>Bar</code> in the module
+     * <code>Foo</code> is <code>"::Foo::Bar"</code>.
      *
-     * <p class="Note">The leading "<tt>::</tt>" is required.
+     * <p class="Note">The leading "<code>::</code>" is required.
      *
      * @param type The object type.
      *

@@ -24,10 +24,8 @@ import Expect
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
-    if stdout:
-        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
-    else:
-        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+    p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=None if stdout else subprocess.PIPE,
+                         stderr=subprocess.STDOUT, cwd=cwd)
     try:
         if stdin:
             try:
@@ -50,7 +48,10 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
         (p.stderr if stdout else p.stdout).close()
-        p.stdin.close()
+        try:
+            p.stdin.close()
+        except Exception:
+            pass
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
@@ -570,7 +571,9 @@ class Mapping(object):
             # avoid having to check the configuration type)
             self.uwp = False
             self.openssl = False
-            self.browser = False
+            self.browser = ""
+            self.es5 = False
+            self.worker = False
             self.dotnetcore = False
             self.android = False
             self.xamarin = False
@@ -766,7 +769,7 @@ class Mapping(object):
         path = os.path.abspath(path)
         mappings = []
         for m in self.mappings.values():
-            if path.startswith(m.getPath()):
+            if path.startswith(m.getPath() + os.sep):
                 mappings.append(m)
         return mappings
 
@@ -1899,7 +1902,7 @@ class TestSuite(object):
     def isMainThreadOnly(self, driver):
         if self.runOnMainThread or driver.getComponent().isMainThreadOnly(self.id):
             return True
-        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping]:
+        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping, JavaScriptMixin]:
             if isinstance(self.mapping, m):
                 config = driver.configs[self.mapping]
                 if "iphone" in config.buildPlatform or config.uwp or config.browser or config.android:
@@ -2385,7 +2388,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
         try:
             for r in run("xcrun simctl list runtimes").split('\n'):
-                m = re.search("iOS .* \(.*\) - (.*)", r)
+                m = re.search("iOS .* \\(.*\\) - (.*)", r)
                 if m:
                     self.runtimeID = m.group(1)
         except:
@@ -2970,7 +2973,7 @@ class Driver:
                 processController = LocalProcessController
             else:
                 processController = UWPProcessController
-        elif process and current.config.browser:
+        elif process and current.config.browser and isinstance(process.getMapping(current), JavaScriptMixin):
             processController = BrowserProcessController
         elif process and current.config.android:
             processController = AndroidProcessController
@@ -3151,8 +3154,12 @@ class JavaMapping(Mapping):
     def getCommandLine(self, current, process, exe, args):
         javaHome = os.getenv("JAVA_HOME", "")
         java = os.path.join(javaHome, "bin", "java") if javaHome else "java"
+        javaArgs = self.getJavaArgs(process, current)
         if process.isFromBinDir():
-            return "{0} -ea {1} {2}".format(java, exe, args)
+            if javaArgs:
+                return "{0} -ea {1} {2} {3}".format(java, " ".join(javaArgs), exe, args)
+            else:
+                return "{0} -ea {1} {2}".format(java, exe, args)
 
         testdir = self.component.getTestDir(self)
         assert(current.testcase.getPath(current).startswith(testdir))
@@ -3164,6 +3171,9 @@ class JavaMapping(Mapping):
             return "{0} -ea -Dtest.class={1}.{2} test.TestDriver {3}".format(java, package, exe, args)
 
     def getJavaArgs(self, process, current):
+        # TODO: WORKAROUND for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=911925
+        if isinstance(platform, Linux) and platform.getLinuxId() in ["debian", "ubuntu"]:
+            return ["-Djdk.net.URLClassPath.disableClassPathURLCheck=true"]
         return []
 
     def getSSLProps(self, process, current):
@@ -3300,6 +3310,7 @@ class CSharpMapping(Mapping):
         })
         if current.config.xamarin:
             props["Ice.InitPlugins"] = 0
+            props["IceSSL.CAs"] = "cacert.der";
         return props
 
     def getPluginEntryPoint(self, plugin, process, current):
@@ -3692,10 +3703,7 @@ class JavaScriptMapping(JavaScriptMixin,Mapping):
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
-            self.es5 = False
-            self.browser = ""
-            self.worker = False
-            parseOptions(self, options)
+
             if self.browser and self.protocol == "tcp":
                 self.protocol = "ws"
 

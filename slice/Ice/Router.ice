@@ -24,7 +24,7 @@ module Ice
 /**
  *
  * The Ice router interface. Routers can be set either globally with
- * {@link Communicator#setDefaultRouter}, or with <tt>ice_router</tt> on specific
+ * {@link Communicator#setDefaultRouter}, or with <code>ice_router</code> on specific
  * proxies.
  *
  **/

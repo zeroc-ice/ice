@@ -202,7 +202,7 @@ interface Topic
 
     /**
      *
-     * Subscribe with the given <tt>qos</tt> to this topic.  A
+     * Subscribe with the given <code>qos</code> to this topic.  A
      * per-subscriber publisher object is returned.
      *
      * @param theQoS The quality of service parameters for this
@@ -228,7 +228,7 @@ interface Topic
 
     /**
      *
-     * Unsubscribe the given <tt>subscriber</tt>.
+     * Unsubscribe the given <code>subscriber</code>.
      *
      * @param subscriber The proxy of an existing subscriber.
      *
@@ -240,7 +240,7 @@ interface Topic
     /**
      *
      * Create a link to the given topic. All events originating
-     * on this topic will also be sent to <tt>linkTo</tt>.
+     * on this topic will also be sent to <code>linkTo</code>.
      *
      * @param linkTo The topic to link to.
      *
@@ -254,7 +254,7 @@ interface Topic
 
     /**
      *
-     * Destroy the link from this topic to the given topic <tt>linkTo</tt>.
+     * Destroy the link from this topic to the given topic <code>linkTo</code>.
      *
      * @param linkTo The topic to destroy the link to.
      *

@@ -29,7 +29,6 @@ endif
 ifeq ($(os),Linux)
 ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
 Ice_cppflags                            += -DICE_USE_SYSTEMD $(shell pkg-config --cflags libsystemd)
-Ice_ldflags                             += $(shell pkg-config --libs libsystemd)
 endif
 endif
 

@@ -195,8 +195,7 @@ application.
 Open a Visual Studio 2017 command prompt:
 
 ```
-nuget restore msbuild\ice.xamarin.test.sln
-MSBuild test\xamarin\controller.Android\controller.Android.csproj /t:SignAndroidPackage /p:Configuration=Release /p:Platform=AnyCPU
+MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
 ```
 
 #### Building the UWP test controller
@@ -204,8 +203,7 @@ MSBuild test\xamarin\controller.Android\controller.Android.csproj /t:SignAndroid
 Open a Visual Studio 2017 command prompt:
 
 ```
-nuget restore msbuild\ice.xamarin.test.sln
-MSBuild test\xamarin\controller.UWP\controller.UWP.csproj /p:Configuration=Release
+MSBuild msbuild\ice.proj /t:UWPXamarinBuild
 ```
 
 #### Running the Android test suite
@@ -236,15 +234,13 @@ python allTests.py --controller-app --config Release --platform x64
 #### Building the Android test controller
 
 ```
-nuget restore msbuild/ice.xamarin.test.sln
-msbuild test/xamarin/controller.Android/controller.Android.csproj  /t:SignAndroidPackage /p:Configuration=Release
+msbuild msbuild/ice.proj /t:AndroidXamarinBuild
 ```
 
 #### Building the iOS test controller
 
 ```
-nuget restore msbuild/ice.xamarin.test.sln
-msbuild test/xamarin/controller.iOS/controller.iOS.csproj /p:Configuration=Release
+msbuild msbuild/ice.proj /t:iOSXamarinBuild
 ```
 
 #### Running the Android test suite

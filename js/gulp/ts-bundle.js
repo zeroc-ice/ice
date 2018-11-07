@@ -11,8 +11,7 @@ const fs = require("fs");
 const ts = require("typescript");
 const path = require("path");
 const os = require("os");
-const gutil = require("gulp-util");
-const PluginError = gutil.PluginError;
+const PluginError = require("plugin-error");
 const PLUGIN_NAME = "gulp-ts-bundle";
 const through = require("through2");
 

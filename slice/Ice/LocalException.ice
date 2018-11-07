@@ -137,8 +137,8 @@ local exception NotRegisteredException
  * The operation can only be invoked with a twoway request.
  *
  * This exception is raised if an attempt is made to invoke an
- * operation with <tt>ice_oneway</tt>, <tt>ice_batchOneway</tt>, <tt>ice_datagram</tt>,
- * or <tt>ice_batchDatagram</tt> and the operation has a return value,
+ * operation with <code>ice_oneway</code>, <code>ice_batchOneway</code>, <code>ice_datagram</code>,
+ * or <code>ice_batchDatagram</code> and the operation has a return value,
  * out-parameters, or an exception specification.
  *
  **/
@@ -158,10 +158,10 @@ local exception TwowayOnlyException
  * An attempt was made to clone a class that does not support
  * cloning.
  *
- * This exception is raised if <tt>ice_clone</tt> is called on
+ * This exception is raised if <code>ice_clone</code> is called on
  * a class that is derived from an abstract Slice class (that is,
  * a class containing operations), and the derived class does not
- * provide an implementation of the <tt>ice_clone</tt> operation (C++ only).
+ * provide an implementation of the <code>ice_clone</code> operation (C++ only).
  *
  **/
 ["cpp:ice_print"]
@@ -174,8 +174,8 @@ local exception CloneNotImplementedException
  * This exception is raised if an operation call on a server raises an
  * unknown exception. For example, for C++, this exception is raised
  * if the server throws a C++ exception that is not directly or
- * indirectly derived from <tt>Ice::LocalException</tt> or
- * <tt>Ice::UserException</tt>.
+ * indirectly derived from <code>Ice::LocalException</code> or
+ * <code>Ice::UserException</code>.
  *
  **/
 ["cpp:ice_print"]
@@ -198,7 +198,7 @@ local exception UnknownException
  * by the server as {@link UnknownLocalException}. The only exception to this
  * rule are all exceptions derived from {@link RequestFailedException},
  * which are transmitted by the Ice protocol even though they are
- * declared <tt>local</tt>.
+ * declared <code>local</code>.
  *
  **/
 ["cpp:ice_print"]
@@ -212,13 +212,13 @@ local exception UnknownLocalException extends UnknownException
  *
  * This exception is raised if an operation raises a
  * user exception that is not declared in the exception's
- * <tt>throws</tt> clause. Such undeclared exceptions are
+ * <code>throws</code> clause. Such undeclared exceptions are
  * not transmitted from the server to the client by the Ice
  * protocol, but instead the client just gets an
  * {@link UnknownUserException}. This is necessary in order to not violate
  * the contract established by an operation's signature: Only local
  * exceptions and user exceptions declared in the
- * <tt>throws</tt> clause can be raised.
+ * <code>throws</code> clause can be raised.
  *
  **/
 ["cpp:ice_print"]
@@ -428,7 +428,7 @@ local exception IllegalServantException
  * This exception is raised if a request failed. This exception, and
  * all exceptions derived from {@link RequestFailedException}, are
  * transmitted by the Ice protocol, even though they are declared
- * <tt>local</tt>.
+ * <code>local</code>.
  *
  **/
 ["cpp:ice_print"]
@@ -492,10 +492,10 @@ local exception SyscallException
     /**
      *
      * The error number describing the system exception. For C++ and
-     * Unix, this is equivalent to <tt>errno</tt>. For C++
+     * Unix, this is equivalent to <code>errno</code>. For C++
      * and Windows, this is the value returned by
-     * <tt>GetLastError()</tt> or
-     * <tt>WSAGetLastError()</tt>.
+     * <code>GetLastError()</code> or
+     * <code>WSAGetLastError()</code>.
      *
      **/
     int error = 0; // Don't use errno, as errno is usually a macro.
@@ -582,9 +582,9 @@ local exception DNSException
     /**
      *
      * The error number describing the DNS problem. For C++ and Unix,
-     * this is equivalent to <tt>h_errno</tt>. For C++ and
+     * this is equivalent to <code>h_errno</code>. For C++ and
      * Windows, this is the value returned by
-     * <tt>WSAGetLastError()</tt>.
+     * <code>WSAGetLastError()</code>.
      *
      **/
     int error = 0; // Don't use h_errno, as h_errno is usually a macro.
@@ -944,7 +944,7 @@ local exception UnexpectedObjectException extends MarshalException
  *
  * This exception is raised when Ice receives a request or reply
  * message whose size exceeds the limit specified by the
- * <tt>Ice.MessageSizeMax</tt> property.
+ * <code>Ice.MessageSizeMax</code> property.
  *
  **/
 ["cpp:ice_print"]
