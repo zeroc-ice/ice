@@ -107,7 +107,7 @@ class Component(object):
         if isinstance(mapping, JavaMapping):
             return os.path.join(mapping.getPath(), "test", "src", "main", "java", "test")
         elif isinstance(mapping, TypeScriptMapping):
-            return os.path.join(mapping.getPath(), "test", "ts")
+            return os.path.join(mapping.getPath(), "test", "typescript")
         return os.path.join(mapping.getPath(), "test")
 
     def getScriptDir(self):

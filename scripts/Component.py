@@ -110,7 +110,7 @@ class Ice(Component):
                      "Ice/logger",
                      "Ice/properties"])
         elif isinstance(mapping, JavaScriptMapping):
-            return ([], ["ts/.*", "es5/*"])
+            return ([], ["typescript/.*", "es5/*"])
         return ([], [])
 
     def canRun(self, testId, mapping, current):
@@ -236,7 +236,7 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add(m, PhpMapping(), component)
     elif m == "js" or re.match("js-.*", m):
         Mapping.add(m, JavaScriptMapping(), component)
-        Mapping.add("ts", TypeScriptMapping(), component, "js")
+        Mapping.add("typescript", TypeScriptMapping(), component, "js")
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping(), component)
     elif m == "csharp" or re.match("charp-.*", m):
