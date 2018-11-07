@@ -43,6 +43,7 @@ public interface BlobjectAsync extends com.zeroc.Ice.Object
     CompletionStage<Object.Ice_invokeResult> ice_invokeAsync(byte[] inEncaps, Current current)
         throws UserException;
 
+    /** @hidden */
     @Override
     default CompletionStage<OutputStream> _iceDispatch(com.zeroc.IceInternal.Incoming in, Current current)
         throws UserException

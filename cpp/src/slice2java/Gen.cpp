@@ -18,17 +18,6 @@
 
 #include <limits>
 
-// TODO: fix this warning!
-#if defined(_MSC_VER)
-#   pragma warning(disable:4456) // shadow
-#   pragma warning(disable:4457) // shadow
-#   pragma warning(disable:4459) // shadow
-#elif defined(__clang__)
-#   pragma clang diagnostic ignored "-Wshadow"
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
@@ -236,7 +225,9 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     string opName = op->name();
     opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
 
-    out << sp << nl << "public static class " << opName << "Result";
+    out << sp;
+    writeDocComment(out, "Holds the result of operation " + op->name() + ".");
+    out << nl << "public static class " << opName << "Result";
     out << sb;
 
     //
@@ -260,6 +251,7 @@ Slice::JavaVisitor::writeResultType(Output& out, const OperationPtr& op, const s
     //
     // Default constructor.
     //
+    writeDocComment(out, "Default constructor.");
     out << nl << "public " << opName << "Result()";
     out << sb;
     out << eb;
@@ -515,7 +507,9 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     assert(cl);
     opName[0] = static_cast<char>(toupper(static_cast<unsigned char>(opName[0])));
 
-    out << sp << nl << "public static class " << opName << "MarshaledResult implements "
+    out << sp;
+    writeDocComment(out, "Holds the marshaled result of operation " + op->name() + ".");
+    out << nl << "public static class " << opName << "MarshaledResult implements "
         << getUnqualified("com.zeroc.Ice.MarshaledResult", package) << sb;
 
     const ParamDeclList outParams = op->outParameters();
@@ -531,7 +525,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
     if(dc)
     {
         out << nl << "/**";
-        out << nl << " * This constructor marshals the results of operation " << opName << " immediately.";
+        out << nl << " * This constructor marshals the results of operation " << op->name() << " immediately.";
 
         if(ret && !dc->returns().empty())
         {
@@ -634,7 +628,7 @@ Slice::JavaVisitor::writeMarshaledResultType(Output& out, const OperationPtr& op
         if(dc)
         {
             out << nl << "/**";
-            out << nl << " * This constructor marshals the results of operation " << opName
+            out << nl << " * This constructor marshals the results of operation " << op->name()
                 << " immediately (overload without Optional parameters).";
 
             if(ret && !dc->returns().empty())
@@ -1168,7 +1162,9 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
     assert(scopedIter != ids.end());
 #endif
 
-    out << sp << nl << "static final String[] _iceIds =";
+    out << sp;
+    writeHiddenDocComment(out);
+    out << nl << "static final String[] _iceIds =";
     out << sb;
 
     for(StringList::const_iterator q = ids.begin(); q != ids.end();)
@@ -1220,6 +1216,18 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
 
         string opName = op->name();
         out << sp;
+
+        out << nl << "/**";
+        out << nl << " * @hidden";
+        out << nl << " * @param obj -";
+        out << nl << " * @param inS -";
+        out << nl << " * @param current -";
+        out << nl << " * @return -";
+        if(!op->throws().empty() || op->hasMetaData("java:UserException") || op->hasMetaData("UserException"))
+        {
+            out << nl << " * @throws " << getUnqualified("com.zeroc.Ice.UserException", package) << " -";
+        }
+        out << nl << "**/";
         if(dc && dc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -1393,7 +1401,9 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         allOpNames.sort();
         allOpNames.unique();
 
-        out << sp << nl << "final static String[] _iceOps =";
+        out << sp;
+        writeHiddenDocComment(out);
+        out << nl << "final static String[] _iceOps =";
         out << sb;
         for(StringList::const_iterator q = allOpNames.begin(); q != allOpNames.end();)
         {
@@ -1406,6 +1416,7 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
         out << eb << ';';
 
         out << sp;
+        writeHiddenDocComment(out);
         for(OperationList::iterator r = allOps.begin(); r != allOps.end(); ++r)
         {
             //
@@ -1483,16 +1494,16 @@ Slice::JavaVisitor::writeDispatch(Output& out, const ClassDefPtr& p)
                         }
                         else
                         {
-                            string base;
+                            string baseName;
                             if(cl->isInterface())
                             {
-                                base = getUnqualified(cl, package);
+                                baseName = getUnqualified(cl, package);
                             }
                             else
                             {
-                                base = getUnqualified(cl, package, "", "Disp");
+                                baseName = getUnqualified(cl, package, "", "Disp");
                             }
-                            out << nl << "return " << base << "._iceD_" << opName << "(this, in, current);";
+                            out << nl << "return " << baseName << "._iceD_" << opName << "(this, in, current);";
                         }
                         break;
                     }
@@ -1530,6 +1541,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     if(preserved && !basePreserved)
     {
         out << sp;
+        writeHiddenDocComment(out);
         out << nl << "@Override";
         out << nl << "public " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " ice_getSlicedData()";
         out << sb;
@@ -1537,6 +1549,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
         out << eb;
 
         out << sp;
+        writeHiddenDocComment(out);
         out << nl << "@Override";
         out << nl << "public void _iceWrite(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
         out << sb;
@@ -1546,6 +1559,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
         out << eb;
 
         out << sp;
+        writeHiddenDocComment(out);
         out << nl << "@Override";
         out << nl << "public void _iceRead(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
         out << sb;
@@ -1556,6 +1570,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     }
 
     out << sp;
+    writeHiddenDocComment(out);
     out << nl << "@Override";
     out << nl << "protected void _iceWriteImpl(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr_)";
     out << sb;
@@ -1583,6 +1598,7 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
     DataMemberList allClassMembers = p->allClassDataMembers();
 
     out << sp;
+    writeHiddenDocComment(out);
     out << nl << "@Override";
     out << nl << "protected void _iceReadImpl(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr_)";
     out << sb;
@@ -1610,7 +1626,9 @@ Slice::JavaVisitor::writeMarshaling(Output& out, const ClassDefPtr& p)
 
     if(preserved && !basePreserved)
     {
-        out << sp << nl << "protected " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " _iceSlicedData;";
+        out << sp;
+        writeHiddenDocComment(out);
+        out << nl << "protected " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " _iceSlicedData;";
     }
 }
 
@@ -1754,6 +1772,12 @@ Slice::JavaVisitor::splitComment(const ContainedPtr& p)
 }
 
 void
+Slice::JavaVisitor::writeHiddenDocComment(Output& out)
+{
+    out << nl << "/** @hidden */";
+}
+
+void
 Slice::JavaVisitor::writeDocCommentLines(Output& out, const StringList& lines)
 {
     //
@@ -1825,7 +1849,7 @@ Slice::JavaVisitor::writeDocCommentLines(Output& out, const string& text)
 }
 
 void
-Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unit, const CommentPtr& dc)
+Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unt, const CommentPtr& dc)
 {
     if(!dc)
     {
@@ -1852,7 +1876,7 @@ Slice::JavaVisitor::writeDocComment(Output& out, const UnitPtr& unit, const Comm
         for(StringList::iterator p = sa.begin(); p != sa.end(); ++p)
         {
             out << nl << " * @see ";
-            writeSeeAlso(out, unit, *p);
+            writeSeeAlso(out, unt, *p);
         }
     }
 
@@ -1883,14 +1907,13 @@ Slice::JavaVisitor::writeDocComment(Output& out, const string& text)
 
 void
 Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, const string& package,
-                                         const CommentPtr& dc, bool async, bool context)
+                                         const CommentPtr& dc, bool async, const string& contextParam)
 {
     if(!dc)
     {
         return;
     }
 
-    const string contextParam = " * @param context The Context map to send with the invocation.";
     map<string, StringList> paramDocs = dc->parameters();
 
     out << nl << "/**";
@@ -1914,9 +1937,9 @@ Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, con
             writeDocCommentLines(out, j->second);
         }
     }
-    if(context)
+    if(!contextParam.empty())
     {
-        out << nl << contextParam;
+        out << nl << " * " << contextParam;
     }
 
     //
@@ -2009,6 +2032,35 @@ Slice::JavaVisitor::writeProxyDocComment(Output& out, const OperationPtr& p, con
         out << nl << " * @deprecated";
     }
 
+    out << nl << " **/";
+}
+
+void
+Slice::JavaVisitor::writeHiddenProxyDocComment(Output& out, const OperationPtr& p)
+{
+    // the _iceI_ methods are all async
+
+    out << nl << "/**";
+    out << nl << " * @hidden";
+
+    //
+    // Show in-params in order of declaration
+    //
+    const ParamDeclList paramList = p->inParameters();
+    for(ParamDeclList::const_iterator i = paramList.begin(); i != paramList.end(); ++i)
+    {
+        const string name = (*i)->name();
+        out << nl << " * @param " << "iceP_" << name << " -";
+    }
+    out << nl << " * @param context -";
+    out << nl << " * @param sync -";
+
+    //
+    // There is always a return value since it's async
+    //
+    out << nl << " * @return -";
+
+    // No throws since it's async
     out << nl << " **/";
 }
 
@@ -2144,7 +2196,7 @@ Slice::JavaVisitor::writeServantDocComment(Output& out, const OperationPtr& p, c
 }
 
 void
-Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unit, const string& ref)
+Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unt, const string& ref)
 {
     assert(!ref.empty());
 
@@ -2175,7 +2227,7 @@ Slice::JavaVisitor::writeSeeAlso(Output& out, const UnitPtr& unit, const string&
         s.insert(0, "::");
     }
 
-    TypeList l = unit->lookupTypeNoBuiltin(s, false, true);
+    TypeList l = unt->lookupTypeNoBuiltin(s, false, true);
     if(l.empty())
     {
         out << ref;
@@ -2256,7 +2308,9 @@ Slice::Gen::writeChecksumClass(const string& checksumClass, const string& dir, c
     //
     // Emit the class.
     //
-    out << sp << nl << "public class " << className;
+    out << sp;
+    out << nl << "/** @hidden */";
+    out << nl << "public class " << className;
     out << sb;
 
     //
@@ -2656,12 +2710,14 @@ Slice::Gen::TypesVisitor::visitClassDefEnd(const ClassDefPtr& p)
 
     if(!p->isInterface())
     {
-        out << sp << nl << "public static final long serialVersionUID = ";
+        out << sp;
+        writeHiddenDocComment(out);
+        out << nl << "public static final long serialVersionUID = ";
         string serialVersionUID;
         if(p->findMetaData("java:serialVersionUID", serialVersionUID))
         {
-            const UnitPtr unit = p->unit();
-            const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+            const UnitPtr unt = p->unit();
+            const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
             assert(dc);
 
             string::size_type pos = serialVersionUID.rfind(":") + 1;
@@ -2757,7 +2813,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         throws.unique();
         out << sp;
 
-        writeProxyDocComment(out, p, package, dc, false, false);
+        writeProxyDocComment(out, p, package, dc, false, "");
         if(dc && dc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -2777,7 +2833,7 @@ Slice::Gen::TypesVisitor::visitOperation(const OperationPtr& p)
         if(cl->hasMetaData("async-oneway") || p->hasMetaData("async-oneway"))
         {
             out << sp;
-            writeProxyDocComment(out, p, package, dc, true, false);
+            writeProxyDocComment(out, p, package, dc, true, "");
             if(dc && dc->isDeprecated())
             {
                 out << nl << "@Deprecated";
@@ -2998,8 +3054,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             {
                 out << nl << "super" << spar;
                 vector<string> baseParamNames;
-                DataMemberList baseDataMembers = base->allDataMembers();
-                for(DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                DataMemberList baseDataMemberList = base->allDataMembers();
+                for(DataMemberList::const_iterator d = baseDataMemberList.begin(); d != baseDataMemberList.end(); ++d)
                 {
                     baseParamNames.push_back(fixKwd((*d)->name()));
                 }
@@ -3041,8 +3097,8 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 {
                     out << nl << "super" << spar;
                     vector<string> baseParamNames;
-                    DataMemberList baseDataMembers = base->allDataMembers();
-                    for(DataMemberList::const_iterator d = baseDataMembers.begin(); d != baseDataMembers.end(); ++d)
+                    DataMemberList baseDataMemberList = base->allDataMembers();
+                    for(DataMemberList::const_iterator d = baseDataMemberList.begin(); d != baseDataMemberList.end(); ++d)
                     {
                         baseParamNames.push_back(fixKwd((*d)->name()));
                     }
@@ -3097,6 +3153,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         if(preserved && !basePreserved)
         {
             out << sp;
+            writeHiddenDocComment(out);
             out << nl << "@Override";
             out << nl << "public " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " ice_getSlicedData()";
             out << sb;
@@ -3104,6 +3161,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << eb;
 
             out << sp;
+            writeHiddenDocComment(out);
             out << nl << "@Override";
             out << nl << "public void _write(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr)";
             out << sb;
@@ -3113,6 +3171,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             out << eb;
 
             out << sp;
+            writeHiddenDocComment(out);
             out << nl << "@Override";
             out << nl << "public void _read(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr)";
             out << sb;
@@ -3123,6 +3182,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         }
 
         out << sp;
+        writeHiddenDocComment(out);
         out << nl << "@Override";
         out << nl << "protected void _writeImpl(" << getUnqualified("com.zeroc.Ice.OutputStream", package) << " ostr_)";
         out << sb;
@@ -3150,6 +3210,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
         DataMemberList allClassMembers = p->allClassDataMembers();
 
         out << sp;
+        writeHiddenDocComment(out);
         out << nl << "@Override";
         out << nl << "protected void _readImpl(" << getUnqualified("com.zeroc.Ice.InputStream", package) << " istr_)";
         out << sb;
@@ -3178,6 +3239,7 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
             if(!base || (base && !base->usesClasses(false)))
             {
                 out << sp;
+                writeHiddenDocComment(out);
                 out << nl << "@Override";
                 out << nl << "public boolean _usesClasses()";
                 out << sb;
@@ -3188,16 +3250,20 @@ Slice::Gen::TypesVisitor::visitExceptionEnd(const ExceptionPtr& p)
 
         if(preserved && !basePreserved)
         {
-            out << sp << nl << "protected " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " _slicedData;";
+            out << sp;
+            writeHiddenDocComment(out);
+            out << nl << "protected " << getUnqualified("com.zeroc.Ice.SlicedData", package) << " _slicedData;";
         }
     }
 
-    out << sp << nl << "public static final long serialVersionUID = ";
+    out << sp;
+    writeHiddenDocComment(out);
+    out << nl << "public static final long serialVersionUID = ";
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
-        const UnitPtr unit = p->unit();
-        const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
         assert(dc);
 
         string::size_type pos = serialVersionUID.rfind(":") + 1;
@@ -3564,12 +3630,14 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
         out << sp << nl << "private static final " << name << " _nullMarshalValue = new " << name << "();";
     }
 
-    out << sp << nl << "public static final long serialVersionUID = ";
+    out << sp;
+    writeHiddenDocComment(out);
+    out << nl << "public static final long serialVersionUID = ";
     string serialVersionUID;
     if(p->findMetaData("java:serialVersionUID", serialVersionUID))
     {
-        const UnitPtr unit = p->unit();
-        const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
         assert(dc);
         string::size_type pos = serialVersionUID.rfind(":") + 1;
         if(pos == string::npos)
@@ -4174,7 +4242,9 @@ Slice::Gen::CompactIdVisitor::visitClassDefStart(const ClassDefPtr& p)
         open(os.str(), p->file());
 
         Output& out = output();
-        out << sp << nl << "public class TypeId_" << p->compactId();
+        out << sp;
+        writeHiddenDocComment(out);
+        out << nl << "public class TypeId_" << p->compactId();
         out << sb;
         out << nl << "public final static String typeId = \"" << p->scoped() << "\";";
         out << eb;
@@ -4273,7 +4343,9 @@ Slice::Gen::HelperVisitor::visitSequence(const SequencePtr& p)
 
     int iter;
 
-    out << sp << nl << "public final class " << name << "Helper";
+    out << sp;
+    writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
+    out << nl << "public final class " << name << "Helper";
     out << sb;
 
     out << nl << "public static void write(" << getUnqualified("com.zeroc.Ice.OutputStream", package)
@@ -4427,6 +4499,7 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
 
     int iter;
 
+    writeDocComment(out, "Helper class for marshaling/unmarshaling " + name + ".");
     out << sp << nl << "public final class " << name << "Helper";
     out << sb;
 
@@ -4938,6 +5011,7 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     Output& outi = output();
 
     outi << sp;
+    writeHiddenDocComment(outi);
     if(dc && dc->isDeprecated())
     {
         outi << nl << "@Deprecated";
@@ -4945,7 +5019,9 @@ Slice::Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr& p)
     outi << nl << "public class _" << p->name() << "PrxI extends " << getUnqualified("com.zeroc.Ice._ObjectPrxI", package)
          << " implements " << p->name() << "Prx";
     outi << sb;
-    outi << sp << nl << "public static final long serialVersionUID = 0L;";
+    outi << sp;
+    writeHiddenDocComment(outi);
+    outi << nl << "public static final long serialVersionUID = 0L;";
     outi << eb;
     close();
 }
@@ -4999,7 +5075,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // Synchronous methods with required parameters.
     //
     out << sp;
-    writeProxyDocComment(out, p, package, dc, false, false);
+    writeProxyDocComment(out, p, package, dc, false, "");
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -5016,7 +5092,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     out << eb;
 
     out << sp;
-    writeProxyDocComment(out, p, package, dc, false, true);
+    writeProxyDocComment(out, p, package, dc, false, contextDoc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
@@ -5065,7 +5141,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     if(sendsOptionals)
     {
         out << sp;
-        writeProxyDocComment(out, p, package, dc, false, false);
+        writeProxyDocComment(out, p, package, dc, false, "");
         if(dc && dc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -5082,7 +5158,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << eb;
 
         out << sp;
-        writeProxyDocComment(out, p, package, dc, false, true);
+        writeProxyDocComment(out, p, package, dc, false, contextDoc);
         if(dc && dc->isDeprecated())
         {
             out << nl << "@Deprecated";
@@ -5131,28 +5207,27 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     // Asynchronous methods with required parameters.
     //
     out << sp;
-    writeProxyDocComment(out, p, package, dc, true, false);
+    writeProxyDocComment(out, p, package, dc, true, "");
 
-    const string future = getFutureType(p, package);
+    const string futureType = getFutureType(p, package);
 
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
     }
-    out << nl << "default " << future << ' ' << p->name() << "Async" << spar << params << epar;
+    out << nl << "default " << futureType << ' ' << p->name() << "Async" << spar << params << epar;
     out << sb;
     out << nl << "return _iceI_" << p->name() << "Async" << spar << args << noExplicitContextArg << "false" << epar
         << ';';
     out << eb;
 
     out << sp;
-    writeProxyDocComment(out, p, package, dc, true, true);
-
+    writeProxyDocComment(out, p, package, dc, true, contextDoc);
     if(dc && dc->isDeprecated())
     {
         out << nl << "@Deprecated";
     }
-    out << nl << "default " << future << ' ' << p->name() << "Async" << spar << params << contextParam << epar;
+    out << nl << "default " << futureType << ' ' << p->name() << "Async" << spar << params << contextParam << epar;
     out << sb;
     out << nl << "return _iceI_" << p->name() << "Async" << spar << args << contextParamName << "false" << epar << ';';
     out << eb;
@@ -5160,6 +5235,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     const string futureImpl = getFutureImplType(p, package);
 
     out << sp;
+    writeHiddenProxyDocComment(out, p);
     out << nl << "default " << futureImpl << " _iceI_" << p->name() << "Async" << spar << getParamsProxy(p, package, false, true)
         << "java.util.Map<String, String> context"
         << "boolean sync" << epar;
@@ -5204,7 +5280,9 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 
     if(!throws.empty())
     {
-        out << sp << nl << "static final Class<?>[] _iceE_" << p->name() << " =";
+        out << sp;
+        writeHiddenDocComment(out);
+        out << nl << "static final Class<?>[] _iceE_" << p->name() << " =";
         out << sb;
         for(ExceptionList::const_iterator t = throws.begin(); t != throws.end(); ++t)
         {
@@ -5220,7 +5298,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
     if(sendsOptionals)
     {
         out << sp;
-        writeProxyDocComment(out, p, package, dc, true, false);
+        writeProxyDocComment(out, p, package, dc, true, "");
 
         const string future = getFutureType(p, package);
 
@@ -5235,7 +5313,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << eb;
 
         out << sp;
-        writeProxyDocComment(out, p, package, dc, true, true);
+        writeProxyDocComment(out, p, package, dc, true, contextDoc);
 
         if(dc && dc->isDeprecated())
         {
@@ -5247,6 +5325,7 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
         out << eb;
 
         out << sp;
+        writeHiddenProxyDocComment(out, p);
         out << nl << "default " << futureImpl << " _iceI_" << p->name() << "Async" << spar << getParamsProxy(p, package, true, true)
             << "java.util.Map<String, String> context"
             << "boolean sync" << epar;

@@ -21,17 +21,20 @@ public abstract class ValueReader extends Value
      **/
     public abstract void read(InputStream in);
 
+    /** @hidden */
     @Override
     public void _iceWrite(OutputStream os)
     {
         assert(false);
     }
 
+    /** @hidden */
     @Override
     public void _iceRead(InputStream is)
     {
         read(is);
     }
 
+    /** @hidden */
     public static final long serialVersionUID = 0L;
 }

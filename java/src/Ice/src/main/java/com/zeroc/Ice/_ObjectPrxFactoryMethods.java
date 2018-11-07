@@ -10,6 +10,7 @@
 package com.zeroc.Ice;
 
 /**
+ * @hidden
  * Provides overloads of the proxy factory methods with covariant return types
  * so that applications do not need to downcast to the derived proxy type.
  **/

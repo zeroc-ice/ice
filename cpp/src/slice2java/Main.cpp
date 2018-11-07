@@ -23,17 +23,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtilInternal;
 
-// TODO: fix this warning!
-#if defined(_MSC_VER)
-#   pragma warning(disable:4456) // shadow
-#   pragma warning(disable:4457) // shadow
-#   pragma warning(disable:4459) // shadow
-#elif defined(__clang__)
-#   pragma clang diagnostic ignored "-Wshadow"
-#elif defined(__GNUC__)
-#   pragma GCC diagnostic ignored "-Wshadow"
-#endif
-
 namespace
 {
 
@@ -274,8 +263,8 @@ compile(const vector<string>& argv)
         //
         // Ignore duplicates.
         //
-        vector<string>::iterator p = find(args.begin(), args.end(), *i);
-        if(p != i)
+        vector<string>::iterator j = find(args.begin(), args.end(), *i);
+        if(j != i)
         {
             continue;
         }
@@ -312,7 +301,6 @@ compile(const vector<string>& argv)
         }
         else
         {
-            ostringstream os;
             FileTracker::instance()->setSource(*i);
 
             PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);

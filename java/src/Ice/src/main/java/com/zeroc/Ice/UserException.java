@@ -94,6 +94,10 @@ public abstract class UserException extends java.lang.Exception implements Clone
         return sw.toString();
     }
 
+    /**
+     * @hidden
+     * @param os -
+     **/
     public void _write(OutputStream os)
     {
         os.startException(null);
@@ -101,6 +105,10 @@ public abstract class UserException extends java.lang.Exception implements Clone
         os.endException();
     }
 
+    /**
+     * @hidden
+     * @param is -
+     **/
     public void _read(InputStream is)
     {
         is.startException();
@@ -108,14 +116,27 @@ public abstract class UserException extends java.lang.Exception implements Clone
         is.endException(false);
     }
 
+    /**
+     * @hidden
+     * @return -
+     **/
     public boolean _usesClasses()
     {
         return false;
     }
 
+    /**
+     * @hidden
+     * @param os -
+     **/
     protected abstract void _writeImpl(OutputStream os);
 
+    /**
+     * @hidden
+     * @param is -
+     **/
     protected abstract void _readImpl(InputStream is);
 
+     /** @hidden */
     public static final long serialVersionUID = 0L;
 }

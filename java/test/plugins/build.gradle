@@ -10,6 +10,9 @@
 sourceCompatibility = iceSourceCompatibility
 targetCompatibility = iceTargetCompatibility
 
+// Don't generate javadoc
+javadoc.enabled = false
+
 sourceSets {
     main {
         java {

@@ -37,6 +37,7 @@ public interface Blobject extends com.zeroc.Ice.Object
     com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inEncaps, Current current)
         throws UserException;
 
+    /** @hidden */
     @Override
     default CompletionStage<OutputStream> _iceDispatch(com.zeroc.IceInternal.Incoming in, Current current)
         throws UserException

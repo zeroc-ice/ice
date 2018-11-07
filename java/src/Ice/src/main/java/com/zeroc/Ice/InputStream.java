@@ -16,8 +16,8 @@ import com.zeroc.IceInternal.Instance;
 import com.zeroc.IceInternal.Protocol;
 
 /**
- * Interface for input streams used to extract Slice types from a sequence
- * of bytes.
+ * Interface to read sequence of bytes encoded using the Ice encoding and
+ * recreate the corresponding Slice types.
  *
  * @see OutputStream
  **/
@@ -3549,6 +3549,7 @@ public class InputStream
         }
     }
 
+    /** @hidden */
     @FunctionalInterface
     static public interface Unmarshaler
     {

@@ -15,9 +15,7 @@ project.ext.description = "Bluetooth support for Ice"
 
 slice {
     java {
-        set1 {
-            files = fileTree(dir: "$project.ext.topSrcDir/slice/IceBT", includes:['*.ice'], excludes:["*F.ice"])
-        }
+        files = fileTree(dir: "$project.ext.topSrcDir/slice/IceBT", includes:['*.ice'], excludes:["*F.ice"])
     }
 }
 
@@ -33,4 +31,8 @@ jar {
     // plug-in without requiring an Android SDK. These classes are excluded from the IceBT JAR file.
     //
     exclude("android/**")
+}
+
+javadoc {
+    excludes = ["**/android/*", "**/*I.java", "**/Instance.java"]
 }

@@ -9,6 +9,12 @@
 
 package com.zeroc.Ice;
 
+/**
+ * Interface to marshal (write) Slice types into sequence of bytes encoded using the
+ * Ice encoding.
+ *
+ * @see InputStream
+ **/
 public class OutputStream
 {
     /**
@@ -2458,6 +2464,7 @@ public class OutputStream
         }
     }
 
+    /** @hidden */
     @FunctionalInterface
     static public interface Marshaler
     {

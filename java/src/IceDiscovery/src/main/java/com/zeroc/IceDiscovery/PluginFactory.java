@@ -9,6 +9,9 @@
 
 package com.zeroc.IceDiscovery;
 
+/**
+ * Creates IceDiscovery plug-ins.
+ **/
 public class PluginFactory implements com.zeroc.Ice.PluginFactory
 {
     @Override

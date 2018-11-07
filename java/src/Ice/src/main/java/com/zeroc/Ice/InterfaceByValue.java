@@ -34,6 +34,7 @@ public class InterfaceByValue extends Value
         return _id;
     }
 
+    /** @hidden */
     @Override
     protected void _iceWriteImpl(OutputStream ostr)
     {
@@ -41,6 +42,7 @@ public class InterfaceByValue extends Value
         ostr.endSlice();
     }
 
+    /** @hidden */
     @Override
     protected void _iceReadImpl(InputStream istr)
     {
@@ -48,6 +50,7 @@ public class InterfaceByValue extends Value
         istr.endSlice();
     }
 
+    /** @hidden */
     public static final long serialVersionUID = 0L;
 
     private String _id;

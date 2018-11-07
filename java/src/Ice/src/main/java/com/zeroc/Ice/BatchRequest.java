@@ -9,6 +9,9 @@
 
 package com.zeroc.Ice;
 
+/**
+ * Represents an invocation on a proxy configured for batch-oneway or batch-datagram.
+ **/
 public interface BatchRequest
 {
     /**

@@ -71,13 +71,22 @@ task jarSources(type:Jar, dependsOn: jar){
 
 assemble.dependsOn(jarSources)
 
+javadoc.dependsOn(compileSlice)
+
 javadoc {
-    failOnError = false
+    // We rely on Java9+ javadoc features
+    enabled = JavaVersion.current() > JavaVersion.VERSION_1_8
+
+    failOnError = true
     options.header = project.ext.displayName
-    if(JavaVersion.current() > JavaVersion.VERSION_1_8) {
-        // Add -quiet to workaround Gradle bug https://github.com/gradle/gradle/issues/2354
-        options.addStringOption("html4", "-quiet")
+
+    if(JavaVersion.current() >= JavaVersion.VERSION_11) {
+        // TODO: --no-module-directories is an undocumented option required for the
+        // generated search to work properly. Without this option, search returns
+        // .../undefined/... URLs.
+        options.addBooleanOption('-no-module-directories', true)
     }
+    options.addBooleanOption('html5', true)
     classpath = project.sourceSets.main.compileClasspath
 }
 

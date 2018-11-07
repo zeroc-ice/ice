@@ -70,6 +70,13 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed metrics bug where remote invocations for flushBatchRequests weren't
   counted.
 
+- Improved Javadoc support for the Java mapping (and not Java-Compat). Internal
+  classes and methods with public or protected visibility are now excluded or
+  tagged `@hidden`. Since `@hidden` requires javadoc 9 or greater, javadoc is no
+  longer generated with javadoc 8.
+  The new Gradle target `alljavadoc` generates a complete API reference for all Ice
+  components (Ice, IceSSL, IceGrid, IceStorm, Glacier2, etc.).
+
 ## JavaScript Changes
 
 - Added TypeScript declaration files for Ice for JavaScript.

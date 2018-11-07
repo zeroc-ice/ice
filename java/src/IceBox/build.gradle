@@ -27,3 +27,7 @@ dependencies {
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"
+
+javadoc {
+    excludes = ["**/Admin.java", "**/Server.java", "**/ServiceManagerI.java"]
+}
