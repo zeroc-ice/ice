@@ -30,24 +30,18 @@ const StateProxyConnectRequestPending = 3;
 const StateConnected = 4;
 
 //
-// XXX: We can directly use Buffer.from once we drop
+// TODO: WORKAROUND: We can directly use Buffer.from once we drop
 // support for Node 4.x
 //
-//
+let createBuffer = null;
 if(Buffer.from)
 {
-    function createBuffer(data)
-    {
-        return Buffer.from(data);
-    }
+    createBuffer = Buffer.from;
 }
 else
 {
     /* eslint-disable no-buffer-constructor */
-    function createBuffer(data)
-    {
-        return new Buffer(data);
-    }
+    createBuffer = data => new Buffer(data);
     /* eslint-enable no-buffer-constructor */
 }
 

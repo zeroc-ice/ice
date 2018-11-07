@@ -24,10 +24,8 @@ import Expect
 toplevel = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
 def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
-    if stdout:
-        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stderr=subprocess.PIPE, cwd=cwd)
-    else:
-        p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, cwd=cwd)
+    p = subprocess.Popen(cmd, shell=True, stdin=subprocess.PIPE, stdout=None if stdout else subprocess.PIPE,
+                         stderr=subprocess.STDOUT, cwd=cwd)
     try:
         if stdin:
             try:
@@ -50,7 +48,10 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
         # ResourceWarning: unclosed file <_io.TextIOWrapper name=3 encoding='cp1252'>
         #
         (p.stderr if stdout else p.stdout).close()
-        p.stdin.close()
+        try:
+            p.stdin.close()
+        except Exception:
+            pass
     return out
 
 def val(v, escapeQuotes=False, quoteValue=True):
@@ -1901,7 +1902,7 @@ class TestSuite(object):
     def isMainThreadOnly(self, driver):
         if self.runOnMainThread or driver.getComponent().isMainThreadOnly(self.id):
             return True
-        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping]:
+        for m in [CppMapping, JavaMapping, CSharpMapping, PythonMapping, PhpMapping, RubyMapping, JavaScriptMixin]:
             if isinstance(self.mapping, m):
                 config = driver.configs[self.mapping]
                 if "iphone" in config.buildPlatform or config.uwp or config.browser or config.android:
@@ -2387,7 +2388,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         # Pick the last iOS simulator runtime ID in the list of iOS simulators (assumed to be the latest).
         try:
             for r in run("xcrun simctl list runtimes").split('\n'):
-                m = re.search("iOS .* \(.*\) - (.*)", r)
+                m = re.search("iOS .* \\(.*\\) - (.*)", r)
                 if m:
                     self.runtimeID = m.group(1)
         except:
