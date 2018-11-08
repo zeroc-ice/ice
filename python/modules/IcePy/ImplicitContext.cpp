@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <ImplicitContext.h>
 #include <ObjectAdapter.h>
 #include <Proxy.h>

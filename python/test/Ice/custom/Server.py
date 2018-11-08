@@ -10,15 +10,32 @@
 
 from TestHelper import TestHelper
 TestHelper.loadSlice("Test.ice")
+
+
+try:
+    import numpy
+    hasNumPy = True
+except ImportError:
+    hasNumPy = False
+    pass
+
+#
+# Use separate try/except to ensure loadSlice correctly report ImportError
+# in ausence of numpy.
+#
+try:
+    TestHelper.loadSlice("TestNumPy.ice")
+except ImportError:
+    pass
+
 import sys
 import Test
 import Ice
-
+import array
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
-
 
 class CustomI(Test.Custom):
     def opByteString1(self, b1, current=None):
@@ -88,8 +105,131 @@ class CustomI(Test.Custom):
         test(isinstance(val.s3, tuple))
         test(isinstance(val.s4, list))
 
+    def opBoolSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opByteSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opShortSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opIntSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opLongSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opFloatSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opDoubleSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opBogusArrayNotExistsFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayThrowFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayType(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayNoneFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArraySignatureFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayNoCallableFactory(self, current):
+        return [True, False, True, False]
+
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
+
+if hasNumPy:
+
+    class NumPyCustomI(Test.NumPy.Custom):
+
+        def opBoolSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opByteSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opShortSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opIntSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opLongSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opFloatSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opDoubleSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opComplex128Seq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1
+
+        def opBoolMatrix(self, current):
+            return numpy.array([[True, False, True],
+                                [True, False, True],
+                                [True, False, True]], numpy.bool_)
+
+        def opByteMatrix(self, current):
+            return numpy.array([[1, 0, 1],
+                                [1, 0, 1],
+                                [1, 0, 1]], numpy.int8)
+
+        def opShortMatrix(self, current):
+            return numpy.array([[1, 0, 1],
+                                [1, 0, 1],
+                                [1, 0, 1]], numpy.int16)
+
+        def opIntMatrix(self, current):
+            return numpy.array([[1, 0, 1],
+                                [1, 0, 1],
+                                [1, 0, 1]], numpy.int32)
+
+        def opLongMatrix(self, current):
+            return numpy.array([[1, 0, 1],
+                                [1, 0, 1],
+                                [1, 0, 1]], numpy.int64)
+
+        def opFloatMatrix(self, current):
+            return numpy.array([[1.1, 0.1, 1.1],
+                                [1.1, 0.1, 1.1],
+                                [1.1, 0.1, 1.1]], numpy.float32)
+
+        def opDoubleMatrix(self, current):
+            return numpy.array([[1.1, 0.1, 1.1],
+                                [1.1, 0.1, 1.1],
+                                [1.1, 0.1, 1.1]], numpy.float64)
+
+        def opBogusNumpyArrayType(self, current):
+            return [True, False, True, False]
+
+        def shutdown(self, current=None):
+            current.adapter.getCommunicator().shutdown()
 
 
 class Server(TestHelper):
@@ -99,5 +239,7 @@ class Server(TestHelper):
             communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
             adapter = communicator.createObjectAdapter("TestAdapter")
             adapter.add(CustomI(), Ice.stringToIdentity("test"))
+            if hasNumPy:
+                adapter.add(NumPyCustomI(), Ice.stringToIdentity("test.numpy"))
             adapter.activate()
             communicator.waitForShutdown()

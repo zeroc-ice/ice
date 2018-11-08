@@ -16,7 +16,6 @@ def test(b):
 
 def allTests(helper, communicator):
     ref = "test:{0}".format(helper.getTestEndpoint())
-    print("Client endpoint: {}".format(ref))
     base = communicator.stringToProxy(ref)
     cl = Test.MyClassPrx.checkedCast(base)
     derived = Test.MyDerivedClassPrx.checkedCast(cl)

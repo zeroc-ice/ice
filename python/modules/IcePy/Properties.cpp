@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <Properties.h>
 #include <Util.h>
 #include <Ice/Initialize.h>

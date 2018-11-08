@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <ConnectionInfo.h>
 #include <EndpointInfo.h>
 #include <Util.h>

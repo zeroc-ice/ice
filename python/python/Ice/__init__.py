@@ -11,7 +11,7 @@
 Ice module
 """
 
-import sys, string, os, threading, warnings, datetime, logging, time, inspect, traceback, types
+import sys, string, os, threading, warnings, datetime, logging, time, inspect, traceback, types, array
 
 #
 # RTTI problems can occur in C++ code unless we modify Python's dlopen flags.
@@ -743,14 +743,6 @@ IcePy._t_Object = IcePy.declareClass('::Ice::Object')
 IcePy._t_Value = IcePy.declareValue('::Ice::Object')
 IcePy._t_ObjectPrx = IcePy.declareProxy('::Ice::Object')
 IcePy._t_LocalObject = IcePy.declareValue('::Ice::LocalObject')
-
-#
-# Sequence mappings.
-#
-IcePy.SEQ_DEFAULT = 0
-IcePy.SEQ_TUPLE = 1
-IcePy.SEQ_LIST = 2
-#IcePy.SEQ_ARRAY = 3
 
 #
 # Slice checksum dictionary.
@@ -1969,3 +1961,71 @@ def getHash(o):
 Protocol_1_0 = ProtocolVersion(1, 0)
 Encoding_1_0 = EncodingVersion(1, 0)
 Encoding_1_1 = EncodingVersion(1, 1)
+
+
+BuiltinBool = 0
+BuiltinByte = 1
+BuiltinShort = 2
+BuiltinInt = 3
+BuiltinLong = 4
+BuiltinFloat = 5
+BuiltinDouble = 6
+
+BuiltinTypes = [BuiltinBool, BuiltinByte, BuiltinShort, BuiltinInt, BuiltinLong, BuiltinFloat, BuiltinDouble]
+BuiltinArrayTypes = ["b", "b", "h", "i", "q", "f", "d"]
+
+#
+# The array "q" type specifier is new in Python 3.3
+#
+if sys.version_info[:2] >= (3, 3):
+    def createArray(view, t, copy):
+        if t not in BuiltinTypes:
+            raise ValueError("`{0}' is not an array builtin type".format(t))
+        a = array.array(BuiltinArrayTypes[t])
+        a.frombytes(view)
+        return a
+#
+# The array.frombytes method is new in Python 3.2
+#
+elif sys.version_info[:2] >= (3, 2):
+    def createArray(view, t, copy):
+        if t not in BuiltinTypes:
+            raise ValueError("`{0}' is not an array builtin type".format(t))
+        elif t == BuiltinLong:
+            raise ValueError("array.array 'q' specifier is only supported with Python >= 3.3")
+        a = array.array(BuiltinArrayTypes[t])
+        a.frombytes(view)
+        return a
+else:
+    def createArray(view, t, copy):
+        if t not in BuiltinTypes:
+            raise ValueError("`{0}' is not an array builtin type".format(t))
+        elif t == BuiltinLong:
+            raise ValueError("array.array 'q' specifier is only supported with Python >= 3.3")
+        a = array.array(BuiltinArrayTypes[t])
+        a.fromstring(str(view.tobytes()))
+        return a
+
+
+try:
+    import numpy
+
+    BuiltinNumpyTypes = [numpy.bool_, numpy.int8, numpy.int16, numpy.int32, numpy.int64, numpy.float32, numpy.float64]
+
+    #
+    # With Python2.7 we cannot initialize numpy array from memoryview
+    # See: https://github.com/numpy/numpy/issues/5935
+    #
+    if sys.version_info[0] >= 3:
+        def createNumPyArray(view, t, copy):
+            if t not in BuiltinTypes:
+                raise ValueError("`{0}' is not an array builtin type".format(t))
+            return numpy.frombuffer(view.tobytes() if copy else view, BuiltinNumpyTypes[t])
+    else:
+        def createNumPyArray(view, t, copy):
+            if t not in BuiltinTypes:
+                raise ValueError("`{0}' is not an array builtin type".format(t))
+            return numpy.frombuffer(view.tobytes(), BuiltinNumpyTypes[t])
+
+except ImportError:
+    pass

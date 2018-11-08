@@ -22,6 +22,9 @@
 namespace IcePy
 {
 
+class Buffer;
+typedef IceUtil::Handle<Buffer> BufferPtr;
+
 class ExceptionInfo;
 typedef IceUtil::Handle<ExceptionInfo> ExceptionInfoPtr;
 typedef std::vector<ExceptionInfoPtr> ExceptionInfoList;
@@ -331,14 +334,27 @@ public:
 
     virtual void destroy();
 
+    enum BuiltinType
+    {
+        BuiltinTypeBool = 0,
+        BuiltinTypeByte = 1,
+        BuiltinTypeShort = 2,
+        BuiltinTypeInt = 3,
+        BuiltinTypeLong = 4,
+        BuiltinTypeFloat = 5,
+        BuiltinTypeDouble = 6
+    };
+
 private:
 
     struct SequenceMapping : public UnmarshalCallback
     {
-        enum Type { SEQ_DEFAULT, SEQ_TUPLE, SEQ_LIST };
+        enum Type { SEQ_DEFAULT, SEQ_TUPLE, SEQ_LIST, SEQ_ARRAY, SEQ_NUMPYARRAY, SEQ_MEMORYVIEW };
 
         SequenceMapping(Type);
         SequenceMapping(const Ice::StringSeq&);
+
+        void init(const Ice::StringSeq&);
 
         static bool getType(const Ice::StringSeq&, Type&);
 
@@ -348,6 +364,7 @@ private:
         void setItem(PyObject*, int, PyObject*) const;
 
         Type type;
+        PyObjectHandle factory;
     };
     typedef IceUtil::Handle<SequenceMapping> SequenceMappingPtr;
 
@@ -356,6 +373,8 @@ private:
     void unmarshalPrimitiveSequence(const PrimitiveInfoPtr&, Ice::InputStream*, const UnmarshalCallbackPtr&,
                                     PyObject*, void*, const SequenceMappingPtr&);
 
+    PyObject* createSequenceFromMemory(const SequenceMappingPtr&, const char*, Py_ssize_t, BuiltinType, bool);
+
 public:
 
     const std::string id;
@@ -363,6 +382,23 @@ public:
     const TypeInfoPtr elementType;
 };
 typedef IceUtil::Handle<SequenceInfo> SequenceInfoPtr;
+
+class Buffer : public IceUtil::Shared
+{
+public:
+
+    Buffer(const char*, Py_ssize_t, SequenceInfo::BuiltinType);
+    ~Buffer();
+    const char* data() const;
+    Py_ssize_t size() const;
+    SequenceInfo::BuiltinType type();
+
+private:
+
+    const char* _data;
+    const Py_ssize_t _size;
+    const SequenceInfo::BuiltinType _type;
+};
 
 //
 // Custom information.
@@ -723,6 +759,8 @@ TypeInfoPtr getType(PyObject*);
 
 PyObject* createException(const ExceptionInfoPtr&);
 ExceptionInfoPtr getException(PyObject*);
+
+PyObject* createBuffer(const BufferPtr&);
 
 }
 

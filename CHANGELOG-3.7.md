@@ -95,6 +95,19 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed metrics bug where remote invocations for flushBatchRequests weren't
   counted.
 
+## Python Changes
+
+- Add support for unmarshalling sequences of basic types using the [buffer
+ protocol][1]. This can be enabled using metadata `python:array.array`,
+ `python:numpy.ndarray` and `python:memoryview:<factory>`. The first
+ two enable mapping to `array.array` and `numpy.ndarray` types respectively
+ and the last one allows for a custom factory that is responsible for creating the
+ sequence from a `memoryview` object.
+
+- Add `python:default`, `python:list` and `python:tuple` metadata
+  which are equivalent to `python:seq:default`, `python:seq:list` and
+  `python:seq:tuple` respectively.
+
 # Changes in Ice 3.7.1
 
 These are the changes since Ice 3.7.0.
@@ -796,3 +809,6 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Fixed a bug that prevented the data members of `IceSSL::ConnectionInfo` from
   being defined correctly.
+
+
+[1]: https://docs.python.org/3/c-api/buffer.html
