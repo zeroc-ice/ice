@@ -44,6 +44,19 @@ static ProxyInfoMap _proxyInfoMap;
 typedef map<string, ExceptionInfoPtr> ExceptionInfoMap;
 static ExceptionInfoMap _exceptionInfoMap;
 
+namespace
+{
+
+//
+// This exception is raised if the factory specified in a sequence metadata
+// cannot be load or is not valid
+//
+class InvalidSequenceFactoryException
+{
+};
+
+}
+
 namespace IcePy
 {
 
@@ -1764,7 +1777,14 @@ IcePy::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr&
         else
         {
             sm = new SequenceMapping(type);
-            sm->init(*metaData);
+            try
+            {
+                sm->init(*metaData);
+            }
+            catch(const InvalidSequenceFactoryException&)
+            {
+                throw AbortMarshaling();
+            }
         }
     }
     else
@@ -2604,8 +2624,8 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
         factory = lookupType("Ice.createArray");
         if(!factory.get())
         {
-            PyErr_Format(PyExc_RuntimeError, STRCAST("factory type not found `Ice.createArray'"));
-            throw AbortMarshaling();
+            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `Ice.createArray'"));
+            throw InvalidSequenceFactoryException();
         }
     }
     else if(type == SEQ_NUMPYARRAY)
@@ -2613,8 +2633,8 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
         factory = lookupType("Ice.createNumPyArray");
         if(!factory.get())
         {
-            PyErr_Format(PyExc_RuntimeError, STRCAST("factory type not found `Ice.createNumPyArray'"));
-            throw AbortMarshaling();
+            PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `Ice.createNumPyArray'"));
+            throw InvalidSequenceFactoryException();
         }
     }
     else if(type == SEQ_MEMORYVIEW)
@@ -2628,13 +2648,13 @@ IcePy::SequenceInfo::SequenceMapping::init(const Ice::StringSeq& meta)
                 factory = lookupType(typestr);
                 if(!factory.get())
                 {
-                    PyErr_Format(PyExc_RuntimeError, STRCAST("factory type not found `%s'"), typestr.c_str());
-                    throw AbortMarshaling();
+                    PyErr_Format(PyExc_ImportError, STRCAST("factory type not found `%s'"), typestr.c_str());
+                    throw InvalidSequenceFactoryException();
                 }
                 if(!PyCallable_Check(factory.get()))
                 {
                     PyErr_Format(PyExc_RuntimeError, STRCAST("factory type `%s' is not callable"), typestr.c_str());
-                    throw AbortMarshaling();
+                    throw InvalidSequenceFactoryException();
                 }
                 break;
             }
@@ -4810,9 +4830,16 @@ IcePy_defineSequence(PyObject*, PyObject* args)
         return 0;
     }
 
-    SequenceInfoPtr info = new SequenceInfo(id, meta, elementType);
-
-    return createType(info);
+    try
+    {
+        SequenceInfoPtr info = new SequenceInfo(id, meta, elementType);
+        return createType(info);
+    }
+    catch(const InvalidSequenceFactoryException&)
+    {
+        assert(PyErr_Occurred());
+        return 0;
+    }
 }
 
 extern "C"
