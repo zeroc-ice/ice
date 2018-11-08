@@ -151,7 +151,7 @@ class RouterI(Ice.Router):
         return (self._blobjectProxy, True)
 
     def getServerProxy(self, current):
-        assert false
+        assert(False)
 
     def addProxies(self, proxies, current):
         for p in proxies:

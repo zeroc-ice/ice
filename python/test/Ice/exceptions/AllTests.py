@@ -221,26 +221,26 @@ def allTests(helper, communicator):
     adapter.add(obj, Ice.stringToIdentity("x"))
     try:
         adapter.add(obj, Ice.stringToIdentity("x"))
-        test(false)
+        test(False)
     except Ice.AlreadyRegisteredException:
         pass
 
     try:
         adapter.add(obj, Ice.stringToIdentity(""))
-        test(false)
+        test(False)
     except Ice.IllegalIdentityException as ex:
         test(ex.id.name == "")
 
     try:
         adapter.add(None, Ice.stringToIdentity("x"))
-        test(false)
+        test(False)
     except Ice.IllegalServantException:
         pass
 
     adapter.remove(Ice.stringToIdentity("x"))
     try:
         adapter.remove(Ice.stringToIdentity("x"))
-        test(false)
+        test(False)
     except Ice.NotRegisteredException:
         pass
 
@@ -255,7 +255,7 @@ def allTests(helper, communicator):
     adapter.addServantLocator(loc, "x")
     try:
         adapter.addServantLocator(loc, "x")
-        test(false)
+        test(False)
     except Ice.AlreadyRegisteredException:
         pass
 
@@ -268,7 +268,7 @@ def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(ValueFactory, "x")
     try:
         communicator.getValueFactoryManager().add(ValueFactory, "x")
-        test(false)
+        test(False)
     except Ice.AlreadyRegisteredException:
         pass
     print("ok")

@@ -376,7 +376,7 @@ by the given Slice type id.
 Arguments:
     id The Slice type id
 Returns:
-    True if the target object supports the interface, or false otherwise.
+    True if the target object supports the interface, or False otherwise.
 '''
         return id in self.ice_ids(current)
 

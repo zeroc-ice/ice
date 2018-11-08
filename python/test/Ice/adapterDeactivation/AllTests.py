@@ -92,7 +92,7 @@ def allTests(helper, communicator):
         adapter.deactivate()
         try:
             obj.ice_getConnection().setAdapter(adapter)
-            test(false)
+            test(False)
         except Ice.ObjectAdapterDeactivatedException:
             pass
         print("ok")

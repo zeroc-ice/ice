@@ -146,7 +146,7 @@ def allTests(helper, communicator):
     sys.stdout.flush()
     try:
         initial.throwEDerived()
-        test(false)
+        test(False)
     except Test.EDerived as e:
         test(e.a1.name == "a1")
         test(e.a2.name == "a2")

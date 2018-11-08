@@ -716,7 +716,7 @@ def allTests(helper, communicator, collocated):
             try:
                 future.result()
             except:
-                test(false)
+                test(False)
             throwEx(t)
         f = p.opAsync()
         try:
@@ -739,7 +739,7 @@ def allTests(helper, communicator, collocated):
         def throwerEx(future):
             try:
                 future.result()
-                test(false)
+                test(False)
             except:
                 throwEx(t)
         try:
@@ -1136,13 +1136,13 @@ def allTests(helper, communicator, collocated):
         r2.cancel()
         try:
             p.end_ice_ping(r1)
-            test(false)
+            test(False)
         except(Ice.InvocationCanceledException):
             pass
 
         try:
             p.end_ice_id(r2)
-            test(false)
+            test(False)
         except(Ice.InvocationCanceledException):
             pass
 
@@ -1161,12 +1161,12 @@ def allTests(helper, communicator, collocated):
         r2.cancel()
         try:
             p.end_op(r1)
-            test(false)
+            test(False)
         except:
             pass
         try:
             p.end_ice_id(r2)
-            test(false)
+            test(False)
         except:
             pass
         testController.resumeAdapter()
@@ -1266,7 +1266,7 @@ def allTests(helper, communicator, collocated):
         try:
             f.result()
         except:
-            test(false)
+            test(False)
 
         print("ok")
 
@@ -1842,13 +1842,13 @@ def allTestsFuture(helper, communicator, collocated):
         f2.cancel()
         try:
             f1.result()
-            test(false)
+            test(False)
         except(Ice.InvocationCanceledException):
             pass
 
         try:
             f2.result()
-            test(false)
+            test(False)
         except(Ice.InvocationCanceledException):
             pass
 
@@ -1867,12 +1867,12 @@ def allTestsFuture(helper, communicator, collocated):
         f2.cancel()
         try:
             f1.result()
-            test(false)
+            test(False)
         except:
             pass
         try:
             f2.result()
-            test(false)
+            test(False)
         except:
             pass
         testController.resumeAdapter()
