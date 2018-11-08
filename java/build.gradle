@@ -78,7 +78,7 @@ task alljavadoc(type: Javadoc) {
     classpath = files(exportedProjects.collect { project(it).javadoc.classpath })
     destinationDir = file("${buildDir}/docs/javadoc")
 
-    if(JavaVersion.current() >= JavaVersion.VERSION_11) {
+    if(GradleVersion.current() >= GradleVersion.version('4.10') && JavaVersion.current() >= JavaVersion.VERSION_11) {
         // TODO: --no-module-directories is an undocumented option required for the
         // generated search to work properly. Without this option, search returns
         // .../undefined/... URLs.
