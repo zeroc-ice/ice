@@ -1972,16 +1972,27 @@ BuiltinFloat = 5
 BuiltinDouble = 6
 
 BuiltinTypes = [BuiltinBool, BuiltinByte, BuiltinShort, BuiltinInt, BuiltinLong, BuiltinFloat, BuiltinDouble]
-BuiltinArrayTypes = ["b", "b", "h", "i", "l", "f", "d"]
-
+BuiltinArrayTypes = ["b", "b", "h", "i", "q", "f", "d"]
 
 #
-# array.frombytes is new in Python 3.2
+# The array "q" type specifier is new in Python 3.3
 #
-if sys.version_info[:2] >= (3, 2):
+if sys.version_info[:2] >= (3, 3):
     def createArray(view, t, copy):
         if t not in BuiltinTypes:
             raise ValueError("`{0}' is not an array builtin type".format(t))
+        a = array.array(BuiltinArrayTypes[t])
+        a.frombytes(view)
+        return a
+#
+# The array.frombytes method is new in Python 3.2
+#
+elif sys.version_info[:2] >= (3, 2):
+    def createArray(view, t, copy):
+        if t not in BuiltinTypes:
+            raise ValueError("`{0}' is not an array builtin type".format(t))
+        elif t == BuiltinLong:
+            raise ValueError("array.array 'q' specifier is only supported with Python >= 3.3")
         a = array.array(BuiltinArrayTypes[t])
         a.frombytes(view)
         return a
@@ -1989,6 +2000,8 @@ else:
     def createArray(view, t, copy):
         if t not in BuiltinTypes:
             raise ValueError("`{0}' is not an array builtin type".format(t))
+        elif t == BuiltinLong:
+            raise ValueError("array.array 'q' specifier is only supported with Python >= 3.3")
         a = array.array(BuiltinArrayTypes[t])
         a.fromstring(str(view.tobytes()))
         return a
