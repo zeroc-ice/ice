@@ -65,7 +65,7 @@ def exportedProjects = [
     ":icebt",
     ":icegrid",
     ":icepatch2",
-    "::icessl",
+    ":icessl",
     ":icestorm"
     ]
 
