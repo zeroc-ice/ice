@@ -117,115 +117,234 @@ def allTests(helper, communicator):
 
     print("ok")
 
+    sys.stdout.write("testing python:array.array... ")
+    sys.stdout.flush()
+
+    v = [True, False, True, False, True]
+    v1, v2 = custom.opBoolSeq(array.array("b", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == len(v))
+    test(len(v2) == len(v))
+    for i in range(len(v)):
+        test(v1[i] == v[i])
+        test(v2[i] == v[i])
+
+    v = [0, 2, 4, 8, 16, 32, 64, 127]
+    v1, v2 = custom.opByteSeq(array.array("b", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == len(v))
+    test(len(v2) == len(v))
+    for i in range(len(v)):
+        test(v1[i] == v[i])
+        test(v2[i] == v[i])
+
+    v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
+    v1, v2 = custom.opShortSeq(array.array("h", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == len(v))
+    test(len(v2) == len(v))
+    for i in range(len(v)):
+        test(v1[i] == v[i])
+        test(v2[i] == v[i])
+
+    v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
+    v1, v2 = custom.opIntSeq(array.array("i", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == len(v))
+    test(len(v2) == len(v))
+    for i in range(len(v)):
+        test(v1[i] == v[i])
+        test(v2[i] == v[i])
+
+    # XXX: requires Python >= 3.3
+    v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
+    v1, v2 = custom.opLongSeq(array.array("q", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == len(v))
+    test(len(v2) == len(v))
+    for i in range(len(v)):
+        test(v1[i] == v[i])
+        test(v2[i] == v[i])
+
+    v = [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256]
+    v1, v2 = custom.opFloatSeq(array.array("f", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == len(v))
+    test(len(v2) == len(v))
+    for i in range(len(v)):
+        test(round(v1[i], 1) == round(v[i], 1))
+        test(round(v2[i], 1) == round(v[i], 1))
+
+    v = [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256]
+    v1, v2 = custom.opDoubleSeq(array.array("d", v))
+    test(isinstance(v1, array.array))
+    test(isinstance(v2, array.array))
+    test(len(v1) == len(v))
+    test(len(v2) == len(v))
+    for i in range(len(v)):
+        test(round(v1[i], 1) == round(v[i], 1))
+        test(round(v2[i], 1) == round(v[i], 1))
+
+    try:
+        custom.opBoolSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opShortSeq(array.array("i", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opIntSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opLongSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opFloatSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opDoubleSeq(array.array("h", [1, 2, 3, 4]))
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opBogusArrayNotExistsFactory()
+        test(False)
+    except ImportError:
+        pass
+
+    try:
+        custom.opBogusArrayThrowFactory()
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opBogusArrayType()
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opBogusArrayNoneFactory()
+        test(False)
+    except ValueError:
+        pass
+
+    try:
+        custom.opBogusArraySignatureFactory()
+        test(False)
+    except TypeError:
+        pass
+
+    try:
+        custom.opBogusArrayNoCallableFactory()
+        test(False)
+    except RuntimeError:
+            pass
+
+    print("ok")
+
     try:
         import numpy
-        sys.stdout.write("testing array.array/numpy.array custom sequences... ")
+        ref = "test.numpy:{0}".format(helper.getTestEndpoint())
+        base = communicator.stringToProxy(ref)
+        test(base)
+
+        custom = Test.NumPy.CustomPrx.checkedCast(base)
+        test(custom)
+        sys.stdout.write("testing python:numpy.ndarray... ")
         sys.stdout.flush()
 
         v = [True, False, True, False, True]
-        v1 = array.array("b", v)
-        v2 = numpy.array(v, numpy.bool_)
-        v3, v4, v5 = custom.opBoolSeq(v1, v2, v2)
-        test(isinstance(v3, array.array))
-        test(isinstance(v4, numpy.ndarray))
-        test(isinstance(v5, numpy.ndarray))
-        test(len(v3) == len(v))
-        test(len(v4) == len(v))
-        test(len(v5) == len(v))
+        v1, v2 = custom.opBoolSeq(numpy.array(v, numpy.bool_))
+        test(isinstance(v1, numpy.ndarray))
+        test(isinstance(v2, numpy.ndarray))
+        test(len(v1) == len(v))
+        test(len(v2) == len(v))
         for i in range(len(v)):
-            test(v3[i] == v[i])
-            test(v4[i] == v[i])
-            test(v5[i] == v[i])
+            test(v1[i] == v[i])
+            test(v2[i] == v[i])
 
         v = [0, 2, 4, 8, 16, 32, 64, 127]
-        v1 = array.array("b", v)
-        v2 = numpy.array(v, numpy.int8)
-        v3, v4, v5 = custom.opByteSeq(v1, v2, v2)
-        test(isinstance(v3, array.array))
-        test(isinstance(v4, numpy.ndarray))
-        test(isinstance(v4, numpy.ndarray))
-        test(len(v3) == len(v))
-        test(len(v4) == len(v))
-        test(len(v5) == len(v))
+        v1, v2 = custom.opByteSeq(numpy.array(v, numpy.int8))
+        test(isinstance(v1, numpy.ndarray))
+        test(isinstance(v2, numpy.ndarray))
+        test(len(v1) == len(v))
+        test(len(v2) == len(v))
         for i in range(len(v)):
-            test(v3[i] == v[i])
-            test(v4[i] == v[i])
-            test(v5[i] == v[i])
+            test(v1[i] == v[i])
+            test(v2[i] == v[i])
 
         v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
-        v1 = array.array("h", v)
-        v2 = numpy.array(v, numpy.int16)
-        v3, v4, v5 = custom.opShortSeq(v1, v2, v2)
-        test(isinstance(v3, array.array))
-        test(isinstance(v4, numpy.ndarray))
-        test(isinstance(v5, numpy.ndarray))
-        test(len(v3) == len(v))
-        test(len(v4) == len(v))
-        test(len(v5) == len(v))
+        v1, v2 = custom.opShortSeq(numpy.array(v, numpy.int16))
+        test(isinstance(v1, numpy.ndarray))
+        test(isinstance(v2, numpy.ndarray))
+        test(len(v1) == len(v))
+        test(len(v2) == len(v))
         for i in range(len(v)):
-            test(v3[i] == v[i])
-            test(v4[i] == v[i])
-            test(v5[i] == v[i])
+            test(v1[i] == v[i])
+            test(v2[i] == v[i])
 
         v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
-        v1 = array.array("i", v)
-        v2 = numpy.array(v, numpy.int32)
-        v3, v4, v5 = custom.opIntSeq(v1, v2, v2)
-        test(isinstance(v3, array.array))
-        test(isinstance(v4, numpy.ndarray))
-        test(isinstance(v4, numpy.ndarray))
-        test(len(v3) == len(v))
-        test(len(v4) == len(v))
-        test(len(v5) == len(v))
+        v1, v2 = custom.opIntSeq(numpy.array(v, numpy.int32))
+        test(isinstance(v1, numpy.ndarray))
+        test(isinstance(v2, numpy.ndarray))
+        test(len(v1) == len(v))
+        test(len(v2) == len(v))
         for i in range(len(v)):
-            test(v3[i] == v[i])
-            test(v4[i] == v[i])
-            test(v5[i] == v[i])
+            test(v1[i] == v[i])
+            test(v2[i] == v[i])
 
         v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
-        v1 = array.array("l", v)
-        v2 = numpy.array(v, numpy.int64)
-        v3, v4, v5 = custom.opLongSeq(v1, v2, v2)
-        test(isinstance(v3, array.array))
-        test(isinstance(v4, numpy.ndarray))
-        test(isinstance(v5, numpy.ndarray))
-        test(len(v3) == len(v))
-        test(len(v4) == len(v))
-        test(len(v5) == len(v))
+        v1, v2 = custom.opLongSeq(numpy.array(v, numpy.int64))
+        test(isinstance(v1, numpy.ndarray))
+        test(isinstance(v2, numpy.ndarray))
+        test(len(v1) == len(v))
+        test(len(v2) == len(v))
         for i in range(len(v)):
-            test(v3[i] == v[i])
-            test(v4[i] == v[i])
-            test(v5[i] == v[i])
+            test(v1[i] == v[i])
+            test(v2[i] == v[i])
 
         v = [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256]
-        v1 = array.array("f", v)
-        v2 = numpy.array(v, numpy.float32)
-        v3, v4, v5 = custom.opFloatSeq(v1, v2, v2)
-        test(isinstance(v3, array.array))
-        test(isinstance(v4, numpy.ndarray))
-        test(isinstance(v5, numpy.ndarray))
-        test(len(v3) == len(v))
-        test(len(v4) == len(v))
-        test(len(v5) == len(v))
+        v1, v2 = custom.opFloatSeq(numpy.array(v, numpy.float32))
+        test(isinstance(v1, numpy.ndarray))
+        test(isinstance(v2, numpy.ndarray))
+        test(len(v1) == len(v))
+        test(len(v2) == len(v))
         for i in range(len(v)):
-            test(round(v3[i], 1) == round(v[i], 1))
-            test(round(float(v4[i]), 1) == round(v[i], 1))
-            test(round(float(v5[i]), 1) == round(v[i], 1))
+            test(round(float(v1[i]), 1) == round(v[i], 1))
+            test(round(float(v2[i]), 1) == round(v[i], 1))
 
         v = [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256]
-        v1 = array.array("d", v)
-        v2 = numpy.array(v, numpy.float64)
-        v3, v4, v5 = custom.opDoubleSeq(v1, v2, v2)
-        test(isinstance(v3, array.array))
-        test(isinstance(v4, numpy.ndarray))
-        test(isinstance(v5, numpy.ndarray))
-        test(len(v3) == len(v))
-        test(len(v4) == len(v))
-        test(len(v5) == len(v))
+        v1, v2 = custom.opDoubleSeq(numpy.array(v, numpy.float64))
+        test(isinstance(v1, numpy.ndarray))
+        test(isinstance(v2, numpy.ndarray))
+        test(len(v1) == len(v))
+        test(len(v2) == len(v))
         for i in range(len(v)):
-            test(round(v3[i], 1) == round(v[i], 1))
-            test(round(float(v4[i]), 1) == round(v[i], 1))
-            test(round(float(v5[i]), 1) == round(v[i], 1))
+            test(round(float(v1[i]), 1) == round(v[i], 1))
+            test(round(float(v2[i]), 1) == round(v[i], 1))
 
         v1 = numpy.array([numpy.complex128(1 + 1j),
                           numpy.complex128(2 + 2j),
@@ -271,23 +390,6 @@ def allTests(helper, communicator):
         test(numpy.array_equal(v1, numpy.array([[1.1, 0.1, 1.1],
                                                 [1.1, 0.1, 1.1],
                                                 [1.1, 0.1, 1.1]], numpy.float64)))
-        try:
-            custom.opBogusArrayNotExistsFactory()
-            test(False)
-        except RuntimeError:
-            pass
-
-        try:
-            custom.opBogusArrayThrowFactory()
-            test(False)
-        except ValueError:
-            pass
-
-        try:
-            custom.opBogusArrayType()
-            test(False)
-        except ValueError:
-            pass
 
         try:
             custom.opBogusNumpyArrayType()
@@ -295,27 +397,9 @@ def allTests(helper, communicator):
         except ValueError:
             pass
 
-        try:
-            custom.opBogusArrayNoneFactory()
-            test(False)
-        except ValueError:
-            pass
-
-        try:
-            custom.opBogusArraySignatureFactory()
-            test(False)
-        except TypeError:
-            pass
-
-        try:
-            custom.opBogusArrayNoCallableFactory()
-            test(False)
-        except RuntimeError:
-            pass
-
         print("ok")
     except ImportError:
-        print("numpy not installed skiping array.array/numpy.array testing")
+        print("numpy not installed skiping python:numpy.ndarray testing")
         pass
 
     return custom

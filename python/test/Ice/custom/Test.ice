@@ -18,34 +18,25 @@ module Test
     ["python:seq:tuple"] sequence<string> StringTuple;
 
     ["python:array.array"] sequence<bool> BoolSeq1;
-    ["python:numpy.ndarray"] sequence<bool> BoolSeq2;
-    ["python:memoryview:Custom.myBoolSeq"] sequence<bool> BoolSeq3;
+    ["python:memoryview:Custom.myBoolSeq"] sequence<bool> BoolSeq2;
 
     ["python:array.array"] sequence<byte> ByteSeq1;
-    ["python:numpy.ndarray"] sequence<byte> ByteSeq2;
-    ["python:memoryview:Custom.myByteSeq"] sequence<byte> ByteSeq3;
+    ["python:memoryview:Custom.myByteSeq"] sequence<byte> ByteSeq2;
 
     ["python:array.array"] sequence<short> ShortSeq1;
-    ["python:numpy.ndarray"] sequence<short> ShortSeq2;
-    ["python:memoryview:Custom.myShortSeq"] sequence<short> ShortSeq3;
+    ["python:memoryview:Custom.myShortSeq"] sequence<short> ShortSeq2;
 
     ["python:array.array"] sequence<int> IntSeq1;
-    ["python:numpy.ndarray"] sequence<int> IntSeq2;
-    ["python:memoryview:Custom.myIntSeq"] sequence<int> IntSeq3;
+    ["python:memoryview:Custom.myIntSeq"] sequence<int> IntSeq2;
 
     ["python:array.array"] sequence<long> LongSeq1;
-    ["python:numpy.ndarray"] sequence<long> LongSeq2;
-    ["python:memoryview:Custom.myLongSeq"] sequence<long> LongSeq3;
+    ["python:memoryview:Custom.myLongSeq"] sequence<long> LongSeq2;
 
     ["python:array.array"] sequence<float> FloatSeq1;
-    ["python:numpy.ndarray"] sequence<float> FloatSeq2;
-    ["python:memoryview:Custom.myFloatSeq"] sequence<float> FloatSeq3;
+    ["python:memoryview:Custom.myFloatSeq"] sequence<float> FloatSeq2;
 
     ["python:array.array"] sequence<double> DoubleSeq1;
-    ["python:numpy.ndarray"] sequence<double> DoubleSeq2;
-    ["python:memoryview:Custom.myDoubleSeq"] sequence<double> DoubleSeq3;
-
-    ["python:memoryview:Custom.myComplex128Seq"] sequence<byte> Complex128Seq;
+    ["python:memoryview:Custom.myDoubleSeq"] sequence<double> DoubleSeq2;
 
     struct S
     {
@@ -92,27 +83,17 @@ module Test
         void sendS(S val);
         void sendC(C val);
 
-        BoolSeq1 opBoolSeq(BoolSeq1 v1, BoolSeq2 v2, BoolSeq3 v3, out BoolSeq2 v4, out BoolSeq3 v5);
-        ByteSeq1 opByteSeq(ByteSeq1 v1, ByteSeq2 v2, ByteSeq3 v3, out ByteSeq2 v4, out ByteSeq3 v5);
-        ShortSeq1 opShortSeq(ShortSeq1 v1, ShortSeq2 v2, ShortSeq3 v3, out ShortSeq2 v4, out ShortSeq3 v5);
-        IntSeq1 opIntSeq(IntSeq1 v1, IntSeq2 v2, IntSeq3 v3, out IntSeq2 v4, out IntSeq3 v5);
-        LongSeq1 opLongSeq(LongSeq1 v1, LongSeq2 v2, LongSeq3 v3, out LongSeq2 v4, out LongSeq3 v5);
-        FloatSeq1 opFloatSeq(FloatSeq1 v1, FloatSeq2 v2, FloatSeq3 v3, out FloatSeq2 v4, out FloatSeq3 v5);
-        DoubleSeq1 opDoubleSeq(DoubleSeq1 v1, DoubleSeq2 v2, DoubleSeq3 v3, out DoubleSeq2 v4, out DoubleSeq3 v5);
-        Complex128Seq opComplex128Seq(Complex128Seq v1);
-
-        ["python:memoryview:Custom.myMatrix3x3"] BoolSeq1 opBoolMatrix();
-        ["python:memoryview:Custom.myMatrix3x3"] ByteSeq1 opByteMatrix();
-        ["python:memoryview:Custom.myMatrix3x3"] ShortSeq1 opShortMatrix();
-        ["python:memoryview:Custom.myMatrix3x3"] IntSeq1 opIntMatrix();
-        ["python:memoryview:Custom.myMatrix3x3"] LongSeq1 opLongMatrix();
-        ["python:memoryview:Custom.myMatrix3x3"] FloatSeq1 opFloatMatrix();
-        ["python:memoryview:Custom.myMatrix3x3"] DoubleSeq1 opDoubleMatrix();
+        BoolSeq1 opBoolSeq(BoolSeq1 v1, out BoolSeq2 v2);
+        ByteSeq1 opByteSeq(ByteSeq1 v1, out ByteSeq2 v2);
+        ShortSeq1 opShortSeq(ShortSeq1 v1, out ShortSeq2 v2);
+        IntSeq1 opIntSeq(IntSeq1 v1, out IntSeq2 v2);
+        LongSeq1 opLongSeq(LongSeq1 v1, out LongSeq2 v2);
+        FloatSeq1 opFloatSeq(FloatSeq1 v1, out FloatSeq2 v2);
+        DoubleSeq1 opDoubleSeq(DoubleSeq1 v1, out DoubleSeq2 v2);
 
         ["python:memoryview:Custom.myBogusArrayNotExistsFactory"] BoolSeq1 opBogusArrayNotExistsFactory();
         ["python:memoryview:Custom.myBogusArrayThrowFactory"]BoolSeq1 opBogusArrayThrowFactory();
         ["python:memoryview:Custom.myBogusArrayType"]BoolSeq1 opBogusArrayType();
-        ["python:memoryview:Custom.myBogusNumpyArrayType"]BoolSeq1 opBogusNumpyArrayType();
         ["python:memoryview:Custom.myBogusArrayNoneFactory"]BoolSeq1 opBogusArrayNoneFactory();
         ["python:memoryview:Custom.myBogusArraySignatureFactory"]BoolSeq1 opBogusArraySignatureFactory();
         ["python:memoryview:Custom.myNoCallableFactory"]BoolSeq1 opBogusArrayNoCallableFactory();

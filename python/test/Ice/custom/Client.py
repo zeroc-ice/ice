@@ -10,6 +10,12 @@
 
 from TestHelper import TestHelper
 TestHelper.loadSlice("Test.ice")
+
+try:
+    TestHelper.loadSlice("TestNumPy.ice")
+except ImportError:
+    pass
+
 import AllTests
 
 
