@@ -2286,7 +2286,7 @@ IcePy::SequenceInfo::createSequenceFromMemory(const SequenceMappingPtr& sm,
             throw AbortMarshaling();
         }
 
-        PyObjectHandle memoryview = PyMemoryView_FromBuffer(&pybuffer);
+        memoryview = PyMemoryView_FromBuffer(&pybuffer);
 #endif
     }
 
