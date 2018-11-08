@@ -1901,63 +1901,121 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     // For most types, we accept an object that implements the buffer protocol
     // (this includes the array.array type).
     //
-    Py_buffer pybuf;
-    if(PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE) == 0)
+    if(pi->kind != PrimitiveInfo::KindString)
     {
-        const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(pybuf.buf);
-        switch(pi->kind)
+        Py_buffer pybuf;
+        if(PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE) == 0)
         {
-        case PrimitiveInfo::KindBool:
+            static const int itemsize[] =
+            {
+                1, // KindBool,
+                1, // KindByte,
+                2, // KindShort,
+                4, // KindInt,
+                8, // KindLong,
+                4, // KindFloat,
+                8, // KindDouble
+            };
+
+            static const char* itemtype[] =
+            {
+                "bool",   // KindBool,
+                "byte",   // KindByte,
+                "short",  // KindShort,
+                "int",    // KindInt,
+                "long",   // KindLong,
+                "float",  // KindFloat,
+                "double", // KindDouble
+            };
+
+            if(pi->kind != PrimitiveInfo::KindByte)
+            {
+#ifdef ICE_BIG_ENDIAN
+                if(pybuf.format != 0 && pybuf.format[0] == '<')
+                {
+                    PyErr_Format(PyExc_ValueError,
+                                 "sequence buffer byte order doesn't match the platform native byte-order "
+                                 "`big-endian'");
+                    throw AbortMarshaling();
+                }
+#else
+                if(pybuf.format != 0 && (pybuf.format[0] == '>' || pybuf.format[0] == '!'))
+                {
+                    PyErr_Format(PyExc_ValueError,
+                                 "sequence buffer byte order doesn't match the platform native byte-order "
+                                 "`little-endian'");
+                    throw AbortMarshaling();
+                }
+#endif
+                if(pybuf.itemsize != itemsize[pi->kind])
+                {
+                    PyErr_Format(PyExc_ValueError,
+                                 "sequence item size doesn't match the size of the sequence type `%s'",
+                                 itemtype[pi->kind]);
+                    throw AbortMarshaling();
+                }
+            }
+            const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(pybuf.buf);
+            switch(pi->kind)
+            {
+                case PrimitiveInfo::KindBool:
+                {
+                    os->write(reinterpret_cast<const bool*>(b),
+                              reinterpret_cast<const bool*>(b + pybuf.len));
+                    break;
+                }
+                case PrimitiveInfo::KindByte:
+                {
+                    os->write(reinterpret_cast<const Ice::Byte*>(b),
+                              reinterpret_cast<const Ice::Byte*>(b + pybuf.len));
+                    break;
+                }
+                case PrimitiveInfo::KindShort:
+                {
+                    os->write(reinterpret_cast<const Ice::Short*>(b),
+                              reinterpret_cast<const Ice::Short*>(b + pybuf.len));
+                    break;
+                }
+                case PrimitiveInfo::KindInt:
+                {
+                    os->write(reinterpret_cast<const Ice::Int*>(b),
+                              reinterpret_cast<const Ice::Int*>(b + pybuf.len));
+                    break;
+                }
+                case PrimitiveInfo::KindLong:
+                {
+                    os->write(reinterpret_cast<const Ice::Long*>(b),
+                              reinterpret_cast<const Ice::Long*>(b + pybuf.len));
+                    break;
+                }
+                case PrimitiveInfo::KindFloat:
+                {
+                    os->write(reinterpret_cast<const Ice::Float*>(b),
+                              reinterpret_cast<const Ice::Float*>(b + pybuf.len));
+                    break;
+                }
+                case PrimitiveInfo::KindDouble:
+                {
+                    os->write(reinterpret_cast<const Ice::Double*>(b),
+                              reinterpret_cast<const Ice::Double*>(b + pybuf.len));
+                    break;
+                }
+                default:
+                {
+                    assert(false);
+                }
+            }
+            return;
+        }
+        else
         {
-            os->write(reinterpret_cast<const bool*>(b), reinterpret_cast<const bool*>(b + pybuf.len));
-            break;
+            PyErr_Clear(); // PyObject_GetBuffer sets an exception on failure.
         }
-        case PrimitiveInfo::KindByte:
-        {
-            os->write(reinterpret_cast<const Ice::Byte*>(b), reinterpret_cast<const Ice::Byte*>(b + pybuf.len));
-            break;
-        }
-        case PrimitiveInfo::KindShort:
-        {
-            os->write(reinterpret_cast<const Ice::Short*>(b), reinterpret_cast<const Ice::Short*>(b + pybuf.len));
-            break;
-        }
-        case PrimitiveInfo::KindInt:
-        {
-            os->write(reinterpret_cast<const Ice::Int*>(b), reinterpret_cast<const Ice::Int*>(b + pybuf.len));
-            break;
-        }
-        case PrimitiveInfo::KindLong:
-        {
-            os->write(reinterpret_cast<const Ice::Long*>(b), reinterpret_cast<const Ice::Long*>(b + pybuf.len));
-            break;
-        }
-        case PrimitiveInfo::KindFloat:
-        {
-            os->write(reinterpret_cast<const Ice::Float*>(b), reinterpret_cast<const Ice::Float*>(b + pybuf.len));
-            break;
-        }
-        case PrimitiveInfo::KindDouble:
-        {
-            os->write(reinterpret_cast<const Ice::Double*>(b), reinterpret_cast<const Ice::Double*>(b + pybuf.len));
-            break;
-        }
-        case PrimitiveInfo::KindString:
-        {
-            PyErr_Format(PyExc_ValueError, STRCAST("expected sequence value"));
-            throw AbortMarshaling();
-        }
-        }
-        return;
-    }
-    else
-    {
-        PyErr_Clear(); // PyObject_AsReadBuffer sets an exception on failure.
     }
 
     PyObjectHandle fs = getSequence(pi, p);
     if(!fs.get())
-   {
+    {
         assert(PyErr_Occurred());
         return;
     }
