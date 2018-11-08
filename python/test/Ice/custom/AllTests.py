@@ -160,16 +160,19 @@ def allTests(helper, communicator):
         test(v1[i] == v[i])
         test(v2[i] == v[i])
 
-    # XXX: requires Python >= 3.3
-    v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
-    v1, v2 = custom.opLongSeq(array.array("q", v))
-    test(isinstance(v1, array.array))
-    test(isinstance(v2, array.array))
-    test(len(v1) == len(v))
-    test(len(v2) == len(v))
-    for i in range(len(v)):
-        test(v1[i] == v[i])
-        test(v2[i] == v[i])
+    #
+    # The array "q" type specifier is new in Python 3.3
+    #
+    if sys.version_info[:2] >= (3, 3):
+        v = [0, 2, 4, 8, 16, 32, 64, 128, 256]
+        v1, v2 = custom.opLongSeq(array.array("q", v))
+        test(isinstance(v1, array.array))
+        test(isinstance(v2, array.array))
+        test(len(v1) == len(v))
+        test(len(v2) == len(v))
+        for i in range(len(v)):
+            test(v1[i] == v[i])
+            test(v2[i] == v[i])
 
     v = [0.1, 0.2, 0.4, 0.8, 0.16, 0.32, 0.64, 0.128, 0.256]
     v1, v2 = custom.opFloatSeq(array.array("f", v))
@@ -191,41 +194,47 @@ def allTests(helper, communicator):
         test(round(v1[i], 1) == round(v[i], 1))
         test(round(v2[i], 1) == round(v[i], 1))
 
-    try:
-        custom.opBoolSeq(array.array("h", [1, 2, 3, 4]))
-        test(False)
-    except ValueError:
-        pass
+    #
+    # With python 3.3 we use the new buffer interface for marshaling
+    # sequences of types that implement the buffer protocol and this
+    # allow Ice to check that the container item size and endianness
+    #
+    if sys.version_info[0] >= 3:
+        try:
+            custom.opBoolSeq(array.array("h", [1, 2, 3, 4]))
+            test(False)
+        except ValueError:
+            pass
 
-    try:
-        custom.opShortSeq(array.array("i", [1, 2, 3, 4]))
-        test(False)
-    except ValueError:
-        pass
+        try:
+            custom.opShortSeq(array.array("i", [1, 2, 3, 4]))
+            test(False)
+        except ValueError:
+            pass
 
-    try:
-        custom.opIntSeq(array.array("h", [1, 2, 3, 4]))
-        test(False)
-    except ValueError:
-        pass
+        try:
+            custom.opIntSeq(array.array("h", [1, 2, 3, 4]))
+            test(False)
+        except ValueError:
+            pass
 
-    try:
-        custom.opLongSeq(array.array("h", [1, 2, 3, 4]))
-        test(False)
-    except ValueError:
-        pass
+        try:
+            custom.opLongSeq(array.array("h", [1, 2, 3, 4]))
+            test(False)
+        except ValueError:
+            pass
 
-    try:
-        custom.opFloatSeq(array.array("h", [1, 2, 3, 4]))
-        test(False)
-    except ValueError:
-        pass
+        try:
+            custom.opFloatSeq(array.array("h", [1, 2, 3, 4]))
+            test(False)
+        except ValueError:
+            pass
 
-    try:
-        custom.opDoubleSeq(array.array("h", [1, 2, 3, 4]))
-        test(False)
-    except ValueError:
-        pass
+        try:
+            custom.opDoubleSeq(array.array("h", [1, 2, 3, 4]))
+            test(False)
+        except ValueError:
+            pass
 
     try:
         custom.opBogusArrayNotExistsFactory()
