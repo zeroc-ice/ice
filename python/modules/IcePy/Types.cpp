@@ -1903,6 +1903,10 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     //
     if(pi->kind != PrimitiveInfo::KindString)
     {
+        //
+        // With Python 3 and greater we marshal sequences of pritive types using the new
+        // buffer protocol when possible, for older versions we use the old buffer protocol.
+        //
 #if PY_VERSION_HEX >= 0x03000000
         Py_buffer pybuf;
         if(PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
@@ -1937,7 +1941,7 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                     PyErr_Format(PyExc_ValueError,
                                  "sequence buffer byte order doesn't match the platform native byte-order "
                                  "`big-endian'");
-                    PyBuffer_Release(&pybuff);
+                    PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
 #   else
@@ -1946,17 +1950,16 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                     PyErr_Format(PyExc_ValueError,
                                  "sequence buffer byte order doesn't match the platform native byte-order "
                                  "`little-endian'");
-                    PyBuffer_Release(&pybuff);
+                    PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
 #   endif
-                cerr << "itemsize: " << pybuf.itemsize << " kind size: " << itemsize[pi->kind] << endl;
                 if(pybuf.itemsize != itemsize[pi->kind])
                 {
                     PyErr_Format(PyExc_ValueError,
                                  "sequence item size doesn't match the size of the sequence type `%s'",
                                  itemtype[pi->kind]);
-                    PyBuffer_Release(&pybuff);
+                    PyBuffer_Release(&pybuf);
                     throw AbortMarshaling();
                 }
             }
@@ -2019,13 +2022,13 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                 }
             }
 #if PY_VERSION_HEX >= 0x03000000
-            PyBuffer_Release(&pybuff);
+            PyBuffer_Release(&pybuf);
 #endif
             return;
         }
         else
         {
-            PyErr_Clear(); // PyObject_GetBuffer sets an exception on failure.
+            PyErr_Clear(); // PyObject_GetBuffer/PyObject_AsReadBuffer sets an exception on failure.
         }
     }
 
