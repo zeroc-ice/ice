@@ -387,16 +387,16 @@ class Buffer : public IceUtil::Shared
 {
 public:
 
-    Buffer(const char*, int, SequenceInfo::BuiltinType);
+    Buffer(const char*, Py_ssize_t, SequenceInfo::BuiltinType);
     ~Buffer();
     const char* data() const;
-    int size() const;
+    Py_ssize_t size() const;
     SequenceInfo::BuiltinType type();
 
 private:
 
     const char* _data;
-    const int _size;
+    const Py_ssize_t _size;
     const SequenceInfo::BuiltinType _type;
 };
 

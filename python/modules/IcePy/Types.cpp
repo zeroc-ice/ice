@@ -2701,7 +2701,7 @@ IcePy::SequenceInfo::SequenceMapping::setItem(PyObject* cont, int i, PyObject* v
 //
 // Buffer implementation
 //
-IcePy::Buffer::Buffer(const char* data, int size, SequenceInfo::BuiltinType type) :
+IcePy::Buffer::Buffer(const char* data, Py_ssize_t size, SequenceInfo::BuiltinType type) :
     _data(data),
     _size(size),
     _type(type)
@@ -2758,7 +2758,7 @@ IcePy::Buffer::data() const
     return _data;
 }
 
-int
+Py_ssize_t
 IcePy::Buffer::size() const
 {
     return _size;
