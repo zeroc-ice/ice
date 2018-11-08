@@ -13,16 +13,32 @@ targetCompatibility = iceTargetCompatibility
 project.ext.displayName = "IceGridGUI"
 project.ext.description = ""
 
-project.ext.javafxJar = ['jfxrt.jar',
-                         'lib/jfxrt.jar',
-                         'lib/ext/jfxrt.jar',
-                         'jre/lib/jfxrt.jar',
-                         'jre/lib/ext/jfxrt.jar',
-                         'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
+if(JavaVersion.current().toString() == "1.11") {
+    ext.os = System.properties['os.name']
+    if(os == "Mac OS X") {
+        ext.platform = "mac"
+        ext.hasJavaFx = true
+    } else if(os.toLowerCase().contains("windows")) {
+        ext.platform = "win"
+        ext.hasJavaFx = true
+    } else if(os.toLowerCase().contains("linux")) {
+        ext.platform = "linux"
+        ext.hasJavaFx = true
+    } else {
+        ext.hasJavaFx = false
+    }
+} else {
+    ext.javafxJar = ['jfxrt.jar',
+                     'lib/jfxrt.jar',
+                     'lib/ext/jfxrt.jar',
+                     'jre/lib/jfxrt.jar',
+                     'jre/lib/ext/jfxrt.jar',
+                     'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
 
-project.ext.hasJavaFx = javafxJar != null
+    ext.hasJavaFx = javafxJar != null
+}
 
-if(!project.ext.hasJavaFx) {
+if(!hasJavaFx) {
     sourceSets {
         main {
             java {
@@ -50,6 +66,13 @@ dependencies {
       compile project(':icegrid')
       compile "com.jgoodies:jgoodies-looks:${jgoodiesLooksVersion}"
       compile "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
+
+      if(hasJavaFx && JavaVersion.current().toString() == "1.11") {
+           compile "org.openjfx:javafx-base:11:$platform"
+           compile "org.openjfx:javafx-swing:11:$platform"
+           compile "org.openjfx:javafx-controls:11:$platform"
+           compile "org.openjfx:javafx-graphics:11:$platform"
+      }
 }
 
 project.ext.tmpJarName = "IceGridGUITEMP.jar"
@@ -67,13 +90,14 @@ project.ext.libJars = []
 
 project.ext.jarBuilder = "plain-jar.gradle"
 if(icegridguiProguard.toBoolean()) {
-    if(JavaVersion.current() == JavaVersion.VERSION_11) {
+    if(JavaVersion.current().toString() == "1.11") {
         logger.warn('Proguard does not yet support Java 11. Plain IceGridGUI JAR will be built.')
     }
     else {
         project.ext.jarBuilder = "proguard-jar.gradle"
     }
 }
+
 apply from: jarBuilder
 
 clean {

@@ -3118,7 +3118,7 @@ public class Coordinator
         else if(com.zeroc.IceInternal.Util.findClass("javafx.embed.swing.JFXPanel", null) == null)
         {
             JOptionPane.showMessageDialog(_mainFrame,
-                                          "The Metrics Graph view requires JavaFX 2",
+                                          "The Metrics Graph view requires JavaFX",
                                           "IceGrid GUI Info",
                                           JOptionPane.INFORMATION_MESSAGE);
         }
