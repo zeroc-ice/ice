@@ -1903,8 +1903,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
     //
     if(pi->kind != PrimitiveInfo::KindString)
     {
+#if PY_VERSION_HEX >= 0x03000000
         Py_buffer pybuf;
-        if(PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE) == 0)
+        if(PyObject_GetBuffer(p, &pybuf, PyBUF_SIMPLE | PyBUF_FORMAT) == 0)
         {
             static const int itemsize[] =
             {
@@ -1930,74 +1931,86 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
 
             if(pi->kind != PrimitiveInfo::KindByte)
             {
-#ifdef ICE_BIG_ENDIAN
+#   ifdef ICE_BIG_ENDIAN
                 if(pybuf.format != 0 && pybuf.format[0] == '<')
                 {
                     PyErr_Format(PyExc_ValueError,
                                  "sequence buffer byte order doesn't match the platform native byte-order "
                                  "`big-endian'");
+                    PyBuffer_Release(&pybuff);
                     throw AbortMarshaling();
                 }
-#else
+#   else
                 if(pybuf.format != 0 && (pybuf.format[0] == '>' || pybuf.format[0] == '!'))
                 {
                     PyErr_Format(PyExc_ValueError,
                                  "sequence buffer byte order doesn't match the platform native byte-order "
                                  "`little-endian'");
+                    PyBuffer_Release(&pybuff);
                     throw AbortMarshaling();
                 }
-#endif
+#   endif
+                cerr << "itemsize: " << pybuf.itemsize << " kind size: " << itemsize[pi->kind] << endl;
                 if(pybuf.itemsize != itemsize[pi->kind])
                 {
                     PyErr_Format(PyExc_ValueError,
                                  "sequence item size doesn't match the size of the sequence type `%s'",
                                  itemtype[pi->kind]);
+                    PyBuffer_Release(&pybuff);
                     throw AbortMarshaling();
                 }
             }
             const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(pybuf.buf);
+            Py_ssize_t sz = pybuf.len;
+#else
+        const void* buf = 0;
+        Py_ssize_t sz;
+        if(PyObject_AsReadBuffer(p, &buf, &sz) == 0)
+        {
+            const Ice::Byte* b = reinterpret_cast<const Ice::Byte*>(buf);
+#endif
             switch(pi->kind)
             {
                 case PrimitiveInfo::KindBool:
                 {
                     os->write(reinterpret_cast<const bool*>(b),
-                              reinterpret_cast<const bool*>(b + pybuf.len));
+                              reinterpret_cast<const bool*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindByte:
                 {
                     os->write(reinterpret_cast<const Ice::Byte*>(b),
-                              reinterpret_cast<const Ice::Byte*>(b + pybuf.len));
+                              reinterpret_cast<const Ice::Byte*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindShort:
                 {
                     os->write(reinterpret_cast<const Ice::Short*>(b),
-                              reinterpret_cast<const Ice::Short*>(b + pybuf.len));
+                              reinterpret_cast<const Ice::Short*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindInt:
                 {
                     os->write(reinterpret_cast<const Ice::Int*>(b),
-                              reinterpret_cast<const Ice::Int*>(b + pybuf.len));
+                              reinterpret_cast<const Ice::Int*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindLong:
                 {
                     os->write(reinterpret_cast<const Ice::Long*>(b),
-                              reinterpret_cast<const Ice::Long*>(b + pybuf.len));
+                              reinterpret_cast<const Ice::Long*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindFloat:
                 {
                     os->write(reinterpret_cast<const Ice::Float*>(b),
-                              reinterpret_cast<const Ice::Float*>(b + pybuf.len));
+                              reinterpret_cast<const Ice::Float*>(b + sz));
                     break;
                 }
                 case PrimitiveInfo::KindDouble:
                 {
                     os->write(reinterpret_cast<const Ice::Double*>(b),
-                              reinterpret_cast<const Ice::Double*>(b + pybuf.len));
+                              reinterpret_cast<const Ice::Double*>(b + sz));
                     break;
                 }
                 default:
@@ -2005,6 +2018,9 @@ IcePy::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, PyObje
                     assert(false);
                 }
             }
+#if PY_VERSION_HEX >= 0x03000000
+            PyBuffer_Release(&pybuff);
+#endif
             return;
         }
         else
