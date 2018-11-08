@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <IceUtil/DisableWarnings.h>
 #include <PropertiesAdmin.h>
 #include <Util.h>

@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <ValueFactoryManager.h>
 #include <Thread.h>
 #include <Types.h>

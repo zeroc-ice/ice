@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <EndpointInfo.h>
 #include <Util.h>
 #include <IceSSL/IceSSL.h>

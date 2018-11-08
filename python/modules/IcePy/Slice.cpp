@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <Slice.h>
 #include <Util.h>
 #include <Slice/Preprocessor.h>

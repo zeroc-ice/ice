@@ -8,9 +8,6 @@
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <Proxy.h>
 #include <structmember.h>
 #include <Communicator.h>

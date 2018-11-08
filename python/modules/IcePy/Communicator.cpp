@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <IceUtil/DisableWarnings.h>
 #include <Communicator.h>
 #include <BatchRequestInterceptor.h>
