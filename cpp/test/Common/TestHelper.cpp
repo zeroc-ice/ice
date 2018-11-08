@@ -33,11 +33,10 @@ shutdownOnInterruptCallback(int)
 
 }
 
-Test::TestHelper::TestHelper(bool registerPlugins)
+Test::TestHelper::TestHelper(bool registerPlugins) :
+    _controllerHelper(0)
 #if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
-    : _ctrlCHandler(0), _controllerHelper(0)
-#else
-    : _controllerHelper(0)
+    , _ctrlCHandler(0)
 #endif
 {
 #if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
