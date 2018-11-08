@@ -32,6 +32,9 @@ if(!project.ext.hasJavaFx) {
     }
 }
 
+// Don't generate javadoc
+javadoc.enabled = false
+
 // Disable deprecation warnings caused by JGoodies
 tasks.withType(JavaCompile) {
     options.deprecation = false
@@ -72,7 +75,6 @@ if(icegridguiProguard.toBoolean()) {
     }
 }
 apply from: jarBuilder
-
 
 clean {
     delete("${libDir}/${jarName}")

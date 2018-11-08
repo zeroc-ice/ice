@@ -21,17 +21,20 @@ public abstract class ValueWriter extends Value
      **/
     public abstract void write(OutputStream out);
 
+    /** @hidden */
     @Override
     public void _iceWrite(OutputStream os)
     {
         write(os);
     }
 
+    /** @hidden */
     @Override
     public void _iceRead(InputStream is)
     {
         assert(false);
     }
 
+    /** @hidden */
     public static final long serialVersionUID = 0L;
 }

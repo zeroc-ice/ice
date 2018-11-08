@@ -10,12 +10,12 @@
 package com.zeroc.IceBT;
 
 /**
- * Plug-in factories must implement this interface.
+ * Creates IceBT plug-ins.
  **/
 public class PluginFactory implements com.zeroc.Ice.PluginFactory
 {
     /**
-     * Returns a new plug-in.
+     * Returns a new IceBT plug-in.
      *
      * @param communicator The communicator for the plug-in.
      * @param name The name of the plug-in.

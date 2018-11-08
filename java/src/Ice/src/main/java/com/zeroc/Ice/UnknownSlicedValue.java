@@ -47,6 +47,7 @@ public final class UnknownSlicedValue extends Value
         return _unknownTypeId;
     }
 
+    /** @hidden */
     @Override
     public void _iceWrite(OutputStream ostr)
     {
@@ -54,6 +55,7 @@ public final class UnknownSlicedValue extends Value
         ostr.endValue();
     }
 
+    /** @hidden */
     @Override
     public void _iceRead(InputStream istr)
     {
@@ -64,5 +66,6 @@ public final class UnknownSlicedValue extends Value
     private final String _unknownTypeId;
     private SlicedData _slicedData;
 
+    /** @hidden */
     public static final long serialVersionUID = 0L;
 }

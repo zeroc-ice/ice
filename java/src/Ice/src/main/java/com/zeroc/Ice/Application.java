@@ -564,6 +564,7 @@ public abstract class Application
     }
 
     // For use by Glacier2.Application
+    /** @hidden */
     static public class AppHook extends Thread
     {
         public void
@@ -687,12 +688,27 @@ public abstract class Application
         private Runnable _hook;
     }
 
+    /** @hidden */
     protected static String _appName;
+
+    /** @hidden */
     protected static Communicator _communicator;
+
+    /** @hidden */
     protected static AppHook _appHook;
+
+    /** @hidden */
     protected final static java.lang.Object _mutex = new java.lang.Object();
+
+    /** @hidden */
     protected static boolean _callbackInProgress = false;
+
+    /** @hidden */
     protected static boolean _destroyed = false;
+
+    /** @hidden */
     protected static boolean _interrupted = false;
+
+    /** @hidden */
     protected static SignalPolicy _signalPolicy = SignalPolicy.HandleSignals;
 }

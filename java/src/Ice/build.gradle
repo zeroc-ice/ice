@@ -27,3 +27,17 @@ slice {
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"
+
+//
+// Unfortunately we can't simply process Ice classes through javadoc as
+// they use various public IceInternal and IceUtilInternal classes. So
+// we first compile everything then use these compiled classes to javadoc
+// the code we want to document. A handful of public Ice classes (other
+// than the *I.java classes) are also marked @hidden.
+//
+javadoc.dependsOn(compileJava)
+
+javadoc {
+    classpath = project.sourceSets.main.output
+    excludes = ["**/IceInternal/*.java", "**/IceUtilInternal/*.java", "**/Ice/*I.java"]
+}

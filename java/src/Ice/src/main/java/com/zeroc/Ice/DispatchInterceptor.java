@@ -36,6 +36,7 @@ public abstract class DispatchInterceptor implements com.zeroc.Ice.Object
     public abstract CompletionStage<OutputStream> dispatch(Request request)
         throws UserException;
 
+    /** @hidden */
     @Override
     public CompletionStage<OutputStream> _iceDispatch(com.zeroc.IceInternal.Incoming in, Current current)
         throws UserException
