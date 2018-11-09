@@ -83,7 +83,7 @@ class Ice(Component):
                      "Ice/properties",          # Property files are not supported with UWP
                      "Ice/plugin",
                      "Ice/threadPoolPriority"])
-        elif isinstance(platform, Windows) and platform.getCompiler() in ["VC100"]:
+        elif isinstance(platform, Windows) and platform.getCompiler() in ["v100"]:
             return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
         elif isinstance(mapping, CSharpMapping) and config.xamarin:
             return (["Ice/.*"],
@@ -245,9 +245,9 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
     Mapping.remove("ruby")
-    if platform.getCompiler() != "VC140":
+    if platform.getCompiler() != "v140":
         Mapping.remove("python")
-    if platform.getCompiler() not in ["VC140", "VC141"]:
+    if platform.getCompiler() not in ["v140", "v141"]:
         Mapping.remove("php")
 elif not platform.hasDotNet():
     # Remove C# if Dot Net Core isn't supported

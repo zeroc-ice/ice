@@ -38,7 +38,7 @@ const Context noExplicitContext;
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1600)
 //
-// COMPILERFIX VC90 and VC100 get confused with namespaces and complains that
+// COMPILERFIX v90 and v100 get confused with namespaces and complains that
 // ::Ice::noExplicitContext isn't defined in IceProxy namespace.
 //
 namespace IceProxy

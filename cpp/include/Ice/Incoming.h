@@ -83,7 +83,7 @@ public:
     void exception(const std::string&, bool);
 #if defined(_MSC_VER) && (_MSC_VER == 1500)
     //
-    // COMPILERFIX VC90 get confused with overloads above
+    // COMPILERFIX v90 get confused with overloads above
     // when passing a const char* as first argument.
     //
     void exception(const char* msg, bool amd)
@@ -107,7 +107,7 @@ protected:
 
 #if defined(_MSC_VER) && (_MSC_VER == 1500)
     //
-    // COMPILERFIX VC90 get confused with overloads above
+    // COMPILERFIX v90 get confused with overloads above
     // when passing a const char* as first argument.
     //
     void handleException(const char* msg, bool amd)

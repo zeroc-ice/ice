@@ -388,15 +388,15 @@ class Windows(Platform):
             try:
                 out = run("cl")
                 if out.find("Version 16.") != -1:
-                    self.compiler = "VC100"
+                    self.compiler = "v100"
                 elif out.find("Version 17.") != -1:
-                    self.compiler = "VC110"
+                    self.compiler = "v110"
                 elif out.find("Version 18.") != -1:
-                    self.compiler = "VC120"
+                    self.compiler = "v120"
                 elif out.find("Version 19.00.") != -1:
-                    self.compiler = "VC140"
+                    self.compiler = "v140"
                 elif out.find("Version 19.1") != -1:
-                    self.compiler = "VC141"
+                    self.compiler = "v141"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
             except:

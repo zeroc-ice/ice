@@ -907,7 +907,7 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1600)
     //
-    // COMPILERFIX VC90 and VC100 get confused with namespaces and we need to
+    // COMPILERFIX v90 and v100 get confused with namespaces and we need to
     // defined both Ice::noExplicitContext and IceProxy::Ice::noExplicitContext
     // see comments in Ice/Proxy.h.
     //
