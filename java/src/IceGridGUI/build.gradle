@@ -13,7 +13,7 @@ targetCompatibility = iceTargetCompatibility
 project.ext.displayName = "IceGridGUI"
 project.ext.description = ""
 
-if(JavaVersion.current().toString() == "1.11") {
+if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
     ext.os = System.properties['os.name']
     if(os == "Mac OS X") {
         ext.platform = "mac"
@@ -67,7 +67,7 @@ dependencies {
       compile "com.jgoodies:jgoodies-looks:${jgoodiesLooksVersion}"
       compile "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
 
-      if(hasJavaFx && JavaVersion.current().toString() == "1.11") {
+      if(hasJavaFx && GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
            compile "org.openjfx:javafx-base:11:$platform"
            compile "org.openjfx:javafx-swing:11:$platform"
            compile "org.openjfx:javafx-controls:11:$platform"
@@ -90,7 +90,7 @@ project.ext.libJars = []
 
 project.ext.jarBuilder = "plain-jar.gradle"
 if(icegridguiProguard.toBoolean()) {
-    if(JavaVersion.current().toString() == "1.11") {
+    if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
         logger.warn('Proguard does not yet support Java 11. Plain IceGridGUI JAR will be built.')
     }
     else {

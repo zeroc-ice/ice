@@ -80,7 +80,7 @@ javadoc {
     failOnError = true
     options.header = project.ext.displayName
 
-    if(GradleVersion.current() >= GradleVersion.version('4.10') && JavaVersion.current() >= JavaVersion.VERSION_11) {
+    if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
         // TODO: --no-module-directories is an undocumented option required for the
         // generated search to work properly. Without this option, search returns
         // .../undefined/... URLs.
