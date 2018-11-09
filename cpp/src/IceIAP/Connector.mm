@@ -26,7 +26,11 @@ IceObjC::iAPConnector::connect()
     {
         throw Ice::ConnectFailedException(__FILE__, __LINE__, 0);
     }
-    return new iAPTransceiver(_instance, session);
+
+    iAPTransceiver *transceiver = new iAPTransceiver(_instance, session);
+    [session release];
+
+    return transceiver;
 }
 
 Short
