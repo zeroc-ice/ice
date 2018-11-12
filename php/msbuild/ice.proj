@@ -146,5 +146,6 @@
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE" DestinationFiles="zeroc.ice.php\ICE_LICENSE.txt" />
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE" DestinationFiles="zeroc.ice.php\LICENSE.txt" />
 
+        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive" WorkingDirectory="zeroc.ice.php"/>
     </Target>
 </Project>
