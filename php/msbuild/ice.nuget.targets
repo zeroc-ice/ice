@@ -1,0 +1,35 @@
+<Project DefaultTargets="NugetPack" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <IceSrcRootDir>$(MSBuildThisFileDirectory)..\</IceSrcRootDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Libraries Include="$(IceSrcRootDir)..\php\lib\$(Platform)\$(Configuration)\php_ice.dll;
+                            $(IceSrcRootDir)..\php\lib\$(Platform)\$(Configuration)\php_ice_nts.dll" />
+        <Libraries Include="$(IceSrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\ice37.dll;
+                            $(IceSrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icessl37.dll;
+                            $(IceSrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icediscovery37.dll;
+                            $(IceSrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icelocatordiscovery37.dll;
+                            $(IceSrcRootDir)..\cpp\msbuild\packages\bzip2.$(PlatformToolset).1.0.6.10\build\native\bin\$(Platform)\$(Configuration)\bzip2.dll"/>
+    </ItemGroup>
+
+    <!-- For PHP we use Slice compiler from x64 Release builds -->
+    <ItemGroup Condition="'$(Platform)|$(Configuration)' == 'x64|Release'">
+        <SliceCompilers Include="$(IceSrcRootDir)..\cpp\bin\x64\Release\slice2php.exe;
+                                 $(IceSrcRootDir)..\cpp\bin\x64\Release\slice2html.exe" />
+
+        <PhpSources Include="$(IceSrcRootDir)..\php\lib\**\*.php" />
+
+        <Slices Include="$(IceSrcRootDir)..\slice\**\*.ice"
+                Exclude="$(IceSrcRootDir)..\slice\IceDiscovery\*.ice;
+                         $(IceSrcRootDir)..\slice\IceLocatorDiscovery\*.ice"/>
+    </ItemGroup>
+
+    <!-- Copy required files to the package specific directories -->
+    <Target Name="NugetPack">
+        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\lib\$(Platform)\$(Configuration)"/>
+        <Copy SourceFiles="@(PhpSources)" DestinationFolder="$(PackageDirectory)\lib\%(PhpSources.RecursiveDir)"/>
+        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
+        <Copy SourceFiles="@(SliceCompilers)" DestinationFolder="$(PackageDirectory)\tools"/>
+    </Target>
+</Project>

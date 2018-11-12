@@ -11,22 +11,24 @@
 
     <!-- Ice for PHP configurations -->
     <PropertyGroup>
-        <CppDistTargets>c++98\slice2php;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
+        <CppDistTargets>c++98\slice2php;c++98\slice2html;c++98\icessl;c++98\icediscovery;c++98\icelocatordiscovery</CppDistTargets>
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Debug' or '$(Configuration)' == 'Debug'">Debug</CppConfiguration>
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Release' or '$(Configuration)' == 'Release'">Release</CppConfiguration>
+        <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v141'">7.2</BuildWithPhpVersion>
+        <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v140'">7.1</BuildWithPhpVersion>
     </PropertyGroup>
 
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
         <!-- Restore NuGet packages to build Ice for PHP distribution -->
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.sln" Condition="'$(ICE_BIN_DIST)' != 'all'"/>
-        <Exec Command="$(NuGetExe) install zeroc.ice.v140 -OutputDirectory $(MSBuildThisFileDirectory)\packages -Version $(IceJSONVersion)"
+        <Exec Command="$(NuGetExe) install zeroc.ice.$(DefaultPlatformToolSet) -OutputDirectory $(MSBuildThisFileDirectory)\packages -Version $(IceJSONVersion)"
               Condition="'$(ICE_BIN_DIST)' == 'cpp'"/>
     </Target>
 
     <Choose>
         <When Condition="'$(ICE_BIN_DIST)' == 'cpp'">
             <PropertyGroup>
-                <IceHome>$(MSBuildThisFileDirectory)\packages\zeroc.ice.v140.$(IceJSONVersion)</IceHome>
+                <IceHome>$(MSBuildThisFileDirectory)\packages\zeroc.ice.$(DefaultPlatformToolSet).$(IceJSONVersion)</IceHome>
                 <IceToolsPath>$(IceHome)\tools</IceToolsPath>
             </PropertyGroup>
         </When>
@@ -43,12 +45,58 @@
         </Otherwise>
     </Choose>
 
+    <Choose>
+        <!--
+            If BuildAllConfigurations is set to yes we build all configurations that are
+            part of the binary distribution, otherwise we just build the given platform
+            and configuration.
+        -->
+        <When Condition="'$(BuildAllConfigurations)' == 'yes'">
+            <PropertyGroup>
+                <DefaultBuild>x64|Release</DefaultBuild>
+            </PropertyGroup>
+            <!-- Ice for C++ configurations -->
+            <ItemGroup>
+                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln">
+                    <Properties>Configuration=Release;Platform=Win32</Properties>
+                </CppDistSolution>
+                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln">
+                    <Properties>Configuration=Release;Platform=x64</Properties>
+                </CppDistSolution>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
+                </DistSolution>
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
+                </DistSolution>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
+                </DistSolution>
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
+                </DistSolution>
+            </ItemGroup>
+        </When>
+        <Otherwise>
+            <ItemGroup>
+                <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln">
+                    <Properties>Configuration=$(CppConfiguration);Platform=$(Platform)</Properties>
+                </CppDistSolution>
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=$(Configuration);Platform=$(Platform);BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
+                </DistSolution>
+            </ItemGroup>
+        </Otherwise>
+     </Choose>
+
     <Target Name="BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'cpp'">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"/>
-        <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
+        <MSBuild Projects="@(CppDistSolution)"
                  Targets="$(CppDistTargets)"
                  BuildInParallel="true"
-                 Properties="Platform=$(Platform);Configuration=$(CppConfiguration)" />
+                 Properties="%(Properties)" />
     </Target>
 
     <Target Name="BuildDist" DependsOnTargets="NuGetRestore;BuildCppDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
@@ -56,8 +104,8 @@
                  Properties="IceHome=$(IceHome);IceToolsPath=$(IceToolsPath)"
                  Targets="SliceCompile"/>
 
-        <MSBuild Projects="ice.sln"
-                 Properties="Configuration=$(Configuration);Platform=$(Platform)" />
+        <MSBuild Projects="@(DistSolution)"
+                 Properties="%(Properties)" />
     </Target>
 
     <Target Name="CleanDist" Condition="'$(ICE_BIN_DIST)' != 'all'">
@@ -65,9 +113,9 @@
                  Properties="IceHome=$(IceHome);IceToolsPath=$(IceToolsPath)"
                  Targets="SliceCompileClean"/>
 
-        <MSBuild Projects="ice.sln"
+        <MSBuild Projects="@(DistSolution)"
                  BuildInParallel="true"
-                 Properties="Configuration=$(Configuration);Platform=$(Platform)"
+                 Properties="%(Properties)"
                  Targets="Clean" />
     </Target>
 
@@ -83,5 +131,20 @@
         <MSBuild Projects="ice.php.test.proj"
                  Properties="IceHome=$(IceHome);IceToolsPath=$(IceToolsPath)"
                  Targets="SliceCompileClean"/>
+    </Target>
+
+    <Target Name="NuGetPack" DependsOnTargets="BuildDist">
+        <RemoveDir Directories="zeroc.ice.php" />
+
+        <Copy SourceFiles="zeroc.ice.php.nuspec" DestinationFolder="zeroc.ice.php" />
+
+        <MSBuild Projects="ice.nuget.targets"
+                 Properties="PackageDirectory=zeroc.ice.php;Platform=x64;Configuration=Release;PlatformToolset=$(DefaultPlatformToolset)"/>
+        <MSBuild Projects="ice.nuget.targets"
+                 Properties="PackageDirectory=zeroc.ice.php;Platform=Win32;Configuration=Release;PlatformToolset=$(DefaultPlatformToolset)"/>
+
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE" DestinationFiles="zeroc.ice.php\ICE_LICENSE.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE" DestinationFiles="zeroc.ice.php\LICENSE.txt" />
+
     </Target>
 </Project>
