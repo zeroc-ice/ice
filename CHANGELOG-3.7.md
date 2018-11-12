@@ -810,5 +810,4 @@ These are the changes since the Ice 3.6 release or snapshot described in
 - Fixed a bug that prevented the data members of `IceSSL::ConnectionInfo` from
   being defined correctly.
 
-
 [1]: https://docs.python.org/3/c-api/buffer.html
