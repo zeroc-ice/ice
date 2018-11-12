@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
     <metadata>
-        <id>zeroc.ice.php</id>
-        <title>ZeroC Ice for PHP</title>
+        <id>zeroc.ice.php7.1</id>
+        <title>ZeroC Ice for PHP 7.1</title>
         <version>3.7.1</version>
         <authors>ZeroC</authors>
         <copyright>Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved</copyright>

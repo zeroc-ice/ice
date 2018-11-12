@@ -16,6 +16,7 @@
         <CppConfiguration Condition="'$(Configuration)' == 'NTS-Release' or '$(Configuration)' == 'Release'">Release</CppConfiguration>
         <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v141'">7.2</BuildWithPhpVersion>
         <BuildWithPhpVersion Condition="'$(BuildWithPhpVersion)' == '' and '$(DefaultPlatformToolset)' == 'v140'">7.1</BuildWithPhpVersion>
+        <PackageDirectory>zeroc.ice.php$(BuildWithPhpVersion)</PackageDirectory>
     </PropertyGroup>
 
     <Target Name="NuGetRestore" DependsOnTargets="GetNuGet">
@@ -134,18 +135,19 @@
     </Target>
 
     <Target Name="NuGetPack" DependsOnTargets="BuildDist">
-        <RemoveDir Directories="zeroc.ice.php" />
+        <RemoveDir Directories="$(PackageDirectory)" />
 
-        <Copy SourceFiles="zeroc.ice.php.nuspec" DestinationFolder="zeroc.ice.php" />
+        <Copy SourceFiles="$(PackageDirectory).nuspec" DestinationFolder="$(PackageDirectory)" />
 
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=zeroc.ice.php;Platform=x64;Configuration=Release;PlatformToolset=$(DefaultPlatformToolset)"/>
+                 Properties="PackageDirectory=$(PackageDirectory);Platform=x64;Configuration=Release;PlatformToolset=$(DefaultPlatformToolset)"/>
+
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=zeroc.ice.php;Platform=Win32;Configuration=Release;PlatformToolset=$(DefaultPlatformToolset)"/>
+                 Properties="PackageDirectory=$(PackageDirectory);Platform=Win32;Configuration=Release;PlatformToolset=$(DefaultPlatformToolset)"/>
 
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE" DestinationFiles="zeroc.ice.php\ICE_LICENSE.txt" />
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE" DestinationFiles="zeroc.ice.php\LICENSE.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE" DestinationFiles="$(PackageDirectory)\ICE_LICENSE.txt" />
+        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE" DestinationFiles="$(PackageDirectory)\LICENSE.txt" />
 
-        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive" WorkingDirectory="zeroc.ice.php"/>
+        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive" WorkingDirectory="$(PackageDirectory)"/>
     </Target>
 </Project>
