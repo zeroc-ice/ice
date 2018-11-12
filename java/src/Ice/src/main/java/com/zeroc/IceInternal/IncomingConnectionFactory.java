@@ -376,13 +376,14 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             _instance.timer().schedule(() -> startAcceptor(), 1, java.util.concurrent.TimeUnit.SECONDS);
             return;
         }
-
-        assert(_state == StateClosed);
-        setState(StateFinished);
-
-        if(_acceptorStarted && close)
+        else if(_state == StateClosed)
         {
-            closeAcceptor();
+            setState(StateFinished);
+
+            if(_acceptorStarted && close)
+            {
+                closeAcceptor();
+            }
         }
     }
 
@@ -620,22 +621,18 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
 
             case StateClosed:
             {
-                if(_acceptorStarted)
+                //
+                // If possible, close the acceptor now to prevent new connections from
+                // being accepted while we are deactivating. This is especially useful
+                // if there are no more threads in the thread pool available to dispatch
+                // the finish() call.
+                //
+                if(_adapter.getThreadPool().finish(this, true))
                 {
-                    //
-                    // If possible, close the acceptor now to prevent new connections from
-                    // being accepted while we are deactivating. This is especially useful
-                    // if there are no more threads in the thread pool available to dispatch
-                    // the finish() call.
-                    //
-                    if(_adapter.getThreadPool().finish(this, true))
+                    if(_acceptorStarted)
                     {
                         closeAcceptor();
                     }
-                }
-                else
-                {
-                    state = StateFinished;
                 }
 
                 for(ConnectionI connection : _connections)

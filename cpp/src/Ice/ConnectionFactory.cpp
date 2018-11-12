@@ -1578,19 +1578,20 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
         }
         return;
     }
-
-    assert(_state == StateClosed);
-    setState(StateFinished);
-
-    if(_acceptorStarted && close)
+    else if(_state == StateClosed)
     {
-        closeAcceptor();
-    }
+        setState(StateFinished);
+
+        if(_acceptorStarted && close)
+        {
+            closeAcceptor();
+        }
 
 #if TARGET_OS_IPHONE != 0
-    sync.release();
-    unregisterForBackgroundNotification(ICE_SHARED_FROM_THIS);
+        sync.release();
+        unregisterForBackgroundNotification(ICE_SHARED_FROM_THIS);
 #endif
+    }
 }
 
 string
@@ -1841,23 +1842,19 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 
         case StateClosed:
         {
-            if(_acceptorStarted)
+            //
+            // If possible, close the acceptor now to prevent new connections from
+            // being accepted while we are deactivating. This is especially useful
+            // if there are no more threads in the thread pool available to dispatch
+            // the finish() call. Not all selector implementations do support this
+            // however.
+            //
+            if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
             {
-                //
-                // If possible, close the acceptor now to prevent new connections from
-                // being accepted while we are deactivating. This is especially useful
-                // if there are no more threads in the thread pool available to dispatch
-                // the finish() call. Not all selector implementations do support this
-                // however.
-                //
-                if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+                if(_acceptorStarted)
                 {
                     closeAcceptor();
                 }
-            }
-            else
-            {
-                state = StateFinished;
             }
 
 #ifdef ICE_CPP11_COMPILER

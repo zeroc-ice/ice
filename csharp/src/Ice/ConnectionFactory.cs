@@ -1513,8 +1513,10 @@ namespace IceInternal
                     _instance.timer().schedule(new StartAcceptor(this), 1000);
                     return;
                 }
-                Debug.Assert(_state == StateClosed);
-                setState(StateFinished);
+                else if(_state == StateClosed)
+                {
+                    setState(StateFinished);
+                }
             }
         }
 
@@ -1711,14 +1713,10 @@ namespace IceInternal
 
                 case StateClosed:
                 {
+                    _adapter.getThreadPool().finish(this);
                     if(_acceptorStarted)
                     {
-                        _adapter.getThreadPool().finish(this);
                         closeAcceptor();
-                    }
-                    else
-                    {
-                        state = StateFinished;
                     }
 
                     foreach(Ice.ConnectionI connection in _connections)
