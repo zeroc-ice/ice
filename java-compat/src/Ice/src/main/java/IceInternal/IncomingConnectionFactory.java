@@ -373,6 +373,17 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             {
                 closeAcceptor();
             }
+
+            //
+            // If the acceptor got closed because of an un-expected error, try to restart it in 1 second.
+            //
+            _instance.timer().schedule(new Runnable()
+                                       {
+                                            public void run()
+                                            {
+                                                startAcceptor();
+                                            }
+                                       }, 1, java.util.concurrent.TimeUnit.SECONDS);
             return;
         }
 
@@ -718,17 +729,6 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
 
         _acceptorStarted = false;
         _acceptor.close();
-
-        if(_state == StateHolding || _state == StateActive)
-        {
-            _instance.timer().schedule(new Runnable()
-                                       {
-                                            public void run()
-                                            {
-                                                startAcceptor();
-                                            }
-                                       }, 1, java.util.concurrent.TimeUnit.SECONDS);
-        }
     }
 
     private void

@@ -1507,6 +1507,10 @@ namespace IceInternal
             {
                 if(_state < StateClosed)
                 {
+                    //
+                    // If the acceptor got closed because of an un-expected error, try to restart it in 1 second.
+                    //
+                    _instance.timer().schedule(new StartAcceptor(this), 1000);
                     return;
                 }
                 Debug.Assert(_state == StateClosed);
@@ -1796,15 +1800,6 @@ namespace IceInternal
 
             _acceptorStarted = false;
             _acceptor.close();
-
-            //
-            // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
-            // because of an unexpected error), try to restart the acceptor in 5 seconds.
-            //
-            if(_state == StateHolding || _state == StateActive)
-            {
-                _instance.timer().schedule(new StartAcceptor(this), 1000);
-            }
         }
 
         private void warning(Ice.LocalException ex)

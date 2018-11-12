@@ -1566,6 +1566,16 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
         {
             closeAcceptor();
         }
+
+        //
+        // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
+        // because of an unexpected error), try to restart the acceptor in 1 second.
+        //
+        if(!_acceptorStopped)
+        {
+            _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS, _instance),
+                                         IceUtil::Time::seconds(1));
+        }
         return;
     }
 
@@ -1925,14 +1935,4 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
 
     _acceptorStarted = false;
     _acceptor->close();
-
-    //
-    // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
-    // because of an unexpected error), try to restart the acceptor in 1 second.
-    //
-    if(!_acceptorStopped && (_state == StateHolding || _state == StateActive))
-    {
-        _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS, _instance),
-                                     IceUtil::Time::seconds(1));
-    }
 }
