@@ -152,6 +152,27 @@ private:
     InstancePtr _instance;
 };
 
+#if TARGET_OS_IPHONE != 0
+class FinishCall : public DispatchWorkItem
+{
+public:
+
+    FinishCall(const IncomingConnectionFactoryPtr& factory) : _factory(factory)
+    {
+    }
+
+    virtual void
+    run()
+    {
+        _factory->finish();
+    }
+
+private:
+
+    const IncomingConnectionFactoryPtr _factory;
+};
+#endif
+
 }
 
 bool
@@ -1431,9 +1452,13 @@ IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
 
         Error out(_instance->initializationData().logger);
         out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
-        if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+        if(_acceptorStarted)
         {
-            closeAcceptor();
+            _acceptorStarted = false;
+            if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+            {
+                closeAcceptor();
+            }
         }
     }
     return _state < StateClosed;
@@ -1502,6 +1527,8 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
                 Error out(_instance->initializationData().logger);
                 out << "can't accept more connections:\n" << ex << '\n' << _acceptor->toString();
 
+                assert(_acceptorStarted);
+                _acceptorStarted = false;
                 if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
                 {
                     closeAcceptor();
@@ -1562,7 +1589,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state < StateClosed)
     {
-        if(_acceptorStarted && close)
+        if(close)
         {
             closeAcceptor();
         }
@@ -1578,21 +1605,28 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
         }
         return;
     }
-    else if(_state == StateClosed)
-    {
-        setState(StateFinished);
 
-        if(_acceptorStarted && close)
-        {
-            closeAcceptor();
-        }
+    assert(_state == StateClosed);
+    setState(StateFinished);
+
+    if(close)
+    {
+        closeAcceptor();
+    }
 
 #if TARGET_OS_IPHONE != 0
-        sync.release();
-        unregisterForBackgroundNotification(ICE_SHARED_FROM_THIS);
+    sync.release();
+    finish();
 #endif
-    }
 }
+
+#if TARGET_OS_IPHONE != 0
+void
+IceInternal::IncomingConnectionFactory::finish()
+{
+    unregisterForBackgroundNotification(ICE_SHARED_FROM_THIS);
+}
+#endif
 
 string
 IceInternal::IncomingConnectionFactory::toString() const
@@ -1703,7 +1737,7 @@ IceInternal::IncomingConnectionFactory::stopAcceptor()
     }
 
     _acceptorStopped = true;
-
+    _acceptorStarted = false;
     if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
     {
         closeAcceptor();
@@ -1842,19 +1876,27 @@ IceInternal::IncomingConnectionFactory::setState(State state)
 
         case StateClosed:
         {
-            //
-            // If possible, close the acceptor now to prevent new connections from
-            // being accepted while we are deactivating. This is especially useful
-            // if there are no more threads in the thread pool available to dispatch
-            // the finish() call. Not all selector implementations do support this
-            // however.
-            //
-            if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+            if(_acceptorStarted)
             {
-                if(_acceptorStarted)
+                //
+                // If possible, close the acceptor now to prevent new connections from
+                // being accepted while we are deactivating. This is especially useful
+                // if there are no more threads in the thread pool available to dispatch
+                // the finish() call. Not all selector implementations do support this
+                // however.
+                //
+                _acceptorStarted = false;
+                if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
                 {
                     closeAcceptor();
                 }
+            }
+            else
+            {
+#if TARGET_OS_IPHONE != 0
+                _adapter->getThreadPool()->dispatch(new FinishCall(ICE_SHARED_FROM_THIS));
+#endif
+                state = StateFinished;
             }
 
 #ifdef ICE_CPP11_COMPILER
@@ -1930,6 +1972,6 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
         out << "stopping to accept " << _endpoint->protocol() << " connections at " << _acceptor->toString();
     }
 
-    _acceptorStarted = false;
+    assert(!_acceptorStarted);
     _acceptor->close();
 }

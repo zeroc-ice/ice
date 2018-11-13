@@ -205,6 +205,9 @@ public:
 
     virtual void message(ThreadPoolCurrent&);
     virtual void finished(ThreadPoolCurrent&, bool);
+#if TARGET_OS_IPHONE != 0
+    void finish();
+#endif
     virtual std::string toString() const;
     virtual NativeInfoPtr getNativeInfo();
 

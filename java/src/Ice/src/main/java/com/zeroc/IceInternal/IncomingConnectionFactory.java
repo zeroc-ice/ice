@@ -308,6 +308,8 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
                         // Ignore, could be a class loading error.
                     }
 
+                    assert(_acceptorStarted);
+                    _acceptorStarted = false;
                     if(_adapter.getThreadPool().finish(this, true))
                     {
                         closeAcceptor();
@@ -365,25 +367,25 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
     {
         if(_state < StateClosed)
         {
-            if(_acceptorStarted && close)
+            if(close)
             {
                 closeAcceptor();
             }
 
             //
-            // If the acceptor got closed because of an un-expected error, try to restart it in 1 second.
+            // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
+            // because of an unexpected error), try to restart the acceptor in 1 second.
             //
             _instance.timer().schedule(() -> startAcceptor(), 1, java.util.concurrent.TimeUnit.SECONDS);
             return;
         }
-        else if(_state == StateClosed)
-        {
-            setState(StateFinished);
 
-            if(_acceptorStarted && close)
-            {
-                closeAcceptor();
-            }
+        assert(_state == StateClosed);
+        setState(StateFinished);
+
+        if(close)
+        {
+            closeAcceptor();
         }
     }
 
@@ -621,18 +623,23 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
 
             case StateClosed:
             {
-                //
-                // If possible, close the acceptor now to prevent new connections from
-                // being accepted while we are deactivating. This is especially useful
-                // if there are no more threads in the thread pool available to dispatch
-                // the finish() call.
-                //
-                if(_adapter.getThreadPool().finish(this, true))
+                if(_acceptorStarted)
                 {
-                    if(_acceptorStarted)
+                    //
+                    // If possible, close the acceptor now to prevent new connections from
+                    // being accepted while we are deactivating. This is especially useful
+                    // if there are no more threads in the thread pool available to dispatch
+                    // the finish() call.
+                    //
+                    _acceptorStarted = false;
+                    if(_adapter.getThreadPool().finish(this, true))
                     {
                         closeAcceptor();
                     }
+                }
+                else
+                {
+                    state = StateFinished;
                 }
 
                 for(ConnectionI connection : _connections)
@@ -715,7 +722,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.toString());
         }
 
-        _acceptorStarted = false;
+        assert(!_acceptorStarted);
         _acceptor.close();
     }
 

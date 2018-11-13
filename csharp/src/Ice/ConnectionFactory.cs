@@ -1377,8 +1377,12 @@ namespace IceInternal
 
                 string s = "couldn't accept connection:\n" + ex + '\n' + _acceptor.ToString();
                 _instance.initializationData().logger.error(s);
-                _adapter.getThreadPool().finish(this);
-                closeAcceptor();
+                if(_acceptorStarted)
+                {
+                    _acceptorStarted = false;
+                    _adapter.getThreadPool().finish(this);
+                    closeAcceptor();
+                }
             }
             return _state < StateClosed;
         }
@@ -1447,6 +1451,8 @@ namespace IceInternal
                         {
                             string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
                             _instance.initializationData().logger.error(s);
+                            Debug.Assert(_acceptorStarted);
+                            _acceptorStarted = false;
                             _adapter.getThreadPool().finish(this);
                             closeAcceptor();
                         }
@@ -1508,15 +1514,15 @@ namespace IceInternal
                 if(_state < StateClosed)
                 {
                     //
-                    // If the acceptor got closed because of an un-expected error, try to restart it in 1 second.
+                    // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
+                    // because of an unexpected error), try to restart the acceptor in 1 second.
                     //
                     _instance.timer().schedule(new StartAcceptor(this), 1000);
                     return;
                 }
-                else if(_state == StateClosed)
-                {
-                    setState(StateFinished);
-                }
+
+                Debug.Assert(_state == StateClosed);
+                setState(StateFinished);
             }
         }
 
@@ -1713,10 +1719,15 @@ namespace IceInternal
 
                 case StateClosed:
                 {
-                    _adapter.getThreadPool().finish(this);
                     if(_acceptorStarted)
                     {
+                        _acceptorStarted = false;
+                        _adapter.getThreadPool().finish(this);
                         closeAcceptor();
+                    }
+                    else
+                    {
+                        state = StateFinished;
                     }
 
                     foreach(Ice.ConnectionI connection in _connections)
@@ -1796,7 +1807,7 @@ namespace IceInternal
                 _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
             }
 
-            _acceptorStarted = false;
+            Debug.Assert(!_acceptorStarted);
             _acceptor.close();
         }
 
