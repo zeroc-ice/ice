@@ -83,9 +83,9 @@ local exception AlreadyRegisteredException
 {
     /**
      *
-     * The kind of object that is registered already: "servant",
-     * "servant locator", "value factory", "plug-in",
-     * "object adapter", "object", or "user exception factory".
+     * The kind of object that could not be removed: "servant", "facet",
+     * "object", "default servant", "servant locator", "value factory", "plugin",
+     * "object adapter", "object adapter with router", "replica group".
      *
      **/
     string kindOfObject;
@@ -117,9 +117,9 @@ local exception NotRegisteredException
 {
     /**
      *
-     * The kind of object that could not be removed: "servant",
-     * "servant locator", "value factory", "plug-in",
-     * "object adapter", "object", or "user exception factory".
+     * The kind of object that could not be removed: "servant", "facet",
+     * "object", "default servant", "servant locator", "value factory", "plugin",
+     * "object adapter", "object adapter with router", "replica group".
      *
      **/
     string kindOfObject;
