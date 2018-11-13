@@ -38,15 +38,15 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 
 ## C++ Changes
 
-- Fixed a bug where the callback set with the IceUtil::CtrlCHandler was not
-  cleared on destruction of the CtrlCHandler object. Variables captured by the
+- Fixed a bug where the callback set with the `IceUtil::CtrlCHandler` was not
+  cleared on destruction of the `CtrlCHandler` object. Variables captured by the
   callback were therefore not released until static destruction. This fix
-  ensures that the destruction of the CtrlCHandler object now clears the
+  ensures that the destruction of the `CtrlCHandler` object now clears the
   callback.
 
 - Fixed a debug assert in the Windows SChannel IceSSL implementation which would
-  occur in rare circumstances where SChannel returned SEC_E_INCOMPLETE_MESSAGE
-  with a cbBuffer value of 0. This occurred when running the JavaScript tests
+  occur in rare circumstances where SChannel returned `SEC_E_INCOMPLETE_MESSAGE`
+  with a `cbBuffer` value of 0. This occurred when running the JavaScript tests
   with Firefox and using a C++ debug build.
 
 - Fixed a bug in syslog logger that causes the program name not being correctly
@@ -55,27 +55,27 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed an IceStorm bug that prevents topics to being correctly restored from
   the database when there are multiple topics.
 
-- Add support for systemd `Type=Notify` to `Ice::Service`, services
+- Added support for systemd `Type=Notify` to `Ice::Service`, services
   started without `--daemon` command line option will send notifications
-  to systemd using `sd_notify` systemd API.
+  to systemd using the `sd_notify` API.
 
-- Add systemd journal logger, this longer can be enabled by setting `Ice.UseSystemdJournal`
-  property to a value greater than 1.
+- Added systemd journal logger, this logger can be enabled by setting the
+  `Ice.UseSystemdJournal` property to a value greater than 1.
 
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang
   with Android >= 8.0.
 
-- Fixed metrics bug where remote invocations for flushBatchRequests weren't
+- Fixed metrics bug where remote invocations for `flushBatchRequests` weren't
   counted.
 
 - Improved Javadoc support for the Java mapping (and not Java-Compat). Internal
   classes and methods with public or protected visibility are now excluded or
   tagged `@hidden`. Since `@hidden` requires javadoc 9 or greater, javadoc is no
   longer generated with javadoc 8.
-  The new Gradle target `alljavadoc` generates a complete API reference for all Ice
-  components (Ice, IceSSL, IceGrid, IceStorm, Glacier2, etc.).
+  The new Gradle target `alljavadoc` generates a complete API reference for all
+  Ice components (Ice, IceSSL, IceGrid, IceStorm, Glacier2, etc.).
 
 ## JavaScript Changes
 
@@ -92,21 +92,21 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 
 ## C# Changes
 
-- Fixed metrics bug where remote invocations for flushBatchRequests weren't
+- Fixed metrics bug where remote invocations for `flushBatchRequests` weren't
   counted.
 
 ## Python Changes
 
-- Add support for unmarshalling sequences of basic types using the [buffer
- protocol][1]. This can be enabled using metadata `python:array.array`,
- `python:numpy.ndarray` and `python:memoryview:<factory>`. The first
- two enable mapping to `array.array` and `numpy.ndarray` types respectively
- and the last one allows for a custom factory that is responsible for creating the
- sequence from a `memoryview` object.
+- Added support for unmarshaling sequences of basic types using the [buffer
+  protocol][1]. This can be enabled using the metadata `python:array.array`,
+  `python:numpy.ndarray` or `python:memoryview:<factory>`. The first two enable
+  mapping to the `array.array` and `numpy.ndarray` types respectively and the
+  last one allows to specify a custom Python factory function responsible for
+  creating the sequence from a `memoryview` object.
 
-- Add `python:default`, `python:list` and `python:tuple` metadata
-  which are equivalent to `python:seq:default`, `python:seq:list` and
-  `python:seq:tuple` respectively.
+- Added `python:default`, `python:list` and `python:tuple` metadata which are
+  equivalent to `python:seq:default`, `python:seq:list` and `python:seq:tuple`
+  respectively.
 
 # Changes in Ice 3.7.1
 
