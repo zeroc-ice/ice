@@ -13,6 +13,17 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
+class PingReplyI(Test.PingReply):
+     def __init__(self):
+         self._received = False
+
+     def reply(self, current=None):
+         self._received = True
+
+     def checkReceived(self):
+         return self._received
+
+
 class CallbackBase:
     def __init__(self):
         self._called = False
@@ -1398,6 +1409,21 @@ def allTestsFuture(helper, communicator, collocated):
     cb.check()
     p.opWithUEAsync(ctx).add_done_callback(cb.opWithUE)
     cb.check()
+
+    #
+    # TODO: test add_done_callback_async
+    #
+
+    if not collocated:
+        adapter = communicator.createObjectAdapter("")
+        replyI = PingReplyI()
+        reply = Test.PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI))
+        adapter.activate()
+
+        p.ice_getConnection().setAdapter(adapter)
+        p.pingBiDir(reply)
+        test(replyI.checkReceived())
+        adapter.destroy()
 
     print("ok")
 

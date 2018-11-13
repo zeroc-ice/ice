@@ -46,7 +46,7 @@ public:
     virtual bool supportsAMD(const Ice::Current&);
     virtual bool supportsFunctionalTests(const Ice::Current&);
 
-    virtual void pingBiDir(ICE_IN(Ice::Identity), const Ice::Current&);
+    virtual void pingBiDir(ICE_IN(Test::PingReplyPrxPtr), const Ice::Current&);
 
 private:
 

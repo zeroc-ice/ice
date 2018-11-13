@@ -17,6 +17,30 @@ using namespace std;
 namespace
 {
 
+class PingReplyI : public Test::PingReply
+{
+public:
+    PingReplyI() :
+        _received(false)
+    {
+    }
+
+    virtual void reply(const Ice::Current&)
+    {
+        _received = true;
+    }
+
+    bool checkReceived()
+    {
+        return _received;
+    }
+
+private:
+    bool _received;
+};
+
+ICE_DEFINE_PTR(PingReplyIPtr, PingReplyI);
+
 enum ThrowType { LocalException, UserException, StandardException, OtherException };
 
 #ifdef ICE_CPP11_MAPPING
@@ -2418,6 +2442,22 @@ allTests(Test::TestHelper* helper, bool collocated)
         cout << "ok" << endl;
     }
 
+    if(p->ice_getConnection())
+    {
+        cout << "testing bidir... " << flush;
+        auto adapter = communicator->createObjectAdapter("");
+        auto replyI = make_shared<PingReplyI>();
+        auto reply = Ice::uncheckedCast<Test::PingReplyPrx>(adapter->addWithUUID(replyI));
+        adapter->activate();
+
+        p->ice_getConnection()->setAdapter(adapter);
+        p->pingBiDir(reply);
+        test(replyI->checkReceived());
+        adapter->destroy();
+
+        cout << "ok" << endl;
+    }
+
     p->shutdown();
 
 #else
@@ -4082,6 +4122,22 @@ allTests(Test::TestHelper* helper, bool collocated)
                 // Expected.
             }
         }
+        cout << "ok" << endl;
+    }
+
+    if(p->ice_getConnection())
+    {
+        cout << "testing bidir... " << flush;
+        Ice::ObjectAdapterPtr adapter = communicator->createObjectAdapter("");
+        PingReplyIPtr replyI = new PingReplyI();
+        Test::PingReplyPrx reply = Test::PingReplyPrx::uncheckedCast(adapter->addWithUUID(replyI));
+        adapter->activate();
+
+        p->ice_getConnection()->setAdapter(adapter);
+        p->pingBiDir(reply);
+        test(replyI->checkReceived());
+        adapter->destroy();
+
         cout << "ok" << endl;
     }
 

@@ -57,7 +57,7 @@ interface TestIntf
     float opFloat(float f);
     double opDouble(double d);
 
-    void pingBiDir(Ice::Identity id);
+    void pingBiDir(PingReply* reply);
 }
 
 interface TestIntfController

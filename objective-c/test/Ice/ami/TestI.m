@@ -138,9 +138,11 @@
     return NO;
 }
 
--(void) pingBiDir:(ICEIdentity*)id_ current:(ICECurrent *)current
+-(void) pingBiDir:(id<TestAMIPingReplyPrx>)reply current:(ICECurrent *)current
 {
-    [[TestAMIPingReplyPrx uncheckedCast:[current.con createProxy:id_]] reply];
+    reply = [reply ice_fixed:current.con];
+    id<ICEAsyncResult> result = [reply begin_reply];
+    [reply end_reply:result];
 }
 @end
 

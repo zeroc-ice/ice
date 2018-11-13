@@ -15,6 +15,8 @@ import test.Ice.ami.Test.TestIntfPrx;
 import test.Ice.ami.Test.TestIntfPrxHelper;
 import test.Ice.ami.Test.TestIntfControllerPrx;
 import test.Ice.ami.Test.TestIntfControllerPrxHelper;
+import test.Ice.ami.Test.PingReplyPrx;
+import test.Ice.ami.Test.PingReplyPrxHelper;
 import test.Ice.ami.Test.TestIntfException;
 import test.Ice.ami.Test.Callback_TestIntf_op;
 import test.Ice.ami.Test.Callback_TestIntf_opWithResult;
@@ -30,6 +32,22 @@ public class AMI
         {
             throw new RuntimeException();
         }
+    }
+
+    public static class PingReplyI extends test.Ice.ami.Test._PingReplyDisp
+    {
+        @Override
+        public void reply(Ice.Current current)
+        {
+            _received = true;
+        }
+
+        public boolean checkReceived()
+        {
+            return _received;
+        }
+
+        private boolean _received = false;
     }
 
     private static class CallbackBase
@@ -1151,5 +1169,20 @@ public class AMI
             // Excepted when response and exception callback are both null.
         }
         out.println("ok");
+
+        if(!collocated)
+        {
+            out.print("testing bidir...");
+            Ice.ObjectAdapter adapter = communicator.createObjectAdapter("");
+            PingReplyI replyI = new PingReplyI();
+            PingReplyPrx reply = PingReplyPrxHelper.uncheckedCast(adapter.addWithUUID(replyI));
+            adapter.activate();
+
+            p.ice_getConnection().setAdapter(adapter);
+            p.pingBiDir(reply);
+            test(replyI.checkReceived());
+            adapter.destroy();
+            out.println("ok");
+        }
     }
 }

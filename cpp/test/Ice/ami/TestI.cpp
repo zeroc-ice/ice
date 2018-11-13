@@ -193,9 +193,15 @@ TestIntfI::supportsFunctionalTests(const Ice::Current&)
 }
 
 void
-TestIntfI::pingBiDir(ICE_IN(Ice::Identity) id, const Ice::Current& current)
+TestIntfI::pingBiDir(ICE_IN(Test::PingReplyPrxPtr) reply, const Ice::Current& current)
 {
-    ICE_UNCHECKED_CAST(Test::PingReplyPrx, current.con->createProxy(id))->reply();
+#ifdef ICE_CPP11_MAPPING
+    reply->ice_fixed(current.con)->replyAsync().get();
+#else
+    Test::PingReplyPrx fprx = reply->ice_fixed(current.con);
+    Ice::AsyncResultPtr result = fprx->begin_reply();
+    fprx->end_reply(result);
+#endif
 }
 
 void

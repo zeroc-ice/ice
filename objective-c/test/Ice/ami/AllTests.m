@@ -13,6 +13,23 @@
 
 #import <Foundation/Foundation.h>
 
+@interface TestAMIPingReplyI : TestAMIPingReply<TestAMIPingReply>
+{
+    BOOL _received;
+}
+@end
+
+@implementation TestAMIPingReplyI
+-(void) reply:(ICECurrent*)__unused current
+{
+    _received = YES;
+}
+-(BOOL) checkReceived
+{
+    return _received;
+}
+@end
+
 @interface TestAMICallback : NSObject
 {
     BOOL called;
@@ -848,5 +865,19 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
     tprintf("ok\n");
 
+    if([p ice_getConnection])
+    {
+        tprintf("testing bidir... ");
+        id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@""];
+        TestAMIPingReplyI* replyI = [TestAMIPingReplyI pingReply];
+        id<TestAMIPingReplyPrx> reply = [TestAMIPingReplyPrx uncheckedCast:[adapter addWithUUID:replyI]];
+        [adapter activate];
+
+        [[p ice_getConnection] setAdapter:adapter];
+        [p pingBiDir:reply];
+        test([replyI checkReceived]);
+        [adapter destroy];
+        tprintf("ok\n");
+    }
     [p shutdown];
 }

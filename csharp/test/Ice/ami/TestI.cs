@@ -152,15 +152,18 @@ namespace Ice
             }
 
             override public void
-            pingBiDir(Ice.Identity id, Ice.Current current)
+            pingBiDir(Test.PingReplyPrx reply, Ice.Current current)
             {
-                var p = Test.PingReplyPrxHelper.uncheckedCast(current.con.createProxy(id));
-                p.replyAsync().ContinueWith(
+                reply = Test.PingReplyPrxHelper.uncheckedCast(reply.ice_fixed(current.con));
+                Thread dispatchThread = Thread.CurrentThread;
+                reply.replyAsync().ContinueWith(
                    (t) =>
                     {
-                        test(Thread.CurrentThread.Name.Contains("Ice.ThreadPool.Server"));
+                        Thread callbackThread = Thread.CurrentThread;
+                        test(dispatchThread != callbackThread);
+                        test(callbackThread.Name.Contains("Ice.ThreadPool.Server"));
                     },
-                    p.ice_scheduler()).Wait();
+                    reply.ice_scheduler()).Wait();
             }
 
             Test.TestIntfPrx

@@ -42,42 +42,17 @@ public class AllTests
     public static class PingReplyI implements test.Ice.ami.Test.PingReply
     {
         @Override
-        public synchronized void reply(com.zeroc.Ice.Current current)
+        public void reply(com.zeroc.Ice.Current current)
         {
-            ++_replies;
-            notify();
+            _received = true;
         }
 
-        public synchronized void reset()
+        public boolean checkReceived()
         {
-             _replies = 0;
+            return _received;
         }
 
-        public synchronized boolean waitReply(int expectedReplies, long timeout)
-        {
-            long end = System.currentTimeMillis() + timeout;
-            while(_replies < expectedReplies)
-            {
-                long delay = end - System.currentTimeMillis();
-                if(delay > 0)
-                {
-                    try
-                    {
-                        wait(delay);
-                    }
-                    catch(java.lang.InterruptedException ex)
-                    {
-                    }
-                }
-                else
-                {
-                    break;
-                }
-            }
-            return _replies == expectedReplies;
-        }
-
-        private int _replies;
+        private boolean _received = false;
     }
 
     private static class Callback
@@ -1109,8 +1084,8 @@ public class AllTests
                 adapter.activate();
 
                 p.ice_getConnection().setAdapter(adapter);
-                p.pingBiDir(reply.ice_getIdentity());
-                replyI.waitReply(1, 100);
+                p.pingBiDir(reply);
+                test(replyI.checkReceived());
                 adapter.destroy();
             }
         }

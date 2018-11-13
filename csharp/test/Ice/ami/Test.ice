@@ -56,7 +56,7 @@ interface TestIntf
     ["amd"] void opWithUEAsyncDispatch()
         throws TestIntfException;
 
-    void pingBiDir(Ice::Identity id);
+    void pingBiDir(PingReply* reply);
 }
 
 interface TestIntfController
