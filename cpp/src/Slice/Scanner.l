@@ -394,7 +394,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                     while(size > 0)
                     {
                         next = yyinput();
-                        if(!isxdigit(static_cast<unsigned char>(next)))
+                        if(!isxdigit(next))
                         {
                             unit->error(string("unknown escape sequence in string literal: `\\") +
                                                static_cast<char>(c) + escape + static_cast<char>(next) + "'");
@@ -424,7 +424,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                 default:
                 {
                     ostringstream os;
-                    os << "unknown escape sequence `\\" << next << "'";
+                    os << "unknown escape sequence `\\" << static_cast<char>(next) << "'";
                     unit->warning(All, os.str());
 
                     // Escape the \ in this unknown escape sequence
