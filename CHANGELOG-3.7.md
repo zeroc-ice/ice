@@ -62,6 +62,10 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Added systemd journal logger, this logger can be enabled by setting the
   `Ice.UseSystemdJournal` property to a value greater than 1.
 
+- Fixed memory leak in the Ice iAP transport where the `EASession` object wasn't
+  correctly released. Thanks to @astreube on GitHub for reporting and suggesting
+  a fix.
+
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang
