@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.props" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.props') And '$(ICE_BIN_DIST)' == 'cpp'" />
+  <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.2\build\native\zeroc.ice.v140.props" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.2\build\native\zeroc.ice.v140.props') And '$(ICE_BIN_DIST)' == 'cpp'" />
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -235,7 +235,7 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" />
+    <Import Project="..\..\..\msbuild\packages\zeroc.ice.v140.3.7.2\build\native\zeroc.ice.v140.targets" Condition="Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.2\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" />
     <Import Project="..\..\..\msbuild\packages\php-7.1-nts.7.1.17\build\native\php-7.1-nts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.1-nts.7.1.17\build\native\php-7.1-nts.targets')" />
     <Import Project="..\..\..\msbuild\packages\php-7.1-ts.7.1.17\build\native\php-7.1-ts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.1-ts.7.1.17\build\native\php-7.1-ts.targets')" />
     <Import Project="..\..\..\msbuild\packages\php-7.2-nts.7.2.8\build\native\php-7.2-nts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.2-nts.7.2.8\build\native\php-7.2-nts.targets')" />
@@ -245,8 +245,8 @@
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.props') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.props'))" />
-    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v140.3.7.1\build\native\zeroc.ice.v140.targets'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.2\build\native\zeroc.ice.v140.props') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v140.3.7.2\build\native\zeroc.ice.v140.props'))" />
+    <Error Condition="!Exists('..\..\..\msbuild\packages\zeroc.ice.v140.3.7.2\build\native\zeroc.ice.v140.targets') And '$(ICE_BIN_DIST)' == 'cpp'" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\zeroc.ice.v140.3.7.2\build\native\zeroc.ice.v140.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\php-7.1-nts.7.1.17\build\native\php-7.1-nts.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\php-7.1-nts.7.1.17\build\native\php-7.1-nts.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\php-7.1-ts.7.1.17\build\native\php-7.1-ts.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\php-7.1-ts.7.1.17\build\native\php-7.1-ts.targets'))" />
     <Error Condition="!Exists('..\..\..\msbuild\packages\php-7.2-nts.7.2.8\build\native\php-7.2-nts.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\..\msbuild\packages\php-7.2-nts.7.2.8\build\native\php-7.2-nts.targets'))" />

@@ -3,7 +3,7 @@
   <metadata>
     <id>zeroc.ice.v120</id>
     <title>ZeroC Ice C++ for Visual Studio 2013</title>
-    <version>3.7.1</version>
+    <version>3.7.2</version>
     <authors>ZeroC</authors>
     <copyright>Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved</copyright>
     <licenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</licenseUrl>
@@ -11,7 +11,7 @@
     <iconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Ice C++ SDK for Visual Studio 2013 (v120). Ice is a comprehensive RPC framework that helps you network your software with minimal effort.</description>
-    <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.1+Release+Notes</releaseNotes>
+    <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.2+Release+Notes</releaseNotes>
     <tags>ice native rpc v120 zeroc</tags>
   </metadata>
 </package>

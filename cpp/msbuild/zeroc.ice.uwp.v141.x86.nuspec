@@ -3,7 +3,7 @@
   <metadata>
     <id>zeroc.ice.uwp.v141.x86</id>
     <title>ZeroC Ice for UWP and Visual Studio 2017</title>
-    <version>3.7.1</version>
+    <version>3.7.2</version>
     <authors>ZeroC</authors>
     <copyright>Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved</copyright>
     <licenseUrl>https://raw.githubusercontent.com/zeroc-ice/ice/3.7/ICE_LICENSE</licenseUrl>
@@ -11,7 +11,7 @@
     <iconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>x86 subset of the Ice C++/CX SDK. Installed by zeroc.ice.uwp.v141.</description>
-    <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.1+Release+Notes</releaseNotes>
+    <releaseNotes>https://doc.zeroc.com/display/Rel/Ice+3.7.2+Release+Notes</releaseNotes>
     <tags>ice native rpc uwp v141 x86 zeroc</tags>
   </metadata>
 </package>

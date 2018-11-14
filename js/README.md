@@ -190,9 +190,9 @@ following command:
 npm pack
 ```
 
-This will generate the file `ice-3.7.1.tgz`, which can be installed by running:
+This will generate the file `ice-3.7.2.tgz`, which can be installed by running:
 ```
-npm install ice-3.7.1.tgz
+npm install ice-3.7.2.tgz
 ```
 
 To use Ice for JavaScript with a browser, copy the appropriate JavaScript

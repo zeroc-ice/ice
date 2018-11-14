@@ -12,8 +12,8 @@
 
 #include "winver.h"
 
-#define ICE_VERSION 3,7,1,0
-#define ICE_STRING_VERSION "3.7.1\0"
+#define ICE_VERSION 3,7,2,0
+#define ICE_STRING_VERSION "3.7.2\0"
 #define ICE_SO_VERSION "37\0"
 #define ICE_COMPANY_NAME "ZeroC, Inc.\0"
 #define ICE_COPYRIGHT "\251 2003-2018 ZeroC, Inc.\0"

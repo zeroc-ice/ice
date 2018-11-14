@@ -2,11 +2,11 @@
 <!-- Copyright (c) 2009-2018 ZeroC, Inc. All rights reserved. -->
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '12.0'">
-        <IceVersion>3.7.1</IceVersion>
-        <IceIntVersion>30701</IceIntVersion>
+        <IceVersion>3.7.2</IceVersion>
+        <IceIntVersion>30702</IceIntVersion>
         <IceVersionMM>3.7</IceVersionMM>
         <IceSoVersion>37</IceSoVersion>
-        <IceNugetPackageVersion>3.7.1</IceNugetPackageVersion>
+        <IceNugetPackageVersion>3.7.2</IceNugetPackageVersion>
         <IceHome>$(MSBuildThisFileDirectory)..\..</IceHome>
         <IceToolsPath>$(IceHome)\tools</IceToolsPath>
     </PropertyGroup>
