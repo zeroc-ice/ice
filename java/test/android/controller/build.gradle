@@ -86,10 +86,10 @@ clean {
 
 ext.localDependency = { artifact ->
     if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
-        return "com.zeroc:${artifact}:${iceVersion}"
+        return files("${rootProject.projectDir}/../../../lib/${artifact}-${iceVersion}.jar")
     }
     else {
-        return files("${rootProject.projectDir}/../../../lib/${artifact}-${iceVersion}.jar")
+        return "com.zeroc:${artifact}:${iceVersion}"
     }
 }
 dependencies {
