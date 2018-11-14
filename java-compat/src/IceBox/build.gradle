@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
 project.ext.displayName = "IceBox Compat"
 project.ext.description = "IceBox is an easy-to-use framework for Ice application services"
 

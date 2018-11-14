@@ -283,7 +283,7 @@ Run the tests with the Android emulator by running the following command:
 
 ```
 cd test/android
-python allTests.py --androidemulator --controller-app
+python allTests.py --android --controller-app
 ```
 
 To run the tests on a specific Android connected device, you can use the

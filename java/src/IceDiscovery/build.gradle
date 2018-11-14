@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
-
 project.ext.displayName = "IceDiscovery"
 project.ext.description = "Allow Ice applications to discover objects and object adapters"
 

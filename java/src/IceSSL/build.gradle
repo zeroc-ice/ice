@@ -7,15 +7,11 @@
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
-
 project.ext.displayName = "IceSSL"
 project.ext.description = "The IceSSL plug-in"
 
 slice {
     java {
-
         nostream {
             files = fileTree(dir: "$project.ext.topSrcDir/slice", includes:['IceSSL/*.ice'])
         }

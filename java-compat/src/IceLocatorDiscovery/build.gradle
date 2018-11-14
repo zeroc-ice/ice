@@ -7,9 +7,6 @@
 //
 // **********************************************************************
 
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
-
 project.ext.displayName = "IceLocatorDiscovery Compat"
 project.ext.description = "Ice plug-in that enables the discovery of IceGrid and custom locators via UDP multicast"
 
