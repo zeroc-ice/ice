@@ -219,7 +219,7 @@ the Ice test suite controller.
 Building any Ice application for Android requires Android Studio and the Android
 SDK build tools. We tested with the following components:
 
-- Android Studio 3.0.1
+- Android Studio 3.2.1
 - Android SDK 24
 - Android Build Tools 27.0.1
 
