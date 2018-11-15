@@ -26,6 +26,7 @@ apply plugin: "com.zeroc.gradle.ice-builder.slice"
 
 slice {
     compat = true
+    output = file("${project.buildDir}/generated/source/ice")
     cppConfiguration = this.cppConfiguration
     cppPlatform = this.cppPlatform
     if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {

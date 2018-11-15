@@ -25,6 +25,7 @@ apply plugin: 'com.android.application'
 apply plugin: "com.zeroc.gradle.ice-builder.slice"
 
 slice {
+    output = file("${project.buildDir}/generated/source/ice")
     cppConfiguration = this.cppConfiguration
     cppPlatform = this.cppPlatform
     if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
