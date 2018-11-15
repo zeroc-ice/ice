@@ -153,7 +153,7 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
 #ifdef ICE_USE_IOCP
     ULONG_PTR key;
     LPOVERLAPPED ol;
-    error = 0;
+    error = ERROR_SUCCESS;
 
     if(!GetQueuedCompletionStatus(_handle, &count, &key, &ol, timeout > 0 ? timeout * 1000 : INFINITE))
     {
@@ -177,7 +177,7 @@ Selector::getNextHandler(SocketOperation& status, int timeout)
         {
             status = info->status;
         }
-        count = static_cast<DWORD>(SOCKET_ERROR);
+        count = 0;
         error = WSAGetLastError();
         return reinterpret_cast<EventHandler*>(key);
     }

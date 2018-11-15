@@ -92,7 +92,7 @@ StreamSocket::connect(Buffer& readBuffer, Buffer& writeBuffer)
 #if defined(ICE_USE_IOCP)
         doFinishConnectAsync(_fd, _write);
 #elif defined(ICE_OS_UWP)
-        if(_write.count == SOCKET_ERROR)
+        if(_write.error != ERROR_SUCCESS)
         {
             try
             {
@@ -389,6 +389,7 @@ StreamSocket::startWrite(Buffer& buf)
 
     _write.buf.len = static_cast<DWORD>(packetSize);
     _write.buf.buf = reinterpret_cast<char*>(&*buf.i);
+    _write.error = ERROR_SUCCESS;
     int err = WSASend(_fd, &_write.buf, 1, &_write.count, 0, &_write, ICE_NULLPTR);
     if(err == SOCKET_ERROR)
     {
@@ -415,7 +416,7 @@ StreamSocket::finishWrite(Buffer& buf)
         return;
     }
 
-    if(static_cast<int>(_write.count) == SOCKET_ERROR)
+    if(_write.error != ERROR_SUCCESS)
     {
         WSASetLastError(_write.error);
         if(connectionLost())
@@ -444,6 +445,7 @@ StreamSocket::startRead(Buffer& buf)
     size_t packetSize = getRecvPacketSize(length);
     _read.buf.len = static_cast<DWORD>(packetSize);
     _read.buf.buf = reinterpret_cast<char*>(&*buf.i);
+    _read.error = ERROR_SUCCESS;
     int err = WSARecv(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_read, ICE_NULLPTR);
     if(err == SOCKET_ERROR)
     {
@@ -469,7 +471,7 @@ StreamSocket::finishRead(Buffer& buf)
         return;
     }
 
-    if(static_cast<int>(_read.count) == SOCKET_ERROR)
+    if(_read.error != ERROR_SUCCESS)
     {
         WSASetLastError(_read.error);
         if(connectionLost())
@@ -554,7 +556,7 @@ StreamSocket::finishWrite(Buffer& buf)
         return;
     }
 
-    if(_write.count == SOCKET_ERROR)
+    if(_write.error != ERROR_SUCCESS)
     {
         checkErrorCode(__FILE__, __LINE__, _write.error);
     }
@@ -586,7 +588,7 @@ StreamSocket::finishRead(Buffer& buf)
         return;
     }
 
-    if(_read.count == SOCKET_ERROR)
+    if(_read.error != ERROR_SUCCESS)
     {
         checkErrorCode(__FILE__, __LINE__, _read.error);
     }

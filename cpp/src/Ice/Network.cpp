@@ -910,6 +910,7 @@ IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, b
     if(checkIfErrorOrCompleted(op, action, action->Status, connect))
     {
         asyncInfo->count = 0;
+        asyncInfo->error = ERROR_SUCCESS;
     }
     else
     {
@@ -933,13 +934,13 @@ IceInternal::NativeInfo::queueActionCompleted(SocketOperation op, AsyncInfo* asy
 {
     if(status != Windows::Foundation::AsyncStatus::Completed)
     {
-        asyncInfo->count = SOCKET_ERROR;
         asyncInfo->error = info->ErrorCode.Value;
     }
     else
     {
-        asyncInfo->count = 0;
+        asyncInfo->error = ERROR_SUCCESS;
     }
+    asyncInfo->count = 0;
     completed(op);
 }
 
@@ -958,6 +959,7 @@ IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsi
         // the AsyncInfo structure after calling the completed callback.
         //
         info->count = static_cast<int>(operation->GetResults());
+        info->error = ERROR_SUCCESS;
         _completedHandler(op);
         return;
     }
@@ -988,12 +990,13 @@ IceInternal::NativeInfo::queueOperationCompleted(SocketOperation op, AsyncInfo* 
 {
     if(status != Windows::Foundation::AsyncStatus::Completed)
     {
-        info->count = SOCKET_ERROR;
+        info->count = 0;
         info->error = operation->ErrorCode.Value;
     }
     else
     {
         info->count = static_cast<int>(operation->GetResults());
+        info->error = ERROR_SUCCESS;
     }
     completed(op);
 }
@@ -3036,7 +3039,7 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
     // failure to connect. The socket isn't closed by this method.
     //
 
-    if(static_cast<int>(info.count) == SOCKET_ERROR)
+    if(info.error != ERROR_SUCCESS)
     {
         WSASetLastError(info.error);
         if(connectionRefused())

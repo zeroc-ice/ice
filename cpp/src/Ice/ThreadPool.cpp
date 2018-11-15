@@ -765,8 +765,8 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 #ifdef ICE_OS_UWP
             current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, _threadIdleTime));
 #else
-            current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count, current._error,
-                               _threadIdleTime));
+            current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
+                                                                                 current._error, _threadIdleTime));
 #endif
         }
         catch(const SelectorTimeoutException&)
@@ -817,7 +817,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 #else
 
                 current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
-                                   current._error, _serverIdleTime));
+                                                            current._error, _serverIdleTime));
 #endif
             }
             catch(const SelectorTimeoutException&)

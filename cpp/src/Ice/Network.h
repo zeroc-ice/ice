@@ -164,7 +164,7 @@ struct ICE_API AsyncInfo : WSAOVERLAPPED
     WSABUF buf;
     DWORD flags;
     DWORD count;
-    int error;
+    DWORD error;
 };
 #elif defined(ICE_OS_UWP)
 struct ICE_API AsyncInfo

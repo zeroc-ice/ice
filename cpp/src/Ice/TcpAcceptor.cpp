@@ -131,6 +131,7 @@ IceInternal::TcpAcceptor::startAccept()
     assert(_acceptFd == INVALID_SOCKET);
     _acceptFd = createSocket(false, _addr);
     const int sz = static_cast<int>(_acceptBuf.size() / 2);
+    _info.error = ERROR_SUCCESS;
     if(!AcceptEx(_fd, _acceptFd, &_acceptBuf[0], 0, sz, sz, &_info.count, &_info))
     {
         if(!wouldBlock())
@@ -143,7 +144,7 @@ IceInternal::TcpAcceptor::startAccept()
 void
 IceInternal::TcpAcceptor::finishAccept()
 {
-    if(static_cast<int>(_info.count) == SOCKET_ERROR || _fd == INVALID_SOCKET)
+    if(_info.error != ERROR_SUCCESS || _fd == INVALID_SOCKET)
     {
         closeSocketNoThrow(_acceptFd);
         _acceptFd = INVALID_SOCKET;
