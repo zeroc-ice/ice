@@ -20,5 +20,5 @@ test/es5
 #
 # Typescript test generated files
 #
-test/ts/**/*.js
-test/ts/**/*.d.ts
+test/typescript/**/*.js
+test/typescript/**/*.d.ts
