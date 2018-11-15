@@ -209,20 +209,17 @@ MSBuild msbuild\ice.proj /t:UWPXamarinBuild
 #### Running the Android test suite
 
 ```
-set PATH=%LOCALAPPDATA%\Android\sdk\tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\tools\bin;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 
-cd test\xamarin\controller.Android
-python allTests.py --androidemulator --controller-app --config Release --platform x64
+python allTests.py --android --controller-app --config Release --platform x64
 ```
 
 #### Running the UWP test suite
 
 ```
-cd test\xamarin\controller.UWP
-python allTests.py --controller-app --config Release --platform x64
+python allTests.py --uwp --controller-app --config Release --platform x64
 ```
 
 ### Building on macOS
@@ -250,15 +247,13 @@ export PATH=~/Library/Android/sdk/tools/bin:$PATH
 export PATH=~/Library/Android/sdk/platform-tools:$PATH
 export PATH=~/Library/Android/sdk/emulator:$PATH
 
-cd test/xamarin/controller.Android
-python allTests.py --androidemulator --controller-app --config Release --platform x64
+python allTests.py --android --controller-app --config Release --platform x64
 ```
 
 #### Running the iOS test suite
 
 ```
-cd test/xamarin/controller.iOS
-python allTests.py --controller-app --platform iphonesimulator --config Release
+python allTests.py --controller-app --config Release --platform iphonesimulator
 ```
 
 [1]: https://zeroc.com/distributions/ice

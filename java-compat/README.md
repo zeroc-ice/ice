@@ -230,7 +230,7 @@ export PATH=~/Library/Android/sdk/emulator:$PATH
 On Windows, you can use the following commands:
 
 ```
-set PATH=%LOCALAPPDATA%\Android\sdk\tools;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\tools\bin;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
 set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 ```
@@ -238,7 +238,6 @@ set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
 Run the tests with the Android emulator by running the following command:
 
 ```
-cd test/android
 python allTests.py --android --controller-app
 ```
 
@@ -246,8 +245,7 @@ To run the tests on a specific Android connected device, you can use the
 `--device` argument as shown below:
 
 ```
-cd test/android
-python allTests.py --device=ZX1C2234XF --controller-app
+python allTests.py --android --device=ZX1C2234XF --controller-app
 ```
 
 You can see the list of connected devices with the `adb` command:
