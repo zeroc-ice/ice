@@ -41,7 +41,8 @@ endif
 
 # Remove the -Wstrict-prototypes option which is not valid with C++ and
 # -Wunreachable-code which is causing a compilation error with Slice/Parser.cpp
-python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$(python_cppflags)) -Wno-missing-field-initializers
+python_cppflags         := $(filter-out -Wredundant-decls -Wunreachable-code -Wstrict-prototypes,$(python_cppflags))
+python_cppflags         := $(python_cppflags) -Wno-redundant-decls -Wno-missing-field-initializers
 
 #
 # Python installation directory
