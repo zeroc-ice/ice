@@ -24,6 +24,10 @@ PYTHON              ?= python
 python-version := $(shell $(PYTHON) -c "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))")
 python-config := python$(python-version)-config
 
+ifeq ($(os),Linux)
+   cppflags   := $(filter-out -Wredundant-decls,$(cppflags))
+endif
+
 python_cppflags         := $(shell $(python-config) --cflags)
 python_ldflags          := $(shell $(python-config) --ldflags)
 # Use .so as default value --extension-suffix is not supported by python-config in all platforms
@@ -41,8 +45,7 @@ endif
 
 # Remove the -Wstrict-prototypes option which is not valid with C++ and
 # -Wunreachable-code which is causing a compilation error with Slice/Parser.cpp
-python_cppflags         := $(filter-out -Wredundant-decls -Wunreachable-code -Wstrict-prototypes,$(python_cppflags))
-python_cppflags         := $(python_cppflags) -Wno-redundant-decls -Wno-missing-field-initializers
+python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$(python_cppflags)) -Wno-missing-field-initializers
 
 #
 # Python installation directory
