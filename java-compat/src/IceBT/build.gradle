@@ -24,7 +24,7 @@ apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"
 
 jar {
     //
-    // The classes in src/main/java/android/bluetooth are stubs that allow us to implementation the IceBT transport
+    // The classes in src/main/java/android/bluetooth are stubs that allow us to compile the IceBT transport
     // plug-in without requiring an Android SDK. These classes are excluded from the IceBT JAR file.
     //
     exclude("android/**")
