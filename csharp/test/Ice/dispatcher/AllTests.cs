@@ -202,7 +202,7 @@ public class AllTests : Test.AllTests
             // Expect InvocationTimeoutException.
             //
             {
-                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(10));
+                Test.TestIntfPrx to = Test.TestIntfPrxHelper.uncheckedCast(p.ice_invocationTimeout(20));
                 to.sleepAsync(500).ContinueWith(
                     previous =>
                     {
