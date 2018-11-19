@@ -59,7 +59,7 @@ else {
 }
 
 task proguardJar(type: proguard.gradle.ProGuardTask, dependsOn: jar) {
-    injars configurations.compile.resolve(), filter: "!META-INF/**"
+    injars configurations.runtimeClasspath.resolve(), filter: "!META-INF/**"
     injars "${projectDir}/build/libs/${tmpJarName}"
     outjars "${libDir}/${jarName}"
     libraryjars project.ext.libJars
