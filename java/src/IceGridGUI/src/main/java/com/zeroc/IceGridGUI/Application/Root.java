@@ -124,6 +124,28 @@ public class Root extends ListTreeNode
     }
 
     @Override
+    public void delete()
+    {
+        if(_file == null && !_live)
+        {
+            int confirm = JOptionPane.showConfirmDialog(_coordinator.getMainFrame(),
+                                                        "You are about to remove application '" + _id + "'. "
+                                                        + "Do you want to proceed?",
+                                                        "Remove Confirmation",
+                                                        JOptionPane.YES_NO_OPTION);
+
+            if(confirm == JOptionPane.YES_OPTION)
+            {
+                super.delete();
+            }
+        }
+        else
+        {
+            super.delete();
+        }
+    }
+
+    @Override
     public Editor getEditor()
     {
         if(_editor == null)
