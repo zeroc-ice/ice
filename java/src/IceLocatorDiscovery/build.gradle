@@ -17,7 +17,7 @@ slice {
 }
 
 dependencies {
-    compile project(':ice')
+    implementation project(':ice')
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

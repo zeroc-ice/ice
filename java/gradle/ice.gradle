@@ -46,20 +46,16 @@ buildscript {
 // from gradle-ice-builder-plugin package and this is not possible when using gradle 3.2
 // included in stretch and the Plugin DSL.
 //
-if (!project.plugins.findPlugin(com.zeroc.gradle.icebuilder.slice.SlicePlugin)) {
-    project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
-}
+project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
 
 slice {
-    cppConfiguration = this.cppConfiguration
-    cppPlatform = this.cppPlatform
+    cppConfiguration = project.cppConfiguration
+    cppPlatform = project.cppPlatform
     if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
-        iceHome =  this.hasProperty('iceHome') ? this.iceHome
+        iceHome =  project.hasProperty('iceHome') ? project.iceHome
             : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File(project.ext.topSrcDir).getCanonicalPath()
     }
 }
-
-ext.generatedDir = "$project.buildDir/generated"
 
 // Android does not have a compileJava task
 if(!(project.hasProperty('android') && project.android.sourceSets)) {
@@ -77,20 +73,18 @@ if(!(project.hasProperty('android') && project.android.sourceSets)) {
 sourceCompatibility = "1.${targetJavaRelease}"
 targetCompatibility = "1.${targetJavaRelease}"
 
-def env = System.getenv()
-
 // Determine the name of the Slice-to-Java translator
 def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 
 // If the prefix isn't set use these default locations.
-if (!prefix) {
+if(!prefix) {
     def prefixVersion = iceVersion
     if(prefixVersion.indexOf(".0-alpha")){
         prefixVersion = prefixVersion.replace(".0-alpha", "a")
     } else if(prefixVersion.indexOf(".0-beta")){
         prefixVersion = prefixVersion.replace(".0-beta", "b")
     }
-    if (isWindows) {
+    if(isWindows) {
         prefix = "C:\\Ice-${prefixVersion}"
     } else {
         prefix = "/opt/Ice-${prefixVersion}"
@@ -101,7 +95,7 @@ if (!prefix) {
 //
 // Note that we exclude /usr/src/packages because it's the RPM build directory on SLES.
 //
-if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.startsWith("/usr/src/packages")) {
+if((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.startsWith("/usr/src/packages")) {
     ext.jarDir = prefix + "/share/java"
     ext.binDir = prefix + "/bin"
 } else {
@@ -110,11 +104,10 @@ if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.st
 }
 
 // Check is DESTDIR is set (non-Windows)
-if (isWindows) {
+if(isWindows) {
     ext.DESTDIR = ""
 }
 
-ext.versionSuffix = "-${project.version}"
 ext.libDir = "$rootProject.projectDir/lib"
 
 ext.searchFile = { List<Closure> places, List<String> searchPaths ->
@@ -138,8 +131,10 @@ ext.searchFile = { List<Closure> places, List<String> searchPaths ->
     }
 }
 
+// Used for the tests
+//
 ext.localDependency = { artifactId ->
-    if (project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
+    if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
         return project(":${artifactId}")
     } else {
         return "com.zeroc:${artifactId}:${project.version}"

@@ -28,8 +28,8 @@ sourceSets {
 }
 
 dependencies {
-    compile localDependency('ice-compat')
-    compile project(':test')
+    implementation localDependency('ice-compat')
+    implementation project(':test')
 }
 
 jar {

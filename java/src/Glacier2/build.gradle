@@ -21,15 +21,13 @@ sourceSets {
 
 slice {
     java {
-        set1 {
-            args = "--checksum com.zeroc.Glacier2.SliceChecksums"
-            files = fileTree(dir: "$project.ext.topSrcDir/slice/Glacier2", includes:['*.ice'], excludes:["*F.ice"])
-        }
+        args = "--checksum com.zeroc.Glacier2.SliceChecksums"
+        files = fileTree(dir: "$project.ext.topSrcDir/slice/Glacier2", includes:['*.ice'], excludes:["*F.ice"])
     }
 }
 
 dependencies {
-    compile project(':ice')
+    implementation project(':ice')
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

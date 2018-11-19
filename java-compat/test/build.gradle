@@ -22,14 +22,14 @@ sourceSets {
 }
 
 dependencies {
-    compile localDependency('ice-compat')
-    compile localDependency('icediscovery-compat')
-    compile localDependency('icelocatordiscovery-compat')
-    compile localDependency('icebox-compat')
-    compile localDependency('glacier2-compat')
-    compile localDependency('icestorm-compat')
-    compile localDependency('icegrid-compat')
-    compile project(':testPlugins')
+    implementation localDependency('ice-compat')
+    runtimeOnly localDependency('icediscovery-compat')
+    runtimeOnly localDependency('icelocatordiscovery-compat')
+    implementation localDependency('icebox-compat')
+    implementation localDependency('glacier2-compat')
+    implementation localDependency('icestorm-compat')
+    implementation localDependency('icegrid-compat')
+    runtimeOnly project(':testPlugins')
 }
 
 if(!gradle.startParameter.isOffline()) {
@@ -42,7 +42,7 @@ jar {
     archiveName = "test.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
     manifest {
-        attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+        attributes("Class-Path": configurations.runtimeClasspath.resolve().collect { it.toURI() }.join(' '))
     }
 }
 

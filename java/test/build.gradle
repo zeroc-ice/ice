@@ -22,20 +22,20 @@ sourceSets {
 }
 
 dependencies {
-    compile localDependency('ice')
-    compile localDependency('icessl')
-    compile localDependency('icediscovery')
-    compile localDependency('icelocatordiscovery')
-    compile localDependency('icebox')
-    compile localDependency('glacier2')
-    compile localDependency('icestorm')
-    compile localDependency('icegrid')
-    compile project(':testPlugins')
+    implementation localDependency('ice')
+    implementation localDependency('icessl')
+    runtimeOnly localDependency('icediscovery')
+    runtimeOnly localDependency('icelocatordiscovery')
+    implementation localDependency('icebox')
+    implementation localDependency('glacier2')
+    implementation localDependency('icestorm')
+    implementation localDependency('icegrid')
+    runtimeOnly project(':testPlugins')
 }
 
 if(!gradle.startParameter.isOffline()) {
     dependencies {
-        runtime "org.apache.commons:commons-compress:1.14"
+        runtimeOnly "org.apache.commons:commons-compress:1.14"
     }
 }
 
@@ -43,7 +43,7 @@ jar {
     archiveName = "test.jar"
     destinationDir = new File("$rootProject.projectDir/lib/")
     manifest {
-        attributes("Class-Path": configurations.runtime.resolve().collect { it.toURI() }.join(' '))
+        attributes("Class-Path": configurations.runtimeClasspath.resolve().collect { it.toURI() }.join(' '))
     }
 }
 

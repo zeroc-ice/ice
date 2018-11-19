@@ -54,21 +54,21 @@ tasks.withType(JavaCompile) {
 }
 
 dependencies {
-      compile project(':ice')
-      compile project(':icessl')
-      compile project(':icelocatordiscovery')
-      compile project(':icebox')
-      compile project(':icestorm')
-      compile project(':glacier2')
-      compile project(':icegrid')
-      compile "com.jgoodies:jgoodies-looks:${jgoodiesLooksVersion}"
-      compile "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
+      implementation project(':ice')
+      implementation project(':icessl')
+      implementation project(':icelocatordiscovery')
+      implementation project(':icebox')
+      implementation project(':icestorm')
+      implementation project(':glacier2')
+      implementation project(':icegrid')
+      implementation "com.jgoodies:jgoodies-looks:${jgoodiesLooksVersion}"
+      implementation "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
 
       if(hasJavaFx && GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
-           compile "org.openjfx:javafx-base:11:$platform"
-           compile "org.openjfx:javafx-swing:11:$platform"
-           compile "org.openjfx:javafx-controls:11:$platform"
-           compile "org.openjfx:javafx-graphics:11:$platform"
+           implementation "org.openjfx:javafx-base:11:$platform"
+           implementation "org.openjfx:javafx-swing:11:$platform"
+           implementation "org.openjfx:javafx-controls:11:$platform"
+           implementation "org.openjfx:javafx-graphics:11:$platform"
       }
 }
 

@@ -12,15 +12,13 @@ project.ext.description = "IceBox is an easy-to-use framework for Ice applicatio
 
 slice {
     java {
-        set1 {
-            args = "--tie --checksum IceBox.SliceChecksums"
+        args = "--tie --checksum IceBox.SliceChecksums"
             files = fileTree(dir: "$project.ext.topSrcDir/slice/IceBox", includes:['*.ice'], excludes:["*F.ice"])
-        }
     }
 }
 
 dependencies {
-    compile project(':ice-compat')
+    implementation project(':ice-compat')
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

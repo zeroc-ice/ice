@@ -12,16 +12,14 @@ project.ext.description = "Locate, deploy, and manage Ice servers"
 
 slice {
     java {
-        set1 {
-            args = "--tie --checksum IceGrid.SliceChecksums"
-            files = fileTree(dir: "$project.ext.topSrcDir/slice/IceGrid", includes:['*.ice'], excludes:["*F.ice"])
-        }
+        args = "--tie --checksum IceGrid.SliceChecksums"
+        files = fileTree(dir: "$project.ext.topSrcDir/slice/IceGrid", includes:['*.ice'], excludes:["*F.ice"])
     }
 }
 
 dependencies {
-    compile project(':ice-compat')
-    compile project(':glacier2-compat')
+    implementation project(':ice-compat')
+    implementation project(':glacier2-compat')
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

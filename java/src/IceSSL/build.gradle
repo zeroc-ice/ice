@@ -12,14 +12,12 @@ project.ext.description = "The IceSSL plug-in"
 
 slice {
     java {
-        nostream {
-            files = fileTree(dir: "$project.ext.topSrcDir/slice", includes:['IceSSL/*.ice'])
-        }
+        files = fileTree(dir: "$project.ext.topSrcDir/slice", includes:['IceSSL/*.ice'])
     }
 }
 
 dependencies {
-    compile project(':ice')
+    implementation project(':ice')
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"
