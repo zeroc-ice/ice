@@ -2264,7 +2264,12 @@ class AndroidProcessController(RemoteProcessController):
             return "Android/ProcessController"
 
     def adb(self):
-        return "adb -s {}".format(self.device) if self.device else "adb"
+        if self.device == "usb":
+            return "adb -d"
+        elif self.device:
+            return "adb -s {}".format(self.device)
+        else:
+            return "adb"
 
     def startEmulator(self, avd):
         #
