@@ -237,16 +237,6 @@ public class Coordinator
             //
         }
 
-        private void disableAllEditMenusAndButtons()
-        {
-            _cut.setTarget(null);
-            _copy.setTarget(null);
-            _paste.setTarget(null);
-            _delete.setTarget(null);
-            _moveUp.setTarget(null);
-            _moveDown.setTarget(null);
-        }
-
         private void enableTextEditActions(JTextComponent target)
         {
             boolean editable = target.isEditable() && target.isEnabled();
@@ -711,6 +701,16 @@ public class Coordinator
     public Action getDiscardUpdatesAction()
     {
         return _discardUpdates;
+    }
+
+    public void disableAllEditMenusAndButtons()
+    {
+        _cut.setTarget(null);
+        _copy.setTarget(null);
+        _paste.setTarget(null);
+        _delete.setTarget(null);
+        _moveUp.setTarget(null);
+        _moveDown.setTarget(null);
     }
 
     //

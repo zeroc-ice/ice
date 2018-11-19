@@ -41,7 +41,7 @@ public class LiveDeploymentPane extends JSplitPane implements Tab
     public void selected()
     {
         Coordinator c = _root.getCoordinator();
-
+        c.disableAllEditMenusAndButtons();
         if(c.connected())
         {
             c.getShowLiveDeploymentFiltersAction().setEnabled(true);
