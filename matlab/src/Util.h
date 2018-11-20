@@ -44,6 +44,7 @@ mxArray* createOptionalValue(bool, mxArray*);
 mxArray* createStringList(const std::vector<std::string>&);
 void getStringList(mxArray*, std::vector<std::string>&);
 mxArray* createByteArray(const Ice::Byte*, const Ice::Byte*);
+mxArray* createByteList(const std::vector<Ice::Byte>&);
 mxArray* createCertificateList(const std::vector<IceSSL::CertificatePtr>&);
 
 std::string idToClass(const std::string&);

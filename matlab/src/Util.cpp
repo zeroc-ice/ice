@@ -429,6 +429,10 @@ IceMatlab::convertException(const std::exception& exc)
         {
             params[idx++] = createIdentity(e.id);
         }
+        catch(const Ice::IllegalServantException& e)
+        {
+            params[idx++] = createStringFromUTF8(e.reason);
+        }
         catch(const Ice::RequestFailedException& e)
         {
             params[idx++] = createIdentity(e.id);
@@ -449,6 +453,11 @@ IceMatlab::convertException(const std::exception& exc)
             params[idx++] = mxCreateDoubleScalar(e.error);
             params[idx++] = createStringFromUTF8(e.host);
         }
+        catch(const Ice::BadMagicException& e)
+        {
+            params[idx++] = createStringFromUTF8(e.reason);
+            params[idx++] = createByteList(e.badMagic);
+        }
         catch(const Ice::UnsupportedProtocolException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
@@ -460,10 +469,6 @@ IceMatlab::convertException(const std::exception& exc)
             params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createEncodingVersion(e.bad);
             params[idx++] = createEncodingVersion(e.supported);
-        }
-        catch(const Ice::ConnectionManuallyClosedException& e)
-        {
-            params[idx++] = mxCreateLogicalScalar(e.graceful ? 1 : 0);
         }
         catch(const Ice::NoValueFactoryException& e)
         {
@@ -480,15 +485,15 @@ IceMatlab::convertException(const std::exception& exc)
         {
             params[idx++] = createStringFromUTF8(e.reason);
         }
+        catch(const Ice::ConnectionManuallyClosedException& e)
+        {
+            params[idx++] = mxCreateLogicalScalar(e.graceful ? 1 : 0);
+        }
         catch(const Ice::FeatureNotSupportedException& e)
         {
             params[idx++] = createStringFromUTF8(e.unsupportedFeature);
         }
         catch(const Ice::SecurityException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-        }
-        catch(const Ice::IllegalServantException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
         }
@@ -595,6 +600,18 @@ IceMatlab::createByteArray(const Ice::Byte* begin, const Ice::Byte* end)
 {
     mxArray* r = mxCreateUninitNumericMatrix(1, end - begin, mxUINT8_CLASS, mxREAL);
     memcpy(reinterpret_cast<Ice::Byte*>(mxGetData(r)), begin, end - begin);
+    return r;
+}
+
+mxArray*
+IceMatlab::createByteList(const vector<Ice::Byte>& v)
+{
+    auto r = mxCreateCellMatrix(1, static_cast<int>(v.size()));
+    mwIndex i = 0;
+    for(auto 0 = v.begin(); p != v.end(); ++p, ++i)
+    {
+        mxSetCell(r, i, createByte(*p));
+    }
     return r;
 }
 
