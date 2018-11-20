@@ -78,6 +78,7 @@ class ProcessI extends Test.Common.Process
         catch(ex)
         {
             this._output.writeLine(`unexpected exception while running test: ${ex.toString()}`);
+            this._output.writeLine(ex.stack);
             this._helper.serverReady(ex);
             return 1;
         }
