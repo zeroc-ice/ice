@@ -515,6 +515,35 @@ IcePy::PyException::getTypeName()
     return result;
 }
 
+PyObject*
+IcePy::byteSeqToList(const Ice::ByteSeq& seq)
+{
+    PyObject* l = PyList_New(0);
+    if(!l)
+    {
+        return 0;
+    }
+
+    for(Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    {
+        PyObject* byte = PyLong_FromLong(*p);
+        if(!byte)
+        {
+            Py_DECREF(l);
+            return 0;
+        }
+        int status = PyList_Append(l, byte);
+        Py_DECREF(byte); // Give ownership to the list.
+        if(status < 0)
+        {
+            Py_DECREF(l);
+            return 0;
+        }
+    }
+
+    return l;
+}
+
 bool
 IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
 {
@@ -774,6 +803,16 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         IcePy::PyObjectHandle m = IcePy::createString(e.str);
         PyObject_SetAttrString(p, STRCAST("str"), m.get());
     }
+    catch(const Ice::EndpointSelectionTypeParseException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::createString(e.str);
+        PyObject_SetAttrString(p, STRCAST("str"), m.get());
+    }
+    catch(const Ice::VersionParseException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::createString(e.str);
+        PyObject_SetAttrString(p, STRCAST("str"), m.get());
+    }
     catch(const Ice::IdentityParseException& e)
     {
         IcePy::PyObjectHandle m = IcePy::createString(e.str);
@@ -788,6 +827,11 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     {
         IcePy::PyObjectHandle m = IcePy::createIdentity(e.id);
         PyObject_SetAttrString(p, STRCAST("id"), m.get());
+    }
+    catch(const Ice::IllegalServantException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
+        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
     }
     catch(const Ice::RequestFailedException& e)
     {
@@ -819,6 +863,11 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         m = IcePy::createString(e.host);
         PyObject_SetAttrString(p, STRCAST("host"), m.get());
     }
+    catch(const Ice::BadMagicException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::byteSeqToList(e.badMagic);
+        PyObject_SetAttrString(p, STRCAST("badMagic"), m.get());
+    }
     catch(const Ice::UnsupportedProtocolException& e)
     {
         IcePy::PyObjectHandle m;
@@ -834,6 +883,10 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         PyObject_SetAttrString(p, STRCAST("bad"), m.get());
         m = IcePy::createEncodingVersion(e.supported);
         PyObject_SetAttrString(p, STRCAST("supported"), m.get());
+    }
+    catch(const Ice::ConnectionManuallyClosedException& e)
+    {
+        PyObject_SetAttrString(p, STRCAST("graceful"), e.graceful ? IcePy::getTrue() : IcePy::getFalse());
     }
     catch(const Ice::NoValueFactoryException& e)
     {
@@ -867,15 +920,6 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     {
         IcePy::PyObjectHandle m = IcePy::createString(e.reason);
         PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch(const Ice::IllegalServantException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch(const Ice::ConnectionManuallyClosedException& e)
-    {
-        PyObject_SetAttrString(p, STRCAST("graceful"), e.graceful ? IcePy::getTrue() : IcePy::getFalse());
     }
     catch(const Ice::LocalException&)
     {
