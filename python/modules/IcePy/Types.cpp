@@ -4170,6 +4170,11 @@ PyObject*
 IcePy::ExceptionInfo::unmarshal(Ice::InputStream* is)
 {
     PyObjectHandle p = createExceptionInstance(pythonType);
+    if(!p.get())
+    {
+        assert(PyErr_Occurred());
+        throw AbortMarshaling();
+    }
 
     ExceptionInfoPtr info = this;
     while(info)
