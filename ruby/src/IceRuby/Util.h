@@ -91,6 +91,12 @@ bool arrayToStringSeq(VALUE, std::vector<std::string>&);
 VALUE stringSeqToArray(const std::vector<std::string>&);
 
 //
+// Convert a vector of Ice::Byte into a Ruby array of numbers.
+// May raise RubyException.
+//
+VALUE createNumSeq(const std::vector<Ice::Byte>&);
+
+//
 // Convert a Ruby hash to Ice::Context. Returns true on success
 // and false if the value is not a hash. May raise RubyException.
 //

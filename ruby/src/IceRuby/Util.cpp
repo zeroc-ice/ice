@@ -386,6 +386,21 @@ IceRuby::stringSeqToArray(const vector<string>& seq)
     return result;
 }
 
+VALUE
+IceRuby::createNumSeq(const vector<Ice::Byte>& v)
+{
+    volatile VALUE result = createArray(v.size());
+    long i = 0;
+    if(v.size() > 0)
+    {
+        for(vector<Ice::Byte>::const_iterator p = v.begin(); p != v.end(); ++p, ++i)
+        {
+            RARRAY_ASET(result, i, INT2FIX(*p));
+        }
+    }
+    return result;
+}
+
 namespace
 {
 
@@ -625,6 +640,16 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         volatile VALUE v = createString(e.str);
         callRuby(rb_iv_set, p, "@str", v);
     }
+    catch(const Ice::EndpointSelectionTypeParseException& e)
+    {
+        volatile VALUE v = createString(e.str);
+        callRuby(rb_iv_set, p, "@str", v);
+    }
+    catch(const Ice::VersionParseException& e)
+    {
+        volatile VALUE v = createString(e.str);
+        callRuby(rb_iv_set, p, "@str", v);
+    }
     catch(const Ice::IdentityParseException& e)
     {
         volatile VALUE v = createString(e.str);
@@ -639,6 +664,11 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     {
         volatile VALUE v = IceRuby::createIdentity(e.id);
         callRuby(rb_iv_set, p, "@id", v);
+    }
+    catch(const Ice::IllegalServantException& e)
+    {
+        volatile VALUE v = createString(e.reason);
+        callRuby(rb_iv_set, p, "@reason", v);
     }
     catch(const Ice::RequestFailedException& e)
     {
@@ -669,6 +699,11 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         callRuby(rb_iv_set, p, "@error", v);
         v = createString(e.host);
         callRuby(rb_iv_set, p, "@host", v);
+    }
+    catch(const Ice::BadMagicException& e)
+    {
+        volatile VALUE v = createNumSeq(e.badMagic);
+        callRuby(rb_iv_set, p, "@badMagic", v);
     }
     catch(const Ice::UnsupportedProtocolException& e)
     {
@@ -709,6 +744,10 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         volatile VALUE v = createString(e.reason);
         callRuby(rb_iv_set, p, "@reason", v);
     }
+    catch(const Ice::ConnectionManuallyClosedException& e)
+    {
+        callRuby(rb_iv_set, p, "@graceful", e.graceful ? Qtrue : Qfalse);
+    }
     catch(const Ice::FeatureNotSupportedException& e)
     {
         volatile VALUE v = createString(e.unsupportedFeature);
@@ -718,10 +757,6 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     {
         volatile VALUE v = createString(e.reason);
         callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch(const Ice::ConnectionManuallyClosedException& e)
-    {
-        callRuby(rb_iv_set, p, "@graceful", e.graceful ? Qtrue : Qfalse);
     }
     catch(const Ice::LocalException&)
     {
