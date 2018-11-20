@@ -50,12 +50,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 24
+    compileSdkVersion 26
 
     defaultConfig {
         applicationId "com.zeroc.testcontroller"
         minSdkVersion 24
-        targetSdkVersion 24
+        targetSdkVersion 26
         multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
