@@ -241,10 +241,10 @@ IceMatlab::createStringMap(const map<string, string>& m)
         auto keys = mxCreateCellArray(2, dims);
         auto values = mxCreateCellArray(2, dims);
         int idx = 0;
-        for(auto p = m.begin(); p != m.end(); ++p)
+        for(auto p : m)
         {
-            mxSetCell(keys, idx, createStringFromUTF8(p->first));
-            mxSetCell(values, idx, createStringFromUTF8(p->second));
+            mxSetCell(keys, idx, createStringFromUTF8(p.first));
+            mxSetCell(values, idx, createStringFromUTF8(p.second));
             idx++;
         }
         mxArray* params[2];
@@ -564,13 +564,13 @@ IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
 }
 
 mxArray*
-IceMatlab::createStringList(const vector<string>& v)
+IceMatlab::createStringList(const vector<string>& strings)
 {
-    auto r = mxCreateCellMatrix(1, static_cast<int>(v.size()));
+    auto r = mxCreateCellMatrix(1, static_cast<int>(strings.size()));
     mwIndex i = 0;
-    for(auto p = v.begin(); p != v.end(); ++p, ++i)
+    for(auto s : strings)
     {
-        mxSetCell(r, i, createStringFromUTF8(*p));
+        mxSetCell(r, i, createStringFromUTF8(s));
     }
     return r;
 }
@@ -604,25 +604,25 @@ IceMatlab::createByteArray(const Ice::Byte* begin, const Ice::Byte* end)
 }
 
 mxArray*
-IceMatlab::createByteList(const vector<Ice::Byte>& v)
+IceMatlab::createByteList(const vector<Ice::Byte>& bytes)
 {
-    auto r = mxCreateCellMatrix(1, static_cast<int>(v.size()));
+    auto r = mxCreateCellMatrix(1, static_cast<int>(bytes.size()));
     mwIndex i = 0;
-    for(auto 0 = v.begin(); p != v.end(); ++p, ++i)
+    for(auto byte : bytes)
     {
-        mxSetCell(r, i, createByte(*p));
+        mxSetCell(r, i++, createByte(byte));
     }
     return r;
 }
 
 mxArray*
-IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& v)
+IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& certs)
 {
-    auto r = mxCreateCellMatrix(1, static_cast<int>(v.size()));
+    auto r = mxCreateCellMatrix(1, static_cast<int>(certs.size()));
     mwIndex i = 0;
-    for(auto p = v.begin(); p != v.end(); ++p, ++i)
+    for(auto cert : certs)
     {
-        mxSetCell(r, i, createStringFromUTF8((*p)->encode()));
+        mxSetCell(r, i++, createStringFromUTF8(cert->encode()));
     }
     return r;
 }
