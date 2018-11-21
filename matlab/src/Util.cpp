@@ -570,7 +570,7 @@ IceMatlab::createStringList(const vector<string>& strings)
     mwIndex i = 0;
     for(auto s : strings)
     {
-        mxSetCell(r, i, createStringFromUTF8(s));
+        mxSetCell(r, i++, createStringFromUTF8(s));
     }
     return r;
 }
