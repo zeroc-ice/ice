@@ -68,6 +68,8 @@ interface Controller
     OptionOverrides getOptionOverrides();
 
     StringSeq getTestSuites(string mapping);
+
+    string getHost(string protocol, bool ipv6);
 }
 
 exception ProcessFailedException

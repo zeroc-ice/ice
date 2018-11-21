@@ -17,11 +17,6 @@ namespace controller.UWP
             LoadApplication(new controller.App(this));
         }
 
-        public bool registerProcessController()
-        {
-            return true;
-        }
-
         public bool isEmulator()
         {
             return false;

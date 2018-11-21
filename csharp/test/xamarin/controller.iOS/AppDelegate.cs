@@ -48,17 +48,12 @@ namespace controller.iOS
 
         public bool isEmulator()
         {
-            return true;
+            return ObjCRuntime.Runtime.Arch == ObjCRuntime.Arch.SIMULATOR;
         }
 
         public string processControllerRegistryHost()
         {
-            return "127.0.0.1";
-        }
-
-        public bool registerProcessController()
-        {
-            return true;
+            return isEmulator() ? "127.0.0.1" : ""; // With an empty host, the controller will use IceDiscovery.
         }
     }
 }

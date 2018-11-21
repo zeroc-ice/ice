@@ -714,7 +714,7 @@ class Mapping(object):
                 if self.ipv6:
                     props["Ice.PreferIPv6Address"] = True
                 if self.mx:
-                    props["Ice.Admin.Endpoints"] = "default -h localhost"
+                    props["Ice.Admin.Endpoints"] = "tcp -h localhost"
                     props["Ice.Admin.InstanceName"] = "Server" if isinstance(process, Server) else "Client"
                     props["IceMX.Metrics.Debug.GroupBy"] ="id"
                     props["IceMX.Metrics.Parent.GroupBy"] = "parent"
@@ -1982,15 +1982,7 @@ class LocalProcessController(ProcessController):
                     current.writeln("saved {0}".format(self.traceFile))
 
     def getHost(self, current):
-        # Depending on the configuration, either use an IPv4, IPv6 or BT address for Ice.Default.Host
-        if current.config.protocol == "bt":
-            if not current.driver.hostBT:
-                raise Test.Common.TestCaseFailedException("no Bluetooth address set with --host-bt")
-            return current.driver.hostBT
-        elif current.config.ipv6:
-            return current.driver.hostIPv6 or "::1"
-        else:
-            return current.driver.host or "127.0.0.1"
+        return current.driver.getHost(current.config.protocol, current.config.ipv6)
 
     def start(self, process, current, args, props, envs, watchDog):
 
@@ -2097,29 +2089,30 @@ class RemoteProcessController(ProcessController):
         def teardown(self, current, success):
             pass
 
-    def __init__(self, current, endpoints=None):
+    def __init__(self, current, endpoints="tcp"):
         self.processControllerProxies = {}
         self.controllerApps = []
+        self.driver = current.driver
         self.cond = threading.Condition()
-        if endpoints:
-            comm = current.driver.getCommunicator()
-            import Test
 
-            class ProcessControllerRegistryI(Test.Common.ProcessControllerRegistry):
+        comm = current.driver.getCommunicator()
+        import Test
 
-                def __init__(self, remoteProcessController):
-                    self.remoteProcessController = remoteProcessController
+        class ProcessControllerRegistryI(Test.Common.ProcessControllerRegistry):
 
-                def setProcessController(self, proxy, current):
-                    import Test
-                    proxy = Test.Common.ProcessControllerPrx.uncheckedCast(current.con.createProxy(proxy.ice_getIdentity()))
-                    self.remoteProcessController.setProcessController(proxy)
+            def __init__(self, remoteProcessController):
+                self.remoteProcessController = remoteProcessController
 
-            self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
-            self.adapter.add(ProcessControllerRegistryI(self), comm.stringToIdentity("Util/ProcessControllerRegistry"))
-            self.adapter.activate()
-        else:
-            self.adapter = None
+            def setProcessController(self, proxy, current):
+                import Test
+                proxy = Test.Common.ProcessControllerPrx.uncheckedCast(current.con.createProxy(proxy.ice_getIdentity()))
+                self.remoteProcessController.setProcessController(proxy)
+
+        import Ice
+        comm.getProperties().setProperty("Adapter.AdapterId", Ice.generateUUID())
+        self.adapter = comm.createObjectAdapterWithEndpoints("Adapter", endpoints)
+        self.adapter.add(ProcessControllerRegistryI(self), comm.stringToIdentity("Util/ProcessControllerRegistry"))
+        self.adapter.activate()
 
     def __str__(self):
         return "remote controller"
@@ -2155,25 +2148,24 @@ class RemoteProcessController(ProcessController):
                 self.controllerApps.append(ident)
                 self.startControllerApp(current, ident)
 
-        if not self.adapter:
-            # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
-            proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
-            try:
-                proxy.ice_ping()
-            except Exception as ex:
-                raise RuntimeError("couldn't reach the remote controller `{0}': {1}".format(proxy, ex))
-
+        # Use well-known proxy and IceDiscovery to discover the process controller object from the app.
+        proxy = Test.Common.ProcessControllerPrx.uncheckedCast(comm.stringToProxy(comm.identityToString(ident)))
+        try:
+            proxy.ice_ping()
             with self.cond:
                 self.processControllerProxies[ident] = proxy
                 return self.processControllerProxies[ident]
-        else:
-            # Wait 30 seconds for a process controller to be registered with the ProcessControllerRegistry
-            with self.cond:
-                if not ident in self.processControllerProxies:
-                    self.cond.wait(30)
-                if ident in self.processControllerProxies:
-                    return self.processControllerProxies[ident]
-            raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
+        except Exception:
+            pass
+
+        # Wait 30 seconds for a process controller to be registered with the ProcessControllerRegistry
+        with self.cond:
+            if not ident in self.processControllerProxies:
+                self.cond.wait(30)
+            if ident in self.processControllerProxies:
+                return self.processControllerProxies[ident]
+
+        raise RuntimeError("couldn't reach the remote controller `{0}'".format(ident))
 
     def setProcessController(self, proxy):
         with self.cond:
@@ -2245,7 +2237,7 @@ class AndroidProcessController(RemoteProcessController):
 
     def __init__(self, current):
         endpoint = None
-        if current.config.xamarin:
+        if current.config.xamarin or current.config.device:
             endpoint = "tcp -h 0.0.0.0 -p 15001"
         elif current.config.avd or not current.config.device:
             endpoint = "tcp -h 127.0.0.1 -p 15001"
@@ -2882,6 +2874,16 @@ class Driver:
         (filters, rfilters) = self.component.getFilters(mapping, config)
         (filters, rfilters) = ([re.compile(a) for a in filters], [re.compile(a) for a in rfilters])
         return (self.filters + filters, self.rfilters + rfilters)
+
+    def getHost(self, protocol, ipv6):
+        if protocol == "bt":
+            if not self.hostBT:
+                raise RuntimeError("no Bluetooth address set with --host-bt")
+            return self.hostBT
+        elif ipv6:
+            return self.hostIPv6 or "::1"
+        else:
+            return self.host or "127.0.0.1"
 
     def getComponent(self):
         return self.component

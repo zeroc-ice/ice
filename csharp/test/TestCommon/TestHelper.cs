@@ -32,7 +32,6 @@ namespace Test
     public interface PlatformAdapter
     {
         bool isEmulator();
-        bool registerProcessController();
 
         string processControllerRegistryHost();
 

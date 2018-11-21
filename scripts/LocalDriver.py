@@ -239,6 +239,12 @@ class RemoteTestCaseRunner(TestCaseRunner):
                 testSuiteIds = serverTestSuiteIds
         return mapping.getTestSuites(testSuiteIds)
 
+    def getHost(self, protocol, ipv6):
+        if self.clientController:
+            return self.clientController.getHost(protocol, ipv6)
+        else:
+            return self.serverController.getHost(protocol, ipv6)
+
     def filterOptions(self, options):
         if options is None:
             return None
@@ -605,6 +611,12 @@ class LocalDriver(Driver):
                 return
 
         current.testcase._runClientSide(current)
+
+    def getHost(self, protocol, ipv6):
+        if isinstance(self.runner, RemoteTestCaseRunner):
+            return self.runner.getHost(protocol, ipv6)
+        else:
+            return Driver.getHost(self, protocol, ipv6)
 
     def isWorkerThread(self):
         return hasattr(self.threadlocal, "num")

@@ -214,12 +214,19 @@ public class ControllerApp extends Application
                     adapter.add(new ProcessControllerI(),
                                 com.zeroc.Ice.Util.stringToIdentity("Android/ProcessController")));
             adapter.activate();
+            ProcessControllerRegistryPrx registry;
             if(isEmulator())
             {
-                ProcessControllerRegistryPrx registry = ProcessControllerRegistryPrx.uncheckedCast(
+                registry = ProcessControllerRegistryPrx.uncheckedCast(
                         _communicator.stringToProxy("Util/ProcessControllerRegistry:tcp -h 10.0.2.2 -p 15001"));
-                registerProcessController(adapter, registry, processController);
             }
+            else
+            {
+                // Use IceDiscovery to find a process controller registry
+                registry = ProcessControllerRegistryPrx.uncheckedCast(
+                        _communicator.stringToProxy("Util/ProcessControllerRegistry"));
+            }
+            registerProcessController(adapter, registry, processController);
             println("Android/ProcessController");
         }
 

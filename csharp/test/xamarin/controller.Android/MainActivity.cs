@@ -77,11 +77,6 @@ namespace controller.Droid
             LoadApplication(new App(this));
         }
 
-        public bool registerProcessController()
-        {
-            return true;
-        }
-
         public bool isEmulator()
         {
             return Build.Fingerprint.Contains("vbox") ||
@@ -102,7 +97,7 @@ namespace controller.Droid
 
         public string processControllerRegistryHost()
         {
-            return isEmulator() ? "10.0.2.2" : "127.0.0.1";
+            return isEmulator() ? "10.0.2.2" : ""; // With an empty host, the controller will use IceDiscovery.
         }
     }
 }

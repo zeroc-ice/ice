@@ -640,7 +640,7 @@ namespace controller
             //initData.properties.setProperty("Ice.Trace.Protocol", "1");
             initData.properties.setProperty("ControllerAdapter.AdapterId", new Guid().ToString());
 
-            if(!mainPage.platformAdapter.registerProcessController())
+            if(!mainPage.platformAdapter.isEmulator())
             {
                 initData.properties.setProperty("Ice.Plugin.IceDiscovery", "IceDiscovery:IceDiscovery.PluginFactory");
                 initData.properties.setProperty("IceDiscovery.DomainId", "TestController");
@@ -654,10 +654,7 @@ namespace controller
                              Util.stringToIdentity(mainPage.platformAdapter.processControllerIdentity())));
             _adapter.activate();
 
-            if(mainPage.platformAdapter.registerProcessController())
-            {
-                registerProcessController();
-            }
+            registerProcessController();
             _mainPage.print(mainPage.platformAdapter.processControllerIdentity());
         }
 
@@ -670,9 +667,19 @@ namespace controller
                     {
                         if(_mainPage.RegisterProcessControllerEnabled())
                         {
-                            var registry = ProcessControllerRegistryPrxHelper.uncheckedCast(
-                                _communicator.stringToProxy(string.Format("Util/ProcessControllerRegistry:tcp -h {0} -p 15001",
-                                                                          _mainPage.processControllerRegistryHost())));
+                            ProcessControllerRegistryPrx registry;
+                            if(_mainPage.processControllerRegistryHost().Length == 0)
+                            {
+                                registry = ProcessControllerRegistryPrxHelper.uncheckedCast(
+                                    _communicator.stringToProxy("Util/ProcessControllerRegistry"));
+                            }
+                            else
+                            {
+                                registry = ProcessControllerRegistryPrxHelper.uncheckedCast(
+                                    _communicator.stringToProxy(string.Format(
+                                        "Util/ProcessControllerRegistry:tcp -h {0} -p 15001",
+                                        _mainPage.processControllerRegistryHost())));
+                            }
                             await registry.ice_pingAsync();
                             var connection = registry.ice_getConnection();
                             connection.setAdapter(_adapter);
