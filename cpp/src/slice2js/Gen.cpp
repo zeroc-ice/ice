@@ -3073,12 +3073,14 @@ Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
                 _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
             }
         }
+        _out << nl << " * @param ice_cause The error that cause this exception.";
         _out << nl << " */";
         _out << nl << "constructor" << spar;
         for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
         {
             _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
         }
+        _out << "ice_cause?:string|Error";
         _out << epar << ";";
     }
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
