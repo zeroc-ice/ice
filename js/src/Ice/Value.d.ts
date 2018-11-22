@@ -41,12 +41,6 @@ declare module "ice"
             static ice_staticId():string;
 
             /**
-             * Returns a shallow copy of the object.
-             * @return The cloned value.
-             */
-            ice_clone():this;
-
-            /**
              * Obtains the sliced data associated with this instance.
              * @return The sliced data if the value has a preserved-slice base class and has been sliced during
              * unmarshaling of the value, nil otherwise.
