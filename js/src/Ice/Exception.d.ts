@@ -38,6 +38,8 @@ declare module "ice"
              * @return A string representation of this exception.
              **/
             toString():string;
+
+            ice_cause:string|Error;
         }
 
         /**
