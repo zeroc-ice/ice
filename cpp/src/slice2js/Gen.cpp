@@ -2796,114 +2796,115 @@ Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     else
     {
-        //
-        // Define servant an proxy types for non local classes
-        //
-        _out << sp;
-        _out << nl << "abstract class " << fixId(p->name() + "Prx")
-             << " extends " << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix);
-        _out << sb;
         const OperationList ops = p->allOperations();
-        for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+        if(p->isInterface() || !ops.empty())
         {
-            const OperationPtr op = *q;
-            const ParamDeclList paramList = op->parameters();
-            const TypePtr ret = op->returnType();
-            ParamDeclList inParams, outParams;
-            for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
-            {
-                if((*r)->isOutParam())
-                {
-                    outParams.push_back(*r);
-                }
-                else
-                {
-                    inParams.push_back(*r);
-                }
-            }
+            //
+            // Define servant an proxy types for non local classes
+            //
+            _out << sp;
+            _out << nl << "abstract class " << fixId(p->name() + "Prx")
+                 << " extends " << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix);
+            _out << sb;
 
-            const string contextParam = escapeParam(paramList, "context");
-            CommentPtr comment = op->parseComment(false);
-            const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
-            const string asyncDoc = "The asynchronous result object for the invocation.";
-            if(comment)
+            for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
             {
-                StringList postParams, returns;
-                postParams.push_back(contextDoc);
-                returns.push_back(asyncDoc);
-                writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
-            }
-            _out << nl << fixId((*q)->name()) << spar;
-            for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
-            {
-                _out << (fixId((*r)->name()) +
-                         ((*r)->optional() ? "?" : "") +
-                         ":" +
-                         typeToString((*r)->type(), p, imports(), true, false, true));
-            }
-            _out << "context?:Map<string, string>";
-            _out << epar;
-
-            _out << ":" << icePrefix << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix);
-            if(!ret && outParams.empty())
-            {
-                _out << "<void>";
-            }
-            else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
-            {
-                TypePtr t = ret ? ret : outParams.front()->type();
-                _out << "<" << typeToString(t, p, imports(), true, false, true) << ">";
-            }
-            else
-            {
-                _out << "<[";
-                if(ret)
+                const OperationPtr op = *q;
+                const ParamDeclList paramList = op->parameters();
+                const TypePtr ret = op->returnType();
+                ParamDeclList inParams, outParams;
+                for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
                 {
-                    _out << typeToString(ret, p, imports(), true, false, true) << ", ";
-                }
-
-                for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
-                {
-                    _out << typeToString((*i)->type(), p, imports(), true, false, true);
-                    if(++i != outParams.end())
+                    if((*r)->isOutParam())
                     {
-                        _out << ", ";
+                        outParams.push_back(*r);
+                    }
+                    else
+                    {
+                        inParams.push_back(*r);
                     }
                 }
 
-                _out << "]>";
+                const string contextParam = escapeParam(paramList, "context");
+                CommentPtr comment = op->parseComment(false);
+                const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
+                const string asyncDoc = "The asynchronous result object for the invocation.";
+                if(comment)
+                {
+                    StringList postParams, returns;
+                    postParams.push_back(contextDoc);
+                    returns.push_back(asyncDoc);
+                    writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
+                }
+                _out << nl << fixId((*q)->name()) << spar;
+                for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+                {
+                    _out << (fixId((*r)->name()) +
+                             ((*r)->optional() ? "?" : "") +
+                             ":" +
+                             typeToString((*r)->type(), p, imports(), true, false, true));
+                }
+                _out << "context?:Map<string, string>";
+                _out << epar;
+
+                _out << ":" << icePrefix << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix);
+                if(!ret && outParams.empty())
+                {
+                    _out << "<void>";
+                }
+                else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+                {
+                    TypePtr t = ret ? ret : outParams.front()->type();
+                    _out << "<" << typeToString(t, p, imports(), true, false, true) << ">";
+                }
+                else
+                {
+                    _out << "<[";
+                    if(ret)
+                    {
+                        _out << typeToString(ret, p, imports(), true, false, true) << ", ";
+                    }
+
+                    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+                    {
+                        _out << typeToString((*i)->type(), p, imports(), true, false, true);
+                        if(++i != outParams.end())
+                        {
+                            _out << ", ";
+                        }
+                    }
+
+                    _out << "]>";
+                }
+
+                _out << ";";
             }
 
-            _out << ";";
-        }
+            const string icePrefix = importPrefix("Ice.ObjectPrx", p);
+            _out << sp;
+            _out << nl << "/**";
+            _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
+            _out << nl << " * @param prx The target proxy.";
+            _out << nl << " * @return A proxy with the requested type.";
+            _out << nl << " */";
+            _out << nl << "static uncheckedCast(prx:" << icePrefix
+                 << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
+                 << "facet?:string):"
+                 << fixId(p->name() + "Prx") << ";";
+            _out << nl << "/**";
+            _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
+            _out << nl << " * @param prx The target proxy.";
+            _out << nl << " * @param facet A facet name.";
+            _out << nl << " * @param context The context map for the invocation.";
+            _out << nl << " * @return A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
+            _out << nl << " * object does not support the requested type.";
+            _out << nl << " */";
+            _out << nl << "static checkedCast(prx:" << icePrefix
+                 << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
+                 << "facet?:string, contex?:Map<string, string>):" << icePrefix
+                 << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix) << "<" << fixId(p->name() + "Prx") << ">;";
+            _out << eb;
 
-        const string icePrefix = importPrefix("Ice.ObjectPrx", p);
-        _out << sp;
-        _out << nl << "/**";
-        _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
-        _out << nl << " * @param prx The target proxy.";
-        _out << nl << " * @return A proxy with the requested type.";
-        _out << nl << " */";
-        _out << nl << "static uncheckedCast(prx:" << icePrefix
-             << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
-             << "facet?:string):"
-             << fixId(p->name() + "Prx") << ";";
-        _out << nl << "/**";
-        _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
-        _out << nl << " * @param prx The target proxy.";
-        _out << nl << " * @param facet A facet name.";
-        _out << nl << " * @param context The context map for the invocation.";
-        _out << nl << " * @return A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
-        _out << nl << " * object does not support the requested type.";
-        _out << nl << " */";
-        _out << nl << "static checkedCast(prx:" << icePrefix
-             << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
-             << "facet?:string, contex?:Map<string, string>):" << icePrefix
-             << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix) << "<" << fixId(p->name() + "Prx") << ">;";
-        _out << eb;
-
-        if(p->isInterface() || !ops.empty())
-        {
             _out << sp;
             _out << nl << "abstract class " << fixId(p->name() + (p->isInterface() ? "" : "Disp"))
                  << " extends " << icePrefix << getUnqualified("Ice.Object", p->scope(), icePrefix);

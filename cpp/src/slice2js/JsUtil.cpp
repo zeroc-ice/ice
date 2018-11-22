@@ -520,20 +520,34 @@ Slice::JsGenerator::typeToString(const TypePtr& type,
     if(proxy)
     {
         ostringstream os;
-        string prefix;
-        if(typescript)
+        ClassDefPtr def = proxy->_class()->definition();
+        if(!def->isInterface() && def->allOperations().empty())
         {
-            prefix = importPrefix(ContainedPtr::dynamicCast(proxy->_class()->definition()), toplevel, imports);
-            os << prefix;
-        }
-
-        if(prefix.empty() && typescript)
-        {
-            os << getUnqualified(fixId(proxy->_class()->scoped() + "Prx"), toplevel->scope(), prefix);
+            if(getModuleMetadata(toplevel) != "ice")
+            {
+                os << "iceNS0.";
+            }
+            os << getUnqualified(typeScriptBuiltinTable[Builtin::KindObjectProxy],
+                                 toplevel->scope(),
+                                 getModuleMetadata(toplevel));
         }
         else
         {
-            os << fixId(proxy->_class()->scoped() + "Prx");
+            string prefix;
+            if(typescript)
+            {
+                prefix = importPrefix(ContainedPtr::dynamicCast(def), toplevel, imports);
+                os << prefix;
+            }
+
+            if(prefix.empty() && typescript)
+            {
+                os << getUnqualified(fixId(proxy->_class()->scoped() + "Prx"), toplevel->scope(), prefix);
+            }
+            else
+            {
+                os << fixId(proxy->_class()->scoped() + "Prx");
+            }
         }
         return os.str();
     }
