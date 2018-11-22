@@ -22,7 +22,7 @@ final class AcceptorI implements IceInternal.Acceptor
     }
 
     @Override
-    public void setReadyCallback(IceInternal.ReadyCallback callback)
+    public synchronized void setReadyCallback(IceInternal.ReadyCallback callback)
     {
         _readyCallback = callback;
         notify(); // Notify the acceptor thread
