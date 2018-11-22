@@ -230,6 +230,7 @@ final class AcceptorI implements IceInternal.Acceptor
                 // Ignore.
             }
         }
+        _pending.clear();
     }
 
     private EndpointI _endpoint;
