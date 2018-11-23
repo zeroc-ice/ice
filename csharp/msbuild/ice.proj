@@ -1,11 +1,17 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Release</Configuration>
+        <CppPlatform Condition="'$(Platform)' == 'x64'">x64</CppPlatform>
+        <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
+
+        <UwpPlatform Condition="'$(Platform)' == 'x64'">x63</UwpPlatform>
+        <UwpPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">x86</UwpPlatform>
+        <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '12.0'">v120</DefaultPlatformToolset>
+        <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '14.0'">v140</DefaultPlatformToolset>
+        <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '15.0'">v141</DefaultPlatformToolset>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
-    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"
-            Condition="Exists('$(VCTargetsPath)\Microsoft.Cpp.Default.props')"/>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\ice.common.targets" />
 
@@ -15,7 +21,7 @@
 
     <!-- NET Standard on Windows requires Visual Studio 2017 -->
     <Choose>
-        <When Condition="'$(DefaultPlatformToolset)' == 'v141' or '$(OS)' != 'Windows_NT'">
+        <When Condition="'$(MSBuildToolsVersion)' == '15.0' or '$(OS)' != 'Windows_NT'">
             <PropertyGroup>
                 <BuildNetStandardTargets>true</BuildNetStandardTargets>
             </PropertyGroup>
@@ -29,7 +35,7 @@
 
     <!-- Targets required to build Slice compilers -->
     <Choose>
-        <When Condition="'$(DefaultPlatformToolset)' == 'v120' or '$(OS)' != 'Windows_NT'">
+        <When Condition="'$(MSBuildToolsVersion)' == '12.0' or '$(OS)' != 'Windows_NT'">
             <ItemGroup>
                 <SliceCompilers Include="slice2cs;slice2html"/>
             </ItemGroup>
@@ -51,7 +57,7 @@
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln"
                  Targets="@(SliceCompilers)"
                  BuildInParallel="true"
-                 Properties="Platform=$(Platform);Configuration=$(Configuration)"
+                 Properties="Platform=$(CppPlatform);Configuration=$(Configuration)"
                  Condition="'$(OS)' == 'Windows_NT'"/>
 
         <Exec Command="make @(SliceCompilers->'%(Identity)', ' ')"
@@ -62,20 +68,20 @@
     <ItemGroup>
         <!-- .NET 4.5 Solution files -->
         <Net45DistSolution Include="ice.net45.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(Platform)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </Net45DistSolution>
 
         <Net45TestSolution Include="ice.net45.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(Platform)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </Net45TestSolution>
 
         <!-- .NET Standard Solution files -->
         <NetStandardDistSolution Include="ice.netstandard2.0.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(Platform)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </NetStandardDistSolution>
 
         <NetStandardTestSolution Include="ice.netstandard2.0.test.sln">
-          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(Platform)</Properties>
+          <Properties>Configuration=$(Configuration);Platform=Any CPU;CppPlatform=$(CppPlatform)</Properties>
         </NetStandardTestSolution>
     </ItemGroup>
 
@@ -223,13 +229,14 @@
                  Condition="'$(BuildNetStandardTargets)' == 'true'"/>
 
         <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=zeroc.ice.net;BuildNetStandardTargets=$(BuildNetStandardTargets)"/>
+                 Properties="PackageDirectory=zeroc.ice.net;BuildNetStandardTargets=$(BuildNetStandardTargets);
+                             CppPlatform=$(CppPlatform);Configuration=$(Configuration)"/>
 
         <Copy SourceFiles="zeroc.ice.net.nuspec"
               DestinationFolder="zeroc.ice.net" />
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)THIRD_PARTY_LICENSE.txt"
-              DestinationFiles="zeroc.ice.$(DefaultPlatformToolset)\THIRD_PARTY_LICENSE.txt" />
+              DestinationFiles="zeroc.ice.net\THIRD_PARTY_LICENSE.txt" />
 
         <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE"
               DestinationFiles="zeroc.ice.net\ICE_LICENSE.txt" />
@@ -288,7 +295,7 @@
     <Target Name="UWPXamarinBuild" DependsOnTargets="BuildNetStandardDist" Condition="'$(OS)' == 'Windows_NT'">
         <Exec Command="$(NuGetExe) restore $(MSBuildThisFileDirectory)ice.xamarin.test.sln" />
         <MSBuild Projects="$(MSBuildThisFileDirectory)..\test\xamarin\controller.UWP\controller.UWP.csproj"
-                 Properties="Configuration=$(Configuration);Platform=$(Platform)"/>
+                 Properties="Configuration=$(Configuration);Platform=$(UWPPlatform)"/>
     </Target>
 
     <!-- Android Xamarin Builds -->

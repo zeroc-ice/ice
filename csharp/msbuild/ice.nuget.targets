@@ -5,8 +5,8 @@
 
     <!-- For CSharp we use Slice compiler from x64 Release builds -->
     <ItemGroup>
-        <SliceCompilers Include="$(IceSrcRootDir)..\cpp\bin\x64\Release\slice2cs.exe;
-                                 $(IceSrcRootDir)..\cpp\bin\x64\Release\slice2html.exe" />
+        <SliceCompilers Include="$(IceSrcRootDir)..\cpp\bin\$(CppPlatform)\$(Configuration)\slice2cs.exe;
+                                 $(IceSrcRootDir)..\cpp\bin\$(CppPlatform)\$(Configuration)\slice2html.exe" />
 
         <!-- With .Net Core we have to pack the dependencies next iceboxnet.dll  -->
         <IceBoxNet45 Include="$(IceSrcRootDir)bin\net45\iceboxnet.exe;
