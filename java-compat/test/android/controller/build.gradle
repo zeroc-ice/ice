@@ -46,6 +46,12 @@ repositories {
         }
     }
 
+    if(this.devRepo) {
+        maven {
+            url this.devRepo
+        }
+    }
+
     google()
     jcenter()
 }
