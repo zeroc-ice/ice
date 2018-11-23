@@ -54,16 +54,14 @@ def run(cmd, cwd=None, err=False, stdout=False, stdin=None, stdinRepeat=True):
             pass
     return out
 
-def val(v, escapeQuotes=False, quoteValue=True):
+def val(v, quoteValue=True):
     if type(v) == bool:
         return "1" if v else "0"
     elif type(v) == str:
         if not quoteValue or v.find(" ") < 0:
             return v
-        elif escapeQuotes:
-            return "\\\"{0}\\\"".format(v.replace("\\\"", "\\\\\\\""))
-        else:
-            return "\"{0}\"".format(v)
+        v = v.replace("\\", "\\\\").replace("\"", "\\\"")
+        return "\"{0}\"".format(v)
     else:
         return str(v)
 
@@ -714,7 +712,7 @@ class Mapping(object):
                 if self.ipv6:
                     props["Ice.PreferIPv6Address"] = True
                 if self.mx:
-                    props["Ice.Admin.Endpoints"] = "tcp -h \\\"::1\\\"" if self.ipv6 else "tcp -h 127.0.0.1"
+                    props["Ice.Admin.Endpoints"] = "tcp -h \"::1\"" if self.ipv6 else "tcp -h 127.0.0.1"
                     props["Ice.Admin.InstanceName"] = "Server" if isinstance(process, Server) else "Client"
                     props["IceMX.Metrics.Debug.GroupBy"] ="id"
                     props["IceMX.Metrics.Parent.GroupBy"] = "parent"

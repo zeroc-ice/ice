@@ -112,7 +112,7 @@ class IceGridNode(ProcessFromBinDir, Server):
     def getPropertiesOverride(self, current):
         # Add properties for servers based on the test case mapping.
         props = Server().getEffectiveProps(current, {})
-        return ' '.join(["{0}={1}".format(k, val(v, escapeQuotes=True)) for k, v in props.items()])
+        return ' '.join(["{0}={1}".format(k, val(v)) for k, v in props.items()])
 
     def shutdown(self, current):
         current.testcase.runadmin(current, "node shutdown {0}".format(self.name))
@@ -249,7 +249,7 @@ class IceGridTestCase(TestCase):
                 variables[k] = current.getBuildDir(v)
 
             variables.update(self.variables)
-            varStr = " ".join(["{0}={1}".format(k, val(v, True)) for k,v in variables.items()])
+            varStr = " ".join(["{0}={1}".format(k, val(v)) for k,v in variables.items()])
             targets = " ".join(self.targets)
             application = self.application
             if isinstance(self.mapping, CSharpMapping) and current.config.dotnetcore:
