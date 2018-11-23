@@ -42,7 +42,7 @@ namespace Ice
                 test(interceptor.getLastOperation().Equals("addWithRetry"));
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
-                output.WriteLine("testing user exception... ");
+                output.Write("testing user exception... ");
                 output.Flush();
                 try
                 {

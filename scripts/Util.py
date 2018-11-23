@@ -714,7 +714,7 @@ class Mapping(object):
                 if self.ipv6:
                     props["Ice.PreferIPv6Address"] = True
                 if self.mx:
-                    props["Ice.Admin.Endpoints"] = "tcp -h localhost"
+                    props["Ice.Admin.Endpoints"] = "tcp -h \"::1\"" if self.ipv6 else "tcp -h 127.0.0.1"
                     props["Ice.Admin.InstanceName"] = "Server" if isinstance(process, Server) else "Client"
                     props["IceMX.Metrics.Debug.GroupBy"] ="id"
                     props["IceMX.Metrics.Parent.GroupBy"] = "parent"
