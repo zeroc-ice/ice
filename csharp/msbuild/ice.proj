@@ -4,7 +4,7 @@
         <CppPlatform Condition="'$(Platform)' == 'x64'">x64</CppPlatform>
         <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
 
-        <UwpPlatform Condition="'$(Platform)' == 'x64'">x63</UwpPlatform>
+        <UwpPlatform Condition="'$(Platform)' == 'x64'">x64</UwpPlatform>
         <UwpPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">x86</UwpPlatform>
         <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '12.0'">v120</DefaultPlatformToolset>
         <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '14.0'">v140</DefaultPlatformToolset>
