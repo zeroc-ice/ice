@@ -49,7 +49,7 @@ Sub::run(int argc, char** argv)
     catch(const IceUtilInternal::BadOptException& e)
     {
         ostringstream os;
-        os << argv[0] << ": " << e.reason;
+        os << argv[0] << ": error: " << e.reason;
         throw invalid_argument(os.str());
     }
 
