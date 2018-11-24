@@ -99,7 +99,7 @@ Server::run(int argc, char** argv)
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cout << argv[0] << ": " << e.reason << endl;
+        cout << argv[0] << ": error: " << e.reason << endl;
         throw;
     }
     bool array = opts.isSet("array");
