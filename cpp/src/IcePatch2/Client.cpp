@@ -332,7 +332,7 @@ run(const Ice::StringSeq& args)
     }
     if(opts.isSet("version"))
     {
-        consoleOut << ICE_STRING_VERSION << endl;
+        consoleErr << ICE_STRING_VERSION << endl;
         return 0;
     }
     if(opts.isSet("thorough"))
