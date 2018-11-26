@@ -14,7 +14,7 @@
             android:layout_width="5dip"
             android:layout_weight="25"
             android:layout_height="wrap_content"
-            android:text="IPv4"
+            android:text="@string/ipv4"
             android:layout_gravity="center_vertical"/>
 
         <Spinner
@@ -34,7 +34,7 @@
             android:layout_width="0dip"
             android:layout_weight="25"
             android:layout_height="wrap_content"
-            android:text="IPv6"
+            android:text="@string/ipv6"
             android:layout_gravity="center_vertical"/>
 
         <Spinner
