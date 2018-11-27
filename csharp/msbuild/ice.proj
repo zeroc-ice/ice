@@ -1,11 +1,14 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup Condition="'$(Configuration)' == ''">
         <Configuration>Release</Configuration>
+    </PropertyGroup>
+    <PropertyGroup>
         <CppPlatform Condition="'$(Platform)' == 'x64'">x64</CppPlatform>
         <CppPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">Win32</CppPlatform>
 
         <UwpPlatform Condition="'$(Platform)' == 'x64'">x64</UwpPlatform>
         <UwpPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">x86</UwpPlatform>
+
         <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '12.0'">v120</DefaultPlatformToolset>
         <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '14.0'">v140</DefaultPlatformToolset>
         <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '15.0'">v141</DefaultPlatformToolset>
