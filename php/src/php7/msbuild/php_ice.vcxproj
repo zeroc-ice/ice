@@ -241,6 +241,7 @@
     <Import Project="..\..\..\msbuild\packages\php-7.2-nts.7.2.8\build\native\php-7.2-nts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.2-nts.7.2.8\build\native\php-7.2-nts.targets')" />
     <Import Project="..\..\..\msbuild\packages\php-7.2-ts.7.2.8\build\native\php-7.2-ts.targets" Condition="Exists('..\..\..\msbuild\packages\php-7.2-ts.7.2.8\build\native\php-7.2-ts.targets')" />
   </ImportGroup>
+  <Import Project="$(MSBuildThisFileDirectory)..\..\..\..\cpp\msbuild\ice.sign.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
