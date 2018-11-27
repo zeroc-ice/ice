@@ -11,13 +11,30 @@ package IceBox;
 
 public final class Admin
 {
-    private static class Client extends Ice.Application
+    static class ShutdownHook implements Runnable
     {
-        private void
+        private Ice.Communicator communicator;
+
+        ShutdownHook(Ice.Communicator communicator)
+        {
+            this.communicator = communicator;
+        }
+
+        @Override
+        public void
+        run()
+        {
+            communicator.destroy();
+        }
+    }
+
+    private static class Client
+    {
+        private static void
         usage()
         {
             System.err.println(
-                "Usage: " + appName() + " [options] [command...]\n" +
+                "Usage: IceBox.Admin [options] [command...]\n" +
                 "Options:\n" +
                 "-h, --help          Show this message.\n" +
                 "\n" +
@@ -27,40 +44,53 @@ public final class Admin
                 "shutdown            Shutdown the server.");
         }
 
-        @Override
-        public int
-        run(String[] args)
+        public static void
+        main(String[] args)
         {
-            java.util.List<String> commands = new java.util.ArrayList<String>();
+            int status = 0;
+            ice.StringSeqHolder argsHolder = new Ice.StringSeqHolder(args);
 
-            int idx = 0;
-            while(idx < args.length)
+            try(Ice.Communicator communicator = Ice.Util.initialize(argsHolder))
             {
-                if(args[idx].equals("-h") || args[idx].equals("--help"))
+                Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook(communicator)));
+
+                java.util.List<String> commands = new java.util.ArrayList<String>(argsHolder.value);
+
+                for(String command : commands)
+                {
+                    if(command.equals("-h") || command.equals("--help"))
+                    {
+                        usage();
+                        status = 1;
+                        break;
+                    }
+                    else if(command.charAt(0) == '-')
+                    {
+                        System.err.println("Unknown option `" + command + "'");
+                        usage();
+                        status = 1;
+                        break;
+                    }
+                }
+
+                if(commands.isEmpty())
                 {
                     usage();
-                    return 1;
+                    status = 0;
                 }
-                else if(args[idx].charAt(0) == '-')
+                else if(status == 0)
                 {
-                    System.err.println(appName() + ": unknown option `" + args[idx] + "'");
-                    usage();
-                    return 1;
-                }
-                else
-                {
-                    commands.add(args[idx]);
-                    ++idx;
+                    status = run(communicator, commands);
                 }
             }
 
-            if(commands.isEmpty())
-            {
-                usage();
-                return 0;
-            }
+            System.exit(status);
+        }
 
-            Ice.ObjectPrx base = communicator().propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
+        public static int
+        run(com.zeroc.Ice.Communicator communicator, java.util.List<String> commands)
+        {
+            Ice.ObjectPrx base = communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
             if(base == null)
             {
@@ -80,31 +110,31 @@ public final class Admin
                     String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
                     if(managerEndpoints.length() == 0)
                     {
-                        System.err.println(appName() + ": property `IceBoxAdmin.ServiceManager.Proxy' is not set");
+                        System.err.println("Property `IceBoxAdmin.ServiceManager.Proxy' is not set");
                         return 1;
                     }
 
-                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" + managerEndpoints;
+                    managerProxy = "\"" + communicator.identityToString(managerIdentity) + "\" :" + managerEndpoints;
                 }
                 else
                 {
                     String managerAdapterId = properties.getProperty("IceBox.ServiceManager.AdapterId");
                     if(managerAdapterId.length() == 0)
                     {
-                        System.err.println(appName() + ": property `IceBoxAdmin.ServiceManager.Proxy' is not set");
+                        System.err.println("Property `IceBoxAdmin.ServiceManager.Proxy' is not set");
                         return 1;
                     }
 
-                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" + managerAdapterId;
+                    managerProxy = "\"" + communicator.identityToString(managerIdentity) + "\" @" + managerAdapterId;
                 }
 
-                base = communicator().stringToProxy(managerProxy);
+                base = communicator.stringToProxy(managerProxy);
             }
 
             IceBox.ServiceManagerPrx manager = IceBox.ServiceManagerPrxHelper.checkedCast(base);
             if(manager == null)
             {
-                System.err.println(appName() + ": `" + base.toString() + "' is not an IceBox::ServiceManager");
+                System.err.println("`" + base.toString() + "' is not an IceBox::ServiceManager");
                 return 1;
             }
 
@@ -119,7 +149,7 @@ public final class Admin
                 {
                     if(++i >= commands.size())
                     {
-                        System.err.println(appName() + ": no service name specified.");
+                        System.err.println("No service name specified.");
                         return 1;
                     }
 
@@ -130,19 +160,19 @@ public final class Admin
                     }
                     catch(IceBox.NoSuchServiceException ex)
                     {
-                        System.err.println(appName() + ": unknown service `" + service + "'");
+                        System.err.println("Unknown service `" + service + "'");
                         return 1;
                     }
                     catch(IceBox.AlreadyStartedException ex)
                     {
-                        System.err.println(appName() + "service already started.");
+                        System.err.println("Service already started.");
                     }
                 }
                 else if(command.equals("stop"))
                 {
                     if(++i >= commands.size())
                     {
-                        System.err.println(appName() + ": no service name specified.");
+                        System.err.println("No service name specified.");
                         return 1;
                     }
 
@@ -153,17 +183,17 @@ public final class Admin
                     }
                     catch(IceBox.NoSuchServiceException ex)
                     {
-                        System.err.println(appName() + ": unknown service `" + service + "'");
+                        System.err.println("Unknown service `" + service + "'");
                         return 1;
                     }
                     catch(IceBox.AlreadyStoppedException ex)
                     {
-                        System.err.println(appName() + "service already stopped.");
+                        System.err.println("Service already stopped.");
                     }
                 }
                 else
                 {
-                    System.err.println(appName() + ": unknown command `" + command + "'");
+                    System.err.println("Unknown command `" + command + "'");
                     usage();
                     return 1;
                 }
@@ -171,14 +201,5 @@ public final class Admin
 
             return 0;
         }
-    }
-
-    public static void
-    main(String[] args)
-    {
-        Client app = new Client();
-        int rc = app.main("IceBox.Admin", args);
-
-        System.exit(rc);
     }
 }
