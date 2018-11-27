@@ -11,12 +11,12 @@ package com.zeroc.IceBox;
 
 public final class Admin
 {
-    private static class Client
+    private static class Client extends com.zeroc.Ice.Application
     {
         private void usage()
         {
             System.err.println(
-                "Usage: com.zeroc.IceBox.Admin [options] [command...]\n" +
+                "Usage: " + appName() + " [options] [command...]\n" +
                 "Options:\n" +
                 "-h, --help          Show this message.\n" +
                 "\n" +
@@ -26,53 +26,39 @@ public final class Admin
                 "shutdown            Shutdown the server.");
         }
 
-        public static void main(String[] args)
+        @Override
+        public int run(String[] args)
         {
-            int status = 0;
-            java.util.List<String> commands = new java.util.ArrayList<String>();
+            java.util.List<String> commands = new java.util.ArrayList<>();
 
-            try(com.zeroc.Ice.Communicator communicator = com.zeroc.Ice.Util.initialize(args, commands))
+            int idx = 0;
+            while(idx < args.length)
             {
-                Runtime.getRuntime().addShutdownHook(new Thread(() ->
-                {
-                    communicator.destroy();
-                }));
-
-                for(String command : commands)
-                {
-                    if(command.equals("-h") || command.equals("--help"))
-                    {
-                        usage();
-                        status = 1;
-                        break;
-                    }
-                    else if(command.charAt(0) == '-')
-                    {
-                        System.err.println("Unknown option `" + command + "'");
-                        usage();
-                        status = 1;
-                        break;
-                    }
-                }
-
-                if(commands.isEmpty())
+                if(args[idx].equals("-h") || args[idx].equals("--help"))
                 {
                     usage();
-                    status = 0;
+                    return 1;
                 }
-                else if(status == 0)
+                else if(args[idx].charAt(0) == '-')
                 {
-                    status = run(communicator, commands);
+                    System.err.println(appName() + ": unknown option `" + args[idx] + "'");
+                    usage();
+                    return 1;
+                }
+                else
+                {
+                    commands.add(args[idx]);
+                    ++idx;
                 }
             }
 
-            System.exit(status);
-        }
+            if(commands.isEmpty())
+            {
+                usage();
+                return 0;
+            }
 
-        public static int run(com.zeroc.Ice.Communicator communicator, java.util.List<String> commands)
-        {
-
-            com.zeroc.Ice.ObjectPrx base = communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
+            com.zeroc.Ice.ObjectPrx base = communicator().propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
             if(base == null)
             {
@@ -80,7 +66,7 @@ public final class Admin
                 // The old deprecated way to retrieve the service manager proxy
                 //
 
-                com.zeroc.Ice.Properties properties = communicator.getProperties();
+                com.zeroc.Ice.Properties properties = communicator().getProperties();
 
                 com.zeroc.Ice.Identity managerIdentity = new com.zeroc.Ice.Identity();
                 managerIdentity.category = properties.getPropertyWithDefault("IceBox.InstanceName", "IceBox");
@@ -92,11 +78,11 @@ public final class Admin
                     String managerEndpoints = properties.getProperty("IceBox.ServiceManager.Endpoints");
                     if(managerEndpoints.length() == 0)
                     {
-                        System.err.println("Property `IceBoxAdmin.ServiceManager.Proxy' is not set");
+                        System.err.println(appName() + ": property `IceBoxAdmin.ServiceManager.Proxy' is not set");
                         return 1;
                     }
 
-                    managerProxy = "\"" + communicator.identityToString(managerIdentity) + "\" :" +
+                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" :" +
                         managerEndpoints;
                 }
                 else
@@ -104,21 +90,21 @@ public final class Admin
                     String managerAdapterId = properties.getProperty("IceBox.ServiceManager.AdapterId");
                     if(managerAdapterId.length() == 0)
                     {
-                        System.err.println("Property `IceBoxAdmin.ServiceManager.Proxy' is not set");
+                        System.err.println(appName() + ": property `IceBoxAdmin.ServiceManager.Proxy' is not set");
                         return 1;
                     }
 
-                    managerProxy = "\"" + communicator.identityToString(managerIdentity) + "\" @" +
+                    managerProxy = "\"" + communicator().identityToString(managerIdentity) + "\" @" +
                         managerAdapterId;
                 }
 
-                base = communicator.stringToProxy(managerProxy);
+                base = communicator().stringToProxy(managerProxy);
             }
 
             com.zeroc.IceBox.ServiceManagerPrx manager = com.zeroc.IceBox.ServiceManagerPrx.checkedCast(base);
             if(manager == null)
             {
-                System.err.println("`" + base.toString() + "' is not an IceBox::ServiceManager");
+                System.err.println(appName() + ": `" + base.toString() + "' is not an IceBox::ServiceManager");
                 return 1;
             }
 
@@ -133,7 +119,7 @@ public final class Admin
                 {
                     if(++i >= commands.size())
                     {
-                        System.err.println("No service name specified.");
+                        System.err.println(appName() + ": no service name specified.");
                         return 1;
                     }
 
@@ -144,19 +130,19 @@ public final class Admin
                     }
                     catch(com.zeroc.IceBox.NoSuchServiceException ex)
                     {
-                        System.err.println("Unknown service `" + service + "'");
+                        System.err.println(appName() + ": unknown service `" + service + "'");
                         return 1;
                     }
                     catch(com.zeroc.IceBox.AlreadyStartedException ex)
                     {
-                        System.err.println("Service already started.");
+                        System.err.println(appName() + "service already started.");
                     }
                 }
                 else if(command.equals("stop"))
                 {
                     if(++i >= commands.size())
                     {
-                        System.err.println("No service name specified.");
+                        System.err.println(appName() + ": no service name specified.");
                         return 1;
                     }
 
@@ -167,17 +153,17 @@ public final class Admin
                     }
                     catch(com.zeroc.IceBox.NoSuchServiceException ex)
                     {
-                        System.err.println("Unknown service `" + service + "'");
+                        System.err.println(appName() + ": unknown service `" + service + "'");
                         return 1;
                     }
                     catch(com.zeroc.IceBox.AlreadyStoppedException ex)
                     {
-                        System.err.println("Service already stopped.");
+                        System.err.println(appName() + "service already stopped.");
                     }
                 }
                 else
                 {
-                    System.err.println("Unknown command `" + command + "'");
+                    System.err.println(appName() + ": unknown command `" + command + "'");
                     usage();
                     return 1;
                 }
@@ -185,5 +171,13 @@ public final class Admin
 
             return 0;
         }
+    }
+
+    public static void main(String[] args)
+    {
+        Client app = new Client();
+        int rc = app.main("IceBox.Admin", args);
+
+        System.exit(rc);
     }
 }

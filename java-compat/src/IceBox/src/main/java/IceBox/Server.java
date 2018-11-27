@@ -11,23 +11,6 @@ package IceBox;
 
 public final class Server extends Ice.Application
 {
-    static class ShutdownHook implements Runnable
-    {
-        private Ice.Communicator communicator;
-
-        ShutdownHook(Ice.Communicator communicator)
-        {
-            this.communicator = communicator;
-        }
-
-        @override
-        public void
-        run()
-        {
-            communicator.shutdown();
-        }
-    }
-
     private static void
     usage()
     {
@@ -41,55 +24,56 @@ public final class Server extends Ice.Application
     public static void
     main(String[] args)
     {
-        int status = 0;
-        Ice.StringSeqHolder argsHolder = new Ice.StringSeqHolder(args);
-
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
-        try(Ice.Communicator communicator = Ice.Util.initialize(argsHolder, initData))
+        Server server = new Server();
+        System.exit(server.main("IceBox.Server", args, initData));
+    }
+
+    @Override
+    public int
+    run(String[] args)
+    {
+        final String prefix = "IceBox.Service.";
+        Ice.Properties properties = communicator().getProperties();
+        java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+        java.util.List<String> argSeq = new java.util.ArrayList<String>(args.length);
+        for(String s : args)
         {
-            Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook(communicator)));
-
-            final String prefix = "IceBox.Service.";
-            Ice.Properties properties = communicator().getProperties();
-            java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
-            java.util.List<String> argSeq = new java.util.ArrayList<String>(argsHolder.value);
-
-            for(String arg : argSeq)
-            {
-                boolean valid = false;
-                for(java.util.Map.Entry<String, String> entry : services.entrySet())
-                {
-                    String name = entry.getKey().substring(prefix.length());
-                    if(arg.startsWith("--" + name))
-                    {
-                        valid = true;
-                    }
-                }
-                if(!valid)
-                {
-                    if(arg.equals("-h") || arg.equals("--help"))
-                    {
-                        usage();
-                        status = 0;
-                        break;
-                    }
-                    else
-                    {
-                        System.err.println("Server: unknown option `" + arg + "'");
-                        usage();
-                        status = 1;
-                        break;
-                    }
-                }
-            }
-
-            ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argseq.toArray(new String[argseq.size()]));
-            status = serviceManagerImpl.run();
+            argSeq.add(s);
         }
 
-        System.exit(status);
+        for(java.util.Map.Entry<String, String> entry : services.entrySet())
+        {
+            String name = entry.getKey().substring(prefix.length());
+            for(int i = 0; i < argSeq.size(); ++i)
+            {
+                if(argSeq.get(i).startsWith("--" + name))
+                {
+                    argSeq.remove(i);
+                    i--;
+                }
+            }
+        }
+
+        for(String arg : argSeq)
+        {
+            if(arg.equals("-h") || arg.equals("--help"))
+            {
+                usage();
+                return 0;
+            }
+            else
+            {
+                System.err.println("Server: unknown option `" + arg + "'");
+                usage();
+                return 1;
+            }
+        }
+
+        ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator(), args);
+        return serviceManagerImpl.run();
     }
 }
