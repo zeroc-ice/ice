@@ -9,8 +9,25 @@
 
 package IceBox;
 
-public final class Server extends Ice.Application
+public final class Server
 {
+    static class ShutdownHook implements Runnable
+    {
+        private Ice.Communicator communicator;
+
+        ShutdownHook(Ice.Communicator communicator)
+        {
+            this.communicator = communicator;
+        }
+
+        @Override
+        public void
+        run()
+        {
+            communicator.shutdown();
+        }
+    }
+
     private static void
     usage()
     {
@@ -24,56 +41,55 @@ public final class Server extends Ice.Application
     public static void
     main(String[] args)
     {
+        int status = 0;
+        Ice.StringSeqHolder argHolder = new Ice.StringSeqHolder(args);
+
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
 
-        Server server = new Server();
-        System.exit(server.main("IceBox.Server", args, initData));
-    }
-
-    @Override
-    public int
-    run(String[] args)
-    {
-        final String prefix = "IceBox.Service.";
-        Ice.Properties properties = communicator().getProperties();
-        java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
-        java.util.List<String> argSeq = new java.util.ArrayList<String>(args.length);
-        for(String s : args)
+        try(Ice.Communicator communicator = Ice.Util.initialize(argHolder, initData))
         {
-            argSeq.add(s);
-        }
+            Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook(communicator)));
 
-        for(java.util.Map.Entry<String, String> entry : services.entrySet())
-        {
-            String name = entry.getKey().substring(prefix.length());
-            for(int i = 0; i < argSeq.size(); ++i)
+            final String prefix = "IceBox.Service.";
+            Ice.Properties properties = communicator.getProperties();
+            java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+
+            for(String arg : argHolder.value)
             {
-                if(argSeq.get(i).startsWith("--" + name))
+                boolean valid = false;
+                for(java.util.Map.Entry<String, String> entry : services.entrySet())
                 {
-                    argSeq.remove(i);
-                    i--;
+                    String name = entry.getKey().substring(prefix.length());
+                    if(arg.startsWith("--" + name))
+                    {
+                        valid = true;
+                        break;
+                    }
+                }
+                if(!valid)
+                {
+                    if(arg.equals("-h") || arg.equals("--help"))
+                    {
+                        usage();
+                        status = 1;
+                        break;
+                    }
+                    else
+                    {
+                        System.err.println("IceBox.Server: unknown option `" + arg + "'");
+                        usage();
+                        status = 1;
+                        break;
+                    }
                 }
             }
+
+            ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argHolder.value);
+            status = serviceManagerImpl.run();
         }
 
-        for(String arg : argSeq)
-        {
-            if(arg.equals("-h") || arg.equals("--help"))
-            {
-                usage();
-                return 0;
-            }
-            else
-            {
-                System.err.println("Server: unknown option `" + arg + "'");
-                usage();
-                return 1;
-            }
-        }
-
-        ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator(), args);
-        return serviceManagerImpl.run();
+        System.exit(status);
     }
 }
