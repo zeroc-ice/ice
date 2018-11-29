@@ -869,7 +869,7 @@ YY_RULE_SETUP
     string s;
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == '"')
         {
             break;
@@ -881,26 +881,26 @@ YY_RULE_SETUP
         }
         else if(c == '\\')
         {
-            char next = static_cast<char>(yyinput());
+            int next = yyinput();
             switch(next)
             {
                 case '\\':
                 case '"':
                 {
-                    s += next;
+                    s += static_cast<char>(next);
                     break;
                 }
 
                 default:
                 {
-                    s += c;
+                    s += static_cast<char>(c);
                     unput(next);
                 }
             }
         }
         else
         {
-            s += c;
+            s += static_cast<char>(c);
         }
     }
     yylvalp->clear();
@@ -916,7 +916,7 @@ YY_RULE_SETUP
     string s;
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == '\'')
         {
             break;
@@ -945,18 +945,18 @@ YY_RULE_SETUP
     s += yytext[0];
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == EOF)
         {
             break;
         }
-        else if(isspace(static_cast<unsigned char>(c)) || c == ';')
+        else if(isspace(c) || c == ';')
         {
             unput(c);
             break;
         }
 
-        s += c;
+        s += static_cast<char>(c);
     }
 
     yylvalp->clear();
