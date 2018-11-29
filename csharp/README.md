@@ -108,7 +108,7 @@ This build retrieves and installs the `zeroc.ice.net` NuGet package if necessary
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.0 SDK][5] to build Ice for .NET from source.
+You need the [.NET Core 2.0 SDK][4] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
