@@ -2612,7 +2612,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         string line;
         while(true)
         {
-            char c = static_cast<char>(getc(yyin));
+            int c = getc(yyin);
             if(c == EOF)
             {
                 if(line.size())
@@ -2622,7 +2622,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 break;
             }
 
-            line += c;
+            line += static_cast<char>(c);
             if(c == '\n')
             {
                 break;
