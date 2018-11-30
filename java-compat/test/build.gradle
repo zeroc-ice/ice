@@ -29,7 +29,7 @@ dependencies {
     implementation localDependency('glacier2-compat')
     implementation localDependency('icestorm-compat')
     implementation localDependency('icegrid-compat')
-    runtimeOnly project(':testPlugins')
+    implementation project(':testPlugins')
 }
 
 if(!gradle.startParameter.isOffline()) {

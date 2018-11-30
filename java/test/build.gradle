@@ -30,7 +30,7 @@ dependencies {
     implementation localDependency('glacier2')
     implementation localDependency('icestorm')
     implementation localDependency('icegrid')
-    runtimeOnly project(':testPlugins')
+    implementation project(':testPlugins')
 }
 
 if(!gradle.startParameter.isOffline()) {
