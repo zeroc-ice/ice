@@ -15,68 +15,81 @@ namespace IceBox
 
 public class Server
 {
-    public class App : Ice.Application
+    private static void usage()
     {
-        private static void usage()
-        {
-            Console.Error.WriteLine("Usage: iceboxnet [options] --Ice.Config=<file>\n");
-            Console.Error.WriteLine(
-                "Options:\n" +
-                "-h, --help           Show this message.\n"
-            );
-        }
-
-        public override int run(string[] args)
-        {
-            List<string> argSeq = new List<string>(args);
-            const string prefix = "IceBox.Service.";
-            Ice.Properties properties = communicator().getProperties();
-            Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
-            foreach(KeyValuePair<string, string> pair in services)
-            {
-                string name = pair.Key.Substring(prefix.Length);
-                for(int i = 0; i < argSeq.Count; ++i)
-                {
-                    if(argSeq[i].StartsWith("--" + name, StringComparison.CurrentCulture))
-                    {
-                        argSeq.RemoveAt(i);
-                        i--;
-                    }
-                }
-            }
-
-            foreach(string s in argSeq)
-            {
-                if(s.Equals("-h") || s.Equals("--help"))
-                {
-                    usage();
-                    return 0;
-                }
-                else if(s.Equals("-v") || s.Equals("--version"))
-                {
-                    Console.Out.WriteLine(Ice.Util.stringVersion());
-                    return 0;
-                }
-                else
-                {
-                    Console.Error.WriteLine("Server: unknown option `" + s + "'");
-                    usage();
-                    return 1;
-                }
-            }
-
-            ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator(), args);
-            return serviceManagerImpl.run();
-        }
+        Console.Error.WriteLine("Usage: iceboxnet [options] --Ice.Config=<file>\n");
+        Console.Error.WriteLine(
+            "Options:\n" +
+            "-h, --help           Show this message.\n"
+        );
     }
 
     public static int Main(string[] args)
     {
+        int status = 0;
+        List<string> argSeq = new List<string>();
+        const string prefix = "IceBox.Service.";
+
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
-        App server = new App();
-        return server.main(args, initData);
+
+        try
+        {
+            using(var communicator = Ice.Util.initialize(ref args, initData))
+            {
+                Console.CancelKeyPress += (sender, eventArgs) => communicator.destroy();
+
+                Ice.Properties properties = communicator.getProperties();
+                Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
+
+                foreach(string arg in argSeq)
+                {
+                    bool valid = false;
+                    foreach(KeyValuePair<string, string> pair in services)
+                    {
+                        string name = pair.Key.Substring(prefix.Length);
+                        if(arg.StartsWith("--" + name, StringComparison.CurrentCulture))
+                        {
+                            valid = true;
+                            break;
+                        }
+                    }
+                    if(!valid)
+                    {
+                        if(arg.Equals("-h") || arg.Equals("--help"))
+                        {
+                            usage();
+                            status = 1;
+                            break;
+                        }
+                        else if(arg.Equals("-v") || arg.Equals("--version"))
+                        {
+                            Console.Out.WriteLine(Ice.Util.stringVersion());
+                            status = 1;
+                            break;
+                        }
+                        else
+                        {
+                            Console.Error.WriteLine("IceBox.Server: unknown option `" + arg + "'");
+                            usage();
+                            status = 1;
+                            break;
+                        }
+                    }
+                }
+
+                ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argSeq.ToArray());
+                status = serviceManagerImpl.run();
+            }
+        }
+        catch(Exception ex)
+        {
+            Console.Error.WriteLine(ex);
+            status = 1;
+        }
+
+        return status;
     }
 }
 }
