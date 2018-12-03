@@ -534,15 +534,15 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap TSRMLS_D
 
                     Ice::ObjectPtr writer;
 
-                    ObjectMap::iterator i = objectMap->find(Z_OBJ_HANDLE_P(o));
-                    if(i == objectMap->end())
+                    ObjectMap::iterator j = objectMap->find(Z_OBJ_HANDLE_P(o));
+                    if(j == objectMap->end())
                     {
                         writer = new ObjectWriter(o, objectMap, 0 TSRMLS_CC);
                         objectMap->insert(ObjectMap::value_type(Z_OBJ_HANDLE_P(o), writer));
                     }
                     else
                     {
-                        writer = i->second;
+                        writer = j->second;
                     }
 
                     info->instances.push_back(writer);
@@ -1244,7 +1244,7 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
 
         assert(Z_TYPE_PP(arr) == IS_ARRAY);
         HashTable* member = Z_ARRVAL_PP(arr);
-        assert(zend_hash_num_elements(member) == allowOptional ? 4 : 2);
+        assert(zend_hash_num_elements(member) == (allowOptional ? 4 : 2));
         zend_hash_index_find(member, 0, reinterpret_cast<void**>(&elem));
         assert(Z_TYPE_PP(elem) == IS_STRING);
         m->name = Z_STRVAL_PP(elem);
@@ -3393,7 +3393,7 @@ IcePHP::ExceptionInfo::unmarshal(Ice::InputStream* is, const CommunicatorInfoPtr
             {
                 zval* un;
                 MAKE_STD_ZVAL(un);
-                AutoDestroy destroy(un);
+                AutoDestroy destroy2(un);
                 assignUnset(un TSRMLS_CC);
                 member->setMember(zv, un TSRMLS_CC);
             }

@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <ctype.h>
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && !defined(__clang__)
 // False warning with older GCC
 #   pragma GCC diagnostic ignored "-Wclobbered"
 #endif
