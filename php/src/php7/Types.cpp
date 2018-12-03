@@ -1189,7 +1189,7 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
 
         assert(Z_TYPE_P(arr) == IS_ARRAY);
         HashTable* member = Z_ARRVAL_P(arr);
-        assert(zend_hash_num_elements(member) == (allowOptional ? 4 : 2));
+        assert(zend_hash_num_elements(member) == static_cast<uint32_t>(allowOptional ? 4 : 2));
 
         elem = zend_hash_index_find(member, 0);
         assert(Z_TYPE_P(elem) == IS_STRING);
