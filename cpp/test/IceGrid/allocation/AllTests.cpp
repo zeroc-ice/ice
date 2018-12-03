@@ -1171,7 +1171,7 @@ allTests(Test::TestHelper* helper)
         //
         // Let the stress client run for a bit.
         //
-        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(60));
+        IceUtil::ThreadControl::sleep(IceUtil::Time::seconds(8));
 
         //
         // Terminate the stress clients.
