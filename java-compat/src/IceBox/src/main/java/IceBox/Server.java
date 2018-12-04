@@ -11,20 +11,47 @@ package IceBox;
 
 public final class Server
 {
-    static class ShutdownHook implements Runnable
+    static class ShutdownHook extends Thread
     {
-        private Ice.Communicator communicator;
+        private Ice.Communicator _communicator;
+        private final java.lang.Object _doneMutex = new java.lang.Object();
+        private boolean _done = false;
 
         ShutdownHook(Ice.Communicator communicator)
         {
-            this.communicator = communicator;
+            _communicator = communicator;
         }
 
         @Override
         public void
         run()
         {
-            communicator.shutdown();
+            _communicator.shutdown();
+
+            synchronized(_doneMutex)
+            {
+                while(!_done)
+                {
+                    try
+                    {
+                        _doneMutex.wait();
+                    }
+                    catch(InterruptedException ex)
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        public void
+        done()
+        {
+            synchronized(_doneMutex)
+            {
+                _done = true;
+                _doneMutex.notify();
+            }
         }
     }
 
@@ -47,10 +74,12 @@ public final class Server
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.properties = Ice.Util.createProperties();
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");
+        ShutdownHook shutdownHook = null;
 
         try(Ice.Communicator communicator = Ice.Util.initialize(argHolder, initData))
         {
-            Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook(communicator)));
+            shutdownHook = new ShutdownHook(communicator);
+            Runtime.getRuntime().addShutdownHook(shutdownHook);
 
             final String prefix = "IceBox.Service.";
             Ice.Properties properties = communicator.getProperties();
@@ -88,6 +117,13 @@ public final class Server
 
             ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argHolder.value);
             status = serviceManagerImpl.run();
+        }
+        finally
+        {
+            if(shutdownHook != null)
+            {
+                shutdownHook.done();
+            }
         }
 
         System.exit(status);

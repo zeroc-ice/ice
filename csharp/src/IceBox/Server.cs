@@ -38,7 +38,11 @@ public class Server
         {
             using(var communicator = Ice.Util.initialize(ref args, initData))
             {
-                Console.CancelKeyPress += (sender, eventArgs) => communicator.destroy();
+                Console.CancelKeyPress += (sender, eventArgs) =>
+                {
+                    eventArgs.Cancel = true;
+                    communicator.shutdown();
+                };
 
                 Ice.Properties properties = communicator.getProperties();
                 Dictionary<string, string> services = properties.getPropertiesForPrefix(prefix);
