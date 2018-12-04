@@ -10,26 +10,31 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.7.2](#changes-in-ice-372-pre-release-snapshot)
   * [C++ Changes](#c-changes)
-- [Changes in Ice 3.7.1](#changes-in-ice-371)
-  * [General Changes](#general-changes)
-  * [C++ Changes](#c-changes-1)
   * [C# Changes](#c%23-changes)
   * [Java Changes](#java-changes)
   * [JavaScript Changes](#javascript-changes)
   * [MATLAB Changes](#matlab-changes)
+  * [Python Changes](#python-changes)
+- [Changes in Ice 3.7.1](#changes-in-ice-371)
+  * [General Changes](#general-changes)
+  * [C++ Changes](#c-changes-1)
+  * [C# Changes](#c%23-changes-1)
+  * [Java Changes](#java-changes-1)
+  * [JavaScript Changes](#javascript-changes-1)
+  * [MATLAB Changes](#matlab-changes-1)
   * [Objective-C Changes](#objective-c-changes)
   * [PHP Changes](#php-changes)
-  * [Python Changes](#python-changes)
+  * [Python Changes](#python-changes-1)
   * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   * [General Changes](#general-changes-1)
   * [C++ Changes](#c-changes-2)
-  * [C# Changes](#c%23-changes-1)
-  * [Java Changes](#java-changes-1)
-  * [JavaScript Changes](#javascript-changes-1)
+  * [C# Changes](#c%23-changes-2)
+  * [Java Changes](#java-changes-2)
+  * [JavaScript Changes](#javascript-changes-2)
   * [Objective-C Changes](#objective-c-changes-1)
   * [PHP Changes](#php-changes-1)
-  * [Python Changes](#python-changes-1)
+  * [Python Changes](#python-changes-2)
   * [Ruby Changes](#ruby-changes-1)
 
 # Changes in Ice 3.7.2 (Pre-Release Snapshot)
@@ -66,6 +71,11 @@ These are the changes since Ice 3.7.1 included in this pre-release.
   correctly released. Thanks to @astreube on GitHub for reporting and suggesting
   a fix.
 
+## C# Changes
+
+- Fixed metrics bug where remote invocations for `flushBatchRequests` weren't
+  counted.
+
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang
@@ -88,16 +98,11 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Slice to JavaScript compiler can now generate TypeScript declaration files
   for JavaScript generated code using `--typescript` command line option.
 
-## Matlab Changes
+## MATLAB Changes
 
 - Fixed a bug that cause slice2matab generated code to throw type conversion
   exception, this affects classes or struct containing an array mapped to an
   structure array.
-
-## C# Changes
-
-- Fixed metrics bug where remote invocations for `flushBatchRequests` weren't
-  counted.
 
 ## Python Changes
 
