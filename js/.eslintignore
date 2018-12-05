@@ -4,3 +4,4 @@ assets
 gulp/bundle.js
 bin/HttpServer.js
 test/Ice/import/bundle.js
+test/typescript/**/*.js

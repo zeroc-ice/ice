@@ -8,8 +8,8 @@
 // **********************************************************************
 
 import {Ice} from "ice";
-import {Test} from "./Test"
-import {TestHelper} from "../../../Common/TestHelper"
+import {Test} from "./generated";
+import {TestHelper} from "../../../Common/TestHelper";
 const test = TestHelper.test;
 
 export class Client extends TestHelper

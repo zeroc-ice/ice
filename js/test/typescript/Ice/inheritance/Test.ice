@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For classes with operations
+[["suppress-warning:deprecated", "js:es6-module"]] // For classes with operations
 
 module Test
 {

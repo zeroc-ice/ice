@@ -225,7 +225,7 @@
                 let adapterCount = adapters.length;
                 while(--count > 0)
                 {
-                    let proxies = [];
+                    const proxies = [];
                     if(count == 1)
                     {
                         await com.deactivateObjectAdapter(adapters[4]);

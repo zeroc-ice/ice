@@ -66,7 +66,8 @@ public:
 
 private:
 
-    IceUtilInternal::Output _out;
+    IceUtilInternal::Output _jsout;
+    IceUtilInternal::Output _tsout;
 
     std::vector<std::string> _includePaths;
     std::string _fileBase;
@@ -150,7 +151,7 @@ private:
     {
     public:
 
-        TypeScriptRequireVisitor(::IceUtilInternal::Output&);
+        TypeScriptRequireVisitor(::IceUtilInternal::Output&, bool);
 
         virtual bool visitModuleStart(const ModulePtr&);
         virtual bool visitClassDefStart(const ClassDefPtr&);
@@ -167,6 +168,7 @@ private:
 
         std::string nextImportPrefix();
 
+        bool _icejs;
         int _nextImport;
         std::map<std::string, std::string> _modulePrefix;
     };

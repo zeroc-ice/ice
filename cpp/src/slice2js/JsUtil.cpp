@@ -200,32 +200,16 @@ Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
 }
 
 string
-Slice::JsGenerator::getModuleMetadata(const ContainedPtr& cont)
+Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
 {
     //
-    // Traverse to the top-level module.
+    // Check if the file contains the python:pkgdir global metadata.
     //
-    ModulePtr m;
-    ContainedPtr p = cont;
-    while (true)
-    {
-        if(ModulePtr::dynamicCast(p))
-        {
-            m = ModulePtr::dynamicCast(p);
-        }
-
-        ContainerPtr c = p->container();
-        p = ContainedPtr::dynamicCast(c); // This cast fails for Unit.
-        if(!p)
-        {
-            break;
-        }
-    }
-
+    DefinitionContextPtr dc = p->definitionContext();
+    assert(dc);
     const string prefix = "js:module:";
-    string value;
-    findMetaData(prefix, m->getMetaData(), value);
-    return value;
+    const string value = dc->findMetaData(prefix);
+    return value.empty() ? value : value.substr(prefix.size());
 }
 
 bool

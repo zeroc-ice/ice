@@ -8,7 +8,7 @@
 // **********************************************************************
 
 import {Ice} from "ice";
-import {Test, Inner} from "./Test";
+import {Test, Inner} from "./generated";
 import {TestHelper} from "../../../Common/TestHelper";
 
 const test = TestHelper.test;

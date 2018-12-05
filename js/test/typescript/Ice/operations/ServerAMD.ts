@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-import {Ice} from "ice";;
-import {Test} from "./Test";
+import {Ice} from "ice";
+import {Test} from "./generated";
 import {TestHelper} from "../../../Common/TestHelper";
 import {AMDMyDerivedClassI} from "./AMDMyDerivedClassI";
 

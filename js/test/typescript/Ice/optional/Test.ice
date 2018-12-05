@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]]
+[["suppress-warning:deprecated", "js:es6-module"]]
 
 module Test
 {

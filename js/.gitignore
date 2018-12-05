@@ -6,6 +6,8 @@ server-languages.json
 ICE_LICENSE
 LICENSE
 
+src/index.d.ts
+
 #
 # Babel generated files
 #
@@ -22,3 +24,4 @@ test/es5
 #
 test/typescript/**/*.js
 test/typescript/**/*.d.ts
+test/typescript/**/*.js.map

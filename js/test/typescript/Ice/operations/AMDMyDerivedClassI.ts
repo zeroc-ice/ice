@@ -6,9 +6,10 @@
 // ICE_LICENSE file included in this distribution.
 //
 // **********************************************************************
-import {Ice} from "ice";;
-import {Test} from "./Test";
+import {Ice} from "ice";
+import {Test} from "./generated";
 import {TestHelper} from "../../../Common/TestHelper";
+
 const test = TestHelper.test;
 
 export class AMDMyDerivedClassI extends Test.MyDerivedClass

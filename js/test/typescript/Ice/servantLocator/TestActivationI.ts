@@ -8,7 +8,7 @@
 // **********************************************************************
 
 import {Ice} from "ice";
-import {Test} from "./Test";
+import {Test} from "./generated";
 import {ServantLocatorI} from "./ServantLocatorI";
 
 export class TestActivationI extends Test.TestActivation

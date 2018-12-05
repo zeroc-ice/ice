@@ -12,6 +12,8 @@
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/Identity.ice>
 
+[["js:es6-module"]]
+
 module Test
 {
 

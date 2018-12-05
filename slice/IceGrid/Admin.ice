@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "python:pkgdir:IceGrid"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API",
+  "python:pkgdir:IceGrid", "js:module:ice"]]
 [["cpp:include:IceGrid/Config.h"]]
 
 #include <Ice/Identity.ice>
@@ -24,7 +25,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEGRID", "js:module:ice"]
+["objc:prefix:ICEGRID"]
 module IceGrid
 {
 

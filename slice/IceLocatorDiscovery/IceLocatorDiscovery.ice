@@ -8,7 +8,8 @@
 // **********************************************************************
 
 #pragma once
-[["ice-prefix", "cpp:header-ext:h", "cpp:doxygen:include:IceLocatorDiscovery/IceLocatorDiscovery.h", "objc:header-dir:objc", "python:pkgdir:IceLocatorDiscovery"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:doxygen:include:IceLocatorDiscovery/IceLocatorDiscovery.h", "objc:header-dir:objc",
+  "python:pkgdir:IceLocatorDiscovery", "js:module:ice"]]
 
 #include <Ice/Locator.ice>
 

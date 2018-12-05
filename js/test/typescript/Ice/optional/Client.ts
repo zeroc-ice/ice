@@ -8,9 +8,8 @@
 // **********************************************************************
 
 import {Ice} from "ice";
-import {Test} from "./Test";
+import {Test} from "./generated";
 import {TestHelper} from "../../../Common/TestHelper";
-import {Test as ClientPrivate} from "./ClientPrivate";
 
 const test = TestHelper.test;
 const ArrayUtil = Ice.ArrayUtil;
@@ -295,7 +294,7 @@ export class Client extends TestHelper
         test(g.gg2Opt.a.equals(new Ice.Long(0, 20)));
         test(g.gg1.a == "gg1");
 
-        const init2 = ClientPrivate.Initial2Prx.uncheckedCast(initial);
+        const init2 = Test.Initial2Prx.uncheckedCast(initial);
         await init2.opVoid(5, "test");
         out.writeLine("ok");
 

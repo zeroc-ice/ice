@@ -13,7 +13,7 @@
 
 const babel = require("gulp-babel");
 const bundle = require("./gulp/bundle");
-const tsbundle = require("./gulp/ts-bundle");
+
 const concat = require('gulp-concat');
 const del = require("del");
 const extreplace = require("gulp-ext-replace");
@@ -21,6 +21,7 @@ const fs = require("fs");
 const gulp = require("gulp");
 const gzip = require('gulp-gzip');
 const iceBuilder = require('gulp-ice-builder');
+const tsbundle = require("gulp-ice-builder").tsbundle;
 const newer = require('gulp-newer');
 const path = require('path');
 const paths = require('vinyl-paths');
@@ -29,7 +30,7 @@ const rollup = require('rollup');
 const sourcemaps = require('gulp-sourcemaps');
 const terser = require('gulp-terser');
 const tsc = require('gulp-typescript');
-const tsformat = require('./gulp/ts-formatter');
+const rename = require('gulp-rename');
 
 const sliceDir = path.resolve(__dirname, '..', 'slice');
 
@@ -76,7 +77,7 @@ function slice2js(options)
             }
             defaults.iceToolsPath = path.resolve("../cpp/bin", platform, configuration);
         }
-        defaults.iceHome = path.resolve("..");
+        defaults.iceHome = path.resolve(__dirname, '..');
     }
     else if(process.env.ICE_HOME)
     {
@@ -84,16 +85,18 @@ function slice2js(options)
     }
     defaults.include = opts.include || [];
     defaults.args = opts.args || [];
-    return iceBuilder.compile(defaults);
+    defaults.jsbundle = opts.jsbundle;
+    defaults.tsbundle = opts.tsbundle;
+    defaults.jsbundleFormat = opts.jsbundleFormat;
+    return iceBuilder(defaults);
 }
 
 //
 // Tasks to build IceJS Distribution
 //
-const root = path.resolve(path.join('__dirname', '..'));
+const root = path.resolve(__dirname);
 const libs = ["Ice", "Glacier2", "IceStorm", "IceGrid"];
 
-const generateTypeScriptTask = name => name.toLowerCase() + ":generate-typescript";
 const generateTask = name => name.toLowerCase() + ":generate";
 const libTask = name => name.toLowerCase() + ":lib";
 const minLibTask = name => name.toLowerCase() + ":lib-min";
@@ -174,20 +177,16 @@ for(const lib of libs)
 {
     const sources = JSON.parse(fs.readFileSync(path.join(srcDir(lib), "sources.json"), {encoding: "utf8"}));
 
-    gulp.task(generateTypeScriptTask(lib),
-              cb =>
-              {
-                  const sliceSources = sources.typescriptSlice || sources.slice;
-                  pump([gulp.src(sliceSources.map(sliceFile)),
-                        slice2js({dest: srcDir(lib), args: ["--typescript"]}),
-                        gulp.dest(srcDir(lib))], cb);
-              });
-
     gulp.task(generateTask(lib),
               cb =>
               {
                   pump([gulp.src(sources.slice.map(sliceFile)),
-                        slice2js({dest: srcDir(lib)}),
+                        slice2js(
+                            {
+                                jsbundle: false,
+                                tsbundle: false,
+                                args: ["--typescript"]
+                            }),
                         gulp.dest(srcDir(lib))], cb);
               });
 
@@ -266,22 +265,23 @@ for(const lib of libs)
 
     gulp.task(libDistTask(lib),
               gulp.series(
-                  gulp.parallel(generateTypeScriptTask(lib), generateTask(lib)),
+                  generateTask(lib),
                   libTask(lib),
                   gulp.parallel(babelTask(lib), babelLibTask(lib), minLibTask(lib)),
                   babelMinLibTask(lib)));
 }
 
+console.log(path.join(root, "src", "Ice", "*.d.ts"));
 gulp.task("ts:bundle",
           cb =>
           {
-              pump([gulp.src("./src/index.d.ts"),
+              pump([gulp.src(libs.map(lib => path.join(root, "src", lib, "*.d.ts"))),
                     tsbundle(),
-                    tsformat({}),
-                    gulp.dest("lib")], cb);
+                    rename("index.d.ts"),
+                    gulp.dest("src")], cb);
           });
 
-gulp.task("ts:bundle:clean", () => del("./lib/index.d.ts"));
+gulp.task("ts:bundle:clean", () => del("./src/index.d.ts"));
 
 if(useBinDist)
 {
@@ -357,7 +357,7 @@ gulp.task("test:common:generate",
           cb =>
           {
               pump([gulp.src(["../scripts/Controller.ice"]),
-                    slice2js({dest: "test/Common"}),
+                    slice2js(),
                     gulp.dest("test/Common")], cb);
           });
 
@@ -401,7 +401,10 @@ gulp.task("test:import:generate",
                               "test/Ice/import/Demo/Circle.ice",
                               "test/Ice/import/Demo/Square.ice",
                               "test/Ice/import/Demo/Canvas.ice"]),
-                    slice2js({dest: "test/Ice/import/Demo", include: ["test/Ice/import"]}),
+                    slice2js(
+                        {
+                            include: ["test/Ice/import"]
+                        }),
                     gulp.dest("test/Ice/import/Demo")], cb);
           });
 
@@ -443,7 +446,10 @@ for(const name of tests)
               {
                   const outdir = path.join(root, name);
                   pump([gulp.src(path.join(outdir, "*.ice")),
-                        slice2js({include: [outdir], dest: outdir}),
+                        slice2js(
+                            {
+                                include: [outdir]
+                            }),
                         gulp.dest(outdir)], cb);
               });
 
@@ -517,7 +523,6 @@ const tstests = [
 ];
 
 const testTypeScriptSliceCompileJsTask = name => testTask(name) + ":ts:slice-compile-js";
-const testTypeScriptSliceCompileTsTask = name => testTask(name) + ":ts:slice-compile-ts";
 const testTypeScriptCompileTask = name => testTask(name) + ":ts:compile";
 const testTypeScriptBuildTask = name => testTask(name) + ":ts:build";
 const testTypeScriptCleanTask = name => testTask(name) + ":ts:clean";
@@ -529,16 +534,12 @@ for(const name of tstests)
               {
                   const outdir = path.join(root, name);
                   pump([gulp.src(path.join(outdir, "*.ice")),
-                        slice2js({include: [outdir], dest: outdir}),
-                        gulp.dest(outdir)], cb);
-              });
-
-    gulp.task(testTypeScriptSliceCompileTsTask(name),
-              cb =>
-              {
-                  const outdir = path.join(root, name);
-                  pump([gulp.src(path.join(outdir, "*.ice")),
-                        slice2js({include: [outdir], dest: outdir, args: ["--typescript"]}),
+                        slice2js(
+                            {
+                                include: [outdir],
+                                args: ["--typescript"],
+                                jsbundleFormat: "cjs"
+                            }),
                         gulp.dest(outdir)], cb);
               });
 
@@ -559,14 +560,15 @@ for(const name of tstests)
 
     gulp.task(testTypeScriptBuildTask(name),
               gulp.series(
-                  gulp.parallel(testTypeScriptSliceCompileJsTask(name), testTypeScriptSliceCompileTsTask(name)),
+                  testTypeScriptSliceCompileJsTask(name),
                   testTypeScriptCompileTask(name)));
 
     gulp.task(testTypeScriptCleanTask(name),
               cb =>
               {
                   pump([gulp.src([path.join(root, name, "**/*.js"),
-                                  path.join(root, name, "**/*.d.ts")]),
+                                  path.join(root, name, "**/*.d.ts"),
+                                  path.join(root, name, "**/*.js.map")]),
                         paths(del)], cb);
               });
 }

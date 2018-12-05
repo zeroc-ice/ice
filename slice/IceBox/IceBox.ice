@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBOX_API", "cpp:doxygen:include:IceBox/IceBox.h", "objc:header-dir:objc", "python:pkgdir:IceBox"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBOX_API", "cpp:doxygen:include:IceBox/IceBox.h", "objc:header-dir:objc",
+  "python:pkgdir:IceBox", "js:module:ice"]]
 [["cpp:include:IceBox/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>

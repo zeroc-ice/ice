@@ -8,7 +8,7 @@
 // **********************************************************************
 
 import {Ice} from "ice";
-import {Test} from "./Test"
+import {Test} from "./generated";
 
 export class CAI extends Test.MA.CADisp
 {

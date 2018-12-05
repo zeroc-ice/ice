@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "cpp:doxygen:include:Glacier2/Glacier2.h", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API", "python:pkgdir:Glacier2"]]
+[["cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "cpp:doxygen:include:Glacier2/Glacier2.h", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API",
+  "python:pkgdir:Glacier2", "js:module:ice"]]
 [["cpp:include:Glacier2/Config.h"]]
 
 #include <Ice/BuiltinSequences.ice>
@@ -20,7 +21,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:GLACIER2", "js:module:ice"]
+["objc:prefix:GLACIER2"]
 module Glacier2
 {
 

@@ -16,10 +16,6 @@
 #include <cstring>
 #include <iterator>
 
-#ifdef _WIN32
-#   include <io.h>
-#endif
-
 // TODO: fix this warning once we no longer support VS2013 and earlier
 #if defined(_MSC_VER) && (_MSC_VER >= 1900)
 #    pragma warning(disable:4589) // Constructor of abstract class 'Slice::Type' ignores initializer...

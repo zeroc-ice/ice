@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc", "objc:dll-export:ICESTORM_API", "python:pkgdir:IceStorm"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc",
+  "objc:dll-export:ICESTORM_API", "python:pkgdir:IceStorm", "js:module:ice"]]
 [["cpp:include:IceStorm/Config.h"]]
 
 #include <Ice/Identity.ice>
@@ -29,7 +30,7 @@
  * easy as invoking a method on an interface.
  *
  **/
-["objc:prefix:ICESTORM", "js:module:ice"]
+["objc:prefix:ICESTORM"]
 module IceStorm
 {
 

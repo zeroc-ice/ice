@@ -633,15 +633,15 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         _fileBase = base.substr(pos + 1);
     }
 
-    string file = _fileBase + (typeScript ? ".d.ts" : ".js");
+    string file = _fileBase + ".js";
 
     if(!dir.empty())
     {
         file = dir + '/' + file;
     }
 
-    _out.open(file.c_str());
-    if(!_out)
+    _jsout.open(file.c_str());
+    if(!_jsout)
     {
         ostringstream os;
         os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
@@ -649,13 +649,30 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     }
     FileTracker::instance()->addFile(file);
 
-    printHeader(_out);
-    printGeneratedHeader(_out, _fileBase + ".ice");
+    if(typeScript)
+    {
+        file = _fileBase + ".d.ts";
+
+        if(!dir.empty())
+        {
+            file = dir + '/' + file;
+        }
+
+        _tsout.open(file.c_str());
+        if(!_tsout)
+        {
+            ostringstream os;
+            os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
+        }
+        FileTracker::instance()->addFile(file);
+    }
 }
 
 Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& /*dir*/, bool typeScript,
                 ostream& out) :
-    _out(out),
+    _jsout(out),
+    _tsout(out),
     _includePaths(includePaths),
     _useStdout(true),
     _typeScript(typeScript)
@@ -666,49 +683,133 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     {
         _fileBase = base.substr(pos + 1);
     }
-
-    printHeader(_out);
-    printGeneratedHeader(_out, _fileBase + ".ice");
 }
 
 Slice::Gen::~Gen()
 {
-    if(_out.isOpen() || _useStdout)
+    if(_jsout.isOpen() || _useStdout)
     {
-        _out << '\n';
+        _jsout << '\n';
+    }
+
+    if(_tsout.isOpen() || _useStdout)
+    {
+        _tsout << '\n';
     }
 }
 
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    //
-    // Check for "js:module:ice" metadata. If this
-    // is set then we are building Ice.
-    //
-    ModuleList modules = p->modules();
-    bool icejs = false;
-    for(ModuleList::const_iterator i = modules.begin(); i != modules.end(); i++)
+    string module;
+    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+    assert(dc);
+
     {
-        if(p->topLevelFile() == (*i)->definitionContext()->filename() &&
-           getModuleMetadata(ContainedPtr::dynamicCast(*i)) == "ice")
+        const string prefix = "js:module:";
+        const string m = dc->findMetaData(prefix);
+        if(!m.empty())
         {
-            icejs = true;
-            break;
+            module = m.substr(prefix.size());
         }
     }
 
+    if(_useStdout)
+    {
+        _jsout << "\n";
+        _jsout << "/** slice2js: " << _fileBase << ".js generated begin module:\"" << module << "\" **/";
+        _jsout << "\n";
+    }
+    printHeader(_jsout);
+    printGeneratedHeader(_jsout, _fileBase + ".ice");
+
     //
-    // Check for global "js:es6-module" metadata.
+    // Check for global "js:module:ice" metadata. If this is set then we are building Ice.
     //
-    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
-    assert(dc);
-    StringList globalMetaData = dc->getMetaData();
-    bool es6module = find(globalMetaData.begin(), globalMetaData.end(), "js:es6-module") != globalMetaData.end();
+    bool icejs = module == "ice";
+
+    //
+    // Check for global "js:es6-module" metadata. If this is set we are using es6 module mapping
+    //
+    bool es6module = dc->findMetaData("js:es6-module") == "js:es6-module";
+
+    _jsout << nl << "/* eslint-disable */";
+    _jsout << nl << "/* jshint ignore: start */";
+    _jsout << nl;
+
+    if(!es6module)
+    {
+        if(icejs)
+        {
+            _jsout.zeroIndent();
+            _jsout << nl << "/* slice2js browser-bundle-skip */";
+            _jsout.restoreIndent();
+        }
+        _jsout << nl << "(function(module, require, exports)";
+        _jsout << sb;
+        if(icejs)
+        {
+            _jsout.zeroIndent();
+            _jsout << nl << "/* slice2js browser-bundle-skip-end */";
+            _jsout.restoreIndent();
+        }
+    }
+    RequireVisitor requireVisitor(_jsout, _includePaths, icejs, es6module);
+    p->visit(&requireVisitor, false);
+    vector<string> seenModules = requireVisitor.writeRequires(p);
+
+    TypesVisitor typesVisitor(_jsout, seenModules, icejs);
+    p->visit(&typesVisitor, false);
+
+    //
+    // Export the top-level modules.
+    //
+    ExportVisitor exportVisitor(_jsout, icejs, es6module);
+    p->visit(&exportVisitor, false);
+
+    if(!es6module)
+    {
+        if(icejs)
+        {
+            _jsout.zeroIndent();
+            _jsout << nl << "/* slice2js browser-bundle-skip */";
+            _jsout.restoreIndent();
+        }
+
+        _jsout << eb;
+        _jsout << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
+               << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require :"
+               << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,"
+               << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports :"
+               << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self : window));";
+
+        if(icejs)
+        {
+            _jsout.zeroIndent();
+            _jsout << nl << "/* slice2js browser-bundle-skip-end */";
+            _jsout.restoreIndent();
+        }
+    }
+
+    if(_useStdout)
+    {
+        _jsout << "\n";
+        _jsout << "/** slice2js: generated end **/";
+        _jsout << "\n";
+    }
 
     if(_typeScript)
     {
-        TypeScriptRequireVisitor requireVisitor(_out);
+        if(_useStdout)
+        {
+            _tsout << "\n";
+            _tsout << "/** slice2js: " << _fileBase << ".d.ts generated begin module:\"" << module << "\" **/";
+            _tsout << "\n";
+        }
+        printHeader(_tsout);
+        printGeneratedHeader(_tsout, _fileBase + ".ice");
+
+        TypeScriptRequireVisitor requireVisitor(_tsout, icejs);
         p->visit(&requireVisitor, false);
 
         //
@@ -717,71 +818,18 @@ Slice::Gen::generate(const UnitPtr& p)
         // a type alias when there is an abiguity.
         // see: https://github.com/Microsoft/TypeScript/issues/983
         //
-        TypeScriptAliasVisitor aliasVisitor(_out);
+        TypeScriptAliasVisitor aliasVisitor(_tsout);
         p->visit(&aliasVisitor, false);
         aliasVisitor.writeAlias(p);
 
-        TypeScriptVisitor typeScriptVisitor(_out, requireVisitor.imports());
+        TypeScriptVisitor typeScriptVisitor(_tsout, requireVisitor.imports());
         p->visit(&typeScriptVisitor, false);
-    }
-    else
-    {
-        _out << nl << "/* eslint-disable */";
-        _out << nl << "/* jshint ignore: start */";
-        _out << nl;
 
-        if(!es6module)
+        if(_useStdout)
         {
-            if(icejs)
-            {
-                _out.zeroIndent();
-                _out << nl << "/* slice2js browser-bundle-skip */";
-                _out.restoreIndent();
-            }
-            _out << nl << "(function(module, require, exports)";
-            _out << sb;
-            if(icejs)
-            {
-                _out.zeroIndent();
-                _out << nl << "/* slice2js browser-bundle-skip-end */";
-                _out.restoreIndent();
-            }
-        }
-        RequireVisitor requireVisitor(_out, _includePaths, icejs, es6module);
-        p->visit(&requireVisitor, false);
-        vector<string> seenModules = requireVisitor.writeRequires(p);
-
-        TypesVisitor typesVisitor(_out, seenModules, icejs);
-        p->visit(&typesVisitor, false);
-
-        //
-        // Export the top-level modules.
-        //
-        ExportVisitor exportVisitor(_out, icejs, es6module);
-        p->visit(&exportVisitor, false);
-
-        if(!es6module)
-        {
-            if(icejs)
-            {
-                _out.zeroIndent();
-                _out << nl << "/* slice2js browser-bundle-skip */";
-                _out.restoreIndent();
-            }
-
-            _out << eb;
-            _out << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
-                 << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require :"
-                 << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,"
-                 << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports :"
-                 << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self : window));";
-
-            if(icejs)
-            {
-                _out.zeroIndent();
-                _out << nl << "/* slice2js browser-bundle-skip-end */";
-                _out.restoreIndent();
-            }
+            _tsout << "\n";
+            _tsout << "/** slice2js: generated end **/";
+            _tsout << "\n";
         }
     }
 }
@@ -789,7 +837,15 @@ Slice::Gen::generate(const UnitPtr& p)
 void
 Slice::Gen::closeOutput()
 {
-    _out.close();
+    if(_jsout.isOpen())
+    {
+        _jsout.close();
+    }
+
+    if(_tsout.isOpen())
+    {
+        _tsout.close();
+    }
 }
 
 Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths,
@@ -2173,8 +2229,9 @@ Slice::Gen::ExportVisitor::visitModuleStart(const ModulePtr& p)
     return false;
 }
 
-Slice::Gen::TypeScriptRequireVisitor::TypeScriptRequireVisitor(IceUtilInternal::Output& out) :
+Slice::Gen::TypeScriptRequireVisitor::TypeScriptRequireVisitor(IceUtilInternal::Output& out, bool icejs) :
     JsVisitor(out),
+    _icejs(icejs),
     _nextImport(0)
 {
 }
@@ -2264,15 +2321,9 @@ Slice::Gen::TypeScriptRequireVisitor::visitModuleStart(const ModulePtr& p)
     //
     // Import ice module if not building Ice
     //
-    if(UnitPtr::dynamicCast(p->container()))
+    if(UnitPtr::dynamicCast(p->container()) && !_icejs && _imports.empty())
     {
-        const string prefix = "js:module:";
-        string m;
-        findMetaData(prefix, p->getMetaData(), m);
-        if(_imports.empty() && m != "ice")
-        {
-            _imports.push_back(make_pair("ice", nextImportPrefix()));
-        }
+        _imports.push_back(make_pair("ice", nextImportPrefix()));
     }
     return true;
 }
@@ -2592,20 +2643,9 @@ Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
     UnitPtr unit = UnitPtr::dynamicCast(p->container());
     if(unit)
     {
-        string module = getModuleMetadata(ContainedPtr::dynamicCast(p));
-
         _out << sp;
-        if(module.empty())
-        {
-            writeImports();
-            _out << nl << "export namespace " << fixId(p->name()) << sb;
-        }
-        else
-        {
-            _out << nl << "declare module \"" << fixId(module) << "\"" << sb;
-            writeImports();
-            _out << nl << "namespace " << fixId(p->name()) << sb;
-        }
+        writeImports();
+        _out << nl << "export namespace " << fixId(p->name()) << sb;
     }
     else
     {
@@ -2615,18 +2655,9 @@ Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr&)
 {
     _out << eb; // namespace end
-
-    if(UnitPtr::dynamicCast(p->container()))
-    {
-        string module = getModuleMetadata(ContainedPtr::dynamicCast(p));
-        if(!module.empty())
-        {
-            _out << eb; // module end
-        }
-    }
 }
 
 bool

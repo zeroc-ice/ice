@@ -9,6 +9,8 @@
 
 #pragma once
 
+[["js:es6-module"]]
+
 module Test
 {
 

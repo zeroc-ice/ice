@@ -8,7 +8,7 @@
 // **********************************************************************
 
 import {Ice, Glacier2} from "ice";
-import {Test} from "./Callback";
+import {Test} from "./generated";
 import {TestHelper} from "../../../Common/TestHelper";
 
 const test = TestHelper.test;

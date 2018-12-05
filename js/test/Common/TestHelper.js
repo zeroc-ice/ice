@@ -10,7 +10,6 @@
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
-
     class TestHelper
     {
         getTestEndpoint(...args)

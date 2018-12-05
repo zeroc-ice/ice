@@ -75,7 +75,7 @@ usage(const string& n)
         "--depend-file FILE       Write dependencies to FILE instead of standard output.\n"
         "--validate               Validate command line options.\n"
         "--stdout                 Print generated code to stdout.\n"
-        "--typescript             Generate TypeScript declaration file\n"
+        "--typescript             Generate TypeScript declarations.\n"
         "--depend-json            Generate dependency information in JSON format.\n"
         "--ice                    Allow reserved Ice prefix in Slice identifiers\n"
         "                         deprecated: use instead [[\"ice-prefix\"]] metadata.\n"
@@ -249,6 +249,8 @@ compile(const vector<string>& argv)
         }
     }
 
+    map<string, vector<string> > moduleInfo;
+
     for(vector<string>::const_iterator i = sources.begin(); i != sources.end();)
     {
         PreprocessorPtr icecpp = Preprocessor::create(argv[0], *i, cppArgs);
@@ -273,7 +275,8 @@ compile(const vector<string>& argv)
             bool last = (++i == sources.end());
 
             if(!icecpp->printMakefileDependencies(os,
-                    depend ? Preprocessor::JavaScript : (dependJSON ? Preprocessor::JavaScriptJSON : Preprocessor::SliceXML),
+                    depend ? Preprocessor::JavaScript : (dependJSON ? Preprocessor::JavaScriptJSON :
+                                                                      Preprocessor::SliceXML),
                     includePaths,
                     "-D__SLICE2JS__"))
             {
@@ -328,6 +331,26 @@ compile(const vector<string>& argv)
                 }
                 else
                 {
+                    DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+                    assert(dc);
+                    const string prefix = "js:module:";
+                    string m = dc->findMetaData(prefix);
+                    if(!m.empty())
+                    {
+                        m = m.substr(prefix.size());
+                    }
+
+                    if(moduleInfo.find(m) == moduleInfo.end())
+                    {
+                        vector<string> files;
+                        files.push_back(*i);
+                        moduleInfo[m] = files;
+                    }
+                    else
+                    {
+                        moduleInfo[m].push_back(*i);
+                    }
+
                     try
                     {
                         if(useStdout)

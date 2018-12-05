@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESSL_API", "cpp:doxygen:include:IceSSL/IceSSL.h", "objc:header-dir:objc", "objc:dll-export:ICESSL_API", "python:pkgdir:IceSSL"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESSL_API", "cpp:doxygen:include:IceSSL/IceSSL.h", "objc:header-dir:objc", "objc:dll-export:ICESSL_API",
+  "python:pkgdir:IceSSL", "js:module:ice"]]
 
 [["cpp:include:IceSSL/Plugin.h"]]
 
@@ -19,7 +20,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICESSL", "js:module:ice"]
+["objc:prefix:ICESSL"]
 module IceSSL
 {
 

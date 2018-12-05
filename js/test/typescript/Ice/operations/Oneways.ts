@@ -7,9 +7,10 @@
 //
 // **********************************************************************
 
-import {Ice} from "ice";;
-import {Test} from "./Test";
+import {Ice} from "ice";
+import {Test} from "./generated";
 import {TestHelper} from "../../../Common/TestHelper";
+
 const test = TestHelper.test;
 
 export async function run(communicator:Ice.Communicator, prx:Test.MyClassPrx, bidir:boolean)

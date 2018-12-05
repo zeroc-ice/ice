@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["java:package:test.Ice.acm"]]
+[["js:es6-module"]]
+
 module Test
 {
 

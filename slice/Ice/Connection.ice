@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice", "js:module:ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
@@ -19,7 +19,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICE", "js:module:ice"]
+["objc:prefix:ICE"]
 module Ice
 {
 

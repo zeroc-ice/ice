@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBT_API", "cpp:doxygen:include:IceBT/IceBT.h", "objc:header-dir:objc", "python:pkgdir:IceBT"]]
+[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBT_API", "cpp:doxygen:include:IceBT/IceBT.h", "objc:header-dir:objc", "python:pkgdir:IceBT",
+  "js:module:ice"]]
 
 #include <Ice/Endpoint.ice>
 

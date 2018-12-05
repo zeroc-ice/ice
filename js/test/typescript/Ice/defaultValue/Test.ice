@@ -9,7 +9,7 @@
 
 #pragma once
 
-[["suppress-warning:deprecated"]] // For enumerator references
+[["suppress-warning:deprecated", "js:es6-module"]] // For enumerator references
 
 module Test
 {

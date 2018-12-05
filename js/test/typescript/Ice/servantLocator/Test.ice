@@ -9,7 +9,8 @@
 
 #pragma once
 
-[["java:package:test.Ice.servantLocator"]]
+[["js:es6-module"]]
+
 module Test
 {
 
