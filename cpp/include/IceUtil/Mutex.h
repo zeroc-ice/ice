@@ -235,9 +235,8 @@ Mutex::init(MutexProtocol
     }
 
     //
-    // Enable mutex error checking in debug builds
+    // Enable mutex error checking
     //
-#ifndef NDEBUG
     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     assert(rc == 0);
     if(rc != 0)
@@ -245,7 +244,6 @@ Mutex::init(MutexProtocol
         pthread_mutexattr_destroy(&attr);
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
-#endif
 
     //
     // If system has support for priority inheritance we set the protocol
