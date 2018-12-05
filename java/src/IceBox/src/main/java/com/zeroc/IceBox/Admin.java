@@ -146,7 +146,7 @@ public final class Admin
                 }
                 catch(com.zeroc.IceBox.AlreadyStartedException ex)
                 {
-                    System.err.println("IceBox.Admin service already started.");
+                    System.err.println("IceBox.Admin: service already started.");
                 }
             }
             else if(command.equals("stop"))
@@ -169,12 +169,12 @@ public final class Admin
                 }
                 catch(com.zeroc.IceBox.AlreadyStoppedException ex)
                 {
-                    System.err.println("IceBox.Admin service already stopped.");
+                    System.err.println("IceBox.Admin: service already stopped.");
                 }
             }
             else
             {
-                System.err.println("IceBox.Admin : unknown command `" + command + "'");
+                System.err.println("IceBox.Admin: unknown command `" + command + "'");
                 usage();
                 return 1;
             }

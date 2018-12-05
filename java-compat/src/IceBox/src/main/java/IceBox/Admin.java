@@ -163,7 +163,7 @@ public final class Admin
                 }
                 catch(IceBox.AlreadyStartedException ex)
                 {
-                    System.err.println("IceBox.Admin service already started.");
+                    System.err.println("IceBox.Admin: service already started.");
                 }
             }
             else if(command.equals("stop"))
@@ -186,7 +186,7 @@ public final class Admin
                 }
                 catch(IceBox.AlreadyStoppedException ex)
                 {
-                    System.err.println("IceBox.Admin service already stopped.");
+                    System.err.println("IceBox.Admin: service already stopped.");
                 }
             }
             else
