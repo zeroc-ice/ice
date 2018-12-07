@@ -1025,58 +1025,111 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     StringList includes = p->includeFiles();
     if(_es6modules)
     {
-        _out << nl << "import { Ice } from \"ice\";";
-        _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
+        const string prefix = "js:module:";
+        DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+        string m1 = dc->findMetaData(prefix);
+        if(!m1.empty())
+        {
+            m1 = m1.substr(prefix.size());
+        }
 
         seenModules.push_back("Ice");
+
+        map<string, set<string>> imports;
+        set<string> mImports;
+        {
+            mImports.insert("Ice");
+            imports["ice"] = mImports;
+        }
 
         for(StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
         {
             set<string> modules = p->getTopLevelModules(*i);
-            vector<string> newModules;
-            bool externals = false; // is there any external modules?
-            for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
+
+            dc = p->findDefinitionContext(*i);
+
+            string m2 = dc->findMetaData(prefix);
+            if(!m2.empty())
             {
-                if(find(seenModules.begin(), seenModules.end(), *j) == seenModules.end())
+                m2 = m2.substr(prefix.size());
+            }
+
+            if(m1 != m2 && !m2.empty())
+            {
+                for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
                 {
-                    seenModules.push_back(*j);
-                    if(!_icejs && iceBuiltinModule(*j))
+                    if(imports.find(m2) == imports.end())
                     {
-                        _out << nl << "import { " << *j << " } from \"ice\";";
+                        set<string> mImports;
+                        mImports.insert(*j);
+                        imports[m2] = mImports;
                     }
                     else
                     {
-                        newModules.push_back(*j);
-                        externals = true;
+                        imports[m2].insert(*j);
                     }
                 }
             }
-
-            if(externals)
+            else
             {
+                set<string> newModules;
+                for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
+                {
+                    if(find(seenModules.begin(), seenModules.end(), *j) == seenModules.end())
+                    {
+                        seenModules.push_back(*j);
+                        newModules.insert(*j);
+                    }
+                }
+
+                string f = relativePath(*i, p->topLevelFile());
+                string::size_type pos;
+                if((pos = f.rfind('.')) != string::npos)
+                {
+                    f.erase(pos);
+                }
+
+                imports[f] = newModules;
+            }
+        }
+
+        //
+        // We first import the Ice runtime
+        //
+        _out << nl << "import { ";
+        mImports = imports["ice"];
+        for(set<string>::const_iterator i = mImports.begin(); i != mImports.end();)
+        {
+            _out << (*i);
+            if(++i != mImports.end())
+            {
+                _out << ", ";
+            }
+        }
+        _out << " } from \"ice\";";
+
+        _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
+
+        for(map<string, set<string>>::const_iterator i = imports.begin(); i != imports.end(); ++i)
+        {
+            if(i->first != "ice")
+            {
+                mImports = i->second;
                 _out << nl << "import ";
-                if(!newModules.empty())
+                if(!mImports.empty())
                 {
                     _out << "{ ";
-                    for(vector<string>::const_iterator j = newModules.begin(); j != newModules.end();)
+                    for(set<string>::const_iterator i = mImports.begin(); i != mImports.end();)
                     {
-                        _out << *j;
-                        ++j;
-                        if(j != newModules.end())
+                        _out << (*i);
+                        if(++i != mImports.end())
                         {
                             _out << ", ";
                         }
                     }
                     _out << " } from ";
                 }
-
-                string result = relativePath(*i, p->topLevelFile());
-                string::size_type pos;
-                if((pos = result.rfind('.')) != string::npos)
-                {
-                    result.erase(pos);
-                }
-                _out << "\"" << result << "\";";
+                _out << "\"" << i->first << "\";";
             }
         }
         _out << nl << "const Slice = Ice.Slice;";
@@ -1106,6 +1159,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                 }
             }
         }
+
         if(_icejs)
         {
             _out.zeroIndent();
