@@ -9,9 +9,10 @@
         <UwpPlatform Condition="'$(Platform)' == 'x64'">x64</UwpPlatform>
         <UwpPlatform Condition="'$(Platform)' == 'x86' or '$(Platform)' == 'Win32'">x86</UwpPlatform>
 
-        <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '12.0'">v120</DefaultPlatformToolset>
-        <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '14.0'">v140</DefaultPlatformToolset>
-        <DefaultPlatformToolset Condition="'$(MSBuildToolsVersion)' == '15.0'">v141</DefaultPlatformToolset>
+        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '12.0'">v120</DefaultPlatformToolset>
+        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '14.0'">v140</DefaultPlatformToolset>
+        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '15.0'">v141</DefaultPlatformToolset>
+        <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '16.0'">v141</DefaultPlatformToolset>
     </PropertyGroup>
 
     <Import Project="$(MSBuildThisFileDirectory)\..\..\config\icebuilder.props" />
