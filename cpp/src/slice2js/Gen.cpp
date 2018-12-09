@@ -1035,7 +1035,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
         seenModules.push_back("Ice");
 
-        map<string, set<string>> imports;
+        map<string, set<string> > imports;
         set<string> mImports;
         {
             mImports.insert("Ice");
@@ -1110,7 +1110,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 
         _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
 
-        for(map<string, set<string>>::const_iterator i = imports.begin(); i != imports.end(); ++i)
+        for(map<string, set<string> >::const_iterator i = imports.begin(); i != imports.end(); ++i)
         {
             if(i->first != "ice")
             {
