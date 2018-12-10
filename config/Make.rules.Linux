@@ -58,7 +58,7 @@ endif
 x64_cppflags            := $(call opt-cppflags,x86_64) -m64
 x64_ldflags             := $(call opt-ldflags,x86_64) -m64
 x64_targetdir           = $(if $(filter %/build,$5),/x64,$(if $(filter-out $($1_target),program),64))
-x64_installdir          = $(if $(and $(filter-out $($1_target),program),$(filter-out %64,$5)),64)
+x64_installdir          = $(if $(and $(filter-out $($1_target),program),$(if $5,$(filter-out %64,$5),true)),64)
 
 x86_cppflags            := $(call opt-cppflags,i386) -m32
 x86_ldflags             := $(call opt-ldflags,i386) -m32
@@ -129,12 +129,12 @@ endif
 
 build-platform                  = $(if $(filter arm%,$(shell uname -m)),arm,$(shell uname -m))
 supported-platforms             = $(build-platform)
-lib-suffix                      = $(if $(filter x86_64,$(build-platform)),64,)
+lib-suffix                      = $(if $(filter %64,$(build-platform)),64,)
 
 $(build-platform)_cppflags      := $(call opt-cppflags,$(build-platform))
 $(build-platform)_ldflags       := $(call opt-ldflags,$(build-platform))
 $(build-platform)_targetdir     = $(if $(filter %/build,$5),/$(build-platform),$(if $(filter-out $($1_target),program),$(lib-suffix)))
-$(build-platform)_installdir    = $(if $(and $(filter-out $($1_target),program),$(filter-out %$(lib-suffix),$($1_installdir))),$(lib-suffix))
+$(build-platform)_installdir    = $(if $(and $(filter-out $($1_target),program),$(if $5,$(filter-out %$(lib-suffix),$5),true)),$(lib-suffix))
 
 endif
 
