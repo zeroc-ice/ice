@@ -30,7 +30,7 @@
     "gulp-concat": "^2.6.1",
     "gulp-ext-replace": "^0.3.0",
     "gulp-gzip": "^1.4.2",
-    "gulp-ice-builder": "^3.0.0",
+    "gulp-ice-builder": "^3.0.1",
     "gulp-newer": "^1.4.0",
     "gulp-rename": "^1.4.0",
     "gulp-sourcemaps": "^2.6.4",
