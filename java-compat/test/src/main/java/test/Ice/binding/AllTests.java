@@ -1005,7 +1005,7 @@ public class AllTests
         // On Windows, the FD limit is very high and there's no way to limit the number of FDs
         // for the server so we don't run this test.
         //
-        if(!System.getProperty("os.name").startsWith("Windows"))
+        if(!System.getProperty("os.name").startsWith("Windows") && !helper.isAndroid())
         {
             out.print("testing FD limit... ");
             out.flush();
@@ -1035,7 +1035,7 @@ public class AllTests
             catch(Ice.ConnectionRefusedException ex)
             {
                 // Close the connection now to free a FD (it could be done after the sleep but
-                // there could be race condiutation since the connection might not be closed
+                // there could be race condition since the connection might not be closed
                 // immediately due to threading).
                 test.ice_connectionId("0").ice_getConnection().close(Ice.ConnectionClose.GracefullyWithWait);
 

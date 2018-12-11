@@ -1081,7 +1081,7 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectionRefusedException&)
         {
             // Close the connection now to free a FD (it could be done after the sleep but
-            // there could be race condiutation since the connection might not be closed
+            // there could be race condition since the connection might not be closed
             // immediately due to threading).
             test->ice_connectionId("0")->ice_getConnection()->close(
                 Ice::ICE_SCOPED_ENUM(ConnectionClose, GracefullyWithWait));
