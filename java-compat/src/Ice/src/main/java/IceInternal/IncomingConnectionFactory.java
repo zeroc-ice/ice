@@ -390,7 +390,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Ice
             return;
         }
 
-        assert(_state == StateClosed);
+        assert(_state >= StateClosed);
         setState(StateFinished);
 
         if(close)

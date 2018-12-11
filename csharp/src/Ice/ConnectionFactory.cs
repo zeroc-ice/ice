@@ -1521,7 +1521,7 @@ namespace IceInternal
                     return;
                 }
 
-                Debug.Assert(_state == StateClosed);
+                Debug.Assert(_state >= StateClosed);
                 setState(StateFinished);
             }
         }

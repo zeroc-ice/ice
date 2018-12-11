@@ -1606,7 +1606,7 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
         return;
     }
 
-    assert(_state == StateClosed);
+    assert(_state >= StateClosed);
     setState(StateFinished);
 
     if(close)

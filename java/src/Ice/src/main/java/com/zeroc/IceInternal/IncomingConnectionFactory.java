@@ -380,7 +380,7 @@ public final class IncomingConnectionFactory extends EventHandler implements Con
             return;
         }
 
-        assert(_state == StateClosed);
+        assert(_state >= StateClosed);
         setState(StateFinished);
 
         if(close)
