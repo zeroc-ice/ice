@@ -271,7 +271,6 @@ for(const lib of libs)
                   babelMinLibTask(lib)));
 }
 
-console.log(path.join(root, "src", "Ice", "*.d.ts"));
 gulp.task("ts:bundle",
           cb =>
           {
