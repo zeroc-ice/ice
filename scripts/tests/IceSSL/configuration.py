@@ -61,7 +61,7 @@ class ConfigurationTestCase(ClientServerTestCase):
     def getOpenSSLCommand(self, current):
         if isinstance(platform, Windows):
             return os.path.join(current.testsuite.getPath(), "..", "..", "..", "msbuild", "packages",
-                                "zeroc.openssl.v140.1.0.2.5", "build", "native", "bin", "Win32", "Release",
+                                "zeroc.openssl.v140.1.0.2.6", "build", "native", "bin", "Win32", "Release",
                                 "openssl.exe")
         else:
             return "openssl"
