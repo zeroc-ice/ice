@@ -15,9 +15,14 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
-function isSafari()
+function isIE()
 {
-    return (/^((?!chrome).)*safari/i).test(navigator.userAgent);
+    return (navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.match(/Trident.*rv:11\./));
+}
+
+function isEdge()
+{
+    return (/Edge/).test(navigator.userAgent);
 }
 
 function isWorker()
@@ -25,11 +30,20 @@ function isWorker()
     return typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope;
 }
 
+const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
+let _nextId = 0;
+const nextId = function()
+{
+    if(_nextId == MAX_SAFE_INTEGER)
+    {
+        _nextId = 0;
+    }
+    return _nextId++;
+};
+const _timers = new Map();
+
 //
-// Create a timer object that uses the default browser methods. Note that we also
-// have to use apply with null as the first argument to workaround an issue where
-// IE doesn't like these functions to be called with an unknown object (it reports
-// an "Invalid calling object" error).
+// Create a timer object that uses the default browser methods.
 //
 function createTimerObject()
 {
@@ -54,29 +68,46 @@ function createTimerObject()
         {
             return clearInterval(id);
         }
-
-        static setImmediate(cb)
-        {
-            //
-            // BUGFIX: setImediate callback is some times not fired when used
-            // from a Safari worker.
-            //
-            if(typeof setImmediate == "function" && !(isWorker() && isSafari()))
-            {
-                return setImmediate(cb);
-            }
-            else
-            {
-                return setTimeout(cb);
-            }
-        }
     };
+
+    //
+    // For Browsers that support setImmediate prefer that,
+    // otherwise implement it using MessageChannel
+    //
+    if(isEdge() || isIE())
+    {
+        Timer.setImmediate = function(cb)
+        {
+            setImmediate(cb);
+        };
+    }
+    else
+    {
+        //
+        // Should be only call for workers
+        //
+        const channel = new MessageChannel();
+        channel.port1.onmessage = event =>
+        {
+            const id = event.data;
+            const cb = _timers.get(id);
+            if(cb !== undefined)
+            {
+                cb.call();
+                _timers.delete(id);
+            }
+        };
+
+        Timer.setImmediate = function(cb)
+        {
+            const id = nextId();
+            _timers.set(id, cb);
+            channel.port2.postMessage(id);
+        };
+    }
+
     return Timer;
 }
-
-const MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER || 9007199254740991;
-
-const _timers = new Map();
 
 const _SetTimeoutType = 0;
 const _SetIntervalType = 1;
@@ -85,16 +116,6 @@ const _ClearTimeoutType = 3;
 const _ClearIntervalType = 4;
 
 let worker;
-
-let _nextId = 0;
-const nextId = function()
-{
-    if(_nextId == MAX_SAFE_INTEGER)
-    {
-        _nextId = 0;
-    }
-    return _nextId++;
-};
 
 class Timer
 {
@@ -196,9 +217,7 @@ const workerCode = function()
     }.toString() + "());";
 };
 
-if(typeof navigator !== "undefined" &&
-   (navigator.userAgent.indexOf("MSIE") !== -1 ||
-    navigator.userAgent.match(/Trident.*rv:11\./)))
+if(isIE())
 {
     //
     // With IE always use the setInterval/setTimeout browser functions directly
