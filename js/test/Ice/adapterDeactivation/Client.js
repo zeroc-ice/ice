@@ -178,31 +178,31 @@
                 test(!adpt.isDeactivated());
 
                 let isHolding = false;
-                adpt.waitForHold().then(() =>
+                let p1 = adpt.waitForHold().then(() =>
                                         {
                                             isHolding = true;
                                         });
                 test(!isHolding);
                 adpt.hold();
                 await adpt.waitForHold();
-                await Ice.Promise.delay(10); // Relinquish the thread to allow the continuation to execute.
+                await p1;
                 test(isHolding);
 
                 isHolding = false;
-                adpt.waitForHold().then(() =>
+                p1 = adpt.waitForHold().then(() =>
                                         {
                                             isHolding = true;
                                         });
 
                 let isDeactivated = false;
-                adpt.waitForDeactivate().then(() =>
+                let p2 = adpt.waitForDeactivate().then(() =>
                                               {
                                                   isDeactivated = true;
                                               });
                 test(!isDeactivated);
                 await adpt.deactivate();
                 await adpt.waitForDeactivate();
-                await Ice.Promise.delay(10); // Relinquish the thread to allow the continuation to execute.
+                await Promise.all([p1, p2]);
                 test(isDeactivated && isHolding);
                 test(adpt.isDeactivated());
                 await adpt.destroy();
