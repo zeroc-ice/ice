@@ -1450,7 +1450,7 @@ allTests(Test::TestHelper* helper, const CommunicatorObserverIPtr& obsv)
     test(map.size() == 2);
 
     im1 = ICE_DYNAMIC_CAST(IceMX::InvocationMetrics, map["ice_flushBatchRequests"]);
-    test(im1->current == 0 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
+    test(im1->current <= 1 && im1->total == 3 && im1->failures == 0 && im1->retry == 0);
     if(!collocated)
     {
         test(im1->remotes.size() == 1); // The first operation got sent over a connection
