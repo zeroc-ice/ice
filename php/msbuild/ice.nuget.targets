@@ -4,8 +4,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Libraries Include="$(IceSrcRootDir)..\php\lib\$(Platform)\$(Configuration)\php_ice.dll;
-                            $(IceSrcRootDir)..\php\lib\$(Platform)\$(Configuration)\php_ice_nts.dll" />
+        <Libraries Include="$(IceSrcRootDir)..\php\lib\php-$(PhpVersion)\$(Platform)\$(Configuration)\php_ice.dll;
+                            $(IceSrcRootDir)..\php\lib\php-$(PhpVersion)\$(Platform)\$(Configuration)\php_ice_nts.dll" />
         <Libraries Include="$(IceSrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\ice37.dll;
                             $(IceSrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icessl37.dll;
                             $(IceSrcRootDir)..\cpp\bin\$(Platform)\$(Configuration)\icediscovery37.dll;
@@ -27,9 +27,9 @@
 
     <!-- Copy required files to the package specific directories -->
     <Target Name="NugetPack">
-        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageDirectory)\lib\$(Platform)\$(Configuration)"/>
-        <Copy SourceFiles="@(PhpSources)" DestinationFolder="$(PackageDirectory)\lib\%(PhpSources.RecursiveDir)"/>
-        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageDirectory)\slice\%(Slices.RecursiveDir)"/>
-        <Copy SourceFiles="@(SliceCompilers)" DestinationFolder="$(PackageDirectory)\tools"/>
+        <Copy SourceFiles="@(Libraries)" DestinationFolder="$(PackageName)\lib\$(Platform)\$(Configuration)"/>
+        <Copy SourceFiles="@(PhpSources)" DestinationFolder="$(PackageName)\lib\%(PhpSources.RecursiveDir)"/>
+        <Copy SourceFiles="@(Slices)" DestinationFolder="$(PackageName)\slice\%(Slices.RecursiveDir)"/>
+        <Copy SourceFiles="@(SliceCompilers)" DestinationFolder="$(PackageName)\tools"/>
     </Target>
 </Project>

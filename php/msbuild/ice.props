@@ -3,12 +3,13 @@
   <PropertyGroup>
     <IceLanguageMapping>php</IceLanguageMapping>
   </PropertyGroup>
-  <Import Project="..\..\cpp\msbuild\Ice.Cpp98.props" />
+  <Import Project="..\..\cpp\msbuild\ice.cpp98.props" />
 
   <PropertyGroup Label="UserMacros">
 
     <!-- The PHP version used to build the extension. The supported values are 7.1, 7.2 and 7.3. -->
-    <BuildWithPhpVersion>7.1</BuildWithPhpVersion>
+    <BuildWithPhpVersion Condition="'$(DefaultPlatformToolset)' == 'v140'">7.1</BuildWithPhpVersion>
+    <BuildWithPhpVersion Condition="'$(DefaultPlatformToolset)' == 'v141'">7.2</BuildWithPhpVersion>
 
     <!-- Determines whether the extension uses PHP namespaces -->
     <PhpUseNamespaces Condition="'$(PhpUseNamespaces)' == ''">yes</PhpUseNamespaces>
@@ -18,7 +19,7 @@
       <IceBuilderInstallDir>$([MSBuild]::GetRegistryValue('HKEY_CURRENT_USER\SOFTWARE\ZeroC\IceBuilder', 'InstallDir.$(VisualStudioVersion)'))</IceBuilderInstallDir>
       <IceBuilderPhpProps>$(IceBuilderInstallDir)\Resources\IceBuilder.Php.props</IceBuilderPhpProps>
       <IceBuilderPhpTargets>$(IceBuilderInstallDir)\Resources\IceBuilder.Php.targets</IceBuilderPhpTargets>
-      <IceToolsPath Condition="'$(ICE_BIN_DIST)' == 'cpp'">$(MSBuildThisFileDirectory)/packages/zeroc.ice.v140.3.7.2/tools</IceToolsPath>
+      <IceToolsPath Condition="'$(ICE_BIN_DIST)' == 'cpp'">$(MSBuildThisFileDirectory)/packages/zeroc.ice.$(DefaultPlatformsToolSet).3.7.2/tools</IceToolsPath>
   </PropertyGroup>
 
   <ItemGroup>

@@ -64,20 +64,70 @@
                 <CppDistSolution Include="$(MSBuildThisFileDirectory)..\..\cpp\msbuild\ice.$(DefaultPlatformToolset).sln">
                     <Properties>Configuration=Release;Platform=x64</Properties>
                 </CppDistSolution>
+            </ItemGroup>
+
+            <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v140'">
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=7.1</Properties>
+                </DistSolution>
 
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
-                </DistSolution>
-                <DistSolution Include="ice.sln">
-                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
+                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=7.1</Properties>
                 </DistSolution>
 
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
+                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=7.1</Properties>
                 </DistSolution>
+
                 <DistSolution Include="ice.sln">
-                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=$(BuildWithPhpVersion)</Properties>
+                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=7.1</Properties>
                 </DistSolution>
+
+                <NugetPackage Include="zeroc.ice.php7.1">
+                    <Properties>PackageName=zeroc.ice.php7.2;PhpVersion=7.1</Properties>
+                </NugetPackage>
+            </ItemGroup>
+
+            <ItemGroup Condition="'$(DefaultPlatformToolset)' == 'v141'">
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=7.2</Properties>
+                </DistSolution>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=7.2</Properties>
+                </DistSolution>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=7.2</Properties>
+                </DistSolution>
+
+                <NugetPackage Include="zeroc.ice.php7.2">
+                    <Properties>PackageName=zeroc.ice.php7.2;PhpVersion=7.2</Properties>
+                </NugetPackage>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=7.2</Properties>
+                </DistSolution>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=Win32;BuildWithPhpVersion=7.3</Properties>
+                </DistSolution>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=NTS-Release;Platform=Win32;BuildWithPhpVersion=7.3</Properties>
+                </DistSolution>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=Release;Platform=x64;BuildWithPhpVersion=7.3</Properties>
+                </DistSolution>
+
+                <DistSolution Include="ice.sln">
+                    <Properties>Configuration=NTS-Release;Platform=x64;BuildWithPhpVersion=7.3</Properties>
+                </DistSolution>
+
+                <NugetPackage Include="zeroc.ice.php7.3">
+                    <Properties>PackageName=zeroc.ice.php7.3;PhpVersion=7.3</Properties>
+                </NugetPackage>
             </ItemGroup>
         </When>
         <Otherwise>
@@ -135,19 +185,7 @@
     </Target>
 
     <Target Name="NuGetPack" DependsOnTargets="BuildDist">
-        <RemoveDir Directories="$(PackageDirectory)" />
-
-        <Copy SourceFiles="$(PackageDirectory).nuspec" DestinationFolder="$(PackageDirectory)" />
-
-        <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=$(PackageDirectory);Platform=x64;Configuration=Release;PlatformToolset=$(DefaultPlatformToolset)"/>
-
-        <MSBuild Projects="ice.nuget.targets"
-                 Properties="PackageDirectory=$(PackageDirectory);Platform=Win32;Configuration=Release;PlatformToolset=$(DefaultPlatformToolset)"/>
-
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\ICE_LICENSE" DestinationFiles="$(PackageDirectory)\ICE_LICENSE.txt" />
-        <Copy SourceFiles="$(MSBuildThisFileDirectory)..\..\LICENSE" DestinationFiles="$(PackageDirectory)\LICENSE.txt" />
-
-        <Exec Command="$(NuGetExe) pack -NoPackageAnalysis -NonInteractive" WorkingDirectory="$(PackageDirectory)"/>
+        <MSBuild Projects="ice.nugetpack.targets"
+                 Properties="%(NugetPackage.Properties);DefaultPlatformToolset=$(DefaultPlatformToolset);NuGetExe=$(NuGetExe)"/>
     </Target>
 </Project>
