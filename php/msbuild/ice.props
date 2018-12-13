@@ -7,10 +7,10 @@
 
   <PropertyGroup Label="UserMacros">
 
-    <!-- The PHP version used to build the extension. The only supported values are 7.0 and 7.1. -->
+    <!-- The PHP version used to build the extension. The supported values are 7.1, 7.2 and 7.3. -->
     <BuildWithPhpVersion>7.1</BuildWithPhpVersion>
 
-    <!-- Determines whether the extension uses PHP namespaces (requires PHP 5.3 or later). -->
+    <!-- Determines whether the extension uses PHP namespaces -->
     <PhpUseNamespaces Condition="'$(PhpUseNamespaces)' == ''">yes</PhpUseNamespaces>
   </PropertyGroup>
 

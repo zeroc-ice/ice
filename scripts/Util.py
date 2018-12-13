@@ -3573,7 +3573,7 @@ class PhpMapping(CppBasedClientMapping):
         def usage(self):
             print("")
             print("PHP Mapping options:")
-            print("--php-version=[7.1|7.2]    PHP Version used for Windows builds")
+            print("--php-version=[7.1|7.2|7.3]    PHP Version used for Windows builds")
 
 
         def __init__(self, options=[]):
@@ -3589,7 +3589,12 @@ class PhpMapping(CppBasedClientMapping):
         # the Nuget PHP dependency.
         #
         if isinstance(platform, Windows) and not self.component.useBinDist(self, current):
-            nugetVersion = "7.1.17" if current.config.phpVersion == "7.1" else "7.2.8"
+            nugetVersions = {
+                "7.1": "7.1.17",
+                "7.2": "7.2.8",
+                "7.3": "7.3.0"
+            }
+            nugetVersion = nugetVersions[current.config.phpVersion]
             threadSafe = current.driver.configs[self].buildConfig in ["Debug", "Release"]
             buildPlatform = current.driver.configs[self].buildPlatform
             buildConfig = "Debug" if current.driver.configs[self].buildConfig.find("Debug") >= 0 else "Release"
