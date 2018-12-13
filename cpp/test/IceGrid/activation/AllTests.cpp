@@ -622,17 +622,23 @@ allTests(Test::TestHelper* helper)
     try
     {
         test(admin->getServerState("server2") == IceGrid::Inactive);
-        TestIntfPrx obj = TestIntfPrx::checkedCast(communicator->stringToProxy("server2"));
-        waitForServerState(admin, "server2", IceGrid::Active);
-        obj->fail();
-        waitForServerState(admin, "server2", IceGrid::Inactive);
-        try
+        TestIntfPrx obj = TestIntfPrx::uncheckedCast(communicator->stringToProxy("server2"));
+        while(true)
         {
             obj->ice_ping();
-            test(false);
-        }
-        catch(const Ice::NoEndpointException&)
-        {
+            waitForServerState(admin, "server2", IceGrid::Active);
+            IceUtil::Time now = IceUtil::Time::now();
+            obj->fail();
+            waitForServerState(admin, "server2", IceGrid::Inactive);
+            try
+            {
+                obj->ice_ping();
+                test(IceUtil::Time::now() - now >= IceUtil::Time::seconds(2));
+            }
+            catch(const Ice::NoEndpointException&)
+            {
+                break; // Success
+            }
         }
         test(!admin->isServerEnabled("server2"));
         nRetry = 0;
