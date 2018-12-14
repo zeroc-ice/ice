@@ -183,7 +183,7 @@
 
         static isSafari()
         {
-            return typeof navigator !== undefined &&
+            return typeof navigator !== "undefined" &&
                 (/^((?!chrome).)*safari/i).test(navigator.userAgent);
         }
     }
