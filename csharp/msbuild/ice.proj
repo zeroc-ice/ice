@@ -23,9 +23,9 @@
       <Exec Command="rmdir /s /q $(MSBuildThisFileDirectory)packages" Condition="Exists('$(MSBuildThisFileDirectory)packages')" />
     </Target>
 
-    <!-- NET Standard on Windows requires Visual Studio 2017 -->
+    <!-- NET Standard on Windows requires Visual Studio 2017 or Visual Studio 2019 -->
     <Choose>
-        <When Condition="'$(MSBuildToolsVersion)' == '15.0' or '$(OS)' != 'Windows_NT'">
+        <When Condition="'$(VisualStudioVersion)' == '15.0' or '$(VisualStudioVersion)' == '16.0' or '$(OS)' != 'Windows_NT'">
             <PropertyGroup>
                 <BuildNetStandardTargets>true</BuildNetStandardTargets>
             </PropertyGroup>
