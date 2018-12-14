@@ -180,6 +180,12 @@
                 throw new Error(message);
             }
         }
+
+        static isSafari()
+        {
+            return typeof navigator !== undefined &&
+                (/^((?!chrome).)*safari/i).test(navigator.userAgent);
+        }
     }
 
     exports.TestHelper = TestHelper;

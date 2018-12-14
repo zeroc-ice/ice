@@ -365,8 +365,9 @@
                 const end = Date.now();
                 try
                 {
-                    test(end - start < mult * 2000,
-                         new Error(`destroy take ${end - start} ms, expected less than ${mult * 2000} ms`));
+                    const t = TestHelper.isSafari() ? 30000 : mult * 2000;
+                    test(end - start < t,
+                         new Error(`destroy take ${end - start} ms, expected less than ${t} ms`));
                 }
                 finally
                 {
