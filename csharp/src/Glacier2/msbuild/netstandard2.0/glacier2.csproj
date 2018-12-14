@@ -17,4 +17,5 @@
   <ItemGroup>
     <ProjectReference Include="../../../Ice/msbuild/netstandard2.0/ice.csproj" />
   </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)../../../../msbuild/ice.sign.targets"/>
 </Project>
