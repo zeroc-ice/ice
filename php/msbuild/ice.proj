@@ -84,7 +84,7 @@
                 </DistSolution>
 
                 <NugetPackage Include="zeroc.ice.php7.1">
-                    <Properties>PackageName=zeroc.ice.php7.2;PhpVersion=7.1</Properties>
+                    <Properties>PackageName=zeroc.ice.php7.1;PhpVersion=7.1</Properties>
                 </NugetPackage>
             </ItemGroup>
 
