@@ -31,13 +31,6 @@ class P extends Promise
         this.reject = rej;
     }
 
-    finally(cb)
-    {
-        return this.then(
-            value => P.resolve(cb()).then(() => value),
-            reason => P.resolve(cb()).then(() => { throw reason; }));
-    }
-
     delay(ms)
     {
         return this.then(
