@@ -25,8 +25,8 @@ public class Ex
         }
 
         String type = v.ice_id();
-        throw new Ice.UnexpectedObjectException("expected element of type `" + expectedType + "' but received '" +
-                                                type, type, expectedType);
+        throw new Ice.UnexpectedObjectException("expected element of type `" + expectedType + "' but received `" +
+                                                type + "'", type, expectedType);
     }
 
     public static void throwMemoryLimitException(int requested, int maximum)

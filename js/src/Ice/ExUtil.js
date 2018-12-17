@@ -24,8 +24,8 @@ Ice.ExUtil =
     throwUOE: function(expectedType, v)
     {
         const type = v.ice_id();
-        throw new UnexpectedObjectException("expected element of type `" + expectedType + "' but received '" +
-                                            type, type, expectedType);
+        throw new UnexpectedObjectException("expected element of type `" + expectedType + "' but received `" +
+                                            type + "'", type, expectedType);
     },
     throwMemoryLimitException: function(requested, maximum)
     {

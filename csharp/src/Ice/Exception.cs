@@ -41,8 +41,8 @@ namespace IceInternal
                 Debug.Assert(false);
             }
 
-            throw new Ice.UnexpectedObjectException("expected element of type `" + expected + "' but received '" + type,
-                                                    type, expected);
+            throw new Ice.UnexpectedObjectException("expected element of type `" + expected + "' but received `" +
+                                                    type + "'", type, expected);
         }
 
         public static void throwMemoryLimitException(int requested, int maximum)

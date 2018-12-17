@@ -36,7 +36,7 @@ public class Ex
             assert(false);
         }
         throw new com.zeroc.Ice.UnexpectedObjectException(
-            "expected element of type `" + expected + "' but received '" + type, type, expected);
+            "expected element of type `" + expected + "' but received `" + type + "'", type, expected);
     }
     public static void throwUOE(String expectedType, com.zeroc.Ice.Value v)
     {
@@ -53,7 +53,7 @@ public class Ex
 
         String type = v.ice_id();
         throw new com.zeroc.Ice.UnexpectedObjectException(
-            "expected element of type `" + expectedType + "' but received '" + type, type, expectedType);
+            "expected element of type `" + expectedType + "' but received `" + type + "'", type, expectedType);
     }
 
     public static void throwMemoryLimitException(int requested, int maximum)

@@ -82,8 +82,8 @@ throwUOE(const string& expectedType, const ValuePtr& v)
 
     string type = v->ice_id();
     throw Ice::UnexpectedObjectException(__FILE__, __LINE__,
-                                         "expected element of type `" + expectedType + "' but received '" +
-                                         type, type, expectedType);
+                                         "expected element of type `" + expectedType + "' but received `" +
+                                         type + "'", type, expectedType);
 }
 
 void
