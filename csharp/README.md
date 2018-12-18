@@ -69,10 +69,11 @@ msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
 This builds the test programs for `net461` and `netcoreapp2.0` (in separate folders).
 The target frameworks you specify must implement .NET Standard 2.0.
 
-#### Strong Name Signatures for .NET Framework 4.5 Assemblies
+#### Strong Name Signatures
 
-You can add Strong Naming signatures to the Ice assemblies for .NET Framework 4.5
-by setting the following environment variables before building these assemblies:
+You can add Strong Naming signatures to the Ice assemblies by setting the following
+environment variables before building these assemblies:
+
  - PUBLIC_KEYFILE Identity public key used to delay sign the assembly
  - KEYFILE Identity full key pair used to sign the assembly
 
@@ -86,6 +87,8 @@ If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay-signed during
 the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
 This can be used for generating [Enhanced Strong Naming][5] signatures.
 
+*Strong Name Signatures can be generated only from Windows builds.*
+
 #### Authenticode Signatures
 
 You can sign the Ice binaries with Authenticode by setting the following
@@ -93,7 +96,7 @@ environment variables before building these assemblies:
  - SIGN_CERTIFICATE to your Authenticode certificate
  - SIGN_PASSWORD to the certificate password
 
-*Temporary limitation: assembly signing applies only to .NET Framework 4.5 assemblies at present.*
+*Authenticode can be generated only from Windows builds.*
 
 #### Building only the Test Suite
 

@@ -7,7 +7,7 @@
   </PropertyGroup>
 
   <Target Name="SignPackage" AfterTargets="AfterCompile"
-          Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
+          Condition="'$(OS)' == 'Windows_NT' and Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
     <Message Text="Signing $(IntermediateOutputPath)$(TargetName)$(TargetExt)" />
 
     <Exec Command="$(SignCommandSHA1) &quot;$(IntermediateOutputPath)$(TargetName)$(TargetExt)&quot;" EchoOff="yes"/>
@@ -20,7 +20,7 @@
                       Lines               = "Signing $(IntermediateOutputPath)$(TargetName)$(TargetExt)"/>
   </Target>
 
-  <Target Name="SignPackageClean" AfterTargets="Clean">
+  <Target Name="SignPackageClean" AfterTargets="Clean" Condition="'$(OS)' == 'Windows_NT' ">
      <Delete Files="$(IntermediateOutputPath)sign.log" />
   </Target>
 
@@ -37,13 +37,13 @@
 
   <!-- If both KEYFILE and PUBLIC_KEYFILE are set we re-sign the assembly using KEYFILE after it has been build -->
   <Target Name="StrongNameSignPackage" BeforeTargets="SignPackage"
-          Condition="'$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)strongname.sign.log') or $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)strongname.sign.log').Ticks))">
+          Condition="'$(OS)' == 'Windows_NT' and '$(KEYFILE)' != '' and '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)strongname.sign.log') or $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)strongname.sign.log').Ticks))">
       <Message Text="IntermediateOutputPath: $(IntermediateOutputPath)"/>
       <Message Text="TargetName: $(TargetName)$(TargetExt)"/>
-    <Exec Command="sn -Ra &quot;$(IntermediateOutputPath)$(TargetName)$(TargetExt)&quot; &quot;$(KEYFILE)&quot;"/>
-    <WriteLinesToFile File                = "$(IntermediateOutputPath)strongname.sign.log"
-                      Encoding            = "Unicode"
-                      Overwrite           = "true"
-                      Lines               = "Signing $(IntermediateOutputPath)$(TargetName)$(TargetExt)"/>
+      <Exec Command="sn -Ra &quot;$(IntermediateOutputPath)$(TargetName)$(TargetExt)&quot; &quot;$(KEYFILE)&quot;"/>
+      <WriteLinesToFile File                = "$(IntermediateOutputPath)strongname.sign.log"
+                        Encoding            = "Unicode"
+                        Overwrite           = "true"
+                        Lines               = "Signing $(IntermediateOutputPath)$(TargetName)$(TargetExt)"/>
   </Target>
 </Project>
