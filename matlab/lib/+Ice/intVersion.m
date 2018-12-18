@@ -6,7 +6,7 @@ function r = intVersion()
     %
     % Returns (int32) - The Ice version.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     v = libpointer('int32Ptr', 0);
     IceInternal.Util.call('Ice_intVersion', v);

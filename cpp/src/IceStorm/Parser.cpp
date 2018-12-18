@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -412,7 +412,7 @@ Parser::current(const list<string>& args)
 void
 Parser::showBanner()
 {
-    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2018 ZeroC, Inc." << endl;
+    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-present ZeroC, Inc." << endl;
 }
 
 //

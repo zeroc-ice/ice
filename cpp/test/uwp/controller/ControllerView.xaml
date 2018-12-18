@@ -25,7 +25,7 @@
                   SelectionChanged="Hostname_SelectionChanged"></ComboBox>
         <ListBox Margin="5" Grid.Row="2" x:Name="Output" Background="LightGray"></ListBox>
         <StackPanel Grid.Row="3" VerticalAlignment="Bottom">
-            <TextBlock Text="Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved."
+            <TextBlock Text="Copyright (c) 2003-present ZeroC, Inc. All rights reserved."
                        Style="{StaticResource FooterStyle}"
                        Margin="5"
                        TextWrapping="Wrap"/>

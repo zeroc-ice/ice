@@ -10,7 +10,7 @@ classdef ConnectionInfo < handle
     %     connection.
     %   connectionId (char) - The connection id.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     methods
         function obj = ConnectionInfo(underlying, incoming, adapterName, connectionId)

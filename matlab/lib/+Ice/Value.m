@@ -11,7 +11,7 @@ classdef (Abstract) Value < matlab.mixin.Copyable
     %   ice_getSlicedData - Returns the sliced data if the value has a
     %     preserved-slice base class and has been sliced during unmarshaling.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     methods
         function obj = Value()

@@ -20,7 +20,7 @@ function [communicator, args] = initialize(varargin)
     %   args (cell array of char) - Contains the remaining command-line arguments
     %     that were not used to set properties.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     if length(varargin) > 2
         throw(MException('Ice:ArgumentException', 'too many arguments to Ice.initialize'));

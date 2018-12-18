@@ -3,7 +3,7 @@ classdef OutputStream < handle
     %
     % Marshals Slice types.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     methods
         function obj = OutputStream(communicator, encoding)

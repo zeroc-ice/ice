@@ -15,7 +15,7 @@ classdef EndpointInfo < handle
     %   compress (logical) - Specifies whether or not compression should be
     %     used if available when using this endpoint.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     methods
         function obj = EndpointInfo(type, datagram, secure, underlying, timeout, compress)

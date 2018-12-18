@@ -3,7 +3,7 @@ function r = currentEncoding()
     %
     % Returns (Ice.EncodingVersion) - The Ice encoding version.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     r = IceInternal.Util.callWithResult('Ice_currentEncoding');
 end

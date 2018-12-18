@@ -1,6 +1,6 @@
 ﻿// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -19,7 +19,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyProduct("Ice")]
-[assembly: AssemblyCopyright("© 2003-2018 ZeroC, Inc.")]
+[assembly: AssemblyCopyright("© 2003-present ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible

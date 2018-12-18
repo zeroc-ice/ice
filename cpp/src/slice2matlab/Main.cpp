@@ -1,6 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // This copy of Ice is licensed to you under the terms described in the
 // ICE_LICENSE file included in this distribution.
@@ -259,7 +259,7 @@ writeCopyright(IceUtilInternal::Output& out, const string& file)
         f = f.substr(pos + 1);
     }
 
-    out << nl << "% Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.";
+    out << nl << "% Copyright (c) 2003-present ZeroC, Inc. All rights reserved.";
     out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
     out << nl;
 }

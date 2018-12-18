@@ -7,7 +7,7 @@ classdef SlicedData < handle
     %   slices - The details of each slice, in order of most-derived to
     %     least-derived.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     properties(SetAccess=private)
         % The details of each slice, in order of most-derived to least-derived.
