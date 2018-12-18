@@ -2,9 +2,6 @@
 //
 // Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
-//
 // **********************************************************************
 
 #include <Slice/RubyUtil.h>
@@ -1567,9 +1564,6 @@ Slice::Ruby::printHeader(IceUtilInternal::Output& out)
 "# **********************************************************************\n"
 "#\n"
 "# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
-"#\n"
-"# This copy of Ice is licensed to you under the terms described in the\n"
-"# ICE_LICENSE file included in this distribution.\n"
 "#\n"
 "# **********************************************************************\n"
         ;
