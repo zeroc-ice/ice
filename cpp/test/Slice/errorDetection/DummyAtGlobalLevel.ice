@@ -4,6 +4,9 @@
 //
 // **********************************************************************
 
+
+
+
 interface Foo
 {
     void op() throws UndefinedException;
