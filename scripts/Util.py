@@ -329,9 +329,10 @@ class Linux(Platform):
         if isinstance(mapping, CSharpMapping):
             return Platform._getBinDir(self, component, process, mapping, current)
 
-        buildPlatform = current.driver.configs[mapping].buildPlatform
-        if self.linuxId in ["ubuntu", "debian"] and buildPlatform in self.foreignPlatforms:
-            return os.path.join(installDir, "bin", self.multiArch[buildPlatform])
+        if self.linuxId in ["ubuntu", "debian"]:
+            binDir = os.path.join(installDir, "bin", self.multiArch[current.driver.configs[mapping].buildPlatform])
+            if os.path.exists(binDir):
+                return binDir
         return os.path.join(installDir, "bin")
 
     def _getLibDir(self, component, process, mapping, current):
