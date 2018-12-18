@@ -365,7 +365,12 @@
                 const end = Date.now();
                 try
                 {
-                    const t = TestHelper.isSafari() ? 30000 : mult * 2000;
+                    //
+                    // setTimeout can be unpredictable slow in Safari and IE when the process
+                    // enter background, we increase the expected time that destroy can takes
+                    // for these browsers.
+                    //
+                    const t = (TestHelper.isSafari() || TestHelper.isIE()) ? 30000 : mult * 2000;
                     test(end - start < t,
                          new Error(`destroy take ${end - start} ms, expected less than ${t} ms`));
                 }

@@ -186,6 +186,12 @@
             return typeof navigator !== "undefined" &&
                 (/^((?!chrome).)*safari/i).test(navigator.userAgent);
         }
+
+        static isIE()
+        {
+            return typeof navigator !== "undefined" &&
+                (navigator.userAgent.indexOf("MSIE") !== -1 || navigator.userAgent.match(/Trident.*rv:11\./));
+        }
     }
 
     exports.TestHelper = TestHelper;
