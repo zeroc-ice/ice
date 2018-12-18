@@ -3748,6 +3748,11 @@ class JavaScriptMapping(JavaScriptMixin,Mapping):
 
 class TypeScriptMapping(JavaScriptMixin,Mapping):
 
+    class Config(Mapping.Config):
+
+        def canRun(self, testId, current):
+            return Mapping.Config.canRun(self, testId, current) and self.browser != "Ie" # IE doesn't support ES6
+
     def _getDefaultSource(self, processType):
         return { "client" : "Client.ts", "serveramd" : "ServerAMD.ts", "server" : "Server.ts" }[processType]
 
