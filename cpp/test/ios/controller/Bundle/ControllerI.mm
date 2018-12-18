@@ -118,12 +118,12 @@ namespace
 }
 
 ControllerHelperI::ControllerHelperI(id<ControllerView> controller, const string& dll, const StringSeq& args) :
-_controller(controller),
-_dll(dll),
-_args(args),
-_ready(false),
-_completed(false),
-_status(0)
+    _controller(controller),
+    _dll(dll),
+    _args(args),
+    _ready(false),
+    _completed(false),
+    _status(0)
 {
 }
 
@@ -131,7 +131,7 @@ ControllerHelperI::~ControllerHelperI()
 {
     if(_helper)
     {
-        _helper.release();
+        _helper.reset();
     }
 
     if(_handle)
