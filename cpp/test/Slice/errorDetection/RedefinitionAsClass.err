@@ -1,2 +1,2 @@
-RedefinitionAsClass.ice:16: declaration of already defined `Sequence1' as class
-RedefinitionAsClass.ice:19: redefinition of sequence `Sequence2' as class
+RedefinitionAsClass.ice:11: declaration of already defined `Sequence1' as class
+RedefinitionAsClass.ice:14: redefinition of sequence `Sequence2' as class

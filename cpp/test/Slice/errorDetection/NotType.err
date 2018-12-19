@@ -1,15 +1,15 @@
+NotType.ice:16: `Mod' is not a type
+NotType.ice:17: `Mod' is not a type
+NotType.ice:18: `Mod' is not a type
+NotType.ice:19: `Mod' is not a type
+NotType.ice:20: `Module3' is not a type
+NotType.ice:20: `Module2' is not a type
+NotType.ice:20: `Module1' is not a type
 NotType.ice:21: `Mod' is not a type
-NotType.ice:22: `Mod' is not a type
-NotType.ice:23: `Mod' is not a type
-NotType.ice:24: `Mod' is not a type
-NotType.ice:25: `Module3' is not a type
-NotType.ice:25: `Module2' is not a type
-NotType.ice:25: `Module1' is not a type
-NotType.ice:26: `Mod' is not a type
-NotType.ice:26: `Module3' is not a type
-NotType.ice:26: `Module2' is not a type
-NotType.ice:26: `Module1' is not a type
+NotType.ice:21: `Module3' is not a type
+NotType.ice:21: `Module2' is not a type
+NotType.ice:21: `Module1' is not a type
+NotType.ice:29: `E' is an exception, which cannot be used as a type
+NotType.ice:30: struct `S' must have at least one member
 NotType.ice:34: `E' is an exception, which cannot be used as a type
-NotType.ice:35: struct `S' must have at least one member
-NotType.ice:39: `E' is an exception, which cannot be used as a type
-NotType.ice:39: `E' is an exception, which cannot be used as a type
+NotType.ice:34: `E' is an exception, which cannot be used as a type

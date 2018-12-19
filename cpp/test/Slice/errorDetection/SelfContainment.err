@@ -1,1 +1,1 @@
-SelfContainment.ice:18: struct `x' cannot contain itself
+SelfContainment.ice:13: struct `x' cannot contain itself

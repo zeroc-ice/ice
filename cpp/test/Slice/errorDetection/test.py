@@ -20,8 +20,6 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                 current.write(os.path.basename(file) + "... ")
 
                 args = ["-I.", file, "--output-dir", "tmp"]
-                if file.find("Underscore") >= 0:
-                    args.append("--underscore")
 
                 # Don't print out slice2cpp output and expect failures
                 slice2cpp.run(current, args=args, exitstatus=0 if file.find("Warning") >= 0 else 1)

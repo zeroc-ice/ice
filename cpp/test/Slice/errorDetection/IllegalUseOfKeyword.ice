@@ -4,9 +4,6 @@
 //
 // **********************************************************************
 
-
-
-
 [["suppress-warning:deprecated"]] // for classes with operations
 
 module Test

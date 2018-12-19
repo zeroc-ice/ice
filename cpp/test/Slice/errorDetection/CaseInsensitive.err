@@ -1,65 +1,65 @@
-CaseInsensitive.ice:18: redefinition of operation `op' as operation `op'
-CaseInsensitive.ice:24: operation `oP' differs only in capitalization from operation `op'
-CaseInsensitive.ice:24: redefinition of operation `op' as operation `oP'
-CaseInsensitive.ice:30: redefinition of data member `l' as operation `l'
-CaseInsensitive.ice:36: operation `L' differs only in capitalization from data member `l'
-CaseInsensitive.ice:36: redefinition of data member `l' as operation `L'
-CaseInsensitive.ice:43: module `M1' is capitalized inconsistently with its previous name: `m1'
-CaseInsensitive.ice:45: redefinition of class `c1' as module
-CaseInsensitive.ice:47: module `C1' differs only in capitalization from class name `c1'
-CaseInsensitive.ice:52: redefinition of parameter `aa'
-CaseInsensitive.ice:53: parameter `BB' differs only in capitalization from parameter `bb'
-CaseInsensitive.ice:53: `BB' has changed meaning
-CaseInsensitive.ice:58: operation `I4' differs only in capitalization from enclosing interface name `i4'
-CaseInsensitive.ice:63: interface name `i5' cannot be used as operation name
-CaseInsensitive.ice:73: operation `op' is already defined as an operation in a base interface or class
-CaseInsensitive.ice:78: operation `OP' differs only in capitalization from operation `op', which is defined in a base interface or class
-CaseInsensitive.ice:88: operation `l' is already defined as a data member in a base interface or class
-CaseInsensitive.ice:93: operation `L' differs only in capitalization from data member `l', which is defined in a base interface or class
-CaseInsensitive.ice:93: warning: classes with operations are deprecated
-CaseInsensitive.ice:99: operation `L' differs only in capitalization from data member `l'
-CaseInsensitive.ice:99: redefinition of data member `l' as operation `L'
-CaseInsensitive.ice:104: data member `l' is already defined as a data member in a base interface or class
-CaseInsensitive.ice:109: data member `L' differs only in capitalization from data member `l', which is defined in a base interface or class
-CaseInsensitive.ice:114: warning: classes with operations are deprecated
-CaseInsensitive.ice:115: data member `l' differs only in capitalization from operation `L'
-CaseInsensitive.ice:121: redefinition of exception member `l'
-CaseInsensitive.ice:127: exception member `L' differs only in capitalization from exception member `l'
-CaseInsensitive.ice:127: `L' has changed meaning
-CaseInsensitive.ice:147: exception member `l' is already defined in a base exception
-CaseInsensitive.ice:152: exception member `L' differs only in capitalization from exception member `l', which is defined in a base exception
-CaseInsensitive.ice:158: redefinition of struct member `l'
-CaseInsensitive.ice:164: member `L' differs only in capitalization from member `l'
-CaseInsensitive.ice:164: `L' has changed meaning
-CaseInsensitive.ice:180: sequence `LS' differs only in capitalization from sequence `ls'
-CaseInsensitive.ice:181: redefinition of module `m1' as sequence
-CaseInsensitive.ice:182: sequence `M1' differs only in capitalization from module `m1'
-CaseInsensitive.ice:185: dictionary `D' differs only in capitalization from dictionary `d'
-CaseInsensitive.ice:186: redefinition of module `m1' as dictionary
-CaseInsensitive.ice:187: dictionary `M1' differs only in capitalization from module `m1'
-CaseInsensitive.ice:190: enumeration `eN1' differs only in capitalization from enumeration `en1'
-CaseInsensitive.ice:191: redefinition of module `m1' as enumeration
-CaseInsensitive.ice:192: enumeration `M1' differs only in capitalization from module `m1'
-CaseInsensitive.ice:193: enumerator `EN1' differs only in capitalization from `en1'
-CaseInsensitive.ice:211: interface name `base' is capitalized inconsistently with its previous name: `::Test::xxx::xx::Base'
-CaseInsensitive.ice:211: redefinition of interface `Derived'
-CaseInsensitive.ice:218: exception name `E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
-CaseInsensitive.ice:225: sequence name `S1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
-CaseInsensitive.ice:226: sequence name `xxx::xx::S1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
-CaseInsensitive.ice:227: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
-CaseInsensitive.ice:228: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
-CaseInsensitive.ice:234: interface name `derived' is capitalized inconsistently with its previous name: `::Test::xxx::xx::Derived'
-CaseInsensitive.ice:243: parameter `Param' differs only in capitalization from parameter `param'
-CaseInsensitive.ice:243: `Param' has changed meaning
-CaseInsensitive.ice:245: exception name `E1' is capitalized inconsistently with its previous name: `::Test::e1'
-CaseInsensitive.ice:247: exception name `Test::xxx::xx::E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
-CaseInsensitive.ice:248: exception name `Test::xxx::XX::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
-CaseInsensitive.ice:249: exception name `Test::XXX::xx::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
-CaseInsensitive.ice:251: exception name `Test::xxx::xx::E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
-CaseInsensitive.ice:252: exception name `Test::xxx::XX::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
-CaseInsensitive.ice:253: exception name `Test::XXX::xx::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
-CaseInsensitive.ice:271: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces
-CaseInsensitive.ice:286: warning: classes with operations are deprecated
-CaseInsensitive.ice:288: parameter `BASE1' differs only in capitalization from parameter `base1'
-CaseInsensitive.ice:288: `BASE1' has changed meaning
-CaseInsensitive.ice:318: data member `x' differs only in capitalization from data member `X', which is defined in a base interface or class
+CaseInsensitive.ice:13: redefinition of operation `op' as operation `op'
+CaseInsensitive.ice:19: operation `oP' differs only in capitalization from operation `op'
+CaseInsensitive.ice:19: redefinition of operation `op' as operation `oP'
+CaseInsensitive.ice:25: redefinition of data member `l' as operation `l'
+CaseInsensitive.ice:31: operation `L' differs only in capitalization from data member `l'
+CaseInsensitive.ice:31: redefinition of data member `l' as operation `L'
+CaseInsensitive.ice:38: module `M1' is capitalized inconsistently with its previous name: `m1'
+CaseInsensitive.ice:40: redefinition of class `c1' as module
+CaseInsensitive.ice:42: module `C1' differs only in capitalization from class name `c1'
+CaseInsensitive.ice:47: redefinition of parameter `aa'
+CaseInsensitive.ice:48: parameter `BB' differs only in capitalization from parameter `bb'
+CaseInsensitive.ice:48: `BB' has changed meaning
+CaseInsensitive.ice:53: operation `I4' differs only in capitalization from enclosing interface name `i4'
+CaseInsensitive.ice:58: interface name `i5' cannot be used as operation name
+CaseInsensitive.ice:68: operation `op' is already defined as an operation in a base interface or class
+CaseInsensitive.ice:73: operation `OP' differs only in capitalization from operation `op', which is defined in a base interface or class
+CaseInsensitive.ice:83: operation `l' is already defined as a data member in a base interface or class
+CaseInsensitive.ice:88: operation `L' differs only in capitalization from data member `l', which is defined in a base interface or class
+CaseInsensitive.ice:88: warning: classes with operations are deprecated
+CaseInsensitive.ice:94: operation `L' differs only in capitalization from data member `l'
+CaseInsensitive.ice:94: redefinition of data member `l' as operation `L'
+CaseInsensitive.ice:99: data member `l' is already defined as a data member in a base interface or class
+CaseInsensitive.ice:104: data member `L' differs only in capitalization from data member `l', which is defined in a base interface or class
+CaseInsensitive.ice:109: warning: classes with operations are deprecated
+CaseInsensitive.ice:110: data member `l' differs only in capitalization from operation `L'
+CaseInsensitive.ice:116: redefinition of exception member `l'
+CaseInsensitive.ice:122: exception member `L' differs only in capitalization from exception member `l'
+CaseInsensitive.ice:122: `L' has changed meaning
+CaseInsensitive.ice:142: exception member `l' is already defined in a base exception
+CaseInsensitive.ice:147: exception member `L' differs only in capitalization from exception member `l', which is defined in a base exception
+CaseInsensitive.ice:153: redefinition of struct member `l'
+CaseInsensitive.ice:159: member `L' differs only in capitalization from member `l'
+CaseInsensitive.ice:159: `L' has changed meaning
+CaseInsensitive.ice:175: sequence `LS' differs only in capitalization from sequence `ls'
+CaseInsensitive.ice:176: redefinition of module `m1' as sequence
+CaseInsensitive.ice:177: sequence `M1' differs only in capitalization from module `m1'
+CaseInsensitive.ice:180: dictionary `D' differs only in capitalization from dictionary `d'
+CaseInsensitive.ice:181: redefinition of module `m1' as dictionary
+CaseInsensitive.ice:182: dictionary `M1' differs only in capitalization from module `m1'
+CaseInsensitive.ice:185: enumeration `eN1' differs only in capitalization from enumeration `en1'
+CaseInsensitive.ice:186: redefinition of module `m1' as enumeration
+CaseInsensitive.ice:187: enumeration `M1' differs only in capitalization from module `m1'
+CaseInsensitive.ice:188: enumerator `EN1' differs only in capitalization from `en1'
+CaseInsensitive.ice:206: interface name `base' is capitalized inconsistently with its previous name: `::Test::xxx::xx::Base'
+CaseInsensitive.ice:206: redefinition of interface `Derived'
+CaseInsensitive.ice:213: exception name `E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
+CaseInsensitive.ice:220: sequence name `S1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
+CaseInsensitive.ice:221: sequence name `xxx::xx::S1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
+CaseInsensitive.ice:222: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
+CaseInsensitive.ice:223: sequence name `xxx::XX::s1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::s1'
+CaseInsensitive.ice:229: interface name `derived' is capitalized inconsistently with its previous name: `::Test::xxx::xx::Derived'
+CaseInsensitive.ice:238: parameter `Param' differs only in capitalization from parameter `param'
+CaseInsensitive.ice:238: `Param' has changed meaning
+CaseInsensitive.ice:240: exception name `E1' is capitalized inconsistently with its previous name: `::Test::e1'
+CaseInsensitive.ice:242: exception name `Test::xxx::xx::E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
+CaseInsensitive.ice:243: exception name `Test::xxx::XX::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
+CaseInsensitive.ice:244: exception name `Test::XXX::xx::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
+CaseInsensitive.ice:246: exception name `Test::xxx::xx::E1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
+CaseInsensitive.ice:247: exception name `Test::xxx::XX::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
+CaseInsensitive.ice:248: exception name `Test::XXX::xx::e1' is capitalized inconsistently with its previous name: `::Test::xxx::xx::e1'
+CaseInsensitive.ice:266: ambiguous multiple inheritance: `derived' inherits operations `op' and `OP', which differ only in capitalization, from unrelated base interfaces
+CaseInsensitive.ice:281: warning: classes with operations are deprecated
+CaseInsensitive.ice:283: parameter `BASE1' differs only in capitalization from parameter `base1'
+CaseInsensitive.ice:283: `BASE1' has changed meaning
+CaseInsensitive.ice:313: data member `x' differs only in capitalization from data member `X', which is defined in a base interface or class

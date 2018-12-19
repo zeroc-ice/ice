@@ -4,9 +4,6 @@
 //
 // **********************************************************************
 
-
-
-
 [["suppress-warning:deprecated"]] // for classes with operations
 
 module Test
@@ -53,6 +50,5 @@ struct S
     int member;
     int member;
 }
-
 
 }

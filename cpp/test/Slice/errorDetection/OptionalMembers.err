@@ -1,33 +1,33 @@
-OptionalMembers.ice:26: missing tag for optional
-OptionalMembers.ice:27: missing tag for optional
-OptionalMembers.ice:28: `abc' is not defined
-OptionalMembers.ice:29: tag for optional is out of range
-OptionalMembers.ice:30: tag for optional is out of range
+OptionalMembers.ice:23: missing tag for optional
+OptionalMembers.ice:24: missing tag for optional
+OptionalMembers.ice:25: `abc' is not defined
+OptionalMembers.ice:26: tag for optional is out of range
+OptionalMembers.ice:27: tag for optional is out of range
+OptionalMembers.ice:28: tag for optional is out of range
+OptionalMembers.ice:30: tag for optional data member `m8' is already in use
 OptionalMembers.ice:31: tag for optional is out of range
-OptionalMembers.ice:33: tag for optional data member `m8' is already in use
-OptionalMembers.ice:34: tag for optional is out of range
-OptionalMembers.ice:34: invalid tag `C3' for optional
-OptionalMembers.ice:35: tag for optional is out of range
-OptionalMembers.ice:35: invalid tag `C4' for optional
-OptionalMembers.ice:36: invalid tag `C5' for optional
-OptionalMembers.ice:38: tag for optional data member `m13' is already in use
-OptionalMembers.ice:39: enumerator `e2' could designate `::Test::E::e2' or `::Test::Ebis::e2' or `::Test::Eter::e2'
-OptionalMembers.ice:40: warning: referencing enumerator `::Test::E::e3' without its enumeration's scope is deprecated
-OptionalMembers.ice:41: tag for optional data member `m16' is already in use
-OptionalMembers.ice:56: missing tag for optional
-OptionalMembers.ice:57: missing tag for optional
-OptionalMembers.ice:58: `abc' is not defined
-OptionalMembers.ice:59: tag for optional is out of range
-OptionalMembers.ice:60: tag for optional is out of range
+OptionalMembers.ice:31: invalid tag `C3' for optional
+OptionalMembers.ice:32: tag for optional is out of range
+OptionalMembers.ice:32: invalid tag `C4' for optional
+OptionalMembers.ice:33: invalid tag `C5' for optional
+OptionalMembers.ice:35: tag for optional data member `m13' is already in use
+OptionalMembers.ice:36: enumerator `e2' could designate `::Test::E::e2' or `::Test::Ebis::e2' or `::Test::Eter::e2'
+OptionalMembers.ice:37: warning: referencing enumerator `::Test::E::e3' without its enumeration's scope is deprecated
+OptionalMembers.ice:38: tag for optional data member `m16' is already in use
+OptionalMembers.ice:53: missing tag for optional
+OptionalMembers.ice:54: missing tag for optional
+OptionalMembers.ice:55: `abc' is not defined
+OptionalMembers.ice:56: tag for optional is out of range
+OptionalMembers.ice:57: tag for optional is out of range
+OptionalMembers.ice:58: tag for optional is out of range
+OptionalMembers.ice:60: tag for optional data member `m8' is already in use
 OptionalMembers.ice:61: tag for optional is out of range
-OptionalMembers.ice:63: tag for optional data member `m8' is already in use
-OptionalMembers.ice:64: tag for optional is out of range
-OptionalMembers.ice:64: invalid tag `C3' for optional
-OptionalMembers.ice:65: tag for optional is out of range
-OptionalMembers.ice:65: invalid tag `C4' for optional
-OptionalMembers.ice:66: invalid tag `C5' for optional
-OptionalMembers.ice:68: tag for optional data member `m13' is already in use
-OptionalMembers.ice:70: warning: referencing enumerator `::Test::E::e3' without its enumeration's scope is deprecated
-OptionalMembers.ice:71: tag for optional data member `m16' is already in use
-OptionalMembers.ice:86: optional data members not supported in struct
-OptionalMembers.ice:87: optional data members not supported in struct
+OptionalMembers.ice:61: invalid tag `C3' for optional
+OptionalMembers.ice:62: tag for optional is out of range
+OptionalMembers.ice:62: invalid tag `C4' for optional
+OptionalMembers.ice:63: invalid tag `C5' for optional
+OptionalMembers.ice:65: tag for optional data member `m13' is already in use
+OptionalMembers.ice:67: warning: referencing enumerator `::Test::E::e3' without its enumeration's scope is deprecated
+OptionalMembers.ice:68: tag for optional data member `m16' is already in use
+OptionalMembers.ice:83: optional data members not supported in struct
+OptionalMembers.ice:84: optional data members not supported in struct

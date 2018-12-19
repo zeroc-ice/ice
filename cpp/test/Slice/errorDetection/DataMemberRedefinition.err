@@ -1,5 +1,5 @@
-DataMemberRedefinition.ice:18: redefinition of data member `member' as data member `member'
-DataMemberRedefinition.ice:28: data member `x' is already defined as an operation in a base interface or class
-DataMemberRedefinition.ice:38: operation `x' is already defined as a data member in a base interface or class
-DataMemberRedefinition.ice:48: data member `x' is already defined as a data member in a base interface or class
-DataMemberRedefinition.ice:54: redefinition of struct member `member'
+DataMemberRedefinition.ice:15: redefinition of data member `member' as data member `member'
+DataMemberRedefinition.ice:25: data member `x' is already defined as an operation in a base interface or class
+DataMemberRedefinition.ice:35: operation `x' is already defined as a data member in a base interface or class
+DataMemberRedefinition.ice:45: data member `x' is already defined as a data member in a base interface or class
+DataMemberRedefinition.ice:51: redefinition of struct member `member'

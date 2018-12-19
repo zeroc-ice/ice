@@ -1,2 +1,2 @@
-RedefinitionAsInterface.ice:16: declaration of already defined `Sequence1' as interface
-RedefinitionAsInterface.ice:19: redefinition of sequence `Sequence2' as interface
+RedefinitionAsInterface.ice:11: declaration of already defined `Sequence1' as interface
+RedefinitionAsInterface.ice:14: redefinition of sequence `Sequence2' as interface
