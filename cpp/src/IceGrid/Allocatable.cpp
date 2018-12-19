@@ -269,7 +269,8 @@ Allocatable::release(const SessionIPtr& session, bool fromRelease)
                     allocatable = dequeueAllocationAttempt(request);
                     if(!allocatable)
                     {
-                        assert(_count == 0 && _requests.empty());
+                        assert(_requests.empty());
+                        assert(_count == 0);
                         _releasing = false;
                         notifyAll();
                         return;
