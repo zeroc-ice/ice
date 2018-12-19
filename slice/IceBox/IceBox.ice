@@ -6,9 +6,18 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEBOX_API", "cpp:doxygen:include:IceBox/IceBox.h", "objc:header-dir:objc",
-  "python:pkgdir:IceBox", "js:module:ice"]]
+[["cpp:dll-export:ICEBOX_API"]]
+[["cpp:doxygen:include:IceBox/IceBox.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:IceBox/Config.h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceBox"]]
 
 #include <Ice/BuiltinSequences.ice>
 #include <Ice/CommunicatorF.ice>

@@ -6,8 +6,17 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc", "objc:dll-export:ICESTORM_API", "python:pkgdir:IceStorm"]]
+[["cpp:dll-export:ICESTORM_API"]]
+[["cpp:doxygen:include:IceStorm/IceStorm.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:IceStorm/Config.h"]]
+
+[["ice-prefix"]]
+
+[["objc:dll-export:ICESTORM_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceStorm"]]
 
 #include <Ice/Metrics.ice>
 

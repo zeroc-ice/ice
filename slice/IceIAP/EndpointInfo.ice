@@ -6,7 +6,15 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEIAP_API", "cpp:doxygen:include:IceIAP/IceIAP.h", "objc:header-dir:objc", "js:module:ice"]]
+[["cpp:dll-export:ICEIAP_API"]]
+[["cpp:doxygen:include:IceIAP/IceIAP.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:header-dir:objc"]]
 
 #include <Ice/Endpoint.ice>
 

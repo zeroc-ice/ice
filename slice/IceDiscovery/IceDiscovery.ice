@@ -5,8 +5,17 @@
 // **********************************************************************
 
 #pragma once
-[["ice-prefix", "cpp:header-ext:h", "cpp:doxygen:include:IceDiscovery/IceDiscovery.h", "objc:header-dir:objc", "python:pkgdir:IceDiscovery",
-  "js:module:ice"]]
+
+[["cpp:doxygen:include:IceDiscovery/IceDiscovery.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceDiscovery"]]
 
 #include <Ice/Identity.ice>
 

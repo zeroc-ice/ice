@@ -6,9 +6,18 @@
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEPATCH2_API", "cpp:doxygen:include:IcePatch2/IcePatch2.h", "objc:header-dir:objc",
-  "python:pkgdir:IcePatch2", "js:module:ice"]]
+[["cpp:dll-export:ICEPATCH2_API"]]
+[["cpp:doxygen:include:IcePatch2/IcePatch2.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:IcePatch2/Config.h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IcePatch2"]]
 
 #include <Ice/BuiltinSequences.ice>
 
