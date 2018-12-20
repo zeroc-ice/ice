@@ -112,7 +112,7 @@ namespace Ice
                 test(interceptor.getLastStatus());
                 output.WriteLine("ok");
 
-                output.WriteLine("testing user exception... ");
+                output.Write("testing user exception... ");
                 try
                 {
                     prx.amdBadAdd(33, 12);

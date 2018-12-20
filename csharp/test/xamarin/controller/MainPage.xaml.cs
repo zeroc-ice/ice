@@ -560,7 +560,7 @@ namespace controller
 
     public class ProccessI : Test.Common.ProcessDisp_
     {
-        public ProccessI(ControllerHelper controllerHelper)
+        public ProccessI(ControllerHelperI controllerHelper)
         {
             _controllerHelper = controllerHelper;
         }
@@ -583,7 +583,7 @@ namespace controller
             return _controllerHelper.getOutput();
         }
 
-        private ControllerHelper _controllerHelper;
+        private ControllerHelperI _controllerHelper;
     }
 
     public class ProcessControllerI : Test.Common.ProcessControllerDisp_

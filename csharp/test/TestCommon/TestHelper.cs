@@ -13,16 +13,7 @@ namespace Test
 {
     public interface ControllerHelper
     {
-        string getOutput();
-        void join();
-        void completed(int status);
-        void run();
-        string loggerPrefix();
-        void print(string message);
         void serverReady();
-        void shutdown();
-        void waitReady(int msec);
-        int waitSuccess(int msec);
         void communicatorInitialized(Ice.Communicator communicator);
     }
 
