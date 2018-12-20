@@ -134,13 +134,10 @@ ControllerHelperI::serverReady()
 }
 
 void
-ControllerHelperI::communicatorInitialized(const Ice::CommunicatorPtr& communnicator)
+ControllerHelperI::communicatorInitialized(const Ice::CommunicatorPtr& communicator)
 {
     Lock sync(*this);
-    if(!_completed)
-    {
-        _communicator = communnicator;
-    }
+    _communicator = communicator;
 }
 
 string
