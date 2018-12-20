@@ -482,11 +482,6 @@ namespace controller
             return _name;
         }
 
-        public void print(string message)
-        {
-            _output.Append(message);
-        }
-
         public void serverReady()
         {
             lock(this)
@@ -550,7 +545,6 @@ namespace controller
         private string _name;
         private string[] _args;
         private TestHelper _helper;
-        private StringBuilder _output = new StringBuilder();
         private bool _ready;
         private bool _completed;
         private int _status;
