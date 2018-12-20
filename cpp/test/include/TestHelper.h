@@ -46,17 +46,11 @@ class TEST_API ControllerHelper
 {
 public:
 
-    virtual bool redirect() const = 0;
-
-    virtual std::string getOutput() const = 0;
     virtual std::string loggerPrefix() const = 0;
-    virtual void join() = 0;
     virtual void print(const std::string&) = 0;
-    virtual void serverReady() = 0;
-    virtual void shutdown() = 0;
 
-    virtual int waitSuccess(int) const = 0;
-    virtual void waitReady(int) const = 0;
+    virtual void serverReady() = 0;
+    virtual void communicatorInitialized(const Ice::CommunicatorPtr&) = 0;
 };
 ICE_DEFINE_PTR(ControllerHelperPtr, ControllerHelper);
 

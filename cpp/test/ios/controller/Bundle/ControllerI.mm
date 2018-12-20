@@ -34,15 +34,13 @@ namespace
         ControllerHelperI(id<ControllerView>, const string&, const StringSeq&);
         virtual ~ControllerHelperI();
 
-        virtual bool redirect() const;
-
-        virtual string getOutput() const;
         virtual string loggerPrefix() const;
         virtual void print(const std::string&);
         virtual void serverReady();
-        virtual void shutdown();
-        virtual void join();
+        virtual void communicatorInitialized(const Ice::CommunicatorPtr&);
 
+        void shutdown();
+        string getOutput() const;
         void waitReady(int) const;
         int waitSuccess(int) const;
 
@@ -54,12 +52,11 @@ namespace
         id<ControllerView> _controller;
         std::string _dll;
         StringSeq _args;
-        CFBundleRef _handle;
         bool _ready;
         bool _completed;
         int _status;
         std::ostringstream _out;
-        IceInternal::UniquePtr<Test::TestHelper> _helper;
+        Ice::CommunicatorPtr _communicator;
     };
 
     class ProcessI : public Process
@@ -126,16 +123,6 @@ ControllerHelperI::ControllerHelperI(id<ControllerView> controller, const string
 
 ControllerHelperI::~ControllerHelperI()
 {
-    if(_helper)
-    {
-        _helper.reset();
-    }
-
-    if(_handle)
-    {
-        CFBundleUnloadExecutable(_handle);
-        CFRelease(_handle);
-    }
 }
 
 void
@@ -147,28 +134,13 @@ ControllerHelperI::serverReady()
 }
 
 void
-ControllerHelperI::shutdown()
+ControllerHelperI::communicatorInitialized(const Ice::CommunicatorPtr& communnicator)
 {
     Lock sync(*this);
-    if(_completed)
+    if(!_completed)
     {
-        return;
+        _communicator = communnicator;
     }
-
-    if(_helper)
-    {
-        Ice::CommunicatorPtr communicator = _helper->communicator();
-        if(communicator)
-        {
-            communicator->shutdown();
-        }
-    }
-}
-
-bool
-ControllerHelperI::redirect() const
-{
-    return _dll.find("client") != string::npos || _dll.find("collocated") != string::npos;
 }
 
 string
@@ -191,8 +163,8 @@ ControllerHelperI::run()
     bundlePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithUTF8String:_dll.c_str()]];
 
     NSURL* bundleURL = [NSURL fileURLWithPath:bundlePath];
-    _handle = CFBundleCreate(NULL, (CFURLRef)bundleURL);
-    if(!_handle)
+    CFBundleRef handle = CFBundleCreate(NULL, (CFURLRef)bundleURL);
+    if(!handle)
     {
         print([[NSString stringWithFormat:@"Could not find bundle %@", bundlePath] UTF8String]);
         completed(EXIT_FAILURE);
@@ -200,7 +172,7 @@ ControllerHelperI::run()
     }
 
     CFErrorRef error = nil;
-    Boolean loaded = CFBundleLoadExecutableAndReturnError(_handle, &error);
+    Boolean loaded = CFBundleLoadExecutableAndReturnError(handle, &error);
     if(error != nil || !loaded)
     {
         print([[(__bridge NSError *)error description] UTF8String]);
@@ -213,7 +185,7 @@ ControllerHelperI::run()
     //
     void* sym = 0;
     int attempts = 0;
-    while((sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("createHelper"))) == 0 && attempts < 5)
+    while((sym = CFBundleGetFunctionPointerForName(handle, CFSTR("createHelper"))) == 0 && attempts < 5)
     {
         attempts++;
         [NSThread sleepForTimeInterval:0.2];
@@ -237,10 +209,11 @@ ControllerHelperI::run()
     argv[_args.size()] = 0;
     try
     {
-        Test::StreamHelper streamHelper(this, redirect());
-        _helper.reset(createHelper());
-        _helper->setControllerHelper(this);
-        _helper->run(static_cast<int>(_args.size()), argv);
+        Test::StreamHelper streamHelper(this,
+                                        _dll.find("client") != string::npos || _dll.find("collocated") != string::npos);
+        IceInternal::UniquePtr<Test::TestHelper> helper(createHelper());
+        helper->setControllerHelper(this);
+        helper->run(static_cast<int>(_args.size()), argv);
         completed(0);
     }
     catch(const std::exception& ex)
@@ -254,12 +227,9 @@ ControllerHelperI::run()
         completed(1);
     }
     delete[] argv;
-}
 
-void
-ControllerHelperI::join()
-{
-    getThreadControl().join();
+    CFBundleUnloadExecutable(handle);
+    CFRelease(handle);
 }
 
 void
@@ -268,7 +238,18 @@ ControllerHelperI::completed(int status)
     Lock sync(*this);
     _completed = true;
     _status = status;
+    _communicator = 0;
     notifyAll();
+}
+
+void
+ControllerHelperI::shutdown()
+{
+    Lock sync(*this);
+    if(_communicator)
+    {
+        _communicator->shutdown();
+    }
 }
 
 void
@@ -336,7 +317,7 @@ ProcessI::terminate(const Ice::Current& current)
 {
     _helper->shutdown();
     current.adapter->remove(current.id);
-    _helper->join();
+    _helper->getThreadControl().join();
     return _helper->getOutput();
 }
 

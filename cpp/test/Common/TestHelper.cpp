@@ -208,6 +208,10 @@ Ice::CommunicatorPtr
 Test::TestHelper::initialize(int& argc, char* argv[], const Ice::InitializationData& initData)
 {
     _communicator = Ice::initialize(argc, argv, initData);
+    if(_controllerHelper)
+    {
+        _controllerHelper->communicatorInitialized(_communicator);
+    }
     return _communicator;
 }
 
@@ -220,10 +224,10 @@ Test::TestHelper::communicator() const
 void
 Test::TestHelper::serverReady()
 {
-#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
-    assert(_controllerHelper);
-    _controllerHelper->serverReady();
-#endif
+    if(_controllerHelper)
+    {
+        _controllerHelper->serverReady();
+    }
 }
 
 void
