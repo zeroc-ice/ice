@@ -105,7 +105,7 @@ SliceCompile.command.*.log
 
 AppPackages
 BundleArtifacts
-csharp/xamarin/uwp/AppX
+csharp/AppX
 *.deps.json
 *.runtimeconfig.dev.json
 *.runtimeconfig.json
