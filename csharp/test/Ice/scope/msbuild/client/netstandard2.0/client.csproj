@@ -4,7 +4,7 @@
   <PropertyGroup>
     <AssemblyName>client</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>
@@ -13,6 +13,9 @@
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../../AllTests.cs" />
     <Compile Include="../../../Client.cs" />
+    <Compile Include="generated\Test.cs">
+      <SliceCompileSource>../../../Test.ice</SliceCompileSource>
+    </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" />
     <SliceCompile Include="../../../Test.ice">
       <Link>Test.ice</Link>

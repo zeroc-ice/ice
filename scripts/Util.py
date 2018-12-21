@@ -391,7 +391,7 @@ class Windows(Platform):
                     self.compiler = "v120"
                 elif out.find("Version 19.00.") != -1:
                     self.compiler = "v140"
-                elif out.find("Version 19.1") != -1:
+                elif out.find("Version 19.") != -1:
                     self.compiler = "v141"
                 else:
                     raise RuntimeError("Unknown compiler version:\n{0}".format(out))
@@ -571,6 +571,7 @@ class Mapping(object):
             self.es5 = False
             self.worker = False
             self.dotnetcore = False
+            self.framework = ""
             self.android = False
             self.xamarin = False
             self.device = ""
@@ -3250,34 +3251,44 @@ class CSharpMapping(Mapping):
 
         @classmethod
         def getSupportedArgs(self):
-            return ("", ["dotnetcore"])
+            return ("", ["dotnetcore", "framework="])
 
         @classmethod
         def usage(self):
             print("")
-            print("--dotnetcore             Run C# tests using .NET Core")
+            print("--dotnetcore                    Run C# tests using .NET Core")
+            print("--framework=<TargetFramework>   Choose the framework used to run .NET tests")
 
         def __init__(self, options=[]):
             Mapping.Config.__init__(self, options)
 
-            if not self.dotnetcore:
-                self.dotnetcore = not isinstance(platform, Windows) # Force dotnetcore on non-Windows platforms
+            if not self.dotnetcore and not isinstance(platform, Windows):
+                self.dotnetcore = True
+
+            if self.dotnetcore:
+                self.libTargetFramework = "netstandard2.0"
+                self.binTargetFramework = "netcoreapp2.0" if self.framework == "" else self.framework
+                self.testTargetFramework = "netcoreapp2.1" if self.framework == "" else self.framework
+            else:
+                self.libTargetFramework = "net45" if self.framework == "" else "netstandard2.0"
+                self.binTargetFramework = "net45" if self.framework == "" else self.framework
+                self.testTargetFramework = "net45" if self.framework == "" else self.framework
 
             # Set Xamarin flag if UWP/iOS or Android testing flag is also specified
             if self.uwp or self.android or "iphone" in self.buildPlatform:
                 self.xamarin = True
 
     def getBinTargetFramework(self, current):
-        return "netcoreapp2.0" if current.config.dotnetcore else "net45" # Framework version for the bin subdir
+        return current.config.binTargetFramework
 
     def getLibTargetFramework(self, current):
-        return "netstandard2.0" if current.config.dotnetcore else "net45" # Framework version for the lib subdir
+        return current.config.libTargetFramework
 
     def getTargetFramework(self, current):
-        return "netcoreapp2.1" if current.config.dotnetcore else "net45" # Framework version for tests
+        return current.config.testTargetFramework
 
     def getBuildDir(self, name, current):
-        if current.config.dotnetcore:
+        if current.config.dotnetcore or current.config.framework != "":
             return os.path.join("msbuild", name, "netstandard2.0", self.getTargetFramework(current))
         else:
             return os.path.join("msbuild", name, self.getTargetFramework(current))

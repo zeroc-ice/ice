@@ -59,15 +59,15 @@ The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
-The target framework for the .NET Standard tests is `netcoreapp2.0` by default. You can
-target other frameworks by setting the `IceTestsTargetFrameworks` property to one or more
-Target Framework Monikers (TFMs), for example:
+The iceboxnet and test applications target `netcoreapp2.0` and `netcore2.1` respectivelly. You
+can change the target framework for all of them by setting the `AppTargetFrameworks` property to
+a different Target Framework Monikers (TFMs) value, for example:
 ```
-msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
+msbuild msbuild\ice.proj /p:"AppTargetFrameworks=net462"
 ```
 
-This builds the test programs for `net461` and `netcoreapp2.0` (in separate folders).
-The target frameworks you specify must implement .NET Standard 2.0.
+This builds the test programs for `net462`. The target frameworks you specify must
+implement .NET Standard 2.0.
 
 #### Strong Name Signatures
 
@@ -155,6 +155,19 @@ In order to execute the tests with .NET Core framework add the `--dotnetcore` op
 For example:
 ```
 python allTests.py --dotnetcore
+```
+
+If you build the test against a different target framework you must use `--framework` option
+with the corresponding target framework.
+
+For example to run test build against .NET Framework 4.6.2:
+```
+python allTests.py --framework=net462
+```
+
+And to run test build against .NET Core 3.0:
+```
+python allTests.py --dotnetcore --framework=netcoreapp3.0
 ```
 
 ## NuGet Package

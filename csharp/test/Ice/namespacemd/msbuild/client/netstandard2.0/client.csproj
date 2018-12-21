@@ -4,7 +4,7 @@
   <PropertyGroup>
     <AssemblyName>client</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>

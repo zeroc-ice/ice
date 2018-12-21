@@ -6,7 +6,7 @@
     <AssemblyName>iceboxnet</AssemblyName>
     <Version>$(IceVersion)</Version>
     <OutputPath>../../../../../bin</OutputPath>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../AssemblyInfoExe.cs" />
