@@ -71,10 +71,24 @@ These are the changes since Ice 3.7.1 included in this pre-release.
   correctly released. Thanks to @astreube on GitHub for reporting and suggesting
   a fix.
 
+- Fixed a bug in Windows build system that cause wildcard to not be expanded in
+  Slice compiler command line arguments.
+
 ## C# Changes
 
 - Fixed metrics bug where remote invocations for `flushBatchRequests` weren't
   counted.
+
+- Add ability to build .NET Core assemblies with strong name.
+
+- Add Android and iOS platform support to Ice for .NET Core. Ice test
+  suite has been ported to Xamarin and can be run on iOS and Android.
+
+- Fixed marshaling code removing the unsafe code used in ByteBuffer
+  implementation that was causing problems with mono on Android.
+
+- Fixed a bug in slice2cs that can result in generated code using an
+  invalid namespace qualification for a type see #122
 
 ## Java Changes
 
