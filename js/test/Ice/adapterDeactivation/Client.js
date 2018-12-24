@@ -192,7 +192,7 @@
                                         });
 
                 let isDeactivated = false;
-                let p2 = adpt.waitForDeactivate().then(() =>
+                const p2 = adpt.waitForDeactivate().then(() =>
                                               {
                                                   isDeactivated = true;
                                               });
