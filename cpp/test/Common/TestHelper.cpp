@@ -30,6 +30,8 @@ shutdownOnInterruptCallback(int)
 
 }
 
+#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
+
 StreamHelper::StreamHelper() : _controllerHelper(0)
 {
     setp(&data[0], &data[sizeof(data) - 1]);
@@ -117,6 +119,8 @@ StreamHelper::sputc(char c)
     }
     return std::streambuf::sputc(c);
 }
+
+#endif
 
 Test::TestHelper::TestHelper(bool registerPlugins) :
     _controllerHelper(0)
