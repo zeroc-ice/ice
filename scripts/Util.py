@@ -2373,7 +2373,7 @@ class AndroidProcessController(RemoteProcessController):
 class iOSSimulatorProcessController(RemoteProcessController):
 
     device = "iOSSimulatorProcessController"
-    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-6"
+    deviceID = "com.apple.CoreSimulator.SimDeviceType.iPhone-X"
 
     def __init__(self, current):
         RemoteProcessController.__init__(self, current, "tcp -h 0.0.0.0 -p 15001" if current.config.xamarin else None)
@@ -2388,7 +2388,7 @@ class iOSSimulatorProcessController(RemoteProcessController):
         except:
             pass
         if not self.runtimeID:
-            self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-11-0" # Default value
+            self.runtimeID = "com.apple.CoreSimulator.SimRuntime.iOS-12-0" # Default value
 
     def __str__(self):
         return "iOS Simulator"

@@ -30,6 +30,94 @@ shutdownOnInterruptCallback(int)
 
 }
 
+StreamHelper::StreamHelper() : _controllerHelper(0)
+{
+    setp(&data[0], &data[sizeof(data) - 1]);
+
+    _previousCoutBuffer = std::cout.rdbuf();
+    std::cout.rdbuf(this);
+
+    _previousCerrBuffer = std::cerr.rdbuf();
+    std::cerr.rdbuf(this);
+}
+
+StreamHelper::~StreamHelper()
+{
+    std::cout.rdbuf(_previousCoutBuffer);
+    std::cerr.rdbuf(_previousCerrBuffer);
+}
+
+void
+StreamHelper::setControllerHelper(ControllerHelper* controllerHelper)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    assert(_controllerHelper && !controllerHelper || !_controllerHelper && controllerHelper);
+    _controllerHelper = controllerHelper;
+
+    if(_controllerHelper)
+    {
+        _previousLogger = Ice::getProcessLogger();
+        Ice::setProcessLogger(Ice::getProcessLogger()->cloneWithPrefix(_controllerHelper->loggerPrefix()));
+    }
+    else
+    {
+        Ice::setProcessLogger(_previousLogger);
+    }
+}
+
+void
+StreamHelper::flush()
+{
+}
+
+void
+StreamHelper::newLine()
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    if(_controllerHelper)
+    {
+        _controllerHelper->print("\n");
+    }
+}
+
+int
+StreamHelper::sync()
+{
+    assert(_controllerHelper);
+    std::streamsize n = pptr() - pbase();
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        if(_controllerHelper)
+        {
+            _controllerHelper->print(std::string(pbase(), static_cast<int>(n)));
+        }
+    }
+    pbump(-static_cast<int>(pptr() - pbase()));
+    return 0;
+}
+
+int
+StreamHelper::overflow(int ch)
+{
+    sync();
+    if(ch != EOF)
+    {
+        assert(pptr() != epptr());
+        sputc(static_cast<char>(ch));
+    }
+    return 0;
+}
+
+int
+StreamHelper::sputc(char c)
+{
+    if(c == '\n')
+    {
+        pubsync();
+    }
+    return std::streambuf::sputc(c);
+}
+
 Test::TestHelper::TestHelper(bool registerPlugins) :
     _controllerHelper(0)
 #if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)

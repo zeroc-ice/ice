@@ -22,7 +22,7 @@ TEST_API @interface TestFailedException : NSException
 @end
 
 #if TARGET_OS_IPHONE
-TEST_API void TestCommonInit(id, SEL);
+TEST_API void TestCommonSetOutput(id, SEL);
 TEST_API void TestCommonTestInit(id, SEL, NSString*, BOOL, BOOL);
 #endif
 

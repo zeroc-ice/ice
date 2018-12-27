@@ -109,6 +109,8 @@ namespace
         Ice::CommunicatorPtr _communicator;
     };
 
+
+    Test::StreamHelper streamRedirect;
 }
 
 ControllerHelperI::ControllerHelperI(id<ControllerView> controller, const string& dll, const StringSeq& args) :
@@ -197,6 +199,11 @@ ControllerHelperI::run()
         return;
     }
 
+    if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+    {
+        streamRedirect.setControllerHelper(this);
+    }
+
     CREATE_HELPER_ENTRY_POINT createHelper = (CREATE_HELPER_ENTRY_POINT)sym;
     char** argv = new char*[_args.size() + 1];
     for(unsigned int i = 0; i < _args.size(); ++i)
@@ -206,8 +213,6 @@ ControllerHelperI::run()
     argv[_args.size()] = 0;
     try
     {
-        Test::StreamHelper streamHelper(this,
-                                        _dll.find("client") != string::npos || _dll.find("collocated") != string::npos);
         IceInternal::UniquePtr<Test::TestHelper> helper(createHelper());
         helper->setControllerHelper(this);
         helper->run(static_cast<int>(_args.size()), argv);
@@ -224,6 +229,11 @@ ControllerHelperI::run()
         completed(1);
     }
     delete[] argv;
+
+    if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+    {
+        streamRedirect.setControllerHelper(0);
+    }
 
     CFBundleUnloadExecutable(handle);
     CFRelease(handle);

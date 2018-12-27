@@ -131,6 +131,8 @@ private:
     shared_ptr<Test::Common::ProcessControllerRegistryPrx> _registry;
 };
 
+Test::StreamHelper streamRedirect;
+
 }
 
 ControllerHelperI::ControllerHelperI(const string& dll, const StringSeq& args) :
@@ -199,10 +201,13 @@ ControllerHelperI::run()
             argv[i] = const_cast<char*>(_args[i].c_str());
         }
         argv[_args.size()] = 0;
+
+        if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+        {
+            streamRedirect.setControllerHelper(this);
+        }
         try
         {
-            StreamHelper streamHelper(this,
-                                      _dll.find("client") != string::npos || _dll.find("collocated") != string::npos);
             auto helper = unique_ptr<Test::TestHelper>(createHelper());
             helper->setControllerHelper(this);
             helper->run(static_cast<int>(_args.size()), argv);
@@ -217,6 +222,10 @@ ControllerHelperI::run()
         {
             print("unexpected unknown exception while running `" + _args[0] + "'");
             completed(1);
+        }
+        if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+        {
+            streamRedirect.setControllerHelper(0);
         }
         delete[] argv;
     });
