@@ -20,7 +20,7 @@ using namespace Ice;
 using namespace Glacier2;
 
 Glacier2::RouterI::RouterI(const InstancePtr& instance, const ConnectionPtr& connection, const string& userId,
-                           const SessionPrx& session, const Identity& controlId, const FilterManagerPtr& filters,
+                           const SessionPrxPtr& session, const Identity& controlId, const FilterManagerPtr& filters,
                            const Ice::Context& context) :
     _instance(instance),
     _routingTable(new RoutingTable(_instance->communicator(), _instance->proxyVerifier())),
@@ -140,7 +140,7 @@ Glacier2::RouterI::destroy(const Callback_Session_destroyPtr& asyncCB)
     _routingTable->destroy();
 }
 
-ObjectPrx
+ObjectPrxPtr
 Glacier2::RouterI::getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, const Current&) const
 {
     // No mutex lock necessary, _clientProxy is immutable and is never destroyed.
@@ -148,7 +148,7 @@ Glacier2::RouterI::getClientProxy(IceUtil::Optional<bool>& hasRoutingTable, cons
     return _clientProxy;
 }
 
-ObjectPrx
+ObjectPrxPtr
 Glacier2::RouterI::getServerProxy(const Current&) const
 {
     // No mutex lock necessary, _serverProxy is immutable and is never destroyed.
@@ -230,7 +230,7 @@ Glacier2::RouterI::getServerBlobject() const
     return _serverBlobject;
 }
 
-SessionPrx
+SessionPrxPtr
 Glacier2::RouterI::getSession() const
 {
     return _session; // No mutex lock necessary, _session is immutable.

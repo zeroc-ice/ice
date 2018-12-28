@@ -74,7 +74,7 @@ Glacier2::ClientBlobject::ice_invoke_async(const Ice::AMD_Object_ice_invokePtr& 
         }
     }
 
-    ObjectPrx proxy = _routingTable->get(current.id);
+    ObjectPrxPtr proxy = _routingTable->get(current.id);
     if(!proxy)
     {
         //

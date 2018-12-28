@@ -46,19 +46,19 @@ public:
         return _identities;
     }
 
-    StringSetPrx
+    StringSetPrxPtr
     categoriesPrx() const
     {
         return _categoriesPrx;
     }
 
-    StringSetPrx
+    StringSetPrxPtr
     adapterIdsPrx() const
     {
         return _adapterIdsPrx;
     }
 
-    IdentitySetPrx
+    IdentitySetPrxPtr
     identitiesPrx() const
     {
         return _identitiesPrx;
@@ -69,9 +69,9 @@ public:
 
 private:
 
-    StringSetPrx _categoriesPrx;
-    StringSetPrx _adapterIdsPrx;
-    IdentitySetPrx _identitiesPrx;
+    StringSetPrxPtr _categoriesPrx;
+    StringSetPrxPtr _adapterIdsPrx;
+    IdentitySetPrxPtr _identitiesPrx;
 
     const StringSetIPtr _categories;
     const StringSetIPtr _adapters;

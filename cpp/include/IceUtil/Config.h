@@ -123,10 +123,12 @@
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
 #   define ICE_FINAL final
+#   define ICE_OVERRIDE override
 #else
 #   define ICE_NOEXCEPT throw()
 #   define ICE_NOEXCEPT_FALSE /**/
 #   define ICE_FINAL /**/
+#   define ICE_OVERRIDE /**/
 #endif
 
 //

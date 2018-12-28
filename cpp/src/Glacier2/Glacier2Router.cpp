@@ -59,7 +59,7 @@ public:
 
 private:
 
-    const Glacier2::RouterPrx _router;
+    const Glacier2::RouterPrxPtr _router;
 };
 
 };
@@ -158,8 +158,8 @@ RouterService::start(int argc, char* argv[], int& status)
     Glacier2Internal::setupNullPermissionsVerifier(communicator(), instanceName, verifierProperties);
 
     string verifierProperty = verifierProperties[0];
-    PermissionsVerifierPrx verifier;
-    ObjectPrx obj;
+    PermissionsVerifierPrxPtr verifier;
+    ObjectPrxPtr obj;
     try
     {
         //
@@ -180,7 +180,7 @@ RouterService::start(int argc, char* argv[], int& status)
     {
         try
         {
-            verifier = PermissionsVerifierPrx::checkedCast(obj);
+            verifier = ICE_CHECKED_CAST(PermissionsVerifierPrx, obj);
             if(!verifier)
             {
                 ServiceError err(this);
@@ -197,7 +197,7 @@ RouterService::start(int argc, char* argv[], int& status)
                 warn << "unable to contact permissions verifier `"
                      << communicator()->getProperties()->getProperty(verifierProperty) << "'\n" << ex;
             }
-            verifier = PermissionsVerifierPrx::uncheckedCast(obj);
+            verifier = ICE_UNCHECKED_CAST(PermissionsVerifierPrx, obj);
         }
     }
 
@@ -206,7 +206,7 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     string sessionManagerProperty = "Glacier2.SessionManager";
     string sessionManagerPropertyValue = properties->getProperty(sessionManagerProperty);
-    SessionManagerPrx sessionManager;
+    SessionManagerPrxPtr sessionManager;
     if(!sessionManagerPropertyValue.empty())
     {
         try
@@ -221,7 +221,7 @@ RouterService::start(int argc, char* argv[], int& status)
         }
         try
         {
-            sessionManager = SessionManagerPrx::checkedCast(obj);
+            sessionManager = ICE_CHECKED_CAST(SessionManagerPrx, obj);
             if(!sessionManager)
             {
                 error("session manager `" + sessionManagerPropertyValue + "' is invalid");
@@ -235,10 +235,10 @@ RouterService::start(int argc, char* argv[], int& status)
                 ServiceWarning warn(this);
                 warn << "unable to contact session manager `" << sessionManagerPropertyValue << "'\n" << ex;
             }
-            sessionManager = SessionManagerPrx::uncheckedCast(obj);
+            sessionManager = ICE_UNCHECKED_CAST(SessionManagerPrx, obj);
         }
         sessionManager =
-            SessionManagerPrx::uncheckedCast(sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+            ICE_UNCHECKED_CAST(SessionManagerPrx, sessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
                 properties->getPropertyAsIntWithDefault("Glacier2.SessionManager.LocatorCacheTimeout", 600)));
     }
 
@@ -246,7 +246,7 @@ RouterService::start(int argc, char* argv[], int& status)
     // Check for an SSL permissions verifier.
     //
     string sslVerifierProperty = verifierProperties[1];
-    SSLPermissionsVerifierPrx sslVerifier;
+    SSLPermissionsVerifierPrxPtr sslVerifier;
 
     try
     {
@@ -264,7 +264,7 @@ RouterService::start(int argc, char* argv[], int& status)
     {
         try
         {
-            sslVerifier = SSLPermissionsVerifierPrx::checkedCast(obj);
+            sslVerifier = ICE_CHECKED_CAST(SSLPermissionsVerifierPrx, obj);
             if(!sslVerifier)
             {
                 ServiceError err(this);
@@ -282,7 +282,7 @@ RouterService::start(int argc, char* argv[], int& status)
                      <<  communicator()->getProperties()->getProperty(sslVerifierProperty) << "'\n"
                      << ex;
             }
-            sslVerifier = SSLPermissionsVerifierPrx::uncheckedCast(obj);
+            sslVerifier = ICE_UNCHECKED_CAST(SSLPermissionsVerifierPrx, obj);
         }
     }
 
@@ -291,7 +291,7 @@ RouterService::start(int argc, char* argv[], int& status)
     //
     string sslSessionManagerProperty = "Glacier2.SSLSessionManager";
     string sslSessionManagerPropertyValue = properties->getProperty(sslSessionManagerProperty);
-    SSLSessionManagerPrx sslSessionManager;
+    SSLSessionManagerPrxPtr sslSessionManager;
     if(!sslSessionManagerPropertyValue.empty())
     {
         try
@@ -306,7 +306,7 @@ RouterService::start(int argc, char* argv[], int& status)
         }
         try
         {
-            sslSessionManager = SSLSessionManagerPrx::checkedCast(obj);
+            sslSessionManager = ICE_CHECKED_CAST(SSLSessionManagerPrx, obj);
             if(!sslSessionManager)
             {
                 error("ssl session manager `" + sslSessionManagerPropertyValue + "' is invalid");
@@ -321,10 +321,10 @@ RouterService::start(int argc, char* argv[], int& status)
                 warn << "unable to contact ssl session manager `" << sslSessionManagerPropertyValue
                      << "'\n" << ex;
             }
-            sslSessionManager = SSLSessionManagerPrx::uncheckedCast(obj);
+            sslSessionManager = ICE_UNCHECKED_CAST(SSLSessionManagerPrx, obj);
         }
         sslSessionManager =
-            SSLSessionManagerPrx::uncheckedCast(sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
+            ICE_UNCHECKED_CAST(SSLSessionManagerPrx, sslSessionManager->ice_connectionCached(false)->ice_locatorCacheTimeout(
                 properties->getPropertyAsIntWithDefault("Glacier2.SSLSessionManager.LocatorCacheTimeout", 600)));
     }
 
@@ -361,7 +361,7 @@ RouterService::start(int argc, char* argv[], int& status)
     Identity routerId;
     routerId.category = instanceName;
     routerId.name = "router";
-    Glacier2::RouterPrx routerPrx = Glacier2::RouterPrx::uncheckedCast(clientAdapter->add(_sessionRouter, routerId));
+    Glacier2::RouterPrxPtr routerPrx = ICE_UNCHECKED_CAST(Glacier2::RouterPrx, clientAdapter->add(_sessionRouter, routerId));
 
     //
     // Add the Ice router finder object to allow retrieving the router
@@ -496,7 +496,7 @@ RouterService::usage(const string& appName)
     print("Usage: " + appName + " [options]\n" + options);
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
 
 int
 wmain(int argc, wchar_t* argv[])

@@ -22,10 +22,10 @@ namespace Glacier2
 {
 
 class RouterI;
-typedef IceUtil::Handle<RouterI> RouterIPtr;
+ICE_DEFINE_PTR(RouterIPtr, RouterI);
 
 class SessionRouterI;
-typedef IceUtil::Handle<SessionRouterI> SessionRouterIPtr;
+ICE_DEFINE_PTR(SessionRouterIPtr, SessionRouterI);
 
 class FilterManager;
 typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
@@ -37,10 +37,10 @@ class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
 class ClientBlobject;
-typedef IceUtil::Handle<ClientBlobject> ClientBlobjectPtr;
+ICE_DEFINE_PTR(ClientBlobjectPtr, ClientBlobject);
 
 class ServerBlobject;
-typedef IceUtil::Handle<ServerBlobject> ServerBlobjectPtr;
+ICE_DEFINE_PTR(ServerBlobjectPtr, ServerBlobject);
 
 class CreateSession : public IceUtil::Shared
 {
@@ -75,7 +75,7 @@ protected:
     const Ice::Current _current;
     Ice::Context _context;
     std::vector<CreateSessionPtr> _pendingCallbacks;
-    SessionControlPrx _control;
+    SessionControlPrxPtr _control;
     FilterManagerPtr _filterManager;
 };
 
@@ -96,20 +96,20 @@ public:
     virtual ~SessionRouterI();
     void destroy();
 
-    virtual Ice::ObjectPrx getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const;
-    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
+    virtual Ice::ObjectPrxPtr getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const ICE_OVERRIDE;
+    virtual Ice::ObjectPrxPtr getServerProxy(const Ice::Current&) const ICE_OVERRIDE;
+    virtual std::string getCategoryForClient(const Ice::Current&) const ICE_OVERRIDE;
     virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
-    virtual std::string getCategoryForClient(const Ice::Current&) const;
     virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&,
                                const Ice::Current&);
     virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
                                                          const Ice::Current&);
     virtual void refreshSession_async(const AMD_Router_refreshSessionPtr&, const Ice::Current&);
-    virtual void destroySession(const ::Ice::Current&);
-    virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
-    virtual Ice::Int getACMTimeout(const ::Ice::Current&) const;
+    virtual void destroySession(const ::Ice::Current&) ICE_OVERRIDE;
+    virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const ICE_OVERRIDE;
+    virtual Ice::Int getACMTimeout(const ::Ice::Current&) const ICE_OVERRIDE;
 
-    virtual void updateSessionObservers();
+    virtual void updateSessionObservers() ICE_OVERRIDE;
 
     RouterIPtr getRouter(const Ice::ConnectionPtr&, const Ice::Identity&, bool = true) const;
 

@@ -32,6 +32,9 @@ EndEscapes endEscapes;
 string
 IceUtilInternal::int64ToString(Int64 val)
 {
+#ifdef ICE_CPP11
+    return std::to_string(val);
+#else
     char buf[64];
 
 #if defined(_WIN32)
@@ -42,6 +45,7 @@ IceUtilInternal::int64ToString(Int64 val)
     sprintf(buf, "%lld", val);
 #endif
     return string(buf);
+#endif
 }
 
 // ----------------------------------------------------------------------

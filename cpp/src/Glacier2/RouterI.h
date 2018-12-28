@@ -19,7 +19,7 @@ class RoutingTable;
 typedef IceUtil::Handle<RoutingTable> RoutingTablePtr;
 
 class RouterI;
-typedef IceUtil::Handle<RouterI> RouterIPtr;
+ICE_DEFINE_PTR(RouterIPtr, RouterI);
 
 class FilterManager;
 typedef IceUtil::Handle<FilterManager> FilterManagerPtr;
@@ -28,30 +28,30 @@ class RouterI : public Router
 {
 public:
 
-    RouterI(const InstancePtr&, const Ice::ConnectionPtr&, const std::string&, const SessionPrx&, const Ice::Identity&,
+    RouterI(const InstancePtr&, const Ice::ConnectionPtr&, const std::string&, const SessionPrxPtr&, const Ice::Identity&,
             const FilterManagerPtr&, const Ice::Context&);
 
     virtual ~RouterI();
 
     void destroy(const Callback_Session_destroyPtr&);
 
-    virtual Ice::ObjectPrx getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const;
-    virtual Ice::ObjectPrx getServerProxy(const Ice::Current&) const;
-    virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&);
-    virtual std::string getCategoryForClient(const Ice::Current&) const;
+    virtual Ice::ObjectPrxPtr getClientProxy(IceUtil::Optional<bool>&, const Ice::Current&) const ICE_OVERRIDE;
+    virtual Ice::ObjectPrxPtr getServerProxy(const Ice::Current&) const ICE_OVERRIDE;
+    virtual Ice::ObjectProxySeq addProxies(const Ice::ObjectProxySeq&, const Ice::Current&) ICE_OVERRIDE;
+    virtual std::string getCategoryForClient(const Ice::Current&) const ICE_OVERRIDE;
     virtual void createSession_async(const AMD_Router_createSessionPtr&, const std::string&, const std::string&,
                                      const Ice::Current&);
     virtual void createSessionFromSecureConnection_async(const AMD_Router_createSessionFromSecureConnectionPtr&,
                                                          const Ice::Current&);
     virtual void refreshSession_async(const AMD_Router_refreshSessionPtr&, const ::Ice::Current&);
-    virtual void destroySession(const ::Ice::Current&);
-    virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const;
-    virtual Ice::Int getACMTimeout(const ::Ice::Current&) const;
+    virtual void destroySession(const ::Ice::Current&) ICE_OVERRIDE;
+    virtual Ice::Long getSessionTimeout(const ::Ice::Current&) const ICE_OVERRIDE;
+    virtual Ice::Int getACMTimeout(const ::Ice::Current&) const ICE_OVERRIDE;
 
     ClientBlobjectPtr getClientBlobject() const;
     ServerBlobjectPtr getServerBlobject() const;
 
-    SessionPrx getSession() const;
+    SessionPrxPtr getSession() const;
 
     IceUtil::Time getTimestamp() const;
     void updateTimestamp() const;
@@ -64,15 +64,15 @@ private:
 
     const InstancePtr _instance;
     const RoutingTablePtr _routingTable;
-    const Ice::ObjectPrx _clientProxy;
-    const Ice::ObjectPrx _serverProxy;
+    const Ice::ObjectPrxPtr _clientProxy;
+    const Ice::ObjectPrxPtr _serverProxy;
     const ClientBlobjectPtr _clientBlobject;
     const ServerBlobjectPtr _serverBlobject;
     const bool _clientBlobjectBuffered;
     const bool _serverBlobjectBuffered;
     const Ice::ConnectionPtr _connection;
     const std::string _userId;
-    const SessionPrx _session;
+    const SessionPrxPtr _session;
     const Ice::Identity _controlId;
     const Ice::Context _context;
     const IceUtil::Mutex _timestampMutex;

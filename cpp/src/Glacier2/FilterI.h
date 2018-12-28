@@ -171,11 +171,10 @@ FilterT<T, P>::get(const Ice::Current&)
 }
 
 typedef FilterT<Ice::Identity, Glacier2::IdentitySet> IdentitySetI;
-typedef IceUtil::Handle< FilterT<Ice::Identity, Glacier2::IdentitySet> > IdentitySetIPtr;
+ICE_DEFINE_PTR(IdentitySetIPtr, IdentitySetI);
 
 typedef FilterT<std::string, Glacier2::StringSet> StringSetI;
-typedef IceUtil::Handle< FilterT<std::string, Glacier2::StringSet> > StringSetIPtr;
-
+ICE_DEFINE_PTR(StringSetIPtr, StringSetI);
 };
 
 #endif

@@ -24,7 +24,11 @@
 
 #ifdef _WIN32
 #   include <winsock2.h>
-#   include <Ice/EventLoggerMsg.h>
+    #ifndef __MINGW32__
+        #include <Ice/EventLoggerMsg.h>
+    #else
+        #define EVENT_LOGGER_MSG 0x00
+    #endif
 #else
 #   include <Ice/Logger.h>
 #   include <Ice/Network.h>

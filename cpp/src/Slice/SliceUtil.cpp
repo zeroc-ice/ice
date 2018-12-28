@@ -401,7 +401,7 @@ Slice::writeDependencies(const string& dependencies, const string& dependFile)
     }
 }
 
-#ifdef _WIN32
+#if defined(_WIN32) && !defined(__MINGW32__)
 vector<string>
 Slice::argvToArgs(int argc, wchar_t* argv[])
 {

@@ -65,14 +65,14 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
             current.con->close(ICE_SCOPED_ENUM(ConnectionClose, Forcefully));
             throw ObjectNotExistException(__FILE__, __LINE__);
         }
-        ObjectPrx proxy = (*prx)->ice_twoway()->ice_secure(false)->ice_facet(""); // We add proxies in default form.
+        ObjectPrxPtr proxy = (*prx)->ice_twoway()->ice_secure(false)->ice_facet(""); // We add proxies in default form.
         proxies.push_back(proxy);
     }
 
     ObjectProxySeq evictedProxies;
     for(ObjectProxySeq::const_iterator prx = proxies.begin(); prx != proxies.end(); ++prx)
     {
-        ObjectPrx proxy = *prx;
+        ObjectPrxPtr proxy = *prx;
         EvictorMap::iterator p = _map.find(proxy->ice_getIdentity());
 
         if(p == _map.end())
@@ -128,7 +128,7 @@ Glacier2::RoutingTable::add(const ObjectProxySeq& unfiltered, const Current& cur
     return evictedProxies;
 }
 
-ObjectPrx
+ObjectPrxPtr
 Glacier2::RoutingTable::get(const Identity& ident)
 {
     if(ident.name.empty())

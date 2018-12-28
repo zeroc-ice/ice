@@ -156,9 +156,9 @@ Glacier2::FilterManager::FilterManager(const InstancePtr& instance, const Glacie
         Ice::ObjectAdapterPtr adapter = _instance->serverObjectAdapter();
         if(adapter)
         {
-            _categoriesPrx = Glacier2::StringSetPrx::uncheckedCast(adapter->addWithUUID(_categories));
-            _adapterIdsPrx = Glacier2::StringSetPrx::uncheckedCast(adapter->addWithUUID(_adapters));
-            _identitiesPrx = Glacier2::IdentitySetPrx::uncheckedCast(adapter->addWithUUID(_identities));
+            _categoriesPrx = ICE_UNCHECKED_CAST(Glacier2::StringSetPrx, adapter->addWithUUID(_categories));
+            _adapterIdsPrx = ICE_UNCHECKED_CAST(Glacier2::StringSetPrx, adapter->addWithUUID(_adapters));
+            _identitiesPrx = ICE_UNCHECKED_CAST(Glacier2::IdentitySetPrx, adapter->addWithUUID(_identities));
         }
     }
     catch(...)
@@ -196,14 +196,14 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
             }
         }
     }
-    Glacier2::StringSetIPtr categoryFilter = new Glacier2::StringSetI(allowSeq);
+    Glacier2::StringSetIPtr categoryFilter(new Glacier2::StringSetI(allowSeq));
 
     //
     // TODO: refactor initialization of filters.
     //
     allow = props->getProperty("Glacier2.Filter.AdapterId.Accept");
     stringToSeq(allow, allowSeq);
-    Glacier2::StringSetIPtr adapterIdFilter = new Glacier2::StringSetI(allowSeq);
+    Glacier2::StringSetIPtr adapterIdFilter(new Glacier2::StringSetI(allowSeq));
 
     //
     // TODO: Object id's from configurations?
@@ -211,7 +211,7 @@ Glacier2::FilterManager::create(const InstancePtr& instance, const string& userI
     IdentitySeq allowIdSeq;
     allow = props->getProperty("Glacier2.Filter.Identity.Accept");
     stringToSeq(allow, allowIdSeq);
-    Glacier2::IdentitySetIPtr identityFilter = new Glacier2::IdentitySetI(allowIdSeq);
+    Glacier2::IdentitySetIPtr identityFilter(new Glacier2::IdentitySetI(allowIdSeq));
 
     return new Glacier2::FilterManager(instance, categoryFilter, adapterIdFilter, identityFilter);
 }

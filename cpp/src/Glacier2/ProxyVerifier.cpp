@@ -518,7 +518,7 @@ public:
 //
 // A proxy validation rule encapsulating an address filter.
 //
-class AddressRule : public Glacier2::ProxyRule
+class AddressRule ICE_FINAL : public Glacier2::ProxyRule
 {
 public:
     AddressRule(const CommunicatorPtr& communicator, const vector<AddressMatcher*>& address, MatchesNumber* port,
@@ -539,8 +539,8 @@ public:
         delete _portMatcher;
     }
 
-    virtual bool
-    check(const ObjectPrx& prx) const
+    bool
+    check(const ObjectPrxPtr& prx) const ICE_OVERRIDE
     {
         EndpointSeq endpoints = prx->ice_getEndpoints();
         if(endpoints.size() == 0)
@@ -805,7 +805,7 @@ parseProperty(const Ice::CommunicatorPtr& communicator, const string& property, 
 // Helper function for checking a rule set.
 //
 static bool
-match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
+match(const vector<ProxyRule*>& rules, const ObjectPrxPtr& proxy)
 {
     for(vector<ProxyRule*>::const_iterator i = rules.begin(); i != rules.end(); ++i)
     {
@@ -821,7 +821,7 @@ match(const vector<ProxyRule*>& rules, const ObjectPrx& proxy)
 // ProxyLengthRule returns 'true' if the string form of the proxy exceeds the configured
 // length.
 //
-class ProxyLengthRule : public ProxyRule
+class ProxyLengthRule ICE_FINAL : public ProxyRule
 {
 public:
     ProxyLengthRule(const CommunicatorPtr communicator, const string& count, int traceLevel) :
@@ -840,7 +840,7 @@ public:
     }
 
     bool
-    check(const ObjectPrx& p) const
+    check(const ObjectPrxPtr& p) const ICE_OVERRIDE
     {
         string s = p->ice_toString();
         bool result = (s.size() > _count);
@@ -929,7 +929,7 @@ Glacier2::ProxyVerifier::~ProxyVerifier()
 }
 
 bool
-Glacier2::ProxyVerifier::verify(const ObjectPrx& proxy)
+Glacier2::ProxyVerifier::verify(const ObjectPrxPtr& proxy)
 {
     //
     // No rules have been defined so we accept all.

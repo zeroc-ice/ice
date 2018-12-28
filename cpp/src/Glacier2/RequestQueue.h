@@ -22,7 +22,7 @@ class Instance;
 typedef IceUtil::Handle<Instance> InstancePtr;
 
 class Request;
-typedef IceUtil::Handle<Request> RequestPtr;
+ICE_DEFINE_PTR(RequestPtr, Request);
 
 class RequestQueueThread;
 typedef IceUtil::Handle<RequestQueueThread> RequestQueueThreadPtr;
@@ -31,7 +31,7 @@ class Request : public Ice::LocalObject
 {
 public:
 
-    Request(const Ice::ObjectPrx&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
+    Request(const Ice::ObjectPrxPtr&, const std::pair<const Ice::Byte*, const Ice::Byte*>&, const Ice::Current&, bool,
             const Ice::Context&, const Ice::AMD_Object_ice_invokePtr&);
 
     Ice::AsyncResultPtr invoke(const Ice::Callback_Object_ice_invokePtr& callback);
@@ -46,7 +46,7 @@ private:
     void exception(const Ice::Exception&);
     void queued();
 
-    const Ice::ObjectPrx _proxy;
+    const Ice::ObjectPrxPtr _proxy;
     const Ice::ByteSeq _inParams;
     const Ice::Current _current;
     const bool _forwardContext;

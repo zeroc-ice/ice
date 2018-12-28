@@ -13,7 +13,7 @@ namespace Glacier2
 {
 
 class ServerBlobject;
-typedef IceUtil::Handle<ServerBlobject> ServerBlobjectPtr;
+ICE_DEFINE_PTR(ServerBlobjectPtr, ServerBlobject);
 
 class ServerBlobject : public Glacier2::Blobject
 {

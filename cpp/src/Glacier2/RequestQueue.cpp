@@ -12,7 +12,7 @@ using namespace std;
 using namespace Ice;
 using namespace Glacier2;
 
-Glacier2::Request::Request(const ObjectPrx& proxy, const std::pair<const Byte*, const Byte*>& inParams,
+Glacier2::Request::Request(const ObjectPrxPtr& proxy, const std::pair<const Byte*, const Byte*>& inParams,
                            const Current& current, bool forwardContext, const Ice::Context& sslContext,
                            const AMD_Object_ice_invokePtr& amdCB) :
     _proxy(proxy),
