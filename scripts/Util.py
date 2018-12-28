@@ -2994,7 +2994,7 @@ class Driver:
     def getProcessProps(self, current, ready, readyCount):
         props = {}
         if ready or readyCount > 0:
-            if current.config.buildPlatform not in ["iphonesimulator", "iphoneos"]:
+            if not current.config.uwp and current.config.buildPlatform not in ["iphonesimulator", "iphoneos"]:
                 props["Ice.PrintAdapterReady"] = 1
         return props
 

@@ -85,7 +85,6 @@ StreamHelper::newLine()
 int
 StreamHelper::sync()
 {
-    assert(_controllerHelper);
     std::streamsize n = pptr() - pbase();
     {
         IceUtil::Mutex::Lock sync(_mutex);
