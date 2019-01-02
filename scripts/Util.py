@@ -2253,12 +2253,7 @@ class AndroidProcessController(RemoteProcessController):
             return "Android/ProcessController"
 
     def adb(self):
-        if self.device == "usb":
-            return "adb -d"
-        elif self.device:
-            return "adb -s {}".format(self.device)
-        else:
-            return "adb"
+        return "adb -d" if self.device == "usb" else "adb"
 
     def startEmulator(self, avd):
         #
@@ -2328,6 +2323,8 @@ class AndroidProcessController(RemoteProcessController):
             #run("sdkmanager \"{0}\"".format(sdk), stdout=True, stdin="yes", stdinRepeat=True) # yes to accept licenses
             run("avdmanager create avd -k \"{0}\" -d \"Nexus 6\" -n IceTests".format(sdk))
             self.startEmulator("IceTests")
+        elif current.config.device != "usb":
+            run("adb connect {}".format(current.config.device))
 
         run("{} install -t -r {}".format(self.adb(), current.testcase.getMapping().getApk(current)))
         run("{} shell am start -n \"{}\" -a android.intent.action.MAIN -c android.intent.category.LAUNCHER".format(
@@ -2342,11 +2339,6 @@ class AndroidProcessController(RemoteProcessController):
         if self.avd:
             try:
                 run("{} emu kill".format(self.adb()))
-            except:
-                pass
-
-            try:
-                run("adb kill-server")
             except:
                 pass
 
@@ -2369,6 +2361,11 @@ class AndroidProcessController(RemoteProcessController):
                 sys.stdout.write(".")
                 sys.stdout.flush()
                 time.sleep(0.5)
+
+        try:
+            run("adb kill-server")
+        except:
+            pass
 
 class iOSSimulatorProcessController(RemoteProcessController):
 
