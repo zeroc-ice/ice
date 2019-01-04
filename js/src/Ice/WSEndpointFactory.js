@@ -7,11 +7,10 @@
 const Ice = require("../Ice/WSEndpoint").Ice;
 const WSEndpoint = Ice.WSEndpoint;
 
-class WSEndpointFactory extends WSEndpoint
+class WSEndpointFactory
 {
     constructor(instance, delegate)
     {
-        super();
         this._instance = instance;
         this._delegate = delegate;
     }
