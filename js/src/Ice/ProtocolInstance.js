@@ -6,19 +6,6 @@
 
 const Ice = require("../Ice/ModuleRegistry").Ice;
 
-//
-// NOTE: the protocol instance class is a bit different from other
-// language mappinps since it also provides the secure property for
-// the tranport. Since we don't support SSL but still want to be able
-// to parse SSL endpoints, we simply re-use the TCP endpoint with a
-// different protocol instance to support SSL endpoints.
-//
-// If SSL endpoints attributes were to diverge from TCP endpoints or
-// if we want to support SSL, we'd have to change this and instead, do
-// like in other mappings: have a separate implementation for the SSL
-// endpoint and suppress the secure member of the protocol instance
-// class bellow.
-//
 class ProtocolInstance
 {
     constructor(instance, type, protocol, secure)
