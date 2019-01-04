@@ -187,7 +187,7 @@ public:
     {
         try
         {
-            ex.ice_throw();;
+            ex.ice_throw();
         }
         catch(const Ice::ConnectFailedException&)
         {

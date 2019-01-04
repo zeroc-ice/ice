@@ -855,7 +855,7 @@ Slice::Gen::generate(const UnitPtr& p)
     printHeader(C);
     printGeneratedHeader(C, _base + ".ice");
 
-    string s = _base + "." + _headerExtension;;
+    string s = _base + "." + _headerExtension;
     if(_include.size())
     {
         s = _include + '/' + s;

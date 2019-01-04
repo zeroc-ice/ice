@@ -58,7 +58,7 @@ namespace IceInternal
 
             override public bool datagram()
             {
-                return _endpoint.datagram();;
+                return _endpoint.datagram();
             }
 
             override public bool secure()

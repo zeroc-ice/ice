@@ -56,7 +56,7 @@ Collocated::run(int argc, char** argv)
     initData.properties->setProperty("Ice.RetryIntervals", "0 1 10000");
     initData.observer = getObserver();
 
-    Ice::CommunicatorHolder ich2 = Ice::initialize(initData);;
+    Ice::CommunicatorHolder ich2 = Ice::initialize(initData);
 
     setupObjectAdapter(ich1.communicator());
     setupObjectAdapter(ich2.communicator());

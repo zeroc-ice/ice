@@ -882,7 +882,7 @@ public class AllTests
                     // the cert size should be 2.
                     //
                     d = createServerProps(defaultProperties, "s_rsa_wroot_ca1", "");
-                    d["IceSSL.VerifyPeer"] = "0";;
+                    d["IceSSL.VerifyPeer"] = "0";
                     server = fact.createServer(d);
                     try
                     {
@@ -909,7 +909,7 @@ public class AllTests
 
                     {
                         d = createServerProps(defaultProperties, "s_rsa_ca1", "");
-                        d["IceSSL.VerifyPeer"] = "0";;
+                        d["IceSSL.VerifyPeer"] = "0";
                         server = fact.createServer(d);
                         try
                         {
@@ -938,7 +938,7 @@ public class AllTests
 
                     {
                         d = createServerProps(defaultProperties, "s_rsa_cai1", "");
-                        d["IceSSL.VerifyPeer"] = "0";;
+                        d["IceSSL.VerifyPeer"] = "0";
                         server = fact.createServer(d);
                         try
                         {
@@ -996,7 +996,7 @@ public class AllTests
 
                         {
                             d = createServerProps(defaultProperties, "s_rsa_cai2", "");
-                            d["IceSSL.VerifyPeer"] = "0";;
+                            d["IceSSL.VerifyPeer"] = "0";
                             server = fact.createServer(d);
                             try
                             {
@@ -1024,7 +1024,7 @@ public class AllTests
 
                         {
                             d = createServerProps(defaultProperties, "s_rsa_cai2", "");
-                            d["IceSSL.VerifyPeer"] = "0";;
+                            d["IceSSL.VerifyPeer"] = "0";
                             server = fact.createServer(d);
                             try
                             {

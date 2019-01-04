@@ -541,7 +541,7 @@ SecureTransportCertificateI::verify(const IceSSL::CertificatePtr& cert) const
         {
             UniqueRef<SecPolicyRef> policy(SecPolicyCreateBasicX509());
             UniqueRef<SecTrustRef> trust;
-            OSStatus err = 0;;
+            OSStatus err = 0;
             if((err = SecTrustCreateWithCertificates(_cert.get(), policy.get(), &trust.get())))
             {
                 throw CertificateEncodingException(__FILE__, __LINE__, sslErrorToString(err));
