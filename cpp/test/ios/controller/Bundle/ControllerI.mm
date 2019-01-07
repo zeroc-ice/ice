@@ -109,7 +109,6 @@ namespace
         Ice::CommunicatorPtr _communicator;
     };
 
-
     Test::StreamHelper streamRedirect;
 }
 
