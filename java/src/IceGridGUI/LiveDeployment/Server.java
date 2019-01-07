@@ -410,7 +410,7 @@ public class Server extends ListArrayTreeNode
             return;
         }
         _metricsRetrieved = true;
-        final IceMX.MetricsAdminPrx metricsAdmin = 
+        final IceMX.MetricsAdminPrx metricsAdmin =
                 IceMX.MetricsAdminPrxHelper.uncheckedCast(admin.ice_facet("Metrics"));
         IceMX.Callback_MetricsAdmin_getMetricsViewNames cb = new IceMX.Callback_MetricsAdmin_getMetricsViewNames()
             {
@@ -451,7 +451,7 @@ public class Server extends ListArrayTreeNode
                                 else
                                 {
                                     e.printStackTrace();
-                                    JOptionPane.showMessageDialog(getCoordinator().getMainFrame(), 
+                                    JOptionPane.showMessageDialog(getCoordinator().getMainFrame(),
                                                                   "Error: " + e.toString(), "Error",
                                                                   JOptionPane.ERROR_MESSAGE);
                                 }
@@ -630,7 +630,7 @@ public class Server extends ListArrayTreeNode
             // IceBox servers
             //
             _icons[0][1][0] = Utils.getIcon("/icons/16x16/icebox_server_unknown.png");
-            _icons[ServerState.Inactive.value() + 1][1][0] = 
+            _icons[ServerState.Inactive.value() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_inactive.png");
             _icons[ServerState.Activating.value() + 1][1][0] =
                 Utils.getIcon("/icons/16x16/icebox_server_activating.png");
@@ -835,7 +835,7 @@ public class Server extends ListArrayTreeNode
         }
 
         updateServices();
-        
+
         getRoot().getTreeModel().nodeStructureChanged(this);
 
         if(fetchMetrics)
@@ -911,7 +911,7 @@ public class Server extends ListArrayTreeNode
             {
                 _stateIconIndex = _state.value() + 1;
             }
-            
+
             if(_state == ServerState.Active && getRoot().getTree().isExpanded(getPath()))
             {
                 fetchMetricsViewNames();
@@ -1005,24 +1005,6 @@ public class Server extends ListArrayTreeNode
                         // Add observer to service manager using AMI call
                         // Note that duplicate registrations are ignored
                         //
-
-                        IceBox.Callback_ServiceManager_addObserver cb = new IceBox.Callback_ServiceManager_addObserver()
-                            {
-                                public void response()
-                                {
-                                    // all is good
-                                }
-
-                                public void exception(Ice.LocalException e)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                        getCoordinator().getMainFrame(),
-                                        "Failed to register service-manager observer: " + e.toString(),
-                                        "Observer registration error",
-                                        JOptionPane.ERROR_MESSAGE);
-                                }
-                            };
-
                         Ice.ObjectPrx serverAdmin = getServerAdmin();
                         if(serverAdmin != null)
                         {
@@ -1032,15 +1014,16 @@ public class Server extends ListArrayTreeNode
 
                             try
                             {
-                                serviceManager.begin_addObserver(_serviceObserver, cb);
+                                //
+                                // Ignore failures to register the service observers. Failures can occur if
+                                // there's an incompatibility between IceGrid nodes & registries (it's the
+                                // case for instance between 3.5 and 3.7).
+                                //
+                                serviceManager.begin_addObserver(_serviceObserver);
                             }
                             catch(Ice.LocalException ex)
                             {
-                                JOptionPane.showMessageDialog(
-                                    getCoordinator().getMainFrame(),
-                                    "Failed to contact service-manager: " + ex.toString(),
-                                    "Observer communication error",
-                                    JOptionPane.ERROR_MESSAGE);
+                                // Ignore.
                             }
                         }
                     }
