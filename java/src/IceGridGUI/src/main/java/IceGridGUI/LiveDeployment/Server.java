@@ -1058,26 +1058,6 @@ public class Server extends ListArrayTreeNode
                         // Add observer to service manager using AMI call
                         // Note that duplicate registrations are ignored
                         //
-
-                        IceBox.Callback_ServiceManager_addObserver cb = new IceBox.Callback_ServiceManager_addObserver()
-                            {
-                                @Override
-                                public void response()
-                                {
-                                    // all is good
-                                }
-
-                                @Override
-                                public void exception(Ice.LocalException e)
-                                {
-                                    JOptionPane.showMessageDialog(
-                                        getCoordinator().getMainFrame(),
-                                        "Failed to register service-manager observer: " + e.toString(),
-                                        "Observer registration error",
-                                        JOptionPane.ERROR_MESSAGE);
-                                }
-                            };
-
                         Ice.ObjectPrx serverAdmin = getServerAdmin();
                         if(serverAdmin != null)
                         {
@@ -1087,15 +1067,16 @@ public class Server extends ListArrayTreeNode
 
                             try
                             {
-                                serviceManager.begin_addObserver(_serviceObserver, cb);
+                                //
+                                // Ignore failures to register the service observers. Failures can occur if
+                                // there's an incompatibility between IceGrid nodes & registries (it's the
+                                // case for instance between 3.5 and 3.7).
+                                //
+                                serviceManager.begin_addObserver(_serviceObserver);
                             }
                             catch(Ice.LocalException ex)
                             {
-                                JOptionPane.showMessageDialog(
-                                    getCoordinator().getMainFrame(),
-                                    "Failed to contact service-manager: " + ex.toString(),
-                                    "Observer communication error",
-                                    JOptionPane.ERROR_MESSAGE);
+                                // Ignore
                             }
                         }
                     }

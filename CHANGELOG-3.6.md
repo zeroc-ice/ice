@@ -74,6 +74,9 @@ These are the changes since Ice 3.6.4 included in this pre-release.
 
 ## Java Changes
 
+- The IceGrid GUI no longer dispaly a modal dialog if the IceBox service
+  manager observer registration fails.
+
 - Protocol compression can now use Bzip2 implementation from Apache Commons
   Compress if the Bizp2 implementation from Apache Ant isn't found.
 
