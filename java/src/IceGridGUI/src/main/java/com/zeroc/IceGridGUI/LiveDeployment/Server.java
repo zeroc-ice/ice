@@ -785,25 +785,16 @@ public class Server extends Communicator
                         {
                             try
                             {
-                                serviceManager.addObserverAsync(_serviceObserver).whenComplete((result, ex) ->
-                                    {
-                                        if(ex != null)
-                                        {
-                                            JOptionPane.showMessageDialog(
-                                                getCoordinator().getMainFrame(),
-                                                "Failed to register service-manager observer: " + ex.toString(),
-                                                "Observer registration error",
-                                                JOptionPane.ERROR_MESSAGE);
-                                        }
-                                    });
+                                //
+                                // Ignore failures to register the service observers. Failures can occur if
+                                // there's an incompatibility between IceGrid nodes & registries (it's the
+                                // case for instance between 3.5 and 3.7).
+                                //
+                                serviceManager.addObserverAsync(_serviceObserver);
                             }
                             catch(com.zeroc.Ice.LocalException ex)
                             {
-                                JOptionPane.showMessageDialog(
-                                    getCoordinator().getMainFrame(),
-                                    "Failed to contact service-manager: " + ex.toString(),
-                                    "Observer communication error",
-                                    JOptionPane.ERROR_MESSAGE);
+                                // Ignore
                             }
                         }
                     }

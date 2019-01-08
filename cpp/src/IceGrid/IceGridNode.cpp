@@ -460,6 +460,13 @@ NodeService::startImpl(int argc, char* argv[], int& status)
     _adapter->addDefaultServant(new NodeServerAdminRouter(_node), _node->getServerAdminCategory());
 
     //
+    // Keep the old default servant for backward compatibility with IceGrid registries 3.5 that
+    // still forward requests to this category. This can be removed when we decide to break
+    // backward compatibility with 3.5 registries.
+    //
+    _adapter->addDefaultServant(new NodeServerAdminRouter(_node), instanceName + "-NodeRouter");
+
+    //
     // Start the platform info thread if needed.
     //
     _node->getPlatformInfo().start();
