@@ -27,7 +27,7 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
- - the [.NET Core 2.0 SDK][4], if you use Visual Studio 2017
+ - the [.NET Core 2.2 SDK][4], if you use Visual Studio 2017
 
 > Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
 > builds.
@@ -48,7 +48,7 @@ Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard
 are placed in the `lib\net45` and `lib\netstandard2.0` folders respectively.
 
 > Note: the assemblies for .NET Standard 2.0 are created only when you build with
-> Visual Studio 2017.
+> Visual Studio 2017 or greater.
 
 You can skip the build of the test suite with the `BuildDist` target:
 ```
@@ -59,9 +59,9 @@ The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
-The iceboxnet and test applications target `netcoreapp2.0` and `netcore2.1` respectivelly. You
-can change the target framework for all of them by setting the `AppTargetFrameworks` property to
-a different Target Framework Monikers (TFMs) value, for example:
+The iceboxnet and test applications target `netcoreapp2.2`. You can change the target framework
+by setting the `AppTargetFrameworks` property to a different Target Framework Monikers (TFMs)
+value, for example:
 ```
 msbuild msbuild\ice.proj /p:"AppTargetFrameworks=net462"
 ```
@@ -111,7 +111,7 @@ This build retrieves and installs the `zeroc.ice.net` NuGet package if necessary
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.0 SDK][4] to build Ice for .NET from source.
+You need the [.NET Core 2.2 SDK][4] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 

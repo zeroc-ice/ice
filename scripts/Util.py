@@ -247,9 +247,9 @@ class Platform(object):
         installDir = component.getInstallDir(mapping, current)
         if isinstance(mapping, CSharpMapping):
             if component.useBinDist(mapping, current):
-                return os.path.join(installDir, "tools", "netcoreapp2.0")
+                return os.path.join(installDir, "tools", "netcoreapp2.2")
             else:
-                return os.path.join(installDir, "bin", "netcoreapp2.0")
+                return os.path.join(installDir, "bin", "netcoreapp2.2")
         return os.path.join(installDir, "bin")
 
     def _getLibDir(self, component, process, mapping, current):
@@ -3269,8 +3269,8 @@ class CSharpMapping(Mapping):
 
             if self.dotnetcore:
                 self.libTargetFramework = "netstandard2.0"
-                self.binTargetFramework = "netcoreapp2.0" if self.framework == "" else self.framework
-                self.testTargetFramework = "netcoreapp2.1" if self.framework == "" else self.framework
+                self.binTargetFramework = "netcoreapp2.2" if self.framework == "" else self.framework
+                self.testTargetFramework = "netcoreapp2.2" if self.framework == "" else self.framework
             else:
                 self.libTargetFramework = "net45" if self.framework == "" else "netstandard2.0"
                 self.binTargetFramework = "net45" if self.framework == "" else self.framework
