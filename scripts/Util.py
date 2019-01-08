@@ -2247,7 +2247,9 @@ class AndroidProcessController(RemoteProcessController):
         return "Android"
 
     def getControllerIdentity(self, current):
-        if isinstance(current.testcase.getMapping(), JavaCompatMapping):
+        if isinstance(current.testcase.getMapping(), CSharpMapping):
+            return "AndroidXamarin/ProcessController"
+        elif isinstance(current.testcase.getMapping(), JavaCompatMapping):
             return "AndroidCompat/ProcessController"
         else:
             return "Android/ProcessController"
@@ -2485,7 +2487,10 @@ class UWPProcessController(RemoteProcessController):
         return "UWP"
 
     def getControllerIdentity(self, current):
-        return "UWP/ProcessController"
+        if isinstance(current.testcase.getMapping(), CSharpMapping):
+            return "UWPXamarin/ProcessController"
+        else:
+            return "UWP/ProcessController"
 
     def startControllerApp(self, current, ident):
         platform = current.config.buildPlatform

@@ -21,7 +21,7 @@ namespace controller.UWP
 
         public string processControllerIdentity()
         {
-            return "UWP/ProcessController";
+            return "UWPXamarin/ProcessController";
         }
 
         public string processControllerRegistryHost()

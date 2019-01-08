@@ -89,7 +89,7 @@ namespace controller.Droid
 
         public string processControllerIdentity()
         {
-            return "Android/ProcessController";
+            return "AndroidXamarin/ProcessController";
         }
 
         public string processControllerRegistryHost()
