@@ -37,9 +37,14 @@ particular aspect of Ice.
   * [Python Changes](#python-changes-2)
   * [Ruby Changes](#ruby-changes-1)
 
-# Changes in Ice 3.7.2 (Pre-Release Snapshot)
+# Changes in Ice 3.7.2
 
-These are the changes since Ice 3.7.1 included in this pre-release.
+These are the changes since Ice 3.7.1.
+
+## General Changes
+
+- Add support to read properties from HKCU Windows registry, there was already
+  support for reading properties from HKLM Windows registry.
 
 ## C++ Changes
 
@@ -74,6 +79,18 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed a bug in Windows build system that cause wildcard to not be expanded in
   Slice compiler command line arguments.
 
+- Fixed a bug in the code that parse command line options that cause short command
+  line options to be incorrectly parsed when multiple short command line options
+  are specify together, in which case only the last option was considered.
+
+- Fixed a bug in IceGrid that can result in an ifinite loop if `Ice.ChangeUser` is
+  set and the call to `getpwnam_r` fails with `ERANGE`.
+
+- Fixed SCHannel initialization to use a global mutex to avoid crashes ocurring with
+  latest SChannel updates see:
+
+  https://github.com/zeroc-ice/ice/issues/242
+
 ## C# Changes
 
 - Fixed metrics bug where remote invocations for `flushBatchRequests` weren't
@@ -90,6 +107,8 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Fixed a bug in slice2cs that can result in generated code using an
   invalid namespace qualification for a type see #122
 
+- Remove dependency on Visual Studio Extension for C# builds.
+
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang
@@ -105,6 +124,13 @@ These are the changes since Ice 3.7.1 included in this pre-release.
   The new Gradle target `alljavadoc` generates a complete API reference for all
   Ice components (Ice, IceSSL, IceGrid, IceStorm, Glacier2, etc.).
 
+- IceGrid GUI settings are now stored in the operating system application data
+  directory `%LOCALAPPDATA%/ZeroC` for Windows, `~/Library/Application Support/ZeroC`
+  for macOS and `~/.ZeroC` for Linux, previous setting are automatically migrated to the
+  new location without user intervention.
+
+- Add support to build IceGrid GUI with OpenJFX and Java 11 JDK.
+
 ## JavaScript Changes
 
 - Added TypeScript declaration files for Ice for JavaScript.
@@ -112,11 +138,33 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Slice to JavaScript compiler can now generate TypeScript declaration files
   for JavaScript generated code using `--typescript` command line option.
 
+- Fixed generated code for sequences of interface by value types. The generated
+  sequence helper must use `Ice.Value` as the element type for the sequence
+  and not a class with the name of the interface when the element type is an
+  interface by value.
+
+- Add `OutputStream.writeException` method that was missing, keep
+  `OutputStream.writeUserException` for compatibility with 3.7.0,
+  the later will be removed in the next major release.
+
+- Update JavaScript build system to Babel 7 and gulp 4.0, support for building
+  Ice for JavaScript with NodeJS 4 and NodeJS 5 has been dropped.
+
 ## MATLAB Changes
 
 - Fixed a bug that cause slice2matab generated code to throw type conversion
   exception, this affects classes or struct containing an array mapped to an
   structure array.
+
+- Add IceSSL::ConnectionInfo to matlab mapping
+
+## PHP Changes
+
+- Fixed Ice for PHP build failure when building with Debug configuration
+  on Windows.
+
+- Fixed a bug that cause generate code to reference undefined variables when
+  require the generated code from a static method.
 
 ## Python Changes
 
@@ -130,6 +178,8 @@ These are the changes since Ice 3.7.1 included in this pre-release.
 - Added `python:default`, `python:list` and `python:tuple` metadata which are
   equivalent to `python:seq:default`, `python:seq:list` and `python:seq:tuple`
   respectively.
+
+- Fixed Python segfault that could occur because of KeyboardInterrupt.
 
 # Changes in Ice 3.7.1
 
