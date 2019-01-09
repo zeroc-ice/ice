@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -159,41 +156,41 @@ static void breakCycles(id o)
     [super dealloc];
 #endif
 }
--(ICEObject*) SBaseAsObject:(ICECurrent*)current
+-(ICEObject*) SBaseAsObject:(ICECurrent*)__unused current
 {
     return [TestSlicingObjectsServerSBase sBase:@"SBase.sb"];
 }
 
--(TestSlicingObjectsServerSBase*) SBaseAsSBase:(ICECurrent*)current
+-(TestSlicingObjectsServerSBase*) SBaseAsSBase:(ICECurrent*)__unused current
 {
     return [TestSlicingObjectsServerSBase sBase:@"SBase.sb"];
 }
 
--(TestSlicingObjectsServerSBase*) SBSKnownDerivedAsSBase:(ICECurrent*)current
+-(TestSlicingObjectsServerSBase*) SBSKnownDerivedAsSBase:(ICECurrent*)__unused current
 {
     return [TestSlicingObjectsServerSBSKnownDerived sbsKnownDerived:@"SBSKnownDerived.sb"
                                                               sbskd:@"SBSKnownDerived.sbskd"];
 }
 
--(TestSlicingObjectsServerSBSKnownDerived*) SBSKnownDerivedAsSBSKnownDerived:(ICECurrent*)current
+-(TestSlicingObjectsServerSBSKnownDerived*) SBSKnownDerivedAsSBSKnownDerived:(ICECurrent*)__unused current
 {
     return [TestSlicingObjectsServerSBSKnownDerived sbsKnownDerived:@"SBSKnownDerived.sb"
                                                               sbskd:@"SBSKnownDerived.sbskd"];
 }
 
--(TestSlicingObjectsServerSBase*) SBSUnknownDerivedAsSBase:(ICECurrent*)current
+-(TestSlicingObjectsServerSBase*) SBSUnknownDerivedAsSBase:(ICECurrent*)__unused current
 {
     return [TestSlicingObjectsServerSBSUnknownDerived sbsUnknownDerived:@"SBSUnknownDerived.sb"
                                                                   sbsud:@"SBSUnknownDerived.sbsud"];
 }
 
--(TestSlicingObjectsServerSBase*) SBSUnknownDerivedAsSBaseCompact:(ICECurrent*)current
+-(TestSlicingObjectsServerSBase*) SBSUnknownDerivedAsSBaseCompact:(ICECurrent*)__unused current
 {
     return [TestSlicingObjectsServerSBSUnknownDerived sbsUnknownDerived:@"SBSUnknownDerived.sb"
                                                                   sbsud:@"SBSUnknownDerived.sbsud"];
 }
 
--(ICEObject*) SUnknownAsObject:(ICECurrent*)current
+-(ICEObject*) SUnknownAsObject:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerSUnknown* s = [TestSlicingObjectsServerSUnknown sUnknown:@"SUnknown.su" cycle:nil];
     s.cycle = s;
@@ -201,7 +198,7 @@ static void breakCycles(id o)
     return s;
 }
 
--(void) checkSUnknown:(ICEObject*)object current:(ICECurrent*)current
+-(void) checkSUnknown:(ICEObject*)object current:(ICECurrent*)__unused current
 {
     if([current encoding] == ICEEncoding_1_0)
     {
@@ -216,7 +213,7 @@ static void breakCycles(id o)
     [objects_ addObject:object];
 }
 
--(TestSlicingObjectsServerB*) oneElementCycle:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) oneElementCycle:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerB* b1 = [TestSlicingObjectsServerB b];
     b1.sb = @"B1.sb";
@@ -224,7 +221,7 @@ static void breakCycles(id o)
     [objects_ addObject:b1];
     return b1;
 }
--(TestSlicingObjectsServerB*) twoElementCycle:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) twoElementCycle:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerB* b1 = [TestSlicingObjectsServerB b];
     b1.sb = @"B1.sb";
@@ -235,7 +232,7 @@ static void breakCycles(id o)
     [objects_ addObject:b1];
     return b1;
 }
--(TestSlicingObjectsServerB*) D1AsB:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) D1AsB:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
     d1.sb = @"D1.sb";
@@ -252,7 +249,7 @@ static void breakCycles(id o)
     [objects_ addObject:d1];
     return d1;
 }
--(TestSlicingObjectsServerD1*) D1AsD1:(ICECurrent*)current
+-(TestSlicingObjectsServerD1*) D1AsD1:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
     d1.sb = @"D1.sb";
@@ -268,7 +265,7 @@ static void breakCycles(id o)
     [objects_ addObject:d1];
     return d1;
 }
--(TestSlicingObjectsServerB*) D2AsB:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) D2AsB:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.sb = @"D2.sb";
@@ -284,7 +281,7 @@ static void breakCycles(id o)
     [objects_ addObject:d2];
     return d2;
 }
--(void) paramTest1:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
+-(void) paramTest1:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerD1* d1 = [TestSlicingObjectsServerD1 d1];
     d1.sb = @"D1.sb";
@@ -302,11 +299,11 @@ static void breakCycles(id o)
     [objects_ addObject:d1];
     [objects_ addObject:d2];
 }
--(void) paramTest2:(TestSlicingObjectsServerB**)p1 p1:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
+-(void) paramTest2:(TestSlicingObjectsServerB**)p1 p1:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)__unused current
 {
     [self paramTest1:p2 p2:p1 current:current];
 }
--(TestSlicingObjectsServerB*) paramTest3:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) paramTest3:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.sb = @"D2.sb (p1 1)";
@@ -339,7 +336,7 @@ static void breakCycles(id o)
     [objects_ addObject:d4];
     return d3;
 }
--(TestSlicingObjectsServerB*) paramTest4:(TestSlicingObjectsServerB**)p1 current:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) paramTest4:(TestSlicingObjectsServerB**)p1 current:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerD4* d4 = [TestSlicingObjectsServerD4 d4];
     d4.sb = @"D4.sb (1)";
@@ -352,23 +349,23 @@ static void breakCycles(id o)
     [objects_ addObject:d4];
     return d4.p2;
 }
--(TestSlicingObjectsServerB*) returnTest1:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) returnTest1:(TestSlicingObjectsServerB**)p1 p2:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)__unused current
 {
     [self paramTest1:p1 p2:p2 current:current];
     return *p1;
 }
--(TestSlicingObjectsServerB*) returnTest2:(TestSlicingObjectsServerB**)p1 p1:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) returnTest2:(TestSlicingObjectsServerB**)p1 p1:(TestSlicingObjectsServerB**)p2 current:(ICECurrent*)__unused current
 {
     [self paramTest1:p2 p2:p1 current:current];
     return *p1;
 }
--(TestSlicingObjectsServerB*) returnTest3:(TestSlicingObjectsServerB*)p1 p2:(TestSlicingObjectsServerB*)p2 current:(ICECurrent*)current
+-(TestSlicingObjectsServerB*) returnTest3:(TestSlicingObjectsServerB*)p1 p2:(TestSlicingObjectsServerB*)p2 current:(ICECurrent*)__unused current
 {
     [objects_ addObject:p1];
     [objects_ addObject:p2];
     return p1;
 }
--(TestSlicingObjectsServerSS*) sequenceTest:(TestSlicingObjectsServerSS1*)p1 p2:(TestSlicingObjectsServerSS2*)p2 current:(ICECurrent*)current
+-(TestSlicingObjectsServerSS*) sequenceTest:(TestSlicingObjectsServerSS1*)p1 p2:(TestSlicingObjectsServerSS2*)p2 current:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerSS* ss = [TestSlicingObjectsServerSS ss];
     ss.c1 = p1;
@@ -379,7 +376,7 @@ static void breakCycles(id o)
     return ss;
 }
 -(TestSlicingObjectsServerBDict*) dictionaryTest:(TestSlicingObjectsServerMutableBDict*)bin
-                                            bout:(TestSlicingObjectsServerBDict**)bout current:(ICECurrent*)current
+                                            bout:(TestSlicingObjectsServerBDict**)bout current:(ICECurrent*)__unused current
 {
     int i;
     *bout = [TestSlicingObjectsServerMutableBDict dictionary];
@@ -409,13 +406,13 @@ static void breakCycles(id o)
 }
 
 -(TestSlicingObjectsServerPBase*) exchangePBase:(TestSlicingObjectsServerPBase*)pb
-                                        current:(ICECurrent*)current
+                                        current:(ICECurrent*)__unused current
 {
     [objects_ addObject:pb];
     return pb;
 }
 
--(TestSlicingObjectsServerPreserved*) PBSUnknownAsPreserved:(ICECurrent*)current
+-(TestSlicingObjectsServerPreserved*) PBSUnknownAsPreserved:(ICECurrent*)__unused current
 {
     if([current.encoding isEqual:ICEEncoding_1_0])
     {
@@ -439,7 +436,7 @@ static void breakCycles(id o)
     }
 }
 
--(void) checkPBSUnknown:(TestSlicingObjectsServerPreserved*)p current:(ICECurrent*)current
+-(void) checkPBSUnknown:(TestSlicingObjectsServerPreserved*)p current:(ICECurrent*)__unused current
 {
     if([current.encoding isEqual:ICEEncoding_1_0])
     {
@@ -459,7 +456,7 @@ static void breakCycles(id o)
     }
 }
 
--(TestSlicingObjectsServerPreserved*) PBSUnknownAsPreservedWithGraph:(ICECurrent*)current
+-(TestSlicingObjectsServerPreserved*) PBSUnknownAsPreservedWithGraph:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerPSUnknown* r = [TestSlicingObjectsServerPSUnknown alloc];
     r.pi = 5;
@@ -473,7 +470,7 @@ static void breakCycles(id o)
     return r;
 }
 
--(void) checkPBSUnknownWithGraph:(TestSlicingObjectsServerPreserved*) p current:(ICECurrent*)current
+-(void) checkPBSUnknownWithGraph:(TestSlicingObjectsServerPreserved*) p current:(ICECurrent*)__unused current
 {
     if([current.encoding isEqual:ICEEncoding_1_0])
     {
@@ -496,7 +493,7 @@ static void breakCycles(id o)
     [objects_ addObject:p];
 }
 
--(TestSlicingObjectsServerPreserved*) PBSUnknown2AsPreservedWithGraph:(ICECurrent*)current
+-(TestSlicingObjectsServerPreserved*) PBSUnknown2AsPreservedWithGraph:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerPSUnknown2* r = [TestSlicingObjectsServerPSUnknown2 alloc];
     r.pi = 5;
@@ -506,7 +503,7 @@ static void breakCycles(id o)
     return r;
 }
 
--(void) checkPBSUnknown2WithGraph:(TestSlicingObjectsServerPreserved*)p current:(ICECurrent*)current
+-(void) checkPBSUnknown2WithGraph:(TestSlicingObjectsServerPreserved*)p current:(ICECurrent*)__unused current
 {
     if([current.encoding isEqual:ICEEncoding_1_0])
     {
@@ -526,13 +523,13 @@ static void breakCycles(id o)
     [objects_ addObject:p];
 }
 
--(TestSlicingObjectsServerPNode*) exchangePNode:(TestSlicingObjectsServerPNode*)pn current:(ICECurrent*)current
+-(TestSlicingObjectsServerPNode*) exchangePNode:(TestSlicingObjectsServerPNode*)pn current:(ICECurrent*)__unused current
 {
     [objects_ addObject:pn];
     return pn;
 }
 
--(void) throwBaseAsBase:(ICECurrent*)current
+-(void) throwBaseAsBase:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerBaseException* be = [TestSlicingObjectsServerBaseException baseException];
     be.sbe = @"sbe";
@@ -542,7 +539,7 @@ static void breakCycles(id o)
     [objects_ addObject:be];
     @throw be;
 }
--(void) throwDerivedAsBase:(ICECurrent*)current
+-(void) throwDerivedAsBase:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerDerivedException* de = [TestSlicingObjectsServerDerivedException derivedException];
     de.sbe = @"sbe";
@@ -558,7 +555,7 @@ static void breakCycles(id o)
     [objects_ addObject:de];
     @throw de;
 }
--(void) throwDerivedAsDerived:(ICECurrent*)current
+-(void) throwDerivedAsDerived:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerDerivedException* de = [TestSlicingObjectsServerDerivedException derivedException];
     de.sbe = @"sbe";
@@ -574,7 +571,7 @@ static void breakCycles(id o)
     [objects_ addObject:de];
     @throw de;
 }
--(void) throwUnknownDerivedAsBase:(ICECurrent*)current
+-(void) throwUnknownDerivedAsBase:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerD2* d2 = [TestSlicingObjectsServerD2 d2];
     d2.sb = @"sb d2";
@@ -590,7 +587,7 @@ static void breakCycles(id o)
     [objects_ addObject:ude];
     @throw ude;
 }
--(void) throwPreservedException:(ICECurrent*)current
+-(void) throwPreservedException:(ICECurrent*)__unused current
 {
     TestSlicingObjectsServerPSUnknownException* ue = [TestSlicingObjectsServerPSUnknownException psUnknownException];
     ue.p = [TestSlicingObjectsServerPSUnknown2 psUnknown2];
@@ -600,7 +597,7 @@ static void breakCycles(id o)
     [objects_ addObject:ue];
     @throw ue;
 }
--(void) useForward:(TestSlicingObjectsServerForward**)f current:(ICECurrent*)current
+-(void) useForward:(TestSlicingObjectsServerForward**)f current:(ICECurrent*)__unused current
 {
     *f = [TestSlicingObjectsServerForward forward];
     (*f).h = [TestSlicingObjectsServerHidden hidden];

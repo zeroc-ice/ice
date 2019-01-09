@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -16,8 +13,9 @@
 #include <cstring>
 #include <iterator>
 
-#ifdef _WIN32
-#   include <io.h>
+// TODO: fix this warning once we no longer support VS2013 and earlier
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#    pragma warning(disable:4589) // Constructor of abstract class 'Slice::Type' ignores initializer...
 #endif
 
 using namespace std;
@@ -25,6 +23,8 @@ using namespace Slice;
 
 extern FILE* slice_in;
 extern int slice_debug;
+
+int slice_parse();
 
 //
 // Operation attributes
@@ -114,18 +114,18 @@ isMutableAfterReturnType(const TypePtr& type)
 }
 
 void
-checkDeprecatedType(const UnitPtr& unit, const TypePtr& type)
+checkDeprecatedType(const UnitPtr& unt, const TypePtr& type)
 {
     ClassDeclPtr decl = ClassDeclPtr::dynamicCast(type);
     if(decl && !decl->isLocal() && decl->isInterface())
     {
-        unit->warning(Deprecated, "interface by value is deprecated");
+        unt->warning(Deprecated, "interface by value is deprecated");
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy && !proxy->_class()->isInterface())
     {
-        unit->warning(Deprecated, "proxy for a class is deprecated");
+        unt->warning(Deprecated, "proxy for a class is deprecated");
     }
 }
 
@@ -362,12 +362,13 @@ Slice::SyntaxTreeBase::visit(ParserVisitor*, bool)
 {
 }
 
-Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) :
-    _unit(unit)
+Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unt, const DefinitionContextPtr& definitionContext) :
+    _unit(unt),
+    _definitionContext(definitionContext)
 {
-    if(_unit)
+    if(!_definitionContext && _unit)
     {
-        _definitionContext = unit->currentDefinitionContext();
+        _definitionContext = unt->currentDefinitionContext();
     }
 }
 
@@ -375,8 +376,8 @@ Slice::SyntaxTreeBase::SyntaxTreeBase(const UnitPtr& unit) :
 // Type
 // ----------------------------------------------------------------------
 
-Slice::Type::Type(const UnitPtr& unit) :
-    SyntaxTreeBase(unit)
+Slice::Type::Type(const UnitPtr& unt) :
+    SyntaxTreeBase(unt)
 {
 }
 
@@ -481,6 +482,7 @@ Slice::Builtin::minWireSize() const
         1, // KindString: at least one byte for an empty string.
         1, // KindObject: at least one byte (to marshal an index instead of an instance).
         2, // KindObjectProxy: at least an empty identity for a nil proxy, that is, 2 bytes.
+        0, // KindLocalObject: unused
         1  // KindValue: at least one byte (to marshal an index instead of an instance).
     };
 
@@ -522,9 +524,9 @@ const char* Slice::Builtin::builtinTable[] =
         "Value"
     };
 
-Slice::Builtin::Builtin(const UnitPtr& unit, Kind kind) :
-    SyntaxTreeBase(unit),
-    Type(unit),
+Slice::Builtin::Builtin(const UnitPtr& ut, Kind kind) :
+    SyntaxTreeBase(ut),
+    Type(ut),
     _kind(kind)
 {
     //
@@ -2070,10 +2072,10 @@ Slice::Container::enumerators(const string& scoped) const
                 string name = scoped.substr(lastColon + 1);
                 for(EnumList::iterator p = enums.begin(); p != enums.end(); ++p)
                 {
-                    ContainedList cl = (*p)->lookupContained(name, false);
-                    if(!cl.empty())
+                    ContainedList cl2 = (*p)->lookupContained(name, false);
+                    if(!cl2.empty())
                     {
-                        result.push_back(EnumeratorPtr::dynamicCast(cl.front()));
+                        result.push_back(EnumeratorPtr::dynamicCast(cl2.front()));
                     }
                 }
             }
@@ -2441,18 +2443,39 @@ Slice::Container::hasOnlyClassDecls() const
 }
 
 bool
-Slice::Container::hasAbstractClassDefs() const
+Slice::Container::hasOperations() const
 {
     for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
     {
         ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
-        if(cl && cl->isAbstract())
+        if(cl && cl->hasOperations())
         {
             return true;
         }
 
         ContainerPtr container = ContainerPtr::dynamicCast(*p);
-        if(container && container->hasAbstractClassDefs())
+        if(container && container->hasOperations())
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+Slice::Container::hasNonLocalAbstractClassDefs() const
+{
+    for(ContainedList::const_iterator p = _contents.begin(); p != _contents.end(); ++p)
+    {
+        ClassDefPtr cl = ClassDefPtr::dynamicCast(*p);
+        if(cl && cl->isAbstract() && !cl->isLocal())
+        {
+            return true;
+        }
+
+        ContainerPtr container = ContainerPtr::dynamicCast(*p);
+        if(container && container->hasNonLocalAbstractClassDefs())
         {
             return true;
         }
@@ -3504,7 +3527,7 @@ Slice::ClassDecl::recDependencies(set<ConstructedPtr>& dependencies)
 
 void
 Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, const ClassList& bases,
-                                     const UnitPtr& unit)
+                                     const UnitPtr& ut)
 {
     //
     // Local definitions cannot have non-local bases, and vice versa.
@@ -3517,7 +3540,7 @@ Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, 
             msg << (local ? "local" : "non-local") << " " << (intf ? "interface" : "class") << " `"
                 << name << "' cannot have " << ((*p)->isLocal() ? "local" : "non-local") << " base "
                 << ((*p)->isInterface() ? "interface" : "class") << " `" << (*p)->name() << "'";
-            unit->error(msg.str());
+            ut->error(msg.str());
         }
     }
 
@@ -3554,7 +3577,7 @@ Slice::ClassDecl::checkBasesAreLegal(const string& name, bool intf, bool local, 
         // name (that is, if the union of the intersections of all possible pairs
         // of partitions is empty).
         //
-        checkPairIntersections(spl, name, unit);
+        checkPairIntersections(spl, name, ut);
     }
 }
 
@@ -3656,7 +3679,7 @@ Slice::ClassDecl::toStringPartitionList(const GraphPartitionList& gpl)
 // in the other and, if so, complain.
 //
 void
-Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const string& name, const UnitPtr& unit)
+Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const string& name, const UnitPtr& ut)
 {
     set<string> reported;
     for(StringPartitionList::const_iterator i = l.begin(); i != l.end(); ++i)
@@ -3673,7 +3696,7 @@ Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const str
                     {
                         string msg = "ambiguous multiple inheritance: `" + name;
                         msg += "' inherits operation `" + *s1 + "' from two or more unrelated base interfaces";
-                        unit->error(msg);
+                        ut->error(msg);
                         reported.insert(*s1);
                     }
                     else if(!CICompare()(*s1, *s2) && !CICompare()(*s2, *s1) &&
@@ -3682,7 +3705,7 @@ Slice::ClassDecl::checkPairIntersections(const StringPartitionList& l, const str
                         string msg = "ambiguous multiple inheritance: `" + name;
                         msg += "' inherits operations `" + *s1 + "' and `" + *s2;
                         msg += "', which differ only in capitalization, from unrelated base interfaces";
-                        unit->error(msg);
+                        ut->error(msg);
                         reported.insert(*s1);
                         reported.insert(*s2);
                     }
@@ -3784,8 +3807,8 @@ Slice::ClassDef::createOperation(const string& name,
             }
 
             string baseName = IceUtilInternal::toLower((*q)->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            string newName2 = IceUtilInternal::toLower(name);
+            if(baseName == newName2)
             {
                 string msg = "operation `" + name + "' differs only in capitalization from " + (*q)->kindOf();
                 msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
@@ -3880,8 +3903,8 @@ Slice::ClassDef::createDataMember(const string& name, const TypePtr& type, bool 
             }
 
             string baseName = IceUtilInternal::toLower((*q)->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            string newName2 = IceUtilInternal::toLower(name);
+            if(baseName == newName2)
             {
                 string msg = "data member `" + name + "' differs only in capitalization from " + (*q)->kindOf();
                 msg += " `" + (*q)->name() + "', which is defined in a base interface or class";
@@ -3989,14 +4012,26 @@ Slice::ClassDef::operations() const
 OperationList
 Slice::ClassDef::allOperations() const
 {
-    OperationList result = operations();
-    result.sort();
-    result.unique();
+    OperationList result;
     for(ClassList::const_iterator p = _bases.begin(); p != _bases.end(); ++p)
     {
         OperationList li = (*p)->allOperations();
-        result.merge(li);
-        result.unique();
+        for(OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+        {
+            if(find(result.begin(), result.end(), *q) == result.end())
+            {
+                result.push_back(*q);
+            }
+        }
+    }
+
+    OperationList li = operations();
+    for(OperationList::const_iterator q = li.begin(); q != li.end(); ++q)
+    {
+        if(find(result.begin(), result.end(), *q) == result.end())
+        {
+            result.push_back(*q);
+        }
     }
     return result;
 }
@@ -4346,8 +4381,8 @@ Slice::Proxy::_class() const
 }
 
 Slice::Proxy::Proxy(const ClassDeclPtr& cl) :
-     SyntaxTreeBase(cl->unit()),
-     Type(cl->unit()),
+    SyntaxTreeBase(cl->unit(), cl->definitionContext()),
+    Type(cl->unit()),
     _classDecl(cl)
 {
 }
@@ -4414,8 +4449,8 @@ Slice::Exception::createDataMember(const string& name, const TypePtr& type, bool
             }
 
             string baseName = IceUtilInternal::toLower((*r)->name());
-            string newName = IceUtilInternal::toLower(name);
-            if(baseName == newName)
+            string newName2 = IceUtilInternal::toLower(name);
+            if(baseName == newName2)
             {
                 string msg = "exception member `" + name + "' differs only in capitalization from exception member `";
                 msg += (*r)->name() + "', which is defined in a base exception";
@@ -5967,7 +6002,7 @@ Slice::Operation::attributes() const
             //
             freezeMD = freezeMD.substr(1);
 
-            int i = 0;
+            i = 0;
             while(i < 4)
             {
                 if(freezeMD.find(txAttribute[i]) == 0)
@@ -6665,7 +6700,7 @@ Slice::Unit::addTypeId(int compactId, const std::string& typeId)
 }
 
 std::string
-Slice::Unit::getTypeId(int compactId)
+Slice::Unit::getTypeId(int compactId) const
 {
     map<int, string>::const_iterator p = _typeIds.find(compactId);
     if(p != _typeIds.end())
@@ -6673,6 +6708,12 @@ Slice::Unit::getTypeId(int compactId)
         return p->second;
     }
     return string();
+}
+
+bool
+Slice::Unit::hasCompactTypeId() const
+{
+    return _typeIds.size() > 0;
 }
 
 bool

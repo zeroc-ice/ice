@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -12,6 +9,20 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#   pragma warning(disable:4100) // unreferenced parameter
+#elif defined(__clang__)
+#   pragma clang diagnostic ignored "-Wshadow"
+#   pragma clang diagnostic ignored "-Wshadow-all"
+#   pragma clang diagnostic ignored "-Wunused-parameter"
+#elif defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wshadow"
+#   pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 using namespace std;
 using namespace IceUtilInternal;

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -37,15 +34,13 @@ namespace
         ControllerHelperI(id<ControllerView>, const string&, const StringSeq&);
         virtual ~ControllerHelperI();
 
-        virtual bool redirect() const;
-
-        virtual string getOutput() const;
         virtual string loggerPrefix() const;
         virtual void print(const std::string&);
         virtual void serverReady();
-        virtual void shutdown();
-        virtual void join();
+        virtual void communicatorInitialized(const Ice::CommunicatorPtr&);
 
+        void shutdown();
+        string getOutput() const;
         void waitReady(int) const;
         int waitSuccess(int) const;
 
@@ -57,12 +52,11 @@ namespace
         id<ControllerView> _controller;
         std::string _dll;
         StringSeq _args;
-        CFBundleRef _handle;
         bool _ready;
         bool _completed;
         int _status;
         std::ostringstream _out;
-        IceInternal::UniquePtr<Test::TestHelper> _helper;
+        Ice::CommunicatorPtr _communicator;
     };
 
     class ProcessI : public Process
@@ -115,30 +109,21 @@ namespace
         Ice::CommunicatorPtr _communicator;
     };
 
+    Test::StreamHelper streamRedirect;
 }
 
 ControllerHelperI::ControllerHelperI(id<ControllerView> controller, const string& dll, const StringSeq& args) :
-_controller(controller),
-_dll(dll),
-_args(args),
-_ready(false),
-_completed(false),
-_status(0)
+    _controller(controller),
+    _dll(dll),
+    _args(args),
+    _ready(false),
+    _completed(false),
+    _status(0)
 {
 }
 
 ControllerHelperI::~ControllerHelperI()
 {
-    if(_helper)
-    {
-        _helper.release();
-    }
-
-    if(_handle)
-    {
-        CFBundleUnloadExecutable(_handle);
-        CFRelease(_handle);
-    }
 }
 
 void
@@ -150,28 +135,10 @@ ControllerHelperI::serverReady()
 }
 
 void
-ControllerHelperI::shutdown()
+ControllerHelperI::communicatorInitialized(const Ice::CommunicatorPtr& communicator)
 {
     Lock sync(*this);
-    if(_completed)
-    {
-        return;
-    }
-
-    if(_helper)
-    {
-        Ice::CommunicatorPtr communicator = _helper->communicator();
-        if(communicator)
-        {
-            communicator->shutdown();
-        }
-    }
-}
-
-bool
-ControllerHelperI::redirect() const
-{
-    return _dll.find("client") != string::npos || _dll.find("collocated") != string::npos;
+    _communicator = communicator;
 }
 
 string
@@ -194,8 +161,8 @@ ControllerHelperI::run()
     bundlePath = [bundlePath stringByAppendingPathComponent:[NSString stringWithUTF8String:_dll.c_str()]];
 
     NSURL* bundleURL = [NSURL fileURLWithPath:bundlePath];
-    _handle = CFBundleCreate(NULL, (CFURLRef)bundleURL);
-    if(!_handle)
+    CFBundleRef handle = CFBundleCreate(NULL, (CFURLRef)bundleURL);
+    if(!handle)
     {
         print([[NSString stringWithFormat:@"Could not find bundle %@", bundlePath] UTF8String]);
         completed(EXIT_FAILURE);
@@ -203,7 +170,7 @@ ControllerHelperI::run()
     }
 
     CFErrorRef error = nil;
-    Boolean loaded = CFBundleLoadExecutableAndReturnError(_handle, &error);
+    Boolean loaded = CFBundleLoadExecutableAndReturnError(handle, &error);
     if(error != nil || !loaded)
     {
         print([[(__bridge NSError *)error description] UTF8String]);
@@ -216,7 +183,7 @@ ControllerHelperI::run()
     //
     void* sym = 0;
     int attempts = 0;
-    while((sym = CFBundleGetFunctionPointerForName(_handle, CFSTR("createHelper"))) == 0 && attempts < 5)
+    while((sym = CFBundleGetFunctionPointerForName(handle, CFSTR("createHelper"))) == 0 && attempts < 5)
     {
         attempts++;
         [NSThread sleepForTimeInterval:0.2];
@@ -231,6 +198,11 @@ ControllerHelperI::run()
         return;
     }
 
+    if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+    {
+        streamRedirect.setControllerHelper(this);
+    }
+
     CREATE_HELPER_ENTRY_POINT createHelper = (CREATE_HELPER_ENTRY_POINT)sym;
     char** argv = new char*[_args.size() + 1];
     for(unsigned int i = 0; i < _args.size(); ++i)
@@ -240,10 +212,9 @@ ControllerHelperI::run()
     argv[_args.size()] = 0;
     try
     {
-        Test::StreamHelper streamHelper(this, redirect());
-        _helper.reset(createHelper());
-        _helper->setControllerHelper(this);
-        _helper->run(static_cast<int>(_args.size()), argv);
+        IceInternal::UniquePtr<Test::TestHelper> helper(createHelper());
+        helper->setControllerHelper(this);
+        helper->run(static_cast<int>(_args.size()), argv);
         completed(0);
     }
     catch(const std::exception& ex)
@@ -257,12 +228,14 @@ ControllerHelperI::run()
         completed(1);
     }
     delete[] argv;
-}
 
-void
-ControllerHelperI::join()
-{
-    getThreadControl().join();
+    if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+    {
+        streamRedirect.setControllerHelper(0);
+    }
+
+    CFBundleUnloadExecutable(handle);
+    CFRelease(handle);
 }
 
 void
@@ -271,7 +244,18 @@ ControllerHelperI::completed(int status)
     Lock sync(*this);
     _completed = true;
     _status = status;
+    _communicator = 0;
     notifyAll();
+}
+
+void
+ControllerHelperI::shutdown()
+{
+    Lock sync(*this);
+    if(_communicator)
+    {
+        _communicator->shutdown();
+    }
 }
 
 void
@@ -339,7 +323,7 @@ ProcessI::terminate(const Ice::Current& current)
 {
     _helper->shutdown();
     current.adapter->remove(current.id);
-    _helper->join();
+    _helper->getThreadControl().join();
     return _helper->getOutput();
 }
 
@@ -356,10 +340,12 @@ ProcessPrx
 ProcessControllerI::start(const string& testSuite, const string& exe, const StringSeq& args, const Ice::Current& c)
 #endif
 {
+    StringSeq newArgs = args;
     std::string prefix = std::string("test/") + testSuite;
     replace(prefix.begin(), prefix.end(), '/', '_');
+    newArgs.insert(newArgs.begin(), testSuite + ' ' + exe);
     [_controller println:[NSString stringWithFormat:@"starting %s %s... ", testSuite.c_str(), exe.c_str()]];
-    IceUtil::Handle<ControllerHelperI> helper(new ControllerHelperI(_controller, prefix + '/' + exe + ".bundle", args));
+    IceUtil::Handle<ControllerHelperI> helper(new ControllerHelperI(_controller, prefix + '/' + exe + ".bundle", newArgs));
 
     //
     // Use a 768KB thread stack size for the objects test. This is necessary when running the

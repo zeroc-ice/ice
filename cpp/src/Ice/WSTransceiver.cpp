@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -1470,7 +1467,7 @@ IceInternal::WSTransceiver::preWrite(Buffer& buf)
                 return false;
             }
 
-            assert(buf.i = buf.b.begin());
+            assert(buf.i == buf.b.begin());
             prepareWriteHeader(OP_DATA, buf.b.size());
 
             _writeState = WriteStatePayload;

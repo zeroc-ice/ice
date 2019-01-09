@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -14,42 +11,42 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
-    ref = "test:default -p 12010"
+def allTests(helper, communicator):
+    ref = "test:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
     cl = Test.MyClassPrx.checkedCast(base)
     derived = Test.MyDerivedClassPrx.checkedCast(cl)
 
     sys.stdout.write("testing twoway operations... ")
     sys.stdout.flush()
-    Twoways.twoways(communicator, cl)
-    Twoways.twoways(communicator, derived)
+    Twoways.twoways(helper, cl)
+    Twoways.twoways(helper, derived)
     derived.opDerived()
     print("ok")
 
     sys.stdout.write("testing oneway operations... ")
     sys.stdout.flush()
-    Oneways.oneways(communicator, cl)
+    Oneways.oneways(helper, cl)
     print("ok")
 
     sys.stdout.write("testing twoway operations with futures... ")
     sys.stdout.flush()
-    TwowaysFuture.twowaysFuture(communicator, cl)
+    TwowaysFuture.twowaysFuture(helper, cl)
     print("ok")
 
     sys.stdout.write("testing twoway operations with AMI... ")
     sys.stdout.flush()
-    TwowaysAMI.twowaysAMI(communicator, cl)
+    TwowaysAMI.twowaysAMI(helper, cl)
     print("ok")
 
     sys.stdout.write("testing oneway operations with futures... ")
     sys.stdout.flush()
-    OnewaysFuture.onewaysFuture(communicator, cl)
+    OnewaysFuture.onewaysFuture(helper, cl)
     print("ok")
 
     sys.stdout.write("testing oneway operations with AMI... ")
     sys.stdout.flush()
-    OnewaysAMI.onewaysAMI(communicator, cl)
+    OnewaysAMI.onewaysAMI(helper, cl)
     print("ok")
 
     sys.stdout.write("testing batch oneway operations...  ")
@@ -70,4 +67,11 @@ def allTests(communicator):
     BatchOnewaysAMI.batchOneways(derived)
     print("ok")
 
-    return cl
+    sys.stdout.write("testing server shutdown... ")
+    sys.stdout.flush()
+    cl.shutdown()
+    try:
+        cl.ice_timeout(100).ice_ping()  # Use timeout to speed up testing on Windows
+        test(False)
+    except Ice.LocalException:
+        print("ok")

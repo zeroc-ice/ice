@@ -1,14 +1,9 @@
 <?php
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
-
-error_reporting(E_ALL | E_STRICT);
 
 //
 // We need to ensure that the memory limit is high enough
@@ -16,25 +11,7 @@ error_reporting(E_ALL | E_STRICT);
 //
 ini_set('memory_limit', '1024M');
 
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
-$NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
 require_once('Test.php');
-
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
 
 function connect($prx)
 {
@@ -60,7 +37,7 @@ function connect($prx)
     return $prx->ice_getConnection(); // Establish connection.
 }
 
-function allTests($communicator)
+function allTests($helper)
 {
     global $NS;
     $ConnectTimeoutException = $NS ? "Ice\\ConnectTimeoutException" : "Ice_ConnectTimeoutException";
@@ -70,14 +47,16 @@ function allTests($communicator)
                                              "Ice_ConnectionClose::GracefullyWithWait");
     $InitializationData = $NS ? "Ice\\InitializationData" : "Ice_InitializationData";
 
-    $sref = "timeout:default -p 12010";
+    $communicator = $helper->communicator();
+    $sref = sprintf("timeout:%s", $helper->getTestEndpoint());
     $timeout = $communicator->stringToProxy($sref);
     test($timeout);
 
     $timeout = $timeout->ice_checkedCast("::Test::Timeout");
     test($timeout);
 
-    $controller = $communicator->stringToProxy("controller:default -p 12011")->ice_checkedCast("::Test::Controller");
+    $controller = $communicator->stringToProxy(sprintf("controller:%s", $helper->getTestEndpoint(1)));
+    $controller = $controller->ice_checkedCast("::Test::Controller");
     test($controller);
 
     echo("testing connect timeout... ");
@@ -417,29 +396,38 @@ function allTests($communicator)
     $communicator->destroy();
 }
 
-$initData = eval($NS ? "return new Ice\\InitializationData();" : "return new Ice_InitializationData();");
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        try
+        {
+            $properties = $this->createTestProperties($args);
+            //
+            // For this test, we want to disable retries.
+            //
+            $properties->setProperty("Ice.RetryIntervals", "-1");
 
-$initData->properties = eval($NS ? "return Ice\\createProperties(\$argv);" : "return Ice_createProperties(\$argv);");
+            //
+            // This test kills connections, so we don't want warnings.
+            //
+            $properties->setProperty("Ice.Warn.Connections", "0");
 
-//
-// For this test, we want to disable retries.
-//
-$initData->properties->setProperty("Ice.RetryIntervals", "-1");
+            //
+            // Limit the send buffer size, this test relies on the socket
+            // send() blocking after sending a given amount of data.
+            //
+            $properties->setProperty("Ice.TCP.SndSize", "50000");
 
-//
-// This test kills connections, so we don't want warnings.
-//
-$initData->properties->setProperty("Ice.Warn.Connections", "0");
-
-//
-// Limit the send buffer size, this test relies on the socket
-// send() blocking after sending a given amount of data.
-//
-$initData->properties->setProperty("Ice.TCP.SndSize", "50000");
-
-$communicator = eval($NS ? "return Ice\\initialize(\$initData);" : "return Ice_initialize(\$initData);");
-
-allTests($communicator);
-
-exit();
+            $communicator = $this->initialize($properties);
+            allTests($this);
+            $communicator->destroy();
+        }
+        catch(Exception $ex)
+        {
+            $communicator->destroy();
+            throw $ex;
+        }
+    }
+}
 ?>

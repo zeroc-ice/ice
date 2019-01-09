@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -131,6 +128,7 @@ CtrlCHandler::~CtrlCHandler()
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         _handler = 0;
+        _callback = ICE_NULLPTR;
     }
 }
 
@@ -242,6 +240,7 @@ CtrlCHandler::~CtrlCHandler()
     {
         IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
         _handler = 0;
+        _callback = ICE_NULLPTR;
     }
 
     //

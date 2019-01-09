@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -13,7 +10,7 @@
 #include <IceUtil/Config.h> // Required by generated Scanners.
 
 //
-// COMPILERFIX: VC compilers does not provide stdint.h header until VC100
+// COMPILERFIX: VC compilers does not provide stdint.h header until v100
 // the header must be included before that macros for integral types
 // in flex generated Scanners are defined.
 //

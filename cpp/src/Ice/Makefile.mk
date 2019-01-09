@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -24,6 +21,12 @@ Ice_excludes            = src/Ice/DLLMain.cpp
 
 ifeq ($(os),Darwin)
 Ice_excludes            += src/IceUtil/ConvertUTF.cpp src/IceUtil/Unicode.cpp
+endif
+
+ifeq ($(os),Linux)
+ifeq ($(shell pkg-config --exists libsystemd 2> /dev/null && echo yes),yes)
+Ice_cppflags                            += -DICE_USE_SYSTEMD $(shell pkg-config --cflags libsystemd)
+endif
 endif
 
 Ice[iphoneos]_excludes                  := $(wildcard $(addprefix $(currentdir)/,Tcp*.cpp))

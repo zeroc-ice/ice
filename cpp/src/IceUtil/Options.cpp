@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -646,11 +643,18 @@ IceUtilInternal::Options::parse(const StringVector& args)
 
             if(p != string::npos)
             {
-                if(pos->second->arg == NoArg && p != args[i].size() - 1)
+                if(pos->second->arg == NoArg)
                 {
                     string err = "`";
-                    err += args[i];
+                    err += opt;
                     err += "': option does not take an argument";
+                    throw BadOptException(__FILE__, __LINE__, err);
+                }
+                else if(pos->second->arg == NeedArg && p == args[i].size() - 1)
+                {
+                    string err = "`";
+                    err += opt;
+                    err += "': option requires an argument";
                     throw BadOptException(__FILE__, __LINE__, err);
                 }
                 setOpt(opt, "", args[i].substr(p + 1), pos->second->repeat);
@@ -685,12 +689,20 @@ IceUtilInternal::Options::parse(const StringVector& args)
                     }
                 }
 
-                if(pos->second->arg == NeedArg && p != args[i].size() - 1)
+                if(pos->second->arg == NeedArg)
                 {
-                    string optArg = args[i].substr(p + 1);
-                    setOpt(opt, "", optArg, pos->second->repeat);
+                    if(p != args[i].size() - 1)
+                    {
+                        string optArg = args[i].substr(p + 1);
+                        setOpt(opt, "", optArg, pos->second->repeat);
+                        argDone = true;
+                        break;
+                    }
+                }
+                else
+                {
+                    setOpt(opt, "", "1", pos->second->repeat);
                     argDone = true;
-                    break;
                 }
             }
         }

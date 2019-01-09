@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -59,16 +56,17 @@ def connect(prx):
             pass
     return prx.ice_getConnection(); # Establish connection
 
-def allTests(communicator):
+def allTests(helper, communicator):
 
-    sref = "timeout:default -p 12010"
+    sref = "timeout:{0}".format(helper.getTestEndpoint())
     obj = communicator.stringToProxy(sref)
     test(obj != None)
 
     timeout = Test.TimeoutPrx.checkedCast(obj)
     test(timeout != None)
 
-    controller = Test.ControllerPrx.checkedCast(communicator.stringToProxy("controller:default -p 12011"))
+    controller = Test.ControllerPrx.checkedCast(
+        communicator.stringToProxy("controller:{0}".format(helper.getTestEndpoint(num=1))))
     test(controller != None)
 
     sys.stdout.write("testing connect timeout... ")
@@ -284,9 +282,10 @@ def allTests(communicator):
     comm = Ice.initialize(initData)
     connection = comm.stringToProxy(sref).ice_getConnection()
     controller.holdAdapter(-1)
-    now = time.clock()
+    s = time.perf_counter() if sys.version_info[:2] >= (3, 3) else time.clock()
     comm.destroy()
-    test((time.clock() - now) < 1.0)
+    e = time.perf_counter() if sys.version_info[:2] >= (3, 3) else time.clock()
+    test((s - e) < 1.0)
     controller.resumeAdapter()
 
     print("ok")

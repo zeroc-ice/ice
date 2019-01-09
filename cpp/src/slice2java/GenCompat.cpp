@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -17,6 +14,17 @@
 #include <cstring>
 
 #include <limits>
+
+// TODO: fix this warning!
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#elif defined(__clang__)
+#   pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 using namespace std;
 using namespace Slice;
@@ -596,7 +604,7 @@ Slice::JavaCompatVisitor::getParamsAsyncLambda(const OperationPtr& op, const str
 }
 
 vector<string>
-Slice::JavaCompatVisitor::getArgsAsyncLambda(const OperationPtr& op, const string& package, bool context, bool sentCB)
+Slice::JavaCompatVisitor::getArgsAsyncLambda(const OperationPtr& op, const string& /*package*/, bool context, bool sentCB)
 {
     vector<string> args = getInOutArgs(op, InParam);
 
@@ -669,7 +677,8 @@ Slice::JavaCompatVisitor::getArgsAsyncCB(const OperationPtr& op)
     if(ret)
     {
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret))
+        if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+           ClassDeclPtr::dynamicCast(ret))
         {
             args.push_back("ret.value");
         }
@@ -685,7 +694,8 @@ Slice::JavaCompatVisitor::getArgsAsyncCB(const OperationPtr& op)
         if((*q)->isOutParam())
         {
             BuiltinPtr builtin = BuiltinPtr::dynamicCast((*q)->type());
-            if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast((*q)->type()))
+            if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+               ClassDeclPtr::dynamicCast((*q)->type()))
             {
                 args.push_back(fixKwd((*q)->name()) + ".value");
             }
@@ -745,7 +755,8 @@ Slice::JavaCompatVisitor::writeMarshalUnmarshalParams(Output& out, const string&
         ret = op->returnType();
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
         ClassDeclPtr cl = ClassDeclPtr::dynamicCast(ret);
-        returnsObject = (builtin && builtin->kind() == Builtin::KindObject) || cl;
+        returnsObject = (builtin && (builtin->kind() == Builtin::KindObject ||
+                                     builtin->kind() == Builtin::KindValue)) || cl;
         const bool optional = optionalMapping && op->returnIsOptional();
 
         string retS = typeToString(ret, TypeModeReturn, package, op->getMetaData(), true, optional);
@@ -889,7 +900,8 @@ Slice::JavaCompatVisitor::writeUnmarshalDataMember(Output& out, const string& pa
     if(needPatcher)
     {
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(member->type());
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(member->type()))
+        if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+           ClassDeclPtr::dynamicCast(member->type()))
         {
             ostringstream ostr;
             ostr << "new Patcher(" << patchIter++ << ')';
@@ -953,7 +965,7 @@ Slice::JavaCompatVisitor::writePatcher(Output& out, const string& package, const
         BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
         if(b)
         {
-            assert(b->kind() == Builtin::KindObject);
+            assert(b->kind() == Builtin::KindObject || b->kind() == Builtin::KindValue);
         }
 
         if(classMembers.size() > 1)
@@ -1000,14 +1012,15 @@ Slice::JavaCompatVisitor::writePatcher(Output& out, const string& package, const
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
         BuiltinPtr b = BuiltinPtr::dynamicCast((*d)->type());
-        if(b && b->kind() != Builtin::KindObject)
+        if(b && b->kind() != Builtin::KindObject && b->kind() != Builtin::KindValue)
         {
             continue;
         }
 
         TypePtr paramType = (*d)->type();
         BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+        if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+           ClassDeclPtr::dynamicCast(paramType))
         {
 
             if(classMembers.size() > 1)
@@ -1026,7 +1039,7 @@ Slice::JavaCompatVisitor::writePatcher(Output& out, const string& package, const
             }
 
             string capName = (*d)->name();
-            capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+            capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
             if(b)
             {
@@ -1333,7 +1346,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                     else
                     {
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                        if((builtin && (builtin->kind() == Builtin::KindObject ||
+                                        builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(paramType))
                         {
                             out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
                         }
@@ -1392,7 +1406,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                 if(!(*pli)->optional())
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                    if((builtin && (builtin->kind() == Builtin::KindObject ||
+                                    builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(paramType))
                     {
                         out << ".value";
                     }
@@ -1462,7 +1477,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                     else
                     {
                         BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                        if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                        if((builtin && (builtin->kind() == Builtin::KindObject ||
+                                        builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(paramType))
                         {
                             out << nl << typeS << "Holder " << paramName << " = new " << typeS << "Holder();";
                         }
@@ -1506,7 +1522,8 @@ Slice::JavaCompatVisitor::writeDispatchAndMarshalling(Output& out, const ClassDe
                 if(!(*pli)->optional())
                 {
                     BuiltinPtr builtin = BuiltinPtr::dynamicCast(paramType);
-                    if((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(paramType))
+                    if((builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+                       ClassDeclPtr::dynamicCast(paramType))
                     {
                         out << ".value";
                     }
@@ -1855,7 +1872,7 @@ Slice::JavaCompatVisitor::writeDataMemberInitializers(Output& out, const DataMem
             if((*p)->optional())
             {
                 string capName = (*p)->name();
-                capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                 out << nl << "set" << capName << '(';
                 writeConstantValue(out, t, (*p)->defaultValueType(), (*p)->defaultValue(), package);
                 out << ");";
@@ -3011,7 +3028,7 @@ Slice::GenCompat::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
                 if((*d)->optional())
                 {
                     string capName = paramName;
-                    capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                    capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                     out << nl << "set" << capName << '(' << paramName << ");";
                 }
                 else
@@ -3355,7 +3372,7 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                 if((*d)->optional())
                 {
                     string capName = paramName;
-                    capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                    capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                     out << nl << "set" << capName << '(' << paramName << ");";
                 }
                 else
@@ -3397,7 +3414,7 @@ Slice::GenCompat::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
                     if((*d)->optional())
                     {
                         string capName = paramName;
-                        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+                        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
                         out << nl << "set" << capName << '(' << paramName << ");";
                     }
                     else
@@ -3960,7 +3977,7 @@ Slice::GenCompat::TypesVisitor::visitDataMember(const DataMemberPtr& p)
     if(getSet || optional)
     {
         string capName = p->name();
-        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
         //
         // If container is a class, get all of its operations so that we can check for conflicts.
@@ -4447,7 +4464,8 @@ Slice::GenCompat::HolderVisitor::writeHolder(const TypePtr& p)
 
     string typeS = typeToString(p, TypeModeIn, getPackage(contained));
     out << nl << "public final class " << name << "Holder";
-    if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
+    if(!p->isLocal() && ((builtin && (builtin->kind() == Builtin::KindObject ||
+                                      builtin->kind() == Builtin::KindValue)) || cl))
     {
         out << " extends " << getUnqualified("Ice.ObjectHolderBase", package) << "<" << typeS << ">";
     }
@@ -4455,7 +4473,8 @@ Slice::GenCompat::HolderVisitor::writeHolder(const TypePtr& p)
         out << " extends " << getUnqualified("Ice.Holder", package) << "<" << typeS << ">";
     }
     out << sb;
-    if(!p->isLocal() && ((builtin && builtin->kind() == Builtin::KindObject) || cl))
+    if(!p->isLocal() && ((builtin && (builtin->kind() == Builtin::KindObject ||
+                                      builtin->kind() == Builtin::KindValue)) || cl))
     {
         out << sp << nl << "public" << nl << name << "Holder()";
         out << sb;
@@ -4668,7 +4687,8 @@ Slice::GenCompat::HelperVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 BuiltinPtr builtin = BuiltinPtr::dynamicCast(ret);
                 if(!op->returnIsOptional() &&
-                   ((builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(ret)))
+                   ((builtin && (builtin->kind() == Builtin::KindObject ||
+                                 builtin->kind() == Builtin::KindValue)) || ClassDeclPtr::dynamicCast(ret)))
                 {
                     out << nl << "return ret_.value;";
                 }

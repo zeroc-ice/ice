@@ -1,19 +1,16 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
-
+from TestHelper import TestHelper
+TestHelper.loadSlice('Test.ice')
 import Ice
-
-Ice.loadSlice('Test.ice')
 import Test
+import time
+
 
 class TestI(Test.Hello):
     def sayHello(self, delay, current=None):
@@ -29,27 +26,20 @@ class TestI(Test.Hello):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(TestI(), Ice.stringToIdentity("test"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    #
-    # Its possible to have batch oneway requests dispatched after the
-    # adapter is deactivated due to thread scheduling so we supress
-    # this warning.
-    #
-    initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+class Server(TestHelper):
 
-sys.exit(not status)
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        #
+        # Its possible to have batch oneway requests dispatched after the
+        # adapter is deactivated due to thread scheduling so we supress
+        # this warning.
+        #
+        properties.setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(TestI(), Ice.stringToIdentity("test"))
+            adapter.activate()
+            communicator.waitForShutdown()

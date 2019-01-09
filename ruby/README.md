@@ -44,7 +44,7 @@ environment variable to the installation directory. For example:
 export RUBY_HOME=/opt/ruby
 ````
 
-The build of Ice for Python requires that you first build Ice for C++ in the
+The build of Ice for Ruby requires that you first build Ice for C++ in the
 `cpp` subdirectory.
 
 From the top-level source directory, edit `config/Make.rules` to establish your
@@ -164,4 +164,4 @@ Replace `/opt/Ice` with your installation directory.
     ```
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2

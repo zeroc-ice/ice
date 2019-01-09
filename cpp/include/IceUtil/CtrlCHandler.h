@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -18,7 +15,7 @@ namespace IceUtil
 
 /**
  * Invoked when a signal occurs. The callback must not raise exceptions.
- * On Unix/POSIX, the callback is NOT a signal handler and can call
+ * On Linux and macOS, the callback is NOT a signal handler and can call
  * functions that are not async-signal safe.
  * @param sig The signal number that occurred.
  */
@@ -29,43 +26,36 @@ typedef void (*CtrlCHandlerCallback)(int sig);
 #endif
 
 /**
- * Provides a portable way to handle CTRL+C and CTRL+C like signals.
- * On Unix/POSIX, the CtrlCHandler handles SIGHUP, SIGINT and SIGTERM.
+ * Provides a portable way to handle Ctrl-C and Ctrl-C like signals.
+ * On Linux and macOS, the CtrlCHandler handles SIGHUP, SIGINT and SIGTERM.
  * On Windows, it is essentially a wrapper for SetConsoleCtrlHandler().
  *
- * In a process, only one CtrlCHandler can exist at a given time:
- * the CtrlCHandler constructor raises CtrlCHandlerException if
- * you attempt to create a second CtrlCHandler.
- * On Unix/POSIX, it is essential to create the CtrlCHandler before
- * creating any thread, as the CtrlCHandler constructor masks (blocks)
- * SIGHUP, SIGINT and SIGTERM; by default, threads created later will
- * inherit this signal mask.
- *
- * When a CTRL+C or CTRL+C like signal is sent to the process, the
- * user-registered callback is called in a separate thread; it is
- * given the signal number. The callback must not raise exceptions.
- * On Unix/POSIX, the callback is NOT a signal handler and can call
- * functions that are not async-signal safe.
- *
- * The CtrCHandler destructor "unregisters" the callback. However
- * on Unix/POSIX it does not restore the old signal mask in any
- * thread, so SIGHUP, SIGINT and SIGTERM remain blocked.
- *
- * \headerfile IceUtil/CtrlCHandler.h
+ * \headerfile Ice/Ice.h
  */
-//
-// TODO: Maybe the behavior on Windows should be the same? Now we
-// just restore the default behavior (TerminateProcess).
-//
 class ICE_API CtrlCHandler
 {
 public:
 
-    /**
-     * Initializes the relevant signals.
-     * @param cb The signal callback.
+     /**
+     * Registers a callback function that handles Ctrl-C like signals.
+     * On Linux and macOS, this constructor masks the SIGHUP, SIGINT and SIGTERM
+     * signals and then creates a thread that waits for these signals using sigwait.
+     * On Windows, this constructor calls SetConsoleCtrlCHandler to register a handler
+     * routine that calls the supplied callback function.
+     * Only a single CtrlCHandler object can exist in a process at a give time.
+     * @param cb The callback function to invoke when a signal is received.
      */
     explicit CtrlCHandler(CtrlCHandlerCallback cb = ICE_NULLPTR);
+
+     /**
+     * Unregisters the callback function.
+     * On Linux and macOS, this destructor joins and terminates the thread created
+     * by the constructor but does not "unmask" SIGHUP, SIGINT and SIGTERM. As a result,
+     * these signals are ignored after this destructor completes.
+     * On Windows, this destructor unregisters the SetConsoleCtrlHandler handler
+     * routine, and as a result a Ctrl-C or similar signal will terminate the application
+     * after this destructor completes.
+     */
     ~CtrlCHandler();
 
     /**
@@ -77,15 +67,15 @@ public:
 
     /**
      * Obtains the signal callback.
-     * @return The callback, or nil if no callback is currently set.
+     * @return The callback.
      */
     CtrlCHandlerCallback getCallback() const;
 };
 
 /**
- * Raised by CtrlCHandler.
+ * Raised by the CtrlCHandler constructor if another CtrlCHandler already exists.
  *
- * \headerfile IceUtil/CtrlCHandler.h
+ * \headerfile Ice/Ice.h
  */
 class ICE_API CtrlCHandlerException : public ExceptionHelper<CtrlCHandlerException>
 {

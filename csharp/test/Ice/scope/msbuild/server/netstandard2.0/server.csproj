@@ -4,7 +4,7 @@
   <PropertyGroup>
     <AssemblyName>server</AssemblyName>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <OutputPath>.</OutputPath>
@@ -12,6 +12,9 @@
   <ItemGroup>
     <Compile Include="../../../../../TestCommon/TestHelper.cs" />
     <Compile Include="../../../Server.cs" />
+    <Compile Include="generated\Test.cs">
+      <SliceCompileSource>../../../Test.ice</SliceCompileSource>
+    </Compile>
     <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" />
     <SliceCompile Include="../../../Test.ice" />
     <None Update="generated\Test.cs">
@@ -21,7 +24,7 @@
   <Choose>
     <When Condition="'$(ICE_BIN_DIST)' == 'all'">
       <ItemGroup>
-        <PackageReference Include="zeroc.ice.net" Version="3.7.1" />
+        <PackageReference Include="zeroc.ice.net" Version="3.7.2" />
       </ItemGroup>
     </When>
     <Otherwise>

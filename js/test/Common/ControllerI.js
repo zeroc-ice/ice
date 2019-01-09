@@ -1,13 +1,10 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-/* globals Ice, Test, _server, _serveramd, _test, URI, WorkerGlobalScope */
+/* globals Ice, Test, URI, WorkerGlobalScope */
 /* eslint no-unused-vars: ["error", { "varsIgnorePattern": "isSafari|isChrome|isWorker|isWindows|runController" }] */
 
 function isSafari()
@@ -54,20 +51,17 @@ class Logger extends Ice.Logger
 
 class ProcessI extends Test.Common.Process
 {
-    constructor(promise, output, ready)
+    constructor(promise, helper, output)
     {
         super();
         this._promise = promise;
+        this._helper = helper;
         this._output = output;
-        this._ready = ready;
     }
 
     async waitReady()
     {
-        if(this._ready)
-        {
-            await this._ready;
-        }
+        await this._helper.waitReady();
     }
 
     async waitSuccess()
@@ -75,11 +69,14 @@ class ProcessI extends Test.Common.Process
         try
         {
             await this._promise;
+            this._helper.serverReady();
             return 0;
         }
         catch(ex)
         {
             this._output.writeLine(`unexpected exception while running test: ${ex.toString()}`);
+            this._output.writeLine(ex.stack);
+            this._helper.serverReady(ex);
             return 1;
         }
     }
@@ -88,6 +85,51 @@ class ProcessI extends Test.Common.Process
     {
         current.adapter.remove(current.id);
         return this._output.get();
+    }
+}
+
+class ControllerHelper
+{
+    constructor(exe, output)
+    {
+        if(exe === "Server" || exe === "ServerAMD")
+        {
+            this._serverReady = new Ice.Promise();
+        }
+        this._output = output;
+    }
+
+    serverReady(ex)
+    {
+        if(this._serverReady)
+        {
+            if(ex)
+            {
+                this._serverReady.reject(ex);
+            }
+            else
+            {
+                this._serverReady.resolve();
+            }
+        }
+    }
+
+    async waitReady()
+    {
+        if(this._serverReady)
+        {
+            await this._serverReady;
+        }
+    }
+
+    write(msg)
+    {
+        this._output.write(msg);
+    }
+
+    writeLine(msg)
+    {
+        this._output.writeLine(msg);
     }
 }
 
@@ -106,11 +148,9 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
     {
         const es5 = document.location.pathname.indexOf("/es5/") !== -1;
         let promise;
-        let ready = null;
         let out;
         if(exe === "Server" || exe === "ServerAMD")
         {
-            ready = new Ice.Promise();
             out = this._serverOutput;
         }
         else
@@ -118,6 +158,7 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
             out = this._clientOutput;
         }
         out.clear();
+        const helper = new ControllerHelper(exe, out);
 
         if(this._useWorker)
         {
@@ -133,33 +174,25 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
                         {
                             if(e.data.type == "write")
                             {
-                                out.write(e.data.message);
+                                helper.write(e.data.message);
                             }
                             else if(e.data.type == "writeLine")
                             {
-                                out.writeLine(e.data.message);
+                                helper.writeLine(e.data.message);
                             }
-                            else if(e.data.type == "ready" && (exe === "Server" || exe === "ServerAMD"))
+                            else if(e.data.type == "ready")
                             {
-                                ready.resolve();
+                                helper.serverReady();
                             }
                             else if(e.data.type == "finished")
                             {
                                 if(e.data.exception)
                                 {
                                     reject(e.data.exception);
-                                    if(ready)
-                                    {
-                                        ready.reject(e.data.exception);
-                                    }
                                 }
                                 else
                                 {
                                     resolve();
-                                    if(ready)
-                                    {
-                                        ready.resolve();
-                                    }
                                 }
                                 worker.terminate();
                             }
@@ -169,21 +202,12 @@ class ProcessControllerI extends Test.Common.BrowserProcessController
         }
         else
         {
-            const initData = new Ice.InitializationData();
-            initData.properties = Ice.createProperties(args);
-            if(exe === "Server" || exe === "ServerAMD")
-            {
-                initData.logger = new Logger(this._serverOutput);
-                const test = exe === "Server" ? _server : _serveramd;
-                promise = test(this._serverOutput, initData, ready, args);
-            }
-            else
-            {
-                initData.logger = new Logger(this._clientOutput);
-                promise = _test(this._clientOutput, initData, args);
-            }
+            const cls = Ice._require(exe)[exe];
+            const test = new cls();
+            test.setControllerHelper(helper);
+            promise = test.run(args);
         }
-        return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(promise, out, ready)));
+        return Test.Common.ProcessPrx.uncheckedCast(current.adapter.addWithUUID(new ProcessI(promise, helper, out)));
     }
 
     getHost()

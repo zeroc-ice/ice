@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -187,7 +184,6 @@ hexToInt(char v)
         return 10 + (v - 'A');
     }
     throw ParseException(__FILE__, __LINE__, "unescape: invalid hex pair");
-    return 0; // To satisfy the compiler.
 }
 
 static char

@@ -1,20 +1,17 @@
 %{
 **********************************************************************
 
-Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
+Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
 **********************************************************************
 %}
 
 classdef AllTests
     methods(Static)
-        function r = allTests(app)
+        function r = allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
             fprintf('testing Ice.Admin.Facets property... ');
             assert(length(communicator.getProperties().getPropertyAsList('Ice.Admin.Facets')) == 0);
@@ -39,7 +36,7 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing stringToProxy... ');
-            ref = ['d:', app.getTestEndpoint(0)];
+            ref = ['d:', helper.getTestEndpoint()];
             db = communicator.stringToProxy(ref);
             assert(~isempty(db));
             fprintf('ok\n');

@@ -1,20 +1,17 @@
 %{
 **********************************************************************
 
-Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
+Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
 **********************************************************************
 %}
 
 classdef AllTests
     methods(Static)
-        function r = allTests(app)
+        function r = allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
             fprintf('testing stringToProxy... ');
 
@@ -26,7 +23,7 @@ classdef AllTests
             p = communicator.propertyToProxy('bogus');
             assert(isempty(p));
 
-            ref = 'test:default -p 12010';
+            ref = ['test:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
 

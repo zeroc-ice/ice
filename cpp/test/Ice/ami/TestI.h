@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -46,7 +43,7 @@ public:
     virtual bool supportsAMD(const Ice::Current&);
     virtual bool supportsFunctionalTests(const Ice::Current&);
 
-    virtual void pingBiDir(ICE_IN(Ice::Identity), const Ice::Current&);
+    virtual void pingBiDir(ICE_IN(Test::PingReplyPrxPtr), const Ice::Current&);
 
 private:
 

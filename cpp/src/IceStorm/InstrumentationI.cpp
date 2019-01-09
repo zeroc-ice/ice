@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -241,7 +238,7 @@ namespace
 
 struct QueuedUpdate
 {
-    QueuedUpdate(int count) : count(count)
+    QueuedUpdate(int countP) : count(countP)
     {
     }
 
@@ -265,7 +262,7 @@ namespace
 
 struct OutstandingUpdate
 {
-    OutstandingUpdate(int count) : count(count)
+    OutstandingUpdate(int countP) : count(countP)
     {
     }
 
@@ -294,7 +291,7 @@ namespace
 
 struct DeliveredUpdate
 {
-    DeliveredUpdate(int count) : count(count)
+    DeliveredUpdate(int countP) : count(countP)
     {
     }
 

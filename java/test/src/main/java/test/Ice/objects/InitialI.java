@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -135,6 +132,33 @@ public final class InitialI implements Initial
     }
 
     @Override
+    public K getK(com.zeroc.Ice.Current current)
+    {
+        return new K(new L("l"));
+    }
+
+    @Override
+    public OpValueResult
+    opValue(com.zeroc.Ice.Value v1, com.zeroc.Ice.Current current)
+    {
+        return new OpValueResult(v1, v1);
+    }
+
+    @Override
+    public OpValueSeqResult
+    opValueSeq(com.zeroc.Ice.Value[] v1, com.zeroc.Ice.Current current)
+    {
+        return new OpValueSeqResult(v1, v1);
+    }
+
+    @Override
+    public OpValueMapResult
+    opValueMap(java.util.Map<String, com.zeroc.Ice.Value> v1, com.zeroc.Ice.Current current)
+    {
+        return new OpValueMapResult(v1, v1);
+    }
+
+    @Override
     public D1 getD1(D1 d1, com.zeroc.Ice.Current current)
     {
         return d1;
@@ -210,6 +234,15 @@ public final class InitialI implements Initial
     public void shutdown(com.zeroc.Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
+    }
+
+    @Override
+    public Initial.OpMResult opM(M v1, com.zeroc.Ice.Current current)
+    {
+        Initial.OpMResult r = new Initial.OpMResult();
+        r.returnValue = v1;
+        r.v2 = v1;
+        return r;
     }
 
     private com.zeroc.Ice.ObjectAdapter _adapter;

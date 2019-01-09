@@ -1,15 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/ConnectionF.ice>
@@ -26,9 +34,9 @@ module Ice
 
 /**
  *
- * A request context. <tt>Context</tt> is used to transmit metadata about a
+ * A request context. <code>Context</code> is used to transmit metadata about a
  * request from the server to the client, such as Quality-of-Service
- * (QoS) parameters. Each operation on the client has a <tt>Context</tt> as
+ * (QoS) parameters. Each operation on the client has a <code>Context</code> as
  * its implicit final parameter.
  *
  **/
@@ -46,37 +54,37 @@ dictionary<string, string> Context;
 enum OperationMode
 {
     /**
-     * Ordinary operations have <tt>Normal</tt> mode.  These operations
+     * Ordinary operations have <code>Normal</code> mode.  These operations
      * modify object state; invoking such an operation twice in a row
      * has different semantics than invoking it once. The Ice run time
      * guarantees that it will not violate at-most-once semantics for
-     * <tt>Normal</tt> operations.
+     * <code>Normal</code> operations.
      */
     Normal,
 
     /**
-     * Operations that use the Slice <tt>nonmutating</tt> keyword must not
+     * Operations that use the Slice <code>nonmutating</code> keyword must not
      * modify object state. For C++, nonmutating operations generate
-     * <tt>const</tt> member functions in the skeleton. In addition, the Ice
+     * <code>const</code> member functions in the skeleton. In addition, the Ice
      * run time will attempt to transparently recover from certain
      * run-time errors by re-issuing a failed request and propagate
      * the failure to the application only if the second attempt
      * fails.
      *
-     * <p class="Deprecated"><tt>Nonmutating</tt> is deprecated; Use the
-     * <tt>idempotent</tt> keyword instead. For C++, to retain the mapping
-     * of <tt>nonmutating</tt> operations to C++ <tt>const</tt>
-     * member functions, use the <tt>\["cpp:const"]</tt> metadata
+     * <p class="Deprecated"><code>Nonmutating</code> is deprecated; Use the
+     * <code>idempotent</code> keyword instead. For C++, to retain the mapping
+     * of <code>nonmutating</code> operations to C++ <code>const</code>
+     * member functions, use the <code>\["cpp:const"]</code> metadata
      * directive.
      */
     \Nonmutating,
 
     /**
-     * Operations that use the Slice <tt>idempotent</tt> keyword can modify
+     * Operations that use the Slice <code>idempotent</code> keyword can modify
      * object state, but invoking an operation twice in a row must
      * result in the same object state as invoking it once.  For
-     * example, <tt>x = 1</tt> is an idempotent statement,
-     * whereas <tt>x += 1</tt> is not. For idempotent
+     * example, <code>x = 1</code> is an idempotent statement,
+     * whereas <code>x += 1</code> is not. For idempotent
      * operations, the Ice run-time uses the same retry behavior
      * as for nonmutating operations in case of a potentially
      * recoverable error.
@@ -87,8 +95,8 @@ enum OperationMode
 /**
  *
  * Information about the current method invocation for servers. Each
- * operation on the server has a <tt>Current</tt> as its implicit final
- * parameter. <tt>Current</tt> is mostly used for Ice services. Most
+ * operation on the server has a <code>Current</code> as its implicit final
+ * parameter. <code>Current</code> is mostly used for Ice services. Most
  * applications ignore this parameter.
  *
  **/

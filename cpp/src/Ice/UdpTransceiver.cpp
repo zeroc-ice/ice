@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -56,6 +53,7 @@ IceInternal::UdpTransceiver::getAsyncInfo(SocketOperation status)
         return 0;
     }
 #elif defined(ICE_OS_UWP)
+    UNREFERENCED_PARAMETER(status);
     return &_write;
 #endif
 }
@@ -74,7 +72,7 @@ IceInternal::UdpTransceiver::initialize(Buffer& /*readBuffer*/, Buffer& /*writeB
 #if defined(ICE_USE_IOCP)
         doFinishConnectAsync(_fd, _write);
 #elif defined(ICE_OS_UWP)
-        if(_write.count == SOCKET_ERROR)
+        if(_write.error != ERROR_SUCCESS)
         {
             try
             {
@@ -376,7 +374,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                         [this] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
                         {
                             //
-                            // COMPILERFIX with VC141 using operator!= and operator== inside
+                            // COMPILERFIX with v141 using operator!= and operator== inside
                             // a lambda callback triggers a compiler bug, we move the code to
                             // a seperate private method to workaround the issue.
                             //
@@ -386,6 +384,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 else
                 {
                     _write.count = 0;
+                    _write.error = ERROR_SUCCESS;
                     _writer = ref new DataWriter(safe_cast<DatagramSocket^>(_fd)->OutputStream);
                 }
             }
@@ -398,7 +397,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                         [=](IAsyncOperation<IOutputStream^>^ info, Windows::Foundation::AsyncStatus status)
                         {
                             //
-                            // COMPILERFIX with VC141 using operator!= and operator== inside
+                            // COMPILERFIX with v141 using operator!= and operator== inside
                             // a lambda callback triggers a compiler bug, we move the code to
                             // a seperate private method to workaround the issue.
                             //
@@ -408,6 +407,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 else
                 {
                     _write.count = 0;
+                    _write.error = ERROR_SUCCESS;
                     _writer = ref new DataWriter(operation->GetResults());
                     if(_mcastAddr.host != nullptr)
                     {
@@ -431,7 +431,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
                 [=, &buf](concurrency::task<IOutputStream^> task)
                 {
                     //
-                    // COMPILERFIX with VC141 using operator!= and operator== inside
+                    // COMPILERFIX with v141 using operator!= and operator== inside
                     // a lambda callback triggers a compiler bug, we move the code to
                     // a seperate private method to workaround the issue.
                     //
@@ -460,6 +460,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
 #else
     _write.buf.len = static_cast<int>(buf.b.size());
     _write.buf.buf = reinterpret_cast<char*>(&*buf.i);
+    _write.error = ERROR_SUCCESS;
     int err;
     if(_state == StateConnected)
     {
@@ -481,8 +482,7 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             // No peer has sent a datagram yet.
             throw SocketException(__FILE__, __LINE__, 0);
         }
-        err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa,
-                        len, &_write, ICE_NULLPTR);
+        err = WSASendTo(_fd, &_write.buf, 1, &_write.count, 0, &_peerAddr.sa, len, &_write, ICE_NULLPTR);
     }
 
     if(err == SOCKET_ERROR)
@@ -499,8 +499,8 @@ IceInternal::UdpTransceiver::startWrite(Buffer& buf)
             }
         }
     }
-#endif
     return true;
+#endif
 }
 
 #ifdef ICE_OS_UWP
@@ -510,14 +510,14 @@ IceInternal::UdpTransceiver::connectCompleted(Windows::Foundation::IAsyncAction^
 {
     if(status != Windows::Foundation::AsyncStatus::Completed)
     {
-        _write.count = SOCKET_ERROR;
         _write.error = action->ErrorCode.Value;
     }
     else
     {
-        _write.count = 0;
+        _write.error = ERROR_SUCCESS;
         _writer = ref new DataWriter(safe_cast<DatagramSocket^>(_fd)->OutputStream);
     }
+    _write.count = 0;
     completed(SocketOperationConnect);
 }
 
@@ -527,14 +527,14 @@ IceInternal::UdpTransceiver::getOutputStreamMcastCompleted(IAsyncOperation<IOutp
 {
     if(status != Windows::Foundation::AsyncStatus::Completed)
     {
-        _write.count = SOCKET_ERROR;
         _write.error = operation->ErrorCode.Value;
     }
     else
     {
-        _write.count = 0;
+        _write.error = ERROR_SUCCESS;
         _writer = ref new DataWriter(operation->GetResults());
     }
+    _write.count = 0;
     if(_mcastAddr.host != nullptr)
     {
         setMcastGroup(_fd, _mcastAddr, "");
@@ -554,7 +554,7 @@ IceInternal::UdpTransceiver::getOutputStreamCompleted(concurrency::task<IOutputS
     }
     catch(Platform::Exception^ pex)
     {
-        _write.count = SOCKET_ERROR;
+        _write.count = 0;
         _write.error = pex->HResult;
         completed(SocketOperationWrite);
     }
@@ -570,7 +570,7 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
         return;
     }
 
-    if(static_cast<int>(_write.count) == SOCKET_ERROR)
+    if(_write.error != ERROR_SUCCESS)
     {
 #ifndef ICE_OS_UWP
         WSASetLastError(_write.error);
@@ -587,7 +587,7 @@ IceInternal::UdpTransceiver::finishWrite(Buffer& buf)
 #endif
     }
 
-    assert(_write.count == buf.b.size());
+    assert(static_cast<size_t>(_write.count) == buf.b.size());
     buf.i = buf.b.end();
 }
 
@@ -601,6 +601,7 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
 #ifndef ICE_OS_UWP
     _read.buf.len = packetSize;
     _read.buf.buf = reinterpret_cast<char*>(&*buf.i);
+    _read.error = ERROR_SUCCESS;
     int err;
     if(_state == StateConnected)
     {
@@ -611,8 +612,8 @@ IceInternal::UdpTransceiver::startRead(Buffer& buf)
         memset(&_readAddr.saStorage, 0, sizeof(struct sockaddr_storage));
         _readAddrLen = static_cast<socklen_t>(sizeof(sockaddr_storage));
 
-        err = WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags,
-                          &_readAddr.sa, &_readAddrLen, &_read, ICE_NULLPTR);
+        err = WSARecvFrom(_fd, &_read.buf, 1, &_read.count, &_read.flags, &_readAddr.sa, &_readAddrLen, &_read,
+                          ICE_NULLPTR);
     }
 
     if(err == SOCKET_ERROR)
@@ -661,7 +662,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
     DatagramSocketMessageReceivedEventArgs^ args = _received.front();
     _received.pop_front();
 
-    int ret;
+    int ret = 0;
     try
     {
         DataReader^ reader = args->GetDataReader();
@@ -682,7 +683,7 @@ IceInternal::UdpTransceiver::finishRead(Buffer& buf)
         checkErrorCode(__FILE__, __LINE__, ex->HResult);
     }
 #else
-    if(static_cast<int>(_read.count) == SOCKET_ERROR)
+    if(_read.error != ERROR_SUCCESS)
     {
         WSASetLastError(_read.error);
 

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -553,11 +550,11 @@ CreateSession::unexpectedAuthorizeException(const Ice::Exception& ex)
 }
 
 void
-CreateSession::createException(const Ice::Exception& ex)
+CreateSession::createException(const Ice::Exception& sex)
 {
     try
     {
-        ex.ice_throw();
+        sex.ice_throw();
     }
     catch(const CannotCreateSessionException& ex)
     {

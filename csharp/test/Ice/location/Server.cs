@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -24,7 +21,6 @@ namespace Ice
                 //
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ThreadPool.Server.Size", "2");
-                properties.setProperty("Ice.Package.Test", "Ice.location");
 
                 using(var communicator = initialize(properties))
                 {

@@ -1,15 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
@@ -19,6 +27,7 @@
 module Ice
 {
 
+#if !defined(__SLICE2PHP__)
 /**
  *
  * A factory for objects. Object factories are used when receiving "objects by value".
@@ -26,8 +35,7 @@ module Ice
  * with the communicator.
  *
  **/
-
-["deprecate:ObjectFactory has been deprecated, use ValueFactory instead.", "php:internal"]
+["deprecate:ObjectFactory has been deprecated, use ValueFactory instead."]
 local interface ObjectFactory
 {
     /**
@@ -35,10 +43,10 @@ local interface ObjectFactory
      * Create a new object for a given object type. The type is the
      * absolute Slice type id, i.e., the id relative to the
      * unnamed top-level Slice module. For example, the absolute
-     * Slice type id for interfaces of type <tt>Bar</tt> in the module
-     * <tt>Foo</tt> is <tt>"::Foo::Bar"</tt>.
+     * Slice type id for interfaces of type <code>Bar</code> in the module
+     * <code>Foo</code> is <code>"::Foo::Bar"</code>.
      *
-     * <p class="Note">The leading "<tt>::</tt>" is required.
+     * <p class="Note">The leading "<code>::</code>" is required.
      *
      * @param type The object type.
      *
@@ -58,5 +66,7 @@ local interface ObjectFactory
      **/
     void destroy();
 }
+
+#endif
 
 }

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -131,6 +128,9 @@ IceInternal::UdpConnector::UdpConnector(const ProtocolInstancePtr& instance, con
     _mcastTtl(mcastTtl),
     _connectionId(connectionId)
 {
+#ifdef ICE_OS_UWP
+    UNREFERENCED_PARAMETER(sourceAddr);
+#endif
 }
 
 IceInternal::UdpConnector::~UdpConnector()

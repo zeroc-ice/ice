@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -49,17 +46,11 @@ class TEST_API ControllerHelper
 {
 public:
 
-    virtual bool redirect() const = 0;
-
-    virtual std::string getOutput() const = 0;
     virtual std::string loggerPrefix() const = 0;
-    virtual void join() = 0;
     virtual void print(const std::string&) = 0;
-    virtual void serverReady() = 0;
-    virtual void shutdown() = 0;
 
-    virtual int waitSuccess(int) const = 0;
-    virtual void waitReady(int) const = 0;
+    virtual void serverReady() = 0;
+    virtual void communicatorInitialized(const Ice::CommunicatorPtr&) = 0;
 };
 ICE_DEFINE_PTR(ControllerHelperPtr, ControllerHelper);
 
@@ -72,72 +63,21 @@ class StreamHelper : public std::streambuf
 {
 public:
 
-    StreamHelper(ControllerHelper* controllerHelper, bool redirect) : _controllerHelper(controllerHelper)
-    {
-        setp(&data[0], &data[sizeof(data) - 1]);
-        if(redirect)
-        {
-            _previousLogger = Ice::getProcessLogger();
-            Ice::setProcessLogger(Ice::getProcessLogger()->cloneWithPrefix(_controllerHelper->loggerPrefix()));
+    StreamHelper();
+    ~StreamHelper();
 
-            _previousCoutBuffer = std::cout.rdbuf();
-            std::cout.rdbuf(this);
+    void setControllerHelper(ControllerHelper*);
 
-            _previousCerrBuffer = std::cerr.rdbuf();
-            std::cerr.rdbuf(this);
-        }
-    }
-
-    ~StreamHelper()
-    {
-        if(_previousLogger)
-        {
-            Ice::setProcessLogger(_previousLogger);
-            std::cout.rdbuf(_previousCoutBuffer);
-            std::cerr.rdbuf(_previousCerrBuffer);
-        }
-    }
-
-    virtual void flush()
-    {
-    }
-
-    virtual void newLine()
-    {
-        _controllerHelper->print("\n");
-    }
+    virtual void flush();
+    virtual void newLine();
 
 private:
 
-    int sync()
-    {
-        assert(_controllerHelper);
-        std::streamsize n = pptr() - pbase();
-        _controllerHelper->print(std::string(pbase(), static_cast<int>(n)));
-        pbump(-static_cast<int>(pptr() - pbase()));
-        return 0;
-    }
+    virtual int sync();
+    virtual int overflow(int);
+    virtual int sputc(char);
 
-    int overflow(int ch)
-    {
-        sync();
-        if(ch != EOF)
-        {
-            assert(pptr() != epptr());
-            sputc(ch);
-        }
-        return 0;
-    }
-
-    int sputc(char c)
-    {
-        if(c == '\n')
-        {
-            pubsync();
-        }
-        return std::streambuf::sputc(c);
-    }
-
+    IceUtil::Mutex _mutex;
     ControllerHelper* _controllerHelper;
     char data[1024];
     Ice::LoggerPtr _previousLogger;

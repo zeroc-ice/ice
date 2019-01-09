@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -100,12 +97,14 @@ protected:
     // Handle doc comments.
     //
     static StringList splitComment(const ContainedPtr&);
+    void writeHiddenDocComment(::IceUtilInternal::Output&);
     void writeDocCommentLines(::IceUtilInternal::Output&, const StringList&);
     void writeDocCommentLines(::IceUtilInternal::Output&, const std::string&);
     void writeDocComment(::IceUtilInternal::Output&, const UnitPtr&, const CommentPtr&);
     void writeDocComment(::IceUtilInternal::Output&, const std::string&);
     void writeProxyDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&, const CommentPtr&,
-                              bool, bool);
+                              bool, const std::string&);
+    void writeHiddenProxyDocComment(::IceUtilInternal::Output&, const OperationPtr&);
     void writeServantDocComment(::IceUtilInternal::Output&, const OperationPtr&, const std::string&,
                                 const CommentPtr&, bool);
     void writeSeeAlso(::IceUtilInternal::Output&, const UnitPtr&, const std::string&);

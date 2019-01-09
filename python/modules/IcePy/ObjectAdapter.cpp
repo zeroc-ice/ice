@@ -1,15 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <ObjectAdapter.h>
 #include <Communicator.h>
 #include <Current.h>
@@ -31,7 +25,11 @@
 using namespace std;
 using namespace IcePy;
 
+#if PY_VERSION_HEX < 0x03070000
 static long _mainThreadId;
+#else
+static unsigned long _mainThreadId;
+#endif
 
 namespace IcePy
 {
@@ -215,7 +213,7 @@ IcePy::ServantLocatorWrapper::locate(const Ice::Current& current, Ice::LocalObje
 }
 
 void
-IcePy::ServantLocatorWrapper::finished(const Ice::Current& current, const Ice::ObjectPtr&,
+IcePy::ServantLocatorWrapper::finished(const Ice::Current&, const Ice::ObjectPtr&,
                                        const Ice::LocalObjectPtr& cookie)
 {
     AdoptThread adoptThread; // Ensure the current thread is able to call into Python.

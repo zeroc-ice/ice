@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -59,15 +56,15 @@
 @end
 
 @implementation TimeoutI
--(void) op:(ICECurrent*)current
+-(void) op:(ICECurrent*)__unused current
 {
 }
 
--(void) sendData:(TestTimeoutMutableByteSeq*)seq current:(ICECurrent*)current
+-(void) sendData:(TestTimeoutMutableByteSeq*)__unused seq current:(ICECurrent*)__unused current
 {
 }
 
--(void) sleep:(ICEInt)to current:(ICECurrent*)current
+-(void) sleep:(ICEInt)to current:(ICECurrent*)__unused current
 {
     [NSThread sleepForTimeInterval:to / 1000.0];
 }
@@ -109,7 +106,7 @@
 }
 #endif
 
--(void) holdAdapter:(ICEInt)to current:(ICECurrent*)current
+-(void) holdAdapter:(ICEInt)to current:(ICECurrent*)__unused current
 {
     [adapter_ hold];
     if(to >= 0)
@@ -119,7 +116,7 @@
     }
 }
 
--(void) resumeAdapter:(ICECurrent*)current
+-(void) resumeAdapter:(ICECurrent*)__unused current
 {
     [adapter_ activate];
 }

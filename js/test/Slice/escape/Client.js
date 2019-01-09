@@ -1,31 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
+    const TestHelper = require("TestHelper").TestHelper;
     const _await = require("Key")._await;
+    const test = TestHelper.test;
 
-    function test(value)
+    class Client extends TestHelper
     {
-        if(!value)
+        async allTests()
         {
-            throw new Error("test failed");
-        }
-    }
+            const communicator = this.communicator();
+            const out = this.getWriter();
 
-    async function run(out, initData)
-    {
-        let communicator;
-        try
-        {
-            communicator = Ice.initialize(initData);
             out.write("testing enums... ");
 
             test(_await._var.base !== 0);
@@ -39,7 +31,7 @@
             out.write("testing proxies... ");
 
             let p = _await.casePrx.uncheckedCast(
-                communicator.stringToProxy("hello:tcp -h 127.0.0.1 -p 12010").ice_timeout(100));
+                communicator.stringToProxy("hello:" + this.getTestEndpoint()).ice_timeout(100));
             test(p);
 
             try
@@ -53,7 +45,7 @@
             }
 
             p = _await.typeofPrx.uncheckedCast(
-                communicator.stringToProxy("hello:tcp -h 127.0.0.1 -p 12010").ice_timeout(100));
+                communicator.stringToProxy("hello:" + this.getTestEndpoint()).ice_timeout(100));
             test(p);
 
             try
@@ -90,16 +82,27 @@
             test(p._null instanceof _await.explicitPrx);
             out.writeLine("ok");
         }
-        finally
+
+        async run(args)
         {
-            if(communicator)
+            let communicator;
+            try
             {
-                await communicator.destroy();
+                [communicator] = this.initialize(args);
+                await this.allTests();
+            }
+            finally
+            {
+                if(communicator)
+                {
+                    await communicator.destroy();
+                }
             }
         }
     }
-
-    exports._test = run;
+    exports.Client = Client;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));

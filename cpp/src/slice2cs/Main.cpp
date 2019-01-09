@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -230,8 +227,8 @@ compile(const vector<string>& argv)
         //
         // Ignore duplicates.
         //
-        vector<string>::iterator p = find(args.begin(), args.end(), *i);
-        if(p != i)
+        vector<string>::iterator j = find(args.begin(), args.end(), *i);
+        if(j != i)
         {
             continue;
         }
@@ -377,16 +374,6 @@ int main(int argc, char* argv[])
     catch(const std::exception& ex)
     {
         consoleErr << args[0] << ": error:" << ex.what() << endl;
-        return EXIT_FAILURE;
-    }
-    catch(const std::string& msg)
-    {
-        consoleErr << args[0] << ": error:" << msg << endl;
-        return EXIT_FAILURE;
-    }
-    catch(const char* msg)
-    {
-        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)

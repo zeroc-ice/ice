@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -186,7 +183,7 @@ BOOL _returnsData;
 @implementation ICEAsyncResult
 -(ICEAsyncResult*) initWithAsyncResult:(const Ice::AsyncResultPtr&)arg
                                operation:(NSString*)op
-                                   proxy:(id<ICEObjectPrx>)p;
+                                   proxy:(id<ICEObjectPrx>)p
 {
     self = [super init];
     if(!self)
@@ -875,7 +872,7 @@ BOOL _returnsData;
     }
 }
 
--(id) copyWithZone:(NSZone *)zone
+-(id) copyWithZone:(NSZone *)__unused zone
 {
     return [self retain];
 }
@@ -1489,7 +1486,7 @@ BOOL _returnsData;
     return [ICEEncodingVersion encodingVersionWithEncodingVersion:OBJECTPRX->ice_getEncodingVersion()];
 }
 
--(id) ice_encodingVersion:(ICEEncodingVersion*)encoding;
+-(id) ice_encodingVersion:(ICEEncodingVersion*)encoding
 {
     return [[self class] iceObjectPrxWithObjectPrx:OBJECTPRX->ice_encodingVersion([encoding encodingVersion])];
 }

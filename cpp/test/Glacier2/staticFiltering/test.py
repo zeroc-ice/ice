@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
+
+import os
+
 
 class Glacier2StaticFilteringTestCase(ClientServerTestCase):
 
@@ -80,6 +80,11 @@ class Glacier2StaticFilteringTestCase(ClientServerTestCase):
                 routerConfig.write("Glacier2.Filter.Identity.Accept=%s\n" % idFilter)
             if not len(adapterFilter) == 0:
                 routerConfig.write("Glacier2.Filter.AdapterId.Accept=%s\n" % adapterFilter)
+
+    def teardownServerSide(self, current, success):
+        for c in ["client.cfg", "router.cfg", "server.cfg"]:
+            os.remove(os.path.join(self.getTestSuite().getPath(), c))
+
 
 class Glacier2StaticFilteringTestSuite(Glacier2TestSuite):
 

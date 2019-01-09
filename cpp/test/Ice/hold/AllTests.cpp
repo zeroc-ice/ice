@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -109,20 +106,19 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "changing state between active and hold rapidly... " << flush;
-    int i;
-    for(i = 0; i < 100; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         hold->putOnHold(0);
     }
-    for(i = 0; i < 100; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         hold->ice_oneway()->putOnHold(0);
     }
-    for(i = 0; i < 100; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         holdSerialized->putOnHold(0);
     }
-    for(i = 0; i < 100; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         holdSerialized->ice_oneway()->putOnHold(0);
     }
@@ -140,9 +136,9 @@ allTests(Test::TestHelper* helper)
             auto sent = make_shared<promise<bool>>();
             auto expected = value;
             hold->setAsync(value + 1, IceUtilInternal::random(5),
-                [cond, expected, completed](int value)
+                [cond, expected, completed](int val)
                 {
-                    if(value != expected)
+                    if(val != expected)
                     {
                         cond->set(false);
                     }
@@ -215,9 +211,9 @@ allTests(Test::TestHelper* helper)
             holdSerialized->setAsync(
                 value + 1,
                 IceUtilInternal::random(1),
-                [cond, expected, completed](int value)
+                [cond, expected, completed](int val)
                 {
-                    if(value != expected)
+                    if(val != expected)
                     {
                         cond->set(false);
                     }
@@ -282,7 +278,7 @@ allTests(Test::TestHelper* helper)
                 [](exception_ptr)
                 {
                 },
-                [completed](bool sentSynchronously)
+                [completed](bool /*sentSynchronously*/)
                 {
                     completed->set_value();
                 });
@@ -318,7 +314,7 @@ allTests(Test::TestHelper* helper)
     {
         hold->waitForHold();
         hold->waitForHold();
-        for(i = 0; i < 1000; ++i)
+        for(int i = 0; i < 1000; ++i)
         {
             hold->ice_oneway()->ice_ping();
             if((i % 20) == 0)

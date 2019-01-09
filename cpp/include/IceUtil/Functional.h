@@ -1,14 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #ifndef ICE_UTIL_FUNCTIONAL_H
 #define ICE_UTIL_FUNCTIONAL_H
+
+#ifndef ICE_CPP11_MAPPING
 
 #include <IceUtil/Handle.h>
 #include <functional>
@@ -384,5 +383,7 @@ secondConstVoidMemFun1(void (T::*p)(A) const)
 }
 
 }
+
+#endif
 
 #endif

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -123,20 +120,19 @@ allTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("changing state between active and hold rapidly... ");
-    int i;
-    for(i = 0; i < 100; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         [hold putOnHold:0];
     }
-    for(i = 0; i < 100; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         [[hold ice_oneway] putOnHold:0];
     }
-    for(i = 0; i < 100; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         [holdSerialized putOnHold:0];
     }
-    for(i = 0; i < 100; ++i)
+    for(int i = 0; i < 100; ++i)
     {
         [[holdSerialized ice_oneway] putOnHold:0];
     }
@@ -151,7 +147,7 @@ allTests(id<ICECommunicator> communicator)
         {
             cb = ICE_AUTORELEASE([[AMICheckSetValue alloc] init:cond expected:value]);
             if([hold begin_set:++value delay:(random() % 5 + 1) response:^(ICEInt r) { [cb ice_response:r]; }
-                     exception:^(ICEException* ex) { [cb ice_exception:ex]; } sent:^(BOOL ss) { [cb ice_sent]; }])
+                     exception:^(ICEException* ex) { [cb ice_exception:ex]; } sent:^(BOOL __unused ss) { [cb ice_sent]; }])
             {
                 cb = 0;
             }
@@ -185,7 +181,7 @@ allTests(id<ICECommunicator> communicator)
         {
             cb = ICE_AUTORELEASE([[AMICheckSetValue alloc] init:cond expected:value]);
             if([holdSerialized begin_set:++value delay:0 response:^(ICEInt r) { [cb ice_response:r]; }
-                     exception:^(ICEException* ex) { [cb ice_exception:ex]; } sent:^(BOOL ss) { [cb ice_sent]; }])
+                     exception:^(ICEException* ex) { [cb ice_exception:ex]; } sent:^(BOOL __unused ss) { [cb ice_sent]; }])
             {
                 cb = 0;
             }
@@ -204,11 +200,10 @@ allTests(id<ICECommunicator> communicator)
             cb = 0;
         }
         test([cond value]);
-        int i;
 #if TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
-        for(i = 0; i < 400; ++i)
+        for(int i = 0; i < 400; ++i)
 #else
-        for(i = 0; i < 20000; ++i)
+        for(int i = 0; i < 20000; ++i)
 #endif
         {
             [[holdSerialized ice_oneway] setOneway:(value + 1) expected:value];
@@ -225,7 +220,7 @@ allTests(id<ICECommunicator> communicator)
     {
         [hold waitForHold];
         [hold waitForHold];
-        for(i = 0; i < 1000; ++i)
+        for(int i = 0; i < 1000; ++i)
         {
             [[hold ice_oneway] ice_ping];
             if((i % 20) == 0)

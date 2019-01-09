@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -44,7 +41,7 @@ IceInternal::RetryTask::runTimerTask()
 }
 
 void
-IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& outAsync, const Ice::LocalException& ex)
+IceInternal::RetryTask::asyncRequestCanceled(const OutgoingAsyncBasePtr& /*outAsync*/, const Ice::LocalException& ex)
 {
     if(_queue->cancel(ICE_SHARED_FROM_THIS))
     {

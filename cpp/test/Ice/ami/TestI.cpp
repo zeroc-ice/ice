@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -99,7 +96,7 @@ TestIntfI::close(Test::CloseMode mode, const Ice::Current& current)
 }
 
 void
-TestIntfI::sleep(Ice::Int ms, const Ice::Current& current)
+TestIntfI::sleep(Ice::Int ms, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     timedWait(IceUtil::Time::milliSeconds(ms));
@@ -107,7 +104,7 @@ TestIntfI::sleep(Ice::Int ms, const Ice::Current& current)
 
 #ifdef ICE_CPP11_MAPPING
 void
-TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)> ex,
+TestIntfI::startDispatchAsync(std::function<void()> response, std::function<void(std::exception_ptr)>,
                               const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -143,7 +140,7 @@ TestIntfI::startDispatch_async(const Test::AMD_TestIntf_startDispatchPtr& cb, co
 #endif
 
 void
-TestIntfI::finishDispatch(const Ice::Current& current)
+TestIntfI::finishDispatch(const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_shutdown)
@@ -193,9 +190,15 @@ TestIntfI::supportsFunctionalTests(const Ice::Current&)
 }
 
 void
-TestIntfI::pingBiDir(ICE_IN(Ice::Identity) id, const Ice::Current& current)
+TestIntfI::pingBiDir(ICE_IN(Test::PingReplyPrxPtr) reply, const Ice::Current& current)
 {
-    ICE_UNCHECKED_CAST(Test::PingReplyPrx, current.con->createProxy(id))->reply();
+#ifdef ICE_CPP11_MAPPING
+    reply->ice_fixed(current.con)->replyAsync().get();
+#else
+    Test::PingReplyPrx fprx = reply->ice_fixed(current.con);
+    Ice::AsyncResultPtr result = fprx->begin_reply();
+    fprx->end_reply(result);
+#endif
 }
 
 void

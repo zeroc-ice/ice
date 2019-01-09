@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -20,9 +17,13 @@ PYTHON              ?= python
 
 -include        $(lang_srcdir)/config/Make.rules.$(os)
 
-# Use pythonM.m-config rather than pythonMm-config because some platforms don't provide pythonMm-config
+# PYTHON must be set to a value that has a corresponding PYTHON-config
 python-version := $(shell $(PYTHON) -c "import sys; print(\"{0}.{1}\".format(sys.version_info[0], sys.version_info[1]))")
-python-config := python$(python-version)-config
+python-config := $(PYTHON)-config
+
+ifeq ($(os),Linux)
+   cppflags   := $(filter-out -Wredundant-decls,$(cppflags))
+endif
 
 python_cppflags         := $(shell $(python-config) --cflags)
 python_ldflags          := $(shell $(python-config) --ldflags)
@@ -41,7 +42,7 @@ endif
 
 # Remove the -Wstrict-prototypes option which is not valid with C++ and
 # -Wunreachable-code which is causing a compilation error with Slice/Parser.cpp
-python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$(python_cppflags))
+python_cppflags         := $(filter-out -Wunreachable-code -Wstrict-prototypes,$(python_cppflags)) -Wno-missing-field-initializers
 
 #
 # Python installation directory

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -104,7 +101,7 @@ public:
 };
 
 void
-Client::run(int argc, char* argv[])
+Client::run(int, char*[])
 {
     if(IceUtilInternal::stackTraceImpl() == IceUtilInternal::STNone)
     {
@@ -136,6 +133,12 @@ Client::run(int argc, char* argv[])
 #    elif(_MSC_VER >= 1910)
         filename += "-vc141";
 #   endif
+#elif defined(__apple_build_version__)
+#   if(__apple_build_version__ >= 10001145)
+        filename += "-xcode10";
+    #else
+        filename += "-xcode9";
+    #endif
 #endif
     }
     else

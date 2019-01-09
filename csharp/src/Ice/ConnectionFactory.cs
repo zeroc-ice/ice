@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -1377,8 +1374,12 @@ namespace IceInternal
 
                 string s = "couldn't accept connection:\n" + ex + '\n' + _acceptor.ToString();
                 _instance.initializationData().logger.error(s);
-                _adapter.getThreadPool().finish(this);
-                closeAcceptor();
+                if(_acceptorStarted)
+                {
+                    _acceptorStarted = false;
+                    _adapter.getThreadPool().finish(this);
+                    closeAcceptor();
+                }
             }
             return _state < StateClosed;
         }
@@ -1447,6 +1448,8 @@ namespace IceInternal
                         {
                             string s = "can't accept more connections:\n" + ex + '\n' + _acceptor.ToString();
                             _instance.initializationData().logger.error(s);
+                            Debug.Assert(_acceptorStarted);
+                            _acceptorStarted = false;
                             _adapter.getThreadPool().finish(this);
                             closeAcceptor();
                         }
@@ -1507,9 +1510,15 @@ namespace IceInternal
             {
                 if(_state < StateClosed)
                 {
+                    //
+                    // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
+                    // because of an unexpected error), try to restart the acceptor in 1 second.
+                    //
+                    _instance.timer().schedule(new StartAcceptor(this), 1000);
                     return;
                 }
-                Debug.Assert(_state == StateClosed);
+
+                Debug.Assert(_state >= StateClosed);
                 setState(StateFinished);
             }
         }
@@ -1709,6 +1718,7 @@ namespace IceInternal
                 {
                     if(_acceptorStarted)
                     {
+                        _acceptorStarted = false;
                         _adapter.getThreadPool().finish(this);
                         closeAcceptor();
                     }
@@ -1794,17 +1804,8 @@ namespace IceInternal
                 _instance.initializationData().logger.trace(_instance.traceLevels().networkCat, s.ToString());
             }
 
-            _acceptorStarted = false;
+            Debug.Assert(!_acceptorStarted);
             _acceptor.close();
-
-            //
-            // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
-            // because of an unexpected error), try to restart the acceptor in 5 seconds.
-            //
-            if(_state == StateHolding || _state == StateActive)
-            {
-                _instance.timer().schedule(new StartAcceptor(this), 1000);
-            }
         }
 
         private void warning(Ice.LocalException ex)

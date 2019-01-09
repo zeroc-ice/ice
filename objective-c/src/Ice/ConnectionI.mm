@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you  the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -45,7 +42,7 @@ registerConnectionInfoClass(Class cl)
 
 @implementation ICEConnectionInfo (ICEInternal)
 
-+(id) checkedConnectionInfoWithConnectionInfo:(Ice::ConnectionInfo*)connectionInfo
++(id) checkedConnectionInfoWithConnectionInfo:(Ice::ConnectionInfo*)__unused connectionInfo
 {
     assert(false);
     return nil;
@@ -99,7 +96,7 @@ registerConnectionInfoClass(Class cl)
     return [[ICEConnectionInfo alloc] initWithConnectionInfo:info];
 }
 
--(id) initWithConnectionInfo:(Ice::ConnectionInfo*)connectionInfo;
+-(id) initWithConnectionInfo:(Ice::ConnectionInfo*)connectionInfo
 {
     self = [super initWithCxxObject:connectionInfo];
     if(self != nil)
@@ -194,7 +191,7 @@ public:
     }
 
     void
-    closed(const Ice::ConnectionPtr& connection)
+    closed(const Ice::ConnectionPtr&)
     {
         NSException* ex = nil;
         @autoreleasepool
@@ -237,7 +234,7 @@ public:
     }
 
     void
-    heartbeat(const Ice::ConnectionPtr& connection)
+    heartbeat(const Ice::ConnectionPtr&)
     {
         NSException* ex = nil;
         @autoreleasepool
@@ -373,7 +370,7 @@ private:
                    CONNECTION->end_flushBatchRequests(r);
                }, result);
 }
--(void) setCloseCallback:(ICECloseCallback)callback;
+-(void) setCloseCallback:(ICECloseCallback)callback
 {
     CONNECTION->setCloseCallback(new CloseCallbackI(self, callback));
 }

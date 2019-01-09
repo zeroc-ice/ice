@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -3137,8 +3134,7 @@ allTests(Test::TestHelper* helper)
         //
         // Sending more than 254 objects exercises the encoding for object ids.
         //
-        int i;
-        for(i = 0; i < 300; ++i)
+        for(int i = 0; i < 300; ++i)
         {
             PCDerived2Ptr p2 = ICE_MAKE_SHARED(PCDerived2);
             p2->pi = i;

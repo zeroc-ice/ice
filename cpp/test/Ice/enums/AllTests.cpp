@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -87,14 +84,14 @@ allTests(Test::TestHelper* helper)
         Ice::OutputStream out(communicator);
         out.write(ICE_ENUM(ShortEnum, senum11));
         out.finished(bytes);
-        test(bytes.size() == (encoding_1_0 ? 2 : 5));
+        test(bytes.size() == (encoding_1_0 ? size_t(2) : size_t(5)));
     }
 
     {
         Ice::OutputStream out(communicator);
         out.write(ICE_ENUM(IntEnum, ienum11));
         out.finished(bytes);
-        test(bytes.size() == (encoding_1_0 ? 4 : 5));
+        test(bytes.size() == (encoding_1_0 ? size_t(4) : size_t(5)));
     }
 
     {

@@ -13,7 +13,7 @@ classdef SliceInfo < handle
     %   hasOptionalMembers - Whether or not the slice contains optional members.
     %   isLastSlice - Whether or not this is the last slice.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     properties
         %

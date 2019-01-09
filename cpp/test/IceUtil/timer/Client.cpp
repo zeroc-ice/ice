@@ -1,13 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #include <IceUtil/Timer.h>
+#include <IceUtil/Random.h>
 #include <TestHelper.h>
 
 #include <vector>
@@ -160,7 +158,7 @@ public:
 };
 
 void
-Client::run(int, char* argv[])
+Client::run(int, char*[])
 {
     cout << "testing timer... " << flush;
     {
@@ -206,7 +204,7 @@ Client::run(int, char* argv[])
                 tasks.push_back(ICE_MAKE_SHARED(TestTask, IceUtil::Time::milliSeconds(500 + i * 50)));
             }
 
-            random_shuffle(tasks.begin(), tasks.end());
+            IceUtilInternal::shuffle(tasks.begin(), tasks.end());
             vector<TestTaskPtr>::const_iterator p;
             for(p = tasks.begin(); p != tasks.end(); ++p)
             {

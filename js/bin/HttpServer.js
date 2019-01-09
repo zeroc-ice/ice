@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -40,12 +37,6 @@ function Init()
         ]
     };
 
-    var languages = [{value: "cpp", name: "C++"}, {value: "java", name: "Java"}]
-    if(process.platform == "win32")
-    {
-        languages.push({value: "csharp", name: "C#"});
-    }
-
     var libraries = ["/lib/Ice.js", "/lib/Ice.min.js",
                      "/lib/Glacier2.js", "/lib/Glacier2.min.js",
                      "/lib/IceStorm.js", "/lib/IceStorm.min.js",
@@ -55,11 +46,11 @@ function Init()
                      "/lib/es5/IceStorm.js", "/lib/es5/IceStorm.min.js",
                      "/lib/es5/IceGrid.js", "/lib/es5/IceGrid.min.js"];
 
-    TestData.TestSuites = fs.readFileSync(path.join(__dirname, "..", "test", "Common", "TestSuites.json"), "utf8");
+    var commonPath = path.join(__dirname, "..", "test", "Common");
+    TestData.TestSuites = fs.readFileSync(path.join(commonPath, "TestSuites.json"), "utf8");
     var TestSuites = JSON.parse(TestData.TestSuites);
     TestData.tests = Object.keys(TestSuites);
-    var template = hogan.compile(fs.readFileSync(path.join(__dirname, "..", "test", "Common", "index.html"), "utf8"));
-    var controller = hogan.compile(fs.readFileSync(path.join(__dirname, "..", "test", "Common", "controller.html"), "utf8"));
+    var controller = hogan.compile(fs.readFileSync(path.join(commonPath, "controller.html"), "utf8"));
     var libraryMaps = libraries.map(
         function(f)
         {
@@ -73,132 +64,22 @@ function Init()
 
     HttpServer.prototype.processRequest = function(req, res)
     {
-        var match = req.url.pathname.match("^\/test/(.*)/index\.html");
         var matchController = req.url.pathname.match("^\/test/(.*)/controller\.html");
-        if(match)
-        {
-            var es5 = match[1].indexOf("es5/") !== -1;
-            var m = es5 ? match[1].replace("es5/", "") : match[1];
-
-            // That is a test case
-            var testSuite = TestSuites[m];
-            if(testSuite === undefined)
-            {
-                res.writeHead(404);
-                res.end("404 Page Not Found");
-                console.log("HTTP/404 (Page Not Found)" + req.method + " " + req.url.pathname);
-            }
-            else
-            {
-                TestData.current = m;
-                if(req.url.query.next == "true")
-                {
-                    var testSuite = TestData.tests[0];
-                    var language = req.url.query.language !== undefined ? req.url.query.language : "cpp";
-                    var protocol = req.url.protocol;
-                    var i = TestData.tests.indexOf(TestData.current);
-                    var worker = req.url.query.worker == "true";
-
-                    if(i < TestData.tests.length - 1)
-                    {
-                        testSuite = TestData.tests[i + 1];
-                    }
-                    else if(!worker)
-                    {
-                        worker = true;
-                    }
-                    else if(protocol == "http")
-                    {
-                        protocol = "https";
-                    }
-                    else
-                    {
-                        var lgs = languages.map(function(o) { return o.value; });
-                        var j = lgs.indexOf(language);
-                        language = lgs[j == lgs.length - 1 ? 0 : j + 1];
-                        worker = false;
-                        protocol = "http";
-                    }
-
-                    if(es5)
-                    {
-                        testSuite = "es5/" + testSuite;
-                    }
-
-                    var location = url.format(
-                        {
-                            protocol: protocol,
-                            hostname: req.headers.host.split(":")[0],
-                            port: (protocol == "http" ? 8080 : 9090),
-                            pathname: ("/test/" + testSuite + "/index.html"),
-                            query:{loop: "true", language: language, worker: worker}
-                        });
-
-                    res.writeHead(302, {"Location": location});
-                    res.end();
-                    console.log("HTTP/302 (Redirect) -> " + location);
-                }
-                else
-                {
-                    if(req.url.query.worker != "true")
-                    {
-                        TestData.scripts = [];
-
-                        if(es5)
-                        {
-                            TestData.scripts =
-                            [
-                                "/node_modules/babel-polyfill/dist/polyfill.js",
-                                "/lib/es5/Ice.js",
-                                "/test/es5/Common/TestRunner.js",
-                                "/test/es5/Common/TestSuite.js",
-                                "/test/es5/Common/Controller.js"
-                            ].concat(testSuite.files);
-
-                            TestData.scripts = TestData.scripts.map(function(f)
-                                {
-                                    return f.replace("/lib/Glacier2.js", "/lib/es5/Glacier2.js");
-                                });
-                        }
-                        else
-                        {
-                            TestData.scripts =
-                                [
-                                    "/lib/Ice.js",
-                                    "/test/Common/TestRunner.js",
-                                    "/test/Common/TestSuite.js",
-                                    "/test/Common/Controller.js"
-                                ].concat(testSuite.files);
-                        }
-                    }
-                    else
-                    {
-                        TestData.scripts = es5 ? ["/test/es5/Common/TestSuite.js"] : ["/test/Common/TestSuite.js"];
-                    }
-                    TestData.languages = languages.slice();
-                    if(testSuite.files.indexOf("Server.js") >= 0)
-                    {
-                        TestData.languages.push({value: "js", name: "JavaScript"});
-                    }
-                    res.writeHead(200, {"Content-Type": "text/html"});
-                    res.end(template.render(TestData));
-                    console.log("HTTP/200 (Ok)" + req.method + " " + req.url.pathname);
-                }
-            }
-        }
-        else if(matchController)
+        if(matchController)
         {
             var es5 = matchController[1].indexOf("es5/") !== -1;
             var m = es5 ? matchController[1].replace("es5/", "") : matchController[1];
             var testpath = path.resolve(path.join(this._basePath, "test", matchController[1]))
             var worker = req.url.query.worker == "True";
             var scripts = es5 ? [
-                "/node_modules/babel-polyfill/dist/polyfill.js",
+                "/node_modules/@babel/polyfill/dist/polyfill.js",
                 "/lib/es5/Ice.js",
+                "/test/es5/Common/TestHelper.js",
                 "/test/es5/Common/Controller.js",
                 "/test/es5/Common/ControllerI.js",
             ] : [
                 "/lib/Ice.js",
+                "/test/Common/TestHelper.js",
                 "/test/Common/Controller.js",
                 "/test/Common/ControllerI.js",
             ];
@@ -223,13 +104,16 @@ function Init()
             }
             else
             {
-                TestData.scripts = scripts.concat(fs.readdirSync(testpath).filter(function(f) { return path.extname(f) === ".js"; }))
+                TestData.scripts = scripts.concat(fs.readdirSync(testpath).filter(function(f)
+                                                                                  {
+                                                                                      return path.extname(f) === ".js";
+                                                                                  }));
             }
 
             if(worker)
             {
                 // Do not include babel polyfill when using workers, it is bundle with the controllerwoker
-                TestData.workerScripts = TestData.scripts.filter(script => script.indexOf("/babel-polyfill/") === -1);
+                TestData.workerScripts = TestData.scripts.filter(script => script.indexOf("/@babel/polyfill/") === -1);
             }
 
             res.writeHead(200, {"Content-Type": "text/html"});
@@ -258,7 +142,8 @@ function Init()
             var iceLibMap = libraryMaps.indexOf(req.url.pathname) !== -1;
 
             var basePath;
-            function checkIceBinDist(dist) {
+            function checkIceBinDist(dist)
+            {
                 return dist == "js" || dist == "all"
             }
             var useBinDist = (process.env.ICE_BIN_DIST || "").split(" ").find(checkIceBinDist) !== undefined;

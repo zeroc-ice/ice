@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -76,6 +73,7 @@ lookupKwd(const string& name, int baseType, bool mangleCasts = false)
             {
                 break;
             }
+            /* FALLTHROUGH */
 
         case BaseTypeObject:
             found = binary_search(&nsObjectList[0],
@@ -148,7 +146,7 @@ Slice::ObjCGenerator::moduleName(const ModulePtr& m)
 }
 
 ModulePtr
-Slice::ObjCGenerator::findModule(const ContainedPtr& cont, int baseTypes, bool mangleCasts)
+Slice::ObjCGenerator::findModule(const ContainedPtr& cont, int /*baseTypes*/, bool /*mangleCasts*/)
 {
     ModulePtr m = ModulePtr::dynamicCast(cont);
     ContainerPtr container = cont->container();
@@ -240,17 +238,17 @@ Slice::ObjCGenerator::getFactoryMethod(const ContainedPtr& p, bool deprecated)
     }
     else if(deprecated || name.size() < 2 || !isupper(*(name.begin() + 1)))
     {
-        *name.begin() = tolower(*name.begin());
+        *name.begin() = static_cast<char>(tolower(*name.begin()));
     }
     else
     {
-        for(string::iterator p = name.begin(); p != name.end() && isalpha(*p); ++p)
+        for(string::iterator q = name.begin(); q != name.end() && isalpha(*q); ++q)
         {
-            if(p != name.end() - 1 && isalpha(*(p + 1)) && !isupper(*(p + 1)))
+            if(q != name.end() - 1 && isalpha(*(q + 1)) && !isupper(*(q + 1)))
             {
                 break;
             }
-            *p = tolower(*p);
+            *q = static_cast<char>(tolower(*q));
         }
     }
     return name;
@@ -445,6 +443,7 @@ Slice::ObjCGenerator::isValueType(const TypePtr& type)
         {
             case Builtin::KindString:
             case Builtin::KindObject:
+            case Builtin::KindValue:
             case Builtin::KindObjectProxy:
             case Builtin::KindLocalObject:
             {
@@ -481,7 +480,7 @@ Slice::ObjCGenerator::isClass(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        return builtin->kind() == Builtin::KindObject;
+        return builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue;
     }
     return ClassDeclPtr::dynamicCast(type);
 }
@@ -551,6 +550,7 @@ Slice::ObjCGenerator::getBuiltinName(const BuiltinPtr& builtin)
             return "String";
         }
         case Builtin::KindObject:
+        case Builtin::KindValue:
         {
             return "Object";
         }
@@ -711,7 +711,7 @@ Slice::ObjCGenerator::writeMarshalUnmarshalCode(Output &out, const TypePtr& type
     if(builtin)
     {
         string name;
-        if(builtin->kind() == Builtin::KindObject)
+        if(builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)
         {
             if(marshal)
             {

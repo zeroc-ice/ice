@@ -7,7 +7,7 @@ classdef (Abstract) UserException < Ice.Exception
     %   ice_getSlicedData - Obtain the SlicedData object that contains the
     %     marshaled state of any slices for unknown exception types.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     methods
         function obj = UserException(id, msg)

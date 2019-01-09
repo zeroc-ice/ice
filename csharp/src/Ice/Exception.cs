@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -41,8 +38,8 @@ namespace IceInternal
                 Debug.Assert(false);
             }
 
-            throw new Ice.UnexpectedObjectException("expected element of type `" + expected + "' but received '" + type,
-                                                    type, expected);
+            throw new Ice.UnexpectedObjectException("expected element of type `" + expected + "' but received `" +
+                                                    type + "'", type, expected);
         }
 
         public static void throwMemoryLimitException(int requested, int maximum)

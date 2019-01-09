@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -53,9 +50,7 @@ namespace Ice
             public override void run(string[] args)
             {
                 bool async = args.Any(v => v.Equals("--async"));
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.invoke");
-                using(var communicator = initialize(properties))
+                using(var communicator = initialize(ref args))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));
                     Ice.ObjectAdapter adapter = communicator.createObjectAdapter("TestAdapter");

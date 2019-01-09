@@ -1,14 +1,21 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
-[["ice-prefix", "cpp:header-ext:h", "cpp:doxygen:include:IceDiscovery/IceDiscovery.h", "objc:header-dir:objc", "python:pkgdir:IceDiscovery"]]
+
+[["cpp:doxygen:include:IceDiscovery/IceDiscovery.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceDiscovery"]]
 
 #include <Ice/Identity.ice>
 

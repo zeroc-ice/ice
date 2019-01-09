@@ -1,14 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #include <Ice/Ice.h>
 #include <IceGrid/SessionManager.h>
+
+#include <set>
 
 using namespace std;
 using namespace IceGrid;
@@ -99,17 +98,24 @@ SessionManager::findAllQueryObjects(bool cached)
         }
     }
 
+    //
+    // Find all known query objects by querying all the registries we can find.
+    //
     map<Ice::Identity, QueryPrx> proxies;
-    vector<Ice::AsyncResultPtr> results;
-    size_t previousSize = 0;
-    do
+    set<QueryPrx> requested;
+    while(true)
     {
+        vector<Ice::AsyncResultPtr> results;
         for(vector<QueryPrx>::const_iterator q = queryObjects.begin(); q != queryObjects.end(); ++q)
         {
             results.push_back((*q)->begin_findAllObjectsByType(Registry::ice_staticId()));
+            requested.insert(*q);
+        }
+        if(results.empty())
+        {
+            break;
         }
 
-        map<Ice::Identity, QueryPrx> proxies;
         for(vector<Ice::AsyncResultPtr>::const_iterator p = results.begin(); p != results.end(); ++p)
         {
             QueryPrx query = QueryPrx::uncheckedCast((*p)->getProxy());
@@ -123,9 +129,16 @@ SessionManager::findAllQueryObjects(bool cached)
                 Ice::ObjectProxySeq prxs = query->end_findAllObjectsByType(*p);
                 for(Ice::ObjectProxySeq::iterator q = prxs.begin(); q != prxs.end(); ++q)
                 {
-                    Ice::Identity id = (*q)->ice_getIdentity();
-                    id.name = "Query";
-                    proxies[(*q)->ice_getIdentity()] = QueryPrx::uncheckedCast((*q)->ice_identity(id));
+                    if(proxies.find((*q)->ice_getIdentity()) == proxies.end())
+                    {
+                        //
+                        // Add query proxy for each IceGrid registry. The proxy contains the endpoints
+                        // of the registry since it's based on the registry interface proxy.
+                        //
+                        Ice::Identity id = (*q)->ice_getIdentity();
+                        id.name = "Query";
+                        proxies[(*q)->ice_getIdentity()] = QueryPrx::uncheckedCast((*q)->ice_identity(id));
+                    }
                 }
             }
             catch(const Ice::Exception&)
@@ -137,12 +150,18 @@ SessionManager::findAllQueryObjects(bool cached)
         queryObjects.clear();
         for(map<Ice::Identity, QueryPrx>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
         {
-            queryObjects.push_back(p->second);
+            if(requested.find(p->second) == requested.end())
+            {
+                queryObjects.push_back(p->second);
+            }
         }
     }
-    while(proxies.size() != previousSize);
 
     Lock sync(*this);
-    _queryObjects.swap(queryObjects);
+    _queryObjects.clear();
+    for(map<Ice::Identity, QueryPrx>::const_iterator p = proxies.begin(); p != proxies.end(); ++p)
+    {
+        _queryObjects.push_back(p->second);
+    }
     return _queryObjects;
 }

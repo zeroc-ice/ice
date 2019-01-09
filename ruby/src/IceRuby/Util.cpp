@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -22,22 +19,10 @@ using namespace IceRuby;
 namespace
 {
 
-#ifndef NDEBUG
-bool
-checkIsInstance(VALUE p, const char* type)
-{
-    volatile VALUE rbType = callRuby(rb_path2class, type);
-    assert(!NIL_P(rbType));
-    return callRuby(rb_obj_is_instance_of, p, rbType) == Qtrue;
-}
-#endif
-
 template<typename T>
 bool
-setVersion(VALUE p, const T& version, const char* type)
+setVersion(VALUE p, const T& version)
 {
-    assert(checkIsInstance(p, type));
-
     volatile VALUE major = callRuby(rb_int2inum, version.major);
     volatile VALUE minor = callRuby(rb_int2inum, version.minor);
     rb_ivar_set(p, rb_intern("@major"), major);
@@ -48,9 +33,8 @@ setVersion(VALUE p, const T& version, const char* type)
 
 template<typename T>
 bool
-getVersion(VALUE p, T& v, const char* type)
+getVersion(VALUE p, T& v)
 {
-    assert(checkIsInstance(p, type));
     volatile VALUE major = callRuby(rb_ivar_get, p, rb_intern("@major"));
     volatile VALUE minor = callRuby(rb_ivar_get, p, rb_intern("@minor"));
 
@@ -84,7 +68,7 @@ createVersion(const T& version, const char* type)
 
     volatile VALUE obj = callRuby(rb_class_new_instance, 0, static_cast<VALUE*>(0), rbType);
 
-    if(!setVersion<T>(obj, version, type))
+    if(!setVersion<T>(obj, version))
     {
         return Qnil;
     }
@@ -104,7 +88,7 @@ versionToString(VALUE p, const char* type)
     }
 
     T v;
-    if(!getVersion<T>(p, v, type))
+    if(!getVersion<T>(p, v))
     {
         return Qnil;
     }
@@ -399,6 +383,21 @@ IceRuby::stringSeqToArray(const vector<string>& seq)
     return result;
 }
 
+VALUE
+IceRuby::createNumSeq(const vector<Ice::Byte>& v)
+{
+    volatile VALUE result = createArray(v.size());
+    long i = 0;
+    if(v.size() > 0)
+    {
+        for(vector<Ice::Byte>::const_iterator p = v.begin(); p != v.end(); ++p, ++i)
+        {
+            RARRAY_ASET(result, i, INT2FIX(*p));
+        }
+    }
+    return result;
+}
+
 namespace
 {
 
@@ -552,7 +551,7 @@ IceRuby::getEncodingVersion(VALUE p, Ice::EncodingVersion& v)
         throw RubyException(rb_eTypeError, "value is not an Ice::EncodingVersion");
     }
 
-    if(!getVersion<Ice::EncodingVersion>(p, v, Ice_EncodingVersion))
+    if(!getVersion<Ice::EncodingVersion>(p, v))
     {
         return false;
     }
@@ -638,6 +637,16 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         volatile VALUE v = createString(e.str);
         callRuby(rb_iv_set, p, "@str", v);
     }
+    catch(const Ice::EndpointSelectionTypeParseException& e)
+    {
+        volatile VALUE v = createString(e.str);
+        callRuby(rb_iv_set, p, "@str", v);
+    }
+    catch(const Ice::VersionParseException& e)
+    {
+        volatile VALUE v = createString(e.str);
+        callRuby(rb_iv_set, p, "@str", v);
+    }
     catch(const Ice::IdentityParseException& e)
     {
         volatile VALUE v = createString(e.str);
@@ -652,6 +661,11 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     {
         volatile VALUE v = IceRuby::createIdentity(e.id);
         callRuby(rb_iv_set, p, "@id", v);
+    }
+    catch(const Ice::IllegalServantException& e)
+    {
+        volatile VALUE v = createString(e.reason);
+        callRuby(rb_iv_set, p, "@reason", v);
     }
     catch(const Ice::RequestFailedException& e)
     {
@@ -682,6 +696,11 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         callRuby(rb_iv_set, p, "@error", v);
         v = createString(e.host);
         callRuby(rb_iv_set, p, "@host", v);
+    }
+    catch(const Ice::BadMagicException& e)
+    {
+        volatile VALUE v = createNumSeq(e.badMagic);
+        callRuby(rb_iv_set, p, "@badMagic", v);
     }
     catch(const Ice::UnsupportedProtocolException& e)
     {
@@ -722,6 +741,10 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
         volatile VALUE v = createString(e.reason);
         callRuby(rb_iv_set, p, "@reason", v);
     }
+    catch(const Ice::ConnectionManuallyClosedException& e)
+    {
+        callRuby(rb_iv_set, p, "@graceful", e.graceful ? Qtrue : Qfalse);
+    }
     catch(const Ice::FeatureNotSupportedException& e)
     {
         volatile VALUE v = createString(e.unsupportedFeature);
@@ -731,10 +754,6 @@ setExceptionMembers(const Ice::LocalException& ex, VALUE p)
     {
         volatile VALUE v = createString(e.reason);
         callRuby(rb_iv_set, p, "@reason", v);
-    }
-    catch(const Ice::ConnectionManuallyClosedException& e)
-    {
-        callRuby(rb_iv_set, p, "@graceful", e.graceful ? Qtrue : Qfalse);
     }
     catch(const Ice::LocalException&)
     {

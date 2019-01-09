@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -43,7 +40,7 @@
 {
     return [NSString stringWithFormat:@"default -p %d", 12010 + port];
 }
--(void) startServer:(ICECurrent*)current
+-(void) startServer:(ICECurrent*)__unused current
 {
     for(id<ICECommunicator> c in communicators_)
     {
@@ -157,22 +154,22 @@
 }
 #endif
 
--(void) shutdown:(ICECurrent*)current
+-(void) shutdown:(ICECurrent*)__unused current
 {
     [[adapter1_ getCommunicator] shutdown];
 }
 
--(id<TestLocationHelloPrx>) getHello:(ICECurrent*)current
+-(id<TestLocationHelloPrx>) getHello:(ICECurrent*)__unused current
 {
     return [TestLocationHelloPrx uncheckedCast:[adapter1_ createIndirectProxy:[ICEUtil stringToIdentity:@"hello"]]];
 }
 
--(id<TestLocationHelloPrx>) getReplicatedHello:(ICECurrent*)current
+-(id<TestLocationHelloPrx>) getReplicatedHello:(ICECurrent*)__unused current
 {
     return [TestLocationHelloPrx uncheckedCast:[adapter1_ createProxy:[ICEUtil stringToIdentity:@"hello"]]];
 }
 
--(void) migrateHello:(ICECurrent*)current
+-(void) migrateHello:(ICECurrent*)__unused current
 {
     ICEIdentity* ident = [ICEUtil stringToIdentity:@"hello"];
     @try
@@ -187,7 +184,7 @@
 @end
 
 @implementation HelloI
--(void) sayHello:(ICECurrent*)current
+-(void) sayHello:(ICECurrent*)__unused current
 {
 }
 @end

@@ -1,13 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include "Gen.h"
 #include <Slice/Util.h>
 #include <Slice/CPlusPlusUtil.h>
@@ -107,7 +103,7 @@ writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type, const Synt
     }
     else
     {
-        bool cpp11 = typeContext & TypeContextCpp11;
+        bool cpp11 = (typeContext & TypeContextCpp11) == TypeContextCpp11;
         BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
         if(bp && bp->kind() == Builtin::KindString)
         {
@@ -465,11 +461,11 @@ writeDocSummary(Output& out, const ContainedPtr& p)
         case Contained::ContainedTypeStruct:
         case Contained::ContainedTypeException:
         {
-            UnitPtr unit = p->container()->unit();
+            UnitPtr unt = p->container()->unit();
             string file = p->file();
             assert(!file.empty());
             static const string prefix = "cpp:doxygen:include:";
-            DefinitionContextPtr dc = unit->findDefinitionContext(file);
+            DefinitionContextPtr dc = unt->findDefinitionContext(file);
             assert(dc);
             string q = dc->findMetaData(prefix);
             if(!q.empty())
@@ -803,7 +799,7 @@ Slice::Gen::generate(const UnitPtr& p)
         if(!implH)
         {
             ostringstream os;
-            os << "cannot open `" << fileImplH << "': " << strerror(errno);
+            os << "cannot open `" << fileImplH << "': " << IceUtilInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
         FileTracker::instance()->addFile(fileImplH);
@@ -812,7 +808,7 @@ Slice::Gen::generate(const UnitPtr& p)
         if(!implC)
         {
             ostringstream os;
-            os << "cannot open `" << fileImplC << "': " << strerror(errno);
+            os << "cannot open `" << fileImplC << "': " << IceUtilInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
         FileTracker::instance()->addFile(fileImplC);
@@ -840,7 +836,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if(!H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << strerror(errno);
+        os << "cannot open `" << fileH << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -849,7 +845,7 @@ Slice::Gen::generate(const UnitPtr& p)
     if(!C)
     {
         ostringstream os;
-        os << "cannot open `" << fileC << "': " << strerror(errno);
+        os << "cannot open `" << fileC << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileC);
@@ -859,7 +855,7 @@ Slice::Gen::generate(const UnitPtr& p)
     printHeader(C);
     printGeneratedHeader(C, _base + ".ice");
 
-    string s = _base + "." + _headerExtension;;
+    string s = _base + "." + _headerExtension;
     if(_include.size())
     {
         s = _include + '/' + s;
@@ -982,20 +978,20 @@ Slice::Gen::generate(const UnitPtr& p)
         StringList globalMetaData = dc->getMetaData();
         for(StringList::const_iterator q = globalMetaData.begin(); q != globalMetaData.end();)
         {
-            string s = *q++;
+            string md = *q++;
             static const string includePrefix = "cpp:include:";
-            if(s.find(includePrefix) == 0)
+            if(md.find(includePrefix) == 0)
             {
-                if(s.size() > includePrefix.size())
+                if(md.size() > includePrefix.size())
                 {
-                    H << nl << "#include <" << s.substr(includePrefix.size()) << ">";
+                    H << nl << "#include <" << md.substr(includePrefix.size()) << ">";
                 }
                 else
                 {
                     ostringstream ostr;
-                    ostr << "ignoring invalid global metadata `" << s << "'";
+                    ostr << "ignoring invalid global metadata `" << md << "'";
                     dc->warning(InvalidMetaData, file, -1, ostr.str());
-                    globalMetaData.remove(s);
+                    globalMetaData.remove(md);
                 }
             }
         }
@@ -1065,7 +1061,6 @@ Slice::Gen::generate(const UnitPtr& p)
                 implH << _include << '/';
             }
             implH << _base << "." << _headerExtension << ">";
-            implH << nl << "//base";
             writeExtraHeaders(implC);
 
             implC << "\n#include <";
@@ -1795,7 +1790,6 @@ Slice::Gen::TypesVisitor::visitStructEnd(const StructPtr& p)
     DataMemberList dataMembers = p->dataMembers();
 
     vector<string> params;
-    vector<string>::const_iterator pi;
 
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -2653,7 +2647,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 #endif
         for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
         {
-            string scoped = (*i)->scoped();
             C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
             C << sb;
             C << nl << "throw;";
@@ -2716,7 +2709,6 @@ Slice::Gen::ProxyVisitor::visitOperation(const OperationPtr& p)
 #endif
         for(ExceptionList::const_iterator i = throws.begin(); i != throws.end(); ++i)
         {
-            string scoped = (*i)->scoped();
             C << nl << "catch(const " << fixKwd((*i)->scoped()) << "&)";
             C << sb;
             C << nl << "throw;";
@@ -3816,7 +3808,6 @@ Slice::Gen::ObjectVisitor::visitOperation(const OperationPtr& p)
         vector<string> paramsDeclAMI;
         vector<string> outParamsDeclAMI;
 
-        ParamDeclList paramList = p->parameters();
         for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
         {
             string paramName = fixKwd((*r)->name());
@@ -4843,8 +4834,6 @@ Slice::Gen::ImplVisitor::visitClassDefStart(const ClassDefPtr& p)
             }
             H.restoreIndent();
 
-            string isConst = ((op->mode() == Operation::Nonmutating) || op->hasMetaData("cpp:const")) ? " const" : "";
-
             H << ")" << isConst << ';';
 
             C << sp << nl << retS << nl;
@@ -5158,6 +5147,14 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
         }
     }
 
+    H.zeroIndent();
+    H << sp;
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+    H << nl << "#   pragma warning(push)";
+    H << nl << "#   pragma warning(disable:4239)";
+    H << nl << "#endif";
+    H.restoreIndent();
+
     H << sp << nl << "class " << _dllExport << classNameAMD << '_' << name
       << " : public " << classScopedAMD  << '_' << name << ", public ::IceInternal::IncomingAsync";
     H << sb;
@@ -5171,6 +5168,13 @@ Slice::Gen::AsyncImplVisitor::visitOperation(const OperationPtr& p)
     H << sp;
     H << nl << "virtual void ice_response(" << params << ");";
     H << eb << ';';
+
+    H.zeroIndent();
+    H << sp;
+    H << nl << "#if defined(_MSC_VER) && (_MSC_VER >= 1900)";
+    H << nl << "#   pragma warning(pop)";
+    H << nl << "#endif";
+    H.restoreIndent();
 
     C << sp;
     C << nl << "/// \\cond INTERNAL";
@@ -5502,8 +5506,8 @@ Slice::Gen::MetaDataVisitor::visitOperation(const OperationPtr& p)
 
     StringList metaData = p->getMetaData();
 
-    const UnitPtr unit = p->unit();
-    const DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+    const UnitPtr ut = p->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
     assert(dc);
     if(!cl->isLocal() && p->hasMetaData("cpp:noexcept"))
     {
@@ -5584,8 +5588,8 @@ Slice::Gen::MetaDataVisitor::validate(const SyntaxTreeBasePtr& cont, const Strin
     static const string cpp11Prefix = "cpp11:";
     static const string cpp98Prefix  = "cpp98:";
 
-    const UnitPtr unit = cont->unit();
-    const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    const UnitPtr ut = cont->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     StringList newMetaData = metaData;
     for(StringList::const_iterator p = newMetaData.begin(); p != newMetaData.end();)
@@ -5718,7 +5722,7 @@ Slice::Gen::NormalizeMetaDataVisitor::NormalizeMetaDataVisitor(bool cpp11) :
 }
 
 bool
-Slice::Gen::NormalizeMetaDataVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::NormalizeMetaDataVisitor::visitUnitStart(const UnitPtr&)
 {
     return true;
 }
@@ -5972,11 +5976,11 @@ Slice::Gen::resetUseWstring(list<int>& hist)
 }
 
 string
-Slice::Gen::getHeaderExt(const string& file, const UnitPtr& unit)
+Slice::Gen::getHeaderExt(const string& file, const UnitPtr& ut)
 {
     string ext;
     static const string headerExtPrefix = "cpp:header-ext:";
-    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     string meta = dc->findMetaData(headerExtPrefix);
     if(meta.size() > headerExtPrefix.size())
@@ -5987,11 +5991,11 @@ Slice::Gen::getHeaderExt(const string& file, const UnitPtr& unit)
 }
 
 string
-Slice::Gen::getSourceExt(const string& file, const UnitPtr& unit)
+Slice::Gen::getSourceExt(const string& file, const UnitPtr& ut)
 {
     string ext;
     static const string sourceExtPrefix = "cpp:source-ext:";
-    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     string meta = dc->findMetaData(sourceExtPrefix);
     if(meta.size() > sourceExtPrefix.size())
@@ -6019,7 +6023,7 @@ Slice::Gen::Cpp11DeclVisitor::visitUnitStart(const UnitPtr& p)
 }
 
 void
-Slice::Gen::Cpp11DeclVisitor::visitUnitEnd(const UnitPtr& p)
+Slice::Gen::Cpp11DeclVisitor::visitUnitEnd(const UnitPtr&)
 {
     C << sp << nl << "}";
 }
@@ -6077,7 +6081,7 @@ Slice::Gen::Cpp11DeclVisitor::visitClassDefStart(const ClassDefPtr& p)
         if(p->compactId() >= 0)
         {
             string n = "iceC" + p->flattenedScope() + p->name() + "_compactIdInit ";
-            C << "const ::IceInternal::CompactIdInit " << n << "(\"" << p->scoped() << "\", " << p->compactId()
+            C << nl << "const ::IceInternal::CompactIdInit " << n << "(\"" << p->scoped() << "\", " << p->compactId()
               << ");";
         }
     }
@@ -6681,7 +6685,7 @@ Slice::Gen::Cpp11ProxyVisitor::Cpp11ProxyVisitor(Output& h, Output& c, const str
 }
 
 bool
-Slice::Gen::Cpp11ProxyVisitor::visitUnitStart(const UnitPtr& p)
+Slice::Gen::Cpp11ProxyVisitor::visitUnitStart(const UnitPtr&)
 {
     return true;
 }
@@ -8309,18 +8313,21 @@ Slice::Gen::Cpp11InterfaceVisitor::visitOperation(const OperationPtr& p)
 
     if(!amd)
     {
-        writeAllocateCode(C, outParams, 0, true, classScope, _useWstring | TypeContextCpp11);
         if(p->hasMarshaledResult())
         {
             C << nl << "inS.setMarshaledResult(";
         }
-        else if(ret)
-        {
-            C << nl << retS << " ret = ";
-        }
         else
         {
-            C << nl;
+            writeAllocateCode(C, outParams, 0, true, classScope, _useWstring | TypeContextCpp11);
+            if(ret)
+            {
+                C << nl << retS << " ret = ";
+            }
+            else
+            {
+                C << nl;
+            }
         }
 
         C << "this->" << opName << spar << args << epar;

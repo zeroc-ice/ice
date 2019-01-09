@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -19,13 +16,7 @@ class ValueFactoryI
     end
 end
 
-def allTests(communicator)
-    platformInfo = RUBY_PLATFORM.split("-")
-    isWin32 = false
-    if platformInfo.length >= 2 && platformInfo[1] == "mswin32"
-        isWin32 = true
-    end
-
+def allTests(helper, communicator)
     print "testing value factory registration exception... "
     STDOUT.flush
     vf = ValueFactoryI.new
@@ -39,7 +30,7 @@ def allTests(communicator)
 
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "thrower:default -p 12010"
+    ref = "thrower:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
     puts "ok"
@@ -110,22 +101,20 @@ def allTests(communicator)
     #
     # We cannot invoke throwModA if the server was built with VC6.
     #
-    if !isWin32
-        begin
-            thrower.throwModA(1, 2)
-            test(false)
-        rescue Test::Mod::A => ex
-            test(ex.aMem == 1)
-            test(ex.a2Mem == 2)
-        rescue Ice::OperationNotExistException
-            #
-            # This operation is not supported in Java.
-            #
-        rescue
-            print $!
-            print $!.backtrace.join("\n")
-            test(false)
-        end
+    begin
+        thrower.throwModA(1, 2)
+        test(false)
+    rescue Test::Mod::A => ex
+        test(ex.aMem == 1)
+        test(ex.a2Mem == 2)
+    rescue Ice::OperationNotExistException
+        #
+        # This operation is not supported in Java.
+        #
+    rescue
+        print $!
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     puts "ok"
@@ -157,20 +146,18 @@ def allTests(communicator)
     #
     # We cannot invoke throwModA if the server was built with VC6.
     #
-    if !isWin32
-        begin
-            thrower.throwModA(1, 2)
-            test(false)
-        rescue Test::A => ex
-            test(ex.aMem == 1)
-        rescue Ice::OperationNotExistException
-            #
-            # This operation is not supported in Java.
-            #
-        rescue
-            print $!.backtrace.join("\n")
-            test(false)
-        end
+    begin
+        thrower.throwModA(1, 2)
+        test(false)
+    rescue Test::A => ex
+        test(ex.aMem == 1)
+    rescue Ice::OperationNotExistException
+        #
+        # This operation is not supported in Java.
+        #
+    rescue
+        print $!.backtrace.join("\n")
+        test(false)
     end
 
     puts "ok"

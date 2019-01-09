@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -35,22 +32,22 @@
     [[current.adapter getCommunicator] shutdown];
 }
 
--(BOOL) supportsUndeclaredExceptions:(ICECurrent*)current
+-(BOOL) supportsUndeclaredExceptions:(ICECurrent*)__unused current
 {
     return YES;
 }
 
--(BOOL) supportsAssertException:(ICECurrent*)current
+-(BOOL) supportsAssertException:(ICECurrent*)__unused current
 {
     return NO;
 }
 
--(void) throwAasA:(ICEInt)a current:(ICECurrent*)current
+-(void) throwAasA:(ICEInt)a current:(ICECurrent*)__unused current
 {
     @throw [TestExceptionsA a:a];
 }
 
--(void) throwAorDasAorD:(ICEInt)a current:(ICECurrent*)current
+-(void) throwAorDasAorD:(ICEInt)a current:(ICECurrent*)__unused current
 {
     if(a > 0)
     {
@@ -62,57 +59,57 @@
     }
 }
 
--(void) throwBasA:(ICEInt)a b:(ICEInt)b current:(ICECurrent*)current
+-(void) throwBasA:(ICEInt)a b:(ICEInt)b current:(ICECurrent*)__unused current
 {
     [self throwBasB:a b:b current:current];
 }
 
--(void) throwCasA:(ICEInt)a b:(ICEInt)b c:(ICEInt) c current:(ICECurrent*)current
+-(void) throwCasA:(ICEInt)a b:(ICEInt)b c:(ICEInt) c current:(ICECurrent*)__unused current
 {
     [self throwCasC:a b:b c:c current:current];
 }
 
--(void) throwBasB:(ICEInt)a b:(ICEInt)b current:(ICECurrent*)current
+-(void) throwBasB:(ICEInt)a b:(ICEInt)b current:(ICECurrent*)__unused current
 {
     @throw [TestExceptionsB b:a bMem:b];
 }
 
--(void) throwCasB:(ICEInt)a b:(ICEInt)b c:(ICEInt)c current:(ICECurrent*)current
+-(void) throwCasB:(ICEInt)a b:(ICEInt)b c:(ICEInt)c current:(ICECurrent*)__unused current
 {
     [self throwCasC:a b:b c:c current:current];
 }
 
--(void) throwCasC:(ICEInt)a b:(ICEInt)b c:(ICEInt)c current:(ICECurrent*)current
+-(void) throwCasC:(ICEInt)a b:(ICEInt)b c:(ICEInt)c current:(ICECurrent*)__unused current
 {
     @throw [TestExceptionsC c:a bMem:b cMem:c];
 }
 
--(void) throwModA:(ICEInt)a a2:(ICEInt)a2 current:(ICECurrent*)current
+-(void) throwModA:(ICEInt)a a2:(ICEInt)a2 current:(ICECurrent*)__unused current
 {
     @throw [TestExceptionsModA a:a a2Mem:a2];
 }
 
--(void) throwUndeclaredA:(ICEInt)a current:(ICECurrent*)current
+-(void) throwUndeclaredA:(ICEInt)a current:(ICECurrent*)__unused current
 {
     @throw [TestExceptionsA a:a];
 }
 
--(void) throwUndeclaredB:(ICEInt)a b:(ICEInt)b current:(ICECurrent*)current
+-(void) throwUndeclaredB:(ICEInt)a b:(ICEInt)b current:(ICECurrent*)__unused current
 {
     @throw [TestExceptionsB b:a bMem:b];
 }
 
--(void) throwUndeclaredC:(ICEInt)a b:(ICEInt)b c:(ICEInt)c current:(ICECurrent*)current
+-(void) throwUndeclaredC:(ICEInt)a b:(ICEInt)b c:(ICEInt)c current:(ICECurrent*)__unused current
 {
     @throw [TestExceptionsC c:a bMem:b cMem:c];
 }
 
--(void) throwLocalException:(ICECurrent*)current
+-(void) throwLocalException:(ICECurrent*)__unused current
 {
     @throw [ICETimeoutException timeoutException:__FILE__ line:__LINE__];
 }
 
--(ICEByteSeq*) throwMemoryLimitException:(ICEMutableByteSeq*)bs current:(ICECurrent*)current
+-(ICEByteSeq*) throwMemoryLimitException:(ICEMutableByteSeq*)__unused bs current:(ICECurrent*)__unused current
 {
     int limit = 20 * 1024;
     ICEMutableByteSeq *r = [NSMutableData dataWithLength:limit];
@@ -124,25 +121,25 @@
     return r;
 }
 
--(void) throwNonIceException:(ICECurrent*)current
+-(void) throwNonIceException:(ICECurrent*)__unused current
 {
     @throw ICE_AUTORELEASE([[FooException alloc] init]);
 }
 
--(void) throwAssertException:(ICECurrent*)current
+-(void) throwAssertException:(ICECurrent*)__unused current
 {
     // Not supported.
 }
 
--(void) throwLocalExceptionIdempotent:(ICECurrent*)current
+-(void) throwLocalExceptionIdempotent:(ICECurrent*)__unused current
 {
     @throw [ICETimeoutException timeoutException:__FILE__ line:__LINE__];
 }
--(void) throwAfterResponse:(ICECurrent*)current
+-(void) throwAfterResponse:(ICECurrent*)__unused current
 {
     // Only relevant for AMD
 }
--(void) throwAfterException:(ICECurrent*)current
+-(void) throwAfterException:(ICECurrent*)__unused current
 {
     // Only relevant for AMD
     @throw [TestExceptionsA a:12345];

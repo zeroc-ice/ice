@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -65,7 +62,7 @@ MyDerivedClassI::shutdown(const Ice::Current& current)
 }
 
 bool
-MyDerivedClassI::supportsCompress(const Ice::Current& current)
+MyDerivedClassI::supportsCompress(const Ice::Current&)
 {
 #if defined(ICE_OS_UWP)
     return false;

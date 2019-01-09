@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -11,14 +8,7 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
-
-    function test(value)
-    {
-        if(!value)
-        {
-            throw new Error("test failed");
-        }
-    }
+    const test = require("TestHelper").TestHelper.test;
 
     class ThrowerI extends Test.Thrower
     {
@@ -136,5 +126,7 @@
     }
     exports.ThrowerI = ThrowerI;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));

@@ -1,19 +1,14 @@
 %{
 **********************************************************************
 
-Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
+Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
 **********************************************************************
 %}
 
 classdef BatchOnewaysAMI
     methods(Static)
-        function batchOneways(app, p)
-            communicator = app.communicator();
-            properties = communicator.getProperties();
+        function batchOneways(p)
             bs1 = zeros(1, 10  * 1024);
 
             batch = p.ice_batchOneway();

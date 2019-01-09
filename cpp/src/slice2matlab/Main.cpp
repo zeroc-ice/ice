@@ -1,13 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/InputUtil.h>
@@ -38,6 +34,17 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtilInternal;
+
+// TODO: fix this warning!
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#elif defined(__clang__)
+#   pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 namespace
 {
@@ -249,7 +256,7 @@ writeCopyright(IceUtilInternal::Output& out, const string& file)
         f = f.substr(pos + 1);
     }
 
-    out << nl << "% Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.";
+    out << nl << "% Copyright (c) 2003-present ZeroC, Inc. All rights reserved.";
     out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
     out << nl;
 }
@@ -277,7 +284,7 @@ openClass(const string& abs, const string& dir, IceUtilInternal::Output& out)
             if(IceUtilInternal::mkdir(path, 0777) != 0)
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << strerror(errno);
+                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -363,7 +370,11 @@ typeToString(const TypePtr& type)
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        if(!StructPtr::dynamicCast(dict->keyType()))
+        if(StructPtr::dynamicCast(dict->keyType()))
+        {
+            return "struct";
+        }
+        else
         {
             return "containers.Map";
         }
@@ -1604,11 +1615,6 @@ CodeVisitor::CodeVisitor(const string& dir) :
 bool
 CodeVisitor::visitClassDefStart(const ClassDefPtr& p)
 {
-    if(p->hasMetaData("matlab:internal"))
-    {
-        return false;
-    }
-
     const string name = fixIdent(p->name());
     const string scoped = p->scoped();
     const string abs = getAbsolute(p);
@@ -3605,7 +3611,7 @@ CodeVisitor::visitDictionary(const DictionaryPtr& p)
 
         if(cls || convert)
         {
-            out << nl << "function r = convert(d, obj)";
+            out << nl << "function r = convert(d)";
             out.inc();
             if(st)
             {
@@ -5012,16 +5018,6 @@ int main(int argc, char* argv[])
     catch(const std::exception& ex)
     {
         consoleErr << args[0] << ": error:" << ex.what() << endl;
-        return EXIT_FAILURE;
-    }
-    catch(const std::string& msg)
-    {
-        consoleErr << args[0] << ": error:" << msg << endl;
-        return EXIT_FAILURE;
-    }
-    catch(const char* msg)
-    {
-        consoleErr << args[0] << ": error:" << msg << endl;
         return EXIT_FAILURE;
     }
     catch(...)

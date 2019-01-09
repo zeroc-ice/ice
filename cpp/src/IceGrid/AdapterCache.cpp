@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -375,7 +372,7 @@ ServerAdapterEntry::addSyncCallback(const SynchronizationCallbackPtr& callback, 
 
 void
 ServerAdapterEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& nReplicas, bool& replicaGroup,
-                                          bool& roundRobin, string& filter, const set<string>&)
+                                          bool& roundRobin, string&, const set<string>&)
 {
     nReplicas = 1;
     replicaGroup = false;
@@ -645,8 +642,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         else if(AdaptiveLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
         {
             replicas = _replicas;
-            RandomNumberGenerator rng;
-            random_shuffle(replicas.begin(), replicas.end(), rng);
+            IceUtilInternal::shuffle(replicas.begin(), replicas.end());
             loadSample = _loadSample;
             adaptive = true;
         }
@@ -658,8 +654,7 @@ ReplicaGroupEntry::getLocatorAdapterInfo(LocatorAdapterInfoSeq& adapters, int& n
         else if(RandomLoadBalancingPolicyPtr::dynamicCast(_loadBalancing))
         {
             replicas = _replicas;
-            RandomNumberGenerator rng;
-            random_shuffle(replicas.begin(), replicas.end(), rng);
+            IceUtilInternal::shuffle(replicas.begin(), replicas.end());
         }
     }
 
@@ -762,8 +757,7 @@ ReplicaGroupEntry::getLeastLoadedNodeLoad(LoadSample loadSample) const
     }
     else
     {
-        RandomNumberGenerator rng;
-        random_shuffle(replicas.begin(), replicas.end(), rng);
+        IceUtilInternal::shuffle(replicas.begin(), replicas.end());
         vector<pair<float, ServerAdapterEntryPtr> > rl;
         transform(replicas.begin(), replicas.end(), back_inserter(rl), TransformToReplicaLoad(loadSample));
         return min_element(rl.begin(), rl.end(), ReplicaLoadComp())->first;

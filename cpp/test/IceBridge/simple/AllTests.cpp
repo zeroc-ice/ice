@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -87,10 +84,10 @@ allTests(Test::TestHelper* helper)
 {
     Ice::CommunicatorPtr communicator = helper->communicator();
     cout << "testing connection to bridge... " << flush;
-    Ice::ObjectPrx base = communicator->stringToProxy("test:" + helper->getTestEndpoint(1) + ":" +
+    Ice::ObjectPrx prx = communicator->stringToProxy("test:" + helper->getTestEndpoint(1) + ":" +
                                                       helper->getTestEndpoint(1, "udp"));
-    test(base);
-    Test::MyClassPrx cl = Ice::checkedCast<Test::MyClassPrx>(base);
+    test(prx);
+    Test::MyClassPrx cl = Ice::checkedCast<Test::MyClassPrx>(prx);
     cl->ice_ping();
     cout << "ok" << endl;
 
@@ -133,7 +130,7 @@ allTests(Test::TestHelper* helper)
                 // The bridge forwards the CloseConnectionException from the server as an
                 // UnknownLocalException. It eventually closes the connection when notified
                 // of the connection close.
-                test(ex.unknown.find("CloseConnectionException") >= 0);
+                test(ex.unknown.find("CloseConnectionException") != string::npos);
             }
             IceUtil::ThreadControl::sleep(IceUtil::Time::milliSeconds(1));
         }

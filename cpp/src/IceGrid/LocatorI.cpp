@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -123,12 +120,12 @@ public:
             _cb->ice_response(_obj);
             return;
         }
-        catch(const Ice::Exception& ex)
+        catch(const Ice::Exception& e)
         {
             //
             // Rethrow unexpected exception.
             //
-            _cb->ice_exception(ex);
+            _cb->ice_exception(e);
             return;
         }
 
@@ -639,8 +636,8 @@ private:
     LocatorAdapterInfo
     nextAdapter()
     {
-        bool replicaGroup;
-        bool roundRobin;
+        bool replicaGroup = false;
+        bool roundRobin = false;
 
         _adapters.clear();
 
@@ -779,11 +776,11 @@ public:
     }
 
     virtual void
-    synchronized(const Ice::Exception& ex)
+    synchronized(const Ice::Exception& sex)
     {
         try
         {
-            ex.ice_throw();
+            sex.ice_throw();
         }
         catch(const AdapterNotExistException&)
         {

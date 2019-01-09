@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -16,7 +13,7 @@ def test(b):
 class EmptyI(Test.Empty):
     pass
 
-def allTests(communicator):
+def allTests(helper, communicator):
 
     sys.stdout.write("testing Ice.Admin.Facets property... ")
     sys.stdout.flush()
@@ -49,13 +46,13 @@ def allTests(communicator):
     adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD")
     try:
         adapter.addFacet(obj, Ice.stringToIdentity("d"), "facetABCD")
-        test(false)
+        test(False)
     except Ice.AlreadyRegisteredException:
         pass
     adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD")
     try:
         adapter.removeFacet(Ice.stringToIdentity("d"), "facetABCD")
-        test(false)
+        test(False)
     except Ice.NotRegisteredException:
         pass
     print("ok")
@@ -76,7 +73,7 @@ def allTests(communicator):
     test(fm["f2"] == obj2)
     try:
         adapter.removeAllFacets(Ice.stringToIdentity("id1"))
-        test(false)
+        test(False)
     except Ice.NotRegisteredException:
         pass
     fm = adapter.removeAllFacets(Ice.stringToIdentity("id2"))
@@ -90,7 +87,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    ref = "d:default -p 12010"
+    ref = "d:{0}".format(helper.getTestEndpoint())
     db = communicator.stringToProxy(ref)
     test(db)
     print("ok")

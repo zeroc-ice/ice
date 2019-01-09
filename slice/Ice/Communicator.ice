@@ -1,15 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #include <Ice/LoggerF.ice>
 #include <Ice/InstrumentationF.ice>
@@ -54,7 +62,9 @@ module Ice
  * @see ValueFactory
  *
  **/
-["clr:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable", "php:internal", "matlab:internal"]
+["clr:implements:global::System.IDisposable", "java:implements:java.lang.AutoCloseable"]
+
+#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 local interface Communicator
 {
 
@@ -81,7 +91,7 @@ local interface Communicator
      * @see ObjectAdapter#destroy
      *
      **/
-    ["cpp:noexcept"] void destroy();
+    ["cpp:noexcept", "js:async"] void destroy();
 
     /**
      *
@@ -100,7 +110,7 @@ local interface Communicator
      * @see ObjectAdapter#deactivate
      *
      **/
-    ["cpp:noexcept"] void shutdown();
+    ["cpp:noexcept", "js:async"] void shutdown();
 
     /**
      *
@@ -121,7 +131,7 @@ local interface Communicator
      * @see ObjectAdapter#waitForDeactivate
      *
      **/
-    ["cpp:noexcept"] void waitForShutdown();
+    ["cpp:noexcept", "js:async"] void waitForShutdown();
 
     /**
      *
@@ -137,8 +147,8 @@ local interface Communicator
     /**
      *
      * Convert a stringified proxy into a proxy. For example,
-     * <tt>MyCategory/MyObject:tcp -h some_host -p
-     * 10000</tt> creates a proxy that refers to the Ice object
+     * <code>MyCategory/MyObject:tcp -h some_host -p
+     * 10000</code> creates a proxy that refers to the Ice object
      * having an identity with a name "MyObject" and a category
      * "MyCategory", with the server running on host "some_host", port
      * 10000. If the stringified proxy does not parse correctly, the
@@ -148,7 +158,7 @@ local interface Communicator
      *
      * @param str The stringified proxy to convert into a proxy.
      *
-     * @return The proxy, or nil if <tt>str</tt> is an empty string.
+     * @return The proxy, or nil if <code>str</code> is an empty string.
      *
      * @see #proxyToString
      *
@@ -162,7 +172,7 @@ local interface Communicator
      * @param obj The proxy to convert into a stringified proxy.
      *
      * @return The stringified proxy, or an empty string if
-     * <tt>obj</tt> is nil.
+     * <code>obj</code> is nil.
      *
      * @see #stringToProxy
      *
@@ -172,11 +182,11 @@ local interface Communicator
     /**
      *
      * Convert a set of proxy properties into a proxy. The "base"
-     * name supplied in the <tt>property</tt> argument refers to a
+     * name supplied in the <code>property</code> argument refers to a
      * property containing a stringified proxy, such as
-     * <tt>MyProxy=id:tcp -h localhost -p 10000</tt>. Additional
+     * <code>MyProxy=id:tcp -h localhost -p 10000</code>. Additional
      * properties configure local settings for the proxy, such as
-     * <tt>MyProxy.PreferSecure=1</tt>. The "Properties"
+     * <code>MyProxy.PreferSecure=1</code>. The "Properties"
      * appendix in the Ice manual describes each of the supported
      * proxy properties.
      *
@@ -231,7 +241,7 @@ local interface Communicator
     /**
      *
      * Create a new object adapter. The endpoints for the object
-     * adapter are taken from the property <tt><em>name</em>.Endpoints</tt>.
+     * adapter are taken from the property <code><em>name</em>.Endpoints</code>.
      *
      * It is legal to create an object adapter with the empty string as
      * its name. Such an object adapter is accessible via bidirectional
@@ -250,12 +260,12 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ObjectAdapter createObjectAdapter(string name);
+    ["js:async"] ObjectAdapter createObjectAdapter(string name);
 
     /**
      *
      * Create a new object adapter with endpoints. This operation sets
-     * the property <tt><em>name</em>.Endpoints</tt>, and then calls
+     * the property <code><em>name</em>.Endpoints</code>, and then calls
      * {@link #createObjectAdapter}. It is provided as a convenience
      * function.
      *
@@ -273,7 +283,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
+    ["js:async"] ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
     /**
      *
@@ -294,7 +304,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ObjectAdapter createObjectAdapterWithRouter(string name, ["objc:param:router"] Router* rtr);
+    ["js:async"] ObjectAdapter createObjectAdapterWithRouter(string name, ["objc:param:router"] Router* rtr);
 
     /**
      *
@@ -398,6 +408,7 @@ local interface Communicator
      **/
     ["cpp:const", "cpp:noexcept"] Logger getLogger();
 
+#ifndef __SLICE2JS__
     /**
      *
      * Get the observer resolver object for this communicator.
@@ -406,6 +417,7 @@ local interface Communicator
      *
      **/
     ["cpp:const", "cpp:noexcept"] Instrumentation::CommunicatorObserver getObserver();
+#endif
 
     /**
      *
@@ -427,7 +439,7 @@ local interface Communicator
      * operation has no effect on existing proxies.
      *
      * You can also set a router for an individual proxy
-     * by calling the operation <tt>ice_router</tt> on the proxy.
+     * by calling the operation <code>ice_router</code> on the proxy.
      *
      * @param rtr The default router to use for this communicator.
      *
@@ -459,7 +471,7 @@ local interface Communicator
      * object adapters.
      *
      * You can also set a locator for an individual proxy by calling the
-     * operation <tt>ice_locator</tt> on the proxy, or for an object adapter
+     * operation <code>ice_locator</code> on the proxy, or for an object adapter
      * by calling {@link ObjectAdapter#setLocator} on the object adapter.
      *
      * @param loc The default locator to use for this communicator.
@@ -471,6 +483,7 @@ local interface Communicator
      **/
     void setDefaultLocator(Locator* loc);
 
+#ifndef __SLICE2JS__
     /**
      *
      * Get the plug-in manager for this communicator.
@@ -481,6 +494,7 @@ local interface Communicator
      *
      **/
     ["cpp:const"] PluginManager getPluginManager();
+#endif
 
     /**
      *
@@ -506,6 +520,7 @@ local interface Communicator
      **/
     ["async-oneway"] void flushBatchRequests(CompressBatch compress);
 
+#ifndef __SLICE2JS__
     /**
      *
      * Add the Admin object with all its facets to the provided object adapter.
@@ -537,7 +552,7 @@ local interface Communicator
      *
      * If Ice.Admin.DelayCreation is 0 or not set, getAdmin is called by the communicator
      * initialization, after initialization of all plugins.
-
+     *
      * @return A proxy to the main ("") facet of the Admin object, or a null proxy if no
      * Admin object is configured.
      *
@@ -591,7 +606,10 @@ local interface Communicator
      *
      **/
     FacetMap findAllAdminFacets();
+#endif
 }
+
+#endif
 
 /**
  * The output mode for xxxToString method such as identityToString and proxyToString.

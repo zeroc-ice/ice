@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -79,10 +76,13 @@ ifeq ($(shell [ $$($(PHP_CONFIG) --vernum) -lt 50400 ] && echo 0),0)
 endif
 
 ifeq ($(os),Darwin)
+    php_cppflags        := $(php_cppflags) -Wno-unused-parameter -Wno-missing-field-initializers
     php_ldflags         := ${wl}-flat_namespace ${wl}-undefined ${wl}suppress
 endif
 
 ifeq ($(os),Linux)
+   cppflags             := $(filter-out -Wshadow,$(cppflags))
+   php_cppflags         := $(php_cppflags) -Wno-unused-parameter -Wno-missing-field-initializers
    allow-undefined-symbols    := yes
 endif
 

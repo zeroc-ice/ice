@@ -1,66 +1,54 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
 import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import TestI
+import Dispatcher
 
-Ice.loadSlice('"-I' + slice_dir + '" Test.ice')
-import Test, TestI, Dispatcher
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011")
-    communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
+class Server(TestHelper):
 
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter2 = communicator.createObjectAdapter("ControllerAdapter")
+    def run(self, args):
 
-    testController = TestI.TestIntfControllerI(adapter)
+        initData = Ice.InitializationData()
+        initData.properties = self.createTestProperties(args)
 
-    adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
-    adapter.activate()
+        #
+        # This test kills connections, so we don't want warnings.
+        #
+        initData.properties.setProperty("Ice.Warn.Connections", "0")
 
-    adapter2.add(testController, Ice.stringToIdentity("testController"))
-    adapter2.activate()
+        #
+        # Limit the recv buffer size, this test relies on the socket
+        # send() blocking after sending a given amount of data.
+        #
+        initData.properties.setProperty("Ice.TCP.RcvSize", "50000")
 
-    communicator.waitForShutdown()
-    return True
+        d = Dispatcher.Dispatcher()
+        initData.dispatcher = d.dispatch
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
+        with self.initialize(initData=initData) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.getTestEndpoint(num=1))
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
 
-    #
-    # This test kills connections, so we don't want warnings.
-    #
-    initData.properties.setProperty("Ice.Warn.Connections", "0")
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter2 = communicator.createObjectAdapter("ControllerAdapter")
 
-    #
-    # Limit the recv buffer size, this test relies on the socket
-    # send() blocking after sending a given amount of data.
-    #
-    initData.properties.setProperty("Ice.TCP.RcvSize", "50000")
+            testController = TestI.TestIntfControllerI(adapter)
 
-    d = Dispatcher.Dispatcher()
-    initData.dispatcher = d.dispatch
+            adapter.add(TestI.TestIntfI(), Ice.stringToIdentity("test"))
+            adapter.activate()
 
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+            adapter2.add(testController, Ice.stringToIdentity("testController"))
+            adapter2.activate()
 
-Dispatcher.Dispatcher.terminate()
+            communicator.waitForShutdown()
 
-sys.exit(not status)
+        Dispatcher.Dispatcher.terminate()

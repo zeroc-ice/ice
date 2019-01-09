@@ -1,19 +1,19 @@
 /* A Bison parser, made by GNU Bison 2.7.  */
 
 /* Bison implementation for Yacc-like parsers in C
-
+   
       Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
-
+   
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -26,7 +26,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -68,10 +68,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -79,11 +76,14 @@
 #include <IceGrid/Parser.h>
 
 #ifdef _MSC_VER
-// I get these warnings from some bison versions:
 // warning C4102: 'yyoverflowlab' : unreferenced label
-#   pragma warning( disable : 4102 )
+#   pragma warning(disable:4102)
 // warning C4065: switch statement contains 'default' but no 'case' labels
-#   pragma warning( disable : 4065 )
+#   pragma warning(disable:4065)
+// warning C4244: '=': conversion from 'int' to 'yytype_int16', possible loss of data
+#   pragma warning(disable:4244)
+// warning C4702: unreachable code
+#   pragma warning(disable:4702)
 #endif
 
 //
@@ -105,7 +105,7 @@ yyerror(const char* s)
 
 
 /* Line 371 of yacc.c  */
-#line 109 "src/IceGrid/Grammar.cpp"
+#line 112 "src/IceGrid/Grammar.cpp"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -212,7 +212,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 216 "src/IceGrid/Grammar.cpp"
+#line 219 "src/IceGrid/Grammar.cpp"
 
 #ifdef short
 # undef short
@@ -590,24 +590,24 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,    95,    95,    99,   106,   109,   116,   124,   128,   132,
-     136,   140,   144,   148,   152,   156,   160,   164,   168,   172,
-     176,   180,   184,   188,   192,   196,   200,   204,   208,   212,
-     216,   220,   224,   228,   232,   236,   240,   244,   248,   252,
-     256,   260,   264,   268,   272,   276,   280,   284,   288,   292,
-     296,   300,   304,   308,   312,   316,   320,   324,   328,   332,
-     336,   340,   344,   348,   352,   356,   360,   364,   368,   372,
-     376,   380,   384,   388,   392,   396,   400,   404,   408,   412,
-     416,   420,   424,   428,   432,   436,   440,   444,   448,   452,
-     456,   460,   464,   468,   472,   476,   480,   484,   488,   492,
-     496,   500,   504,   508,   512,   516,   520,   524,   528,   532,
-     536,   540,   544,   548,   552,   556,   560,   564,   568,   579,
-     583,   594,   605,   609,   613,   617,   623,   628,   633,   637,
-     646,   651,   656,   662,   669,   677,   680,   683,   686,   689,
-     692,   695,   698,   701,   704,   707,   710,   713,   716,   719,
-     722,   725,   728,   731,   734,   737,   740,   743,   746,   749,
-     752,   755,   758,   761,   764,   767,   770,   773,   776,   779,
-     782,   785,   788
+       0,    98,    98,   102,   109,   112,   119,   127,   131,   135,
+     139,   143,   147,   151,   155,   159,   163,   167,   171,   175,
+     179,   183,   187,   191,   195,   199,   203,   207,   211,   215,
+     219,   223,   227,   231,   235,   239,   243,   247,   251,   255,
+     259,   263,   267,   271,   275,   279,   283,   287,   291,   295,
+     299,   303,   307,   311,   315,   319,   323,   327,   331,   335,
+     339,   343,   347,   351,   355,   359,   363,   367,   371,   375,
+     379,   383,   387,   391,   395,   399,   403,   407,   411,   415,
+     419,   423,   427,   431,   435,   439,   443,   447,   451,   455,
+     459,   463,   467,   471,   475,   479,   483,   487,   491,   495,
+     499,   503,   507,   511,   515,   519,   523,   527,   531,   535,
+     539,   543,   547,   551,   555,   559,   563,   567,   571,   582,
+     586,   597,   608,   612,   616,   620,   626,   631,   636,   640,
+     648,   653,   658,   664,   671,   679,   682,   685,   688,   691,
+     694,   697,   700,   703,   706,   709,   712,   715,   718,   721,
+     724,   727,   730,   733,   736,   739,   742,   745,   748,   751,
+     754,   757,   760,   763,   766,   769,   772,   775,   778,   781,
+     784,   787,   790
 };
 #endif
 
@@ -2189,35 +2189,35 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 96 "src/IceGrid/Grammar.y"
+#line 99 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 99 "src/IceGrid/Grammar.y"
+#line 102 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 107 "src/IceGrid/Grammar.y"
+#line 110 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 110 "src/IceGrid/Grammar.y"
+#line 113 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 116 "src/IceGrid/Grammar.y"
+#line 119 "src/IceGrid/Grammar.y"
     {
     parser->checkInterrupted();
 }
@@ -2225,7 +2225,7 @@ yyreduce:
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 125 "src/IceGrid/Grammar.y"
+#line 128 "src/IceGrid/Grammar.y"
     {
     parser->usage();
 }
@@ -2233,7 +2233,7 @@ yyreduce:
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 129 "src/IceGrid/Grammar.y"
+#line 132 "src/IceGrid/Grammar.y"
     {
     return 0;
 }
@@ -2241,7 +2241,7 @@ yyreduce:
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 133 "src/IceGrid/Grammar.y"
+#line 136 "src/IceGrid/Grammar.y"
     {
     parser->addApplication((yyvsp[(3) - (4)]));
 }
@@ -2249,7 +2249,7 @@ yyreduce:
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 137 "src/IceGrid/Grammar.y"
+#line 140 "src/IceGrid/Grammar.y"
     {
     parser->usage("application", "add");
 }
@@ -2257,7 +2257,7 @@ yyreduce:
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 141 "src/IceGrid/Grammar.y"
+#line 144 "src/IceGrid/Grammar.y"
     {
     parser->removeApplication((yyvsp[(3) - (4)]));
 }
@@ -2265,7 +2265,7 @@ yyreduce:
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 145 "src/IceGrid/Grammar.y"
+#line 148 "src/IceGrid/Grammar.y"
     {
     parser->usage("application", "remove");
 }
@@ -2273,7 +2273,7 @@ yyreduce:
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 149 "src/IceGrid/Grammar.y"
+#line 152 "src/IceGrid/Grammar.y"
     {
     parser->diffApplication((yyvsp[(3) - (4)]));
 }
@@ -2281,7 +2281,7 @@ yyreduce:
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 153 "src/IceGrid/Grammar.y"
+#line 156 "src/IceGrid/Grammar.y"
     {
     parser->usage("application", "diff");
 }
@@ -2289,7 +2289,7 @@ yyreduce:
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 157 "src/IceGrid/Grammar.y"
+#line 160 "src/IceGrid/Grammar.y"
     {
     parser->updateApplication((yyvsp[(3) - (4)]));
 }
@@ -2297,7 +2297,7 @@ yyreduce:
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 161 "src/IceGrid/Grammar.y"
+#line 164 "src/IceGrid/Grammar.y"
     {
     parser->usage("application", "update");
 }
@@ -2305,7 +2305,7 @@ yyreduce:
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 165 "src/IceGrid/Grammar.y"
+#line 168 "src/IceGrid/Grammar.y"
     {
     parser->describeApplication((yyvsp[(3) - (4)]));
 }
@@ -2313,7 +2313,7 @@ yyreduce:
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 169 "src/IceGrid/Grammar.y"
+#line 172 "src/IceGrid/Grammar.y"
     {
     parser->usage("application", "describe");
 }
@@ -2321,7 +2321,7 @@ yyreduce:
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 173 "src/IceGrid/Grammar.y"
+#line 176 "src/IceGrid/Grammar.y"
     {
     parser->patchApplication((yyvsp[(3) - (4)]));
 }
@@ -2329,7 +2329,7 @@ yyreduce:
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 177 "src/IceGrid/Grammar.y"
+#line 180 "src/IceGrid/Grammar.y"
     {
     parser->usage("application", "patch");
 }
@@ -2337,7 +2337,7 @@ yyreduce:
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 181 "src/IceGrid/Grammar.y"
+#line 184 "src/IceGrid/Grammar.y"
     {
     parser->listAllApplications((yyvsp[(3) - (4)]));
 }
@@ -2345,7 +2345,7 @@ yyreduce:
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 185 "src/IceGrid/Grammar.y"
+#line 188 "src/IceGrid/Grammar.y"
     {
     parser->usage("application", "list");
 }
@@ -2353,7 +2353,7 @@ yyreduce:
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 189 "src/IceGrid/Grammar.y"
+#line 192 "src/IceGrid/Grammar.y"
     {
     parser->describeServerTemplate((yyvsp[(4) - (5)]));
 }
@@ -2361,7 +2361,7 @@ yyreduce:
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 193 "src/IceGrid/Grammar.y"
+#line 196 "src/IceGrid/Grammar.y"
     {
     parser->usage("server template", "describe");
 }
@@ -2369,7 +2369,7 @@ yyreduce:
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 197 "src/IceGrid/Grammar.y"
+#line 200 "src/IceGrid/Grammar.y"
     {
     parser->instantiateServerTemplate((yyvsp[(4) - (5)]));
 }
@@ -2377,7 +2377,7 @@ yyreduce:
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 201 "src/IceGrid/Grammar.y"
+#line 204 "src/IceGrid/Grammar.y"
     {
     parser->usage("server template", "instantiate");
 }
@@ -2385,7 +2385,7 @@ yyreduce:
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 205 "src/IceGrid/Grammar.y"
+#line 208 "src/IceGrid/Grammar.y"
     {
     parser->usage("server template");
 }
@@ -2393,7 +2393,7 @@ yyreduce:
 
   case 28:
 /* Line 1792 of yacc.c  */
-#line 209 "src/IceGrid/Grammar.y"
+#line 212 "src/IceGrid/Grammar.y"
     {
     parser->describeServiceTemplate((yyvsp[(4) - (5)]));
 }
@@ -2401,7 +2401,7 @@ yyreduce:
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 213 "src/IceGrid/Grammar.y"
+#line 216 "src/IceGrid/Grammar.y"
     {
     parser->usage("service template", "describe");
 }
@@ -2409,7 +2409,7 @@ yyreduce:
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 217 "src/IceGrid/Grammar.y"
+#line 220 "src/IceGrid/Grammar.y"
     {
     parser->usage("service template");
 }
@@ -2417,7 +2417,7 @@ yyreduce:
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 221 "src/IceGrid/Grammar.y"
+#line 224 "src/IceGrid/Grammar.y"
     {
     parser->describeNode((yyvsp[(3) - (4)]));
 }
@@ -2425,7 +2425,7 @@ yyreduce:
 
   case 32:
 /* Line 1792 of yacc.c  */
-#line 225 "src/IceGrid/Grammar.y"
+#line 228 "src/IceGrid/Grammar.y"
     {
     parser->usage("node", "describe");
 }
@@ -2433,7 +2433,7 @@ yyreduce:
 
   case 33:
 /* Line 1792 of yacc.c  */
-#line 229 "src/IceGrid/Grammar.y"
+#line 232 "src/IceGrid/Grammar.y"
     {
     parser->pingNode((yyvsp[(3) - (4)]));
 }
@@ -2441,7 +2441,7 @@ yyreduce:
 
   case 34:
 /* Line 1792 of yacc.c  */
-#line 233 "src/IceGrid/Grammar.y"
+#line 236 "src/IceGrid/Grammar.y"
     {
     parser->usage("node", "ping");
 }
@@ -2449,7 +2449,7 @@ yyreduce:
 
   case 35:
 /* Line 1792 of yacc.c  */
-#line 237 "src/IceGrid/Grammar.y"
+#line 240 "src/IceGrid/Grammar.y"
     {
     parser->printLoadNode((yyvsp[(3) - (4)]));
 }
@@ -2457,7 +2457,7 @@ yyreduce:
 
   case 36:
 /* Line 1792 of yacc.c  */
-#line 241 "src/IceGrid/Grammar.y"
+#line 244 "src/IceGrid/Grammar.y"
     {
     parser->usage("node", "load");
 }
@@ -2465,7 +2465,7 @@ yyreduce:
 
   case 37:
 /* Line 1792 of yacc.c  */
-#line 245 "src/IceGrid/Grammar.y"
+#line 248 "src/IceGrid/Grammar.y"
     {
     parser->printNodeProcessorSockets((yyvsp[(3) - (4)]));
 }
@@ -2473,7 +2473,7 @@ yyreduce:
 
   case 38:
 /* Line 1792 of yacc.c  */
-#line 249 "src/IceGrid/Grammar.y"
+#line 252 "src/IceGrid/Grammar.y"
     {
     parser->usage("node", "sockets");
 }
@@ -2481,7 +2481,7 @@ yyreduce:
 
   case 39:
 /* Line 1792 of yacc.c  */
-#line 253 "src/IceGrid/Grammar.y"
+#line 256 "src/IceGrid/Grammar.y"
     {
     parser->shutdownNode((yyvsp[(3) - (4)]));
 }
@@ -2489,7 +2489,7 @@ yyreduce:
 
   case 40:
 /* Line 1792 of yacc.c  */
-#line 257 "src/IceGrid/Grammar.y"
+#line 260 "src/IceGrid/Grammar.y"
     {
     parser->usage("node", "shutdown");
 }
@@ -2497,7 +2497,7 @@ yyreduce:
 
   case 41:
 /* Line 1792 of yacc.c  */
-#line 261 "src/IceGrid/Grammar.y"
+#line 264 "src/IceGrid/Grammar.y"
     {
     parser->listAllNodes((yyvsp[(3) - (4)]));
 }
@@ -2505,7 +2505,7 @@ yyreduce:
 
   case 42:
 /* Line 1792 of yacc.c  */
-#line 265 "src/IceGrid/Grammar.y"
+#line 268 "src/IceGrid/Grammar.y"
     {
     parser->usage("node", "list");
 }
@@ -2513,7 +2513,7 @@ yyreduce:
 
   case 43:
 /* Line 1792 of yacc.c  */
-#line 269 "src/IceGrid/Grammar.y"
+#line 272 "src/IceGrid/Grammar.y"
     {
     parser->show("node", (yyvsp[(3) - (4)]));
 }
@@ -2521,7 +2521,7 @@ yyreduce:
 
   case 44:
 /* Line 1792 of yacc.c  */
-#line 273 "src/IceGrid/Grammar.y"
+#line 276 "src/IceGrid/Grammar.y"
     {
     parser->usage("node", "show");
 }
@@ -2529,7 +2529,7 @@ yyreduce:
 
   case 45:
 /* Line 1792 of yacc.c  */
-#line 277 "src/IceGrid/Grammar.y"
+#line 280 "src/IceGrid/Grammar.y"
     {
     parser->describeRegistry((yyvsp[(3) - (4)]));
 }
@@ -2537,7 +2537,7 @@ yyreduce:
 
   case 46:
 /* Line 1792 of yacc.c  */
-#line 281 "src/IceGrid/Grammar.y"
+#line 284 "src/IceGrid/Grammar.y"
     {
     parser->usage("registry", "describe");
 }
@@ -2545,7 +2545,7 @@ yyreduce:
 
   case 47:
 /* Line 1792 of yacc.c  */
-#line 285 "src/IceGrid/Grammar.y"
+#line 288 "src/IceGrid/Grammar.y"
     {
     parser->pingRegistry((yyvsp[(3) - (4)]));
 }
@@ -2553,7 +2553,7 @@ yyreduce:
 
   case 48:
 /* Line 1792 of yacc.c  */
-#line 289 "src/IceGrid/Grammar.y"
+#line 292 "src/IceGrid/Grammar.y"
     {
     parser->usage("registry", "ping");
 }
@@ -2561,7 +2561,7 @@ yyreduce:
 
   case 49:
 /* Line 1792 of yacc.c  */
-#line 293 "src/IceGrid/Grammar.y"
+#line 296 "src/IceGrid/Grammar.y"
     {
     parser->shutdownRegistry((yyvsp[(3) - (4)]));
 }
@@ -2569,7 +2569,7 @@ yyreduce:
 
   case 50:
 /* Line 1792 of yacc.c  */
-#line 297 "src/IceGrid/Grammar.y"
+#line 300 "src/IceGrid/Grammar.y"
     {
     parser->usage("registry", "shutdown");
 }
@@ -2577,7 +2577,7 @@ yyreduce:
 
   case 51:
 /* Line 1792 of yacc.c  */
-#line 301 "src/IceGrid/Grammar.y"
+#line 304 "src/IceGrid/Grammar.y"
     {
     parser->listAllRegistries((yyvsp[(3) - (4)]));
 }
@@ -2585,7 +2585,7 @@ yyreduce:
 
   case 52:
 /* Line 1792 of yacc.c  */
-#line 305 "src/IceGrid/Grammar.y"
+#line 308 "src/IceGrid/Grammar.y"
     {
     parser->usage("registry", "list");
 }
@@ -2593,7 +2593,7 @@ yyreduce:
 
   case 53:
 /* Line 1792 of yacc.c  */
-#line 309 "src/IceGrid/Grammar.y"
+#line 312 "src/IceGrid/Grammar.y"
     {
     parser->show("registry", (yyvsp[(3) - (4)]));
 }
@@ -2601,7 +2601,7 @@ yyreduce:
 
   case 54:
 /* Line 1792 of yacc.c  */
-#line 313 "src/IceGrid/Grammar.y"
+#line 316 "src/IceGrid/Grammar.y"
     {
     parser->usage("registry", "show");
 }
@@ -2609,7 +2609,7 @@ yyreduce:
 
   case 55:
 /* Line 1792 of yacc.c  */
-#line 317 "src/IceGrid/Grammar.y"
+#line 320 "src/IceGrid/Grammar.y"
     {
     parser->removeServer((yyvsp[(3) - (4)]));
 }
@@ -2617,7 +2617,7 @@ yyreduce:
 
   case 56:
 /* Line 1792 of yacc.c  */
-#line 321 "src/IceGrid/Grammar.y"
+#line 324 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "remove");
 }
@@ -2625,7 +2625,7 @@ yyreduce:
 
   case 57:
 /* Line 1792 of yacc.c  */
-#line 325 "src/IceGrid/Grammar.y"
+#line 328 "src/IceGrid/Grammar.y"
     {
     parser->describeServer((yyvsp[(3) - (4)]));
 }
@@ -2633,7 +2633,7 @@ yyreduce:
 
   case 58:
 /* Line 1792 of yacc.c  */
-#line 329 "src/IceGrid/Grammar.y"
+#line 332 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "describe");
 }
@@ -2641,7 +2641,7 @@ yyreduce:
 
   case 59:
 /* Line 1792 of yacc.c  */
-#line 333 "src/IceGrid/Grammar.y"
+#line 336 "src/IceGrid/Grammar.y"
     {
     parser->startServer((yyvsp[(3) - (4)]));
 }
@@ -2649,7 +2649,7 @@ yyreduce:
 
   case 60:
 /* Line 1792 of yacc.c  */
-#line 337 "src/IceGrid/Grammar.y"
+#line 340 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "start");
 }
@@ -2657,7 +2657,7 @@ yyreduce:
 
   case 61:
 /* Line 1792 of yacc.c  */
-#line 341 "src/IceGrid/Grammar.y"
+#line 344 "src/IceGrid/Grammar.y"
     {
     parser->stopServer((yyvsp[(3) - (4)]));
 }
@@ -2665,7 +2665,7 @@ yyreduce:
 
   case 62:
 /* Line 1792 of yacc.c  */
-#line 345 "src/IceGrid/Grammar.y"
+#line 348 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "stop");
 }
@@ -2673,7 +2673,7 @@ yyreduce:
 
   case 63:
 /* Line 1792 of yacc.c  */
-#line 349 "src/IceGrid/Grammar.y"
+#line 352 "src/IceGrid/Grammar.y"
     {
     parser->patchServer((yyvsp[(3) - (4)]));
 }
@@ -2681,7 +2681,7 @@ yyreduce:
 
   case 64:
 /* Line 1792 of yacc.c  */
-#line 353 "src/IceGrid/Grammar.y"
+#line 356 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "patch");
 }
@@ -2689,7 +2689,7 @@ yyreduce:
 
   case 65:
 /* Line 1792 of yacc.c  */
-#line 357 "src/IceGrid/Grammar.y"
+#line 360 "src/IceGrid/Grammar.y"
     {
     parser->signalServer((yyvsp[(3) - (4)]));
 }
@@ -2697,7 +2697,7 @@ yyreduce:
 
   case 66:
 /* Line 1792 of yacc.c  */
-#line 361 "src/IceGrid/Grammar.y"
+#line 364 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "signal");
 }
@@ -2705,7 +2705,7 @@ yyreduce:
 
   case 67:
 /* Line 1792 of yacc.c  */
-#line 365 "src/IceGrid/Grammar.y"
+#line 368 "src/IceGrid/Grammar.y"
     {
     parser->writeMessage((yyvsp[(3) - (4)]), 1);
 }
@@ -2713,7 +2713,7 @@ yyreduce:
 
   case 68:
 /* Line 1792 of yacc.c  */
-#line 369 "src/IceGrid/Grammar.y"
+#line 372 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "stdout");
 }
@@ -2721,7 +2721,7 @@ yyreduce:
 
   case 69:
 /* Line 1792 of yacc.c  */
-#line 373 "src/IceGrid/Grammar.y"
+#line 376 "src/IceGrid/Grammar.y"
     {
     parser->writeMessage((yyvsp[(3) - (4)]), 2);
 }
@@ -2729,7 +2729,7 @@ yyreduce:
 
   case 70:
 /* Line 1792 of yacc.c  */
-#line 377 "src/IceGrid/Grammar.y"
+#line 380 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "stderr");
 }
@@ -2737,7 +2737,7 @@ yyreduce:
 
   case 71:
 /* Line 1792 of yacc.c  */
-#line 381 "src/IceGrid/Grammar.y"
+#line 384 "src/IceGrid/Grammar.y"
     {
     parser->stateServer((yyvsp[(3) - (4)]));
 }
@@ -2745,7 +2745,7 @@ yyreduce:
 
   case 72:
 /* Line 1792 of yacc.c  */
-#line 385 "src/IceGrid/Grammar.y"
+#line 388 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "start");
 }
@@ -2753,7 +2753,7 @@ yyreduce:
 
   case 73:
 /* Line 1792 of yacc.c  */
-#line 389 "src/IceGrid/Grammar.y"
+#line 392 "src/IceGrid/Grammar.y"
     {
     parser->pidServer((yyvsp[(3) - (4)]));
 }
@@ -2761,7 +2761,7 @@ yyreduce:
 
   case 74:
 /* Line 1792 of yacc.c  */
-#line 393 "src/IceGrid/Grammar.y"
+#line 396 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "pid");
 }
@@ -2769,7 +2769,7 @@ yyreduce:
 
   case 75:
 /* Line 1792 of yacc.c  */
-#line 397 "src/IceGrid/Grammar.y"
+#line 400 "src/IceGrid/Grammar.y"
     {
     parser->propertiesServer((yyvsp[(3) - (4)]), false);
 }
@@ -2777,7 +2777,7 @@ yyreduce:
 
   case 76:
 /* Line 1792 of yacc.c  */
-#line 401 "src/IceGrid/Grammar.y"
+#line 404 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "properties");
 }
@@ -2785,7 +2785,7 @@ yyreduce:
 
   case 77:
 /* Line 1792 of yacc.c  */
-#line 405 "src/IceGrid/Grammar.y"
+#line 408 "src/IceGrid/Grammar.y"
     {
     parser->propertiesServer((yyvsp[(3) - (4)]), true);
 }
@@ -2793,7 +2793,7 @@ yyreduce:
 
   case 78:
 /* Line 1792 of yacc.c  */
-#line 409 "src/IceGrid/Grammar.y"
+#line 412 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "property");
 }
@@ -2801,7 +2801,7 @@ yyreduce:
 
   case 79:
 /* Line 1792 of yacc.c  */
-#line 413 "src/IceGrid/Grammar.y"
+#line 416 "src/IceGrid/Grammar.y"
     {
     parser->enableServer((yyvsp[(3) - (4)]), true);
 }
@@ -2809,7 +2809,7 @@ yyreduce:
 
   case 80:
 /* Line 1792 of yacc.c  */
-#line 417 "src/IceGrid/Grammar.y"
+#line 420 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "enable");
 }
@@ -2817,7 +2817,7 @@ yyreduce:
 
   case 81:
 /* Line 1792 of yacc.c  */
-#line 421 "src/IceGrid/Grammar.y"
+#line 424 "src/IceGrid/Grammar.y"
     {
     parser->enableServer((yyvsp[(3) - (4)]), false);
 }
@@ -2825,7 +2825,7 @@ yyreduce:
 
   case 82:
 /* Line 1792 of yacc.c  */
-#line 425 "src/IceGrid/Grammar.y"
+#line 428 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "disable");
 }
@@ -2833,7 +2833,7 @@ yyreduce:
 
   case 83:
 /* Line 1792 of yacc.c  */
-#line 429 "src/IceGrid/Grammar.y"
+#line 432 "src/IceGrid/Grammar.y"
     {
     parser->listAllServers((yyvsp[(3) - (4)]));
 }
@@ -2841,7 +2841,7 @@ yyreduce:
 
   case 84:
 /* Line 1792 of yacc.c  */
-#line 433 "src/IceGrid/Grammar.y"
+#line 436 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "list");
 }
@@ -2849,7 +2849,7 @@ yyreduce:
 
   case 85:
 /* Line 1792 of yacc.c  */
-#line 437 "src/IceGrid/Grammar.y"
+#line 440 "src/IceGrid/Grammar.y"
     {
     parser->show("server", (yyvsp[(3) - (4)]));
 }
@@ -2857,7 +2857,7 @@ yyreduce:
 
   case 86:
 /* Line 1792 of yacc.c  */
-#line 441 "src/IceGrid/Grammar.y"
+#line 444 "src/IceGrid/Grammar.y"
     {
     parser->usage("server", "show");
 }
@@ -2865,7 +2865,7 @@ yyreduce:
 
   case 87:
 /* Line 1792 of yacc.c  */
-#line 445 "src/IceGrid/Grammar.y"
+#line 448 "src/IceGrid/Grammar.y"
     {
     parser->startService((yyvsp[(3) - (4)]));
 }
@@ -2873,7 +2873,7 @@ yyreduce:
 
   case 88:
 /* Line 1792 of yacc.c  */
-#line 449 "src/IceGrid/Grammar.y"
+#line 452 "src/IceGrid/Grammar.y"
     {
     parser->usage("service", "start");
 }
@@ -2881,7 +2881,7 @@ yyreduce:
 
   case 89:
 /* Line 1792 of yacc.c  */
-#line 453 "src/IceGrid/Grammar.y"
+#line 456 "src/IceGrid/Grammar.y"
     {
     parser->stopService((yyvsp[(3) - (4)]));
 }
@@ -2889,7 +2889,7 @@ yyreduce:
 
   case 90:
 /* Line 1792 of yacc.c  */
-#line 457 "src/IceGrid/Grammar.y"
+#line 460 "src/IceGrid/Grammar.y"
     {
     parser->usage("service", "stop");
 }
@@ -2897,7 +2897,7 @@ yyreduce:
 
   case 91:
 /* Line 1792 of yacc.c  */
-#line 461 "src/IceGrid/Grammar.y"
+#line 464 "src/IceGrid/Grammar.y"
     {
     parser->describeService((yyvsp[(3) - (4)]));
 }
@@ -2905,7 +2905,7 @@ yyreduce:
 
   case 92:
 /* Line 1792 of yacc.c  */
-#line 465 "src/IceGrid/Grammar.y"
+#line 468 "src/IceGrid/Grammar.y"
     {
     parser->usage("service", "describe");
 }
@@ -2913,7 +2913,7 @@ yyreduce:
 
   case 93:
 /* Line 1792 of yacc.c  */
-#line 469 "src/IceGrid/Grammar.y"
+#line 472 "src/IceGrid/Grammar.y"
     {
     parser->propertiesService((yyvsp[(3) - (4)]), false);
 }
@@ -2921,7 +2921,7 @@ yyreduce:
 
   case 94:
 /* Line 1792 of yacc.c  */
-#line 473 "src/IceGrid/Grammar.y"
+#line 476 "src/IceGrid/Grammar.y"
     {
     parser->usage("service", "properties");
 }
@@ -2929,7 +2929,7 @@ yyreduce:
 
   case 95:
 /* Line 1792 of yacc.c  */
-#line 477 "src/IceGrid/Grammar.y"
+#line 480 "src/IceGrid/Grammar.y"
     {
     parser->propertiesService((yyvsp[(3) - (4)]), true);
 }
@@ -2937,7 +2937,7 @@ yyreduce:
 
   case 96:
 /* Line 1792 of yacc.c  */
-#line 481 "src/IceGrid/Grammar.y"
+#line 484 "src/IceGrid/Grammar.y"
     {
     parser->usage("service", "property");
 }
@@ -2945,7 +2945,7 @@ yyreduce:
 
   case 97:
 /* Line 1792 of yacc.c  */
-#line 485 "src/IceGrid/Grammar.y"
+#line 488 "src/IceGrid/Grammar.y"
     {
     parser->listServices((yyvsp[(3) - (4)]));
 }
@@ -2953,7 +2953,7 @@ yyreduce:
 
   case 98:
 /* Line 1792 of yacc.c  */
-#line 489 "src/IceGrid/Grammar.y"
+#line 492 "src/IceGrid/Grammar.y"
     {
     parser->usage("service", "list");
 }
@@ -2961,7 +2961,7 @@ yyreduce:
 
   case 99:
 /* Line 1792 of yacc.c  */
-#line 493 "src/IceGrid/Grammar.y"
+#line 496 "src/IceGrid/Grammar.y"
     {
     parser->endpointsAdapter((yyvsp[(3) - (4)]));
 }
@@ -2969,7 +2969,7 @@ yyreduce:
 
   case 100:
 /* Line 1792 of yacc.c  */
-#line 497 "src/IceGrid/Grammar.y"
+#line 500 "src/IceGrid/Grammar.y"
     {
     parser->usage("adapter", "endpoints");
 }
@@ -2977,7 +2977,7 @@ yyreduce:
 
   case 101:
 /* Line 1792 of yacc.c  */
-#line 501 "src/IceGrid/Grammar.y"
+#line 504 "src/IceGrid/Grammar.y"
     {
     parser->removeAdapter((yyvsp[(3) - (4)]));
 }
@@ -2985,7 +2985,7 @@ yyreduce:
 
   case 102:
 /* Line 1792 of yacc.c  */
-#line 505 "src/IceGrid/Grammar.y"
+#line 508 "src/IceGrid/Grammar.y"
     {
     parser->usage("adapter", "remove");
 }
@@ -2993,7 +2993,7 @@ yyreduce:
 
   case 103:
 /* Line 1792 of yacc.c  */
-#line 509 "src/IceGrid/Grammar.y"
+#line 512 "src/IceGrid/Grammar.y"
     {
     parser->listAllAdapters((yyvsp[(3) - (4)]));
 }
@@ -3001,7 +3001,7 @@ yyreduce:
 
   case 104:
 /* Line 1792 of yacc.c  */
-#line 513 "src/IceGrid/Grammar.y"
+#line 516 "src/IceGrid/Grammar.y"
     {
     parser->usage("adapter", "list");
 }
@@ -3009,7 +3009,7 @@ yyreduce:
 
   case 105:
 /* Line 1792 of yacc.c  */
-#line 517 "src/IceGrid/Grammar.y"
+#line 520 "src/IceGrid/Grammar.y"
     {
     parser->addObject((yyvsp[(3) - (4)]));
 }
@@ -3017,7 +3017,7 @@ yyreduce:
 
   case 106:
 /* Line 1792 of yacc.c  */
-#line 521 "src/IceGrid/Grammar.y"
+#line 524 "src/IceGrid/Grammar.y"
     {
     parser->usage("object", "add");
 }
@@ -3025,7 +3025,7 @@ yyreduce:
 
   case 107:
 /* Line 1792 of yacc.c  */
-#line 525 "src/IceGrid/Grammar.y"
+#line 528 "src/IceGrid/Grammar.y"
     {
     parser->removeObject((yyvsp[(3) - (4)]));
 }
@@ -3033,7 +3033,7 @@ yyreduce:
 
   case 108:
 /* Line 1792 of yacc.c  */
-#line 529 "src/IceGrid/Grammar.y"
+#line 532 "src/IceGrid/Grammar.y"
     {
     parser->usage("object", "remove");
 }
@@ -3041,7 +3041,7 @@ yyreduce:
 
   case 109:
 /* Line 1792 of yacc.c  */
-#line 533 "src/IceGrid/Grammar.y"
+#line 536 "src/IceGrid/Grammar.y"
     {
     parser->findObject((yyvsp[(3) - (4)]));
 }
@@ -3049,7 +3049,7 @@ yyreduce:
 
   case 110:
 /* Line 1792 of yacc.c  */
-#line 537 "src/IceGrid/Grammar.y"
+#line 540 "src/IceGrid/Grammar.y"
     {
     parser->usage("object", "find");
 }
@@ -3057,7 +3057,7 @@ yyreduce:
 
   case 111:
 /* Line 1792 of yacc.c  */
-#line 541 "src/IceGrid/Grammar.y"
+#line 544 "src/IceGrid/Grammar.y"
     {
     parser->listObject((yyvsp[(3) - (4)]));
 }
@@ -3065,7 +3065,7 @@ yyreduce:
 
   case 112:
 /* Line 1792 of yacc.c  */
-#line 545 "src/IceGrid/Grammar.y"
+#line 548 "src/IceGrid/Grammar.y"
     {
     parser->usage("object", "list");
 }
@@ -3073,7 +3073,7 @@ yyreduce:
 
   case 113:
 /* Line 1792 of yacc.c  */
-#line 549 "src/IceGrid/Grammar.y"
+#line 552 "src/IceGrid/Grammar.y"
     {
     parser->describeObject((yyvsp[(3) - (4)]));
 }
@@ -3081,7 +3081,7 @@ yyreduce:
 
   case 114:
 /* Line 1792 of yacc.c  */
-#line 553 "src/IceGrid/Grammar.y"
+#line 556 "src/IceGrid/Grammar.y"
     {
     parser->usage("object", "describe");
 }
@@ -3089,7 +3089,7 @@ yyreduce:
 
   case 115:
 /* Line 1792 of yacc.c  */
-#line 557 "src/IceGrid/Grammar.y"
+#line 560 "src/IceGrid/Grammar.y"
     {
     parser->showCopying();
 }
@@ -3097,7 +3097,7 @@ yyreduce:
 
   case 116:
 /* Line 1792 of yacc.c  */
-#line 561 "src/IceGrid/Grammar.y"
+#line 564 "src/IceGrid/Grammar.y"
     {
     parser->showWarranty();
 }
@@ -3105,7 +3105,7 @@ yyreduce:
 
   case 117:
 /* Line 1792 of yacc.c  */
-#line 565 "src/IceGrid/Grammar.y"
+#line 568 "src/IceGrid/Grammar.y"
     {
     parser->usage((yyvsp[(2) - (3)]).front());
 }
@@ -3113,7 +3113,7 @@ yyreduce:
 
   case 118:
 /* Line 1792 of yacc.c  */
-#line 569 "src/IceGrid/Grammar.y"
+#line 572 "src/IceGrid/Grammar.y"
     {
     if(((yyvsp[(2) - (4)]).front() == "server" || (yyvsp[(2) - (4)]).front() == "service") && (yyvsp[(3) - (4)]).front() == "template")
     {
@@ -3128,7 +3128,7 @@ yyreduce:
 
   case 119:
 /* Line 1792 of yacc.c  */
-#line 580 "src/IceGrid/Grammar.y"
+#line 583 "src/IceGrid/Grammar.y"
     {
     parser->usage((yyvsp[(2) - (5)]).front(), (yyvsp[(3) - (5)]).front());
 }
@@ -3136,7 +3136,7 @@ yyreduce:
 
   case 120:
 /* Line 1792 of yacc.c  */
-#line 584 "src/IceGrid/Grammar.y"
+#line 587 "src/IceGrid/Grammar.y"
     {
     if(((yyvsp[(2) - (5)]).front() == "server" || (yyvsp[(2) - (5)]).front() == "service") && (yyvsp[(3) - (5)]).front() == "template")
     {
@@ -3151,7 +3151,7 @@ yyreduce:
 
   case 121:
 /* Line 1792 of yacc.c  */
-#line 595 "src/IceGrid/Grammar.y"
+#line 598 "src/IceGrid/Grammar.y"
     {
     if(((yyvsp[(2) - (6)]).front() == "server" || (yyvsp[(2) - (6)]).front() == "service") && (yyvsp[(3) - (6)]).front() == "template")
     {
@@ -3166,7 +3166,7 @@ yyreduce:
 
   case 122:
 /* Line 1792 of yacc.c  */
-#line 606 "src/IceGrid/Grammar.y"
+#line 609 "src/IceGrid/Grammar.y"
     {
     parser->usage((yyvsp[(2) - (4)]).front());
 }
@@ -3174,7 +3174,7 @@ yyreduce:
 
   case 123:
 /* Line 1792 of yacc.c  */
-#line 610 "src/IceGrid/Grammar.y"
+#line 613 "src/IceGrid/Grammar.y"
     {
     parser->usage();
 }
@@ -3182,7 +3182,7 @@ yyreduce:
 
   case 124:
 /* Line 1792 of yacc.c  */
-#line 614 "src/IceGrid/Grammar.y"
+#line 617 "src/IceGrid/Grammar.y"
     {
     parser->usage((yyvsp[(1) - (3)]).front());
 }
@@ -3190,7 +3190,7 @@ yyreduce:
 
   case 125:
 /* Line 1792 of yacc.c  */
-#line 618 "src/IceGrid/Grammar.y"
+#line 621 "src/IceGrid/Grammar.y"
     {
     (yyvsp[(1) - (4)]).push_back((yyvsp[(2) - (4)]).front());
     parser->invalidCommand((yyvsp[(1) - (4)]));
@@ -3200,7 +3200,7 @@ yyreduce:
 
   case 126:
 /* Line 1792 of yacc.c  */
-#line 624 "src/IceGrid/Grammar.y"
+#line 627 "src/IceGrid/Grammar.y"
     {
     parser->invalidCommand((yyvsp[(1) - (3)]));
     yyerrok;
@@ -3209,7 +3209,7 @@ yyreduce:
 
   case 127:
 /* Line 1792 of yacc.c  */
-#line 629 "src/IceGrid/Grammar.y"
+#line 632 "src/IceGrid/Grammar.y"
     {
     parser->invalidCommand((yyvsp[(1) - (3)]));
     yyerrok;
@@ -3218,7 +3218,7 @@ yyreduce:
 
   case 128:
 /* Line 1792 of yacc.c  */
-#line 634 "src/IceGrid/Grammar.y"
+#line 637 "src/IceGrid/Grammar.y"
     {
     yyerrok;
 }
@@ -3226,14 +3226,14 @@ yyreduce:
 
   case 129:
 /* Line 1792 of yacc.c  */
-#line 638 "src/IceGrid/Grammar.y"
+#line 641 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 130:
 /* Line 1792 of yacc.c  */
-#line 647 "src/IceGrid/Grammar.y"
+#line 649 "src/IceGrid/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
     (yyval).push_front((yyvsp[(1) - (2)]).front());
@@ -3242,7 +3242,7 @@ yyreduce:
 
   case 131:
 /* Line 1792 of yacc.c  */
-#line 652 "src/IceGrid/Grammar.y"
+#line 654 "src/IceGrid/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
     (yyval).push_front((yyvsp[(1) - (2)]).front());
@@ -3251,7 +3251,7 @@ yyreduce:
 
   case 132:
 /* Line 1792 of yacc.c  */
-#line 657 "src/IceGrid/Grammar.y"
+#line 659 "src/IceGrid/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
     (yyval).push_front("help");
@@ -3261,7 +3261,7 @@ yyreduce:
 
   case 133:
 /* Line 1792 of yacc.c  */
-#line 663 "src/IceGrid/Grammar.y"
+#line 665 "src/IceGrid/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (3)]);
     (yyval).push_front("help");
@@ -3271,7 +3271,7 @@ yyreduce:
 
   case 134:
 /* Line 1792 of yacc.c  */
-#line 669 "src/IceGrid/Grammar.y"
+#line 671 "src/IceGrid/Grammar.y"
     {
     (yyval) = YYSTYPE();
 }
@@ -3279,273 +3279,273 @@ yyreduce:
 
   case 135:
 /* Line 1792 of yacc.c  */
-#line 678 "src/IceGrid/Grammar.y"
+#line 680 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 136:
 /* Line 1792 of yacc.c  */
-#line 681 "src/IceGrid/Grammar.y"
+#line 683 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 137:
 /* Line 1792 of yacc.c  */
-#line 684 "src/IceGrid/Grammar.y"
+#line 686 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 138:
 /* Line 1792 of yacc.c  */
-#line 687 "src/IceGrid/Grammar.y"
+#line 689 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 139:
 /* Line 1792 of yacc.c  */
-#line 690 "src/IceGrid/Grammar.y"
+#line 692 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 140:
 /* Line 1792 of yacc.c  */
-#line 693 "src/IceGrid/Grammar.y"
+#line 695 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 141:
 /* Line 1792 of yacc.c  */
-#line 696 "src/IceGrid/Grammar.y"
+#line 698 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 142:
 /* Line 1792 of yacc.c  */
-#line 699 "src/IceGrid/Grammar.y"
+#line 701 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 143:
 /* Line 1792 of yacc.c  */
-#line 702 "src/IceGrid/Grammar.y"
+#line 704 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 144:
 /* Line 1792 of yacc.c  */
-#line 705 "src/IceGrid/Grammar.y"
+#line 707 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 145:
 /* Line 1792 of yacc.c  */
-#line 708 "src/IceGrid/Grammar.y"
+#line 710 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 146:
 /* Line 1792 of yacc.c  */
-#line 711 "src/IceGrid/Grammar.y"
+#line 713 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 147:
 /* Line 1792 of yacc.c  */
-#line 714 "src/IceGrid/Grammar.y"
+#line 716 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 148:
 /* Line 1792 of yacc.c  */
-#line 717 "src/IceGrid/Grammar.y"
+#line 719 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 149:
 /* Line 1792 of yacc.c  */
-#line 720 "src/IceGrid/Grammar.y"
+#line 722 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 150:
 /* Line 1792 of yacc.c  */
-#line 723 "src/IceGrid/Grammar.y"
+#line 725 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 151:
 /* Line 1792 of yacc.c  */
-#line 726 "src/IceGrid/Grammar.y"
+#line 728 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 152:
 /* Line 1792 of yacc.c  */
-#line 729 "src/IceGrid/Grammar.y"
+#line 731 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 153:
 /* Line 1792 of yacc.c  */
-#line 732 "src/IceGrid/Grammar.y"
+#line 734 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 154:
 /* Line 1792 of yacc.c  */
-#line 735 "src/IceGrid/Grammar.y"
+#line 737 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 155:
 /* Line 1792 of yacc.c  */
-#line 738 "src/IceGrid/Grammar.y"
+#line 740 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 156:
 /* Line 1792 of yacc.c  */
-#line 741 "src/IceGrid/Grammar.y"
+#line 743 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 157:
 /* Line 1792 of yacc.c  */
-#line 744 "src/IceGrid/Grammar.y"
+#line 746 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 158:
 /* Line 1792 of yacc.c  */
-#line 747 "src/IceGrid/Grammar.y"
+#line 749 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 159:
 /* Line 1792 of yacc.c  */
-#line 750 "src/IceGrid/Grammar.y"
+#line 752 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 160:
 /* Line 1792 of yacc.c  */
-#line 753 "src/IceGrid/Grammar.y"
+#line 755 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 161:
 /* Line 1792 of yacc.c  */
-#line 756 "src/IceGrid/Grammar.y"
+#line 758 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 162:
 /* Line 1792 of yacc.c  */
-#line 759 "src/IceGrid/Grammar.y"
+#line 761 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 163:
 /* Line 1792 of yacc.c  */
-#line 762 "src/IceGrid/Grammar.y"
+#line 764 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 164:
 /* Line 1792 of yacc.c  */
-#line 765 "src/IceGrid/Grammar.y"
+#line 767 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 165:
 /* Line 1792 of yacc.c  */
-#line 768 "src/IceGrid/Grammar.y"
+#line 770 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 166:
 /* Line 1792 of yacc.c  */
-#line 771 "src/IceGrid/Grammar.y"
+#line 773 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 167:
 /* Line 1792 of yacc.c  */
-#line 774 "src/IceGrid/Grammar.y"
+#line 776 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 168:
 /* Line 1792 of yacc.c  */
-#line 777 "src/IceGrid/Grammar.y"
+#line 779 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 169:
 /* Line 1792 of yacc.c  */
-#line 780 "src/IceGrid/Grammar.y"
+#line 782 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 170:
 /* Line 1792 of yacc.c  */
-#line 783 "src/IceGrid/Grammar.y"
+#line 785 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 171:
 /* Line 1792 of yacc.c  */
-#line 786 "src/IceGrid/Grammar.y"
+#line 788 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
   case 172:
 /* Line 1792 of yacc.c  */
-#line 789 "src/IceGrid/Grammar.y"
+#line 791 "src/IceGrid/Grammar.y"
     {
 }
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 3549 "src/IceGrid/Grammar.cpp"
+#line 3552 "src/IceGrid/Grammar.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires

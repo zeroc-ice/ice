@@ -1,15 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <Util.h>
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/LocalException.h>
@@ -25,18 +19,9 @@ using namespace Slice::Python;
 namespace IcePy
 {
 
-bool
-checkIsInstance(PyObject* p, const char* type)
-{
-    PyObject* pyType = lookupType(type);
-    return PyObject_IsInstance(p, pyType) == 1;
-}
-
 template<typename T> bool
-setVersion(PyObject* p, const T& version, const char* type)
+setVersion(PyObject* p, const T& version)
 {
-    assert(checkIsInstance(p, type));
-
     PyObjectHandle major = PyLong_FromLong(version.major);
     PyObjectHandle minor = PyLong_FromLong(version.minor);
     if(!major.get() || !minor.get())
@@ -52,9 +37,8 @@ setVersion(PyObject* p, const T& version, const char* type)
 }
 
 template<typename T> bool
-getVersion(PyObject* p, T& v, const char* type)
+getVersion(PyObject* p, T& v)
 {
-    assert(checkIsInstance(p, type));
     PyObjectHandle major = getAttr(p, "major", false);
     PyObjectHandle minor = getAttr(p, "minor", false);
     if(major.get())
@@ -73,6 +57,11 @@ getVersion(PyObject* p, T& v, const char* type)
         }
         v.major = static_cast<Ice::Byte>(m);
     }
+    else
+    {
+        v.major = 0;
+    }
+
     if(minor.get())
     {
         major = PyNumber_Long(minor.get());
@@ -89,6 +78,10 @@ getVersion(PyObject* p, T& v, const char* type)
         }
         v.minor = static_cast<Ice::Byte>(m);
     }
+    else
+    {
+        v.minor = 0;
+    }
     return true;
 }
 
@@ -103,7 +96,7 @@ createVersion(const T& version, const char* type)
         return 0;
     }
 
-    if(!setVersion<T>(obj.get(), version, type))
+    if(!setVersion<T>(obj.get(), version))
     {
         return 0;
     }
@@ -122,7 +115,7 @@ versionToString(PyObject* args, const char* type)
     }
 
     T v;
-    if(!getVersion<T>(p, v, type))
+    if(!getVersion<T>(p, v))
     {
         return ICE_NULLPTR;
     }
@@ -519,6 +512,35 @@ IcePy::PyException::getTypeName()
     return result;
 }
 
+PyObject*
+IcePy::byteSeqToList(const Ice::ByteSeq& seq)
+{
+    PyObject* l = PyList_New(0);
+    if(!l)
+    {
+        return 0;
+    }
+
+    for(Ice::ByteSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)
+    {
+        PyObject* byte = PyLong_FromLong(*p);
+        if(!byte)
+        {
+            Py_DECREF(l);
+            return 0;
+        }
+        int status = PyList_Append(l, byte);
+        Py_DECREF(byte); // Give ownership to the list.
+        if(status < 0)
+        {
+            Py_DECREF(l);
+            return 0;
+        }
+    }
+
+    return l;
+}
+
 bool
 IcePy::listToStringSeq(PyObject* l, Ice::StringSeq& seq)
 {
@@ -778,6 +800,16 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         IcePy::PyObjectHandle m = IcePy::createString(e.str);
         PyObject_SetAttrString(p, STRCAST("str"), m.get());
     }
+    catch(const Ice::EndpointSelectionTypeParseException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::createString(e.str);
+        PyObject_SetAttrString(p, STRCAST("str"), m.get());
+    }
+    catch(const Ice::VersionParseException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::createString(e.str);
+        PyObject_SetAttrString(p, STRCAST("str"), m.get());
+    }
     catch(const Ice::IdentityParseException& e)
     {
         IcePy::PyObjectHandle m = IcePy::createString(e.str);
@@ -792,6 +824,11 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     {
         IcePy::PyObjectHandle m = IcePy::createIdentity(e.id);
         PyObject_SetAttrString(p, STRCAST("id"), m.get());
+    }
+    catch(const Ice::IllegalServantException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
+        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
     }
     catch(const Ice::RequestFailedException& e)
     {
@@ -823,6 +860,11 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         m = IcePy::createString(e.host);
         PyObject_SetAttrString(p, STRCAST("host"), m.get());
     }
+    catch(const Ice::BadMagicException& e)
+    {
+        IcePy::PyObjectHandle m = IcePy::byteSeqToList(e.badMagic);
+        PyObject_SetAttrString(p, STRCAST("badMagic"), m.get());
+    }
     catch(const Ice::UnsupportedProtocolException& e)
     {
         IcePy::PyObjectHandle m;
@@ -838,6 +880,10 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
         PyObject_SetAttrString(p, STRCAST("bad"), m.get());
         m = IcePy::createEncodingVersion(e.supported);
         PyObject_SetAttrString(p, STRCAST("supported"), m.get());
+    }
+    catch(const Ice::ConnectionManuallyClosedException& e)
+    {
+        PyObject_SetAttrString(p, STRCAST("graceful"), e.graceful ? IcePy::getTrue() : IcePy::getFalse());
     }
     catch(const Ice::NoValueFactoryException& e)
     {
@@ -871,15 +917,6 @@ convertLocalException(const Ice::LocalException& ex, PyObject* p)
     {
         IcePy::PyObjectHandle m = IcePy::createString(e.reason);
         PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch(const Ice::IllegalServantException& e)
-    {
-        IcePy::PyObjectHandle m = IcePy::createString(e.reason);
-        PyObject_SetAttrString(p, STRCAST("reason"), m.get());
-    }
-    catch(const Ice::ConnectionManuallyClosedException& e)
-    {
-        PyObject_SetAttrString(p, STRCAST("graceful"), e.graceful ? IcePy::getTrue() : IcePy::getFalse());
     }
     catch(const Ice::LocalException&)
     {
@@ -1100,7 +1137,7 @@ IcePy::createEncodingVersion(const Ice::EncodingVersion& v)
 bool
 IcePy::getEncodingVersion(PyObject* p, Ice::EncodingVersion& v)
 {
-    if(!getVersion<Ice::EncodingVersion>(p, v, Ice_EncodingVersion))
+    if(!getVersion<Ice::EncodingVersion>(p, v))
     {
         return false;
     }

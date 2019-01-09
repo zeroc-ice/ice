@@ -1,32 +1,28 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback, time
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import AllTests
+import TestI
 
-import Ice
-Ice.loadSlice('Test.ice')
-import Test, TestI, AllTests
 
-class TestServer(Ice.Application):
+class Collocated(TestHelper):
+
     def run(self, args):
-        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-        adapter = self.communicator().createObjectAdapter("TestAdapter")
-        locator = TestI.ServantLocatorI()
 
-        adapter.addServantLocator(locator, "")
-        #adapter.activate() // Don't activate OA to ensure collocation is used.
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            locator = TestI.ServantLocatorI()
 
-        AllTests.allTests(self.communicator())
+            adapter.addServantLocator(locator, "")
+            # adapter.activate() // Don't activate OA to ensure collocation is used.
 
-        adapter.waitForDeactivate()
-        return 0
+            AllTests.allTests(self, communicator)
 
-app = TestServer()
-sys.exit(app.main(sys.argv))
+            adapter.waitForDeactivate()

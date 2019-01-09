@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -670,38 +667,37 @@ namespace IceInternal
             _initData.threadStop = threadStop;
         }
 
+        //
+        // Return the C# class associated with this Slice type-id
+        // Used for both non-local Slice classes and exceptions
+        //
         public Type resolveClass(string id)
         {
+            // First attempt corresponds to no cs:namespace metadata in the
+            // enclosing top-level module
+            //
             string className = typeToClass(id);
-
             Type c = AssemblyUtil.findType(this, className);
 
             //
-            // See if the application defined an Ice.Package.MODULE property.
+            // If this fails, look for helper classes in the typeIdNamespaces namespace(s)
             //
-            if(c == null)
+            if(c == null && _initData.typeIdNamespaces != null)
             {
-                int pos = id.IndexOf(':', 2);
-                if(pos != -1)
+                foreach(var ns in _initData.typeIdNamespaces)
                 {
-                    String topLevelModule = id.Substring(2, pos - 2);
-                    String pkg = _initData.properties.getProperty("Ice.Package." + topLevelModule);
-                    if(pkg.Length > 0)
+                    Type helper = AssemblyUtil.findType(this, ns + "." + className);
+                    if(helper != null)
                     {
-                        c = AssemblyUtil.findType(this, pkg + "." + className);
+                        try
+                        {
+                            c = helper.GetProperty("targetClass").PropertyType;
+                            break; // foreach
+                        }
+                        catch(Exception)
+                        {
+                        }
                     }
-                }
-            }
-
-            //
-            // See if the application defined a default package.
-            //
-            if(c == null)
-            {
-                String pkg = _initData.properties.getProperty("Ice.Default.Package");
-                if(pkg.Length > 0)
-                {
-                    c = AssemblyUtil.findType(this, pkg + "." + className);
                 }
             }
 
@@ -718,19 +714,33 @@ namespace IceInternal
 
         public string resolveCompactId(int compactId)
         {
-            String className = "IceCompactId.TypeId_" + compactId;
-            try
+            string[] defaultVal = {"IceCompactId"};
+            var compactIdNamespaces = new List<string>(defaultVal);
+
+            if(_initData.typeIdNamespaces != null)
             {
-                Type c = AssemblyUtil.findType(this, className);
-                if(c != null)
+                compactIdNamespaces.AddRange(_initData.typeIdNamespaces);
+            }
+
+            string result = "";
+
+            foreach(var ns in compactIdNamespaces)
+            {
+                string className = ns + ".TypeId_" + compactId;
+                try
                 {
-                    return (string)c.GetField("typeId").GetValue(null);
+                    Type c = AssemblyUtil.findType(this, className);
+                    if(c != null)
+                    {
+                       result = (string)c.GetField("typeId").GetValue(null);
+                       break; // foreach
+                    }
+                }
+                catch(Exception)
+                {
                 }
             }
-            catch(Exception)
-            {
-            }
-            return "";
+            return result;
         }
 
         private static string typeToClass(string id)

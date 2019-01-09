@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -187,6 +184,32 @@ class Recursive
     Recursive v;
 }
 
+class L
+{
+    string data;
+}
+
+class K
+{
+    Object value;
+}
+
+sequence<Value> ValueSeq;
+dictionary<string, Value> ValueMap;
+
+struct StructKey
+{
+    int i;
+    string s;
+}
+
+dictionary<StructKey, L> LMap;
+
+class M
+{
+    LMap v;
+}
+
 class Initial
 {
     void shutdown();
@@ -205,9 +228,14 @@ class Initial
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
+    I getH();
     I getI();
     I getJ();
-    I getH();
+    K getK();
+
+    Value opValue(Value v1, out Value v2);
+    ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
+    ValueMap opValueMap(ValueMap v1, out ValueMap v2);
 
     D1 getD1(D1 d1);
     void throwEDerived() throws EDerived;
@@ -237,6 +265,7 @@ class Initial
     ObjectPrxDict getObjectPrxDict(ObjectPrxDict d);
     BaseDict getBaseDict(BaseDict d);
     BasePrxDict getBasePrxDict(BasePrxDict d);
+    M opM(M v1, out M v2);
 }
 
 interface TestIntf

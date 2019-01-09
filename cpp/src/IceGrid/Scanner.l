@@ -2,10 +2,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -13,24 +10,19 @@
 #include <IceGrid/Parser.h>
 #include <IceGrid/Grammar.h>
 
-#if defined(_MSC_VER) && defined(ICE_64)
+#if defined(_MSC_VER)
+// '<' : signed/unsigned mismatch
+#   pragma warning(disable:4018)
+// 'initializing' : conversion from '__int64' to 'int', possible loss of data
+#   pragma warning(disable:4244)
+
+#   if defined(ICE_64)
 //
 // '=' : conversion from 'size_t' to 'int', possible loss of data
 // The result of fread() is a size_t and gets inserted into an int
 //
-#   pragma warning( 4 : 4267 )
-//
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-// Puts a pointer-difference into an int
-//
-#   pragma warning( 4 : 4244 )
-#endif
-
-#if defined(_MSC_VER) && defined(ICE_32)
-//
-// '<' : signed/unsigned mismatch
-//
-#   pragma warning( 4 : 4018 )
+#       pragma warning(disable:4267)
+#   endif
 #endif
 
 #if defined(__GNUC__)
@@ -148,7 +140,7 @@ keyword [[:alpha:]]*
     string s;
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == '\'')
         {
             break;
@@ -160,7 +152,7 @@ keyword [[:alpha:]]*
         }
         else
         {
-            s += c;
+            s += static_cast<char>(c);
         }
     }
     yylvalp->clear();
@@ -174,7 +166,7 @@ keyword [[:alpha:]]*
     s += yytext[0];
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == EOF)
         {
             break;
@@ -189,12 +181,12 @@ keyword [[:alpha:]]*
             s += parseSingleQuotedString();
             continue;
         }
-        else if(isspace(static_cast<unsigned char>(c)) || c == ';')
+        else if(isspace(c) || c == ';')
         {
             unput(c);
             break;
         }
-        s += c;
+        s += static_cast<char>(c);
     }
 
     yylvalp->clear();
@@ -264,7 +256,7 @@ parseDoubleQuotedString()
     string s;
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == '"')
         {
             break;
@@ -276,26 +268,26 @@ parseDoubleQuotedString()
         }
         else if(c == '\\')
         {
-            char next = static_cast<char>(yyinput());
+            int next = yyinput();
             switch(next)
             {
                 case '\\':
                 case '"':
                 {
-                    s += next;
+                    s += static_cast<char>(next);
                     break;
                 }
 
                 default:
                 {
-                    s += c;
+                    s += static_cast<char>(c);
                     unput(next);
                 }
             }
         }
         else
         {
-            s += c;
+            s += static_cast<char>(c);
         }
     }
     return s;
@@ -307,7 +299,7 @@ parseSingleQuotedString()
     string s;
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == '\'')
         {
             break;
@@ -319,7 +311,7 @@ parseSingleQuotedString()
         }
         else
         {
-            s += c;
+            s += static_cast<char>(c);
         }
     }
     return s;

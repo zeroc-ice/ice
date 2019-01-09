@@ -94,8 +94,10 @@ extension with namespaces disabled by setting the MSBuild property
 msbuild msbuild\ice.proj /p:PhpUseNamespaces=no
 ```
 
-The PHP extension is build by default using PHP 7.1, you can build with 7.2 by set
-MSBuildProperty `BuildWithPhpVersion` to `7.2`:
+The PHP extension is build by default using PHP 7.1, the extension can be build with
+PHP 7.1, 7.2 or 7.3 by setting MSBuildProperty `BuildWithPhpVersion` to the desired
+version for example you can use the following command to build the extension with PHP
+7.2:
 
 ```
 msbuild msbuild\ice.proj /p:BuildWithPhpVersion=7.2
@@ -333,5 +335,5 @@ The enclosing directory also needs to be accessible. For example:
 ```
 
 [1]: https://zeroc.com/distributions/ice
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
 [3]: https://github.com/zeroc-ice/ice-builder-visualstudio

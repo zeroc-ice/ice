@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -71,8 +68,8 @@ InvocationFuture::exception(exception_ptr e)
 }
 
 void
-InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& communicator,
-                           const Ice::EncodingVersion& encoding, bool b, pair<const Ice::Byte*, const Ice::Byte*> p)
+InvocationFuture::finished(const std::shared_ptr<Ice::Communicator>& /*communicator*/,
+                           const Ice::EncodingVersion& /*encoding*/, bool b, pair<const Ice::Byte*, const Ice::Byte*> p)
 {
     lock_guard<mutex> lock(_mutex);
     _ok = b;
@@ -191,7 +188,6 @@ Ice_ObjectPrx_equals(void* self, void* other)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -258,7 +254,6 @@ Ice_ObjectPrx_write(void* proxy, void* communicator, mxArray* encoding)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -541,14 +536,14 @@ Ice_ObjectPrx_ice_getEndpoint(void* self, unsigned int idx, void** r)
 }
 
 mxArray*
-Ice_ObjectPrx_ice_createEndpointList(void* self, unsigned int num, void** r)
+Ice_ObjectPrx_ice_createEndpointList(void* /*self*/, unsigned int num, void** r)
 {
     *r = new vector<shared_ptr<Ice::Endpoint>>(num);
     return 0;
 }
 
 mxArray*
-Ice_ObjectPrx_ice_setEndpoint(void* self, void* arr, unsigned int idx, void* e)
+Ice_ObjectPrx_ice_setEndpoint(void* /*self*/, void* arr, unsigned int idx, void* e)
 {
     //
     // arr must hold a pointer returned by createEndpointList.
@@ -693,7 +688,6 @@ Ice_ObjectPrx_ice_getEndpointSelection(void* self)
     {
         return convertException(ex);
     }
-    return 0;
 }
 
 mxArray*

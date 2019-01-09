@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -554,6 +551,10 @@ public:
     return contained_val();
   }
 
+#ifdef _MSC_VER
+#   pragma warning(push)
+#   pragma warning(disable:4702) // unreachable code
+#endif
   constexpr T const& value() const {
     return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
   }
@@ -561,6 +562,10 @@ public:
   T& value() {
     return initialized() ? contained_val() : (throw bad_optional_access("bad optional access"), contained_val());
   }
+
+#ifdef _MSC_VER
+#   pragma warning(pop)
+#endif
 
 # endif
 

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -12,6 +9,11 @@
 #include <Slice/PHPUtil.h>
 #include <algorithm>
 #include <ctype.h>
+
+#if defined(__GNUC__) && !defined(__clang__)
+// False warning with older GCC
+#   pragma GCC diagnostic ignored "-Wclobbered"
+#endif
 
 using namespace std;
 using namespace IcePHP;

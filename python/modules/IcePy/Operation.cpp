@@ -1,15 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <Operation.h>
 #include <Communicator.h>
 #include <Current.h>
@@ -1172,11 +1166,12 @@ extern "C"
 static int
 marshaledResultInit(MarshaledResultObject* self, PyObject* args, PyObject* /*kwds*/)
 {
+    PyObject* versionType = IcePy::lookupType("Ice.EncodingVersion");
     PyObject* result;
     OperationObject* opObj;
     PyObject* communicatorObj;
     PyObject* encodingObj;
-    if(!PyArg_ParseTuple(args, STRCAST("OOOO"), &result, &opObj, &communicatorObj, &encodingObj))
+    if(!PyArg_ParseTuple(args, STRCAST("OOOO!"), &result, &opObj, &communicatorObj, versionType, &encodingObj))
     {
         return -1;
     }
@@ -3214,12 +3209,12 @@ IcePy::SyncBlobjectInvocation::invoke(PyObject* args, PyObject* /* kwds */)
         if(!out.empty())
         {
             void* buf;
-            Py_ssize_t sz;
-            if(PyObject_AsWriteBuffer(op.get(), &buf, &sz))
+            Py_ssize_t ssz;
+            if(PyObject_AsWriteBuffer(op.get(), &buf, &ssz))
             {
                 throwPythonException();
             }
-            memcpy(buf, &out[0], sz);
+            memcpy(buf, &out[0], ssz);
         }
 #endif
 
@@ -3403,12 +3398,12 @@ IcePy::AsyncBlobjectInvocation::invoke(PyObject* args, PyObject* kwds)
             }
         }
     }
-    catch(const Ice::CommunicatorDestroyedException& ex)
+    catch(const Ice::CommunicatorDestroyedException& e)
     {
         //
         // CommunicatorDestroyedException is the only exception that can propagate directly.
         //
-        setPythonException(ex);
+        setPythonException(e);
         return 0;
     }
     catch(const Ice::Exception&)
@@ -3825,7 +3820,7 @@ Upcall::dispatchImpl(PyObject* servant, const string& dispatchName, PyObject* ar
     //
     // Ignore the return value of _iceDispatch -- it will use the dispatch callback.
     //
-    PyObjectHandle ignore = PyObject_Call(dispatchMethod.get(), dispatchArgs.get(), 0);
+    PyObjectHandle ignored = PyObject_Call(dispatchMethod.get(), dispatchArgs.get(), 0);
 
     //
     // Check for exceptions.
@@ -4026,9 +4021,9 @@ IcePy::TypedUpcall::exception(PyException& ex)
             throwPythonException();
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& e)
     {
-        exception(ex);
+        exception(e);
     }
 }
 
@@ -4193,9 +4188,9 @@ IcePy::BlobjectUpcall::exception(PyException& ex)
 
         ex.raise();
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& e)
     {
-        exception(ex);
+        exception(e);
     }
 }
 

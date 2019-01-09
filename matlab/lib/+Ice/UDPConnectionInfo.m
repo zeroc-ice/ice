@@ -9,7 +9,7 @@ classdef UDPConnectionInfo < Ice.IPConnectionInfo
     %   rcvSize - The connection buffer receive size.
     %   sndSize - The connection buffer send size.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     methods
         function obj = UDPConnectionInfo(underlying, incoming, adapterName, connectionId, localAddress, localPort, ...

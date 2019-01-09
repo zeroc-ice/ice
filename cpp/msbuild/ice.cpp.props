@@ -10,7 +10,7 @@
 
   <!-- Visual Studio 2010 doesn't set DefaultPlatformToolset -->
   <PropertyGroup>
-    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And  '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
+    <DefaultPlatformToolset Condition="'$(VisualStudioVersion)' == '10.0' And '$(DefaultPlatformToolset)' == ''">v100</DefaultPlatformToolset>
   </PropertyGroup>
 
   <!--
@@ -67,9 +67,9 @@
   -->
   <ItemDefinitionGroup>
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level4</WarningLevel>
       <PreprocessorDefinitions>_CONSOLE;_WIN32_WINNT=0x601;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
-      <DisableSpecificWarnings>4250;4251;4275</DisableSpecificWarnings>
+      <DisableSpecificWarnings>4121;4250;4251;4275;4324</DisableSpecificWarnings>
       <AdditionalOptions>/bigobj %(AdditionalOptions)</AdditionalOptions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -211,6 +211,20 @@
     <Link>
       <AdditionalDependencies>wsetargv.obj</AdditionalDependencies>
     </Link>
+  </ItemDefinitionGroup>
+
+  <!-- Disable additional warnings with VS2013 -->
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v120'">
+    <ClCompile>
+       <DisableSpecificWarnings>%(DisableSpecificWarnings);4127;4505;4512</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+
+  <!-- Disable additional warnings with VS2010 -->
+  <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'=='v100'">
+    <ClCompile>
+       <DisableSpecificWarnings>%(DisableSpecificWarnings);4127;4428;4505;4512</DisableSpecificWarnings>
+    </ClCompile>
   </ItemDefinitionGroup>
 
   <ItemDefinitionGroup Condition="'$(DefaultPlatformToolset)'!='v100'">

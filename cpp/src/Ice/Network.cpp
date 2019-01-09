@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -30,6 +27,11 @@
 #include <IceUtil/Random.h>
 #include <functional>
 
+// TODO: fix this warning
+#if defined(_MSC_VER)
+#   pragma warning(disable:4244) // 'argument': conversion from 'int' to 'u_short', possible loss of data
+#endif
+
 #if defined(ICE_OS_UWP)
 #   include <IceUtil/InputUtil.h>
 #elif defined(_WIN32)
@@ -50,6 +52,10 @@
 #  include <ifaddrs.h>
 #elif defined(__sun)
 #  include <sys/sockio.h>
+#endif
+
+#if defined(__GNUC__) && (__GNUC__ < 5)
+#  pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 #endif
 
 #if defined(_WIN32)
@@ -116,6 +122,9 @@ public:
 };
 
 #ifndef ICE_OS_UWP
+
+#   ifndef ICE_CPP11_COMPILER
+
 struct AddressIsIPv6 : public unary_function<Address, bool>
 {
 public:
@@ -126,26 +135,36 @@ public:
         return ss.saStorage.ss_family == AF_INET6;
     }
 };
-
-struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
-{
-    ptrdiff_t operator()(ptrdiff_t d)
-    {
-        return IceUtilInternal::random(static_cast<int>(d));
-    }
-};
+#   endif
 
 void
 sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSelectionType selType, bool preferIPv6)
 {
     if(selType == Ice::ICE_ENUM(EndpointSelectionType, Random))
     {
-        RandomNumberGenerator rng;
-        random_shuffle(addrs.begin(), addrs.end(), rng);
+        IceUtilInternal::shuffle(addrs.begin(), addrs.end());
     }
 
     if(protocol == EnableBoth)
     {
+#ifdef ICE_CPP11_COMPILER
+        if(preferIPv6)
+        {
+            stable_partition(addrs.begin(), addrs.end(),
+                             [](const Address& ss)
+                             {
+                                 return ss.saStorage.ss_family == AF_INET6;
+                             });
+        }
+        else
+        {
+            stable_partition(addrs.begin(), addrs.end(),
+                             [](const Address& ss)
+                             {
+                                 return ss.saStorage.ss_family != AF_INET6;
+                             });
+        }
+#else
         if(preferIPv6)
         {
             stable_partition(addrs.begin(), addrs.end(), AddressIsIPv6());
@@ -154,6 +173,7 @@ sortAddresses(vector<Address>& addrs, ProtocolSupport protocol, Ice::EndpointSel
         {
             stable_partition(addrs.begin(), addrs.end(), not1(AddressIsIPv6()));
         }
+#endif
     }
 }
 
@@ -206,8 +226,6 @@ setTcpLoopbackFastPath(SOCKET fd)
 SOCKET
 createSocketImpl(bool udp, int)
 {
-    SOCKET fd;
-
     if(udp)
     {
         return ref new DatagramSocket();
@@ -219,8 +237,6 @@ createSocketImpl(bool udp, int)
         socket->Control->NoDelay = true;
         return socket;
     }
-
-    return fd;
 }
 #else
 SOCKET
@@ -891,6 +907,7 @@ IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, b
     if(checkIfErrorOrCompleted(op, action, action->Status, connect))
     {
         asyncInfo->count = 0;
+        asyncInfo->error = ERROR_SUCCESS;
     }
     else
     {
@@ -898,7 +915,7 @@ IceInternal::NativeInfo::queueAction(SocketOperation op, IAsyncAction^ action, b
             [=] (IAsyncAction^ info, Windows::Foundation::AsyncStatus status)
             {
                 //
-                // COMPILERFIX with VC141 using operator!= and operator== inside
+                // COMPILERFIX with v141 using operator!= and operator== inside
                 // a lambda callback triggers a compiler bug, we move the code to
                 // a seperate private method to workaround the issue.
                 //
@@ -914,13 +931,13 @@ IceInternal::NativeInfo::queueActionCompleted(SocketOperation op, AsyncInfo* asy
 {
     if(status != Windows::Foundation::AsyncStatus::Completed)
     {
-        asyncInfo->count = SOCKET_ERROR;
         asyncInfo->error = info->ErrorCode.Value;
     }
     else
     {
-        asyncInfo->count = 0;
+        asyncInfo->error = ERROR_SUCCESS;
     }
+    asyncInfo->count = 0;
     completed(op);
 }
 
@@ -939,6 +956,7 @@ IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsi
         // the AsyncInfo structure after calling the completed callback.
         //
         info->count = static_cast<int>(operation->GetResults());
+        info->error = ERROR_SUCCESS;
         _completedHandler(op);
         return;
     }
@@ -950,7 +968,7 @@ IceInternal::NativeInfo::queueOperation(SocketOperation op, IAsyncOperation<unsi
                 [=] (IAsyncOperation<unsigned int>^ operation, Windows::Foundation::AsyncStatus status)
                 {
                     //
-                    // COMPILERFIX with VC141 using operator!= and operator== inside
+                    // COMPILERFIX with v141 using operator!= and operator== inside
                     // a lambda callback triggers a compiler bug, we move the code to
                     // a seperate private method to workaround the issue.
                     //
@@ -969,12 +987,13 @@ IceInternal::NativeInfo::queueOperationCompleted(SocketOperation op, AsyncInfo* 
 {
     if(status != Windows::Foundation::AsyncStatus::Completed)
     {
-        info->count = SOCKET_ERROR;
+        info->count = 0;
         info->error = operation->ErrorCode.Value;
     }
     else
     {
         info->count = static_cast<int>(operation->GetResults());
+        info->error = ERROR_SUCCESS;
     }
     completed(op);
 }
@@ -1142,7 +1161,7 @@ IceInternal::getAddresses(const string& host, int port, ProtocolSupport protocol
     struct addrinfo* info = 0;
     int retry = 5;
 
-    struct addrinfo hints = { 0 };
+    struct addrinfo hints = {};
     if(protocol == EnableIPv4)
     {
         hints.ai_family = PF_INET;
@@ -1713,7 +1732,7 @@ IceInternal::getHostsForEndpointExpand(const string& host, ProtocolSupport proto
 }
 
 vector<string>
-IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport protocolSupport)
+IceInternal::getInterfacesForMulticast(const string& intf, ProtocolSupport)
 {
     vector<string> interfaces;
     if(intf.empty() || intf == "0.0.0.0" || intf == "::" || intf == "0:0:0:0:0:0:0:0")
@@ -1839,7 +1858,7 @@ IceInternal::getPort(const Address& addr)
         return -1;
     }
 #else
-    IceUtil::Int64 port;
+    IceUtil::Int64 port = 0;
     //
     // Don't need to use any string converter here as the port number use just ASCII characters.
     //
@@ -3017,7 +3036,7 @@ IceInternal::doFinishConnectAsync(SOCKET fd, AsyncInfo& info)
     // failure to connect. The socket isn't closed by this method.
     //
 
-    if(static_cast<int>(info.count) == SOCKET_ERROR)
+    if(info.error != ERROR_SUCCESS)
     {
         WSASetLastError(info.error);
         if(connectionRefused())

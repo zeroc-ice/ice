@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -204,11 +201,11 @@ public:
     }
 
     void
-    exception(const Ice::Exception& ex)
+    exception(const Ice::Exception& lex)
     {
         try
         {
-            ex.ice_throw();
+            lex.ice_throw();
         }
         catch(const DeploymentException& ex)
         {
@@ -266,11 +263,11 @@ public:
     }
 
     void
-    exception(const Ice::Exception& ex)
+    exception(const Ice::Exception& dex)
     {
         try
         {
-            ex.ice_throw();
+            dex.ice_throw();
         }
         catch(const DeploymentException& ex)
         {
@@ -389,18 +386,18 @@ NodeEntry::setSession(const NodeSessionIPtr& session)
             }
             else
             {
-                NodeSessionIPtr session = _session;
+                NodeSessionIPtr s = _session;
                 sync.release();
                 try
                 {
-                    session->getNode()->ice_ping();
+                    s->getNode()->ice_ping();
                     throw NodeActiveException();
                 }
                 catch(const Ice::LocalException&)
                 {
                     try
                     {
-                        session->destroy(Ice::emptyCurrent);
+                        s->destroy(Ice::emptyCurrent);
                     }
                     catch(const Ice::ObjectNotExistException&)
                     {

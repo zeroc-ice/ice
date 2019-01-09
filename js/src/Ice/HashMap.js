@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -397,7 +394,7 @@ class HashMap
 
         if(v === undefined)
         {
-            throw new Error("cannot compute hash for undefined value");
+            throw new RangeError("cannot compute hash for undefined value");
         }
 
         if(typeof v.hashCode === "function")
@@ -428,7 +425,7 @@ class HashMap
             return {key: v, hash: v ? 1 : 0};
         }
 
-        throw new Error("cannot compute hash for value of type " + type);
+        throw new RangeError("cannot compute hash for value of type " + type);
     }
 
     keysEqual(k1, k2)

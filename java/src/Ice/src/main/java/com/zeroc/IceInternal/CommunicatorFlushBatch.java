@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -16,8 +13,6 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
     public CommunicatorFlushBatch(com.zeroc.Ice.Communicator communicator, Instance instance)
     {
         super(communicator, instance, "flushBatchRequests");
-
-        _observer = ObserverHelper.get(instance, "flushBatchRequests");
 
         //
         // _useCount is initialized to 1 to prevent premature callbacks.
@@ -150,8 +145,11 @@ public class CommunicatorFlushBatch extends InvocationFutureI<Void>
         }
     }
 
-    public void ready()
+    public void invoke(com.zeroc.Ice.CompressBatch compressBatch)
     {
+        _observer = ObserverHelper.get(_instance, "flushBatchRequests");
+        _instance.outgoingConnectionFactory().flushAsyncBatchRequests(compressBatch, this);
+        _instance.objectAdapterFactory().flushAsyncBatchRequests(compressBatch, this);
         doCheck(true);
     }
 

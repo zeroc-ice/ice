@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -125,14 +122,17 @@ public class TestI implements TestIntf
     }
 
     @Override
-    public void pingBiDir(com.zeroc.Ice.Identity id, com.zeroc.Ice.Current current)
+    public void pingBiDir(PingReplyPrx reply, com.zeroc.Ice.Current current)
     {
-        PingReplyPrx p = PingReplyPrx.uncheckedCast(current.con.createProxy(id));
-        p.replyAsync().whenCompleteAsync(
+        reply = reply.ice_fixed(current.con);
+        final Thread dispatchThread = Thread.currentThread();
+        reply.replyAsync().whenCompleteAsync(
             (result, ex) ->
             {
-                test(Thread.currentThread().getName().indexOf("Ice.ThreadPool.Server") != -1);
-            }, p.ice_executor()).join();
+                Thread callbackThread = Thread.currentThread();
+                test(callbackThread != dispatchThread);
+                test(callbackThread.getName().indexOf("Ice.ThreadPool.Server") != -1);
+            }, reply.ice_executor()).join();
     }
 
     @Override

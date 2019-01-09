@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -37,6 +34,7 @@ public interface Blobject extends com.zeroc.Ice.Object
     com.zeroc.Ice.Object.Ice_invokeResult ice_invoke(byte[] inEncaps, Current current)
         throws UserException;
 
+    /** @hidden */
     @Override
     default CompletionStage<OutputStream> _iceDispatch(com.zeroc.IceInternal.Incoming in, Current current)
         throws UserException

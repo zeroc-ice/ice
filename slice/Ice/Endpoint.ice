@@ -1,15 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #include <Ice/Version.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -86,12 +94,12 @@ const short iAPEndpointType = 8;
  **/
 const short iAPSEndpointType = 9;
 
+#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 /**
  *
  * Base class providing access to the endpoint details.
  *
  **/
-["php:internal", "matlab:internal"]
 local class EndpointInfo
 {
     /**
@@ -151,7 +159,7 @@ local class EndpointInfo
  * The user-level interface to an endpoint.
  *
  **/
-["cpp:comparable", "php:internal", "matlab:internal"]
+["cpp:comparable", "js:comparable"]
 local interface Endpoint
 {
     /**
@@ -180,7 +188,6 @@ local interface Endpoint
  * @see Endpoint
  *
  **/
-["php:internal", "matlab:internal"]
 local class IPEndpointInfo extends EndpointInfo
 {
     /**
@@ -212,7 +219,6 @@ local class IPEndpointInfo extends EndpointInfo
  * @see Endpoint
  *
  **/
-["php:internal", "matlab:internal"]
 local class TCPEndpointInfo extends IPEndpointInfo
 {
 }
@@ -224,7 +230,6 @@ local class TCPEndpointInfo extends IPEndpointInfo
  * @see Endpoint
  *
  **/
-["php:internal", "matlab:internal"]
 local class UDPEndpointInfo extends IPEndpointInfo
 {
     /**
@@ -247,7 +252,6 @@ local class UDPEndpointInfo extends IPEndpointInfo
  * Provides access to a WebSocket endpoint information.
  *
  **/
-["php:internal", "matlab:internal"]
 local class WSEndpointInfo extends EndpointInfo
 {
     /**
@@ -265,7 +269,6 @@ local class WSEndpointInfo extends EndpointInfo
  * @see Endpoint
  *
  **/
-["php:internal", "matlab:internal"]
 local class OpaqueEndpointInfo extends EndpointInfo
 {
     /**
@@ -283,5 +286,7 @@ local class OpaqueEndpointInfo extends EndpointInfo
      **/
     ByteSeq rawBytes;
 }
+
+#endif
 
 }

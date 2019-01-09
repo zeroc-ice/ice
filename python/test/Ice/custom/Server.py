@@ -1,18 +1,34 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 
-import Ice
-Ice.loadSlice('Test.ice')
+
+try:
+    import numpy
+    hasNumPy = True
+except ImportError:
+    hasNumPy = False
+    pass
+
+#
+# Use separate try/except to ensure loadSlice correctly report ImportError
+# in ausence of numpy.
+#
+try:
+    TestHelper.loadSlice("TestNumPy.ice")
+except ImportError:
+    pass
+
+import sys
 import Test
+import Ice
+import array
 
 def test(b):
     if not b:
@@ -86,23 +102,141 @@ class CustomI(Test.Custom):
         test(isinstance(val.s3, tuple))
         test(isinstance(val.s4, list))
 
+    def opBoolSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opByteSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opShortSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opIntSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opLongSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opFloatSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opDoubleSeq(self, v1, current):
+        test(isinstance(v1, array.array))
+        return v1, v1
+
+    def opBogusArrayNotExistsFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayThrowFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayType(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayNoneFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArraySignatureFactory(self, current):
+        return [True, False, True, False]
+
+    def opBogusArrayNoCallableFactory(self, current):
+        return [True, False, True, False]
+
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    object = CustomI()
-    adapter.add(object, Ice.stringToIdentity("test"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
+if hasNumPy:
 
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+    class NumPyCustomI(Test.NumPy.Custom):
 
-sys.exit(not status)
+        def opBoolSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opByteSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opShortSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opIntSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opLongSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opFloatSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opDoubleSeq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1, v1
+
+        def opComplex128Seq(self, v1, current):
+            test(isinstance(v1, numpy.ndarray))
+            return v1
+
+        def opBoolMatrix(self, current):
+            return numpy.array([[True, False, True],
+                                [True, False, True],
+                                [True, False, True]], numpy.bool_)
+
+        def opByteMatrix(self, current):
+            return numpy.array([[1, 0, 1],
+                                [1, 0, 1],
+                                [1, 0, 1]], numpy.int8)
+
+        def opShortMatrix(self, current):
+            return numpy.array([[1, 0, 1],
+                                [1, 0, 1],
+                                [1, 0, 1]], numpy.int16)
+
+        def opIntMatrix(self, current):
+            return numpy.array([[1, 0, 1],
+                                [1, 0, 1],
+                                [1, 0, 1]], numpy.int32)
+
+        def opLongMatrix(self, current):
+            return numpy.array([[1, 0, 1],
+                                [1, 0, 1],
+                                [1, 0, 1]], numpy.int64)
+
+        def opFloatMatrix(self, current):
+            return numpy.array([[1.1, 0.1, 1.1],
+                                [1.1, 0.1, 1.1],
+                                [1.1, 0.1, 1.1]], numpy.float32)
+
+        def opDoubleMatrix(self, current):
+            return numpy.array([[1.1, 0.1, 1.1],
+                                [1.1, 0.1, 1.1],
+                                [1.1, 0.1, 1.1]], numpy.float64)
+
+        def opBogusNumpyArrayType(self, current):
+            return [True, False, True, False]
+
+        def shutdown(self, current=None):
+            current.adapter.getCommunicator().shutdown()
+
+
+class Server(TestHelper):
+
+    def run(self, args):
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(CustomI(), Ice.stringToIdentity("test"))
+            if hasNumPy:
+                adapter.add(NumPyCustomI(), Ice.stringToIdentity("test.numpy"))
+            adapter.activate()
+            communicator.waitForShutdown()

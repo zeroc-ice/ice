@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -34,6 +31,7 @@ public class ConnectionFlushBatch extends OutgoingAsyncBaseI<Void>
 
     public void invoke(com.zeroc.Ice.CompressBatch compressBatch)
     {
+        _observer = ObserverHelper.get(_instance, "flushBatchRequests");
         try
         {
             final BatchRequestQueue.SwapResult r = _connection.getBatchRequestQueue().swap(_os);

@@ -1,14 +1,8 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
-
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
 
 project.ext.displayName = "Ice"
 project.ext.description = "Ice is a comprehensive RPC framework that helps you build distributed applications" +
@@ -16,14 +10,23 @@ project.ext.description = "Ice is a comprehensive RPC framework that helps you b
 
 slice {
     java {
-        stream {
-            files = [file("$project.ext.topSrcDir/slice/Ice/BuiltinSequences.ice")]
-        }
-        nostream {
-            files = fileTree(dir: "$project.ext.topSrcDir/slice", includes:['Ice/*.ice'],
-                excludes:['Ice/*F.ice', 'Ice/BuiltinSequences.ice'])
-        }
+        files = fileTree(dir: "$project.ext.topSrcDir/slice", includes:['Ice/*.ice'],
+                excludes:['Ice/*F.ice'])
     }
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"
+
+//
+// Unfortunately we can't simply process Ice classes through javadoc as
+// they use various public IceInternal and IceUtilInternal classes. So
+// we first compile everything then use these compiled classes to javadoc
+// the code we want to document. A handful of public Ice classes (other
+// than the *I.java classes) are also marked @hidden.
+//
+javadoc.dependsOn(compileJava)
+
+javadoc {
+    classpath = project.sourceSets.main.output
+    excludes = ["**/IceInternal/*.java", "**/IceUtilInternal/*.java", "**/Ice/*I.java"]
+}

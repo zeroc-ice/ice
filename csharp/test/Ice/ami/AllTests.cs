@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -23,43 +20,15 @@ namespace Ice
             {
                 public override void reply(Ice.Current current)
                 {
-                    lock(this)
-                    {
-                        ++_replies;
-                        Monitor.Pulse(this);
-                    }
+                    _received = true;
                 }
 
-                public void reset()
+                public bool checkReceived()
                 {
-                    lock(this)
-                    {
-                        _replies = 0;
-                    }
+                    return _received;
                 }
 
-                public bool waitReply(int expectedReplies, long timeout)
-                {
-                    lock(this)
-                    {
-                        long end = IceInternal.Time.currentMonotonicTimeMillis() + timeout;
-                        while(_replies < expectedReplies)
-                        {
-                            int delay =(int)(end - IceInternal.Time.currentMonotonicTimeMillis());
-                            if(delay > 0)
-                            {
-                                Monitor.Wait(this, delay);
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        return _replies == expectedReplies;
-                    }
-                }
-
-                private int _replies = 0;
+                private bool _received = false;
             }
 
             private class Cookie
@@ -3854,8 +3823,8 @@ namespace Ice
                         adapter.activate();
 
                         p.ice_getConnection().setAdapter(adapter);
-                        p.pingBiDir(reply.ice_getIdentity());
-                        replyI.waitReply(1, 100);
+                        p.pingBiDir(reply);
+                        test(replyI.checkReceived());
                         adapter.destroy();
                     }
                 }

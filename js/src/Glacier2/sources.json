@@ -10,5 +10,5 @@
         "Glacier2/Session.ice",
         "Glacier2/SSLInfo.ice"],
     "common":[
-        "Glacier2/Glacier2.js"]
+        "Glacier2.js"]
 }

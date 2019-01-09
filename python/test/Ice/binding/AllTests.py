@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -50,8 +47,8 @@ def deactivate(com, adapters):
     for p in adapters:
         com.deactivateObjectAdapter(p)
 
-def allTests(communicator):
-    ref = "communicator:default -p 12010"
+def allTests(helper, communicator):
+    ref = "communicator:{0}".format(helper.getTestEndpoint())
     com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref))
 
     sys.stdout.write("testing binding with single endpoint... ")

@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -13,7 +10,7 @@ def test(b)
     end
 end
 
-def allTests(communicator)
+def allTests(helper, communicator)
 
     print "testing Ice.Admin.Facets property... "
     STDOUT.flush
@@ -38,7 +35,7 @@ def allTests(communicator)
 
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "d:default -p 12010"
+    ref = "d:#{helper.getTestEndpoint()}"
     db = communicator.stringToProxy(ref)
     test(db)
     puts "ok"

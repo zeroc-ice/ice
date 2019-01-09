@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -25,7 +22,6 @@ public class Collocated : Test.TestHelper
         Ice.InitializationData initData = new Ice.InitializationData();
         initData.observer = observer;
         initData.properties = createTestProperties(ref args);
-        initData.properties.setProperty("Ice.Package.Test", "test.Ice.metrics");
         initData.properties.setProperty("Ice.Admin.Endpoints", "tcp");
         initData.properties.setProperty("Ice.Admin.InstanceName", "client");
         initData.properties.setProperty("Ice.Admin.DelayCreation", "1");

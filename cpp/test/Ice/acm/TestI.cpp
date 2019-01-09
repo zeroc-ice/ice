@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -105,7 +102,7 @@ RemoteObjectAdapterI::deactivate(const Ice::Current&)
 }
 
 void
-TestI::sleep(int delay, const Ice::Current& current)
+TestI::sleep(int delay, const Ice::Current&)
 {
     Lock sync(*this);
     timedWait(IceUtil::Time::seconds(delay));
@@ -120,7 +117,7 @@ TestI::sleepAndHold(int delay, const Ice::Current& current)
 }
 
 void
-TestI::interruptSleep(const Ice::Current& current)
+TestI::interruptSleep(const Ice::Current&)
 {
     Lock sync(*this);
     notifyAll();

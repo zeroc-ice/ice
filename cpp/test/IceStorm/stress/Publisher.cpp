@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -41,7 +38,7 @@ Publisher::run(int argc, char** argv)
     catch(const IceUtilInternal::BadOptException& e)
     {
         ostringstream os;
-        os << argv[0] << ": " << e.reason;
+        os << argv[0] << ": error: " << e.reason;
         throw invalid_argument(os.str());
     }
 

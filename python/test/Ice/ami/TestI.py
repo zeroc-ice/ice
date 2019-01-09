@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -86,8 +83,9 @@ class TestIntfI(Test.TestIntf):
     def supportsFunctionalTests(self, current=None):
         return False
 
-    def pingBiDir(self, id, current = None):
-        Test.PingReplyPrx.uncheckedCast(current.con.createProxy(id)).reply()
+    def pingBiDir(self, reply, current=None):
+        # TODO: verify correct thread with add_done_callback_async
+        reply.ice_fixed(current.con).replyAsync().result()
 
 class TestIntfII(Test.Outer.Inner.TestIntf):
     def op(self, i, current):

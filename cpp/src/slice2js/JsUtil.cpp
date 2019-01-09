@@ -1,15 +1,13 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #include <JsUtil.h>
 #include <Slice/Util.h>
 #include <IceUtil/Functional.h>
+#include <IceUtil/StringUtil.h>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -22,10 +20,79 @@
 #include <unistd.h>
 #endif
 
+// TODO: fix this warning!
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#elif defined(__clang__)
+#   pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wshadow"
+#endif
+
 using namespace std;
 using namespace Slice;
 using namespace IceUtil;
 using namespace IceUtilInternal;
+
+string
+Slice::relativePath(const string& p1, const string& p2)
+{
+    vector<string> tokens1;
+    vector<string> tokens2;
+
+    splitString(p1, "/\\", tokens1);
+    splitString(p2, "/\\", tokens2);
+
+    string f1 = tokens1.back();
+    string f2 = tokens2.back();
+
+    tokens1.pop_back();
+    tokens2.pop_back();
+
+    vector<string>::const_iterator i1 = tokens1.begin();
+    vector<string>::const_iterator i2 = tokens2.begin();
+
+    while(i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
+    {
+        i1++;
+        i2++;
+    }
+
+    //
+    // Different volumes, relative path not possible.
+    //
+    if(i1 == tokens1.begin() && i2 == tokens2.begin())
+    {
+        return p1;
+    }
+
+    string newPath;
+    if(i2 == tokens2.end())
+    {
+        newPath += "./";
+        for (; i1 != tokens1.end(); ++i1)
+        {
+            newPath += *i1 + "/";
+        }
+    }
+    else
+    {
+        for(size_t i = tokens2.end() - i2; i > 0; i--)
+        {
+            newPath += "../";
+        }
+
+        for(; i1 != tokens1.end(); ++i1)
+        {
+            newPath += *i1 + "/";
+        }
+    }
+    newPath += f1;
+
+    return newPath;
+}
 
 static string
 lookupKwd(const string& name)
@@ -99,11 +166,55 @@ fixIds(const StringList& ids)
     return newIds;
 }
 
+string
+Slice::JsGenerator::getModuleMetadata(const TypePtr& type)
+{
+    static const char* builtinModuleTable[] =
+    {
+        "",           // byte
+        "",           // bool
+        "",           // short
+        "",           // int
+        "ice",        // long
+        "",           // float
+        "",           // double
+        "",           // string
+        "ice",        // Ice.Value
+        "ice",        // Ice.ObjectPrx
+        "",           // LocalObject
+        "ice"         // Ice.Object
+    };
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        return builtinModuleTable[builtin->kind()];
+    }
+
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    return getModuleMetadata(proxy ? ContainedPtr::dynamicCast(proxy->_class()->definition()) :
+                                     ContainedPtr::dynamicCast(type));
+}
+
+string
+Slice::JsGenerator::getModuleMetadata(const ContainedPtr& p)
+{
+    //
+    // Check if the file contains the python:pkgdir global metadata.
+    //
+    DefinitionContextPtr dc = p->definitionContext();
+    assert(dc);
+    const string prefix = "js:module:";
+    const string value = dc->findMetaData(prefix);
+    return value.empty() ? value : value.substr(prefix.size());
+}
+
 bool
 Slice::JsGenerator::isClassType(const TypePtr& type)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    return (builtin && builtin->kind() == Builtin::KindObject) || ClassDeclPtr::dynamicCast(type);
+    return (builtin && (builtin->kind() == Builtin::KindObject || builtin->kind() == Builtin::KindValue)) ||
+        ClassDeclPtr::dynamicCast(type);
 }
 
 //
@@ -146,20 +257,182 @@ Slice::JsGenerator::fixId(const ContainedPtr& cont)
 }
 
 string
-Slice::JsGenerator::typeToString(const TypePtr& type)
+Slice::JsGenerator::importPrefix(const TypePtr& type,
+                                 const ContainedPtr& toplevel,
+                                 const vector<pair<string, string> >& imports)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        return typeToString(type, toplevel, imports, true);
+    }
+    else if(ProxyPtr::dynamicCast(type))
+    {
+        ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+        return importPrefix(ContainedPtr::dynamicCast(proxy->_class()->definition()), toplevel, imports);
+    }
+    else if(ContainedPtr::dynamicCast(type))
+    {
+        bool local = false;
+        if(toplevel)
+        {
+            if(ConstructedPtr::dynamicCast(toplevel))
+            {
+                local = ConstructedPtr::dynamicCast(toplevel)->isLocal();
+            }
+            else if(ClassDefPtr::dynamicCast(toplevel))
+            {
+                local = ClassDefPtr::dynamicCast(toplevel)->isLocal();
+            }
+        }
+
+        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        if(cl && cl->isInterface() && !local)
+        {
+            return "iceNS0.";
+        }
+        else
+        {
+            return importPrefix(ContainedPtr::dynamicCast(type), toplevel, imports);
+        }
+    }
+    return "";
+}
+
+string
+Slice::JsGenerator::importPrefix(const ContainedPtr& contained,
+                                 const ContainedPtr& toplevel,
+                                 const vector<pair<string, string> >& imports)
+{
+    string m1 = getModuleMetadata(contained);
+    string m2 = getModuleMetadata(toplevel);
+
+    string p;
+
+    if(m1.empty())
+    {
+        string p1 = contained->definitionContext()->filename();
+        string p2 = toplevel->definitionContext()->filename();
+
+        p = relativePath(p1, p2);
+
+        string::size_type pos = p.rfind('.');
+        if (pos != string::npos)
+        {
+            p.erase(pos);
+        }
+    }
+    else if(m1 == "ice" && m1 != m2)
+    {
+        return "iceNS0.";
+    }
+    else if(m1 != m2)
+    {
+        p = m1;
+    }
+
+    if(!p.empty())
+    {
+        for(vector<pair<string, string> >::const_iterator i = imports.begin(); i != imports.end(); ++i)
+        {
+            if(i->first == p)
+            {
+                return i->second + ".";
+            }
+        }
+    }
+
+    return "";
+}
+
+bool
+Slice::JsGenerator::findMetaData(const string& prefix, const StringList& metaData, string& value)
+{
+    for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); i++)
+    {
+        string s = *i;
+        if(s.find(prefix) == 0)
+        {
+            value = s.substr(prefix.size());
+            return true;
+        }
+    }
+    return false;
+}
+
+string
+Slice::JsGenerator::importPrefix(const string& type, const ContainedPtr& toplevel)
+{
+    const string module = getModuleMetadata(toplevel);
+    return (type.find("Ice.") == 0 && module != "ice") ? "iceNS0." : "";
+}
+
+string
+Slice::JsGenerator::getUnqualified(const string& type, const string& scope, const string& importPrefix)
+{
+    if(importPrefix.empty())
+    {
+        const string localScope = getLocalScope(scope) + ".";
+        if(type.find(localScope) == 0)
+        {
+            string t = type.substr(localScope.size());
+            if(t.find(".") == string::npos)
+            {
+                return t;
+            }
+        }
+    }
+    return type;
+}
+
+string
+Slice::JsGenerator::typeToString(const TypePtr& type,
+                                 const ContainedPtr& toplevel,
+                                 const vector<pair<string, string> >& imports,
+                                 bool typescript,
+                                 bool definition)
 {
     if(!type)
     {
         return "void";
     }
 
-    static const char* builtinTable[] =
+    bool local = false;
+    if(toplevel)
+    {
+        if(ConstructedPtr::dynamicCast(toplevel))
+        {
+            local = ConstructedPtr::dynamicCast(toplevel)->isLocal();
+        }
+        else if(ClassDefPtr::dynamicCast(toplevel))
+        {
+            local = ClassDefPtr::dynamicCast(toplevel)->isLocal();
+        }
+    }
+
+    static const char* typeScriptBuiltinTable[] =
+    {
+        "number",           // byte
+        "boolean",          // bool
+        "number",           // short
+        "number",           // int
+        "Ice.Long",         // long
+        "number",           // float
+        "number",           // double
+        "string",
+        "Ice.Object",
+        "Ice.ObjectPrx",
+        "Object",
+        "Ice.Value"
+    };
+
+    static const char* javaScriptBuiltinTable[] =
     {
         "Number",           // byte
         "Boolean",          // bool
         "Number",           // short
         "Number",           // int
-        "Number",           // long
+        "Ice.Long",         // long
         "Number",           // float
         "Number",           // double
         "String",
@@ -172,36 +445,197 @@ Slice::JsGenerator::typeToString(const TypePtr& type)
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        return builtinTable[builtin->kind()];
+        if(typescript)
+        {
+            int kind = (!local && builtin->kind() == Builtin::KindObject) ? Builtin::KindValue : builtin->kind();
+            ostringstream os;
+            if(getModuleMetadata(type) == "ice" && getModuleMetadata(toplevel) != "ice")
+            {
+                os << "iceNS0.";
+            }
+            os << getUnqualified(typeScriptBuiltinTable[kind], toplevel->scope(), "iceNS0.");
+            return os.str();
+        }
+        else
+        {
+            return javaScriptBuiltinTable[builtin->kind()];
+        }
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if(cl)
+    {
+        string prefix;
+        ostringstream os;
+        if(typescript)
+        {
+            if(cl->isInterface() && !local)
+            {
+                prefix = importPrefix("Ice.Value", toplevel);
+            }
+            else
+            {
+                prefix = importPrefix(ContainedPtr::dynamicCast(cl), toplevel, imports);
+            }
+        }
+        os << prefix;
+        if(!prefix.empty() && typescript)
+        {
+            if(cl->isInterface() && !local)
+            {
+                os << getUnqualified("Ice.Value", toplevel->scope(), prefix);
+            }
+            else
+            {
+                os << getUnqualified(fixId(cl->scoped()), toplevel->scope(), prefix);
+            }
+        }
+        else
+        {
+            os << fixId(cl->scoped());
+        }
+        return os.str();
     }
 
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        return fixId(proxy->_class()->scoped() + "Prx");
+        ostringstream os;
+        ClassDefPtr def = proxy->_class()->definition();
+        if(!def->isInterface() && def->allOperations().empty())
+        {
+            if(getModuleMetadata(toplevel) != "ice")
+            {
+                os << "iceNS0.";
+            }
+            os << getUnqualified(typeScriptBuiltinTable[Builtin::KindObjectProxy],
+                                 toplevel->scope(),
+                                 getModuleMetadata(toplevel));
+        }
+        else
+        {
+            string prefix;
+            if(typescript)
+            {
+                prefix = importPrefix(ContainedPtr::dynamicCast(def), toplevel, imports);
+                os << prefix;
+            }
+
+            if(prefix.empty() && typescript)
+            {
+                os << getUnqualified(fixId(proxy->_class()->scoped() + "Prx"), toplevel->scope(), prefix);
+            }
+            else
+            {
+                os << fixId(proxy->_class()->scoped() + "Prx");
+            }
+        }
+        return os.str();
     }
 
-    SequencePtr seq = SequencePtr::dynamicCast(type);
-    if(seq)
+    if(!typescript || definition)
     {
-        return typeToString(seq->type()) + "[]";
-    }
+        SequencePtr seq = SequencePtr::dynamicCast(type);
+        if (seq)
+        {
+            BuiltinPtr b = BuiltinPtr::dynamicCast(seq->type());
+            if (b && b->kind() == Builtin::KindByte)
+            {
+                return "Uint8Array";
+            }
+            else
+            {
+                return typeToString(seq->type(), toplevel, imports, typescript) + "[]";
+            }
+        }
 
-    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
-    if(d)
-    {
-        const TypePtr keyType = d->keyType();
-        BuiltinPtr b = BuiltinPtr::dynamicCast(keyType);
-        return ((b && b->kind() == Builtin::KindLong) || StructPtr::dynamicCast(keyType)) ? "Ice.HashMap" : "Map";
+        DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+        if(d)
+        {
+            const TypePtr keyType = d->keyType();
+            BuiltinPtr builtin = BuiltinPtr::dynamicCast(keyType);
+            ostringstream os;
+            if ((builtin && builtin->kind() == Builtin::KindLong) || StructPtr::dynamicCast(keyType))
+            {
+                const string prefix = importPrefix("Ice.HashMap", toplevel);
+                os << prefix << getUnqualified("Ice.HashMap", toplevel->scope(), prefix);
+            }
+            else
+            {
+                os << "Map";
+            }
+
+            if (typescript)
+            {
+                os << "<"
+                    << typeToString(keyType, toplevel, imports, true) << ", "
+                    << typeToString(d->valueType(), toplevel, imports, true) << ">";
+            }
+            return os.str();
+        }
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-        return fixId(contained->scoped());
+        ostringstream os;
+        string prefix;
+        if(typescript)
+        {
+            prefix = importPrefix(contained, toplevel, imports);
+            os << prefix;
+        }
+
+        if(prefix.empty() && typescript)
+        {
+            os << getUnqualified(fixId(contained->scoped()), toplevel->scope(), prefix);
+        }
+        else
+        {
+            os << fixId(contained->scoped());
+        }
+        return os.str();
     }
 
     return "???";
+}
+
+string
+Slice::JsGenerator::typeToString(const TypePtr& type,
+                                 const ContainedPtr& toplevel,
+                                 const std::vector<std::pair<std::string, std::string> >& imports,
+                                 bool typeScript,
+                                 bool definition,
+                                 bool usealias)
+{
+    string t = typeToString(type, toplevel, imports, typeScript, definition);
+    if(usealias)
+    {
+        string m1 = getModuleMetadata(type);
+        string m2 = getModuleMetadata(toplevel);
+        if (!m1.empty() && m1 == m2)
+        {
+            // we are using the same module
+            return t;
+        }
+        string p = importPrefix(type, toplevel, imports);
+
+        //
+        // When using an import prefix we don't need an alias, prefixes use iceNSXX that is reserved
+        // name prefix
+        //
+        string::size_type i = t.find(".");
+        if(p.empty() && i != string::npos)
+        {
+            const string scoped = fixId(toplevel->scoped()) + ".";
+            if(scoped.find("." + t.substr(0, i + 1)) != string::npos)
+            {
+                replace(t.begin(), t.end(), '.', '_');
+                t = "iceA_" + t;
+            }
+        }
+    }
+    return t;
 }
 
 string
@@ -222,6 +656,7 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
     {
         fixedScope = scope;
     }
+
     if(fixedScope.empty())
     {
         return "";
@@ -241,39 +676,6 @@ Slice::JsGenerator::getLocalScope(const string& scope, const string& separator)
         result << *i;
     }
     return result.str();
-}
-
-string
-Slice::JsGenerator::getReference(const string& scope, const string& target)
-{
-    //
-    // scope and target should be fully-qualified symbols.
-    //
-    assert(!scope.empty() && scope[0] == ':' && !target.empty() && target[0] == ':');
-
-    //
-    // Check whether the target is in the given scope.
-    //
-    if(target.find(scope) == 0)
-    {
-        //
-        // Remove scope from target, but keep the leading "::".
-        //
-        const string rem = target.substr(scope.size() - 2);
-        assert(!rem.empty());
-        const StringList ids = fixIds(splitScopedName(rem));
-        stringstream result;
-        result << getLocalScope(scope);
-        for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
-        {
-            result << '.' << *i;
-        }
-        return result.str();
-    }
-    else
-    {
-        return fixId(target);
-    }
 }
 
 void

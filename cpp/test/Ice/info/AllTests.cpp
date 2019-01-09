@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -194,14 +191,14 @@ allTests(Test::TestHelper* helper)
         test(ctx["host"] == tcpinfo->host);
         test(ctx["compress"] == "false");
         istringstream is(ctx["port"]);
-        int port;
-        is >> port;
-        test(port > 0);
+        int portCtx;
+        is >> portCtx;
+        test(portCtx > 0);
 
         info = base->ice_datagram()->ice_getConnection()->getEndpoint()->getInfo();
         Ice::UDPEndpointInfoPtr udp = ICE_DYNAMIC_CAST(Ice::UDPEndpointInfo, info);
         test(udp);
-        test(udp->port == port);
+        test(udp->port == portCtx);
         test(udp->host == defaultHost);
     }
     cout << "ok" << endl;

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -18,7 +15,7 @@ subprojects {
     apply from: "$rootProject.projectDir/gradle/ice.gradle"
 
     repositories {
-        if (slice.jarDir) {
+        if(slice.jarDir) {
             flatDir {
                 name "local"
                 dirs slice.jarDir
@@ -38,13 +35,6 @@ subprojects {
         }
 
         mavenCentral()
-
-        //
-        // The thirdparty repository is required on macOS for appblunder
-        //
-        maven {
-            url 'https://repo.zeroc.com/nexus/content/repositories/thirdparty'
-        }
     }
 
     jar {
@@ -65,6 +55,43 @@ subprojects {
     }
 }
 
+def exportedProjects = [
+    ":glacier2",
+    ":ice",
+    ":icebox",
+    ":icebt",
+    ":icegrid",
+    ":icepatch2",
+    ":icessl",
+    ":icestorm"
+    ]
+
+task alljavadoc(type: Javadoc) {
+
+    // We rely on Java9+ javadoc features
+    enabled = JavaVersion.current() > JavaVersion.VERSION_1_8
+
+    source exportedProjects.collect { project(it).javadoc.source }
+    classpath = files(exportedProjects.collect { project(it).javadoc.classpath })
+    destinationDir = file("${buildDir}/docs/javadoc")
+
+    if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
+        // TODO: --no-module-directories is an undocumented option required for the
+        // generated search to work properly. Without this option, search returns
+        // .../undefined/... URLs.
+        options.addBooleanOption('-no-module-directories', true)
+    }
+    options.addBooleanOption('html5', true)
+    options.header = 'Ice for Java'
+    options.docTitle = "Ice ${iceVersion} API Reference"
+}
+
+alljavadoc.dependsOn = exportedProjects.collect { project(it).javadoc.dependsOn }
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
 task dist()
 dist.dependsOn(project(":ice").assemble)
 dist.dependsOn(project(":icessl").assemble)
@@ -82,6 +109,6 @@ dist.dependsOn(project(":IceGridGUI").assemble)
 // Used to build the gradle wrapper to automatically download and install
 // the version of gradle needed to build Ice.
 //
-task wrapper(type: Wrapper) {
-    gradleVersion = "4.7"
+wrapper {
+    gradleVersion = "4.10.2"
 }

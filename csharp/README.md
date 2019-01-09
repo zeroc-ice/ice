@@ -15,6 +15,7 @@ resulting binaries. As an alternative, you can download and install the
   * [Compiling Ice for \.NET on Linux or macOS](#compiling-ice-for-net-on-linux-or-macos)
 * [Running the Tests](#running-the-tests)
 * [NuGet Package](#nuget-package)
+* [Building Ice for Xamarin Test Suite](#building-ice-for-xamarin-test-suite)
 
 ## Building on Windows
 
@@ -26,7 +27,7 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
- - the [.NET Core 2.0 SDK][4], if you use Visual Studio 2017
+ - the [.NET Core 2.2 SDK][4], if you use Visual Studio 2017
 
 > Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
 > builds.
@@ -47,31 +48,32 @@ Upon completion, the Ice assemblies for the .NET Framework 4.5 and .NET Standard
 are placed in the `lib\net45` and `lib\netstandard2.0` folders respectively.
 
 > Note: the assemblies for .NET Standard 2.0 are created only when you build with
-> Visual Studio 2017.
+> Visual Studio 2017 or greater.
 
 You can skip the build of the test suite with the `BuildDist` target:
 ```
 msbuild msbuild\ice.proj /t:BuildDist
 ```
 
-The `Net45Build`, `Net45BuildDist`, `NetStandardBuild` and `NetStandardBuildDist` targets
+The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist` targets
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
-The target framework for the .NET Standard tests is `netcoreapp2.0` by default. You can
-target other frameworks by setting the `IceTestsTargetFrameworks` property to one or more
-Target Framework Monikers (TFMs), for example:
+The iceboxnet and test applications target `netcoreapp2.2`. You can change the target framework
+by setting the `AppTargetFrameworks` property to a different Target Framework Monikers (TFMs)
+value, for example:
 ```
-msbuild msbuild\ice.proj /p:"IceTestsTargetFrameworks=net461;netcoreapp2.0"
+msbuild msbuild\ice.proj /p:"AppTargetFrameworks=net462"
 ```
 
-This builds the test programs for `net461` and `netcoreapp2.0` (in separate folders).
-The target frameworks you specify must implement .NET Standard 2.0.
+This builds the test programs for `net462`. The target frameworks you specify must
+implement .NET Standard 2.0.
 
-#### Strong Name Signatures for .NET Framework 4.5 Assemblies
+#### Strong Name Signatures
 
-You can add Strong Naming signatures to the Ice assemblies for .NET Framework 4.5
-by setting the following environment variables before building these assemblies:
+You can add Strong Naming signatures to the Ice assemblies by setting the following
+environment variables before building these assemblies:
+
  - PUBLIC_KEYFILE Identity public key used to delay sign the assembly
  - KEYFILE Identity full key pair used to sign the assembly
 
@@ -85,6 +87,8 @@ If both PUBLIC_KEYFILE and KEYFILE are set, assemblies are delay-signed during
 the build using PUBLIC_KEYFILE and re-signed after the build using KEYFILE.
 This can be used for generating [Enhanced Strong Naming][5] signatures.
 
+*Strong Name Signatures can be generated only from Windows builds.*
+
 #### Authenticode Signatures
 
 You can sign the Ice binaries with Authenticode by setting the following
@@ -92,7 +96,7 @@ environment variables before building these assemblies:
  - SIGN_CERTIFICATE to your Authenticode certificate
  - SIGN_PASSWORD to the certificate password
 
-*Temporary limitation: assembly signing applies only to .NET Framework 4.5 assemblies at present.*
+*Authenticode can be generated only from Windows builds.*
 
 #### Building only the Test Suite
 
@@ -107,7 +111,7 @@ This build retrieves and installs the `zeroc.ice.net` NuGet package if necessary
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.0 SDK][5] to build Ice for .NET from source.
+You need the [.NET Core 2.2 SDK][4] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
@@ -147,11 +151,23 @@ If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
 On Windows, `allTests.py` executes by default the tests for .NET Framework 4.5.
-In order to execute the tests for a target framework that implements .NET Standard
-2.0, add the `--netframework` option with the moniker of a target framework used
-to build the tests. For example:
+In order to execute the tests with .NET Core framework add the `--dotnetcore` option.
+For example:
 ```
-python allTests.py --netframework netcoreapp2.0
+python allTests.py --dotnetcore
+```
+
+If you build the test against a different target framework you must use `--framework` option
+with the corresponding target framework.
+
+For example to run test build against .NET Framework 4.6.2:
+```
+python allTests.py --framework=net462
+```
+
+And to run test build against .NET Core 3.0:
+```
+python allTests.py --dotnetcore --framework=netcoreapp3.0
 ```
 
 ## NuGet Package
@@ -170,8 +186,94 @@ This creates `zeroc.ice.net\zeroc.ice.net.nupkg`.
 
 *Temporary limitation: you currently cannot create NuGet packages on Linux and macOS.*
 
+## Building Ice for Xamarin Test Suite
+
+The `msbuild\ice.xamarin.test.sln` Visual Studio solution allows building
+the Ice test suite as a Xamarin application that can be deployed on iOS, Android
+or UWP platforms.
+
+The Xamarin test suite uses the Ice assemblies for .NET Standard 2.0. either
+from the source distribution or using the zeroc.ice.net NuGet package. If using
+the assembles from the source distribution, they must be built before this
+application.
+
+### Building on Windows
+
+#### Windows Build Requirements
+
+* Visual Studio 2017 with following workloads:
+  * Universal Windows Platform development
+  * Mobile development with .NET
+  * .NET Core cross-platform development
+
+#### Building the Android test controller
+
+Open a Visual Studio 2017 command prompt:
+
+```
+MSBuild msbuild\ice.proj /t:AndroidXamarinBuild
+```
+
+#### Building the UWP test controller
+
+Open a Visual Studio 2017 command prompt:
+
+```
+MSBuild msbuild\ice.proj /t:UWPXamarinBuild
+```
+
+#### Running the Android test suite
+
+```
+set PATH=%LOCALAPPDATA%\Android\sdk\tools\bin;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\platform-tools;%PATH%
+set PATH=%LOCALAPPDATA%\Android\sdk\emulator;%PATH%
+
+python allTests.py --android --controller-app --config Release --platform x64
+```
+
+#### Running the UWP test suite
+
+```
+python allTests.py --uwp --controller-app --config Release --platform x64
+```
+
+### Building on macOS
+
+#### macOS Build Requirements
+
+* Visual Studio for Mac
+
+#### Building the Android test controller
+
+```
+msbuild msbuild/ice.proj /t:AndroidXamarinBuild
+```
+
+#### Building the iOS test controller
+
+```
+msbuild msbuild/ice.proj /t:iOSXamarinBuild
+```
+
+#### Running the Android test suite
+
+```
+export PATH=~/Library/Android/sdk/tools/bin:$PATH
+export PATH=~/Library/Android/sdk/platform-tools:$PATH
+export PATH=~/Library/Android/sdk/emulator:$PATH
+
+python allTests.py --android --controller-app --config Release --platform x64
+```
+
+#### Running the iOS test suite
+
+```
+python allTests.py --controller-app --config Release --platform iphonesimulator
+```
+
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
-[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
+[3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
 [4]: https://www.microsoft.com/net/download
 [5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming

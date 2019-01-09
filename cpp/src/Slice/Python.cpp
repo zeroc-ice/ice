@@ -1,13 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/IceUtil.h>
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
@@ -92,7 +88,7 @@ createDirectory(const string& dir)
     if(IceUtilInternal::mkdir(dir, 0777) != 0)
     {
         ostringstream os;
-        os << "cannot create directory '" << dir << "': " << strerror(errno);
+        os << "cannot create directory '" << dir << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }
@@ -132,7 +128,7 @@ createPackageDirectory(const string& output, const string& pkgdir)
             if(IceUtilInternal::mkdir(path, 0777) != 0)
             {
                 ostringstream os;
-                os << "cannot create directory '" << path << "': " << strerror(errno);
+                os << "cannot create directory '" << path << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -149,21 +145,21 @@ createPackageDirectory(const string& output, const string& pkgdir)
         // PackageVisitor. We need every intermediate subdirectory to have an __init__.py file, which
         // can be empty.
         //
-        const string init = path + "/__init__.py";
-        if(!IceUtilInternal::fileExists(init))
+        const string initFile = path + "/__init__.py";
+        if(!IceUtilInternal::fileExists(initFile))
         {
             //
             // Create an empty file.
             //
             IceUtilInternal::Output out;
-            out.open(init.c_str());
+            out.open(initFile.c_str());
             if(!out)
             {
                 ostringstream os;
-                os << "cannot open '" << init << "': " << strerror(errno);
+                os << "cannot open '" << initFile << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
-            FileTracker::instance()->addFile(init);
+            FileTracker::instance()->addFile(initFile);
         }
     }
 }
@@ -226,24 +222,24 @@ PackageVisitor::PackageVisitor(StringList& modules) :
 }
 
 void
-PackageVisitor::createModules(const UnitPtr& unit, const string& module, const string& dir)
+PackageVisitor::createModules(const UnitPtr& unt, const string& module, const string& dir)
 {
     StringList modules;
     PackageVisitor v(modules);
-    unit->visit(&v, false);
+    unt->visit(&v, false);
 
     for(StringList::iterator p = modules.begin(); p != modules.end(); ++p)
     {
-        vector<string> v;
-        if(!IceUtilInternal::splitString(*p, ".", v))
+        vector<string> vs;
+        if(!IceUtilInternal::splitString(*p, ".", vs))
         {
             assert(false);
         }
         string currentModule;
         string path = dir.empty() ? "." : dir;
-        for(vector<string>::iterator q = v.begin(); q != v.end(); ++q)
+        for(vector<string>::iterator q = vs.begin(); q != vs.end(); ++q)
         {
-            if(q != v.begin())
+            if(q != vs.begin())
             {
                 addSubmodule(path, currentModule, *q);
                 currentModule += ".";
@@ -322,7 +318,7 @@ PackageVisitor::readInit(const string& dir, StringList& modules, StringList& sub
         if(!in)
         {
             ostringstream os;
-            os << "cannot open file '" << initPath << "': " << strerror(errno);
+            os << "cannot open file '" << initPath << "': " << IceUtilInternal::errorToString(errno);
             throw FileException(__FILE__, __LINE__, os.str());
         }
 
@@ -414,9 +410,9 @@ PackageVisitor::writeInit(const string& dir, const string& name, const StringLis
     ofstream os(IceUtilInternal::streamFilename(initPath).c_str());
     if(!os)
     {
-        ostringstream os;
-        os << "cannot open file '" << initPath << "': " << strerror(errno);
-        throw FileException(__FILE__, __LINE__, os.str());
+        ostringstream oss;
+        oss << "cannot open file '" << initPath << "': " << IceUtilInternal::errorToString(errno);
+        throw FileException(__FILE__, __LINE__, oss.str());
     }
     FileTracker::instance()->addFile(initPath);
 
@@ -750,9 +746,9 @@ Slice::Python::compile(const vector<string>& argv)
                             out.open(path.c_str());
                             if(!out)
                             {
-                                ostringstream os;
-                                os << "cannot open '" << path << "': " << strerror(errno);
-                                throw FileException(__FILE__, __LINE__, os.str());
+                                ostringstream oss;
+                                oss << "cannot open '" << path << "': " << IceUtilInternal::errorToString(errno);
+                                throw FileException(__FILE__, __LINE__, oss.str());
                             }
                             FileTracker::instance()->addFile(path);
 

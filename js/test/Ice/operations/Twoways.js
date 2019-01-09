@@ -1,31 +1,16 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
+    const test = require("TestHelper").TestHelper.test;
 
-    async function run(communicator, prx, Test, bidir)
+    async function run(communicator, prx, Test, bidir, helper)
     {
-        function test(value, ex)
-        {
-            if(!value)
-            {
-                let message = "test failed";
-                if(ex)
-                {
-                    message += "\n" + ex.toString();
-                }
-                throw new Error(message);
-            }
-        }
-
         const literals = await prx.opStringLiterals();
 
         test(Test.s0 == "\\" &&
@@ -1371,7 +1356,7 @@
             ctx.set("two", "TWO");
             ctx.set("three", "THREE");
 
-            let p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:default -p 12010"));
+            let p3 = Test.MyClassPrx.uncheckedCast(ic.stringToProxy("test:" + helper.getTestEndpoint()));
 
             ic.getImplicitContext().setContext(ctx);
             test(Ice.MapUtil.equals(ic.getImplicitContext().getContext(), ctx));
@@ -1493,5 +1478,7 @@
 
     exports.Twoways = {run: run};
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));

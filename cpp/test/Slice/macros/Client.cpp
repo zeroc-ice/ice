@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -22,7 +19,7 @@ public:
 };
 
 void
-Client::run(int argc, char** argv)
+Client::run(int, char**)
 {
     cout << "testing Slice predefined macros... " << flush;
     DefaultPtr d = ICE_MAKE_SHARED(Default);

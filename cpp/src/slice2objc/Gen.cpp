@@ -1,13 +1,10 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/Functional.h>
 #include "Gen.h"
 #include <limits>
@@ -27,6 +24,17 @@
 using namespace std;
 using namespace Slice;
 using namespace IceUtilInternal;
+
+// TODO: fix this warning!
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#elif defined(__clang__)
+#   pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 namespace
 {
@@ -661,7 +669,7 @@ Slice::ObjCVisitor::getServerArgs(const OperationPtr& op) const
     return result;
 }
 
-Slice::Gen::Gen(const string& name, const string& base, const string& include, const vector<string>& includePaths,
+Slice::Gen::Gen(const string& /*name*/, const string& base, const string& include, const vector<string>& includePaths,
                 const string& dir, const string& dllExport) :
     _base(base),
     _include(include),
@@ -696,7 +704,7 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include, c
     if(!_H)
     {
         ostringstream os;
-        os << "cannot open `" << fileH << "': " << strerror(errno);
+        os << "cannot open `" << fileH << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileH);
@@ -707,7 +715,7 @@ Slice::Gen::Gen(const string& name, const string& base, const string& include, c
     if(!_M)
     {
         ostringstream os;
-        os << "cannot open `" << fileM << "': " << strerror(errno);
+        os << "cannot open `" << fileM << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(fileM);
@@ -872,10 +880,7 @@ Slice::Gen::printHeader(Output& o)
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.\n"
-"//\n"
-"// This copy of Ice is licensed to you under the terms described in the\n"
-"// ICE_LICENSE file included in this distribution.\n"
+"// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// **********************************************************************\n"
         ;
@@ -901,7 +906,7 @@ Slice::Gen::UnitVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::UnitVisitor::visitUnitEnd(const UnitPtr& unit)
+Slice::Gen::UnitVisitor::visitUnitEnd(const UnitPtr&)
 {
     string uuid = IceUtil::generateUUID();
     for(string::size_type pos = 0; pos < uuid.size(); ++pos)
@@ -1624,7 +1629,7 @@ Slice::Gen::TypesVisitor::writeConstantValue(IceUtilInternal::Output& out, const
 }
 
 void
-Slice::Gen::TypesVisitor::writeInit(const ContainedPtr& p, const DataMemberList& dataMembers,
+Slice::Gen::TypesVisitor::writeInit(const ContainedPtr&, const DataMemberList& dataMembers,
                                     const DataMemberList& baseDataMembers, const DataMemberList& allDataMembers,
                                     bool requiresMemberInit, int baseType, ContainerType ct) const
 {
@@ -1778,7 +1783,7 @@ Slice::Gen::TypesVisitor::writeMembers(const DataMemberList& dataMembers, int ba
 }
 
 void
-Slice::Gen::TypesVisitor::writeMemberSignature(const DataMemberList& dataMembers, int baseType,
+Slice::Gen::TypesVisitor::writeMemberSignature(const DataMemberList& dataMembers, int /*baseType*/,
                                                ContainerType ct) const
 {
     if(ct == LocalException)
@@ -2017,7 +2022,7 @@ Slice::Gen::TypesVisitor::writeOptionalDataMemberSelectors(const DataMemberList&
         string paramName = getParamName(*q, true);
 
         string capName = (*q)->name();
-        capName[0] = toupper(static_cast<unsigned char>(capName[0]));
+        capName[0] = static_cast<char>(toupper(static_cast<unsigned char>(capName[0])));
 
         _H << nl << "-(void)set" << capName << ":(" << typeString << ")" << name << ";";
 
@@ -2559,7 +2564,8 @@ Slice::Gen::HelperVisitor::visitDictionary(const DictionaryPtr& p)
     TypePtr valueType = p->valueType();
     BuiltinPtr valueBuiltin = BuiltinPtr::dynamicCast(valueType);
     ClassDeclPtr valueClass = ClassDeclPtr::dynamicCast(valueType);
-    if((valueBuiltin && valueBuiltin->kind() == Builtin::KindObject) || valueClass)
+    if((valueBuiltin && (valueBuiltin->kind() == Builtin::KindObject || valueBuiltin->kind() == Builtin::KindValue)) ||
+       valueClass)
     {
         _H << sp << nl << _dllExport << "@interface " << name << " : ICEObjectDictionaryHelper";
         _H << nl << "@end";
@@ -2670,7 +2676,7 @@ Slice::Gen::DelegateMVisitor::DelegateMVisitor(Output& H, Output& M, const strin
 }
 
 bool
-Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr& p)
+Slice::Gen::DelegateMVisitor::visitModuleStart(const ModulePtr&)
 {
     return true;
 }
@@ -3018,7 +3024,7 @@ Slice::Gen::DelegateMVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 void
-Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr& p)
+Slice::Gen::DelegateMVisitor::visitClassDefEnd(const ClassDefPtr&)
 {
     _H << nl << "@end";
     _M << nl << "@end";

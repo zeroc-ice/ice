@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -198,7 +195,7 @@ PropertiesAdminI::setProperties(const PropertyDict& props, const Current&)
         for(const auto& cb : callbacks)
 #else
         vector<PropertiesAdminUpdateCallbackPtr> callbacks = _updateCallbacks;
-        for(vector<PropertiesAdminUpdateCallbackPtr>::const_iterator p = callbacks.begin(); p != callbacks.end(); ++p)
+        for(vector<PropertiesAdminUpdateCallbackPtr>::const_iterator q = callbacks.begin(); q != callbacks.end(); ++q)
 #endif
         {
             try
@@ -206,7 +203,7 @@ PropertiesAdminI::setProperties(const PropertyDict& props, const Current&)
 #ifdef ICE_CPP11_MAPPING
                 cb(changes);
 #else
-                (*p)->updated(changes);
+                (*q)->updated(changes);
 #endif
             }
             catch(const std::exception& ex)

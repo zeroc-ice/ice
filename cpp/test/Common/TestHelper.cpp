@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -33,9 +30,101 @@ shutdownOnInterruptCallback(int)
 
 }
 
-Test::TestHelper::TestHelper(bool registerPlugins)
+#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
+
+StreamHelper::StreamHelper() : _controllerHelper(0)
+{
+    setp(&data[0], &data[sizeof(data) - 1]);
+
+    _previousCoutBuffer = std::cout.rdbuf();
+    std::cout.rdbuf(this);
+
+    _previousCerrBuffer = std::cerr.rdbuf();
+    std::cerr.rdbuf(this);
+}
+
+StreamHelper::~StreamHelper()
+{
+    std::cout.rdbuf(_previousCoutBuffer);
+    std::cerr.rdbuf(_previousCerrBuffer);
+}
+
+void
+StreamHelper::setControllerHelper(ControllerHelper* controllerHelper)
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    assert(_controllerHelper && !controllerHelper || !_controllerHelper && controllerHelper);
+    _controllerHelper = controllerHelper;
+
+    if(_controllerHelper)
+    {
+        _previousLogger = Ice::getProcessLogger();
+        Ice::setProcessLogger(Ice::getProcessLogger()->cloneWithPrefix(_controllerHelper->loggerPrefix()));
+    }
+    else
+    {
+        Ice::setProcessLogger(_previousLogger);
+    }
+}
+
+void
+StreamHelper::flush()
+{
+}
+
+void
+StreamHelper::newLine()
+{
+    IceUtil::Mutex::Lock sync(_mutex);
+    if(_controllerHelper)
+    {
+        _controllerHelper->print("\n");
+    }
+}
+
+int
+StreamHelper::sync()
+{
+    std::streamsize n = pptr() - pbase();
+    {
+        IceUtil::Mutex::Lock sync(_mutex);
+        if(_controllerHelper)
+        {
+            _controllerHelper->print(std::string(pbase(), static_cast<int>(n)));
+        }
+    }
+    pbump(-static_cast<int>(pptr() - pbase()));
+    return 0;
+}
+
+int
+StreamHelper::overflow(int ch)
+{
+    sync();
+    if(ch != EOF)
+    {
+        assert(pptr() != epptr());
+        sputc(static_cast<char>(ch));
+    }
+    return 0;
+}
+
+int
+StreamHelper::sputc(char c)
+{
+    if(c == '\n')
+    {
+        pubsync();
+    }
+    return std::streambuf::sputc(c);
+}
+
+#endif
+
+Test::TestHelper::TestHelper(bool registerPlugins) :
+    _controllerHelper(0)
 #if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
-    : _ctrlCHandler(0)
+    , _ctrlCHandler(0)
 #endif
 {
 #if !defined(ICE_OS_UWP) && (!defined(__APPLE__) || TARGET_OS_IPHONE == 0)
@@ -210,6 +299,10 @@ Ice::CommunicatorPtr
 Test::TestHelper::initialize(int& argc, char* argv[], const Ice::InitializationData& initData)
 {
     _communicator = Ice::initialize(argc, argv, initData);
+    if(_controllerHelper)
+    {
+        _controllerHelper->communicatorInitialized(_communicator);
+    }
     return _communicator;
 }
 
@@ -222,10 +315,10 @@ Test::TestHelper::communicator() const
 void
 Test::TestHelper::serverReady()
 {
-#if defined(ICE_OS_UWP) || (TARGET_OS_IPHONE != 0)
-    assert(_controllerHelper);
-    _controllerHelper->serverReady();
-#endif
+    if(_controllerHelper)
+    {
+        _controllerHelper->serverReady();
+    }
 }
 
 void

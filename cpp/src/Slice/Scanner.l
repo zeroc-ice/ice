@@ -2,10 +2,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -18,24 +15,19 @@
 #include <stdlib.h>
 #include <math.h>
 
-#if defined(_MSC_VER) && defined(ICE_64)
+#if defined(_MSC_VER)
+// '<' : signed/unsigned mismatch
+#   pragma warning(disable:4018)
+// 'initializing' : conversion from '__int64' to 'int', possible loss of data
+#   pragma warning(disable:4244)
+
+#   if defined(ICE_64)
 //
 // '=' : conversion from 'size_t' to 'int', possible loss of data
 // The result of fread() is a size_t and gets inserted into an int
 //
-#   pragma warning( 4 : 4267 )
-//
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-// Puts a pointer-difference into an int
-//
-#   pragma warning( 4 : 4244 )
-#endif
-
-#if defined(_MSC_VER) && defined(ICE_32)
-//
-// '<' : signed/unsigned mismatch
-//
-#   pragma warning( 4 : 4018 )
+#       pragma warning(disable:4267)
+#   endif
 #endif
 
 #if defined(__GNUC__)
@@ -249,8 +241,8 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
     str->literal = "\"";
     while(true)
     {
-        char c = static_cast<char>(yyinput());
-        str->literal += c;
+        int c = yyinput();
+        str->literal += static_cast<char>(c);
         if(c == '"')
         {
             break;
@@ -260,15 +252,15 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
             unit->error("EOF in string");
             break;
         }
-        else if(static_cast<unsigned char>(c) < 32 || c == 127)
+        else if(c < 32 || c == 127)
         {
             unit->error("a string literal can only contain printable ASCII characters and non-ASCII characters");
             break;
         }
         else if(c == '\\')
         {
-            char next = static_cast<char>(yyinput());
-            str->literal += next;
+            int next = yyinput();
+            str->literal += static_cast<char>(next);
             switch(next)
             {
                 case '\\':
@@ -284,7 +276,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                 case '\'':
                 case '?':
                 {
-                    str->v += next;
+                    str->v += static_cast<char>(next);
                     break;
                 }
                 case 'a':
@@ -338,16 +330,16 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                 {
                     static string octalDigits = "01234567";
                     string escape;
-                    escape += next;
+                    escape += static_cast<char>(next);
                     for(int i = 0; i < 2; ++i)
                     {
-                        next = static_cast<char>(yyinput());
-                        if(octalDigits.find_first_of(next) == string::npos)
+                        next = yyinput();
+                        if(octalDigits.find_first_of(static_cast<char>(next)) == string::npos)
                         {
                             unput(next);
                             break;
                         }
-                        escape += next;
+                        escape += static_cast<char>(next);
                     }
                     str->literal += escape;
                     IceUtil::Int64 value = IceUtilInternal::strToInt64(escape.c_str(), 0, 8);
@@ -362,15 +354,15 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                 case 'x':
                 {
                     string escape = "";
-                    next = static_cast<char>(yyinput());
+                    next = yyinput();
 
                     //
                     // Unlike C++, we limit hex escape sequences to 2 hex digits
                     //
-                    while(isxdigit(next) && escape.length() < 2)
+                    while(isxdigit(static_cast<char>(next)) && escape.length() < 2)
                     {
-                        escape += next;
-                        next = static_cast<char>(yyinput());
+                        escape += static_cast<char>(next);
+                        next = yyinput();
                     }
                     unput(next);
 
@@ -394,18 +386,19 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                 case 'U':
                 {
                     string escape = "";
-                    char c = next;
+                    c = next;
                     int size = (c == 'u') ? 4 : 8;
                     while(size > 0)
                     {
-                        next = static_cast<char>(yyinput());
-                        if(!isxdigit(static_cast<unsigned char>(next)))
+                        next = yyinput();
+                        if(!isxdigit(next))
                         {
-                            unit->error(string("unknown escape sequence in string literal: `\\") + c + escape + next + "'");
+                            unit->error(string("unknown escape sequence in string literal: `\\") +
+                                               static_cast<char>(c) + escape + static_cast<char>(next) + "'");
                             unput(next);
                             break;
                         }
-                        escape += next;
+                        escape += static_cast<char>(next);
                         --size;
                     }
 
@@ -415,19 +408,20 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
                         IceUtil::Int64 codePoint = IceUtilInternal::strToInt64(escape.c_str(), 0, 16);
                         if(codePoint >= 0xd800 && codePoint <= 0xdfff)
                         {
-                            unit->error(string("a universal character name cannot designate a surrogate: `\\") + c + escape + "'");
+                            unit->error(string("a universal character name cannot designate a surrogate: `\\") +
+                                               static_cast<char>(c) + escape + "'");
                         }
                     }
 
                     str->literal += escape;
-                    str->v += string("\\") + c + escape;
+                    str->v += string("\\") + static_cast<char>(c) + escape;
                     break;
                 }
 
                 default:
                 {
                     ostringstream os;
-                    os << "unknown escape sequence `\\" << next << "'";
+                    os << "unknown escape sequence `\\" << static_cast<char>(next) << "'";
                     unit->warning(All, os.str());
 
                     // Escape the \ in this unknown escape sequence
@@ -439,7 +433,7 @@ floating_literal    (({fractional_constant}{exponent_part}?)|((\+|-)?[[:digit:]]
         }
         else
         {
-            str->v += c;
+            str->v += static_cast<char>(c);
         }
     }
     *yylvalp = str;

@@ -1,2 +1,2 @@
-ExceptionRedefinition.ice:14: redefinition of exception `Base' as exception
-ExceptionRedefinition.ice:16: redefinition of exception `Derived' as exception
+ExceptionRedefinition.ice:11: redefinition of exception `Base' as exception
+ExceptionRedefinition.ice:13: redefinition of exception `Derived' as exception

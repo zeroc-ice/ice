@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -21,15 +18,16 @@ def connect(prx)
     return prx.ice_getConnection()
 end
 
-def allTests(communicator)
-    sref = "timeout:default -p 12010"
+def allTests(helper, communicator)
+    sref = "timeout:#{helper.getTestEndpoint()}"
     obj = communicator.stringToProxy(sref)
     test(obj)
 
     timeout = Test::TimeoutPrx::checkedCast(obj)
     test(timeout)
 
-    controller = Test::ControllerPrx::checkedCast(communicator.stringToProxy("controller:default -p 12011"))
+    controller = Test::ControllerPrx::checkedCast(
+        communicator.stringToProxy("controller:#{helper.getTestEndpoint(num:1)}"))
     test(controller)
 
     print "testing connect timeout... "

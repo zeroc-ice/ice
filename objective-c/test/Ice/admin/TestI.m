@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -16,23 +13,23 @@
 @end
 
 @implementation NullLogger
--(void) print:(NSString*)message
+-(void) print:(NSString*)__unused message
 {
 }
--(void) trace:(NSString*)category message:(NSString*)message
+-(void) trace:(NSString*)__unused category message:(NSString*)__unused message
 {
 }
--(void) warning:(NSString*)message
+-(void) warning:(NSString*)__unused message
 {
 }
--(void) error:(NSString*)message
+-(void) error:(NSString*)__unused message
 {
 }
 -(NSMutableString*) getPrefix
 {
     return ICE_AUTORELEASE([@"NullLogger" mutableCopy]);
 }
--(id<ICELogger>) cloneWithPrefix:(NSString*)prefix
+-(id<ICELogger>) cloneWithPrefix:(NSString*)__unused prefix
 {
     return self;
 }
@@ -57,12 +54,12 @@
     [super dealloc];
 }
 #endif
--(id<ICEObjectPrx>) getAdmin:(ICECurrent*)current
+-(id<ICEObjectPrx>) getAdmin:(ICECurrent*)__unused current
 {
     return [_communicator getAdmin];
 }
 
--(ICEPropertyDict*) getChanges:(ICECurrent*)current
+-(ICEPropertyDict*) getChanges:(ICECurrent*)__unused current
 {
     [_cond lock];
     @try
@@ -86,27 +83,27 @@
         [_cond unlock];
     }
 }
--(void) print:(NSString*)message current:(ICECurrent*)current
+-(void) print:(NSString*)message current:(ICECurrent*)__unused current
 {
     [[_communicator getLogger] print:message];
 }
--(void) trace:(NSString*)category message:(NSString*)message current:(ICECurrent*)current
+-(void) trace:(NSString*)category message:(NSString*)message current:(ICECurrent*)__unused current
 {
     [[_communicator getLogger] trace:category message:message];
 }
--(void) warning:(NSString*)message current:(ICECurrent*)current
+-(void) warning:(NSString*)message current:(ICECurrent*)__unused current
 {
     [[_communicator getLogger] warning:message];
 }
--(void) error:(NSString*)message current:(ICECurrent*)current
+-(void) error:(NSString*)message current:(ICECurrent*)__unused current
 {
     [[_communicator getLogger] error:message];
 }
--(void) shutdown:(ICECurrent*)current
+-(void) shutdown:(ICECurrent*)__unused current
 {
     [_communicator shutdown];
 }
--(void) waitForShutdown:(ICECurrent*)current
+-(void) waitForShutdown:(ICECurrent*)__unused current
 {
     //
     // Note that we are executing in a thread of the *main* communicator,
@@ -114,7 +111,7 @@
     //
     [_communicator waitForShutdown];
 }
--(void) destroy:(ICECurrent*)current
+-(void) destroy:(ICECurrent*)__unused current
 {
     [_communicator destroy];
 }
@@ -187,7 +184,7 @@
 @end
 
 @implementation TestAdminTestFacetI
--(void) op:(ICECurrent*)current
+-(void) op:(ICECurrent*)__unused current
 {
 }
 @end

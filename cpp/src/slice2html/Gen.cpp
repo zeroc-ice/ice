@@ -1,13 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
@@ -25,6 +21,20 @@
 
 #include <iterator>
 #include <string.h>
+
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#   pragma warning(disable:4100) // unreferenced parameter
+#elif defined(__clang__)
+#   pragma clang diagnostic ignored "-Wshadow"
+#   pragma clang diagnostic ignored "-Wshadow-all"
+#   pragma clang diagnostic ignored "-Wunused-parameter"
+#elif defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wshadow"
+#   pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 
 using namespace std;
 using namespace Slice;
@@ -1254,7 +1264,7 @@ Slice::GeneratorBase::openStream(const string& path)
     if(!_out.isOpen())
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << strerror(errno);
+        os << "cannot open file `" << path << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(path);
@@ -1575,7 +1585,7 @@ Slice::GeneratorBase::makeDir(const string& dir)
     if(IceUtilInternal::mkdir(dir, 0777) != 0)
     {
         ostringstream os;
-        os << "cannot create directory `" << dir << "': " << strerror(errno);
+        os << "cannot create directory `" << dir << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addDirectory(dir);
@@ -1588,7 +1598,7 @@ Slice::GeneratorBase::readFile(const string& file)
     if(!in)
     {
         ostringstream os;
-        os << "cannot open file `" << file << "': " << strerror(errno);
+        os << "cannot open file `" << file << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 
@@ -1662,7 +1672,7 @@ Slice::GeneratorBase::readFile(const string& file, string& part1, string& part2)
     if(!in)
     {
         ostringstream os;
-        os << "cannot open file `" << file << "': " << strerror(errno);
+        os << "cannot open file `" << file << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 

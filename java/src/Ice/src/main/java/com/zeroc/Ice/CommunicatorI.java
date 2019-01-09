@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -245,25 +242,13 @@ public final class CommunicatorI implements Communicator
 
     private com.zeroc.IceInternal.CommunicatorFlushBatch _iceI_flushBatchRequestsAsync(CompressBatch compressBatch)
     {
-        com.zeroc.IceInternal.OutgoingConnectionFactory connectionFactory = _instance.outgoingConnectionFactory();
-        com.zeroc.IceInternal.ObjectAdapterFactory adapterFactory = _instance.objectAdapterFactory();
-
         //
         // This callback object receives the results of all invocations
         // of Connection.begin_flushBatchRequests.
         //
         com.zeroc.IceInternal.CommunicatorFlushBatch f =
             new com.zeroc.IceInternal.CommunicatorFlushBatch(this, _instance);
-
-        connectionFactory.flushAsyncBatchRequests(compressBatch, f);
-        adapterFactory.flushAsyncBatchRequests(compressBatch, f);
-
-        //
-        // Inform the callback that we have finished initiating all of the
-        // flush requests.
-        //
-        f.ready();
-
+        f.invoke(compressBatch);
         return f;
     }
 

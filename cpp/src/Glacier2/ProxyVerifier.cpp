@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -577,21 +574,21 @@ public:
             }
 
             pos = 0;
-            for(vector<AddressMatcher*>::const_iterator i = _addressRules.begin(); i != _addressRules.end(); ++i)
+            for(vector<AddressMatcher*>::const_iterator j = _addressRules.begin(); j != _addressRules.end(); ++j)
             {
-                if(!(*i)->match(host, pos))
+                if(!(*j)->match(host, pos))
                 {
                     if(_traceLevel >= 3)
                     {
                         Trace out(_communicator->getLogger(), "Glacier2");
-                        out << (*i)->toString() << " failed to match " << host << " at pos=" << pos << "\n";
+                        out << (*j)->toString() << " failed to match " << host << " at pos=" << pos << "\n";
                     }
                     return false;
                 }
                 if(_traceLevel >= 3)
                 {
                     Trace out(_communicator->getLogger(), "Glacier2");
-                    out << (*i)->toString() << " matched " << host << " at pos=" << pos << "\n";
+                    out << (*j)->toString() << " matched " << host << " at pos=" << pos << "\n";
                 }
             }
         }

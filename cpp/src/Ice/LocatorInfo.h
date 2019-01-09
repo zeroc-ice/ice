@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -106,7 +103,7 @@ public:
 
     private:
 
-        const ReferencePtr _ref;
+        const ReferencePtr _reference;
         const int _ttl;
         const GetEndpointsCallbackPtr _callback;
     };
@@ -128,7 +125,7 @@ public:
         virtual void send() = 0;
 
         const LocatorInfoPtr _locatorInfo;
-        const ReferencePtr _ref;
+        const ReferencePtr _reference;
 
     private:
 

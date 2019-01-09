@@ -1,21 +1,18 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 package com.zeroc.IceBT;
 
 /**
- * Plug-in factories must implement this interface.
+ * Creates IceBT plug-ins.
  **/
 public class PluginFactory implements com.zeroc.Ice.PluginFactory
 {
     /**
-     * Returns a new plug-in.
+     * Returns a new IceBT plug-in.
      *
      * @param communicator The communicator for the plug-in.
      * @param name The name of the plug-in.

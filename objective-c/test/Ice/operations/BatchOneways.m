@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -84,17 +81,17 @@ batchOneways(id<TestOperationsMyClassPrx> p)
         __block int _size = 0;
         __block int _lastRequestSize = 0;
         __block BOOL _enqueue = NO;
-        initData.batchRequestInterceptor = ^(id<ICEBatchRequest> request, int count, int size)
+        initData.batchRequestInterceptor = ^(id<ICEBatchRequest> request, int countP, int size)
             {
                 test([[request getOperation] isEqualToString:@"opByteSOneway"] ||
                      [[request getOperation] isEqualToString:@"ice_ping"]);
                 test([[request getProxy] ice_isBatchOneway]);
 
-                if(count > 0)
+                if(countP > 0)
                 {
                     test(_lastRequestSize + _size == size);
                 }
-                _count = count;
+                _count = countP;
                 _size = size;
 
                 if(_size + [request getSize] > 25000)

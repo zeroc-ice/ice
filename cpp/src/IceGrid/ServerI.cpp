@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -328,7 +325,7 @@ private:
         {
             assert(_p->first.find("config_") == 0);
             const string service = _p->first.substr(7);
-            if(getPropertyAsInt(_properties.at("config"), "IceBox.UseSharedCommunicator." + service) > 0)
+            if(getPropertyAsInt(_properties["config"], "IceBox.UseSharedCommunicator." + service) > 0)
             {
                 facet = "IceBox.SharedCommunicator.Properties";
             }
@@ -366,7 +363,7 @@ private:
     const Ice::ObjectPrx _admin;
     const InternalServerDescriptorPtr _desc;
     const TraceLevelsPtr _traceLevels;
-    const PropertyDescriptorSeqDict _properties;
+    PropertyDescriptorSeqDict _properties;
     PropertyDescriptorSeqDict _oldProperties;
     PropertyDescriptorSeqDict::const_iterator _p;
 };
@@ -2479,9 +2476,9 @@ ServerI::checkRevision(const string& replicaName, const string& uuid, int revisi
         is.getline(line, 1024); // Ignore comments
         is.getline(line, 1024);
         is.getline(line, 1024);
-        string ignore;
-        is >> ignore >> descUUID;
-        is >> ignore >> descRevision;
+        string ignored;
+        is >> ignored >> descUUID;
+        is >> ignored >> descRevision;
     }
 
     if(uuid != descUUID)
@@ -2604,13 +2601,20 @@ ServerI::checkAndUpdateUser(const InternalServerDescriptorPtr& desc, bool /*upda
         // Get the uid/gid associated with the given user.
         //
         struct passwd pwbuf;
-        vector<char> buffer(4096); // 4KB initial buffer size
+        int sz = sysconf(_SC_GETPW_R_SIZE_MAX);
+        if(sz == -1)
+        {
+            sz = 4096;
+        }
+        vector<char> buffer(sz);
         struct passwd *pw;
         int err = getpwnam_r(user.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
         while(err == ERANGE && buffer.size() < 1024 * 1024) // Limit buffer to 1MB
         {
             buffer.resize(buffer.size() * 2);
+            err = getpwnam_r(user.c_str(), &pwbuf, &buffer[0], buffer.size(), &pw);
         }
+
         if(err != 0)
         {
             throw Ice::SyscallException(__FILE__, __LINE__, err);
@@ -3168,7 +3172,6 @@ ServerI::getFilePath(const string& filename) const
     else
     {
         throw FileNotAvailableException("unknown file");
-        return ""; // Keep the compiler happy.
     }
 }
 
@@ -3178,8 +3181,8 @@ ServerI::getProperties(const InternalServerDescriptorPtr& desc)
     //
     // Copy the descriptor properties.
     //
-    PropertyDescriptorSeqDict properties = desc->properties;
-    PropertyDescriptorSeq& props = properties["config"];
+    PropertyDescriptorSeqDict propDict = desc->properties;
+    PropertyDescriptorSeq& props = propDict["config"];
 
     //
     // Cache the path of the stderr/stdout file, first check if the
@@ -3209,7 +3212,7 @@ ServerI::getProperties(const InternalServerDescriptorPtr& desc)
     //
     {
         const PropertyDescriptorSeq& overrides = _node->getPropertiesOverride();
-        for(PropertyDescriptorSeqDict::iterator p = properties.begin(); p != properties.end(); ++p)
+        for(PropertyDescriptorSeqDict::iterator p = propDict.begin(); p != propDict.end(); ++p)
         {
             if(getProperty(p->second, "Ice.Default.Locator").empty())
             {
@@ -3237,5 +3240,5 @@ ServerI::getProperties(const InternalServerDescriptorPtr& desc)
         }
     }
 
-    return properties;
+    return propDict;
 }

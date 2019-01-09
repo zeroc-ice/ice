@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -42,7 +39,6 @@ Ice_createProperties(mxArray* args, void* defaultsImpl, void** r)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -63,7 +59,6 @@ Ice_Properties_getProperty(void* self, const char* key)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -77,7 +72,6 @@ Ice_Properties_getPropertyWithDefault(void* self, const char* key, const char* d
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -120,7 +114,6 @@ Ice_Properties_getPropertyAsList(void* self, const char* key)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -137,7 +130,6 @@ Ice_Properties_getPropertyAsListWithDefault(void* self, const char* key, mxArray
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -152,7 +144,6 @@ Ice_Properties_getPropertiesForPrefix(void* self, const char* prefix)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -181,7 +172,6 @@ Ice_Properties_getCommandLineOptions(void* self)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -198,7 +188,6 @@ Ice_Properties_parseCommandLineOptions(void* self, const char* prefix, mxArray* 
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -215,7 +204,6 @@ Ice_Properties_parseIceCommandLineOptions(void* self, mxArray* options)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*

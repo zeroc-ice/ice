@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -11,7 +8,9 @@
 
 #include <Ice/Current.ice>
 
-[["cs:namespace:Ice.operations.AMD"]]
+[["cs:typeid-namespace:Ice.operations.AMD.TypeId"]]
+
+["cs:namespace:Ice.operations.AMD"]
 module Test
 {
 

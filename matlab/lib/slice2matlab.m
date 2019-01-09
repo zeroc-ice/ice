@@ -14,7 +14,7 @@ function status = slice2matlab(args)
     %
     %   status - The Slice-to-MATLAB compiler exit status code.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     function path = findFile(candidates, baseDir, type)
         path = '';

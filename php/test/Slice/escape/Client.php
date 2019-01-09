@@ -1,20 +1,9 @@
 <?php
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
-
-error_reporting(E_ALL | E_STRICT);
-
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
 
 $NS = function_exists("Ice\\initialize");
 require_once('Ice.php');
@@ -29,16 +18,6 @@ EOT;
     eval($code);
 }
 
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
-
 class echoI extends and_echo
 {
     public function _else($a, $b)
@@ -46,7 +25,7 @@ class echoI extends and_echo
     }
 }
 
-function allTests($communicator)
+function allTests($helper)
 {
     global $NS;
 
@@ -63,6 +42,7 @@ function allTests($communicator)
     test($b->_throw == 0);
     test($b->_use == 0);
     test($b->_var == 0);
+    $communicator = $helper->communicator();
     $p = $communicator->stringToProxy("test:tcp -p 10000");
     $c = $NS ? eval("return _and\\functionPrxHelper::uncheckedCast(\$p);") :
                eval("return and_functionPrxHelper::uncheckedCast(\$p);");
@@ -79,10 +59,21 @@ function allTests($communicator)
     echo "ok\n";
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
-                      eval("return Ice_initialize(\$argv);");
-allTests($communicator);
-$communicator->destroy();
-
-exit();
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        try
+        {
+            $communicator = $this->initialize($args);
+            allTests($this);
+            $communicator->destroy();
+        }
+        catch(Exception $ex)
+        {
+            $communicator->destroy();
+            throw $ex;
+        }
+    }
+}
 ?>

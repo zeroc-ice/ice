@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -62,7 +59,7 @@ Ice.StringUtil = class
             {
                 if(special.charCodeAt(i) < 32 || special.charCodeAt(i) > 126)
                 {
-                    throw new Error("special characters must be in ASCII range 32-126");
+                    throw new RangeError("special characters must be in ASCII range 32-126");
                 }
             }
         }
@@ -93,7 +90,7 @@ Ice.StringUtil = class
                     Debug.assert(toStringMode === Ice.ToStringMode.ASCII && c >= 0xD800 && c <= 0xDFFF);
                     if(i + 1 === s.length)
                     {
-                        throw new Error("High surrogate without low surrogate");
+                        throw new RangeError("High surrogate without low surrogate");
                     }
                     else
                     {
@@ -134,7 +131,7 @@ Ice.StringUtil = class
             {
                 if(special.charCodeAt(i) < 32 || special.charCodeAt(i) > 126)
                 {
-                    throw new Error("special characters must be in ASCII range 32-126");
+                    throw new RangeError("special characters must be in ASCII range 32-126");
                 }
             }
         }
@@ -268,7 +265,7 @@ Ice.StringUtil = class
         const n = parseInt(s, 10);
         if(isNaN(n))
         {
-            throw new Error("conversion of `" + s + "' to int failed");
+            throw new RangeError("conversion of `" + s + "' to int failed");
         }
         return n;
     }
@@ -420,7 +417,7 @@ function checkChar(s, pos)
             msg = "first character";
         }
         msg += " has invalid ordinal value" + c;
-        throw new Error(msg);
+        throw new RangeError(msg);
     }
     return s.charAt(pos);
 }
@@ -532,11 +529,11 @@ function decodeChar(s, start, end, special, result)
                 }
                 if(size > 0)
                 {
-                    throw new Error("Invalid universal character name: too few hex digits");
+                    throw new RangeError("Invalid universal character name: too few hex digits");
                 }
                 if(codePoint >= 0xD800 && codePoint <= 0xDFFF)
                 {
-                    throw new Error("A universal character name cannot designate a surrogate");
+                    throw new RangeError("A universal character name cannot designate a surrogate");
                 }
                 if(inBMP || codePoint <= 0xFFFF)
                 {
@@ -593,7 +590,7 @@ function decodeChar(s, start, end, special, result)
                         }
                         if(size === 2)
                         {
-                            throw new Error("Invalid \\x escape sequence: no hex digit");
+                            throw new RangeError("Invalid \\x escape sequence: no hex digit");
                         }
                     }
                     else
@@ -611,7 +608,7 @@ function decodeChar(s, start, end, special, result)
                         }
                         if(val > 255)
                         {
-                            throw new Error("octal value \\" + val.toString(8) + " (" + val + ") is out of range");
+                            throw new RangeError("octal value \\" + val.toString(8) + " (" + val + ") is out of range");
                         }
                     }
 

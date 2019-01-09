@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -13,7 +10,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
+def allTests(helper, communicator):
 
     oa = communicator.createObjectAdapterWithEndpoints("MyOA", "tcp -h localhost")
     oa.activate()
@@ -48,14 +45,14 @@ def allTests(communicator):
     prx = Test.MyObjectPrx.uncheckedCast(oa.createProxy(identity))
     try:
         prx.ice_ping()
-        test(false)
+        test(False)
     except Ice.ObjectNotExistException:
         # Expected
         pass
 
     try:
         prx.getName()
-        test(false)
+        test(False)
     except Ice.ObjectNotExistException:
         # Expected
         pass
@@ -64,14 +61,14 @@ def allTests(communicator):
     prx = Test.MyObjectPrx.uncheckedCast(oa.createProxy(identity))
     try:
         prx.ice_ping()
-        test(false)
+        test(False)
     except Ice.FacetNotExistException:
         # Expected
         pass
 
     try:
         prx.getName()
-        test(false)
+        test(False)
     except Ice.FacetNotExistException:
         # Expected
         pass
@@ -83,14 +80,14 @@ def allTests(communicator):
 
         try:
             prx.ice_ping()
-            test(false)
+            test(False)
         except Ice.ObjectNotExistException:
             # Expected
             pass
 
         try:
             prx.getName()
-            test(false)
+            test(False)
         except Ice.ObjectNotExistException:
             # Expected
             pass

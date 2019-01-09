@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -64,14 +61,6 @@ public:
 };
 
 Init init;
-
-struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
-{
-    ptrdiff_t operator()(ptrdiff_t d)
-    {
-        return IceUtilInternal::random(static_cast<int>(d));
-    }
-};
 
 }
 
@@ -507,6 +496,7 @@ IceInternal::Reference::operator<(const Reference& r) const
     return false;
 }
 
+#ifndef ICE_CPP11_COMPILER
 class ConnectionIsDatagram : public unary_function<ConnectionIPtr, bool>
 {
 public:
@@ -528,6 +518,7 @@ public:
         return p->endpoint()->secure();
     }
 };
+#endif
 
 IceInternal::Reference::Reference(const InstancePtr& instance,
                                   const CommunicatorPtr& communicator,
@@ -556,6 +547,7 @@ IceInternal::Reference::Reference(const InstancePtr& instance,
 }
 
 IceInternal::Reference::Reference(const Reference& r) :
+    IceUtil::Shared(),
     _hashInitialized(false),
     _instance(r._instance),
     _communicator(r._communicator),
@@ -677,77 +669,66 @@ ReferencePtr
 IceInternal::FixedReference::changeEndpoints(const vector<EndpointIPtr>& /*newEndpoints*/) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeAdapterId(const string& /*newAdapterId*/) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeLocator(const LocatorPrxPtr&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeRouter(const RouterPrxPtr&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeCollocationOptimized(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeCacheConnection(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changePreferSecure(bool) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeEndpointSelection(EndpointSelectionType) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeLocatorCacheTimeout(int) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeTimeout(int) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
 IceInternal::FixedReference::changeConnectionId(const string&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-    return 0; // Keep the compiler happy.
 }
 
 ReferencePtr
@@ -784,9 +765,6 @@ PropertyDict
 IceInternal::FixedReference::toProperty(const string&) const
 {
     throw FixedProxyException(__FILE__, __LINE__);
-
-    assert(false);   // Cannot be reached.
-    return PropertyDict(); // To keep the compiler from complaining.
 }
 
 RequestHandlerPtr
@@ -1631,7 +1609,7 @@ IceInternal::RoutableReference::getConnectionNoRouterInfo(const GetConnectionCal
     {
     public:
 
-        class Callback2 : public Reference::GetConnectionCallback
+        class Callback2 ICE_FINAL : public Reference::GetConnectionCallback
         {
         public:
 
@@ -1907,6 +1885,7 @@ IceInternal::RoutableReference::RoutableReference(const RoutableReference& r) :
 namespace
 {
 
+#ifndef ICE_CPP11_COMPILER
 struct EndpointIsOpaque : public unary_function<EndpointIPtr, bool>
 {
 public:
@@ -1917,6 +1896,7 @@ public:
         return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
     }
 };
+#endif
 
 }
 
@@ -1928,8 +1908,16 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     //
     // Filter out unknown endpoints.
     //
+#ifdef ICE_CPP11_COMPILER
+    endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+                              [](const EndpointIPtr& p)
+                              {
+                                  return dynamic_cast<OpaqueEndpointI*>(p.get()) != 0;
+                              }),
+                    endpoints.end());
+#else
     endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), EndpointIsOpaque()), endpoints.end());
-
+#endif
     //
     // Filter out endpoints according to the mode of the reference.
     //
@@ -1942,8 +1930,17 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
             //
             // Filter out datagram endpoints.
             //
+#ifdef ICE_CPP11_COMPILER
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+                                      [](const EndpointIPtr& p)
+                                      {
+                                          return p->datagram();
+                                      }),
+                            endpoints.end());
+#else
             endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::datagram)),
                             endpoints.end());
+#endif
             break;
         }
 
@@ -1953,9 +1950,18 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
             //
             // Filter out non-datagram endpoints.
             //
+#ifdef ICE_CPP11_COMPILER
+            endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+                                      [](const EndpointIPtr& p)
+                                      {
+                                          return !p->datagram();
+                                      }),
+                            endpoints.end());
+#else
             endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
                                       not1(Ice::constMemFun(&EndpointI::datagram))),
                             endpoints.end());
+#endif
             break;
         }
     }
@@ -1967,8 +1973,7 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     {
         case ICE_ENUM(EndpointSelectionType, Random):
         {
-            RandomNumberGenerator rng;
-            random_shuffle(endpoints.begin(), endpoints.end(), rng);
+            IceUtilInternal::shuffle(endpoints.begin(), endpoints.end());
             break;
         }
         case ICE_ENUM(EndpointSelectionType, Ordered):
@@ -1992,8 +1997,17 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
     DefaultsAndOverridesPtr overrides = getInstance()->defaultsAndOverrides();
     if(overrides->overrideSecure ? overrides->overrideSecureValue : getSecure())
     {
+#ifdef ICE_CPP11_COMPILER
+        endpoints.erase(remove_if(endpoints.begin(), endpoints.end(),
+                                  [](const EndpointIPtr& p)
+                                  {
+                                      return !p->secure();
+                                  }),
+                        endpoints.end());
+#else
         endpoints.erase(remove_if(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure))),
                         endpoints.end());
+#endif
     }
     else if(getPreferSecure())
     {
@@ -2002,7 +2016,15 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
-         stable_partition(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::secure));
+#ifdef ICE_CPP11_COMPILER
+        stable_partition(endpoints.begin(), endpoints.end(),
+                         [](const EndpointIPtr& p)
+                         {
+                             return p->secure();
+                         });
+#else
+        stable_partition(endpoints.begin(), endpoints.end(), Ice::constMemFun(&EndpointI::secure));
+#endif
     }
     else
     {
@@ -2011,7 +2033,15 @@ IceInternal::RoutableReference::filterEndpoints(const vector<EndpointIPtr>& allE
         // partition(), because otherwise some STL implementations
         // order our now randomized endpoints.
         //
+#ifdef ICE_CPP11_COMPILER
+        stable_partition(endpoints.begin(), endpoints.end(),
+                         [](const EndpointIPtr& p)
+                         {
+                             return !p->secure();
+                         });
+#else
         stable_partition(endpoints.begin(), endpoints.end(), not1(Ice::constMemFun(&EndpointI::secure)));
+#endif
     }
 
     return endpoints;

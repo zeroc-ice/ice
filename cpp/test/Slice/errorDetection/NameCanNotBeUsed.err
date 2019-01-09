@@ -1,2 +1,2 @@
-NameCanNotBeUsed.ice:17: class name `Foo' cannot be used as operation name
-NameCanNotBeUsed.ice:23: interface name `IFoo' cannot be used as operation name
+NameCanNotBeUsed.ice:12: class name `Foo' cannot be used as operation name
+NameCanNotBeUsed.ice:18: interface name `IFoo' cannot be used as operation name

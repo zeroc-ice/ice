@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -224,22 +221,22 @@ Ice::InputStream::setCompactIdResolver(const CompactIdResolverPtr& r)
 
 #ifndef ICE_CPP11_MAPPING
 void
-Ice::InputStream::setCollectObjects(bool b)
+Ice::InputStream::setCollectObjects(bool on)
 {
-    _collectObjects = b;
+    _collectObjects = on;
 }
 #endif
 
 void
-Ice::InputStream::setSliceValues(bool b)
+Ice::InputStream::setSliceValues(bool on)
 {
-    _sliceValues = b;
+    _sliceValues = on;
 }
 
 void
-Ice::InputStream::setTraceSlicing(bool b)
+Ice::InputStream::setTraceSlicing(bool on)
 {
-    _traceSlicing = b;
+    _traceSlicing = on;
 }
 
 void
@@ -988,16 +985,6 @@ Ice::InputStream::read(Double& v)
     *dest = *src;
 #else
     Byte* dest = reinterpret_cast<Byte*>(&v);
-#  if defined(ICE_LITTLEBYTE_BIGWORD)
-    dest[4] = *src++;
-    dest[5] = *src++;
-    dest[6] = *src++;
-    dest[7] = *src++;
-    dest[0] = *src++;
-    dest[1] = *src++;
-    dest[2] = *src++;
-    dest[3] = *src;
-#  else
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -1006,7 +993,6 @@ Ice::InputStream::read(Double& v)
     *dest++ = *src++;
     *dest++ = *src++;
     *dest = *src;
-#  endif
 #endif
 }
 
@@ -1033,21 +1019,6 @@ Ice::InputStream::read(vector<Double>& v)
             *dest-- = *src++;
             *dest-- = *src++;
             dest += 2 * sizeof(Double);
-        }
-#elif defined(ICE_LITTLEBYTE_BIGWORD)
-        const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&v[0]);
-        for(int j = 0 ; j < sz ; ++j)
-        {
-            dest[4] = *src++;
-            dest[5] = *src++;
-            dest[6] = *src++;
-            dest[7] = *src++;
-            dest[0] = *src++;
-            dest[1] = *src++;
-            dest[2] = *src++;
-            dest[3] = *src++;
-            dest += sizeof(Double);
         }
 #else
         copy(begin, i, reinterpret_cast<Byte*>(&v[0]));
@@ -1104,22 +1075,6 @@ Ice::InputStream::read(pair<const Double*, const Double*>& v, IceUtil::ScopedArr
             *dest-- = *src++;
             dest += 2 * sizeof(Double);
         }
-#  elif defined(ICE_LITTLEBYTE_BIGWORD)
-        const Byte* src = &(*begin);
-        Byte* dest = reinterpret_cast<Byte*>(&result[0]);
-        for(int j = 0 ; j < sz ; ++j)
-        {
-            dest[4] = *src++;
-            dest[5] = *src++;
-            dest[6] = *src++;
-            dest[7] = *src++;
-            dest[0] = *src++;
-            dest[1] = *src++;
-            dest[2] = *src++;
-            dest[3] = *src++;
-            dest += sizeof(Double);
-        }
-
 #  else
         copy(begin, i, reinterpret_cast<Byte*>(&result[0]));
 #  endif

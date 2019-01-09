@@ -1,15 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #include <Ice/LocalException.ice>
 #include <Ice/Current.ice>
@@ -27,24 +35,24 @@ module Ice
  * An interface to associate implict contexts with communicators.
  *
  * When you make a remote invocation without an explicit context parameter,
- * Ice uses the per-proxy context (if any) combined with the <tt>ImplicitContext</tt>
+ * Ice uses the per-proxy context (if any) combined with the <code>ImplicitContext</code>
  * associated with the communicator.
  *
- * Ice provides several implementations of <tt>ImplicitContext</tt>. The implementation
- * used depends on the value of the <tt>Ice.ImplicitContext</tt> property.
+ * Ice provides several implementations of <code>ImplicitContext</code>. The implementation
+ * used depends on the value of the <code>Ice.ImplicitContext</code> property.
  * <dl>
- * <dt><tt>None</tt> (default)</dt>
+ * <dt><code>None</code> (default)</dt>
  * <dd>No implicit context at all.</dd>
- * <dt><tt>PerThread</tt></dt>
+ * <dt><code>PerThread</code></dt>
  * <dd>The implementation maintains a context per thread.</dd>
- * <dt><tt>Shared</tt></dt>
+ * <dt><code>Shared</code></dt>
  * <dd>The implementation maintains a single context shared by all threads.</dd>
  * </dl>
  *
- * <tt>ImplicitContext</tt> also provides a number of operations to create, update or retrieve
+ * <code>ImplicitContext</code> also provides a number of operations to create, update or retrieve
  * an entry in the underlying context without first retrieving a copy of the entire
- * context. These operations correspond to a subset of the <tt>java.util.Map</tt> methods,
- * with <tt>java.lang.Object</tt> replaced by <tt>string</tt> and null replaced by the empty-string.
+ * context. These operations correspond to a subset of the <code>java.util.Map</code> methods,
+ * with <code>java.lang.Object</code> replaced by <code>string</code> and null replaced by the empty-string.
  *
  **/
 local interface ImplicitContext

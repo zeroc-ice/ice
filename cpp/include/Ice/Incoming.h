@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -83,7 +80,7 @@ public:
     void exception(const std::string&, bool);
 #if defined(_MSC_VER) && (_MSC_VER == 1500)
     //
-    // COMPILERFIX VC90 get confused with overloads above
+    // COMPILERFIX v90 get confused with overloads above
     // when passing a const char* as first argument.
     //
     void exception(const char* msg, bool amd)
@@ -107,7 +104,7 @@ protected:
 
 #if defined(_MSC_VER) && (_MSC_VER == 1500)
     //
-    // COMPILERFIX VC90 get confused with overloads above
+    // COMPILERFIX v90 get confused with overloads above
     // when passing a const char* as first argument.
     //
     void handleException(const char* msg, bool amd)
@@ -144,6 +141,12 @@ protected:
 #endif
     DispatchInterceptorCallbacks _interceptorCBs;
 };
+
+// TODO: fix this warning
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#   pragma warning(push)
+#   pragma warning(disable:4239)
+#endif
 
 class ICE_API Incoming : public IncomingBase
 {
@@ -214,6 +217,10 @@ private:
 
     IncomingAsyncPtr _inAsync;
 };
+
+#if defined(_MSC_VER) && (_MSC_VER >= 1900)
+#   pragma warning(pop)
+#endif
 
 }
 

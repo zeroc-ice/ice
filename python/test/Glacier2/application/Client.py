@@ -1,22 +1,24 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback, threading, Ice, Glacier2
+import sys
+import threading
+import Ice
+import Glacier2
 
-Ice.loadSlice("Callback.ice")
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Callback.ice")
 import Test
+
 
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
 
 class CallbackReceiverI(Test.CallbackReceiver):
 
@@ -35,13 +37,15 @@ class CallbackReceiverI(Test.CallbackReceiver):
                 self._cond.wait()
             self._received = False;
 
+
 class Application(Glacier2.Application):
 
-    def __init__(self):
+    def __init__(self, helper):
         Glacier2.Application.__init__(self)
         self._restart = 0
         self._destroyed = False
         self._receiver = CallbackReceiverI()
+        self._helper = helper
 
     def createSession(self):
         return Glacier2.SessionPrx.uncheckedCast(self.router().createSession("userid", "abc123"))
@@ -56,7 +60,8 @@ class Application(Glacier2.Application):
             sys.stdout.write("testing Glacier2::Application restart... ")
             sys.stdout.flush()
 
-        base = self.communicator().stringToProxy("callback:default -p 12010");
+        base = self.communicator().stringToProxy("callback:{0}".format(
+            self._helper.getTestEndpoint(properties=self.communicator().getProperties())));
         callback = Test.CallbackPrx.uncheckedCast(base)
         self._restart += 1
         if self._restart < 5:
@@ -76,37 +81,40 @@ class Application(Glacier2.Application):
     def sessionDestroyed(self):
         self._destroyed = True
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:default -p 12060")
 
-    app = Application()
-    status = app.main(sys.argv, initData=initData)
-    test(app._restart == 5)
-    test(app._destroyed)
-    initData.properties.setProperty("Ice.Default.Router", "");
-    with Ice.initialize(initData) as communicator:
-        sys.stdout.write("testing stringToProxy for process object... ")
-        sys.stdout.flush()
-        processBase = communicator.stringToProxy("Glacier2/admin -f Process:default -p 12061");
-        print("ok")
+class Client(TestHelper):
 
-        sys.stdout.write("testing checked cast for admin object... ")
-        sys.stdout.flush()
-        process = Ice.ProcessPrx.checkedCast(processBase)
-        test(process)
-        print("ok")
+    def run(self, args):
+        initData = Ice.InitializationData()
+        initData.properties = self.createTestProperties(args)
+        initData.properties.setProperty("Ice.Default.Router", "Glacier2/router:{0}".format(
+            self.getTestEndpoint(properties=initData.properties, num=50)))
 
-        sys.stdout.write("testing Glacier2 shutdown... ")
-        sys.stdout.flush()
-        process.shutdown()
-        try:
-            process.ice_ping()
-            test(False)
-        except Ice.LocalException:
+        app = Application(self)
+        status = app.main(sys.argv, initData=initData)
+        test(status == 0)
+        test(app._restart == 5)
+        test(app._destroyed)
+
+        initData.properties.setProperty("Ice.Default.Router", "")
+        with self.initialize(initData=initData) as communicator:
+            sys.stdout.write("testing stringToProxy for process object... ")
+            sys.stdout.flush()
+            processBase = communicator.stringToProxy("Glacier2/admin -f Process:{0}".format(
+                self.getTestEndpoint(properties=initData.properties, num=51)))
             print("ok")
-except:
-    traceback.print_exc()
-    status = 1
-sys.exit(status)
+
+            sys.stdout.write("testing checked cast for admin object... ")
+            sys.stdout.flush()
+            process = Ice.ProcessPrx.checkedCast(processBase)
+            test(process)
+            print("ok")
+
+            sys.stdout.write("testing Glacier2 shutdown... ")
+            sys.stdout.flush()
+            process.shutdown()
+            try:
+                process.ice_ping()
+                test(False)
+            except Ice.LocalException:
+                print("ok")

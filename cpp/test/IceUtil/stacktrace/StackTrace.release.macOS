@@ -1,3 +1,0 @@
-  0 IceUtil::NullHandleException::NullHandleException(char const*, int) in libIce.3.7.1.dylib
-  1 Client::run(int, char**) in client
-  2 int Test::runTest<Client>(int, char**) in client

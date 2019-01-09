@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -317,7 +314,8 @@ public final class PropertiesI implements Properties
     public void
     load(String file)
     {
-        if(System.getProperty("os.name").startsWith("Windows") && file.startsWith("HKLM\\"))
+        if(System.getProperty("os.name").startsWith("Windows") &&
+           (file.startsWith("HKCU\\") || file.startsWith("HKLM\\")))
         {
             String regQuery = "reg query " + file;
             try

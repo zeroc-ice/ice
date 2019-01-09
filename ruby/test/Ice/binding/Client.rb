@@ -1,35 +1,18 @@
 #!/usr/bin/env ruby
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-require 'pathname'
-require 'Ice'
-
-Ice::loadSlice('Test.ice')
+require "Ice"
+Ice::loadSlice("Test.ice")
 require './AllTests'
 
-def run(args, communicator)
-    allTests(communicator)
-    return true
+class Client < ::TestHelper
+    def run(args)
+        self.init(args:args) do |communicator|
+            allTests(self, communicator)
+        end
+    end
 end
-
-begin
-    communicator = Ice::initialize(ARGV)
-    status = run(ARGV, communicator)
-rescue => ex
-    puts $!
-    print ex.backtrace.join("\n")
-    status = false
-end
-
-if communicator
-    communicator.destroy()
-end
-
-exit(status ? 0 : 1)

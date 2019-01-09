@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -853,14 +850,6 @@ IceServiceInstaller::removeSource(const string& source) const
         RegCloseKey(key);
         throw runtime_error("Error while searching EventLog with source '" + source + "': " + IceUtilInternal::errorToString(res));
     }
-
-    res = RegCloseKey(key);
-    if(res != ERROR_SUCCESS)
-    {
-        throw runtime_error("Could not close registry key handle: " + IceUtilInternal::errorToString(res));
-    }
-
-    return ""; // To keep compilers happy.
 }
 
 string

@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -60,12 +57,12 @@ class Callback(CallbackBase):
     def pid(self):
         return self._pid
 
-def allTests(communicator, ports):
+def allTests(helper, communicator, ports):
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
     ref = "test"
-    for p in ports:
-        ref = ref + ":default -p " + str(p)
+    for i in range(len(ports)):
+        ref += ":{0}".format(helper.getTestEndpoint(num=i))
     base = communicator.stringToProxy(ref)
     test(base)
     print("ok")

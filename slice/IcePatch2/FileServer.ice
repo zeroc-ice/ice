@@ -1,16 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEPATCH2_API", "cpp:doxygen:include:IcePatch2/IcePatch2.h", "objc:header-dir:objc", "python:pkgdir:IcePatch2"]]
+[["cpp:dll-export:ICEPATCH2_API"]]
+[["cpp:doxygen:include:IcePatch2/IcePatch2.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:IcePatch2/Config.h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IcePatch2"]]
 
 #include <IcePatch2/FileInfo.ice>
 
@@ -39,7 +46,7 @@ sequence<Ice::ByteSeq> ByteSeqSeq;
 
 /**
  *
- * A <tt>partition</tt> argument was not in the range 0-255.
+ * A <code>partition</code> argument was not in the range 0-255.
  *
  **/
 exception PartitionOutOfRangeException

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -96,7 +93,7 @@ run(id<ICECommunicator> communicator)
     for(NSString* name in stringArray)
     {
         [identity setName:name];
-        id<TestDefaultServantMyObjectPrx> prx = [TestDefaultServantMyObjectPrx uncheckedCast:[oa createProxy:identity]];
+        prx = [TestDefaultServantMyObjectPrx uncheckedCast:[oa createProxy:identity]];
 
         @try
         {
@@ -130,7 +127,7 @@ run(id<ICECommunicator> communicator)
     for(NSString* name in stringArray)
     {
         [identity setName:name];
-        id<TestDefaultServantMyObjectPrx> prx = [TestDefaultServantMyObjectPrx uncheckedCast:[oa createProxy:identity]];
+        prx = [TestDefaultServantMyObjectPrx uncheckedCast:[oa createProxy:identity]];
         [prx ice_ping];
         test([[prx getName] isEqualToString:name]);
     }

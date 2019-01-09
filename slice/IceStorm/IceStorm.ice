@@ -1,16 +1,24 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc", "objc:dll-export:ICESTORM_API", "js:ice-build", "python:pkgdir:IceStorm"]]
+[["cpp:dll-export:ICESTORM_API"]]
+[["cpp:doxygen:include:IceStorm/IceStorm.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:IceStorm/Config.h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICESTORM_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceStorm"]]
 
 #include <Ice/Identity.ice>
 #include <Ice/SliceChecksumDict.ice>
@@ -202,7 +210,7 @@ interface Topic
 
     /**
      *
-     * Subscribe with the given <tt>qos</tt> to this topic.  A
+     * Subscribe with the given <code>qos</code> to this topic.  A
      * per-subscriber publisher object is returned.
      *
      * @param theQoS The quality of service parameters for this
@@ -228,7 +236,7 @@ interface Topic
 
     /**
      *
-     * Unsubscribe the given <tt>subscriber</tt>.
+     * Unsubscribe the given <code>subscriber</code>.
      *
      * @param subscriber The proxy of an existing subscriber.
      *
@@ -240,7 +248,7 @@ interface Topic
     /**
      *
      * Create a link to the given topic. All events originating
-     * on this topic will also be sent to <tt>linkTo</tt>.
+     * on this topic will also be sent to <code>linkTo</code>.
      *
      * @param linkTo The topic to link to.
      *
@@ -254,7 +262,7 @@ interface Topic
 
     /**
      *
-     * Destroy the link from this topic to the given topic <tt>linkTo</tt>.
+     * Destroy the link from this topic to the given topic <code>linkTo</code>.
      *
      * @param linkTo The topic to destroy the link to.
      *

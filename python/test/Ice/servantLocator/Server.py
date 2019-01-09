@@ -1,33 +1,29 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback, time
-
+from TestHelper import TestHelper
+TestHelper.loadSlice('Test.ice')
 import Ice
-Ice.loadSlice('Test.ice')
-import Test, TestI, TestActivationI
+import TestI
+import TestActivationI
 
-class TestServer(Ice.Application):
+
+class Server(TestHelper):
+
     def run(self, args):
-        self.communicator().getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-        self.communicator().getProperties().setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("Ice.Warn.Dispatch", "0")
 
-        adapter = self.communicator().createObjectAdapter("TestAdapter")
-        adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
-        adapter.addServantLocator(TestI.ServantLocatorI(""), "")
-        adapter.add(TestI.TestI(), Ice.stringToIdentity("asm"))
-        adapter.add(TestActivationI.TestActivationI(), Ice.stringToIdentity("test/activation"))
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.addServantLocator(TestI.ServantLocatorI("category"), "category")
+            adapter.addServantLocator(TestI.ServantLocatorI(""), "")
+            adapter.add(TestI.TestI(), Ice.stringToIdentity("asm"))
+            adapter.add(TestActivationI.TestActivationI(), Ice.stringToIdentity("test/activation"))
 
-        adapter.activate()
-        adapter.waitForDeactivate()
-        return 0
-
-app = TestServer()
-sys.exit(app.main(sys.argv))
+            adapter.activate()
+            adapter.waitForDeactivate()

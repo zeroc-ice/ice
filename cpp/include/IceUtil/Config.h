@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -97,13 +94,19 @@
 #   endif
 #endif
 
+#if defined(_MSVC_LANG)
+#   define ICE_CPLUSPLUS _MSVC_LANG
+#else
+#   define ICE_CPLUSPLUS __cplusplus
+#endif
+
 //
 // Check for C++ 11 support
 //
 // For GCC, we recognize --std=c++0x only for GCC version 4.5 and greater,
 // as C++11 support in prior releases was too limited.
 //
-#if (__cplusplus >= 201103) || \
+#if (ICE_CPLUSPLUS >= 201103) || \
     ((defined(__GNUC__) && defined(__GXX_EXPERIMENTAL_CXX0X__) && ((__GNUC__* 100) + __GNUC_MINOR__) >= 405)) || \
     (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_CPP11_COMPILER
@@ -116,12 +119,14 @@
 #   error "you need a C++11 capable compiler to use the C++11 mapping"
 #endif
 
-#if defined(ICE_CPP11_COMPILER) && (!defined(_MSC_VER) || (_MSC_VER >= 1900))
+#if defined(ICE_CPP11_COMPILER)
 #   define ICE_NOEXCEPT noexcept
 #   define ICE_NOEXCEPT_FALSE noexcept(false)
+#   define ICE_FINAL final
 #else
 #   define ICE_NOEXCEPT throw()
 #   define ICE_NOEXCEPT_FALSE /**/
+#   define ICE_FINAL /**/
 #endif
 
 //
@@ -156,12 +161,6 @@
 //
 #if defined(ICE_CPP11_MAPPING) || defined(__GNUC__) || defined(__clang__) || (defined(_MSC_VER) && (_MSC_VER >= 1900))
 #   define ICE_HAS_THREAD_SAFE_LOCAL_STATIC
-#endif
-
-#if defined(_MSVC_LANG)
-#   define ICE_CPLUSPLUS _MSVC_LANG
-#else
-#   define ICE_CPLUSPLUS __cplusplus
 #endif
 
 //
@@ -225,6 +224,12 @@
 #   define ICE_DEPRECATED_API(msg) /**/
 #endif
 
+#if defined(__clang__) || defined(__GNUC__)
+#   define ICE_MAYBE_UNUSED __attribute__((unused))
+#else
+#   define ICE_MAYBE_UNUSED /**/
+#endif
+
 #ifdef _WIN32
 #   include <windows.h>
 
@@ -270,8 +275,8 @@
 //
 // The Ice version.
 //
-#define ICE_STRING_VERSION "3.7.1" // "A.B.C", with A=major, B=minor, C=patch
-#define ICE_INT_VERSION 30701      // AABBCC, with AA=major, BB=minor, CC=patch
+#define ICE_STRING_VERSION "3.7.2" // "A.B.C", with A=major, B=minor, C=patch
+#define ICE_INT_VERSION 30702      // AABBCC, with AA=major, BB=minor, CC=patch
 #define ICE_SO_VERSION "37"      // "ABC", with A=major, B=minor, C=patch
 
 #if !defined(ICE_BUILDING_ICE) && defined(ICE_API_EXPORTS)

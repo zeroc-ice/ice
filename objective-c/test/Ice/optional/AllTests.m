@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -688,18 +685,18 @@ optionalAllTests(id<ICECommunicator> communicator)
     tprintf("ok\n");
 
     tprintf("testing tag marshalling... ");
-    TestOptionalB* b = [TestOptionalB b];
-    TestOptionalB* b2 = (TestOptionalB*)[initial pingPong:b];
+    TestOptionalB* b1 = [TestOptionalB b];
+    TestOptionalB* b2 = (TestOptionalB*)[initial pingPong:b1];
     test(![b2 hasMa]);
     test(![b2 hasMb]);
     test(![b2 hasMc]);
 
-    b.ma = 10;
-    b.mb = 11;
-    b.mc = 12;
-    b.md = 13;
+    b1.ma = 10;
+    b1.mb = 11;
+    b1.mc = 12;
+    b1.md = 13;
 
-    b2 = (TestOptionalB*)[initial pingPong:b];
+    b2 = (TestOptionalB*)[initial pingPong:b1];
     test(b2.ma == 10);
     test(b2.mb == 11);
     test(b2.mc == 12);
@@ -708,7 +705,7 @@ optionalAllTests(id<ICECommunicator> communicator)
     [factory setEnabled:YES];
     os = [ICEUtil createOutputStream:communicator];
     [os startEncapsulation];
-    [os writeValue:b];
+    [os writeValue:b1];
     [os endEncapsulation];
     inEncaps = [os finished];
     test([initial ice_invoke:@"pingPong" mode:ICENormal inEncaps:inEncaps outEncaps:&outEncaps]);

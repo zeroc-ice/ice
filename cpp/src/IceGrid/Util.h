@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -20,14 +17,6 @@
 
 namespace IceGrid
 {
-
-struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
-{
-    ptrdiff_t operator()(ptrdiff_t d)
-    {
-        return IceUtilInternal::random(static_cast<int>(d));
-    }
-};
 
 template<typename T> std::insert_iterator<T>
 inline set_inserter(T& container)

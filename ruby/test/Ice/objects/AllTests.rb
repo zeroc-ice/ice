@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -68,7 +65,7 @@ def test(b)
     end
 end
 
-def allTests(communicator)
+def allTests(helper, communicator)
 
     factory = MyValueFactory.new
     communicator.getValueFactoryManager().add(factory, '::Test::B')
@@ -83,7 +80,7 @@ def allTests(communicator)
 
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "initial:default -p 12010"
+    ref = "initial:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
     puts "ok"
@@ -219,6 +216,31 @@ def allTests(communicator)
     test(i)
     puts "ok"
 
+    print "getting K... "
+    STDOUT.flush
+    k = initial.getK()
+    test(k.value.data == "l")
+    puts "ok"
+
+    print "testing Value as parameter... "
+    STDOUT.flush
+    v1 = Test::L.new("l")
+    v2, v3 = initial.opValue(v1)
+    test(v2.data == "l")
+    test(v3.data == "l")
+
+    v1 = [Test::L.new("l")]
+    v2, v3 = initial.opValueSeq(v1)
+    test(v2[0].data == "l")
+    test(v3[0].data == "l")
+
+    v1 = {}
+    v1["l"] = Test::L.new("l")
+    v2, v3 = initial.opValueMap(v1)
+    test(v2["l"].data == "l")
+    test(v3["l"].data == "l")
+    puts "ok"
+
     print "getting D1... "
     STDOUT.flush
     d1 = initial.getD1(Test::D1.new(Test::A1.new("a1"), Test::A1.new("a2"), Test::A1.new("a3"), Test::A1.new("a4")))
@@ -309,7 +331,7 @@ def allTests(communicator)
 
     print "testing UnexpectedObjectException... "
     STDOUT.flush
-    ref = "uoet:default -p 12010"
+    ref = "uoet:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
     uoet = Test::UnexpectedObjectExceptionTestPrx::uncheckedCast(base)
@@ -343,6 +365,25 @@ def allTests(communicator)
     print "testing getting ObjectFactory as ValueFactory... "
     STDOUT.flush
     test(communicator.getValueFactoryManager().find('TestOF') != nil)
+    puts "ok"
+
+    print "testing class containing complex dictionary... "
+    STDOUT.flush
+    m = Test::M.new
+    m.v = {}
+    k1 = Test::StructKey.new(1, "1")
+    m.v[k1] = Test::L.new("one")
+    k2 = Test::StructKey.new(2, "2")
+    m.v[k2] = Test::L.new("two")
+    m1, m2 = initial.opM(m)
+    test(m1.v.length == 2)
+    test(m2.v.length == 2)
+
+    test(m1.v[k1].data == "one")
+    test(m2.v[k1].data == "one")
+
+    test(m1.v[k2].data == "two")
+    test(m2.v[k2].data == "two")
     puts "ok"
 
     return initial

@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -212,7 +209,7 @@ class Callback(CallbackBase):
             test(False)
         self.called()
 
-def allTests(communicator):
+def allTests(helper, communicator):
     sys.stdout.write("testing servant registration exceptions... ")
     sys.stdout.flush()
     communicator.getProperties().setProperty("TestAdapter1.Endpoints", "tcp -h *")
@@ -221,26 +218,26 @@ def allTests(communicator):
     adapter.add(obj, Ice.stringToIdentity("x"))
     try:
         adapter.add(obj, Ice.stringToIdentity("x"))
-        test(false)
+        test(False)
     except Ice.AlreadyRegisteredException:
         pass
 
     try:
         adapter.add(obj, Ice.stringToIdentity(""))
-        test(false)
+        test(False)
     except Ice.IllegalIdentityException as ex:
         test(ex.id.name == "")
 
     try:
         adapter.add(None, Ice.stringToIdentity("x"))
-        test(false)
+        test(False)
     except Ice.IllegalServantException:
         pass
 
     adapter.remove(Ice.stringToIdentity("x"))
     try:
         adapter.remove(Ice.stringToIdentity("x"))
-        test(false)
+        test(False)
     except Ice.NotRegisteredException:
         pass
 
@@ -255,7 +252,7 @@ def allTests(communicator):
     adapter.addServantLocator(loc, "x")
     try:
         adapter.addServantLocator(loc, "x")
-        test(false)
+        test(False)
     except Ice.AlreadyRegisteredException:
         pass
 
@@ -268,14 +265,14 @@ def allTests(communicator):
     communicator.getValueFactoryManager().add(ValueFactory, "x")
     try:
         communicator.getValueFactoryManager().add(ValueFactory, "x")
-        test(false)
+        test(False)
     except Ice.AlreadyRegisteredException:
         pass
     print("ok")
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    ref = "thrower:default -p 12010"
+    ref = "thrower:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
     test(base)
     print("ok")

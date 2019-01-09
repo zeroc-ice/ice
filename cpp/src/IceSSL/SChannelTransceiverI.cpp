@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -900,7 +897,7 @@ SChannel::TransceiverI::startWrite(IceInternal::Buffer& buffer)
         _bufferedW = encryptMessage(buffer);
     }
 
-    return _delegate->startWrite(_writeBuffer) && _bufferedW == (buffer.b.end() - buffer.i);
+    return _delegate->startWrite(_writeBuffer) && _bufferedW == static_cast<size_t>((buffer.b.end() - buffer.i));
 }
 
 void

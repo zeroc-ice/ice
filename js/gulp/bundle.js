@@ -1,19 +1,16 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-var gutil       = require("gulp-util");
-var PluginError = gutil.PluginError;
+var PluginError = require("plugin-error");
 var PLUGIN_NAME = "gulp-slice2js-bundle";
 var through     = require("through2");
 var fs          = require("fs");
 var path        = require("path");
 var sourcemap   = require('source-map');
+var Vinyl = require("vinyl");
 
 function rmfile(path)
 {
@@ -326,12 +323,14 @@ function bundle(args)
 
                 sb.write(preamble);
                 sb.write("    var root = typeof(window) !== \"undefined\" ? window : typeof(global) !== \"undefined\" ? global : typeof(self) !== \"undefined\" ? self : {};\n");
-                lineOffset += 3;
+                sb.write("    var ice = root.ice || {};\n");
+                lineOffset += 4;
                 args.modules.forEach(
                     function(m){
                         sb.write("    root." + m + " = root." + m + " || {};\n");
                         lineOffset++;
-
+                        sb.write("    ice." + m + " = root." + m + ";\n");
+                        lineOffset++;
                         if(m == "Ice")
                         {
                             sb.write("    Ice.Slice = Ice.Slice || {};\n");
@@ -466,14 +465,16 @@ function bundle(args)
                         lineOffset++;
                     });
 
-                sb.write(epilogue);
+                sb.write("    root.ice = ice;\n");
                 lineOffset++;
 
-                var target = new gutil.File(
+                sb.write(epilogue);
+                lineOffset++;
+                var target = new Vinyl(
                     {
                         cwd: "",
-                        base:"",
-                        path:path.basename(args.target),
+                        base: path.dirname(args.target),
+                        path: args.target,
                         contents:sb.buffer
                     });
                 target.sourceMap = JSON.parse(sourceMap.toString());

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -48,6 +45,13 @@ extern "C"
 
 #if defined(__GNUC__) && ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
 #   pragma GCC diagnostic warning "-Wnarrowing"
+#endif
+
+//
+// Ignore redundant redeclarations from php 5.3 php-output.h header.
+//
+#if defined(__GNUC__) && PHP_VERSION_ID < 50400
+#   pragma GCC diagnostic ignored "-Wredundant-decls"
 #endif
 
 //

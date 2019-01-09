@@ -1,15 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "js:ice-build", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #include <Ice/ObjectAdapterF.ice>
 #include <Ice/Identity.ice>
@@ -47,11 +55,12 @@ local enum CompressBatch
     BasedOnProxy
 }
 
+#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 /**
  *
- * Base class providing access to the connection details. *
+ * Base class providing access to the connection details.
+ *
  **/
-["php:internal", "matlab:internal"]
 local class ConnectionInfo
 {
     /**
@@ -84,6 +93,7 @@ local class ConnectionInfo
      **/
     string connectionId;
 }
+#endif
 
 local interface Connection;
 
@@ -203,12 +213,12 @@ local enum ConnectionClose
     GracefullyWithWait
 }
 
+#if !defined(__SLICE2PHP__) && !defined(__SLICE2MATLAB__)
 /**
  *
  * The user-level interface to a connection.
  *
  **/
-["php:internal", "matlab:internal"]
 local interface Connection
 {
     /**
@@ -219,7 +229,7 @@ local interface Connection
      *
      * @see ConnectionClose
      **/
-    ["cpp:noexcept"] void close(ConnectionClose mode);
+    ["cpp:noexcept", "js:async"] void close(ConnectionClose mode);
 
     /**
      *
@@ -415,7 +425,6 @@ local interface Connection
  * Provides access to the connection details of an IP connection
  *
  **/
-["php:internal", "matlab:internal"]
 local class IPConnectionInfo extends ConnectionInfo
 {
     /** The local address. */
@@ -436,7 +445,6 @@ local class IPConnectionInfo extends ConnectionInfo
  * Provides access to the connection details of a TCP connection
  *
  **/
-["php:internal", "matlab:internal"]
 local class TCPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -459,7 +467,6 @@ local class TCPConnectionInfo extends IPConnectionInfo
  * Provides access to the connection details of a UDP connection
  *
  **/
-["php:internal", "matlab:internal"]
 local class UDPConnectionInfo extends IPConnectionInfo
 {
     /**
@@ -499,11 +506,12 @@ dictionary<string, string> HeaderDict;
  * Provides access to the connection details of a WebSocket connection
  *
  **/
-["php:internal", "matlab:internal"]
 local class WSConnectionInfo extends ConnectionInfo
 {
     /** The headers from the HTTP upgrade request. */
     HeaderDict headers;
 }
+
+#endif
 
 }

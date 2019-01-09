@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -16,7 +13,9 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    const TestHelper = require("TestHelper").TestHelper;
     const ArrayUtil = Ice.ArrayUtil;
+    const test = TestHelper.test;
 
     const isBrowser = (typeof window !== 'undefined' || typeof WorkerGlobalScope !== 'undefined');
     const isConnectionFailed = ex =>
@@ -24,48 +23,35 @@
           (isBrowser && ex instanceof Ice.ConnectFailedException) ||
           (ex instanceof Ice.ConnectTimeoutException);
 
-    async function allTests(out, initData)
+    class Client extends TestHelper
     {
-        function test(value, ex)
+        async allTests()
         {
-            if(!value)
+            async function createTestIntfPrx(adapters)
             {
-                let message = "test failed\n";
-                if(ex)
+                let endpoints = [];
+                let obj = null;
+                for(const adapter of adapters)
                 {
-                    message += ex.toString();
+                    obj = await adapter.getTestIntf();
+                    endpoints = endpoints.concat(obj.ice_getEndpoints());
                 }
-                throw new Error(message);
+                return Test.TestIntfPrx.uncheckedCast(obj.ice_endpoints(endpoints));
             }
-        }
 
-        async function createTestIntfPrx(adapters)
-        {
-            let endpoints = [];
-            let obj = null;
-            for(const adapter of adapters)
+            async function deactivate(communicator, adapters)
             {
-                obj = await adapter.getTestIntf();
-                endpoints = endpoints.concat(obj.ice_getEndpoints());
+                for(const adapter of adapters)
+                {
+                    await communicator.deactivateObjectAdapter(adapter);
+                }
             }
-            return Test.TestIntfPrx.uncheckedCast(obj.ice_endpoints(endpoints));
-        }
 
-        async function deactivate(communicator, adapters)
-        {
-            for(const adapter of adapters)
-            {
-                await communicator.deactivateObjectAdapter(adapter);
-            }
-        }
-
-        let communicator;
-        try
-        {
-            communicator = Ice.initialize(initData);
-
+            const out = this.getWriter();
+            let communicator = this.communicator();
+            const properties = communicator.getProperties().clone();
             out.write("testing stringToProxy... ");
-            const ref = "communicator:default -p 12010";
+            const ref = "communicator:" + this.getTestEndpoint();
             let com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
             test(com !== null);
             out.writeLine("ok");
@@ -101,7 +87,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = Ice.initialize(initData);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing binding with multiple endpoints... ");
@@ -209,7 +195,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = Ice.initialize(initData);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             //
@@ -236,13 +222,12 @@
                 let adapterCount = adapters.length;
                 while(--count > 0)
                 {
-                    let proxies = [];
+                    const proxies = [];
                     if(count == 1)
                     {
                         await com.deactivateObjectAdapter(adapters[4]);
                         --adapterCount;
                     }
-                    proxies = new Array(!0);
 
                     for(let i = 0; i < proxies.length; ++i)
                     {
@@ -265,7 +250,7 @@
                                     // ignore exception
                                 });
                     }
-                    for(let i = 0; i < proxies.Length; i++)
+                    for(let i = 0; i < proxies.length; i++)
                     {
                         try
                         {
@@ -308,7 +293,7 @@
             }
 
             await communicator.destroy();
-            communicator = Ice.initialize(initData);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing random endpoint selection... ");
@@ -355,7 +340,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = Ice.initialize(initData);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing ordered endpoint selection... ");
@@ -428,7 +413,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = Ice.initialize(initData);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing per request binding with single endpoint... ");
@@ -460,7 +445,7 @@
             out.writeLine("ok");
 
             await communicator.destroy();
-            communicator = Ice.initialize(initData);
+            [communicator] = this.initialize(properties);
             com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
             out.write("testing per request binding with multiple endpoints... ");
@@ -520,7 +505,7 @@
                 //
 
                 await communicator.destroy();
-                communicator = Ice.initialize(initData);
+                [communicator] = this.initialize(properties);
                 com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
                 out.write("testing per request binding and ordered endpoint selection... ");
@@ -590,33 +575,31 @@
 
             await com.shutdown();
         }
-        finally
-        {
-            if(communicator)
-            {
-                await communicator.destroy();
-            }
-        }
-    }
 
-    async function run(out, initData)
-    {
-        if(typeof navigator !== 'undefined' && isSafari() && isWorker())
+        async run(args)
         {
             let communicator;
             try
             {
-                communicator = Ice.initialize(initData);
-                //
-                // BUGFIX:
-                //
-                // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
-                // web socket send() method never returns for the sending of close connection message.
-                //
-                out.writeLine("Test not supported with Safari web workers.");
-                const obj = communicator.stringToProxy("communicator:default -p 12010");
-                const prx = await Test.RemoteCommunicatorPrx.uncheckedCast(obj);
-                await prx.shutdown();
+                const out = this.getWriter();
+                [communicator, args] = this.initialize(args);
+                if(typeof navigator !== 'undefined' && isSafari() && isWorker())
+                {
+                    //
+                    // BUGFIX:
+                    //
+                    // With Safari 9.1 and WebWorkers, this test hangs in communicator destruction. The
+                    // web socket send() method never returns for the sending of close connection message.
+                    //
+                    out.writeLine("Test not supported with Safari web workers.");
+                    const obj = communicator.stringToProxy("communicator:" + this.getTestEndpoint());
+                    const prx = await Test.RemoteCommunicatorPrx.uncheckedCast(obj);
+                    await prx.shutdown();
+                }
+                else
+                {
+                    await this.allTests();
+                }
             }
             finally
             {
@@ -626,14 +609,10 @@
                 }
             }
         }
-        else
-        {
-            await allTests(out, initData);
-        }
     }
-
-    exports._test = run;
-    exports._runServer = true;
+    exports.Client = Client;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));

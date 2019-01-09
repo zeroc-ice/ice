@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -871,7 +868,7 @@ allTests(Test::TestHelper* helper)
         int i = 0;
         for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
-            *p = '1' + i++;
+            *p = static_cast<Ice::Byte>('1' + i++);
         }
 
         MyByteSeq out;
@@ -1585,7 +1582,7 @@ allTests(Test::TestHelper* helper)
             int i = 0;
             for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
             {
-                *p = '1' + i++;
+                *p = static_cast<Ice::Byte>('1' + i++);
             }
 
 #ifdef ICE_CPP11_MAPPING
@@ -2535,7 +2532,7 @@ allTests(Test::TestHelper* helper)
         int i = 0;
         for(MyByteSeq::iterator p = in.begin(); p != in.end(); ++p)
         {
-            *p = '1' + i++;
+            *p = static_cast<Ice::Byte>('1' + i++);
         }
 
 #ifdef ICE_CPP11_MAPPING
@@ -3366,10 +3363,10 @@ allTests(Test::TestHelper* helper)
 
     cout << "testing class mapped structs with AMI... " << flush;
     {
-        Test::ClassStructPtr cs2;
-        Test::ClassStructSeq csseq2;
+        cs2 = 0;
+        csseq2.clear();
         Ice::AsyncResultPtr r = t->begin_opClassStruct(cs, csseq1);
-        Test::ClassStructPtr cs3 = t->end_opClassStruct(cs2, csseq2, r);
+        cs3 = t->end_opClassStruct(cs2, csseq2, r);
         assert(cs3 == cs);
         assert(csseq1.size() == csseq2.size());
         assert(csseq1[0] == csseq2[0]);
@@ -3424,8 +3421,7 @@ allTests(Test::TestHelper* helper)
         test(r.returnValue == wstr);
 #else
         Ice::AsyncResultPtr r = wsc1->begin_opString(wstr);
-        wstring out;
-        wstring ret = wsc1->end_opString(out, r);
+        ret = wsc1->end_opString(out, r);
         test(out == wstr);
         test(ret == wstr);
 #endif
@@ -3436,10 +3432,10 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         wsc1->opStringAsync(wstr,
-                            [&](wstring ret, wstring out)
+                            [&](wstring retP, wstring outP)
                             {
-                                test(out == wstr);
-                                test(ret == wstr);
+                                test(outP == wstr);
+                                test(retP == wstr);
                                 done.set_value(true);
                             },
                             [&](std::exception_ptr)
@@ -3467,8 +3463,7 @@ allTests(Test::TestHelper* helper)
         test(r.returnValue == wstr);
 #else
         Ice::AsyncResultPtr r = wsc2->begin_opString(wstr);
-        wstring out;
-        wstring ret = wsc2->end_opString(out, r);
+        ret = wsc2->end_opString(out, r);
         test(out == wstr);
         test(ret == wstr);
 #endif
@@ -3479,10 +3474,10 @@ allTests(Test::TestHelper* helper)
         promise<bool> done;
 
         wsc2->opStringAsync(wstr,
-                            [&](wstring ret, wstring out)
+                            [&](wstring retP, wstring outP)
                             {
-                                test(out == wstr);
-                                test(ret == wstr);
+                                test(outP == wstr);
+                                test(retP == wstr);
                                 done.set_value(true);
                             },
                             [&](std::exception_ptr)

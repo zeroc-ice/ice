@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -30,6 +27,10 @@
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <openssl/pkcs12.h>
+
+#ifdef _MSC_VER
+#   pragma warning(disable:4127) // conditional expression is constant
+#endif
 
 using namespace std;
 using namespace Ice;
@@ -201,8 +202,6 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
     IceSSL::SSLEngine(communicator),
     _ctx(0)
 {
-    __setNoDelete(true);
-
     //
     // Initialize OpenSSL if necessary.
     //
@@ -279,6 +278,7 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
 
                 if(!IceUtilInternal::splitString(randFiles, IceUtilInternal::pathsep, files))
                 {
+                    cleanup();
                     throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: invalid value for IceSSL.Random:\n" + randFiles);
                 }
@@ -288,11 +288,13 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
                     string resolved;
                     if(!checkPath(file, defaultDir, false, resolved))
                     {
+                        cleanup();
                         throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: entropy data file not found:\n" + file);
                     }
                     if(!RAND_load_file(resolved.c_str(), 1024))
                     {
+                        cleanup();
                         throw PluginInitializationException(__FILE__, __LINE__,
                                                             "IceSSL: unable to load entropy data from " + resolved);
                     }
@@ -308,6 +310,7 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
             {
                 if(RAND_egd(entropyDaemon.c_str()) <= 0)
                 {
+                    cleanup();
                     throw PluginInitializationException(__FILE__, __LINE__,
                                                         "IceSSL: EGD failure using file " + entropyDaemon);
                 }
@@ -332,21 +335,24 @@ OpenSSL::SSLEngine::SSLEngine(const CommunicatorPtr& communicator) :
 #endif
         }
     }
-    __setNoDelete(false);
 }
 
-OpenSSL::SSLEngine::~SSLEngine()
+void
+OpenSSL::SSLEngine::cleanup()
 {
-//
-// OpenSSL 1.1.0 remove the need for library initialization and cleanup.
-//
+    //
+    // Must be called with the static mutex locked.
+    //
+    --instanceCount;
+    //
+    // OpenSSL 1.1.0 remove the need for library initialization and cleanup. We
+    // still need to decrement instanceCount
+    //
 #if OPENSSL_VERSION_NUMBER < 0x10100000L || defined(LIBRESSL_VERSION_NUMBER)
     //
     // Clean up OpenSSL resources.
     //
-    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
-
-    if(--instanceCount == 0 && initOpenSSL)
+    if(instanceCount == 0 && initOpenSSL)
     {
         //
         // NOTE: We can't destroy the locks here: threads which might have called openssl methods
@@ -364,6 +370,12 @@ OpenSSL::SSLEngine::~SSLEngine()
         EVP_cleanup();
     }
 #endif
+}
+
+OpenSSL::SSLEngine::~SSLEngine()
+{
+    IceUtilInternal::MutexPtrLock<IceUtil::Mutex> sync(staticMutex);
+    cleanup();
 }
 
 void
@@ -485,7 +497,7 @@ OpenSSL::SSLEngine::initialize()
                     while(count < passwordRetryMax)
                     {
                         ERR_clear_error();
-                        if((success = SSL_CTX_load_verify_locations(_ctx, file, dir)) || !passwordError())
+                        if((success = SSL_CTX_load_verify_locations(_ctx, file, dir)) != 0 || !passwordError())
                         {
                             break;
                         }
@@ -573,7 +585,7 @@ OpenSSL::SSLEngine::initialize()
                                 key = 0;
                                 cert = 0;
                                 chain = 0;
-                                if(!(success = PKCS12_parse(p12, password(false).c_str(), &key, &cert, &chain)))
+                                if((success = PKCS12_parse(p12, password(false).c_str(), &key, &cert, &chain)) == 0)
                                 {
                                     if(passwordError())
                                     {
@@ -655,7 +667,7 @@ OpenSSL::SSLEngine::initialize()
                         while(count < passwordRetryMax)
                         {
                             ERR_clear_error();
-                            if(!(success = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str())))
+                            if((success = SSL_CTX_use_certificate_chain_file(_ctx, file.c_str())) == 0)
                             {
                                 if(passwordError())
                                 {
@@ -737,10 +749,10 @@ OpenSSL::SSLEngine::initialize()
                         }
                         else
                         {
-                            string err = sslErrors();
-                            if(!err.empty())
+                            string errStr = sslErrors();
+                            if(!errStr.empty())
                             {
-                                msg += ":\n" + err;
+                                msg += ":\n" + errStr;
                             }
                         }
                         throw PluginInitializationException(__FILE__, __LINE__, msg);
@@ -836,13 +848,13 @@ OpenSSL::SSLEngine::initialize()
         //
         // Establish the cipher list.
         //
-        string ciphers = properties->getProperty(propPrefix + "Ciphers");
-        if(!ciphers.empty())
+        string ciphersStr = properties->getProperty(propPrefix + "Ciphers");
+        if(!ciphersStr.empty())
         {
-            if(!SSL_CTX_set_cipher_list(_ctx, ciphers.c_str()))
+            if(!SSL_CTX_set_cipher_list(_ctx, ciphersStr.c_str()))
             {
                 throw PluginInitializationException(__FILE__, __LINE__,
-                                        "IceSSL: unable to set ciphers using `" + ciphers + "':\n" + sslErrors());
+                                        "IceSSL: unable to set ciphers using `" + ciphersStr + "':\n" + sslErrors());
             }
         }
 

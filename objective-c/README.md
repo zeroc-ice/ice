@@ -131,6 +131,6 @@ of `ok` messages. In case of a failure, the tests abort with `failed`.
  All the test clients and servers run on the iOS device, not on your Mac
  computer.
 
-[1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.1
-[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.1
+[1]: https://doc.zeroc.com/display/Rel/Using+the+macOS+Binary+Distribution+for+Ice+3.7.2
+[2]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
 [3]: https://en.wikipedia.org/wiki/Automatic_Reference_Counting

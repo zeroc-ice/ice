@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -459,7 +456,7 @@ Slice::Python::CodeVisitor::writeOperations(const ClassDefPtr& p)
                 if((*oli)->hasMarshaledResult())
                 {
                     string name = (*oli)->name();
-                    name[0] = toupper(static_cast<unsigned char>(name[0]));
+                    name[0] = static_cast<char>(toupper(static_cast<unsigned char>(name[0])));
                     _out << sp;
                     _out << nl << "\"\"\"";
                     _out << nl << "Immediately marshals the result of an invocation of " << (*oli)->name()
@@ -2307,12 +2304,12 @@ Slice::Python::CodeVisitor::stripMarkup(const string& comment)
         string::size_type start = 0;
         while(start != string::npos)
         {
-            string::size_type nl = text.find_first_of("\r\n", start);
+            string::size_type newline = text.find_first_of("\r\n", start);
             string line;
-            if(nl != string::npos)
+            if(newline != string::npos)
             {
-                line = text.substr(start, nl - start);
-                start = nl;
+                line = text.substr(start, newline - start);
+                start = newline;
             }
             else
             {
@@ -2849,7 +2846,7 @@ Slice::Python::CodeVisitor::writeDocstring(const OperationPtr& op, DocstringMode
 }
 
 string
-Slice::Python::getPackageDirectory(const string& file, const UnitPtr& unit)
+Slice::Python::getPackageDirectory(const string& file, const UnitPtr& ut)
 {
     //
     // file must be a fully-qualified path name.
@@ -2858,7 +2855,7 @@ Slice::Python::getPackageDirectory(const string& file, const UnitPtr& unit)
     //
     // Check if the file contains the python:pkgdir global metadata.
     //
-    DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
     const string prefix = "python:pkgdir:";
     string pkgdir = dc->findMetaData(prefix);
@@ -2874,7 +2871,7 @@ Slice::Python::getPackageDirectory(const string& file, const UnitPtr& unit)
 }
 
 string
-Slice::Python::getImportFileName(const string& file, const UnitPtr& unit, const vector<string>& includePaths)
+Slice::Python::getImportFileName(const string& file, const UnitPtr& ut, const vector<string>& includePaths)
 {
     //
     // The file and includePaths arguments must be fully-qualified path names.
@@ -2883,7 +2880,7 @@ Slice::Python::getImportFileName(const string& file, const UnitPtr& unit, const 
     //
     // Check if the file contains the python:pkgdir global metadata.
     //
-    string pkgdir = getPackageDirectory(file, unit);
+    string pkgdir = getPackageDirectory(file, ut);
     if(!pkgdir.empty())
     {
         //
@@ -3046,11 +3043,11 @@ Slice::Python::getPackageMetadata(const ContainedPtr& cont)
     string q;
     if(!m->findMetaData(prefix, q))
     {
-        UnitPtr unit = cont->unit();
+        UnitPtr ut = cont->unit();
         string file = cont->file();
         assert(!file.empty());
 
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        DefinitionContextPtr dc = ut->findDefinitionContext(file);
         assert(dc);
         q = dc->findMetaData(prefix);
     }
@@ -3090,10 +3087,7 @@ Slice::Python::printHeader(IceUtilInternal::Output& out)
     static const char* header =
 "# **********************************************************************\n"
 "#\n"
-"# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.\n"
-"#\n"
-"# This copy of Ice is licensed to you under the terms described in the\n"
-"# ICE_LICENSE file included in this distribution.\n"
+"# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
 "#\n"
 "# **********************************************************************\n"
         ;
@@ -3232,8 +3226,8 @@ Slice::Python::MetaDataVisitor::visitSequence(const SequencePtr& p)
     const string file = p->file();
     const string line = p->line();
     StringList protobufMetaData;
-    const UnitPtr unit = p->unit();
-    const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    const UnitPtr ut = p->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
 
     for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
@@ -3285,8 +3279,8 @@ StringList
 Slice::Python::MetaDataVisitor::validateSequence(const string& file, const string& line,
                                                  const TypePtr& type, const StringList& metaData)
 {
-    const UnitPtr unit = type->unit();
-    const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+    const UnitPtr ut = type->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(file);
     assert(dc);
 
     static const string prefix = "python:";
@@ -3296,16 +3290,52 @@ Slice::Python::MetaDataVisitor::validateSequence(const string& file, const strin
         string s = *p++;
         if(s.find(prefix) == 0)
         {
-            string::size_type pos = s.find(':', prefix.size());
-            if(pos != string::npos && s.substr(prefix.size(), pos - prefix.size()) == "seq")
+            SequencePtr seq = SequencePtr::dynamicCast(type);
+            if(seq)
             {
                 static const string seqPrefix = "python:seq:";
-                string arg = s.substr(seqPrefix.size(), pos - seqPrefix.size());
-                if(SequencePtr::dynamicCast(type))
+                if(s.find(seqPrefix) == 0)
                 {
+                    string arg = s.substr(seqPrefix.size());
                     if(arg == "tuple" || arg == "list" || arg == "default")
                     {
                         continue;
+                    }
+                }
+                else if(s.size() > prefix.size())
+                {
+                    string arg = s.substr(prefix.size());
+                    if(arg == "tuple" || arg == "list" || arg == "default")
+                    {
+                        continue;
+                    }
+                    else if(arg == "array.array" || arg == "numpy.ndarray" || arg.find("memoryview:") == 0)
+                    {
+                        //
+                        // The memoryview sequence metadata is only valid for integral builtin
+                        // types excluding strings.
+                        //
+                        BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
+                        if(builtin)
+                        {
+                            switch(builtin->kind())
+                            {
+                            case Builtin::KindBool:
+                            case Builtin::KindByte:
+                            case Builtin::KindShort:
+                            case Builtin::KindInt:
+                            case Builtin::KindLong:
+                            case Builtin::KindFloat:
+                            case Builtin::KindDouble:
+                                {
+                                    continue;
+                                }
+                            default:
+                                {
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -3322,8 +3352,8 @@ Slice::Python::MetaDataVisitor::reject(const ContainedPtr& cont)
     StringList localMetaData = cont->getMetaData();
     static const string prefix = "python:";
 
-    const UnitPtr unit = cont->unit();
-    const DefinitionContextPtr dc = unit->findDefinitionContext(cont->file());
+    const UnitPtr ut = cont->unit();
+    const DefinitionContextPtr dc = ut->findDefinitionContext(cont->file());
     assert(dc);
 
     for(StringList::const_iterator p = localMetaData.begin(); p != localMetaData.end();)

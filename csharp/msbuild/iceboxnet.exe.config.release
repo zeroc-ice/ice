@@ -4,11 +4,11 @@
     <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1">
       <dependentAssembly>
         <assemblyIdentity name="Ice"  culture="neutral" publicKeyToken="@PublicKeyToken@"/>
-        <codeBase version="3.7.1.0" href="@AssemblyDir@\Ice.dll"/>
+        <codeBase version="3.7.2.0" href="@AssemblyDir@\Ice.dll"/>
       </dependentAssembly>
       <dependentAssembly>
         <assemblyIdentity name="IceBox"  culture="neutral" publicKeyToken="@PublicKeyToken@"/>
-        <codeBase version="3.7.1.0" href="@AssemblyDir@\IceBox.dll"/>
+        <codeBase version="3.7.2.0" href="@AssemblyDir@\IceBox.dll"/>
       </dependentAssembly>
       <!--
            This allows iceboxnet to load the IceSSL plug-in using a strong name. We omit the
@@ -17,7 +17,7 @@
       -->
       <dependentAssembly>
         <assemblyIdentity name="IceSSL"/>
-        <codeBase version="3.7.1.0" href="@AssemblyDir@\IceSSL.dll"/>
+        <codeBase version="3.7.2.0" href="@AssemblyDir@\IceSSL.dll"/>
       </dependentAssembly>
     </assemblyBinding>
   </runtime>

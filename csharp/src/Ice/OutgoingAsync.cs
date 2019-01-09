@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -185,10 +182,11 @@ namespace IceInternal
 
         public void attachRemoteObserver(Ice.ConnectionInfo info, Ice.Endpoint endpt, int requestId)
         {
-            if(observer_ != null)
+            Ice.Instrumentation.InvocationObserver observer = getObserver();
+            if(observer != null)
             {
                 int size = os_.size() - Protocol.headerSize - 4;
-                childObserver_ = getObserver().getRemoteObserver(info, endpt, requestId, size);
+                childObserver_ = observer.getRemoteObserver(info, endpt, requestId, size);
                 if(childObserver_ != null)
                 {
                     childObserver_.attach();
@@ -198,10 +196,11 @@ namespace IceInternal
 
         public void attachCollocatedObserver(Ice.ObjectAdapter adapter, int requestId)
         {
-            if(observer_ != null)
+            Ice.Instrumentation.InvocationObserver observer = getObserver();
+            if(observer != null)
             {
                 int size = os_.size() - Protocol.headerSize - 4;
-                childObserver_ = getObserver().getCollocatedObserver(adapter, requestId, size);
+                childObserver_ = observer.getCollocatedObserver(adapter, requestId, size);
                 if(childObserver_ != null)
                 {
                     childObserver_.attach();
@@ -1344,7 +1343,7 @@ namespace IceInternal
 
             try
             {
-                var flushBatch = new FlushBatch(this, instance_, _observer);
+                var flushBatch = new FlushBatch(this, instance_, observer_);
                 bool compress;
                 int batchRequestNum = con.getBatchRequestQueue().swap(flushBatch.getOs(), out compress);
                 if(batchRequestNum == 0)
@@ -1379,11 +1378,7 @@ namespace IceInternal
         public void invoke(string operation, Ice.CompressBatch compressBatch, bool synchronous)
         {
             synchronous_ = synchronous;
-            _observer = ObserverHelper.get(instance_, operation);
-            if(_observer != null)
-            {
-                _observer.attach();
-            }
+            observer_ = ObserverHelper.get(instance_, operation);
             instance_.outgoingConnectionFactory().flushAsyncBatchRequests(compressBatch, this);
             instance_.objectAdapterFactory().flushAsyncBatchRequests(compressBatch, this);
             check(true);
@@ -1415,7 +1410,6 @@ namespace IceInternal
         }
 
         private int _useCount;
-        private Ice.Instrumentation.InvocationObserver _observer;
     };
 
     public abstract class TaskCompletionCallback<T> : TaskCompletionSource<T>, OutgoingAsyncCompletionCallback

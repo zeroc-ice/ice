@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -76,6 +73,6 @@ dist.dependsOn(project(":icestorm-compat").assemble)
 // Used to build the gradle wrapper to automatically download and install
 // the version of gradle needed to build Ice.
 //
-task wrapper(type: Wrapper) {
-    gradleVersion = "4.7"
+wrapper {
+    gradleVersion = "4.10.2"
 }

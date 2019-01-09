@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -328,11 +325,12 @@ PriorityInversionTest::PriorityInversionTest() :
 void
 PriorityInversionTest::run()
 {
-    int cores, high, medium, low, timeout;
-    timeout = 30;
+
 #ifdef _WIN32
     return; //Priority inversion is not supported by WIN32
 #else
+    int cores, high, medium, low, timeout;
+    timeout = 30;
     try
     {
         IceUtil::Mutex m;
@@ -345,7 +343,6 @@ PriorityInversionTest::run()
     high = 45;
     medium = 35;
     low = 1;
-#endif
 
     {
         Monitor<Mutex> monitor;
@@ -442,4 +439,5 @@ PriorityInversionTest::run()
             }
         }
     }
+#endif
 }

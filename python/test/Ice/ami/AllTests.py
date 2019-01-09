@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -12,6 +9,17 @@ import Ice, Test, sys, threading, random
 def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
+
+class PingReplyI(Test.PingReply):
+     def __init__(self):
+         self._received = False
+
+     def reply(self, current=None):
+         self._received = True
+
+     def checkReceived(self):
+         return self._received
+
 
 class CallbackBase:
     def __init__(self):
@@ -376,14 +384,14 @@ class Thrower(CallbackBase):
         self.called()
         throwEx(self._t)
 
-def allTests(communicator, collocated):
-    sref = "test:default -p 12010"
+def allTests(helper, communicator, collocated):
+    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
     obj = communicator.stringToProxy(sref)
     test(obj)
 
     p = Test.TestIntfPrx.uncheckedCast(obj)
 
-    sref = "testController:default -p 12011"
+    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
     obj = communicator.stringToProxy(sref)
     test(obj)
 
@@ -716,7 +724,7 @@ def allTests(communicator, collocated):
             try:
                 future.result()
             except:
-                test(false)
+                test(False)
             throwEx(t)
         f = p.opAsync()
         try:
@@ -739,7 +747,7 @@ def allTests(communicator, collocated):
         def throwerEx(future):
             try:
                 future.result()
-                test(false)
+                test(False)
             except:
                 throwEx(t)
         try:
@@ -1136,13 +1144,13 @@ def allTests(communicator, collocated):
         r2.cancel()
         try:
             p.end_ice_ping(r1)
-            test(false)
+            test(False)
         except(Ice.InvocationCanceledException):
             pass
 
         try:
             p.end_ice_id(r2)
-            test(false)
+            test(False)
         except(Ice.InvocationCanceledException):
             pass
 
@@ -1161,12 +1169,12 @@ def allTests(communicator, collocated):
         r2.cancel()
         try:
             p.end_op(r1)
-            test(false)
+            test(False)
         except:
             pass
         try:
             p.end_ice_id(r2)
-            test(false)
+            test(False)
         except:
             pass
         testController.resumeAdapter()
@@ -1266,7 +1274,7 @@ def allTests(communicator, collocated):
         try:
             f.result()
         except:
-            test(false)
+            test(False)
 
         print("ok")
 
@@ -1303,14 +1311,14 @@ def allTests(communicator, collocated):
 
         print("ok")
 
-def allTestsFuture(communicator, collocated):
-    sref = "test:default -p 12010"
+def allTestsFuture(helper, communicator, collocated):
+    sref = "test:{0}".format(helper.getTestEndpoint(num=0))
     obj = communicator.stringToProxy(sref)
     test(obj)
 
     p = Test.TestIntfPrx.uncheckedCast(obj)
 
-    sref = "testController:default -p 12011"
+    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
     obj = communicator.stringToProxy(sref)
     test(obj)
 
@@ -1398,6 +1406,21 @@ def allTestsFuture(communicator, collocated):
     cb.check()
     p.opWithUEAsync(ctx).add_done_callback(cb.opWithUE)
     cb.check()
+
+    #
+    # TODO: test add_done_callback_async
+    #
+
+    if not collocated:
+        adapter = communicator.createObjectAdapter("")
+        replyI = PingReplyI()
+        reply = Test.PingReplyPrx.uncheckedCast(adapter.addWithUUID(replyI))
+        adapter.activate()
+
+        p.ice_getConnection().setAdapter(adapter)
+        p.pingBiDir(reply)
+        test(replyI.checkReceived())
+        adapter.destroy()
 
     print("ok")
 
@@ -1842,13 +1865,13 @@ def allTestsFuture(communicator, collocated):
         f2.cancel()
         try:
             f1.result()
-            test(false)
+            test(False)
         except(Ice.InvocationCanceledException):
             pass
 
         try:
             f2.result()
-            test(false)
+            test(False)
         except(Ice.InvocationCanceledException):
             pass
 
@@ -1867,12 +1890,12 @@ def allTestsFuture(communicator, collocated):
         f2.cancel()
         try:
             f1.result()
-            test(false)
+            test(False)
         except:
             pass
         try:
             f2.result()
-            test(false)
+            test(False)
         except:
             pass
         testController.resumeAdapter()

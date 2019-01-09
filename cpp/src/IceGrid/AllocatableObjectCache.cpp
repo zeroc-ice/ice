@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -216,8 +213,7 @@ AllocatableObjectCache::allocateByType(const string& type, const ObjectAllocatio
     }
 
     vector<AllocatableObjectEntryPtr> objects = p->second.getObjects();
-    RandomNumberGenerator rng;
-    random_shuffle(objects.begin(), objects.end(), rng); // TODO: OPTIMIZE
+    IceUtilInternal::shuffle(objects.begin(), objects.end()); // TODO: OPTIMIZE
     int allocatable = 0;
     try
     {

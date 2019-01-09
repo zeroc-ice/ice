@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -20,6 +17,7 @@
 {
     id<ViewController> _controller;
     void* _func;
+    NSString* _exe;
     NSArray* _args;
     BOOL _ready;
     BOOL _completed;
@@ -58,7 +56,7 @@
 @end
 
 @implementation MainHelper
--(id) init:(id<ViewController>)controller func:(void*)func args:(NSArray*)args
+-(id) init:(id<ViewController>)controller func:(void*)func exe:(NSString*)exe args:(NSArray*)args
 {
     self = [super init];
     if(self == nil)
@@ -67,6 +65,7 @@
     }
     _controller = ICE_RETAIN(controller);
     _func = func;
+    _exe = ICE_RETAIN(exe);
     _args = ICE_RETAIN(args);
     _ready = FALSE;
     _completed = FALSE;
@@ -79,6 +78,7 @@
 -(void) dealloc
 {
     [_controller release];
+    [_exe release];
     [_args release];
     [_cond release];
     [_out release];
@@ -128,6 +128,14 @@
         argv[i++] = (char*)[arg UTF8String];
     }
     argv[_args.count] = 0;
+    if([_exe isEqualToString:@"client"] || [_exe isEqualToString:@"collocated"])
+    {
+        TestCommonSetOutput(self, @selector(print:));
+    }
+    else
+    {
+        TestCommonTestInit(self, @selector(serverReady), @"", NO, NO);
+    }
     @try
     {
         [self completed:mainEntryPoint((int)_args.count, argv)];
@@ -136,6 +144,10 @@
     {
         [self print:[NSString stringWithFormat:@"unexpected exception while running `%s':%@\n", argv[0], ex]];
         [self completed:EXIT_FAILURE];
+    }
+    if([_exe isEqualToString:@"client"] || [_exe isEqualToString:@"collocated"])
+    {
+        TestCommonSetOutput(nil, nil);
     }
     free(argv);
 }
@@ -289,16 +301,8 @@
         @throw [TestCommonProcessFailedException processFailedException:
                     [NSString stringWithFormat:@"couldn't find %@", func]];
     }
-    MainHelper* helper = ICE_AUTORELEASE([[MainHelper alloc] init:_controller func:sym args:args]);
-    if([exe isEqualToString:@"client"] || [exe isEqualToString:@"collocated"])
-    {
-        TestCommonInit(helper, @selector(print:));
-    }
-    else
-    {
-        TestCommonInit(helper, @selector(print:));
-        TestCommonTestInit(helper, @selector(serverReady), @"", NO, NO);
-    }
+    args = [@[[NSString stringWithFormat:@"%@ %@", testSuite, exe]] arrayByAddingObjectsFromArray:args];
+    MainHelper* helper = ICE_AUTORELEASE([[MainHelper alloc] init:_controller func:sym exe:exe args:args]);
 
     //
     // Use a 768KB thread stack size for the objects test. This is necessary when running the

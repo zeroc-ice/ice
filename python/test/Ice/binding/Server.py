@@ -1,34 +1,25 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
-
 import Ice
-Ice.loadSlice('Test.ice')
-import Test, TestI
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import TestI
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    id = Ice.stringToIdentity("communicator")
-    adapter.add(TestI.RemoteCommunicatorI(), id)
-    adapter.activate()
 
-    communicator.waitForShutdown()
-    return True
+class Server(TestHelper):
 
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+    def run(self, args):
 
-sys.exit(not status)
+        with self.initialize(args=args) as communicator:
+
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(TestI.RemoteCommunicatorI(), Ice.stringToIdentity("communicator"))
+            adapter.activate()
+
+            communicator.waitForShutdown()

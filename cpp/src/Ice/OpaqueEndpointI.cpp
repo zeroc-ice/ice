@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -57,7 +54,7 @@ class OpaqueEndpointInfoI : public Ice::OpaqueEndpointInfo
 {
 public:
 
-    OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawByes);
+    OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding, const Ice::ByteSeq& rawBytes);
 
     virtual Ice::Short
     type() const ICE_NOEXCEPT
@@ -86,9 +83,9 @@ private:
 //
 // COMPILERFIX: inlining this constructor causes crashes with gcc 4.0.1.
 //
-OpaqueEndpointInfoI::OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncoding,
-                                         const Ice::ByteSeq& rawBytes) :
-    Ice::OpaqueEndpointInfo(ICE_NULLPTR, -1, false, rawEncoding, rawBytes),
+OpaqueEndpointInfoI::OpaqueEndpointInfoI(Ice::Short type, const Ice::EncodingVersion& rawEncodingP,
+                                         const Ice::ByteSeq& rawBytesP) :
+    Ice::OpaqueEndpointInfo(ICE_NULLPTR, -1, false, rawEncodingP, rawBytesP),
     _type(type)
 {
 }

@@ -405,11 +405,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "..\test\Ice\scope
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "..\test\Ice\scope\msbuild\server\net45\server.csproj", "{81A5EA86-74C3-45BD-B04E-FB21983302F2}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "packagemd", "packagemd", "{1B87FBB5-12E7-41D8-9135-9D00544508C8}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "namespacemd", "namespacemd", "{1B87FBB5-12E7-41D8-9135-9D00544508C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "..\test\Ice\packagemd\msbuild\client\net45\client.csproj", "{2BB1FE54-54EF-4974-9F5D-ABFEC740AE29}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "client", "..\test\Ice\namespacemd\msbuild\client\net45\client.csproj", "{2BB1FE54-54EF-4974-9F5D-ABFEC740AE29}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "..\test\Ice\packagemd\msbuild\server\net45\server.csproj", "{D8F04A5C-9692-4A62-93BD-81483EBEA8F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "..\test\Ice\namespacemd\msbuild\server\net45\server.csproj", "{D8F04A5C-9692-4A62-93BD-81483EBEA8F5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

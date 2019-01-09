@@ -1,9 +1,6 @@
 ﻿// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -50,20 +47,19 @@ public:
 
     ControllerHelperI(const string&, const StringSeq&);
 
-    virtual bool redirect() const;
-
-    virtual std::string getOutput() const;
     virtual std::string loggerPrefix() const;
-    virtual void join();
     virtual void print(const std::string&);
     virtual void serverReady();
-    virtual void shutdown();
-
-    virtual int waitSuccess(int) const;
-    virtual void waitReady(int) const;
+    virtual void communicatorInitialized(const shared_ptr<Ice::Communicator>&);
 
     void run();
     void completed(int);
+
+    int waitSuccess(int) const;
+    void waitReady(int) const;
+    std::string getOutput() const;
+    void join();
+    void shutdown();
 
 private:
 
@@ -82,7 +78,7 @@ private:
     static std::map<std::string, HINSTANCE> _dlls;
     HINSTANCE loadDll(const string&);
 
-    unique_ptr<Test::TestHelper> _helper;
+    shared_ptr<Ice::Communicator> _communicator;
 };
 
 std::map<std::string, HINSTANCE> ControllerHelperI::_dlls;
@@ -91,7 +87,7 @@ class ProcessI : public Process
 {
 public:
 
-    ProcessI(const Test::ControllerHelperPtr&);
+    ProcessI(const shared_ptr<ControllerHelperI>&);
 
     void waitReady(int, const Ice::Current&);
     int waitSuccess(int, const Ice::Current&);
@@ -99,7 +95,7 @@ public:
 
 private:
 
-    Test::ControllerHelperPtr _controllerHelper;
+    shared_ptr<ControllerHelperI> _controllerHelper;
 };
 
 class ProcessControllerI : public ProcessController
@@ -125,7 +121,7 @@ public:
 
     void
     registerProcessController(ControllerView^,
-                              const Ice::ObjectAdapterPtr&,
+                              const shared_ptr<Ice::ObjectAdapter>&,
                               const shared_ptr<ProcessControllerRegistryPrx>&,
                               const shared_ptr<ProcessControllerPrx>&);
 
@@ -134,6 +130,8 @@ private:
     shared_ptr<Ice::Communicator> _communicator;
     shared_ptr<Test::Common::ProcessControllerRegistryPrx> _registry;
 };
+
+Test::StreamHelper streamRedirect;
 
 }
 
@@ -146,6 +144,18 @@ ControllerHelperI::ControllerHelperI(const string& dll, const StringSeq& args) :
 {
 }
 
+string
+ControllerHelperI::loggerPrefix() const
+{
+    return _dll;
+}
+
+void
+ControllerHelperI::print(const std::string& msg)
+{
+    _out << msg;
+}
+
 void
 ControllerHelperI::serverReady()
 {
@@ -154,17 +164,11 @@ ControllerHelperI::serverReady()
     _condition.notify_all();
 }
 
-bool
-ControllerHelperI::redirect() const
-{
-    return _dll.find("client") != string::npos || _dll.find("collocated") != string::npos;
-}
-
 void
-
-ControllerHelperI::print(const std::string& msg)
+ControllerHelperI::communicatorInitialized(const shared_ptr<Ice::Communicator>& communicator)
 {
-    _out << msg;
+    unique_lock<mutex> lock(_mutex);
+    _communicator = communicator;
 }
 
 void
@@ -197,12 +201,16 @@ ControllerHelperI::run()
             argv[i] = const_cast<char*>(_args[i].c_str());
         }
         argv[_args.size()] = 0;
+
+        if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+        {
+            streamRedirect.setControllerHelper(this);
+        }
         try
         {
-            StreamHelper streamHelper(this, redirect());
-            _helper.reset(createHelper());
-            _helper->setControllerHelper(this);
-            _helper->run(static_cast<int>(_args.size()), argv);
+            auto helper = unique_ptr<Test::TestHelper>(createHelper());
+            helper->setControllerHelper(this);
+            helper->run(static_cast<int>(_args.size()), argv);
             completed(0);
         }
         catch(const std::exception& ex)
@@ -214,6 +222,10 @@ ControllerHelperI::run()
         {
             print("unexpected unknown exception while running `" + _args[0] + "'");
             completed(1);
+        }
+        if(_dll.find("client") != string::npos || _dll.find("collocated") != string::npos)
+        {
+            streamRedirect.setControllerHelper(0);
         }
         delete[] argv;
     });
@@ -232,6 +244,7 @@ ControllerHelperI::completed(int status)
     unique_lock<mutex> lock(_mutex);
     _completed = true;
     _status = status;
+    _communicator = nullptr;
     _condition.notify_all();
 }
 
@@ -273,28 +286,13 @@ ControllerHelperI::getOutput() const
     return _out.str();
 }
 
-string
-ControllerHelperI::loggerPrefix() const
-{
-    return _dll;
-}
-
 void
 ControllerHelperI::shutdown()
 {
     unique_lock<mutex> lock(_mutex);
-    if(_completed)
+    if(_communicator)
     {
-        return;
-    }
-
-    if(_helper)
-    {
-        Ice::CommunicatorPtr communicator = _helper->communicator();
-        if(communicator)
-        {
-            communicator->shutdown();
-        }
+        _communicator->shutdown();
     }
 }
 
@@ -311,7 +309,7 @@ ControllerHelperI::loadDll(const string& name)
     return p->second;
 }
 
-ProcessI::ProcessI(const ControllerHelperPtr& controllerHelper) :
+ProcessI::ProcessI(const shared_ptr<ControllerHelperI>& controllerHelper) :
     _controllerHelper(controllerHelper)
 {
 }
@@ -377,7 +375,7 @@ ControllerI::ControllerI(ControllerView^ controller)
 
     auto registry = Ice::uncheckedCast<ProcessControllerRegistryPrx>(
         _communicator->stringToProxy("Util/ProcessControllerRegistry:tcp -h 127.0.0.1 -p 15001"));
-    Ice::ObjectAdapterPtr adapter = _communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "");
+    shared_ptr<Ice::ObjectAdapter> adapter = _communicator->createObjectAdapterWithEndpoints("ControllerAdapter", "");
     Ice::Identity ident = { "ProcessController", "UWP"};
     auto processController =
         Ice::uncheckedCast<ProcessControllerPrx>(adapter->add(make_shared<ProcessControllerI>(controller), ident));
@@ -388,7 +386,7 @@ ControllerI::ControllerI(ControllerView^ controller)
 
 void
 ControllerI::registerProcessController(ControllerView^ controller,
-                                       const Ice::ObjectAdapterPtr& adapter,
+                                       const shared_ptr<Ice::ObjectAdapter>& adapter,
                                        const shared_ptr<ProcessControllerRegistryPrx>& registry,
                                        const shared_ptr<ProcessControllerPrx>& processController)
 {

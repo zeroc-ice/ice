@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -430,14 +427,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
 
             //
-            // Don't move after the adapter activation. This allows
-            // applications to wait for the service manager to be
-            // reachable before sending a signal to shutdown the
-            // IceBox.
-            //
-            Ice.Application.shutdownOnInterrupt();
-
-            //
             // Register "this" as a facet to the Admin object and
             // create Admin object
             //
@@ -471,7 +460,6 @@ public class ServiceManagerI extends _ServiceManagerDisp
             }
 
             _communicator.waitForShutdown();
-            Ice.Application.defaultInterrupt();
         }
         catch(FailureException ex)
         {

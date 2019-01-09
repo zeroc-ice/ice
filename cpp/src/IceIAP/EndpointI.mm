@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -234,7 +231,7 @@ IceObjC::iAPEndpointI::transceiver() const
 }
 
 void
-IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType selType,
+IceObjC::iAPEndpointI::connectors_async(Ice::EndpointSelectionType /*selType*/,
                                         const EndpointI_connectorsPtr& callback) const
 {
     try

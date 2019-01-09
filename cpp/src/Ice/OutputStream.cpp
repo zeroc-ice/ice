@@ -1,13 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/OutputStream.h>
 #include <Ice/DefaultsAndOverrides.h>
 #include <Ice/Instance.h>
@@ -509,16 +505,6 @@ Ice::OutputStream::write(Double v)
     *dest = *src;
 #else
     const Byte* src = reinterpret_cast<const Byte*>(&v);
-#  if defined(ICE_LITTLEBYTE_BIGWORD)
-    dest[4] = *src++;
-    dest[5] = *src++;
-    dest[6] = *src++;
-    dest[7] = *src++;
-    dest[0] = *src++;
-    dest[1] = *src++;
-    dest[2] = *src++;
-    dest[3] = *src;
-#  else
     *dest++ = *src++;
     *dest++ = *src++;
     *dest++ = *src++;
@@ -527,7 +513,6 @@ Ice::OutputStream::write(Double v)
     *dest++ = *src++;
     *dest++ = *src++;
     *dest = *src;
-#  endif
 #endif
 }
 
@@ -554,21 +539,6 @@ Ice::OutputStream::write(const Double* begin, const Double* end)
             *dest++ = *src--;
             *dest++ = *src--;
             src += 2 * sizeof(Double);
-        }
-#elif defined(ICE_LITTLEBYTE_BIGWORD)
-        const Byte* src = reinterpret_cast<const Byte*>(begin);
-        Byte* dest = &(*(b.begin() + pos));
-        for(int j = 0 ; j < sz ; ++j)
-        {
-            dest[4] = *src++;
-            dest[5] = *src++;
-            dest[6] = *src++;
-            dest[7] = *src++;
-            dest[0] = *src++;
-            dest[1] = *src++;
-            dest[2] = *src++;
-            dest[3] = *src++;
-            dest += sizeof(Double);
         }
 #else
         memcpy(&b[pos], reinterpret_cast<const Byte*>(begin), sz * sizeof(Double));
@@ -689,9 +659,9 @@ Ice::OutputStream::write(const string* begin, const string* end, bool convert)
     writeSize(sz);
     if(sz > 0)
     {
-        for(int i = 0; i < sz; ++i)
+        for(int j = 0; j < sz; ++j)
         {
-            write(begin[i], convert);
+            write(begin[j], convert);
         }
     }
 }
@@ -784,9 +754,9 @@ Ice::OutputStream::write(const wstring* begin, const wstring* end)
     writeSize(sz);
     if(sz > 0)
     {
-        for(int i = 0; i < sz; ++i)
+        for(int j = 0; j < sz; ++j)
         {
-            write(begin[i]);
+            write(begin[j]);
         }
     }
 }

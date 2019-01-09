@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -361,12 +358,11 @@ IceBox::ServiceManagerI::start()
             throw FailureException(__FILE__, __LINE__, "ServiceManager: configuration must include at least one IceBox service");
         }
 
-        PropertyDict::iterator p;
         StringSeq loadOrder = properties->getPropertyAsList("IceBox.LoadOrder");
         vector<StartServiceInfo> servicesInfo;
         for(StringSeq::const_iterator q = loadOrder.begin(); q != loadOrder.end(); ++q)
         {
-            p = services.find(prefix + *q);
+            PropertyDict::iterator p = services.find(prefix + *q);
             if(p == services.end())
             {
                 throw FailureException(__FILE__, __LINE__, "ServiceManager: no service definition for `" +
@@ -375,7 +371,7 @@ IceBox::ServiceManagerI::start()
             servicesInfo.push_back(StartServiceInfo(*q, p->second, _argv));
             services.erase(p);
         }
-        for(p = services.begin(); p != services.end(); ++p)
+        for(PropertyDict::iterator p = services.begin(); p != services.end(); ++p)
         {
             servicesInfo.push_back(StartServiceInfo(p->first.substr(prefix.size()), p->second, _argv));
         }
@@ -623,6 +619,7 @@ IceBox::ServiceManagerI::start(const string& service, const string& entryPoint, 
             if(initData.properties->getProperty("Ice.LogFile").empty()
 #ifndef _WIN32
                && initData.properties->getPropertyAsInt("Ice.UseSyslog") <= 0
+               && initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") <= 0
 #endif
                )
             {
@@ -839,6 +836,10 @@ IceBox::ServiceManagerI::stopAll()
         // leak detector doesn't report potential leaks, and the communicator must be destroyed before
         // the library is released since the library will destroy its global state.
         //
+
+#ifdef ICE_CPP11_MAPPING
+        info.service = 0;
+#else
         try
         {
             info.service = 0;
@@ -854,7 +855,7 @@ IceBox::ServiceManagerI::stopAll()
             Warning out(_logger);
             out << "ServiceManager: unknown exception while stopping service " << info.name;
         }
-
+#endif
         if(info.communicator)
         {
             removeAdminFacets("IceBox.Service." + info.name + ".");
@@ -884,15 +885,7 @@ IceBox::ServiceManagerI::stopAll()
     {
         removeAdminFacets("IceBox.SharedCommunicator.");
 
-        try
-        {
-            _sharedCommunicator->destroy();
-        }
-        catch(const std::exception& ex)
-        {
-            Warning out(_logger);
-            out << "ServiceManager: exception while destroying shared communicator:\n" << ex;
-        }
+        _sharedCommunicator->destroy();
         _sharedCommunicator = 0;
     }
 
@@ -1060,9 +1053,9 @@ ServiceManagerI::observerCompleted(const shared_ptr<ServiceObserverPrx>& observe
     auto p = _observers.find(observer);
     if(p != _observers.end())
     {
-        auto observer = *p;
+        auto found = *p;
         _observers.erase(p);
-        observerRemoved(observer, ex);
+        observerRemoved(found, ex);
     }
 }
 #else
@@ -1085,7 +1078,7 @@ ServiceManagerI::observerCompleted(const Ice::AsyncResultPtr& result)
         set<ServiceObserverPrx>::iterator p = _observers.find(observer);
         if(p != _observers.end())
         {
-            ServiceObserverPrx observer = *p;
+            observer = *p;
             _observers.erase(p);
             observerRemoved(observer, ex);
         }

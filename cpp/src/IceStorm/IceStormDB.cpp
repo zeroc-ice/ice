@@ -1,55 +1,63 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #include <IceUtil/Options.h>
+#include <IceUtil/StringUtil.h>
 #include <IceUtil/FileUtil.h>
 #include <Ice/Ice.h>
 #include <Ice/ConsoleUtil.h>
 #include <IceDB/IceDB.h>
 #include <IceStorm/DBTypes.h>
-#include <IceUtil/DisableWarnings.h>
 #include <fstream>
 
 using namespace std;
-using namespace Ice;
 using namespace IceInternal;
-using namespace IceStorm;
-using namespace IceStormElection;
 
-class Client : public Ice::Application
+int run(const Ice::StringSeq&);
+
+Ice::CommunicatorPtr communicator;
+
+void
+destroyCommunicator(int)
 {
-public:
+    communicator->destroy();
+}
 
-    void usage();
-    virtual int run(int, char*[]);
-};
-
+int
 #ifdef _WIN32
-
-int
 wmain(int argc, wchar_t* argv[])
-
 #else
-
-int
 main(int argc, char* argv[])
-
 #endif
 {
-    Client app;
-    return app.main(argc, argv);
+    int status = 0;
+
+    try
+    {
+        Ice::CtrlCHandler ctrlCHandler;
+        Ice::CommunicatorHolder ich(argc, argv);
+        communicator = ich.communicator();
+
+        ctrlCHandler.setCallback(&destroyCommunicator);
+
+        status = run(Ice::argsToStringSeq(argc, argv));
+    }
+    catch(const std::exception& ex)
+    {
+        consoleErr << ex.what() << endl;
+        status = 1;
+    }
+
+    return status;
 }
 
 void
-Client::usage()
+usage(const string& name)
 {
-    consoleErr << "Usage: " << appName() << " <options>\n";
+    consoleErr << "Usage: " << name << " <options>\n";
     consoleErr <<
         "Options:\n"
         "-h, --help             Show this message.\n"
@@ -64,7 +72,7 @@ Client::usage()
 }
 
 int
-Client::run(int argc, char* argv[])
+run(const Ice::StringSeq& args)
 {
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
@@ -76,48 +84,46 @@ Client::run(int argc, char* argv[])
     opts.addOpt("", "dbpath", IceUtilInternal::Options::NeedArg);
     opts.addOpt("", "mapsize", IceUtilInternal::Options::NeedArg);
 
-    vector<string> args;
     try
     {
-        args = opts.parse(argc, const_cast<const char**>(argv));
+        if(!opts.parse(args).empty())
+        {
+            consoleErr << args[0] << ": too many arguments" << endl;
+            usage(args[0]);
+            return 1;
+        }
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        consoleErr << argv[0] << ": " << e.reason << endl;
-        usage();
-        return EXIT_FAILURE;
-    }
-    if(!args.empty())
-    {
-        consoleErr << argv[0] << ": too many arguments" << endl;
-        usage();
-        return EXIT_FAILURE;
+        consoleErr << args[0] << ": " << e.reason << endl;
+        usage(args[0]);
+        return 1;
     }
 
     if(opts.isSet("help"))
     {
-        usage();
-        return EXIT_SUCCESS;
+        usage(args[0]);
+        return 0;
     }
 
     if(opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
-        return EXIT_SUCCESS;
+        return 0;
     }
 
     if(!(opts.isSet("import") ^ opts.isSet("export")))
     {
-        consoleErr << argv[0] << ": either --import or --export must be set" << endl;
-        usage();
-        return EXIT_FAILURE;
+        consoleErr << args[0] << ": either --import or --export must be set" << endl;
+        usage(args[0]);
+        return 1;
     }
 
     if(!(opts.isSet("dbhome") ^ opts.isSet("dbpath")))
     {
-        consoleErr << argv[0] << ": set the database environment directory with either --dbhome or --dbpath" << endl;
-        usage();
-        return EXIT_FAILURE;
+        consoleErr << args[0] << ": set the database environment directory with either --dbhome or --dbpath" << endl;
+        usage(args[0]);
+        return 1;
     }
 
     bool debug = opts.isSet("debug");
@@ -141,7 +147,7 @@ Client::run(int argc, char* argv[])
         IceStorm::AllData data;
 
         IceDB::IceContext dbContext;
-        dbContext.communicator = communicator();
+        dbContext.communicator = communicator;
         dbContext.encoding.major = 1;
         dbContext.encoding.minor = 1;
 
@@ -151,21 +157,22 @@ Client::run(int argc, char* argv[])
 
             if(!IceUtilInternal::directoryExists(dbPath))
             {
-                consoleErr << argv[0] << ": output directory does not exist: " << dbPath << endl;
-                return EXIT_FAILURE;
+                consoleErr << args[0] << ": output directory does not exist: " << dbPath << endl;
+                return 1;
             }
 
             if(!IceUtilInternal::isEmptyDirectory(dbPath))
             {
-                consoleErr << argv[0] << ": output directory is not empty: " << dbPath << endl;
-                return EXIT_FAILURE;
+                consoleErr << args[0] << ": output directory is not empty: " << dbPath << endl;
+                return 1;
             }
 
             ifstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
-                consoleErr << argv[0] << ": could not open input file: " << strerror(errno) << endl;
-                return EXIT_FAILURE;
+                consoleErr << args[0] << ": could not open input file: " << IceUtilInternal::errorToString(errno)
+                           << endl;
+                return 1;
             }
             fs.unsetf(ios::skipws);
 
@@ -175,8 +182,8 @@ Client::run(int argc, char* argv[])
             if(!fileSize)
             {
                 fs.close();
-                consoleErr << argv[0] << ": empty input file" << endl;
-                return EXIT_FAILURE;
+                consoleErr << args[0] << ": empty input file" << endl;
+                return 1;
             }
 
             fs.seekg(0, ios::beg);
@@ -190,12 +197,12 @@ Client::run(int argc, char* argv[])
             string type;
             int version;
 
-            Ice::InputStream stream(communicator(), dbContext.encoding, buf);
+            Ice::InputStream stream(communicator, dbContext.encoding, buf);
             stream.read(type);
             if(type != "IceStorm")
             {
-                consoleErr << argv[0] << ": incorrect input file type: " << type << endl;
-                return EXIT_FAILURE;
+                consoleErr << args[0] << ": incorrect input file type: " << type << endl;
+                return 1;
             }
             stream.read(version);
             stream.read(data);
@@ -209,10 +216,10 @@ Client::run(int argc, char* argv[])
                     consoleOut << "Writing LLU Map:" << endl;
                 }
 
-                IceDB::Dbi<string, LogUpdate, IceDB::IceContext, Ice::OutputStream>
+                IceDB::Dbi<string,IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream>
                     lluMap(txn, "llu", dbContext, MDB_CREATE);
 
-                for(StringLogUpdateDict::const_iterator p = data.llus.begin(); p != data.llus.end(); ++p)
+                for(IceStormElection::StringLogUpdateDict::const_iterator p = data.llus.begin(); p != data.llus.end(); ++p)
                 {
                     if(debug)
                     {
@@ -226,15 +233,15 @@ Client::run(int argc, char* argv[])
                     consoleOut << "Writing Subscriber Map:" << endl;
                 }
 
-                IceDB::Dbi<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
+                IceDB::Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
                     subscriberMap(txn, "subscribers", dbContext, MDB_CREATE);
 
-                for(SubscriberRecordDict::const_iterator q = data.subscribers.begin(); q != data.subscribers.end(); ++q)
+                for(IceStorm::SubscriberRecordDict::const_iterator q = data.subscribers.begin(); q != data.subscribers.end(); ++q)
                 {
                     if(debug)
                     {
-                        consoleOut << "  KEY = TOPIC(" << communicator()->identityToString(q->first.topic)
-                                   << ") ID(" << communicator()->identityToString(q->first.id) << ")" << endl;
+                        consoleOut << "  KEY = TOPIC(" << communicator->identityToString(q->first.topic)
+                                   << ") ID(" << communicator->identityToString(q->first.id) << ")" << endl;
                     }
                     subscriberMap.put(txn, q->first, q->second);
                 }
@@ -256,12 +263,12 @@ Client::run(int argc, char* argv[])
                     consoleOut << "Reading LLU Map:" << endl;
                 }
 
-                IceDB::Dbi<string, LogUpdate, IceDB::IceContext, Ice::OutputStream>
+                IceDB::Dbi<string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream>
                     lluMap(txn, "llu", dbContext, 0);
 
                 string s;
-                LogUpdate llu;
-                IceDB::ReadOnlyCursor<string, LogUpdate, IceDB::IceContext, Ice::OutputStream> lluCursor(lluMap, txn);
+                IceStormElection::LogUpdate llu;
+                IceDB::ReadOnlyCursor<string, IceStormElection::LogUpdate, IceDB::IceContext, Ice::OutputStream> lluCursor(lluMap, txn);
                 while(lluCursor.get(s, llu, MDB_NEXT))
                 {
                     if(debug)
@@ -277,19 +284,19 @@ Client::run(int argc, char* argv[])
                     consoleOut << "Reading Subscriber Map:" << endl;
                 }
 
-                IceDB::Dbi<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
+                IceDB::Dbi<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
                     subscriberMap(txn, "subscribers", dbContext, 0);
 
-                SubscriberRecordKey key;
-                SubscriberRecord record;
-                IceDB::ReadOnlyCursor<SubscriberRecordKey, SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
+                IceStorm::SubscriberRecordKey key;
+                IceStorm::SubscriberRecord record;
+                IceDB::ReadOnlyCursor<IceStorm::SubscriberRecordKey, IceStorm::SubscriberRecord, IceDB::IceContext, Ice::OutputStream>
                     subCursor(subscriberMap, txn);
                 while(subCursor.get(key, record, MDB_NEXT))
                 {
                     if(debug)
                     {
-                        consoleOut << "  KEY = TOPIC(" << communicator()->identityToString(key.topic)
-                                   << ") ID(" << communicator()->identityToString(key.id) << ")" << endl;
+                        consoleOut << "  KEY = TOPIC(" << communicator->identityToString(key.topic)
+                                   << ") ID(" << communicator->identityToString(key.id) << ")" << endl;
                     }
                     data.subscribers.insert(std::make_pair(key, record));
                 }
@@ -299,7 +306,7 @@ Client::run(int argc, char* argv[])
                 env.close();
             }
 
-            Ice::OutputStream stream(communicator(), dbContext.encoding);
+            Ice::OutputStream stream(communicator, dbContext.encoding);
             stream.write("IceStorm");
             stream.write(ICE_INT_VERSION);
             stream.write(data);
@@ -307,8 +314,9 @@ Client::run(int argc, char* argv[])
             ofstream fs(IceUtilInternal::streamFilename(dbFile).c_str(), ios::binary);
             if(fs.fail())
             {
-                consoleErr << argv[0] << ": could not open output file: " << strerror(errno) << endl;
-                return EXIT_FAILURE;
+                consoleErr << args[0] << ": could not open output file: " << IceUtilInternal::errorToString(errno)
+                           << endl;
+                return 1;
             }
             fs.write(reinterpret_cast<const char*>(stream.b.begin()), stream.b.size());
             fs.close();
@@ -316,9 +324,9 @@ Client::run(int argc, char* argv[])
     }
     catch(const IceUtil::Exception& ex)
     {
-        consoleErr << argv[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
-        return EXIT_FAILURE;
+        consoleErr << args[0] << ": " << (import ? "import" : "export") << " failed:\n" << ex << endl;
+        return 1;
     }
 
-    return EXIT_SUCCESS;
+    return 0;
 }

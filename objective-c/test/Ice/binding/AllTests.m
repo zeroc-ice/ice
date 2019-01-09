@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -98,7 +95,7 @@ getEndpoints(id<TestBindingTestIntfPrx> proxy)
     int length = 0;
     NSString* s = [proxy ice_toString];
     int index;
-    for(index = 0; index < [s length]; ++index)
+    for(index = 0; index < (int)[s length]; ++index)
     {
         unichar c = [s characterAtIndex:index];
         if(c == '"')

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -506,6 +503,8 @@ IceInternal::ThreadPool::finish(const EventHandlerPtr& handler, bool closeNow)
     _workQueue->queue(new FinishedWorkItem(handler, !closeNow));
     return closeNow;
 #else
+    UNREFERENCED_PARAMETER(closeNow);
+
     // If there are no pending asynchronous operations, we can call finish on the handler now.
     if(!handler->_pending)
     {
@@ -763,8 +762,8 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 #ifdef ICE_OS_UWP
             current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, _threadIdleTime));
 #else
-            current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count, current._error,
-                               _threadIdleTime));
+            current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
+                                                                                 current._error, _threadIdleTime));
 #endif
         }
         catch(const SelectorTimeoutException&)
@@ -815,7 +814,7 @@ IceInternal::ThreadPool::run(const EventHandlerThreadPtr& thread)
 #else
 
                 current._handler = ICE_GET_SHARED_FROM_THIS(_selector.getNextHandler(current.operation, current._count,
-                                   current._error, _serverIdleTime));
+                                                            current._error, _serverIdleTime));
 #endif
             }
             catch(const SelectorTimeoutException&)

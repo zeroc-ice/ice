@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -16,8 +13,8 @@ import com.zeroc.IceInternal.Instance;
 import com.zeroc.IceInternal.Protocol;
 
 /**
- * Interface for input streams used to extract Slice types from a sequence
- * of bytes.
+ * Interface to read sequence of bytes encoded using the Ice encoding and
+ * recreate the corresponding Slice types.
  *
  * @see OutputStream
  **/
@@ -3549,6 +3546,7 @@ public class InputStream
         }
     }
 
+    /** @hidden */
     @FunctionalInterface
     static public interface Unmarshaler
     {

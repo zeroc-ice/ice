@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -16,7 +13,7 @@ using namespace std;
 namespace
 {
 
-class BatchRequestInterceptorI
+class BatchRequestInterceptorI ICE_FINAL
 #ifndef ICE_CPP11_MAPPING
     : public Ice::BatchRequestInterceptor
 #endif
@@ -141,15 +138,16 @@ batchOneways(const Test::MyClassPrxPtr& p)
 
     Ice::Identity identity;
     identity.name = "invalid";
-    Ice::ObjectPrxPtr batch3 = batch->ice_identity(identity);
-    batch3->ice_ping();
-    batch3->ice_flushBatchRequests();
-
-    // Make sure that a bogus batch request doesn't cause troubles to other ones.
-    batch3->ice_ping();
-    batch->ice_ping();
-    batch->ice_flushBatchRequests();
-    batch->ice_ping();
+    {
+        Ice::ObjectPrxPtr batch3 = batch->ice_identity(identity);
+        batch3->ice_ping();
+        batch3->ice_flushBatchRequests();
+        // Make sure that a bogus batch request doesn't cause troubles to other ones.
+        batch3->ice_ping();
+        batch->ice_ping();
+        batch->ice_flushBatchRequests();
+        batch->ice_ping();
+    }
 
     if(batch->ice_getConnection() &&
        p->ice_getCommunicator()->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
@@ -159,41 +157,41 @@ batchOneways(const Test::MyClassPrxPtr& p)
         BatchRequestInterceptorIPtr interceptor = ICE_MAKE_SHARED(BatchRequestInterceptorI);
 
 #if defined(ICE_CPP11_MAPPING)
-        initData.batchRequestInterceptor = [=](const Ice::BatchRequest& request, int count, int size)
+        initData.batchRequestInterceptor = [=](const Ice::BatchRequest& request, int countP, int size)
         {
-            interceptor->enqueue(request, count, size);
+            interceptor->enqueue(request, countP, size);
         };
 #else
         initData.batchRequestInterceptor = interceptor;
 #endif
         Ice::CommunicatorPtr ic = Ice::initialize(initData);
 
-        Test::MyClassPrxPtr batch =
+        Test::MyClassPrxPtr batch4 =
             ICE_UNCHECKED_CAST(Test::MyClassPrx, ic->stringToProxy(p->ice_toString()))->ice_batchOneway();
 
         test(interceptor->count() == 0);
-        batch->ice_ping();
-        batch->ice_ping();
-        batch->ice_ping();
+        batch4->ice_ping();
+        batch4->ice_ping();
+        batch4->ice_ping();
         test(interceptor->count() == 0);
 
         interceptor->enqueue(true);
-        batch->ice_ping();
-        batch->ice_ping();
-        batch->ice_ping();
+        batch4->ice_ping();
+        batch4->ice_ping();
+        batch4->ice_ping();
         test(interceptor->count() == 3);
 
-        batch->ice_flushBatchRequests();
-        batch->ice_ping();
+        batch4->ice_flushBatchRequests();
+        batch4->ice_ping();
         test(interceptor->count() == 1);
 
-        batch->opByteSOneway(bs1);
+        batch4->opByteSOneway(bs1);
         test(interceptor->count() == 2);
-        batch->opByteSOneway(bs1);
+        batch4->opByteSOneway(bs1);
         test(interceptor->count() == 3);
 
-        batch->opByteSOneway(bs1); // This should trigger the flush
-        batch->ice_ping();
+        batch4->opByteSOneway(bs1); // This should trigger the flush
+        batch4->ice_ping();
         test(interceptor->count() == 2);
 
         ic->destroy();

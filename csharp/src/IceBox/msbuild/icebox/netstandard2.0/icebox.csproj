@@ -6,7 +6,7 @@
     <AssemblyName>iceboxnet</AssemblyName>
     <Version>$(IceVersion)</Version>
     <OutputPath>../../../../../bin</OutputPath>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>$(AppTargetFramework)</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../../AssemblyInfoExe.cs" />
@@ -18,4 +18,5 @@
     <ProjectReference Include="../../../../IceSSL/msbuild/netstandard2.0/icessl.csproj" />
     <ProjectReference Include="../../iceboxlib/netstandard2.0/iceboxlib.csproj" />
   </ItemGroup>
+  <Import Project="$(MSBuildThisFileDirectory)../../../../../msbuild/ice.sign.targets"/>
 </Project>

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -74,7 +71,7 @@ allTests(Test::TestHelper* helper)
     TestIntfPrxPtr obj = ICE_UNCHECKED_CAST(TestIntfPrx, base);
 
     int nRetry = 5;
-    bool ret;
+    bool ret = false;
     while(nRetry-- > 0)
     {
         replyI->reset();

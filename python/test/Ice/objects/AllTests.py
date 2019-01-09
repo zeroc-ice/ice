@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -39,7 +36,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
+def allTests(helper, communicator):
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::B')
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::C')
     communicator.getValueFactoryManager().add(MyValueFactory, '::Test::D')
@@ -53,7 +50,7 @@ def allTests(communicator):
 
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    ref = "initial:default -p 12010"
+    ref = "initial:{0}".format(helper.getTestEndpoint())
     base = communicator.stringToProxy(ref)
     test(base)
     print("ok")
@@ -111,6 +108,28 @@ def allTests(communicator):
     test(isinstance(h, Test.H))
     print("ok")
 
+    sys.stdout.write("getting K... ")
+    sys.stdout.flush()
+    k = initial.getK()
+    test(isinstance(k.value, Test.L))
+    test(k.value.data == "l")
+    print("ok")
+
+    sys.stdout.write("testing Value as parameter... ")
+    sys.stdout.flush()
+    v1, v2 = initial.opValue(Test.L("l"))
+    test(v1.data == "l")
+    test(v2.data == "l")
+
+    v1, v2 = initial.opValueSeq([Test.L("l")])
+    test(v1[0].data == "l")
+    test(v2[0].data == "l")
+
+    v1, v2 = initial.opValueMap({"l":Test.L("l")})
+    test(v1["l"].data == "l")
+    test(v2["l"].data == "l")
+    print("ok")
+
     sys.stdout.write("getting D1... ")
     sys.stdout.flush()
     d1 = initial.getD1(Test.D1(Test.A1("a1"), Test.A1("a2"), Test.A1("a3"), Test.A1("a4")))
@@ -124,7 +143,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         initial.throwEDerived()
-        test(false)
+        test(False)
     except Test.EDerived as e:
         test(e.a1.name == "a1")
         test(e.a2.name == "a2")
@@ -269,7 +288,7 @@ def allTests(communicator):
     if initial.ice_getConnection():
         sys.stdout.write("testing UnexpectedObjectException... ")
         sys.stdout.flush()
-        ref = "uoet:default -p 12010"
+        ref = "uoet:{0}".format(helper.getTestEndpoint())
         base = communicator.stringToProxy(ref)
         test(base)
         uoet = Test.UnexpectedObjectExceptionTestPrx.uncheckedCast(base)
@@ -296,6 +315,26 @@ def allTests(communicator):
     sys.stdout.write("testing getting ObjectFactory as ValueFactory... ")
     sys.stdout.flush()
     test(communicator.getValueFactoryManager().find("TestOF") != None)
+    print("ok")
+
+    sys.stdout.write("testing class containing complex dictionary... ")
+    sys.stdout.flush()
+    m = Test.M()
+    m.v = {}
+    k1 = Test.StructKey(1, "1")
+    m.v[k1] = Test.L("one")
+    k2 = Test.StructKey(2, "2")
+    m.v[k2] = Test.L("two")
+    m1, m2 = initial.opM(m)
+    test(len(m1.v) == 2)
+    test(len(m2.v) == 2)
+
+    test(m1.v[k1].data == "one")
+    test(m2.v[k1].data == "one")
+
+    test(m1.v[k2].data == "two")
+    test(m2.v[k2].data == "two")
+
     print("ok")
 
     return initial

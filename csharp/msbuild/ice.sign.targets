@@ -4,24 +4,23 @@
     <TimeStampServer>http://timestamp.digicert.com</TimeStampServer>
     <SignCommandSHA1>signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /t $(TimeStampServer)</SignCommandSHA1>
     <SignCommandSHA256>signtool sign /f "$(SIGN_CERTIFICATE)" /p $(SIGN_PASSWORD) /tr $(TimeStampServer) /td sha256 /fd sha256 /as</SignCommandSHA256>
-    <SignTarget>$(IntermediateOutputPath)$(TargetName)$(TargetExt)</SignTarget>
   </PropertyGroup>
 
   <Target Name="SignPackage" AfterTargets="AfterCompile"
-          Condition="Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
-    <Message Text="Signing $(SignTarget)" />
+          Condition="'$(OS)' == 'Windows_NT' and Exists('$(SIGN_CERTIFICATE)') and (!Exists('$(IntermediateOutputPath)sign.log') or $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)sign.log').Ticks))">
+    <Message Text="Signing $(IntermediateOutputPath)$(TargetName)$(TargetExt)" />
 
-    <Exec Command="$(SignCommandSHA1) $(SignTarget)" EchoOff="yes"/>
-    <Exec Command="$(SignCommandSHA256) $(SignTarget)" EchoOff="yes"
+    <Exec Command="$(SignCommandSHA1) &quot;$(IntermediateOutputPath)$(TargetName)$(TargetExt)&quot;" EchoOff="yes"/>
+    <Exec Command="$(SignCommandSHA256) &quot;$(IntermediateOutputPath)$(TargetName)$(TargetExt)&quot;" EchoOff="yes"
           Condition="'$(DefaultPlatformToolset)' != 'v100'"/>
 
     <WriteLinesToFile File                = "$(IntermediateOutputPath)sign.log"
                       Encoding            = "Unicode"
                       Overwrite           = "true"
-                      Lines               = "Signing $(SignTarget)"/>
+                      Lines               = "Signing $(IntermediateOutputPath)$(TargetName)$(TargetExt)"/>
   </Target>
 
-  <Target Name="SignPackageClean" AfterTargets="Clean">
+  <Target Name="SignPackageClean" AfterTargets="Clean" Condition="'$(OS)' == 'Windows_NT' ">
      <Delete Files="$(IntermediateOutputPath)sign.log" />
   </Target>
 
@@ -38,11 +37,13 @@
 
   <!-- If both KEYFILE and PUBLIC_KEYFILE are set we re-sign the assembly using KEYFILE after it has been build -->
   <Target Name="StrongNameSignPackage" BeforeTargets="SignPackage"
-          Condition="'$(KEYFILE)' != '' And '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)strongname.sign.log') or $([System.IO.File]::GetLastWriteTime('$(SignTarget)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)strongname.sign.log').Ticks))">
-    <Exec Command="sn -Ra $(SignTarget) $(KEYFILE)"/>
-    <WriteLinesToFile File                = "$(IntermediateOutputPath)strongname.sign.log"
-                      Encoding            = "Unicode"
-                      Overwrite           = "true"
-                      Lines               = "Signing $(SignTarget)"/>
+          Condition="'$(OS)' == 'Windows_NT' and '$(KEYFILE)' != '' and '$(PUBLIC_KEYFILE)' != '' and (!Exists('$(IntermediateOutputPath)strongname.sign.log') or $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)$(TargetName)$(TargetExt)').Ticks) &gt; $([System.IO.File]::GetLastWriteTime('$(IntermediateOutputPath)strongname.sign.log').Ticks))">
+      <Message Text="IntermediateOutputPath: $(IntermediateOutputPath)"/>
+      <Message Text="TargetName: $(TargetName)$(TargetExt)"/>
+      <Exec Command="sn -Ra &quot;$(IntermediateOutputPath)$(TargetName)$(TargetExt)&quot; &quot;$(KEYFILE)&quot;"/>
+      <WriteLinesToFile File                = "$(IntermediateOutputPath)strongname.sign.log"
+                        Encoding            = "Unicode"
+                        Overwrite           = "true"
+                        Lines               = "Signing $(IntermediateOutputPath)$(TargetName)$(TargetExt)"/>
   </Target>
 </Project>

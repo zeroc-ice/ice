@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -12,7 +9,7 @@
 #import <OperationsTest.h>
 
 void
-oneways(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> proxy)
+oneways(id<ICECommunicator>__unused communicator, id<TestOperationsMyClassPrx> proxy)
 {
     id<TestOperationsMyClassPrx> p = [TestOperationsMyClassPrx uncheckedCast:[proxy ice_oneway]];
 

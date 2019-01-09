@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -13,14 +10,17 @@ module.exports.Ice = _ModuleRegistry.require(module,
     [
         "../Ice/Initialize",
         "../Ice/Communicator",
+        "../Ice/CommunicatorI",
         "../Ice/HashMap",
         "../Ice/Object",
         "../Ice/Value",
         "../Ice/Long",
         "../Ice/Logger",
+        "../Ice/LoggerI",
         "../Ice/ObjectPrx",
         "../Ice/BatchRequestQueue",
         "../Ice/Properties",
+        "../Ice/PropertiesI",
         "../Ice/IdentityUtil",
         "../Ice/ProcessLogger",
         "../Ice/Protocol",

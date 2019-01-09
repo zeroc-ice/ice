@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -370,15 +367,15 @@ IceRuby::StreamUtil::getSlicedDataMember(VALUE obj, ObjectMap* objectMap)
 
                     Ice::ObjectPtr writer;
 
-                    ObjectMap::iterator i = objectMap->find(o);
-                    if(i == objectMap->end())
+                    ObjectMap::iterator k = objectMap->find(o);
+                    if(k == objectMap->end())
                     {
                         writer = new ObjectWriter(o, objectMap, 0);
                         objectMap->insert(ObjectMap::value_type(o, writer));
                     }
                     else
                     {
-                        writer = i->second;
+                        writer = k->second;
                     }
 
                     info->instances.push_back(writer);
@@ -1157,8 +1154,8 @@ IceRuby::SequenceInfo::validate(VALUE val)
             return true;
         }
     }
-    ID id = rb_intern("to_ary");
-    return callRuby(rb_respond_to, val, id) != 0;
+    ID rbid = rb_intern("to_ary");
+    return callRuby(rb_respond_to, val, rbid) != 0;
 }
 
 bool
@@ -1705,8 +1702,8 @@ IceRuby::DictionaryInfo::validate(VALUE val)
     {
         return true;
     }
-    ID id = rb_intern("to_hash");
-    return callRuby(rb_respond_to, val, id) != 0;
+    ID rbid = rb_intern("to_hash");
+    return callRuby(rb_respond_to, val, rbid) != 0;
 }
 
 bool
@@ -3174,17 +3171,17 @@ IceRuby_stringify(VALUE /*self*/, VALUE obj, VALUE type)
 
 extern "C"
 VALUE
-IceRuby_stringifyException(VALUE /*self*/, VALUE ex)
+IceRuby_stringifyException(VALUE /*self*/, VALUE exc)
 {
     ICE_RUBY_TRY
     {
-        volatile VALUE cls = CLASS_OF(ex);
+        volatile VALUE cls = CLASS_OF(exc);
         volatile VALUE type = callRuby(rb_const_get, cls, rb_intern("ICE_TYPE"));
         ExceptionInfoPtr info = getException(type);
 
         ostringstream ostr;
         IceUtilInternal::Output out(ostr);
-        info->print(ex, out);
+        info->print(exc, out);
 
         string str = ostr.str();
         return createString(str);

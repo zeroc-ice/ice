@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -112,7 +109,7 @@ class IceGridNode(ProcessFromBinDir, Server):
     def getPropertiesOverride(self, current):
         # Add properties for servers based on the test case mapping.
         props = Server().getEffectiveProps(current, {})
-        return ' '.join(["{0}={1}".format(k, val(v, escapeQuotes=True)) for k, v in props.items()])
+        return ' '.join(["{0}={1}".format(k, val(v)) for k, v in props.items()])
 
     def shutdown(self, current):
         current.testcase.runadmin(current, "node shutdown {0}".format(self.name))
@@ -231,7 +228,7 @@ class IceGridTestCase(TestCase):
             javaHome = os.environ.get("JAVA_HOME", None)
             serverProps = Server().getProps(current)
             variables = {
-                "test.dir" : self.getPath(),
+                "test.dir" : self.getPath(current),
                 "java.exe" : os.path.join(javaHome, "bin", "java") if javaHome else "java",
                 "icebox.exe" : IceBox().getCommandLine(current),
                 "icegridnode.exe" : IceGridNode().getCommandLine(current),
@@ -249,7 +246,7 @@ class IceGridTestCase(TestCase):
                 variables[k] = current.getBuildDir(v)
 
             variables.update(self.variables)
-            varStr = " ".join(["{0}={1}".format(k, val(v, True)) for k,v in variables.items()])
+            varStr = " ".join(["{0}={1}".format(k, val(v)) for k,v in variables.items()])
             targets = " ".join(self.targets)
             application = self.application
             if isinstance(self.mapping, CSharpMapping) and current.config.dotnetcore:

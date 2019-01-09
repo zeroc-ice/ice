@@ -1,40 +1,26 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
-
 import Ice
-Ice.loadSlice('Test.ice')
-import Test, TestI
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import TestI
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    d = TestI.DI()
-    adapter.add(d, Ice.stringToIdentity("d"))
-    adapter.addFacet(d, Ice.stringToIdentity("d"), "facetABCD")
-    f = TestI.FI()
-    adapter.addFacet(f, Ice.stringToIdentity("d"), "facetEF")
-    h = TestI.HI(communicator)
-    adapter.addFacet(h, Ice.stringToIdentity("d"), "facetGH")
 
-    adapter.activate()
-    communicator.waitForShutdown()
+class Server(TestHelper):
 
-    return True
+    def run(self, args):
+        with self.initialize(args=args) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(TestI.DI(), Ice.stringToIdentity("d"))
+            adapter.addFacet(TestI.DI(), Ice.stringToIdentity("d"), "facetABCD")
+            adapter.addFacet(TestI.FI(), Ice.stringToIdentity("d"), "facetEF")
+            adapter.addFacet(TestI.HI(communicator), Ice.stringToIdentity("d"), "facetGH")
 
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+            adapter.activate()
+            communicator.waitForShutdown()

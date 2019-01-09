@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -43,41 +40,41 @@ IceInternal::ACMConfig::ACMConfig(const Ice::PropertiesPtr& p,
     else
     {
         timeoutProperty = prefix + ".Timeout";
-    };
+    }
 
-    int timeout = p->getPropertyAsIntWithDefault(timeoutProperty, static_cast<int>(dflt.timeout.toSeconds()));
-    if(timeout >= 0)
+    int timeoutVal = p->getPropertyAsIntWithDefault(timeoutProperty, static_cast<int>(dflt.timeout.toSeconds()));
+    if(timeoutVal >= 0)
     {
-        this->timeout = IceUtil::Time::seconds(timeout);
+        timeout = IceUtil::Time::seconds(timeoutVal);
     }
     else
     {
         l->warning("invalid value for property `" + timeoutProperty + "', default value will be used instead");
-        this->timeout = dflt.timeout;
+        timeout = dflt.timeout;
     }
 
     int hb = p->getPropertyAsIntWithDefault(prefix + ".Heartbeat", static_cast<int>(dflt.heartbeat));
     if(hb >= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatOff)) &&
        hb <= static_cast<int>(ICE_ENUM(ACMHeartbeat, HeartbeatAlways)))
     {
-        this->heartbeat = static_cast<Ice::ACMHeartbeat>(hb);
+        heartbeat = static_cast<Ice::ACMHeartbeat>(hb);
     }
     else
     {
         l->warning("invalid value for property `" + prefix + ".Heartbeat" + "', default value will be used instead");
-        this->heartbeat = dflt.heartbeat;
+        heartbeat = dflt.heartbeat;
     }
 
     int cl = p->getPropertyAsIntWithDefault(prefix + ".Close", static_cast<int>(dflt.close));
     if(cl >= static_cast<int>(ICE_ENUM(ACMClose, CloseOff)) &&
        cl <= static_cast<int>(ICE_ENUM(ACMClose, CloseOnIdleForceful)))
     {
-        this->close = static_cast<Ice::ACMClose>(cl);
+        close = static_cast<Ice::ACMClose>(cl);
     }
     else
     {
         l->warning("invalid value for property `" + prefix + ".Close" + "', default value will be used instead");
-        this->close = dflt.close;
+        close = dflt.close;
     }
 }
 
@@ -319,8 +316,11 @@ IceInternal::ConnectionACMMonitor::add(const ConnectionIPtr& connection)
 }
 
 void
-IceInternal::ConnectionACMMonitor::remove(const ConnectionIPtr& connection)
+IceInternal::ConnectionACMMonitor::remove(ICE_MAYBE_UNUSED const ConnectionIPtr& connection)
 {
+#ifdef _MSC_VER
+    UNREFERENCED_PARAMETER(connection);
+#endif
     Lock sync(*this);
     assert(_connection == connection);
     if(_config.timeout != IceUtil::Time())

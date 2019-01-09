@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -40,18 +37,18 @@
     return nil;
 }
 
--(id) initWithCoder:(NSCoder*)decoder
+-(id) initWithCoder:(NSCoder*)__unused decoder
 {
     [NSException raise:NSInvalidArchiveOperationException format:@"ICEExceptions do not support NSCoding"];
     return nil;
 }
 
--(void) encodeWithCoder:(NSCoder*)coder
+-(void) encodeWithCoder:(NSCoder*)__unused coder
 {
     [NSException raise:NSInvalidArchiveOperationException format:@"ICEExceptions do not support NSCoding"];
 }
 
--(id) copyWithZone:(NSZone *)zone
+-(id) copyWithZone:(NSZone*)__unused zone
 {
     NSAssert(false, @"copyWithZone: must be overriden");
     return nil;
@@ -188,7 +185,7 @@ localExceptionToString(const Ice::LocalException& ex)
     [os endException];
 }
 
--(void) iceWriteImpl:(id<ICEOutputStream>)os
+-(void) iceWriteImpl:(id<ICEOutputStream>)__unused os
 {
     NSAssert(NO, @"iceWriteImpl requires override");
 }
@@ -200,7 +197,7 @@ localExceptionToString(const Ice::LocalException& ex)
     [is endException:NO];
 }
 
--(void) iceReadImpl:(id<ICEInputStream>)is
+-(void) iceReadImpl:(id<ICEInputStream>)__unused is
 {
     NSAssert(NO, @"iceReadImpl requires override");
 }

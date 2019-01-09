@@ -1,21 +1,28 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "js:ice-build", "python:pkgdir:IceGrid"]]
+[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
+[["cpp:header-ext:h"]]
+[["cpp:include:IceGrid/Config.h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceGrid"]]
 
 #ifndef ICE_BUILDING_ICEGRIDDB
-[["cpp:dll-export:ICEGRID_API", "objc:dll-export:ICEGRID_API"]]
-#endif
+[["cpp:dll-export:ICEGRID_API"]]
 
-[["cpp:include:IceGrid/Config.h"]]
+[["objc:dll-export:ICEGRID_API"]]
+#endif
 
 #include <Ice/Identity.ice>
 #include <Ice/BuiltinSequences.ice>

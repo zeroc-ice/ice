@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -13,6 +10,7 @@ import test.Ice.ami.Test._TestIntfDisp;
 import test.Ice.ami.Test.AMD_TestIntf_startDispatch;
 import test.Ice.ami.Test.CloseMode;
 import test.Ice.ami.Test.TestIntfException;
+import test.Ice.ami.Test.PingReplyPrx;
 import test.Ice.ami.Test.PingReplyPrxHelper;
 
 public class TestI extends _TestIntfDisp
@@ -118,9 +116,11 @@ public class TestI extends _TestIntfDisp
     }
 
     @Override
-    public void pingBiDir(Ice.Identity id, Ice.Current current)
+    public void pingBiDir(PingReplyPrx reply, Ice.Current current)
     {
-        PingReplyPrxHelper.uncheckedCast(current.con.createProxy(id)).reply();
+        reply = PingReplyPrxHelper.uncheckedCast(reply.ice_fixed(current.con));
+        Ice.AsyncResult result = reply.begin_reply();
+        reply.end_reply(result);
     }
 
     @Override

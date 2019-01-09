@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -485,6 +482,10 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 zval* e;
                 info->bytes.resize(zend_hash_num_elements(barr));
 
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wshadow"
+#endif
                 vector<Ice::Byte>::size_type i = 0;
                 ZEND_HASH_FOREACH_VAL(barr, e)
                 {
@@ -493,6 +494,9 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                     info->bytes[i++] = static_cast<Ice::Byte>(l);
                 }
                 ZEND_HASH_FOREACH_END();
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
                 zval* instances = zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("instances"), sizeof("instances") - 1);
                 assert(Z_TYPE_P(instances) == IS_INDIRECT);
@@ -501,6 +505,10 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                 HashTable* oarr = Z_ARRVAL_P(instances);
                 zval* o;
 
+#if defined(__clang__)
+#   pragma clang diagnostic push
+#   pragma clang diagnostic ignored "-Wshadow"
+#endif
                 ZEND_HASH_FOREACH_VAL(oarr, o)
                 {
                     assert(Z_TYPE_P(o) == IS_OBJECT);
@@ -521,6 +529,9 @@ IcePHP::StreamUtil::getSlicedDataMember(zval* obj, ObjectMap* objectMap)
                     info->instances.push_back(writer);
                 }
                 ZEND_HASH_FOREACH_END();
+#if defined(__clang__)
+#   pragma clang diagnostic pop
+#endif
 
                 zval* hasOptionalMembers =
                     zend_hash_str_find(Z_OBJPROP_P(s), STRCAST("hasOptionalMembers"), sizeof("hasOptionalMembers") - 1);
@@ -1044,7 +1055,7 @@ IcePHP::EnumInfo::EnumInfo(const string& ident, zval* en) :
     zval* val;
 
     zend_hash_internal_pointer_reset_ex(arr, &pos);
-    while((val = zend_hash_get_current_data_ex(arr, &pos)))
+    while((val = zend_hash_get_current_data_ex(arr, &pos)) != 0)
     {
         assert(Z_TYPE_P(val) == IS_STRING);
         string name = Z_STRVAL_P(val);
@@ -1175,7 +1186,7 @@ convertDataMembers(zval* zv, DataMemberList& reqMembers, DataMemberList& optMemb
 
         assert(Z_TYPE_P(arr) == IS_ARRAY);
         HashTable* member = Z_ARRVAL_P(arr);
-        assert(allowOptional ? zend_hash_num_elements(member) == 4 : zend_hash_num_elements(member) == 2);
+        assert(zend_hash_num_elements(member) == static_cast<uint32_t>(allowOptional ? 4 : 2));
 
         elem = zend_hash_index_find(member, 0);
         assert(Z_TYPE_P(elem) == IS_STRING);
@@ -1622,7 +1633,11 @@ IcePHP::SequenceInfo::unmarshal(Ice::InputStream* is, const UnmarshalCallbackPtr
 #    pragma warning(default:4311)
 #    pragma warning(default:4312)
 #endif
-
+        //
+        // Add a temporary null value so that the foreach order is the
+        // same as the index order.
+        //
+        add_index_null(&zv, i);
         elementType->unmarshal(is, this, comm, &zv, cl, false);
     }
 
@@ -1720,12 +1735,7 @@ IcePHP::SequenceInfo::marshalPrimitiveSequence(const PrimitiveInfoPtr& pi, zval*
             seq[i++] = Z_TYPE_P(val) == IS_TRUE;
         }
         ZEND_HASH_FOREACH_END();
-
-#if defined(_MSC_VER) && (_MSC_VER < 1300)
-        os->writeBoolSeq(seq);
-#else
         os->write(seq);
-#endif
         break;
     }
     case PrimitiveInfo::KindByte:

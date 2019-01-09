@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -24,8 +21,9 @@ Transceiver::getNativeInfo()
 IceInternal::SocketOperation
 Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& writeBuffer)
 {
+    IceInternal::SocketOperation status = IceInternal::SocketOperationNone;
 #ifndef ICE_USE_IOCP
-    IceInternal::SocketOperation status = _configuration->initializeSocketOperation();
+    status = _configuration->initializeSocketOperation();
     if(status == IceInternal::SocketOperationConnect)
     {
         return status;
@@ -52,7 +50,7 @@ Transceiver::initialize(IceInternal::Buffer& readBuffer, IceInternal::Buffer& wr
     _configuration->checkInitializeException();
     if(!_initialized)
     {
-        IceInternal::SocketOperation status = _transceiver->initialize(readBuffer, writeBuffer);
+        status = _transceiver->initialize(readBuffer, writeBuffer);
         if(status != IceInternal::SocketOperationNone)
         {
             return status;

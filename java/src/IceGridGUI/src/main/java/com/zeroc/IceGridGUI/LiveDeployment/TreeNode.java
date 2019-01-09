@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -223,6 +220,10 @@ public abstract class TreeNode extends TreeNodeBase
         {
             com.zeroc.IceGrid.DeploymentException de = (com.zeroc.IceGrid.DeploymentException)e;
             amiFailure(prefix, title, "Deployment exception: " + de.reason);
+        }
+        else if(e instanceof com.zeroc.Ice.ObjectNotExistException)
+        {
+            SwingUtilities.invokeLater(() -> { getCoordinator().getSessionKeeper().sessionLost(); });
         }
         else
         {

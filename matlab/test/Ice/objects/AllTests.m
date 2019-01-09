@@ -1,21 +1,18 @@
 %{
 **********************************************************************
 
-Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
+Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
 **********************************************************************
 %}
 
 classdef AllTests
     methods(Static)
-        function r = allTests(app)
+        function r = allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
-            ref = ['initial:', app.getTestEndpoint(0)];
+            communicator = helper.communicator();
+            ref = ['initial:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             initial = InitialPrx.checkedCast(base);
 
@@ -111,6 +108,27 @@ classdef AllTests
             assert(~isempty(j) && strcmp(j.ice_id(), JPrx.ice_staticId()));
             h = initial.getH();
             assert(~isempty(h) && isa(h, 'Test.H'));
+            fprintf('ok\n');
+
+            fprintf('getting K... ');
+            k = initial.getK();
+            assert(~isempty(k));
+            assert(isa(k.value, 'Test.L'));
+            assert(strcmp(k.value.data, 'l'));
+            fprintf('ok\n');
+
+            fprintf('testing Value as parameter... ');
+            [v2, v3] = initial.opValue(L('l'));
+            assert(strcmp(v2.data, 'l'));
+            assert(strcmp(v3.data, 'l'));
+            [v2, v3] = initial.opValueSeq({L('l')});
+            assert(strcmp(v2{1}.data, 'l'));
+            assert(strcmp(v3{1}.data, 'l'));
+            d = containers.Map('KeyType', 'char', 'ValueType', 'any');
+            d('l') = L('l');
+            [v2, v3] = initial.opValueMap(d);
+            assert(strcmp(v2('l').data, 'l'));
+            assert(strcmp(v3('l').data, 'l'));
             fprintf('ok\n');
 
             fprintf('getting D1... ');
@@ -219,7 +237,7 @@ classdef AllTests
             fprintf('ok\n');
 
             fprintf('testing UnexpectedObjectException... ');
-            ref = ['uoet:', app.getTestEndpoint(0)];
+            ref = ['uoet:', helper.getTestEndpoint()];
             base = communicator.stringToProxy(ref);
             assert(~isempty(base));
             uoet = UnexpectedObjectExceptionTestPrx.uncheckedCast(base);
@@ -237,6 +255,26 @@ classdef AllTests
             end
             fprintf('ok\n');
 
+            fprintf('testing class containing complex dictionary... ');
+            m = M();
+            m.v(1).key = StructKey(1, '1');
+            m.v(1).value = L('one');
+
+            m.v(2).key = StructKey(2, '2');
+            m.v(2).value = L('two');
+
+            [m1, m2] = initial.opM(m);
+
+            assert(length(m1.v) == 2);
+            assert(length(m2.v) == 2);
+
+            assert(strcmp(m1.v(1).value.data, 'one'));
+            assert(strcmp(m1.v(2).value.data, 'two'));
+
+            assert(strcmp(m2.v(1).value.data, 'one'));
+            assert(strcmp(m2.v(2).value.data, 'two'));
+
+            fprintf('ok\n');
             r = initial;
         end
     end

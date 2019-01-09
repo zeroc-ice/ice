@@ -35,7 +35,7 @@
 #if defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
 
 /* C99 says to define __STDC_LIMIT_MACROS before including stdint.h,
- * if you want the limit (max/min) macros for int types.
+ * if you want the limit (max/min) macros for int types. 
  */
 #ifndef __STDC_LIMIT_MACROS
 #define __STDC_LIMIT_MACROS 1
@@ -52,7 +52,7 @@ typedef uint32_t flex_uint32_t;
 typedef signed char flex_int8_t;
 typedef short int flex_int16_t;
 typedef int flex_int32_t;
-typedef unsigned char flex_uint8_t;
+typedef unsigned char flex_uint8_t; 
 typedef unsigned short int flex_uint16_t;
 typedef unsigned int flex_uint32_t;
 
@@ -169,7 +169,7 @@ extern FILE *yyin, *yyout;
 #define EOB_ACT_LAST_MATCH 2
 
     #define YY_LESS_LINENO(n)
-
+    
 /* Return all but the first "n" matched characters back to the input stream. */
 #define yyless(n) \
 	do \
@@ -226,7 +226,7 @@ struct yy_buffer_state
 
     int yy_bs_lineno; /**< The line count. */
     int yy_bs_column; /**< The column count. */
-
+    
 	/* Whether to try to fill the input buffer when we reach the
 	 * end of it.
 	 */
@@ -464,10 +464,7 @@ char *yytext;
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -475,24 +472,19 @@ char *yytext;
 #include <IceStorm/Parser.h>
 #include <IceStorm/Grammar.h>
 
-#if defined(_MSC_VER) && defined(ICE_64)
+#if defined(_MSC_VER)
+// '<' : signed/unsigned mismatch
+#   pragma warning(disable:4018)
+// 'initializing' : conversion from '__int64' to 'int', possible loss of data
+#   pragma warning(disable:4244)
+
+#   if defined(ICE_64)
 //
 // '=' : conversion from 'size_t' to 'int', possible loss of data
 // The result of fread() is a size_t and gets inserted into an int
 //
-#   pragma warning( 4 : 4267 )
-//
-// 'initializing' : conversion from '__int64' to 'int', possible loss of data
-// Puts a pointer-difference into an int
-//
-#   pragma warning( 4 : 4244 )
-#endif
-
-#if defined(_MSC_VER) && defined(ICE_32)
-//
-// '<' : signed/unsigned mismatch
-//
-#   pragma warning( 4 : 4018 )
+#       pragma warning(disable:4267)
+#   endif
 #endif
 
 #if defined(__GNUC__)
@@ -534,7 +526,7 @@ void initScanner();
 }
 #define         YY_USER_INIT initScanner();
 
-#line 537 "src/IceStorm/Scanner.cpp"
+#line 532 "src/IceStorm/Scanner.cpp"
 
 #define INITIAL 0
 
@@ -594,7 +586,7 @@ extern int yywrap (void );
 #endif
 
     static void yyunput (int c,char *buf_ptr  );
-
+    
 #ifndef yytext_ptr
 static void yy_flex_strncpy (char *,yyconst char *,int );
 #endif
@@ -715,11 +707,11 @@ YY_DECL
 	register yy_state_type yy_current_state;
 	register char *yy_cp, *yy_bp;
 	register int yy_act;
+    
+#line 79 "src/IceStorm/Scanner.l"
 
-#line 84 "src/IceStorm/Scanner.l"
 
-
-#line 722 "src/IceStorm/Scanner.cpp"
+#line 717 "src/IceStorm/Scanner.cpp"
 
 	if ( !(yy_init) )
 		{
@@ -804,7 +796,7 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 86 "src/IceStorm/Scanner.l"
+#line 81 "src/IceStorm/Scanner.l"
 {
     // C++-style comment
     int c;
@@ -817,7 +809,7 @@ YY_RULE_SETUP
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 96 "src/IceStorm/Scanner.l"
+#line 91 "src/IceStorm/Scanner.l"
 {
     // C-style comment
     while(true)
@@ -846,7 +838,7 @@ YY_RULE_SETUP
 case 3:
 /* rule 3 can match eol */
 YY_RULE_SETUP
-#line 121 "src/IceStorm/Scanner.l"
+#line 116 "src/IceStorm/Scanner.l"
 {
     size_t len = strlen(yytext);
     for(size_t i = 0; i < len; ++i)
@@ -861,20 +853,20 @@ YY_RULE_SETUP
 case 4:
 /* rule 4 can match eol */
 YY_RULE_SETUP
-#line 132 "src/IceStorm/Scanner.l"
+#line 127 "src/IceStorm/Scanner.l"
 {
     return ';';
 }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 136 "src/IceStorm/Scanner.l"
+#line 131 "src/IceStorm/Scanner.l"
 {
     // "..."-type strings
     string s;
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == '"')
         {
             break;
@@ -886,26 +878,26 @@ YY_RULE_SETUP
         }
         else if(c == '\\')
         {
-            char next = static_cast<char>(yyinput());
+            int next = yyinput();
             switch(next)
             {
                 case '\\':
                 case '"':
                 {
-                    s += next;
+                    s += static_cast<char>(next);
                     break;
                 }
 
                 default:
                 {
-                    s += c;
+                    s += static_cast<char>(c);
                     unput(next);
                 }
             }
         }
         else
         {
-            s += c;
+            s += static_cast<char>(c);
         }
     }
     yylvalp->clear();
@@ -915,13 +907,13 @@ YY_RULE_SETUP
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 180 "src/IceStorm/Scanner.l"
+#line 175 "src/IceStorm/Scanner.l"
 {
     // '...'-type strings
     string s;
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == '\'')
         {
             break;
@@ -943,25 +935,25 @@ YY_RULE_SETUP
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 205 "src/IceStorm/Scanner.l"
+#line 200 "src/IceStorm/Scanner.l"
 {
     // Simple strings
     string s;
     s += yytext[0];
     while(true)
     {
-        char c = static_cast<char>(yyinput());
+        int c = yyinput();
         if(c == EOF)
         {
             break;
         }
-        else if(isspace(static_cast<unsigned char>(c)) || c == ';')
+        else if(isspace(c) || c == ';')
         {
             unput(c);
             break;
         }
 
-        s += c;
+        s += static_cast<char>(c);
     }
 
     yylvalp->clear();
@@ -973,10 +965,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 232 "src/IceStorm/Scanner.l"
+#line 227 "src/IceStorm/Scanner.l"
 ECHO;
 	YY_BREAK
-#line 979 "src/IceStorm/Scanner.cpp"
+#line 974 "src/IceStorm/Scanner.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1254,7 +1246,7 @@ static int yy_get_next_buffer (void)
 {
 	register yy_state_type yy_current_state;
 	register char *yy_cp;
-
+    
 	yy_current_state = (yy_start);
 
 	for ( yy_cp = (yytext_ptr) + YY_MORE_ADJ; yy_cp < (yy_c_buf_p); ++yy_cp )
@@ -1308,7 +1300,7 @@ static int yy_get_next_buffer (void)
     static void yyunput (int c, register char * yy_bp )
 {
 	register char *yy_cp;
-
+    
     yy_cp = (yy_c_buf_p);
 
 	/* undo effects of setting up yytext */
@@ -1351,7 +1343,7 @@ static int yy_get_next_buffer (void)
 
 {
 	int c;
-
+    
 	*(yy_c_buf_p) = (yy_hold_char);
 
 	if ( *(yy_c_buf_p) == YY_END_OF_BUFFER_CHAR )
@@ -1418,12 +1410,12 @@ static int yy_get_next_buffer (void)
 
 /** Immediately switch to a different input stream.
  * @param input_file A readable stream.
- *
+ * 
  * @note This function does not reset the start condition to @c INITIAL .
  */
     void yyrestart  (FILE * input_file )
 {
-
+    
 	if ( ! YY_CURRENT_BUFFER ){
         yyensure_buffer_stack ();
 		YY_CURRENT_BUFFER_LVALUE =
@@ -1436,11 +1428,11 @@ static int yy_get_next_buffer (void)
 
 /** Switch to a different input buffer.
  * @param new_buffer The new input buffer.
- *
+ * 
  */
     void yy_switch_to_buffer  (YY_BUFFER_STATE  new_buffer )
 {
-
+    
 	/* TODO. We should be able to replace this entire function body
 	 * with
 	 *		yypop_buffer_state();
@@ -1480,13 +1472,13 @@ static void yy_load_buffer_state  (void)
 /** Allocate and initialize an input buffer state.
  * @param file A readable stream.
  * @param size The character buffer size in bytes. When in doubt, use @c YY_BUF_SIZE.
- *
+ * 
  * @return the allocated buffer state.
  */
     YY_BUFFER_STATE yy_create_buffer  (FILE * file, int  size )
 {
 	YY_BUFFER_STATE b;
-
+    
 	b = (YY_BUFFER_STATE) yyalloc(sizeof( struct yy_buffer_state )  );
 	if ( ! b )
 		YY_FATAL_ERROR( "out of dynamic memory in yy_create_buffer()" );
@@ -1509,11 +1501,11 @@ static void yy_load_buffer_state  (void)
 
 /** Destroy the buffer.
  * @param b a buffer created with yy_create_buffer()
- *
+ * 
  */
     void yy_delete_buffer (YY_BUFFER_STATE  b )
 {
-
+    
 	if ( ! b )
 		return;
 
@@ -1534,7 +1526,7 @@ static void yy_load_buffer_state  (void)
 
 {
 	int oerrno = errno;
-
+    
 	yy_flush_buffer(b );
 
 	b->yy_input_file = file;
@@ -1556,7 +1548,7 @@ static void yy_load_buffer_state  (void)
 
 /** Discard all buffered characters. On the next scan, YY_INPUT will be called.
  * @param b the buffer state to be flushed, usually @c YY_CURRENT_BUFFER.
- *
+ * 
  */
     void yy_flush_buffer (YY_BUFFER_STATE  b )
 {
@@ -1585,7 +1577,7 @@ static void yy_load_buffer_state  (void)
  *  the current state. This function will allocate the stack
  *  if necessary.
  *  @param new_buffer The new state.
- *
+ *  
  */
 void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
 {
@@ -1615,7 +1607,7 @@ void yypush_buffer_state (YY_BUFFER_STATE new_buffer )
 
 /** Removes and deletes the top of the stack, if present.
  *  The next element becomes the new top.
- *
+ *  
  */
 void yypop_buffer_state (void)
 {
@@ -1639,7 +1631,7 @@ void yypop_buffer_state (void)
 static void yyensure_buffer_stack (void)
 {
 	yy_size_t num_to_alloc;
-
+    
 	if (!(yy_buffer_stack)) {
 
 		/* First allocation is just for 2 elements, since we don't know if this
@@ -1652,9 +1644,9 @@ static void yyensure_buffer_stack (void)
 								);
 		if ( ! (yy_buffer_stack) )
 			YY_FATAL_ERROR( "out of dynamic memory in yyensure_buffer_stack()" );
-
+								  
 		memset((yy_buffer_stack), 0, num_to_alloc * sizeof(struct yy_buffer_state*));
-
+				
 		(yy_buffer_stack_max) = num_to_alloc;
 		(yy_buffer_stack_top) = 0;
 		return;
@@ -1682,13 +1674,13 @@ static void yyensure_buffer_stack (void)
 /** Setup the input buffer state to scan directly from a user-specified character buffer.
  * @param base the character buffer
  * @param size the size in bytes of the character buffer
- *
- * @return the newly allocated buffer state object.
+ * 
+ * @return the newly allocated buffer state object. 
  */
 YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 {
 	YY_BUFFER_STATE b;
-
+    
 	if ( size < 2 ||
 	     base[size-2] != YY_END_OF_BUFFER_CHAR ||
 	     base[size-1] != YY_END_OF_BUFFER_CHAR )
@@ -1717,14 +1709,14 @@ YY_BUFFER_STATE yy_scan_buffer  (char * base, yy_size_t  size )
 /** Setup the input buffer state to scan a string. The next call to yylex() will
  * scan from a @e copy of @a str.
  * @param yystr a NUL-terminated string to scan
- *
+ * 
  * @return the newly allocated buffer state object.
  * @note If you want to scan bytes that may contain NUL values, then use
  *       yy_scan_bytes() instead.
  */
 YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )
 {
-
+    
 	return yy_scan_bytes(yystr,strlen(yystr) );
 }
 
@@ -1732,7 +1724,7 @@ YY_BUFFER_STATE yy_scan_string (yyconst char * yystr )
  * scan from a @e copy of @a bytes.
  * @param yybytes the byte buffer to scan
  * @param _yybytes_len the number of bytes in the buffer pointed to by @a bytes.
- *
+ * 
  * @return the newly allocated buffer state object.
  */
 YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len )
@@ -1741,7 +1733,7 @@ YY_BUFFER_STATE yy_scan_bytes  (yyconst char * yybytes, yy_size_t  _yybytes_len 
 	char *buf;
 	yy_size_t n;
 	int i;
-
+    
 	/* Get memory for full buffer, including space for trailing EOB's. */
 	n = _yybytes_len + 2;
 	buf = (char *) yyalloc(n  );
@@ -1795,16 +1787,16 @@ static void yy_fatal_error (yyconst char* msg )
 /* Accessor  methods (get/set functions) to struct members. */
 
 /** Get the current line number.
- *
+ * 
  */
 int yyget_lineno  (void)
 {
-
+        
     return yylineno;
 }
 
 /** Get the input stream.
- *
+ * 
  */
 FILE *yyget_in  (void)
 {
@@ -1812,7 +1804,7 @@ FILE *yyget_in  (void)
 }
 
 /** Get the output stream.
- *
+ * 
  */
 FILE *yyget_out  (void)
 {
@@ -1820,7 +1812,7 @@ FILE *yyget_out  (void)
 }
 
 /** Get the length of the current token.
- *
+ * 
  */
 yy_size_t yyget_leng  (void)
 {
@@ -1828,7 +1820,7 @@ yy_size_t yyget_leng  (void)
 }
 
 /** Get the current token.
- *
+ * 
  */
 
 char *yyget_text  (void)
@@ -1838,18 +1830,18 @@ char *yyget_text  (void)
 
 /** Set the current line number.
  * @param line_number
- *
+ * 
  */
 void yyset_lineno (int  line_number )
 {
-
+    
     yylineno = line_number;
 }
 
 /** Set the input stream. This does not discard the current
  * input buffer.
  * @param in_str A readable stream.
- *
+ * 
  * @see yy_switch_to_buffer
  */
 void yyset_in (FILE *  in_str )
@@ -1903,7 +1895,7 @@ static int yy_init_globals (void)
 /* yylex_destroy is for both reentrant and non-reentrant scanners. */
 int yylex_destroy  (void)
 {
-
+    
     /* Pop the buffer stack, destroying each element. */
 	while(YY_CURRENT_BUFFER){
 		yy_delete_buffer(YY_CURRENT_BUFFER  );
@@ -1970,7 +1962,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 232 "src/IceStorm/Scanner.l"
+#line 227 "src/IceStorm/Scanner.l"
 
 
 

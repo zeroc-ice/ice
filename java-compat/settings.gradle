@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -29,7 +26,11 @@ project(':icegrid-compat').projectDir = new File('src/IceGrid')
 
 // Tests
 include ':test'
+
 include ':testPlugins'
 project(':testPlugins').projectDir = new File('test/plugins')
-include ':testController'
-project(':testController').projectDir = new File('test/controller')
+
+if(org.gradle.internal.jvm.Jvm.current().getJavaVersion().toString().toFloat() >= 1.8f) {
+    include ':testLambda'
+    project(':testLambda').projectDir = new File('test/lambda')
+}

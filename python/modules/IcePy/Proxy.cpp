@@ -1,16 +1,10 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <Proxy.h>
 #include <structmember.h>
 #include <Communicator.h>
@@ -1997,9 +1991,9 @@ proxyBeginIceGetConnection(ProxyObject* self, PyObject* args, PyObject* kwds)
             result = (*self->proxy)->begin_ice_getConnection();
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& e)
     {
-        setPythonException(ex);
+        setPythonException(e);
         return 0;
     }
 
@@ -2196,9 +2190,9 @@ proxyBeginIceFlushBatchRequests(ProxyObject* self, PyObject* args, PyObject* kwd
             result = (*self->proxy)->begin_ice_flushBatchRequests();
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& e)
     {
-        setPythonException(ex);
+        setPythonException(e);
         return 0;
     }
 

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -41,7 +38,7 @@ ICE_API extern const Context noExplicitContext;
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1600)
 //
-// COMPILERFIX VC90 and VC100 get confused with namespaces and complains that
+// COMPILERFIX v90 and v100 get confused with namespaces and complains that
 // ::Ice::noExplicitContext isn't defined in IceProxy namespace.
 //
 namespace IceProxy
@@ -1619,8 +1616,6 @@ checkedCast(const ::std::shared_ptr<T>& b, const std::string& f, const ::Ice::Co
     }
     return r;
 }
-
-ICE_API ::std::ostream& operator<<(::std::ostream&, const Ice::ObjectPrx&);
 
 }
 

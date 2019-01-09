@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -239,6 +236,12 @@ class RemoteTestCaseRunner(TestCaseRunner):
                 testSuiteIds = serverTestSuiteIds
         return mapping.getTestSuites(testSuiteIds)
 
+    def getHost(self, protocol, ipv6):
+        if self.clientController:
+            return self.clientController.getHost(protocol, ipv6)
+        else:
+            return self.serverController.getHost(protocol, ipv6)
+
     def filterOptions(self, options):
         if options is None:
             return None
@@ -410,7 +413,7 @@ class LocalDriver(Driver):
                     #
                     # Sort the test suites to run tests in the following order.
                     #
-                    runOrder = component.getRunOrder()
+                    runOrder = self.component.getRunOrder()
                     def testsuiteKey(testsuite):
                         for k in runOrder:
                             if testsuite.getId().startswith(k + '/'):
@@ -423,7 +426,7 @@ class LocalDriver(Driver):
                             continue
                         if testsuite.getId() == "Ice/echo":
                             continue
-                        elif (self.cross or self.allCross) and not component.isCross(testsuite.getId()):
+                        elif (self.cross or self.allCross) and not self.component.isCross(testsuite.getId()):
                             continue
                         elif isinstance(self.runner, RemoteTestCaseRunner) and not testsuite.isMultiHost():
                             continue
@@ -569,11 +572,20 @@ class LocalDriver(Driver):
                 # interrupted by potential KeyboardInterrupt exceptions which could leave some servers
                 # behind.
                 #
-                t=threading.Thread(target = lambda: self.runner.stopServerSide(server, current, success))
+                failure = []
+                def stopServerSide():
+                    try:
+                        self.runner.stopServerSide(server, current, success)
+                    except Exception as ex:
+                        failure.append(ex)
+
+                t=threading.Thread(target = stopServerSide)
                 t.start()
                 while True:
                     try:
                         t.join()
+                        if failure:
+                            raise failure[0]
                         break
                     except KeyboardInterrupt:
                         pass # Ignore keyboard interrupts
@@ -596,6 +608,12 @@ class LocalDriver(Driver):
                 return
 
         current.testcase._runClientSide(current)
+
+    def getHost(self, protocol, ipv6):
+        if isinstance(self.runner, RemoteTestCaseRunner):
+            return self.runner.getHost(protocol, ipv6)
+        else:
+            return Driver.getHost(self, protocol, ipv6)
 
     def isWorkerThread(self):
         return hasattr(self.threadlocal, "num")

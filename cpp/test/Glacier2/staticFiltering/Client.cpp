@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -51,14 +48,14 @@ AttackClient::run(int argc, char** argv)
         }
         catch(const Glacier2::CannotCreateSessionException&)
         {
-            test("Unable to create new session" == 0);
+            test(false);
         }
         BackendPrx backend = BackendPrx::uncheckedCast(communicator->stringToProxy(p->second));
         try
         {
             backend->ice_ping();
             cerr << "Test failed on : " << p->second << endl;
-            test("Expected exception" == 0);
+            test(false);
         }
         catch(const ConnectionLostException&)
         {
@@ -88,7 +85,7 @@ AttackClient::run(int argc, char** argv)
         catch(const LocalException& e)
         {
             cerr << e << endl;
-            test("Unexpected local exception" == 0);
+            test(false);
         }
     }
 
@@ -101,7 +98,7 @@ AttackClient::run(int argc, char** argv)
         }
         catch(const Glacier2::CannotCreateSessionException&)
         {
-            test("Unable to create new session" == 0);
+            test(false);
         }
         BackendPrx backend = BackendPrx::uncheckedCast(communicator->stringToProxy(p->second));
         try
@@ -112,7 +109,7 @@ AttackClient::run(int argc, char** argv)
         {
             cerr << p->second << endl;
             cerr << ex << endl;
-            test("Unexpected local exception" == 0);
+            test(false);
         }
         try
         {

@@ -1,2 +1,2 @@
-IllegalDeclaration.ice:15: exceptions cannot be forward declared
-IllegalDeclaration.ice:16: structs cannot be forward declared
+IllegalDeclaration.ice:7: exceptions cannot be forward declared
+IllegalDeclaration.ice:8: structs cannot be forward declared

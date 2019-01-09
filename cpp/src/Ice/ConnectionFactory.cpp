@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -52,14 +49,6 @@ IceUtil::Shared* IceInternal::upCast(IncomingConnectionFactory* p) { return p; }
 
 namespace
 {
-
-struct RandomNumberGenerator : public std::unary_function<ptrdiff_t, ptrdiff_t>
-{
-    ptrdiff_t operator()(ptrdiff_t d)
-    {
-        return IceUtilInternal::random(static_cast<int>(d));
-    }
-};
 
 #ifdef ICE_CPP11_MAPPING
 template <typename Map> void
@@ -160,6 +149,27 @@ private:
     InstancePtr _instance;
 };
 
+#if TARGET_OS_IPHONE != 0
+class FinishCall : public DispatchWorkItem
+{
+public:
+
+    FinishCall(const IncomingConnectionFactoryPtr& factory) : _factory(factory)
+    {
+    }
+
+    virtual void
+    run()
+    {
+        _factory->finish();
+    }
+
+private:
+
+    const IncomingConnectionFactoryPtr _factory;
+};
+#endif
+
 }
 
 bool
@@ -178,10 +188,16 @@ IceInternal::OutgoingConnectionFactory::destroy()
         return;
     }
 
+#ifdef ICE_CPP11_COMPILER
+    for(const auto& p : _connections)
+    {
+        p.second->destroy(ConnectionI::CommunicatorDestroyed);
+    }
+#else
     for_each(_connections.begin(), _connections.end(),
              bind2nd(Ice::secondVoidMemFun1<const ConnectorPtr, ConnectionI, ConnectionI::DestructionReason>
                      (&ConnectionI::destroy), ConnectionI::CommunicatorDestroyed));
-
+#endif
     _destroyed = true;
     _communicator = 0;
 
@@ -192,8 +208,15 @@ void
 IceInternal::OutgoingConnectionFactory::updateConnectionObservers()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+#ifdef ICE_CPP11_COMPILER
+    for(const auto& p : _connections)
+    {
+        p.second->updateObserver();
+    }
+#else
     for_each(_connections.begin(), _connections.end(),
              Ice::secondVoidMemFun<const ConnectorPtr, ConnectionI>(&ConnectionI::updateObserver));
+#endif
 }
 
 void
@@ -221,9 +244,15 @@ IceInternal::OutgoingConnectionFactory::waitUntilFinished()
         connections = _connections;
     }
 
+#ifdef ICE_CPP11_COMPILER
+    for(const auto& p : _connections)
+    {
+        p.second->waitUntilFinished();
+    }
+#else
     for_each(connections.begin(), connections.end(),
              Ice::secondVoidMemFun<const ConnectorPtr, ConnectionI>(&ConnectionI::waitUntilFinished));
-
+#endif
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
         // Ensure all the connections are finished and reapable at this point.
@@ -436,7 +465,15 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<EndpointIPtr
     assert(!endpoints.empty());
     for(vector<EndpointIPtr>::const_iterator p = endpoints.begin(); p != endpoints.end(); ++p)
     {
+#ifdef ICE_CPP11_MAPPING
+        auto connection = find(_connectionsByEndpoint, *p,
+                               [](const ConnectionIPtr& conn)
+                               {
+                                   return conn->isActiveOrHolding();
+                               });
+#else
         ConnectionIPtr connection = find(_connectionsByEndpoint, *p, Ice::constMemFun(&ConnectionI::isActiveOrHolding));
+#endif
         if(connection)
         {
             if(defaultsAndOverrides->overrideCompress)
@@ -466,7 +503,15 @@ IceInternal::OutgoingConnectionFactory::findConnection(const vector<ConnectorInf
             continue;
         }
 
+#ifdef ICE_CPP11_MAPPING
+        auto connection = find(_connections, p->connector,
+                               [](const ConnectionIPtr& conn)
+                               {
+                                   return conn->isActiveOrHolding();
+                               });
+#else
         ConnectionIPtr connection = find(_connections, p->connector, Ice::constMemFun(&ConnectionI::isActiveOrHolding));
+#endif
         if(connection)
         {
             if(defaultsAndOverrides->overrideCompress)
@@ -1193,7 +1238,14 @@ void
 IceInternal::IncomingConnectionFactory::updateConnectionObservers()
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
+#ifdef ICE_CPP11_COMPILER
+    for(const auto& conn : _connections)
+    {
+        conn->updateObserver();
+    }
+#else
     for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::updateObserver));
+#endif
 }
 
 void
@@ -1223,7 +1275,14 @@ IceInternal::IncomingConnectionFactory::waitUntilHolding() const
     //
     // Now we wait until each connection is in holding state.
     //
+#ifdef ICE_CPP11_COMPILER
+    for(const auto& conn : connections)
+    {
+        conn->waitUntilHolding();
+    }
+#else
     for_each(connections.begin(), connections.end(), Ice::constVoidMemFun(&ConnectionI::waitUntilHolding));
+#endif
 }
 
 void
@@ -1253,7 +1312,14 @@ IceInternal::IncomingConnectionFactory::waitUntilFinished()
         connections = _connections;
     }
 
+#ifdef ICE_CPP11_COMPILER
+    for(const auto& conn : connections)
+    {
+        conn->waitUntilFinished();
+    }
+#else
     for_each(connections.begin(), connections.end(), Ice::voidMemFun(&ConnectionI::waitUntilFinished));
+#endif
 
     {
         IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
@@ -1311,9 +1377,16 @@ IceInternal::IncomingConnectionFactory::connections() const
     //
     // Only copy connections which have not been destroyed.
     //
+#ifdef ICE_CPP11_COMPILER
+    remove_copy_if(_connections.begin(), _connections.end(), back_inserter(result),
+                   [](const ConnectionIPtr& conn)
+                   {
+                       return !conn->isActiveOrHolding();
+                   });
+#else
     remove_copy_if(_connections.begin(), _connections.end(), back_inserter(result),
                    not1(Ice::constMemFun(&ConnectionI::isActiveOrHolding)));
-
+#endif
     return result;
 }
 
@@ -1376,9 +1449,13 @@ IceInternal::IncomingConnectionFactory::finishAsync(SocketOperation)
 
         Error out(_instance->initializationData().logger);
         out << "couldn't accept connection:\n" << ex << '\n' << _acceptor->toString();
-        if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+        if(_acceptorStarted)
         {
-            closeAcceptor();
+            _acceptorStarted = false;
+            if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
+            {
+                closeAcceptor();
+            }
         }
     }
     return _state < StateClosed;
@@ -1447,6 +1524,8 @@ IceInternal::IncomingConnectionFactory::message(ThreadPoolCurrent& current)
                 Error out(_instance->initializationData().logger);
                 out << "can't accept more connections:\n" << ex << '\n' << _acceptor->toString();
 
+                assert(_acceptorStarted);
+                _acceptorStarted = false;
                 if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
                 {
                     closeAcceptor();
@@ -1507,26 +1586,44 @@ IceInternal::IncomingConnectionFactory::finished(ThreadPoolCurrent&, bool close)
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state < StateClosed)
     {
-        if(_acceptorStarted && close)
+        if(close)
         {
             closeAcceptor();
+        }
+
+        //
+        // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
+        // because of an unexpected error), try to restart the acceptor in 1 second.
+        //
+        if(!_acceptorStopped)
+        {
+            _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS, _instance),
+                                         IceUtil::Time::seconds(1));
         }
         return;
     }
 
-    assert(_state == StateClosed);
+    assert(_state >= StateClosed);
     setState(StateFinished);
 
-    if(_acceptorStarted && close)
+    if(close)
     {
         closeAcceptor();
     }
 
 #if TARGET_OS_IPHONE != 0
     sync.release();
-    unregisterForBackgroundNotification(ICE_SHARED_FROM_THIS);
+    finish();
 #endif
 }
+
+#if TARGET_OS_IPHONE != 0
+void
+IceInternal::IncomingConnectionFactory::finish()
+{
+    unregisterForBackgroundNotification(ICE_SHARED_FROM_THIS);
+}
+#endif
 
 string
 IceInternal::IncomingConnectionFactory::toString() const
@@ -1580,7 +1677,7 @@ IceInternal::IncomingConnectionFactory::connectionStartCompleted(const Ice::Conn
 
 void
 IceInternal::IncomingConnectionFactory::connectionStartFailed(const Ice::ConnectionIPtr& /*connection*/,
-                                                              const Ice::LocalException& ex)
+                                                              const Ice::LocalException&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(*this);
     if(_state >= StateClosed)
@@ -1637,7 +1734,7 @@ IceInternal::IncomingConnectionFactory::stopAcceptor()
     }
 
     _acceptorStopped = true;
-
+    _acceptorStarted = false;
     if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
     {
         closeAcceptor();
@@ -1737,7 +1834,14 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 }
                 _adapter->getThreadPool()->_register(ICE_SHARED_FROM_THIS, SocketOperationRead);
             }
+#ifdef ICE_CPP11_COMPILER
+            for(const auto& conn : _connections)
+            {
+                conn->activate();
+            }
+#else
             for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::activate));
+#endif
             break;
         }
 
@@ -1756,7 +1860,14 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 }
                 _adapter->getThreadPool()->unregister(ICE_SHARED_FROM_THIS, SocketOperationRead);
             }
+#ifdef ICE_CPP11_COMPILER
+            for(const auto& conn : _connections)
+            {
+                conn->hold();
+            }
+#else
             for_each(_connections.begin(), _connections.end(), Ice::voidMemFun(&ConnectionI::hold));
+#endif
             break;
         }
 
@@ -1771,6 +1882,7 @@ IceInternal::IncomingConnectionFactory::setState(State state)
                 // the finish() call. Not all selector implementations do support this
                 // however.
                 //
+                _acceptorStarted = false;
                 if(_adapter->getThreadPool()->finish(ICE_SHARED_FROM_THIS, true))
                 {
                     closeAcceptor();
@@ -1778,11 +1890,21 @@ IceInternal::IncomingConnectionFactory::setState(State state)
             }
             else
             {
+#if TARGET_OS_IPHONE != 0
+                _adapter->getThreadPool()->dispatch(new FinishCall(ICE_SHARED_FROM_THIS));
+#endif
                 state = StateFinished;
             }
 
+#ifdef ICE_CPP11_COMPILER
+            for(const auto& conn : _connections)
+            {
+                conn->destroy(ConnectionI::ObjectAdapterDeactivated);
+            }
+#else
             for_each(_connections.begin(), _connections.end(),
                      bind2nd(Ice::voidMemFun1(&ConnectionI::destroy), ConnectionI::ObjectAdapterDeactivated));
+#endif
             break;
         }
 
@@ -1847,16 +1969,6 @@ IceInternal::IncomingConnectionFactory::closeAcceptor()
         out << "stopping to accept " << _endpoint->protocol() << " connections at " << _acceptor->toString();
     }
 
-    _acceptorStarted = false;
+    assert(!_acceptorStarted);
     _acceptor->close();
-
-    //
-    // If the acceptor hasn't been explicitly stopped (which is the case if the acceptor got closed
-    // because of an unexpected error), try to restart the acceptor in 1 second.
-    //
-    if(!_acceptorStopped && (_state == StateHolding || _state == StateActive))
-    {
-        _instance->timer()->schedule(ICE_MAKE_SHARED(StartAcceptor, ICE_SHARED_FROM_THIS, _instance),
-                                     IceUtil::Time::seconds(1));
-    }
 }

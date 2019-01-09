@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -55,7 +52,7 @@
 
     return [self newServantAndCookie:cookie];
 }
--(void) finished:(ICECurrent*)current servant:(ICEObject*)servant cookie:(id)cookie
+-(void) finished:(ICECurrent*)current servant:(ICEObject*)__unused servant cookie:(id)cookie
 {
     test(!_deactivated);
 
@@ -75,18 +72,18 @@
 
     [self checkCookie:cookie];
 }
--(void) deactivate:(NSString*)category
+-(void) deactivate:(NSString*)__unused category
 {
     test(!_deactivated);
 
     _deactivated = YES;
 }
--(ICEObject*) newServantAndCookie:(id*)cookie
+-(ICEObject*) newServantAndCookie:(id*)__unused cookie
 {
     NSAssert(NO, @"Subclasses need to overwrite this method");
     return nil; // To keep compiler happy
 }
--(void) checkCookie:(id)cookie
+-(void) checkCookie:(id)__unused cookie
 {
     NSAssert(NO, @"Subclasses need to overwrite this method");
 }

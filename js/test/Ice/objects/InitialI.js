@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICEthis._LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -254,6 +251,26 @@
             return new HI();
         }
 
+        getK(current)
+        {
+            return new Test.K(new Test.L("l"));
+        }
+
+        opValue(v1, current)
+        {
+            return [v1, v1];
+        }
+
+        opValueSeq(v1, current)
+        {
+            return [v1, v1];
+        }
+
+        opValueMap(v1, current)
+        {
+            return [v1, v1];
+        }
+
         getD1(d1, current)
         {
             return d1;
@@ -302,6 +319,11 @@
             throw new Test.Inner.Sub.Ex("Inner::Sub::Ex");
         }
 
+        opM(v1, current)
+        {
+            return [v1, v1];
+        }
+
         shutdown(current)
         {
             current.adapter.getCommunicator().shutdown();
@@ -310,5 +332,7 @@
 
     exports.InitialI = InitialI;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));

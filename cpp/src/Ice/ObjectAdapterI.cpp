@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -1422,8 +1419,16 @@ ObjectAdapterI::updateLocatorRegistry(const IceInternal::LocatorInfoPtr& locator
         {
             EndpointSeq endpts = proxy ? proxy->ice_getEndpoints() : EndpointSeq();
             ostringstream o;
+#ifdef ICE_CPP11_COMPILER
+            transform(endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
+                      [](const EndpointPtr& endpoint)
+                      {
+                          return endpoint->toString();
+                      });
+#else
             transform(endpts.begin(), endpts.end(), ostream_iterator<string>(o, endpts.size() > 1 ? ":" : ""),
                       Ice::constMemFun(&Endpoint::toString));
+#endif
             out << o.str();
         }
     }

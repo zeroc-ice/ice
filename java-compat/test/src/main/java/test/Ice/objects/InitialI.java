@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -20,6 +17,10 @@ import test.Ice.objects.Test.E;
 import test.Ice.objects.Test.F;
 import test.Ice.objects.Test.G;
 import test.Ice.objects.Test.I;
+import test.Ice.objects.Test.K;
+import test.Ice.objects.Test.L;
+import test.Ice.objects.Test.ValueSeqHolder;
+import test.Ice.objects.Test.ValueMapHolder;
 import test.Ice.objects.Test.A1;
 import test.Ice.objects.Test.D1;
 import test.Ice.objects.Test.EDerived;
@@ -29,6 +30,8 @@ import test.Ice.objects.Test.Recursive;
 import test.Ice.objects.Test.Initial;
 import test.Ice.objects.Test.Compact;
 import test.Ice.objects.Test.CompactExt;
+import test.Ice.objects.Test.M;
+import test.Ice.objects.Test.MHolder;
 
 public final class InitialI extends Initial
 {
@@ -175,6 +178,37 @@ public final class InitialI extends Initial
     }
 
     @Override
+    public K
+    getK(Ice.Current current)
+    {
+        return new K(new L("l"));
+    }
+
+    @Override
+    public Ice.Object
+    opValue(Ice.Object v1, Ice.ObjectHolder v2, Ice.Current current)
+    {
+        v2.value = v1;
+        return v1;
+    }
+
+    @Override
+    public Ice.Object[]
+    opValueSeq(Ice.Object[] v1, ValueSeqHolder v2, Ice.Current current)
+    {
+        v2.value = v1;
+        return v1;
+    }
+
+    @Override
+    public java.util.Map<String, Ice.Object>
+    opValueMap(java.util.Map<String, Ice.Object> v1, ValueMapHolder v2, Ice.Current current)
+    {
+        v2.value = v1;
+        return v1;
+    }
+
+    @Override
     public D1
     getD1(D1 d1, Ice.Current current)
     {
@@ -248,6 +282,14 @@ public final class InitialI extends Initial
     shutdown(Ice.Current current)
     {
         _adapter.getCommunicator().shutdown();
+    }
+
+    @Override
+    public M
+    opM(M v1, MHolder v2, Ice.Current current)
+    {
+        v2.value = v1;
+        return v1;
     }
 
     private Ice.ObjectAdapter _adapter;

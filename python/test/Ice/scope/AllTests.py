@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -15,10 +12,10 @@ def test(b):
         raise RuntimeError('test assertion failed')
 
 
-def allTests(communicator):
+def allTests(helper, communicator):
     sys.stdout.write("test same Slice type name in different scopes... ")
     sys.stdout.flush()
-    i1 = Test.IPrx.checkedCast(communicator.stringToProxy("i1:default -p 12010"))
+    i1 = Test.IPrx.checkedCast(communicator.stringToProxy("i1:{0}".format(helper.getTestEndpoint())))
 
     s1 = Test.S(0)
 
@@ -57,7 +54,7 @@ def allTests(communicator):
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i2 = Test.Inner.Inner2.IPrx.checkedCast(communicator.stringToProxy("i2:default -p 12010"))
+    i2 = Test.Inner.Inner2.IPrx.checkedCast(communicator.stringToProxy("i2:{0}".format(helper.getTestEndpoint())))
 
     s1 = Test.Inner.Inner2.S(0)
 
@@ -96,7 +93,7 @@ def allTests(communicator):
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i3 = Test.Inner.IPrx.checkedCast(communicator.stringToProxy("i3:default -p 12010"))
+    i3 = Test.Inner.IPrx.checkedCast(communicator.stringToProxy("i3:{0}".format(helper.getTestEndpoint())))
 
     s1 = Test.Inner.Inner2.S(0)
 
@@ -135,7 +132,7 @@ def allTests(communicator):
     test(cmap2["a"].s == s1)
     test(cmap3["a"].s == s1)
 
-    i4 = Inner.Test.Inner2.IPrx.checkedCast(communicator.stringToProxy("i4:default -p 12010"))
+    i4 = Inner.Test.Inner2.IPrx.checkedCast(communicator.stringToProxy("i4:{0}".format(helper.getTestEndpoint())))
 
     s1 = Test.S(0)
 

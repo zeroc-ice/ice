@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -25,14 +22,15 @@ class IceBox(ProcessFromBinDir, Server):
         # tests
         #
         if self.configFile:
-            if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
+            if isinstance(mapping, CSharpMapping) and (current.config.dotnetcore or current.config.framework):
                 configFile = self.configFile.format(testdir=current.testsuite.getPath())
                 with open(configFile, 'r') as source:
-                    framework = mapping.getLibTargetFramework(current)
-                    newConfigFile = configFile + ".netcoreapp"
+                    framework = mapping.getTargetFramework(current)
+                    libframework = mapping.getLibTargetFramework(current)
+                    newConfigFile = "{}.{}".format(configFile, framework)
                     with open(newConfigFile, 'w') as target:
                         for line in source.readlines():
-                            target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(framework)))
+                            target.write(line.replace("\\net45\\", "\\netstandard2.0\\{0}\\".format(libframework)))
                         current.files.append(newConfigFile)
 
     def getExe(self, current):
@@ -57,8 +55,8 @@ class IceBox(ProcessFromBinDir, Server):
         args = Server.getEffectiveArgs(self, current, args)
         if self.configFile:
             mapping = self.getMapping(current)
-            if isinstance(mapping, CSharpMapping) and current.config.dotnetcore:
-                args.append("--Ice.Config={0}".format(self.configFile + ".netcoreapp"))
+            if isinstance(mapping, CSharpMapping) and (current.config.dotnetcore or current.config.framework):
+                args.append("--Ice.Config={0}.{1}".format(self.configFile, mapping.getTargetFramework(current)))
             else:
                 args.append("--Ice.Config={0}".format(self.configFile))
         return args

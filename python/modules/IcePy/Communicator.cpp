@@ -1,15 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#ifdef _WIN32
-#   include <IceUtil/Config.h>
-#endif
 #include <IceUtil/DisableWarnings.h>
 #include <Communicator.h>
 #include <BatchRequestInterceptor.h>
@@ -39,7 +33,11 @@
 using namespace std;
 using namespace IcePy;
 
+#if PY_VERSION_HEX < 0x03070000
 static long _mainThreadId;
+#else
+static unsigned long _mainThreadId;
+#endif
 
 typedef map<Ice::CommunicatorPtr, PyObject*> CommunicatorMap;
 static CommunicatorMap _communicatorMap;
@@ -932,9 +930,9 @@ communicatorBeginFlushBatchRequests(CommunicatorObject* self, PyObject* args, Py
             result = (*self->communicator)->begin_flushBatchRequests(cb);
         }
     }
-    catch(const Ice::Exception& ex)
+    catch(const Ice::Exception& e)
     {
-        setPythonException(ex);
+        setPythonException(e);
         return 0;
     }
 

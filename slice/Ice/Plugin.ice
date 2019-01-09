@@ -1,16 +1,24 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #include <Ice/LoggerF.ice>
 #include <Ice/BuiltinSequences.ice>
@@ -23,6 +31,7 @@
 module Ice
 {
 
+#if !defined(__SLICE2PHP__)
 /**
  *
  * A communicator plug-in. A plug-in generally adds a feature to a
@@ -63,7 +72,7 @@ local interface PluginManager
      * Initialize the configured plug-ins. The communicator automatically initializes
      * the plug-ins by default, but an application may need to interact directly with
      * a plug-in prior to initialization. In this case, the application must set
-     * <tt>Ice.InitPlugins=0</tt> and then invoke {@link #initializePlugins}
+     * <code>Ice.InitPlugins=0</code> and then invoke {@link #initializePlugins}
      * manually. The plug-ins are initialized in the order in which they are loaded.
      * If a plug-in raises an exception during initialization, the communicator
      * invokes destroy on the plug-ins that have already been initialized.
@@ -117,5 +126,7 @@ local interface PluginManager
      **/
     ["cpp:noexcept"] void destroy();
 }
+
+#endif
 
 }

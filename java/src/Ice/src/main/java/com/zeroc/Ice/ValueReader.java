@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -21,17 +18,20 @@ public abstract class ValueReader extends Value
      **/
     public abstract void read(InputStream in);
 
+    /** @hidden */
     @Override
     public void _iceWrite(OutputStream os)
     {
         assert(false);
     }
 
+    /** @hidden */
     @Override
     public void _iceRead(InputStream is)
     {
         read(is);
     }
 
+    /** @hidden */
     public static final long serialVersionUID = 0L;
 }

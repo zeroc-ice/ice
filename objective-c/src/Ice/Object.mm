@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -337,26 +334,26 @@ static NSString* ICEObject_ids[1] =
 {
     return nil;
 }
--(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
+-(BOOL) ice_isA:(NSString*)__unused typeId current:(ICECurrent*)__unused current
 {
     NSAssert(NO, @"ice_isA requires override");
     return nil;
 }
--(void) ice_ping:(ICECurrent*)current
+-(void) ice_ping:(ICECurrent*)__unused current
 {
     NSAssert(NO, @"ice_ping requires override");
 }
--(NSString*) ice_id:(ICECurrent*)current
+-(NSString*) ice_id:(ICECurrent*)__unused current
 {
     NSAssert(NO, @"ice_id requires override");
     return nil;
 }
--(NSArray*) ice_ids:(ICECurrent*)current
+-(NSArray*) ice_ids:(ICECurrent*)__unused current
 {
     NSAssert(NO, @"ice_ids requires override");
     return nil;
 }
--(void) ice_dispatch:(id<ICERequest>)request;
+-(void) ice_dispatch:(id<ICERequest>)__unused request
 {
     NSAssert(NO, @"ice_dispatch requires override");
 }
@@ -372,11 +369,11 @@ static NSString* ICEObject_ids[1] =
     *idx = 0;
     return ICEObject_ids;
 }
--(void) iceWrite:(id<ICEOutputStream>)os
+-(void) iceWrite:(id<ICEOutputStream>)__unused os
 {
     NSAssert(NO, @"iceWrite requires override");
 }
--(void) iceRead:(id<ICEInputStream>)is
+-(void) iceRead:(id<ICEInputStream>)__unused is
 {
     NSAssert(NO, @"iceRead requires override");
 }
@@ -435,24 +432,24 @@ static NSString* ICEObject_all[4] =
     return [[[self alloc] initWithDelegate:delegate] autorelease];
 }
 
--(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
+-(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)__unused current
 {
     int count, index;
     NSString*const* staticIds = [[self class] iceStaticIds:&count idIndex:&index];
     return ICEInternalLookupString(staticIds, count, typeId) >= 0;
 }
 
--(void) ice_ping:(ICECurrent*)current
+-(void) ice_ping:(ICECurrent*)__unused current
 {
     // Nothing to do.
 }
 
--(NSString*) ice_id:(ICECurrent*)current
+-(NSString*) ice_id:(ICECurrent*)__unused current
 {
     return [[self class] ice_staticId];
 }
 
--(NSArray*) ice_ids:(ICECurrent*)current
+-(NSArray*) ice_ids:(ICECurrent*)__unused current
 {
     int count, index;
     NSString*const* staticIds = [[self class] iceStaticIds:&count idIndex:&index];
@@ -543,12 +540,12 @@ static NSString* ICEObject_all[4] =
     [is endValue:NO];
 }
 
--(void) iceWriteImpl:(id<ICEOutputStream>)os
+-(void) iceWriteImpl:(id<ICEOutputStream>)__unused os
 {
     NSAssert(NO, @"iceWriteImpl requires override");
 }
 
--(void) iceReadImpl:(id<ICEInputStream>)is
+-(void) iceReadImpl:(id<ICEInputStream>)__unused is
 {
     NSAssert(NO, @"iceReadImpl requires override");
 }
@@ -652,7 +649,7 @@ static NSString* ICEObject_all[4] =
         }
     }
 }
--(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)current
+-(BOOL) ice_isA:(NSString*)typeId current:(ICECurrent*)__unused current
 {
     NSException* nsex = nil;
     try
@@ -665,7 +662,7 @@ static NSString* ICEObject_all[4] =
     }
     @throw nsex;
 }
--(void) ice_ping:(ICECurrent*)current
+-(void) ice_ping:(ICECurrent*)__unused current
 {
     NSException* nsex = nil;
     try
@@ -678,7 +675,7 @@ static NSString* ICEObject_all[4] =
     }
     @throw nsex;
 }
--(NSString*) ice_id:(ICECurrent*)current
+-(NSString*) ice_id:(ICECurrent*)__unused current
 {
     NSException* nsex = nil;
     try
@@ -691,7 +688,7 @@ static NSString* ICEObject_all[4] =
     }
     @throw nsex;
 }
--(NSArray*) ice_ids:(ICECurrent*)current
+-(NSArray*) ice_ids:(ICECurrent*)__unused current
 {
     NSException* nsex = nil;
     try
@@ -704,7 +701,7 @@ static NSString* ICEObject_all[4] =
     }
     @throw nsex;
 }
--(void) ice_dispatch:(id<ICERequest>)request
+-(void) ice_dispatch:(id<ICERequest>)__unused request
 {
     @throw [ICEFeatureNotSupportedException featureNotSupportedException:__FILE__ line:__LINE__];
 }

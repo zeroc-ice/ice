@@ -1,13 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Slice/Util.h>
 #include <Slice/FileTracker.h>
 #include <IceUtil/FileUtil.h>
@@ -397,7 +393,7 @@ Slice::writeDependencies(const string& dependencies, const string& dependFile)
         if(!of)
         {
             ostringstream os;
-            os << "cannot open file `" << dependFile << "': " << strerror(errno);
+            os << "cannot open file `" << dependFile << "': " << IceUtilInternal::errorToString(errno);
             throw Slice::FileException(__FILE__, __LINE__, os.str());
         }
         of << dependencies;

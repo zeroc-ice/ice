@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -146,7 +143,7 @@ MyClassI::incCounter(int expected, const Ice::Current& c)
 }
 
 void
-MyClassI::waitCounter(int value, const Ice::Current& c)
+MyClassI::waitCounter(int value, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock sync(_monitor);
     while(_counter != value)

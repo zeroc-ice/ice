@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -19,7 +16,6 @@ namespace Ice
             {
                 Ice.Properties properties = createTestProperties(ref args);
                 properties.setProperty("Ice.ServerIdleTime", "30");
-                properties.setProperty("Ice.Package.Test", "Ice.binding");
                 using(var communicator = initialize(properties))
                 {
                     communicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint(0));

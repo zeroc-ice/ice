@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -212,26 +209,29 @@ namespace Ice
             // entryPoint will be ignored but the rest of the plugin
             // specification might be used.
             //
-            foreach(var p in _loadOnInitialization)
+            foreach(var name in _loadOnInitialization)
             {
-                var property = prefix + p;
+                string key = "Ice.Plugin." + name + ".clr";
                 string r = null;
-                if(!plugins.TryGetValue(property + ".clr", out r))
+                plugins.TryGetValue(key, out r);
+                if(r != null)
                 {
-                    plugins.TryGetValue(property, out r);
+                    plugins.Remove("Ice.Plugin." + name);
                 }
                 else
                 {
-                    plugins.Remove(r);
+                    key = "Ice.Plugin." + name;
+                    plugins.TryGetValue(key, out r);
                 }
 
                 if(r != null)
                 {
-                    loadPlugin(p, r, ref cmdArgs);
+                    loadPlugin(name, r, ref cmdArgs);
+                    plugins.Remove(key);
                 }
                 else
                 {
-                    loadPlugin(p, "", ref cmdArgs);
+                    loadPlugin(name, "", ref cmdArgs);
                 }
             }
 
@@ -268,20 +268,20 @@ namespace Ice
                 }
 
                 string key = "Ice.Plugin." + loadOrder[i] + ".clr";
-                bool hasKey = plugins.ContainsKey(key);
-                if(hasKey)
+                string value = null;
+                plugins.TryGetValue(key, out value);
+                if(value != null)
                 {
                     plugins.Remove("Ice.Plugin." + loadOrder[i]);
                 }
                 else
                 {
                     key = "Ice.Plugin." + loadOrder[i];
-                    hasKey = plugins.ContainsKey(key);
+                    plugins.TryGetValue(key, out value);
                 }
 
-                if(hasKey)
+                if(value != null)
                 {
-                    string value = plugins[key];
                     loadPlugin(loadOrder[i], value, ref cmdArgs);
                     plugins.Remove(key);
                 }

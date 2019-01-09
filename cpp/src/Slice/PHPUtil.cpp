@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -19,7 +16,12 @@ static string
 lowerCase(const string& s)
 {
     string result(s);
+#ifdef ICE_CPP11_COMPILER
+    transform(result.begin(), result.end(), result.begin(),
+              [](char c){ return static_cast<char>(::tolower(static_cast<unsigned char>(c))); });
+#else
     transform(result.begin(), result.end(), result.begin(), ::tolower);
+#endif
     return result;
 }
 

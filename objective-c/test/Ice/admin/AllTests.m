@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -127,7 +124,7 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
     [super dealloc];
 }
 #endif
--(void) init:(NSString*)prefix logMessages:(ICEMutableLogMessageSeq*)logMessages current:(ICECurrent*)current
+-(void) init:(NSString*)prefix logMessages:(ICEMutableLogMessageSeq*)logMessages current:(ICECurrent*)__unused current
 {
     [_cond lock];
     @try
@@ -142,7 +139,7 @@ testFacets(id<ICECommunicator> com, BOOL builtInFacets)
         [_cond unlock];
     }
 }
--(void) log:(ICELogMessage*)logMessage current:(ICECurrent*)current
+-(void) log:(ICELogMessage*)logMessage current:(ICECurrent*)__unused current
 {
     [_cond lock];
     @try

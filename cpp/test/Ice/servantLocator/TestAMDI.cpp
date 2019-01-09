@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -142,7 +139,7 @@ TestAMDI::asyncResponseAsync(function<void()> response,
 }
 
 void
-TestAMDI::asyncExceptionAsync(function<void()> response,
+TestAMDI::asyncExceptionAsync(function<void()>,
                               function<void(exception_ptr)> error,
                               const Current&)
 {
@@ -159,7 +156,7 @@ TestAMDI::asyncExceptionAsync(function<void()> response,
 
 void
 TestAMDI::shutdownAsync(function<void()> response,
-                        function<void(exception_ptr)> error,
+                        function<void(exception_ptr)>,
                         const Current& current)
 {
     current.adapter->deactivate();

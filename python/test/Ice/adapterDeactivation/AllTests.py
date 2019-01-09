@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -13,10 +10,10 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def allTests(communicator):
+def allTests(helper, communicator):
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("test:default -p 12010")
+    base = communicator.stringToProxy("test:{0}".format(helper.getTestEndpoint()))
     test(base)
     print("ok")
 
@@ -52,7 +49,7 @@ def allTests(communicator):
         initData = Ice.InitializationData()
         initData.properties = communicator.getProperties().clone()
         comm = Ice.initialize(initData)
-        comm.stringToProxy("test:default -p 12010").ice_pingAsync()
+        comm.stringToProxy("test:{0}".format(helper.getTestEndpoint())).ice_pingAsync()
         comm.destroy()
     print("ok")
 
@@ -92,7 +89,7 @@ def allTests(communicator):
         adapter.deactivate()
         try:
             obj.ice_getConnection().setAdapter(adapter)
-            test(false)
+            test(False)
         except Ice.ObjectAdapterDeactivatedException:
             pass
         print("ok")

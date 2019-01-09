@@ -1,7 +1,11 @@
-%
-% This function runs a MATLAB test client. The first argument must the path name of the test directory. All
-% other arguments are passed to the test client.
-%
+%{
+**********************************************************************
+
+Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+
+**********************************************************************
+%}
+
 function runTest(varargin)
     if length(varargin) == 0
         fprintf('testdir argument required\n');

@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -37,6 +34,10 @@ ifeq ($(shell uname),Darwin)
             ruby_cppflags += -Wno-shift-negative-value $(RUBY_FLAGS)
         endif
     endif
+endif
+
+ifeq ($(os),Linux)
+   cppflags   := $(filter-out -Wredundant-decls -Wshadow,$(cppflags))
 endif
 
 # Ruby linker flags

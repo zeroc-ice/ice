@@ -1,9 +1,6 @@
 ﻿// **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -16,23 +13,13 @@ namespace Test
 {
     public interface ControllerHelper
     {
-        string getOutput();
-        void join();
-        void completed(int status);
-        void run();
-        string loggerPrefix();
-        void print(string message);
         void serverReady();
-        void shutdown();
-        void waitReady(int msec);
-        int waitSuccess(int msec);
         void communicatorInitialized(Ice.Communicator communicator);
     }
 
     public interface PlatformAdapter
     {
         bool isEmulator();
-        bool registerProcessController();
 
         string processControllerRegistryHost();
 

@@ -1,16 +1,15 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/StringConverter.h>
 #include <cstring>
+#include <string.h> // for strerror_r
 
+#include <sstream>
 #include <iomanip>
 
 using namespace std;
@@ -1071,7 +1070,43 @@ IceUtilInternal::lastErrorToString()
 string
 IceUtilInternal::errorToString(int error)
 {
-    return strerror(error);
+    vector<char> buffer(500);
+    while(true)
+    {
+#if !defined(__GLIBC__) || ((_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && !_GNU_SOURCE)
+        //
+        // Use the XSI-compliant version of strerror_r
+        //
+        int err = strerror_r(error, &buffer[0], buffer.size());
+        if(err == 0)
+        {
+            return string(&buffer[0]);
+        }
+#else
+        //
+        // Use the GNU-specific version of strerror_r
+        //
+        int oerrno = errno;
+        errno = 0;
+        const char* msg = strerror_r(error, &buffer[0], buffer.size());
+        int err = errno;
+        errno = oerrno;
+        if(err == 0)
+        {
+            return msg;
+        }
+#endif
+        if(err == ERANGE && buffer.size() < 1024 * 1024)
+        {
+            buffer.resize(buffer.size() * 2);
+        }
+        else
+        {
+            ostringstream os;
+            os << "Unknown error `" << error << "'";
+            return os.str();
+        }
+    }
 }
 
 string
@@ -1091,7 +1126,7 @@ IceUtilInternal::toLower(const std::string& s)
     {
         if(isascii(s[i]))
         {
-            result += tolower(static_cast<unsigned char>(s[i]));
+            result += static_cast<char>(tolower(static_cast<unsigned char>(s[i])));
         }
         else
         {
@@ -1110,7 +1145,7 @@ IceUtilInternal::toUpper(const std::string& s)
     {
         if(isascii(s[i]))
         {
-            result += toupper(static_cast<unsigned char>(s[i]));
+            result += static_cast<char>(toupper(static_cast<unsigned char>(s[i])));
         }
         else
         {

@@ -2,10 +2,7 @@
 <!--
  **********************************************************************
 
- Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-
- This copy of Ice is licensed to you under the terms described in the
- ICE_LICENSE file included in this distribution.
+ Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
  **********************************************************************
 -->
@@ -401,6 +398,7 @@ generated from the section label.
         <property name="TCP.SndSize" />
         <property name="UseApplicationClassLoader" />
         <property name="UseSyslog" />
+        <property name="UseSystemdJournal" />
         <property name="Warn.AMICallback" />
         <property name="Warn.Connections" />
         <property name="Warn.Datagrams" />
@@ -410,7 +408,7 @@ generated from the section label.
         <property name="Warn.UnusedProperties" />
         <property name="CacheMessageBuffers" />
         <property name="ThreadInterruptSafe" />
-        <property name="Voip" />
+        <property name="Voip" deprecated="true" />
     </section>
 
     <section name="IceMX">

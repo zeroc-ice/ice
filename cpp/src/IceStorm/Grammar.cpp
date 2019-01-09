@@ -1,19 +1,19 @@
 /* A Bison parser, made by GNU Bison 2.7.  */
 
 /* Bison implementation for Yacc-like parsers in C
-
+   
       Copyright (C) 1984, 1989-1990, 2000-2012 Free Software Foundation, Inc.
-
+   
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
    the Free Software Foundation, either version 3 of the License, or
    (at your option) any later version.
-
+   
    This program is distributed in the hope that it will be useful,
    but WITHOUT ANY WARRANTY; without even the implied warranty of
    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
    GNU General Public License for more details.
-
+   
    You should have received a copy of the GNU General Public License
    along with this program.  If not, see <http://www.gnu.org/licenses/>.  */
 
@@ -26,7 +26,7 @@
    special exception, which will cause the skeleton and the resulting
    Bison output files to be licensed under the GNU General Public
    License without this special exception.
-
+   
    This special exception was added by the Free Software Foundation in
    version 2.2 of Bison.  */
 
@@ -68,10 +68,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -79,11 +76,14 @@
 #include <IceStorm/Parser.h>
 
 #ifdef _MSC_VER
-// I get these warnings from some bison versions:
 // warning C4102: 'yyoverflowlab' : unreferenced label
-#   pragma warning( disable : 4102 )
+#   pragma warning(disable:4102)
 // warning C4065: switch statement contains 'default' but no 'case' labels
-#   pragma warning( disable : 4065 )
+#   pragma warning(disable:4065)
+// warning C4244: '=': conversion from 'int' to 'yytype_int16', possible loss of data
+#   pragma warning(disable:4244)
+// warning C4702: unreachable code
+#   pragma warning(disable:4702)
 #endif
 
 //
@@ -105,7 +105,7 @@ yyerror(const char* s)
 
 
 /* Line 371 of yacc.c  */
-#line 109 "src/IceStorm/Grammar.cpp"
+#line 112 "src/IceStorm/Grammar.cpp"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -184,7 +184,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 390 of yacc.c  */
-#line 188 "src/IceStorm/Grammar.cpp"
+#line 191 "src/IceStorm/Grammar.cpp"
 
 #ifdef short
 # undef short
@@ -482,10 +482,10 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    67,    67,    71,    78,    81,    89,    93,    97,   101,
-     105,   109,   113,   117,   121,   125,   129,   133,   137,   141,
-     149,   154,   160,   168,   171,   174,   177,   180,   183,   186,
-     189,   192
+       0,    70,    70,    74,    81,    84,    92,    96,   100,   104,
+     108,   112,   116,   120,   124,   128,   132,   136,   140,   144,
+     152,   157,   163,   171,   174,   177,   180,   183,   186,   189,
+     192,   195
 };
 #endif
 
@@ -1425,35 +1425,35 @@ yyreduce:
     {
         case 2:
 /* Line 1792 of yacc.c  */
-#line 68 "src/IceStorm/Grammar.y"
+#line 71 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 3:
 /* Line 1792 of yacc.c  */
-#line 71 "src/IceStorm/Grammar.y"
+#line 74 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 4:
 /* Line 1792 of yacc.c  */
-#line 79 "src/IceStorm/Grammar.y"
+#line 82 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 5:
 /* Line 1792 of yacc.c  */
-#line 82 "src/IceStorm/Grammar.y"
+#line 85 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 6:
 /* Line 1792 of yacc.c  */
-#line 90 "src/IceStorm/Grammar.y"
+#line 93 "src/IceStorm/Grammar.y"
     {
     parser->usage();
 }
@@ -1461,7 +1461,7 @@ yyreduce:
 
   case 7:
 /* Line 1792 of yacc.c  */
-#line 94 "src/IceStorm/Grammar.y"
+#line 97 "src/IceStorm/Grammar.y"
     {
     return 0;
 }
@@ -1469,7 +1469,7 @@ yyreduce:
 
   case 8:
 /* Line 1792 of yacc.c  */
-#line 98 "src/IceStorm/Grammar.y"
+#line 101 "src/IceStorm/Grammar.y"
     {
     parser->create((yyvsp[(2) - (3)]));
 }
@@ -1477,7 +1477,7 @@ yyreduce:
 
   case 9:
 /* Line 1792 of yacc.c  */
-#line 102 "src/IceStorm/Grammar.y"
+#line 105 "src/IceStorm/Grammar.y"
     {
     parser->current((yyvsp[(2) - (3)]));
 }
@@ -1485,7 +1485,7 @@ yyreduce:
 
   case 10:
 /* Line 1792 of yacc.c  */
-#line 106 "src/IceStorm/Grammar.y"
+#line 109 "src/IceStorm/Grammar.y"
     {
     parser->destroy((yyvsp[(2) - (3)]));
 }
@@ -1493,7 +1493,7 @@ yyreduce:
 
   case 11:
 /* Line 1792 of yacc.c  */
-#line 110 "src/IceStorm/Grammar.y"
+#line 113 "src/IceStorm/Grammar.y"
     {
     parser->link((yyvsp[(2) - (3)]));
 }
@@ -1501,7 +1501,7 @@ yyreduce:
 
   case 12:
 /* Line 1792 of yacc.c  */
-#line 114 "src/IceStorm/Grammar.y"
+#line 117 "src/IceStorm/Grammar.y"
     {
     parser->unlink((yyvsp[(2) - (3)]));
 }
@@ -1509,7 +1509,7 @@ yyreduce:
 
   case 13:
 /* Line 1792 of yacc.c  */
-#line 118 "src/IceStorm/Grammar.y"
+#line 121 "src/IceStorm/Grammar.y"
     {
     parser->links((yyvsp[(2) - (3)]));
 }
@@ -1517,7 +1517,7 @@ yyreduce:
 
   case 14:
 /* Line 1792 of yacc.c  */
-#line 122 "src/IceStorm/Grammar.y"
+#line 125 "src/IceStorm/Grammar.y"
     {
     parser->topics((yyvsp[(2) - (3)]));
 }
@@ -1525,7 +1525,7 @@ yyreduce:
 
   case 15:
 /* Line 1792 of yacc.c  */
-#line 126 "src/IceStorm/Grammar.y"
+#line 129 "src/IceStorm/Grammar.y"
     {
     parser->replica((yyvsp[(2) - (3)]));
 }
@@ -1533,7 +1533,7 @@ yyreduce:
 
   case 16:
 /* Line 1792 of yacc.c  */
-#line 130 "src/IceStorm/Grammar.y"
+#line 133 "src/IceStorm/Grammar.y"
     {
     parser->subscribers((yyvsp[(2) - (3)]));
 }
@@ -1541,7 +1541,7 @@ yyreduce:
 
   case 17:
 /* Line 1792 of yacc.c  */
-#line 134 "src/IceStorm/Grammar.y"
+#line 137 "src/IceStorm/Grammar.y"
     {
     parser->invalidCommand("unknown command `" + (yyvsp[(1) - (3)]).front() + "' (type `help' for more info)");
 }
@@ -1549,7 +1549,7 @@ yyreduce:
 
   case 18:
 /* Line 1792 of yacc.c  */
-#line 138 "src/IceStorm/Grammar.y"
+#line 141 "src/IceStorm/Grammar.y"
     {
     yyerrok;
 }
@@ -1557,14 +1557,14 @@ yyreduce:
 
   case 19:
 /* Line 1792 of yacc.c  */
-#line 142 "src/IceStorm/Grammar.y"
+#line 145 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 20:
 /* Line 1792 of yacc.c  */
-#line 150 "src/IceStorm/Grammar.y"
+#line 153 "src/IceStorm/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
     (yyval).push_front((yyvsp[(1) - (2)]).front());
@@ -1573,7 +1573,7 @@ yyreduce:
 
   case 21:
 /* Line 1792 of yacc.c  */
-#line 155 "src/IceStorm/Grammar.y"
+#line 158 "src/IceStorm/Grammar.y"
     {
     (yyval) = (yyvsp[(2) - (2)]);
     (yyval).push_front((yyvsp[(1) - (2)]).front());
@@ -1582,7 +1582,7 @@ yyreduce:
 
   case 22:
 /* Line 1792 of yacc.c  */
-#line 160 "src/IceStorm/Grammar.y"
+#line 163 "src/IceStorm/Grammar.y"
     {
     (yyval) = YYSTYPE();
 }
@@ -1590,70 +1590,70 @@ yyreduce:
 
   case 23:
 /* Line 1792 of yacc.c  */
-#line 169 "src/IceStorm/Grammar.y"
+#line 172 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 24:
 /* Line 1792 of yacc.c  */
-#line 172 "src/IceStorm/Grammar.y"
+#line 175 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 25:
 /* Line 1792 of yacc.c  */
-#line 175 "src/IceStorm/Grammar.y"
+#line 178 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 26:
 /* Line 1792 of yacc.c  */
-#line 178 "src/IceStorm/Grammar.y"
+#line 181 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 27:
 /* Line 1792 of yacc.c  */
-#line 181 "src/IceStorm/Grammar.y"
+#line 184 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 28:
 /* Line 1792 of yacc.c  */
-#line 184 "src/IceStorm/Grammar.y"
+#line 187 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 29:
 /* Line 1792 of yacc.c  */
-#line 187 "src/IceStorm/Grammar.y"
+#line 190 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 30:
 /* Line 1792 of yacc.c  */
-#line 190 "src/IceStorm/Grammar.y"
+#line 193 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
   case 31:
 /* Line 1792 of yacc.c  */
-#line 193 "src/IceStorm/Grammar.y"
+#line 196 "src/IceStorm/Grammar.y"
     {
 }
     break;
 
 
 /* Line 1792 of yacc.c  */
-#line 1657 "src/IceStorm/Grammar.cpp"
+#line 1660 "src/IceStorm/Grammar.cpp"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1885,5 +1885,5 @@ yyreturn:
 
 
 /* Line 2055 of yacc.c  */
-#line 196 "src/IceStorm/Grammar.y"
+#line 199 "src/IceStorm/Grammar.y"
 

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -126,7 +123,6 @@ ImplicitContextI::create(const std::string& kind)
         throw Ice::InitializationException(
             __FILE__, __LINE__,
             "'" + kind + "' is not a valid value for Ice.ImplicitContext");
-        return 0; // Keep the compiler happy.
     }
 }
 

@@ -1,60 +1,34 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
 
-import Ice, AllTests
+from TestHelper import TestHelper
+import AllTests
 
-def test(b):
-    if not b:
-        raise RuntimeError('test assertion failed')
 
-def usage(n):
-    sys.stderr.write("Usage: " + n + " port...\n")
+class Client(TestHelper):
 
-def run(args, communicator):
-    ports = []
-    for arg in args[1:]:
-        if arg[0] == '-':
-            sys.stderr.write(args[0] + ": unknown option `" + arg + "'\n")
-            usage(args[0])
-            return False
+    def run(self, args):
 
-        ports.append(12010 + int(arg))
+        properties = self.createTestProperties(args)
 
-    if len(ports) == 0:
-        sys.stderr.write(args[0] + ": no ports specified\n")
-        usage(args[0])
-        return False
+        #
+        # This test aborts servers, so we don't want warnings.
+        #
+        properties.setProperty('Ice.Warn.Connections', '0')
 
-    try:
-        AllTests.allTests(communicator, ports)
-    except:
-        traceback.print_exc()
-        test(False)
+        ports = []
+        for arg in args:
+            if arg[0] == '-':
+                continue
+            ports.append(int(arg))
 
-    return True
+        if len(ports) == 0:
+            raise RuntimeError("no ports specified")
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-
-    #
-    # This test aborts servers, so we don't want warnings.
-    #
-    initData.properties.setProperty('Ice.Warn.Connections', '0')
-
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+        with self.initialize(properties=properties) as communicator:
+            AllTests.allTests(self, communicator, ports)

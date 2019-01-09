@@ -1,23 +1,17 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback, time, threading
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
+import threading
+import time
 import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
-
-Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
 import Test
+
 
 class ActivateAdapterThread(threading.Thread):
     def __init__(self, adapter, timeout):
@@ -57,42 +51,36 @@ class ControllerI(Test.Controller):
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    communicator.getProperties().setProperty("ControllerAdapter.Endpoints", "default -p 12011");
-    communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1");
 
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(TimeoutI(), Ice.stringToIdentity("timeout"))
-    adapter.activate()
+class Server(TestHelper):
 
-    controllerAdapter = communicator.createObjectAdapter("ControllerAdapter")
-    controllerAdapter.add(ControllerI(adapter), Ice.stringToIdentity("controller"))
-    controllerAdapter.activate()
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.Warn.Connections", "0")
 
-    communicator.waitForShutdown()
-    return True
+        #
+        # The client sends large messages to cause the transport
+        # buffers to fill up.
+        #
+        properties.setProperty("Ice.MessageSizeMax", "10000")
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.Warn.Connections", "0");
+        #
+        # Limit the recv buffer size, this test relies on the socket
+        # send() blocking after sending a given amount of data.
+        #
+        properties.setProperty("Ice.TCP.RcvSize", "50000")
 
-    #
-    # The client sends large messages to cause the transport
-    # buffers to fill up.
-    #
-    initData.properties.setProperty("Ice.MessageSizeMax", "10000");
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint())
+            communicator.getProperties().setProperty("ControllerAdapter.Endpoints", self.getTestEndpoint(num=1))
+            communicator.getProperties().setProperty("ControllerAdapter.ThreadPool.Size", "1")
 
-    #
-    # Limit the recv buffer size, this test relies on the socket
-    # send() blocking after sending a given amount of data.
-    #
-    initData.properties.setProperty("Ice.TCP.RcvSize", "50000");
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(TimeoutI(), Ice.stringToIdentity("timeout"))
+            adapter.activate()
 
-sys.exit(not status)
+            controllerAdapter = communicator.createObjectAdapter("ControllerAdapter")
+            controllerAdapter.add(ControllerI(adapter), Ice.stringToIdentity("controller"))
+            controllerAdapter.activate()
+
+            communicator.waitForShutdown()

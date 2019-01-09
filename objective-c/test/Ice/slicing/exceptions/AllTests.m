@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -18,21 +15,21 @@
 
 @implementation RelayI
 
--(void) knownPreservedAsBase:(ICECurrent*)current
+-(void) knownPreservedAsBase:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsClientKnownPreservedDerived knownPreservedDerived:@"base"
                                                                                 kp:@"preserved"
                                                                                kpd:@"derived"];
 }
 
--(void) knownPreservedAsKnownPreserved:(ICECurrent*)current
+-(void) knownPreservedAsKnownPreserved:(ICECurrent*)__unused current
 {
     @throw [TestSlicingExceptionsClientKnownPreservedDerived knownPreservedDerived:@"base"
                                                                                 kp:@"preserved"
                                                                                kpd:@"derived"];
 }
 
--(void) unknownPreservedAsBase:(ICECurrent*)current
+-(void) unknownPreservedAsBase:(ICECurrent*)__unused current
 {
     TestSlicingExceptionsClientPreserved2* ex = ICE_AUTORELEASE([TestSlicingExceptionsClientPreserved2 alloc]);
     ex.b = @"base";
@@ -43,7 +40,7 @@
     @throw ex;
 }
 
--(void) unknownPreservedAsKnownPreserved:(ICECurrent*)current
+-(void) unknownPreservedAsKnownPreserved:(ICECurrent*)__unused current
 {
     TestSlicingExceptionsClientPreserved2* ex = ICE_AUTORELEASE([TestSlicingExceptionsClientPreserved2 alloc]);
     ex.b = @"base";

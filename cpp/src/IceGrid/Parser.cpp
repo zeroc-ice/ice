@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -28,6 +25,8 @@
 
 extern FILE* yyin;
 extern int yydebug;
+
+int yyparse();
 
 using namespace std;
 using namespace IceUtil;
@@ -666,19 +665,19 @@ Parser::diffApplication(const list<string>& origArgs)
         StringSeq targets;
         map<string, string> vars;
 
-        vector<string>::const_iterator p = args.begin();
-        string desc = *p++;
+        vector<string>::const_iterator arg = args.begin();
+        string desc = *arg++;
 
-        for(; p != args.end(); ++p)
+        for(; arg != args.end(); ++arg)
         {
-            string::size_type pos = p->find('=');
+            string::size_type pos = arg->find('=');
             if(pos != string::npos)
             {
-                vars[p->substr(0, pos)] = p->substr(pos + 1);
+                vars[arg->substr(0, pos)] = arg->substr(pos + 1);
             }
             else
             {
-                targets.push_back(*p);
+                targets.push_back(*arg);
             }
         }
 
@@ -2476,15 +2475,15 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 
         _session->ice_getConnection()->setAdapter(adapter);
 
-        Ice::Identity id;
+        Ice::Identity ident;
         ostringstream name;
         name << "RemoteLogger-" << loggerCallbackCount++;
-        id.name = name.str();
-        id.category = adminCallbackTemplate->ice_getIdentity().category;
+        ident.name = name.str();
+        ident.category = adminCallbackTemplate->ice_getIdentity().category;
 
         RemoteLoggerIPtr servant = new RemoteLoggerI;
         Ice::RemoteLoggerPrx prx =
-            Ice::RemoteLoggerPrx::uncheckedCast(adapter->add(servant, id));
+            Ice::RemoteLoggerPrx::uncheckedCast(adapter->add(servant, ident));
         adapter->activate();
 
         loggerAdmin->attachRemoteLogger(prx, Ice::LogMessageTypeSeq(), Ice::StringSeq(), tail ? lineCount : -1);
@@ -2526,7 +2525,7 @@ Parser::showLog(const string& id, const string& reader, bool tail, bool follow, 
 void
 Parser::showBanner()
 {
-    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2018 ZeroC, Inc." << endl;
+    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-present ZeroC, Inc." << endl;
 }
 
 void
@@ -2610,7 +2609,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         string line;
         while(true)
         {
-            char c = static_cast<char>(getc(yyin));
+            int c = getc(yyin);
             if(c == EOF)
             {
                 if(line.size())
@@ -2620,7 +2619,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 break;
             }
 
-            line += c;
+            line += static_cast<char>(c);
             if(c == '\n')
             {
                 break;
@@ -2871,11 +2870,11 @@ Parser::Parser(const CommunicatorPtr& communicator,
 }
 
 void
-Parser::exception(const Ice::Exception& ex)
+Parser::exception(const Ice::Exception& pex)
 {
     try
     {
-        ex.ice_throw();
+        pex.ice_throw();
     }
     catch(const ApplicationNotExistException& ex)
     {

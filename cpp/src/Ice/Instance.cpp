@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -58,6 +55,7 @@
 
 #ifndef _WIN32
 #   include <Ice/SysLoggerI.h>
+#   include <Ice/SystemdJournalI.h>
 
 #   include <signal.h>
 #   include <syslog.h>
@@ -1100,6 +1098,13 @@ IceInternal::Instance::Instance(const CommunicatorPtr& communicator, const Initi
                                                    _initData.properties->getProperty("Ice.ProgramName"),
                                                    _initData.properties->getPropertyWithDefault("Ice.SyslogFacility", "LOG_USER"));
             }
+#   ifdef ICE_USE_SYSTEMD
+            else if(_initData.properties->getPropertyAsInt("Ice.UseSystemdJournal") > 0)
+            {
+                _initData.logger = ICE_MAKE_SHARED(SystemdJournalI,
+                                                   _initData.properties->getProperty("Ice.ProgramName"));
+            }
+#   endif
             else
 #endif
             if(!logfile.empty())
@@ -1453,6 +1458,18 @@ IceInternal::Instance::finishSetup(int& argc, const char* argv[], const Ice::Com
     try
     {
         _endpointHostResolver = new EndpointHostResolver(this);
+#ifndef ICE_OS_UWP
+        bool hasPriority = _initData.properties->getProperty("Ice.ThreadPriority") != "";
+        int priority = _initData.properties->getPropertyAsInt("Ice.ThreadPriority");
+        if(hasPriority)
+        {
+            _endpointHostResolver->start(0, priority);
+        }
+        else
+        {
+            _endpointHostResolver->start();
+        }
+#endif
     }
     catch(const IceUtil::Exception& ex)
     {
@@ -1652,8 +1669,15 @@ IceInternal::Instance::destroy()
     }
 #endif
 
+#ifdef ICE_CPP11_COMPILER
+    for(const auto& p : _objectFactoryMap)
+    {
+        p.second->destroy();
+    }
+#else
     for_each(_objectFactoryMap.begin(), _objectFactoryMap.end(),
         Ice::secondVoidMemFun<const string, ObjectFactory>(&ObjectFactory::destroy));
+#endif
     _objectFactoryMap.clear();
 
     if(_routerManager)
@@ -1826,9 +1850,9 @@ IceInternal::Instance::addObjectFactory(const Ice::ObjectFactoryPtr& factory, co
     // with the value factory manager. This may raise AlreadyRegisteredException.
     //
 #ifdef ICE_CPP11_MAPPING
-    _initData.valueFactoryManager->add([factory](const string& id)
+    _initData.valueFactoryManager->add([factory](const string& ident)
                                        {
-                                           return factory->create(id);
+                                           return factory->create(ident);
                                        },
                                        id);
 #else

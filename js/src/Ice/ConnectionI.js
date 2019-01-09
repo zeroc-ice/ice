@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -510,7 +507,7 @@ class ConnectionI
     {
         if(timeout !== undefined && timeout < 0)
         {
-            throw new Error("invalid negative ACM timeout value");
+            throw new RangeError("invalid negative ACM timeout value");
         }
         if(this._monitor === null || this._state >= StateClosed)
         {
@@ -1941,10 +1938,6 @@ class ConnectionI
             if(ex instanceof Ice.LocalException)
             {
                 this.invokeException(ex, invokeNum);
-            }
-            else if(ex instanceof Ice.ServantError)
-            {
-                // Ignore
             }
             else
             {

@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -48,21 +45,11 @@ class Ice(Component):
         else:
             return "ice.so"
 
-    def getNugetPackage(self, mapping, compiler=None):
+    def getNugetPackageVersionFile(self, mapping):
         if isinstance(mapping, CSharpMapping):
-            return "zeroc.ice.net"
+            return os.path.join(toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec")
         else:
-            return "zeroc.ice.{0}".format(compiler)
-
-    def getNugetPackageVersion(self, mapping):
-        if not self.nugetVersion:
-            if isinstance(mapping, CSharpMapping):
-                with open(os.path.join(toplevel, "csharp", "msbuild", "zeroc.ice.net.nuspec"), "r") as configFile:
-                    self.nugetVersion = re.search("<version>(.*)</version>", configFile.read()).group(1)
-            else:
-                with open(os.path.join(toplevel, "config", "icebuilder.props"), "r") as configFile:
-                    self.nugetVersion = re.search("<IceJSONVersion>(.*)</IceJSONVersion>", configFile.read()).group(1)
-        return self.nugetVersion
+            return os.path.join(toplevel, "cpp", "msbuild", "zeroc.ice.{0}.nuspec".format(platform.getPlatformToolset()))
 
     def getFilters(self, mapping, config):
         if "xcodesdk" in config.buildConfig:
@@ -81,7 +68,7 @@ class Ice(Component):
         elif "static" in config.buildConfig:
             return (["Ice/.*", "IceSSL/configuration", "IceDiscovery/simple", "IceGrid/simple", "Glacier2/application"],
                     ["Ice/library", "Ice/plugin"])
-        elif config.uwp:
+        elif isinstance(mapping, CppMapping) and config.uwp:
             return (["Ice/.*", "IceSSL/configuration"],
                     ["Ice/background",
                      "Ice/echo",
@@ -93,9 +80,9 @@ class Ice(Component):
                      "Ice/properties",          # Property files are not supported with UWP
                      "Ice/plugin",
                      "Ice/threadPoolPriority"])
-        elif isinstance(platform, Windows) and platform.getCompiler() in ["VC100"]:
+        elif isinstance(platform, Windows) and platform.getCompiler() in ["v100"]:
             return (["Ice/.*", "IceSSL/.*", "IceBox/.*", "IceDiscovery/.*", "IceUtil/.*", "Slice/.*"], [])
-        elif (isinstance(mapping, XamarinMapping)):
+        elif isinstance(mapping, CSharpMapping) and config.xamarin:
             return (["Ice/.*"],
                     ["Ice/hash",
                      "Ice/faultTolerance",
@@ -109,7 +96,7 @@ class Ice(Component):
                      "Ice/logger",
                      "Ice/properties",
                      "Ice/slicing/*"])
-        elif isinstance(mapping, AndroidMappingMixin):
+        elif isinstance(mapping, JavaMapping) and config.android:
             return (["Ice/.*"],
                     ["Ice/hash",
                      "Ice/faultTolerance",
@@ -119,6 +106,8 @@ class Ice(Component):
                      "Ice/plugin",
                      "Ice/logger",
                      "Ice/properties"])
+        elif isinstance(mapping, JavaScriptMapping):
+            return ([], ["typescript/.*", "es5/*"])
         return ([], [])
 
     def canRun(self, testId, mapping, current):
@@ -149,7 +138,7 @@ class Ice(Component):
             elif parent in ["Glacier2"] and testId not in ["Glacier2/application", "Glacier2/sessionHelper"]:
                 return False
 
-        if isinstance(mapping, XamarinAndroidMapping) or isinstance(mapping, XamarinIOSMapping):
+        if current.config.xamarin and not current.config.uwp:
             #
             # With Xamarin on Android and iOS Ice/udp is only supported with IPv4
             #
@@ -164,7 +153,8 @@ class Ice(Component):
         return True
 
     def isMainThreadOnly(self, testId):
-        return testId.startswith("IceStorm") # TODO: WORKAROUND for ICE-8175
+        #return testId.startswith("IceStorm") # TODO: WORKAROUND for ICE-8175
+        return False # By default, tests support being run concurrently
 
     def getDefaultProcesses(self, mapping, processType, testId):
         if testId.startswith("IceUtil") or testId.startswith("Slice"):
@@ -204,17 +194,17 @@ class Ice(Component):
         ]
 
     def getSoVersion(self):
-        config = open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r")
-        intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
-        majorVersion = int(intVersion / 10000)
-        minorVersion = int(intVersion / 100) - 100 * majorVersion
-        patchVersion = intVersion % 100
-        if patchVersion < 50:
-            return '%d' % (majorVersion * 10 + minorVersion)
-        elif patchVersion < 60:
-            return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
-        else:
-            return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
+        with open(os.path.join(toplevel, "cpp", "include", "IceUtil", "Config.h"), "r") as config:
+            intVersion = int(re.search("ICE_INT_VERSION ([0-9]*)", config.read()).group(1))
+            majorVersion = int(intVersion / 10000)
+            minorVersion = int(intVersion / 100) - 100 * majorVersion
+            patchVersion = intVersion % 100
+            if patchVersion < 50:
+                return '%d' % (majorVersion * 10 + minorVersion)
+            elif patchVersion < 60:
+                return '%da%d' % (majorVersion * 10 + minorVersion, patchVersion - 50)
+            else:
+                return '%db%d' % (majorVersion * 10 + minorVersion, patchVersion - 60)
 
 component = Ice()
 
@@ -230,58 +220,41 @@ from IceStormUtil import *
 #
 for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(toplevel)):
     if m == "cpp" or re.match("cpp-.*", m):
-        Mapping.add(m, CppMapping())
+        Mapping.add(m, CppMapping(), component)
     elif m == "java-compat" or re.match("java-compat-.*", m):
-        Mapping.add(m, JavaCompatMapping())
+        Mapping.add(m, JavaCompatMapping(), component)
     elif m == "java" or re.match("java-.*", m):
-        Mapping.add(m, JavaMapping())
+        Mapping.add(m, JavaMapping(), component)
     elif m == "python" or re.match("python-.*", m):
-        Mapping.add(m, PythonMapping())
+        Mapping.add(m, PythonMapping(), component)
     elif m == "ruby" or re.match("ruby-.*", m):
-        Mapping.add(m, RubyMapping())
+        Mapping.add(m, RubyMapping(), component)
     elif m == "php" or re.match("php-.*", m):
-        Mapping.add(m, PhpMapping())
+        Mapping.add(m, PhpMapping(), component)
     elif m == "js" or re.match("js-.*", m):
-        Mapping.add(m, JavaScriptMapping())
+        Mapping.add(m, JavaScriptMapping(), component)
+        Mapping.add("typescript", TypeScriptMapping(), component, "js")
     elif m == "objective-c" or re.match("objective-c-*", m):
-        Mapping.add(m, ObjCMapping())
+        Mapping.add(m, ObjCMapping(), component)
     elif m == "csharp" or re.match("charp-.*", m):
-        Mapping.add("csharp", CSharpMapping())
+        Mapping.add("csharp", CSharpMapping(), component)
 
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
     Mapping.remove("ruby")
-    if platform.getCompiler() != "VC140":
+    if platform.getCompiler() != "v140":
         Mapping.remove("python")
-    if platform.getCompiler() not in ["VC140", "VC141"]:
+    if platform.getCompiler() not in ["v140", "v141"]:
         Mapping.remove("php")
 elif not platform.hasDotNet():
     # Remove C# if Dot Net Core isn't supported
     Mapping.remove("csharp")
 
 #
-# Check if the Android SDK is installed and eventually add the Android mappings
-#
-try:
-    run("adb version")
-    Mapping.add(os.path.join("java-compat", "android"), AndroidCompatMapping())
-    Mapping.add(os.path.join("java", "android"), AndroidMapping())
-    if (isinstance(platform, Windows) and platform.getCompiler() == "VC141") or isinstance(platform, Darwin):
-        Mapping.add(os.path.join("csharp", "xamarin", "android"), XamarinAndroidMapping())
-except:
-    pass
-
-if isinstance(platform, Windows) and platform.getCompiler() == "VC141":
-    Mapping.add(os.path.join("csharp", "xamarin", "uwp"), XamarinUWPMapping())
-
-if isinstance(platform, Darwin):
-    Mapping.add(os.path.join("csharp", "xamarin", "ios"), XamarinIOSMapping())
-
-#
 # Check if Matlab is installed and eventually add the Matlab mapping
 #
 try:
     run("where matlab" if isinstance(platform, Windows) else "which matlab")
-    Mapping.add("matlab", MatlabMapping())
+    Mapping.add("matlab", MatlabMapping(), component)
 except:
     pass

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -13,6 +10,8 @@
 #include <Ice/LocalException.h>
 #include <Ice/Communicator.h>
 #include <Ice/ObjectAdapter.h>
+
+#include <IceUtil/Random.h>
 
 #include <iterator>
 
@@ -172,7 +171,7 @@ LocatorRegistryI::findObject(const Ice::Identity& id) const
         return 0;
     }
 
-    random_shuffle(adapterIds.begin(), adapterIds.end());
+    IceUtilInternal::shuffle(adapterIds.begin(), adapterIds.end());
     return prx->ice_adapterId(adapterIds[0]);
 }
 

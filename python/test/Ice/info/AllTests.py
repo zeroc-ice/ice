@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -25,7 +22,7 @@ def getTCPConnectionInfo(info):
             return info
         info = info.underlying
 
-def allTests(communicator):
+def allTests(helper, communicator):
     sys.stdout.write("testing proxy endpoint information... ")
     sys.stdout.flush()
 
@@ -104,8 +101,8 @@ def allTests(communicator):
 
     adapter.destroy()
 
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 12020")
-    communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 12020")
+    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -h * -p 15000")
+    communicator.getProperties().setProperty("TestAdapter.PublishedEndpoints", "default -h 127.0.0.1 -p 15000")
     adapter = communicator.createObjectAdapter("TestAdapter")
 
     endpoints = adapter.getEndpoints()
@@ -116,26 +113,28 @@ def allTests(communicator):
 
     for i in range(0, len(endpoints)):
         tcpEndpoint = getTCPEndpointInfo(endpoints[i].getInfo())
-        test(tcpEndpoint.port == 12020)
+        test(tcpEndpoint.port == 15000)
 
     tcpEndpoint = getTCPEndpointInfo(publishedEndpoints[0].getInfo())
     test(tcpEndpoint.host == "127.0.0.1")
-    test(tcpEndpoint.port == 12020)
+    test(tcpEndpoint.port == 15000)
 
     adapter.destroy()
 
     print("ok")
 
-    base = communicator.stringToProxy("test:default -p 12010:udp -p 12010")
+    base = communicator.stringToProxy("test:{0}:{1}".format(helper.getTestEndpoint(),
+                                                            helper.getTestEndpoint(protocol="udp")))
     testIntf = Test.TestIntfPrx.checkedCast(base)
 
     sys.stdout.write("test connection endpoint information... ")
     sys.stdout.flush()
 
     defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
+    port = helper.getTestPort()
 
     tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
-    test(tcpinfo.port == 12010)
+    test(tcpinfo.port == port)
     test(not tcpinfo.compress)
     test(tcpinfo.host == defaultHost)
 
@@ -146,7 +145,7 @@ def allTests(communicator):
     test(port > 0)
 
     udp = base.ice_datagram().ice_getConnection().getEndpoint().getInfo()
-    test(udp.port == 12010)
+    test(udp.port == port)
     test(udp.host == defaultHost)
 
     print("ok")
@@ -161,7 +160,7 @@ def allTests(communicator):
     tcpinfo = getTCPConnectionInfo(info)
     test(not info.incoming)
     test(len(info.adapterName) == 0)
-    test(tcpinfo.remotePort == 12010)
+    test(tcpinfo.remotePort == port)
     if defaultHost == '127.0.0.1':
         test(tcpinfo.remoteAddress == defaultHost)
         test(tcpinfo.localAddress == defaultHost)

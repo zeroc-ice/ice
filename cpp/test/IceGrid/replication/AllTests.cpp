@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -253,13 +250,13 @@ allTests(Test::TestHelper* helper)
     IceGrid::RegistryPrx registry = IceGrid::RegistryPrx::checkedCast(
         comm->stringToProxy(comm->getDefaultLocator()->ice_getIdentity().category + "/Registry"));
 
-    AdminSessionPrx session = registry->createAdminSession("foo", "bar");
+    AdminSessionPrx adminSession = registry->createAdminSession("foo", "bar");
 
-    session->ice_getConnection()->setACM(registry->getACMTimeout(),
+    adminSession->ice_getConnection()->setACM(registry->getACMTimeout(),
                                          IceUtil::None,
                                          Ice::ICE_ENUM(ACMHeartbeat, HeartbeatAlways));
 
-    AdminPrx admin = session->getAdmin();
+    AdminPrx admin = adminSession->getAdmin();
     test(admin);
 
     map<string, string> params;
@@ -782,22 +779,24 @@ allTests(Test::TestHelper* helper)
     params["id"] = "Node1";
     instantiateServer(admin, "IceGridNode", params);
 
-    //
-    // Add an application which is using Node1. Otherwise, when a
-    // registry restarts it would throw aways the proxy of the nodes
-    // because the node isn't used by any application.
-    //
-    ApplicationDescriptor app;
-    app.name = "DummyApp";
-    app.nodes["Node1"].description = "dummy node";
-    try
     {
-        masterAdmin->addApplication(app);
-    }
-    catch(const Ice::Exception& ex)
-    {
-        cerr << ex << endl;
-        test(false);
+        //
+        // Add an application which is using Node1. Otherwise, when a
+        // registry restarts it would throw aways the proxy of the nodes
+        // because the node isn't used by any application.
+        //
+        ApplicationDescriptor app;
+        app.name = "DummyApp";
+        app.nodes["Node1"].description = "dummy node";
+        try
+        {
+            masterAdmin->addApplication(app);
+        }
+        catch(const Ice::Exception& ex)
+        {
+            cerr << ex << endl;
+            test(false);
+        }
     }
 
     //
@@ -995,8 +994,8 @@ allTests(Test::TestHelper* helper)
         {
             cerr << ex << endl;
 
-            ApplicationInfo app = admin->getApplicationInfo("Test");
-            cerr << "properties-override = " << app.descriptor.variables["properties-override"] << endl;
+            ApplicationInfo appInfo = admin->getApplicationInfo("Test");
+            cerr << "properties-override = " << appInfo.descriptor.variables["properties-override"] << endl;
 
             PropertyDescriptorSeq& seq = admin->getServerInfo("Node1").descriptor->propertySet.properties;
             for(PropertyDescriptorSeq::const_iterator p = seq.begin(); p != seq.end(); ++p)

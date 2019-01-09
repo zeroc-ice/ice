@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -224,7 +221,7 @@ IceSSL::SSLEngine::verifyPeerCertName(const string& address, const ConnectionInf
 }
 
 void
-IceSSL::SSLEngine::verifyPeer(const string& address, const ConnectionInfoPtr& info, const string& desc)
+IceSSL::SSLEngine::verifyPeer(const string& /*address*/, const ConnectionInfoPtr& info, const string& desc)
 {
     const CertificateVerifierPtr verifier = getCertificateVerifier();
     if(_verifyDepthMax > 0 && static_cast<int>(info->certs.size()) > _verifyDepthMax)

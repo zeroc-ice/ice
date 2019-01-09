@@ -1,23 +1,15 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
-
 import Ice
-slice_dir = Ice.getSliceDir()
-if not slice_dir:
-    print(sys.argv[0] + ': Slice directory not found.')
-    sys.exit(1)
-
-Ice.loadSlice("'-I" + slice_dir + "' Test.ice")
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import Test
+
 
 class ServerLocatorRegistry(Test.TestLocatorRegistry):
     def __init__(self):
@@ -56,6 +48,7 @@ class ServerLocatorRegistry(Test.TestLocatorRegistry):
             raise Ice.ObjectNotFoundException()
         return self._objects[id]
 
+
 class ServerLocator(Test.TestLocator):
 
     def __init__(self, registry, registryPrx):
@@ -77,12 +70,14 @@ class ServerLocator(Test.TestLocator):
     def getRequestCount(self, current=None):
         return self._requestCount
 
+
 class ServerManagerI(Test.ServerManager):
-    def __init__(self, registry, initData):
+    def __init__(self, registry, initData, helper):
         self._registry = registry
         self._communicators = []
         self._initData = initData
         self._nextPort = 1
+        self._helper = helper;
         self._initData.properties.setProperty("TestAdapter.AdapterId", "TestAdapter")
         self._initData.properties.setProperty("TestAdapter.ReplicaGroupId", "ReplicatedAdapter")
         self._initData.properties.setProperty("TestAdapter2.AdapterId", "TestAdapter2")
@@ -97,25 +92,25 @@ class ServerManagerI(Test.ServerManager):
         # its endpoints with the locator and create references containing
         # the adapter id instead of the endpoints.
         #
-        serverCommunicator = Ice.initialize(data=initData)
+        serverCommunicator = Ice.initialize(self._initData)
         self._communicators.append(serverCommunicator)
-
-        def getTestEndpoint():
-            self._nextPort += 1
-            return "default -p {}".format(12010 + self._nextPort)
 
         nRetry = 10
         while --nRetry > 0:
             adapter = None
             adapter2 = None
             try:
-                serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints", getTestEndpoint())
-                serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints", getTestEndpoint())
+                serverCommunicator.getProperties().setProperty("TestAdapter.Endpoints",
+                                                               self._helper.getTestEndpoint(num=self._nextPort))
+                self._nextPort += 1
+                serverCommunicator.getProperties().setProperty("TestAdapter2.Endpoints",
+                                                               self._helper.getTestEndpoint(num=self._nextPort))
+                self._nextPort += 1
 
                 adapter = serverCommunicator.createObjectAdapter("TestAdapter")
                 adapter2 = serverCommunicator.createObjectAdapter("TestAdapter2")
 
-                locator = serverCommunicator.stringToProxy("locator:default -p 12010")
+                locator = serverCommunicator.stringToProxy("locator:{0}".format(self._helper.getTestEndpoint()))
                 adapter.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
                 adapter2.setLocator(Ice.LocatorPrx.uncheckedCast(locator))
 
@@ -143,9 +138,11 @@ class ServerManagerI(Test.ServerManager):
             i.destroy()
         current.adapter.getCommunicator().shutdown()
 
+
 class HelloI(Test.Hello):
     def sayHello(self, current=None):
         pass
+
 
 class TestI(Test.TestIntf):
     def __init__(self, adapter, adapter2, registry):
@@ -170,45 +167,38 @@ class TestI(Test.TestIntf):
         except Ice.NotRegisteredException:
             self._registry.addObject(self._adapter1.add(self._adapter2.remove(id), id))
 
-def run(args, communicator, initData):
-    #
-    # Register the server manager. The server manager creates a new
-    # 'server' (a server isn't a different process, it's just a new
-    # communicator and object adapter).
-    #
-    properties = communicator.getProperties()
-    properties.setProperty("Ice.ThreadPool.Server.Size", "2")
-    properties.setProperty("ServerManager.Endpoints", "default -p 12010")
 
-    adapter = communicator.createObjectAdapter("ServerManager")
+class Server(TestHelper):
 
-    #
-    # We also register a sample server locator which implements the
-    # locator interface, this locator is used by the clients and the
-    # 'servers' created with the server manager interface.
-    #
-    registry = ServerLocatorRegistry()
-    registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
-    object = ServerManagerI(registry, initData)
-    adapter.add(object, Ice.stringToIdentity("ServerManager"))
+    def run(self, args):
 
-    registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry, Ice.stringToIdentity("registry")))
+        initData = Ice.InitializationData()
+        initData.properties = self.createTestProperties(args)
 
-    locator = ServerLocator(registry, registryPrx)
-    adapter.add(locator, Ice.stringToIdentity("locator"))
+        with self.initialize(initData=initData) as communicator:
+            #
+            # Register the server manager. The server manager creates a new
+            # 'server' (a server isn't a different process, it's just a new
+            # communicator and object adapter).
+            #
+            communicator.getProperties().setProperty("Ice.ThreadPool.Server.Size", "2")
+            communicator.getProperties().setProperty("ServerManager.Endpoints", self.getTestEndpoint())
 
-    adapter.activate()
-    communicator.waitForShutdown()
+            adapter = communicator.createObjectAdapter("ServerManager")
 
-    return True
+            #
+            # We also register a sample server locator which implements the
+            # locator interface, this locator is used by the clients and the
+            # 'servers' created with the server manager interface.
+            #
+            registry = ServerLocatorRegistry()
+            registry.addObject(adapter.createProxy(Ice.stringToIdentity("ServerManager")))
+            adapter.add(ServerManagerI(registry, initData, self), Ice.stringToIdentity("ServerManager"))
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator, initData)
-except:
-    traceback.print_exc()
-    status = False
+            registryPrx = Ice.LocatorRegistryPrx.uncheckedCast(adapter.add(registry, Ice.stringToIdentity("registry")))
 
-sys.exit(not status)
+            locator = ServerLocator(registry, registryPrx)
+            adapter.add(locator, Ice.stringToIdentity("locator"))
+
+            adapter.activate()
+            communicator.waitForShutdown()

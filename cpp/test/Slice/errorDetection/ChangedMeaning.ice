@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -80,11 +77,9 @@ exception e2 {}
 
 module E
 {
-
     exception ee1 extends e1 {}
     exception e1 {}            // Changed meaning
     exception e2 extends e2 {} // Changed meaning
-
 }
 
 interface c1 {}
@@ -93,22 +88,17 @@ class c2 {}
 
 module C
 {
-
     class cc1 implements c1 {}
     class c1 {}                // Changed meaning
     class c2 extends c2 {}     // Changed meaning
-
 }
 
 enum color { blue }
 
 module B
 {
-
     const color fc = blue;
-
     interface blue {}          // OK as of Ice 3.7 (enumerators are in their enum's namespace)
-
 }
 
 enum counter { one, two }

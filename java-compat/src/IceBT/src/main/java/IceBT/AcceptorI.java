@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -22,9 +19,10 @@ final class AcceptorI implements IceInternal.Acceptor
     }
 
     @Override
-    public void setReadyCallback(IceInternal.ReadyCallback callback)
+    public synchronized void setReadyCallback(IceInternal.ReadyCallback callback)
     {
         _readyCallback = callback;
+        notify(); // Notify the acceptor thread
     }
 
     @Override
@@ -168,9 +166,26 @@ final class AcceptorI implements IceInternal.Acceptor
 
     private void runAccept()
     {
-        try
+        synchronized(this)
         {
-            while(true)
+            //
+            // Wait for the ready callback to be set by the selector.
+            //
+            while(_readyCallback == null)
+            {
+                try
+                {
+                    wait();
+                }
+                catch(InterruptedException ex)
+                {
+                }
+            }
+        }
+
+        while(true)
+        {
+            try
             {
                 BluetoothSocket socket = _socket.accept();
                 synchronized(this)
@@ -184,13 +199,14 @@ final class AcceptorI implements IceInternal.Acceptor
                     _readyCallback.ready(IceInternal.SocketOperation.Read, true);
                 }
             }
-        }
-        catch(Exception ex)
-        {
-            synchronized(this)
+            catch(Exception ex)
             {
-                if(!_closed)
+                synchronized(this)
                 {
+                    if(_closed)
+                    {
+                        break;
+                    }
                     _exception = ex;
                     _readyCallback.ready(IceInternal.SocketOperation.Read, true);
                 }
@@ -200,14 +216,7 @@ final class AcceptorI implements IceInternal.Acceptor
         //
         // Close any remaining incoming sockets that haven't been accepted yet.
         //
-        java.util.Stack<BluetoothSocket> pending;
-        synchronized(this)
-        {
-            pending = _pending;
-            _pending = null;
-        }
-
-        for(BluetoothSocket s : pending)
+        for(BluetoothSocket s : _pending)
         {
             try
             {
@@ -218,6 +227,7 @@ final class AcceptorI implements IceInternal.Acceptor
                 // Ignore.
             }
         }
+        _pending.clear();
     }
 
     private EndpointI _endpoint;

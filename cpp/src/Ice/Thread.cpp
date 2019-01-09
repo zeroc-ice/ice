@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -205,16 +202,24 @@ IceUtil::Thread::start(size_t, int)
     }
 
     //
-    // It's necessary to increment the reference count since
-    // pthread_create won't necessarily call the thread function until
+    // It's necessary to increment the reference count since the
+    // thread constructor won't necessarily call the thread function until
     // later. If the user does (new MyThread)->start() then the thread
     // object could be deleted before the thread object takes
     // ownership. It's also necessary to increment the reference count
-    // prior to calling pthread_create since the thread itself calls
-    // __decRef().
+    // prior to calling the thread constructor since the thread start hook
+    // itself calls __decRef().
     //
-    __incRef();
-    _thread.reset(new thread(startHook, this));
+    try
+    {
+        __incRef();
+        _thread.reset(new thread(startHook, this));
+    }
+    catch(const std::system_error&)
+    {
+        __decRef();
+        throw;
+    }
 
     _started = true;
     _running = true;
@@ -467,6 +472,7 @@ IceUtil::Thread::start(size_t stackSize, int priority)
     }
     if(SetThreadPriority(_handle, priority) == 0)
     {
+        __decRef();
         throw ThreadSyscallException(__FILE__, __LINE__, GetLastError());
     }
     if(static_cast<int>(ResumeThread(_handle)) == -1)
@@ -558,8 +564,8 @@ IceUtil::ThreadControl::join()
         throw BadThreadControlException(__FILE__, __LINE__);
     }
 
-    void* ignore = 0;
-    int rc = pthread_join(_thread, &ignore);
+    void* status = 0;
+    int rc = pthread_join(_thread, &status);
     if(rc != 0)
     {
         throw ThreadSyscallException(__FILE__, __LINE__, rc);

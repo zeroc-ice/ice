@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -12,6 +9,10 @@
 #include <Ice/Router.h>
 #include <TestHelper.h>
 #include <Test.h>
+
+#ifdef _MSC_VER
+#   pragma warning(disable:4125) // decimal digit terminates octal escape sequence
+#endif
 
 using namespace std;
 
@@ -1122,30 +1123,30 @@ allTests(Test::TestHelper* helper)
     cout << "ok" << endl;
 
     cout << "testing checked cast with context... " << flush;
-    Ice::Context c = cl->getContext();
-    test(c.size() == 0);
+    Ice::Context ctx = cl->getContext();
+    test(ctx.size() == 0);
 
-    c["one"] = "hello";
-    c["two"] = "world";
+    ctx["one"] = "hello";
+    ctx["two"] = "world";
 #ifdef ICE_CPP11_MAPPING
-    cl = Ice::checkedCast<Test::MyClassPrx>(base, c);
+    cl = Ice::checkedCast<Test::MyClassPrx>(base, ctx);
 #else
-    cl = Test::MyClassPrx::checkedCast(base, c);
+    cl = Test::MyClassPrx::checkedCast(base, ctx);
 #endif
     Ice::Context c2 = cl->getContext();
-    test(c == c2);
+    test(ctx == c2);
 
     //
     // Now with alternate API
     //
 #ifndef ICE_CPP11_MAPPING
     cl = Ice::checkedCast<Test::MyClassPrx>(base);
-    c = cl->getContext();
-    test(c.size() == 0);
+    ctx = cl->getContext();
+    test(ctx.size() == 0);
 
-    cl = Ice::checkedCast<Test::MyClassPrx>(base, c);
+    cl = Ice::checkedCast<Test::MyClassPrx>(base, ctx);
     c2 = cl->getContext();
-    test(c == c2);
+    test(ctx == c2);
 #endif
     cout << "ok" << endl;
 
@@ -1161,7 +1162,7 @@ allTests(Test::TestHelper* helper)
                 test(cl->ice_secure(true)->ice_fixed(connection)->ice_isSecure());
                 test(cl->ice_facet("facet")->ice_fixed(connection)->ice_getFacet() == "facet");
                 test(cl->ice_oneway()->ice_fixed(connection)->ice_isOneway());
-                Ice::Context ctx;
+                ctx.clear();
                 ctx["one"] = "hello";
                 ctx["two"] = "world";
                 test(cl->ice_fixed(connection)->ice_getContext().empty());
@@ -1432,8 +1433,10 @@ allTests(Test::TestHelper* helper)
     test(pstr == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
 
     // Opaque endpoint encoded with 1.1 encoding.
-    Ice::ObjectPrxPtr p2 = communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
-    test(communicator->proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+    {
+        Ice::ObjectPrxPtr p2 = communicator->stringToProxy("test -e 1.1:opaque -e 1.1 -t 1 -v CTEyNy4wLjAuMeouAAAQJwAAAA==");
+        test(communicator->proxyToString(p2) == "test -t -e 1.1:tcp -h 127.0.0.1 -p 12010 -t 10000");
+    }
 
     if(communicator->getProperties()->getPropertyAsInt("Ice.IPv6") == 0 &&
        communicator->getProperties()->getProperty("Ice.Default.Host") == "127.0.0.1")

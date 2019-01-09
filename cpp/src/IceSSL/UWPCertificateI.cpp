@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -224,11 +221,11 @@ UWP::Certificate::create(Windows::Security::Cryptography::Certificates::Certific
 }
 
 UWP::CertificatePtr
-UWP::Certificate::load(const std::string& file)
+UWP::Certificate::load(const std::string& filename)
 {
     try
     {
-        auto uri = ref new Uri(ref new String(stringToWstring(file).c_str()));
+        auto uri = ref new Uri(ref new String(stringToWstring(filename).c_str()));
         auto file = create_task(StorageFile::GetFileFromApplicationUriAsync(uri)).get();
         auto buffer = create_task(FileIO::ReadTextAsync(file)).get();
         return UWP::Certificate::decode(wstringToString(buffer->Data()));
@@ -237,7 +234,7 @@ UWP::Certificate::load(const std::string& file)
     {
         if(HRESULT_CODE(ex->HResult) == ERROR_FILE_NOT_FOUND)
         {
-            throw CertificateReadException(__FILE__, __LINE__, "error opening file :" + file);
+            throw CertificateReadException(__FILE__, __LINE__, "error opening file :" + filename);
         }
         else
         {

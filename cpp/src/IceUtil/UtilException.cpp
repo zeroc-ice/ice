@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -56,7 +53,10 @@
 #   endif
 #endif
 
-#if defined(_WIN32) && !defined(ICE_OS_UWP) && !defined(__MINGW32__)
+//
+// The Slice compilers don't retrieve the exception stack traces so we don't need the DbgHelp calls.
+//
+#if defined(_WIN32) && !defined(ICE_OS_UWP) && !defined(__MINGW32__) && !defined(ICE_BUILDING_SLICE_COMPILERS)
 #   define ICE_DBGHELP
 #   if defined(_MSC_VER) && (_MSC_VER >= 1700)
 #       define DBGHELP_TRANSLATE_TCHAR
@@ -114,13 +114,13 @@ HANDLE process = 0;
 backtrace_state* bstate = 0;
 
 void
-ignoreErrorCallback(void*, const char* msg, int errnum)
+ignoreErrorCallback(void*, const char* /*msg*/, int /*errnum*/)
 {
     // cerr << "Error callback: " << msg << ", errnum = " << errnum << endl;
 }
 
 int
-ignoreFrame(void*, uintptr_t pc, const char*, int, const char*)
+ignoreFrame(void*, ICE_MAYBE_UNUSED uintptr_t pc, const char*, int, const char*)
 {
     assert(pc == 0);
     return 0;
@@ -301,7 +301,7 @@ printFrame(void* data, uintptr_t pc, const char* filename, int lineno, const cha
 #ifdef ICE_LIBBACKTRACE
 
 void
-handlePcInfoError(void* data, const char* msg, int errnum)
+handlePcInfoError(void* data, const char* /*msg*/, int /*errnum*/)
 {
     FrameInfo& frameInfo = *reinterpret_cast<FrameInfo*>(data);
     printFrame(&frameInfo, frameInfo.pc, 0, 0, 0);
@@ -379,6 +379,7 @@ getStackTrace(const vector<void*>& stackFrames)
     // Note: the Sym functions are not thread-safe
     //
     IceUtilInternal::MutexPtrLock<IceUtil::Mutex> lock(globalMutex);
+    bool refreshModuleList = process != 0;
     if(process == 0)
     {
         process = GetCurrentProcess();
@@ -412,8 +413,10 @@ getStackTrace(const vector<void*>& stackFrames)
 
     lock.acquire();
 
-    // TODO: call SymRefreshModuleList here? (not available on XP)
-
+    if(refreshModuleList && SymRefreshModuleList(process) == 0)
+    {
+        return "No stack trace: SymRefreshModuleList failed with " + IceUtilInternal::errorToString(GetLastError());
+    }
 #ifdef DBGHELP_TRANSLATE_TCHAR
     const IceUtil::StringConverterPtr converter = IceUtil::getProcessStringConverter();
 #endif

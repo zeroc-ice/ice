@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 #ifndef FILTER_I_H
@@ -15,6 +12,10 @@
 #include <string>
 #include <vector>
 #include <list>
+
+#ifdef _MSC_VER
+#   pragma warning(disable:4505) // unreferenced local function has been removed
+#endif
 
 namespace Glacier2
 {

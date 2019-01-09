@@ -5,10 +5,10 @@
   </PropertyGroup>
   <Import Project="..\..\cpp\msbuild\Ice.Cpp98.props" />
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='Win32'">
-    <PythonHome>C:\Program Files (x86)\Python36</PythonHome>
+    <PythonHome Condition="'$(PythonHome)' == ''">C:\Program Files (x86)\Python37-32</PythonHome>
   </PropertyGroup>
   <PropertyGroup Label="UserMacros" Condition="'$(Platform)'=='x64'">
-    <PythonHome>C:\Program Files\Python36</PythonHome>
+    <PythonHome Condition="'$(PythonHome)' == ''">C:\Program Files\Python37</PythonHome>
   </PropertyGroup>
   <ItemGroup>
     <BuildMacro Include="PythonHome">

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -11,19 +8,14 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    const TestHelper = require("TestHelper").TestHelper;
+    const test = TestHelper.test;
 
-    function test(value)
+    class Client extends TestHelper
     {
-        if(!value)
+        allTests()
         {
-            throw new Error("test failed");
-        }
-    }
-
-    function run(out)
-    {
-        try
-        {
+            const out = this.getWriter();
             out.write("testing Slice predefined macros... ");
 
             const d = new Test._Default();
@@ -39,15 +31,16 @@
             test(c.version == Ice.intVersion());
 
             out.writeLine("ok");
-            return Promise.resolve();
         }
-        catch(ex)
+
+        run(args)
         {
-            return Promise.reject(ex);
+            this.allTests();
         }
     }
-
-    exports._test = run;
+    exports.Client = Client;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));

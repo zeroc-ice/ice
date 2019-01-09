@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -39,7 +36,7 @@ InitialI::pingPong(shared_ptr<Value> obj, const Current& current)
 }
 #else
 Ice::ValuePtr
-InitialI::pingPong(const Ice::ValuePtr& obj, const Current& current)
+InitialI::pingPong(const Ice::ValuePtr& obj, const Current&)
 {
   return obj;
 }
@@ -277,9 +274,9 @@ InitialI::opDoubleSeq(ICE_IN(Optional<pair<const Double*, const Double*> >) p1, 
 }
 
 #ifdef ICE_CPP11_MAPPING
-optional<Ice::StringSeq>
-InitialI::opStringSeq(optional<Ice::StringSeq> p1,
-                      optional<Ice::StringSeq>& p3, const Current&)
+Ice::optional<Ice::StringSeq>
+InitialI::opStringSeq(Ice::optional<Ice::StringSeq> p1,
+                      Ice::optional<Ice::StringSeq>& p3, const Current&)
 {
     if(p1)
     {
@@ -345,9 +342,9 @@ InitialI::opFixedStructList(ICE_IN(Optional<pair<const FixedStruct*, const Fixed
 }
 
 #ifdef ICE_CPP11_MAPPING
-optional<VarStructSeq>
-InitialI::opVarStructSeq(optional<VarStructSeq> p1,
-                         optional<VarStructSeq>& p3, const Current&)
+Ice::optional<VarStructSeq>
+InitialI::opVarStructSeq(Ice::optional<VarStructSeq> p1,
+                         Ice::optional<VarStructSeq>& p3, const Current&)
 {
     if(p1)
     {

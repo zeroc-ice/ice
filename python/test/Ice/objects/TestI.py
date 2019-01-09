@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -153,6 +150,18 @@ class InitialI(Test.Initial):
     def getH(self, current=None):
         return HI()
 
+    def getK(self, current=None):
+        return Test.K(Test.L("l"))
+
+    def opValue(self, v1, current=None):
+        return v1, v1
+
+    def opValueSeq(self, v1, current=None):
+        return v1, v1
+
+    def opValueMap(self, v1, current=None):
+        return v1, v1
+
     def getD1(self, d1, current=None):
         return d1
 
@@ -182,6 +191,9 @@ class InitialI(Test.Initial):
 
     def throwInnerSubEx(self, current=None):
         raise Test.Inner.Sub.Ex("Inner::Sub::Ex")
+
+    def opM(self, m, current=None):
+        return (m, m)
 
 class UnexpectedObjectExceptionTestI(Test.UnexpectedObjectExceptionTest):
     def op(self, current=None):

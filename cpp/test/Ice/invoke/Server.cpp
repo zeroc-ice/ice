@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -77,13 +74,6 @@ private:
     Ice::ObjectPtr _blobject;
 };
 
-int
-run(int argc, char* argv[], const Ice::CommunicatorPtr& communicator)
-{
-
-    return EXIT_SUCCESS;
-}
-
 class Server : public Test::TestHelper
 {
 public:
@@ -106,7 +96,7 @@ Server::run(int argc, char** argv)
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
-        cout << argv[0] << ": " << e.reason << endl;
+        cout << argv[0] << ": error: " << e.reason << endl;
         throw;
     }
     bool array = opts.isSet("array");

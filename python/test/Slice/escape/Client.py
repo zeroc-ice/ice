@@ -1,48 +1,42 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
-
-for toplevel in [".", "..", "../..", "../../..", "../../../.."]:
-    toplevel = os.path.normpath(toplevel)
-    if os.path.exists(os.path.join(toplevel, "python", "Ice", "__init__.py")):
-        break
-else:
-    raise RuntimeError("can't find toplevel directory!")
-
+from TestHelper import TestHelper
+TestHelper.loadSlice("Key.ice Clash.ice")
+import sys
 import Ice
-
-Ice.loadSlice('Key.ice')
-Ice.loadSlice('Clash.ice')
-
 import _and
+
 
 class delI(_and._del):
     def _elifAsync(self, _else, current=None):
         pass
 
+
 class execI(_and._exec):
     def _finally(self, current=None):
         assert current.operation == "finally"
 
+
 class ifI(_and._if):
     def _elifAsync(self, _else, current=None):
         pass
+
     def _finally(self, current=None):
         pass
+
     def foo(self, _from, current=None):
         pass
+
 
 class printI(_and._print):
     def _raise(self, _else, _return, _try, _while, _yield, _lambda, _or, _global):
         pass
+
 
 def testtypes():
     sys.stdout.write("Testing generated type names... ")
@@ -74,36 +68,27 @@ def testtypes():
     en = _and.EnumNone._None
     print("ok")
 
-def run(args, communicator):
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", "default -p 12010")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    adapter.add(execI(), Ice.stringToIdentity("test"))
-    adapter.activate()
 
-    sys.stdout.write("Testing operation name... ")
-    sys.stdout.flush()
-    p = _and.execPrx.uncheckedCast(
-        adapter.createProxy(Ice.stringToIdentity("test")));
-    p._finally();
-    print("ok")
+class Client(TestHelper):
 
-    testtypes()
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        #
+        # Its possible to have batch oneway requests dispatched after the
+        # adapter is deactivated due to thread scheduling so we supress
+        # this warning.
+        #
+        properties.setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", "default")
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(execI(), Ice.stringToIdentity("test"))
+            adapter.activate()
 
-    return True
+            sys.stdout.write("Testing operation name... ")
+            sys.stdout.flush()
+            p = _and.execPrx.uncheckedCast(adapter.createProxy(Ice.stringToIdentity("test")))
+            p._finally()
+            print("ok")
 
-try:
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    #
-    # Its possible to have batch oneway requests dispatched after the
-    # adapter is deactivated due to thread scheduling so we supress
-    # this warning.
-    #
-    initData.properties.setProperty("Ice.Warn.Dispatch", "0");
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+            testtypes()

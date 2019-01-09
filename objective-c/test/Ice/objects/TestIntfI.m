@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -13,7 +10,7 @@
 #import <ObjectsDerivedEx.h>
 
 @implementation TestObjectsTestIntfI
--(TestObjectsBase*) opDerived:(ICECurrent *)current
+-(TestObjectsBase*) opDerived:(ICECurrent *)__unused current
 {
    TestObjectsDerived *d = ICE_AUTORELEASE([[TestObjectsDerived alloc] init]);
    d.theS.str = @"S.str";
@@ -22,7 +19,7 @@
    return d;
 }
 
--(void) throwDerived:(ICECurrent *)current
+-(void) throwDerived:(ICECurrent *)__unused current
 {
    @throw [TestObjectsDerivedEx derivedEx:@"reason"];
 }

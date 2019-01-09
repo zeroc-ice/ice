@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -196,9 +193,9 @@ AdapterRequest::invokeWithLookup(const string& domainId, const LookupPrxPtr& loo
         {
             rethrow_exception(ex);
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException& e)
         {
-            self->_lookup->adapterRequestException(self, ex);
+            self->_lookup->adapterRequestException(self, e);
         }
     });
 #else
@@ -235,9 +232,9 @@ ObjectRequest::invokeWithLookup(const string& domainId, const LookupPrxPtr& look
         {
             rethrow_exception(ex);
         }
-        catch(const Ice::LocalException& ex)
+        catch(const Ice::LocalException& e)
         {
-            self->_lookup->objectRequestException(self, ex);
+            self->_lookup->objectRequestException(self, e);
         }
     });
 #else

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -32,7 +29,7 @@ RetryI::op(bool kill, const Ice::Current& current)
 }
 
 int
-RetryI::opIdempotent(int nRetry, const Ice::Current& current)
+RetryI::opIdempotent(int nRetry, const Ice::Current&)
 {
     if(nRetry < 0)
     {
@@ -51,7 +48,7 @@ RetryI::opIdempotent(int nRetry, const Ice::Current& current)
 }
 
 void
-RetryI::opNotIdempotent(const Ice::Current& current)
+RetryI::opNotIdempotent(const Ice::Current&)
 {
     throw Ice::ConnectionLostException(__FILE__, __LINE__);
 }

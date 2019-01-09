@@ -1,13 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/CommunicatorI.h>
 #include <Ice/Instance.h>
 #include <Ice/Properties.h>
@@ -59,7 +55,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         FlushBatch(const CommunicatorFlushBatchAsyncPtr& outAsync,
                    const InstancePtr& instance,
                    InvocationObserver& observer) :
-            OutgoingAsyncBase(instance), _outAsync(outAsync), _observer(observer)
+            OutgoingAsyncBase(instance), _outAsync(outAsync), _parentObserver(observer)
         {
         }
 
@@ -83,7 +79,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
         virtual InvocationObserver&
         getObserver()
         {
-            return _observer;
+            return _parentObserver;
         }
 
         virtual bool handleSent(bool, bool)
@@ -119,7 +115,7 @@ CommunicatorFlushBatchAsync::flushConnection(const ConnectionIPtr& con, Ice::Com
     private:
 
         const CommunicatorFlushBatchAsyncPtr _outAsync;
-        InvocationObserver& _observer;
+        InvocationObserver& _parentObserver;
     };
 
     {

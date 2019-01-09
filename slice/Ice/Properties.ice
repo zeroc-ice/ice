@@ -1,15 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #include <Ice/PropertiesAdmin.ice>
 
@@ -21,6 +29,8 @@
 module Ice
 {
 
+#if !defined(__SLICE2PHP__)
+
 /**
  *
  * A property set used to configure Ice and Ice applications.
@@ -29,7 +39,6 @@ module Ice
  * <em>application-name</em>\[.<em>category</em>\[.<em>sub-category</em>]].<em>name</em>.
  *
  **/
-["php:internal"]
 local interface Properties
 {
     /**
@@ -169,7 +178,7 @@ local interface Properties
      * Get a sequence of command-line options that is equivalent to
      * this property set. Each element of the returned sequence is
      * a command-line option of the form
-     * <tt>--<em>key</em>=<em>value</em></tt>.
+     * <code>--<em>key</em>=<em>value</em></code>.
      *
      * @return The command line options for this property set.
      *
@@ -180,12 +189,12 @@ local interface Properties
      *
      * Convert a sequence of command-line options into properties.
      * All options that begin with
-     * <tt>--<em>prefix</em>.</tt> are
+     * <code>--<em>prefix</em>.</code> are
      * converted into properties. If the prefix is empty, all options
-     * that begin with <tt>--</tt> are converted to properties.
+     * that begin with <code>--</code> are converted to properties.
      *
      * @param prefix The property prefix, or an empty string to
-     * convert all options starting with <tt>--</tt>.
+     * convert all options starting with <code>--</code>.
      *
      * @param options The command-line options.
      *
@@ -199,8 +208,8 @@ local interface Properties
      *
      * Convert a sequence of command-line options into properties.
      * All options that begin with one of the following prefixes
-     * are converted into properties: <tt>--Ice</tt>, <tt>--IceBox</tt>, <tt>--IceGrid</tt>,
-     * <tt>--IcePatch2</tt>, <tt>--IceSSL</tt>, <tt>--IceStorm</tt>, <tt>--Freeze</tt>, and <tt>--Glacier2</tt>.
+     * are converted into properties: <code>--Ice</code>, <code>--IceBox</code>, <code>--IceGrid</code>,
+     * <code>--IcePatch2</code>, <code>--IceSSL</code>, <code>--IceStorm</code>, <code>--Freeze</code>, and <code>--Glacier2</code>.
      *
      * @param options The command-line options.
      *
@@ -210,6 +219,7 @@ local interface Properties
      **/
     StringSeq parseIceCommandLineOptions(StringSeq options);
 
+#ifndef __SLICE2JS__
     /**
      *
      * Load properties from a file.
@@ -218,6 +228,7 @@ local interface Properties
      *
      **/
     void load(string file);
+#endif
 
     /**
      *
@@ -228,5 +239,7 @@ local interface Properties
      **/
     ["cpp:noexcept"] Properties clone();
 }
+
+#endif
 
 }

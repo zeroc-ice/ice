@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -958,7 +955,7 @@ public class AllTests
         // On Windows, the FD limit is very high and there's no way to limit the number of FDs
         // for the server so we don't run this test.
         //
-        if(!System.getProperty("os.name").startsWith("Windows"))
+        if(!System.getProperty("os.name").startsWith("Windows") && !helper.isAndroid())
         {
             out.print("testing FD limit... ");
             out.flush();
@@ -988,7 +985,7 @@ public class AllTests
             catch(com.zeroc.Ice.ConnectionRefusedException ex)
             {
                 // Close the connection now to free a FD (it could be done after the sleep but
-                // there could be race condiutation since the connection might not be closed
+                // there could be race condition since the connection might not be closed
                 // immediately due to threading).
                 test.ice_connectionId("0").ice_getConnection().close(ConnectionClose.GracefullyWithWait);
 

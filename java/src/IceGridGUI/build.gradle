@@ -1,30 +1,38 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-sourceCompatibility = iceSourceCompatibility
-targetCompatibility = iceTargetCompatibility
-
-project.ext.displayName = "IceGridGUI Compat"
+project.ext.displayName = "IceGridGUI"
 project.ext.description = ""
 
-project.ext.macosx = System.properties['os.name'] == "Mac OS X"
+if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
+    ext.os = System.properties['os.name']
+    if(os == "Mac OS X") {
+        ext.platform = "mac"
+        ext.hasJavaFx = true
+    } else if(os.toLowerCase().contains("windows")) {
+        ext.platform = "win"
+        ext.hasJavaFx = true
+    } else if(os.toLowerCase().contains("linux")) {
+        ext.platform = "linux"
+        ext.hasJavaFx = true
+    } else {
+        ext.hasJavaFx = false
+    }
+} else {
+    ext.javafxJar = ['jfxrt.jar',
+                     'lib/jfxrt.jar',
+                     'lib/ext/jfxrt.jar',
+                     'jre/lib/jfxrt.jar',
+                     'jre/lib/ext/jfxrt.jar',
+                     'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
 
-project.ext.javafxJar = ['jfxrt.jar',
-                         'lib/jfxrt.jar',
-                         'lib/ext/jfxrt.jar',
-                         'jre/lib/jfxrt.jar',
-                         'jre/lib/ext/jfxrt.jar',
-                         'lib/javafx-swt.jar'].find{ new File("${System.properties['java.home']}/${it}").exists() }
+    ext.hasJavaFx = javafxJar != null
+}
 
-project.ext.hasJavaFx = javafxJar != null
-
-if(!project.ext.hasJavaFx) {
+if(!hasJavaFx) {
     sourceSets {
         main {
             java {
@@ -34,33 +42,35 @@ if(!project.ext.hasJavaFx) {
     }
 }
 
+// Don't generate javadoc
+javadoc.enabled = false
+
 // Disable deprecation warnings caused by JGoodies
 tasks.withType(JavaCompile) {
     options.deprecation = false
 }
 
-configurations {
-    bundleapp
-}
-
 dependencies {
-      compile project(':ice')
-      compile project(':icessl')
-      compile project(':icelocatordiscovery')
-      compile project(':icebox')
-      compile project(':icestorm')
-      compile project(':glacier2')
-      compile project(':icegrid')
-      compile "com.jgoodies:jgoodies-looks:${jgoodiesLooksVersion}"
-      compile "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
-      bundleapp 'com.panayotis:appbundler:1.0.2'
+      implementation project(':ice')
+      implementation project(':icessl')
+      implementation project(':icelocatordiscovery')
+      implementation project(':icebox')
+      implementation project(':icestorm')
+      implementation project(':glacier2')
+      implementation project(':icegrid')
+      implementation "com.jgoodies:jgoodies-looks:${jgoodiesLooksVersion}"
+      implementation "com.jgoodies:jgoodies-forms:${jgoodiesFormsVersion}"
+
+      if(hasJavaFx && GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
+           implementation "org.openjfx:javafx-base:11:$platform"
+           implementation "org.openjfx:javafx-swing:11:$platform"
+           implementation "org.openjfx:javafx-controls:11:$platform"
+           implementation "org.openjfx:javafx-graphics:11:$platform"
+      }
 }
 
 project.ext.tmpJarName = "IceGridGUITEMP.jar"
 project.ext.jarName = "icegridgui.jar"
-project.ext.env = System.getenv()
-project.ext.keystore = env['JARSIGNER_KEYSTORE']
-project.ext.keystore_password = env['JARSIGNER_KEYSTORE_PASSWORD']
 
 jar {
     archiveName = tmpJarName
@@ -70,105 +80,21 @@ jar {
     }
 }
 
-task signjar() {
-    doLast {
-        if(keystore != null && keystore.length() > 0) {
-            ant.signjar(jar: "${libDir}/${jarName}",
-                        alias: 'zeroc.com',
-                        keystore:"${keystore}",
-                        storepass:"${keystore_password}")
-        }
-    }
-}
-assemble.dependsOn(signjar)
-
 project.ext.libJars = []
 
 project.ext.jarBuilder = "plain-jar.gradle"
 if(icegridguiProguard.toBoolean()) {
-    if(JavaVersion.current() == JavaVersion.VERSION_1_8) {
-        ['rt.jar',
-         'jsse.jar',
-         'i386/default/jclSC170/vm.jar',
-         'amd64/default/jclSC170/vm.jar',
-         'ibmcertpathfw.jar',
-         'math.jar'].each {
-            def jfile = searchFile(["${System.properties['java.home']}"],
-                                   ["${it}", "lib/${it}", "jre/lib/${it}"])
-            if(jfile) {
-                project.ext.libJars << jfile
-            }
-        }
-
-        if(hasJavaFx) {
-            project.ext.libJars << "${System.properties['java.home']}/${javafxJar}"
-        }
+    if(GradleVersion.current() >= GradleVersion.version('4.1') && JavaVersion.current() > JavaVersion.VERSION_1_10) {
+        logger.warn('Proguard does not yet support Java 11. Plain IceGridGUI JAR will be built.')
     }
-    else{
-        ['java.base.jmod',
-         'java.xml.jmod',
-         'java.desktop.jmod',
-         'java.prefs.jmod',
-         'java.naming.jmod',
-         'java.datatransfer.jmod',
-         'javafx.base.jmod',
-         'javafx.controls.jmod',
-         'javafx.graphics.jmod',
-         'javafx.swing.jmod',
-         'java.logging.jmod'].each {
-            project.ext.libJars << "${System.properties['java.home']}/jmods/${it}"
-        }
+    else {
+        project.ext.jarBuilder = "proguard-jar.gradle"
     }
-    project.ext.jarBuilder = "proguard-jar.gradle"
 }
+
 apply from: jarBuilder
-
-if(macosx)
-{
-    def appName = "IceGrid GUI"
-    task bundleapp(dependsOn: signjar) {
-        doLast {
-            ant.taskdef(name: 'bundleapp',
-                        classname: 'com.oracle.appbundler.AppBundlerTask',
-                        classpath: configurations.bundleapp.asPath)
-
-            ant.bundleapp(outputdirectory: "${libDir}",
-                        name: appName,
-                        displayname: appName,
-                        identifier: "com.zeroc.IceGridGUI",
-                        icon: "${projectDir}/src/main/resources/icons/icegrid.icns",
-                        shortversion: "${project.version}",
-                        applicationCategory: "public.app-category.utilities",
-                        mainclassname: "com.zeroc.IceGridGUI/Main",
-                        copyright: "Copyright © 2005-2018 ZeroC, Inc. All rights reserved.") {
-                classpath(file: "${libDir}/${jarName}") {
-                }
-                option(value: "-Dapple.laf.useScreenMenuBar=true") {
-                }
-                option(value: "-Dcom.apple.macos.use-file-dialog-packages=true") {
-                }
-                option(value: "-Dcom.apple.macos.useScreenMenuBar=true") {
-                }
-                option(value: "-Xdock:name=IceGrid GUI") {
-                }
-                option(value: "-Dcom.apple.mrj.application.apple.menu.about.name=${appName}") {
-                }
-            }
-        }
-    }
-    assemble.dependsOn(bundleapp)
-
-    task copyBundle(type: Copy, dependsOn: bundleapp) {
-        from "${libDir}/${appName}.app"
-        into "${DESTDIR}/${prefix}/${appName}.app"
-    }
-}
 
 clean {
     delete("${libDir}/${jarName}")
     delete("${libDir}/IceGrid GUI.app")
-}
-
-if(macosx) {
-    install.dependsOn(copyBundle)
 }

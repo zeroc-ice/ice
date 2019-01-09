@@ -10,43 +10,176 @@ particular aspect of Ice.
 
 - [Changes in Ice 3.7.2](#changes-in-ice-372-pre-release-snapshot)
   * [C++ Changes](#c-changes)
-- [Changes in Ice 3.7.1](#changes-in-ice-371)
-  * [General Changes](#general-changes)
-  * [C++ Changes](#c-changes-1)
-  * [C# Changes](#c%23-changes)
+  * [C# Changes](#c-changes-1)
   * [Java Changes](#java-changes)
   * [JavaScript Changes](#javascript-changes)
   * [MATLAB Changes](#matlab-changes)
+  * [Python Changes](#python-changes)
+- [Changes in Ice 3.7.1](#changes-in-ice-371)
+  * [General Changes](#general-changes)
+  * [C++ Changes](#c-changes-2)
+  * [C# Changes](#c-changes-3)
+  * [Java Changes](#java-changes-1)
+  * [JavaScript Changes](#javascript-changes-1)
+  * [MATLAB Changes](#matlab-changes-1)
   * [Objective-C Changes](#objective-c-changes)
   * [PHP Changes](#php-changes)
-  * [Python Changes](#python-changes)
+  * [Python Changes](#python-changes-1)
   * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
   * [General Changes](#general-changes-1)
-  * [C++ Changes](#c-changes-2)
-  * [C# Changes](#c%23-changes-1)
-  * [Java Changes](#java-changes-1)
-  * [JavaScript Changes](#javascript-changes-1)
+  * [C++ Changes](#c-changes-4)
+  * [C# Changes](#c-changes-5)
+  * [Java Changes](#java-changes-2)
+  * [JavaScript Changes](#javascript-changes-2)
   * [Objective-C Changes](#objective-c-changes-1)
   * [PHP Changes](#php-changes-1)
-  * [Python Changes](#python-changes-1)
+  * [Python Changes](#python-changes-2)
   * [Ruby Changes](#ruby-changes-1)
 
-# Changes in Ice 3.7.2 (Pre-Release Snapshot)
+# Changes in Ice 3.7.2
 
-These are the changes since Ice 3.7.1 included in this pre-release.
+These are the changes since Ice 3.7.1.
+
+## General Changes
+
+- Add support to read properties from HKCU Windows registry, there was already
+  support for reading properties from HKLM Windows registry.
 
 ## C++ Changes
 
+- Fixed a bug where the callback set with the `IceUtil::CtrlCHandler` was not
+  cleared on destruction of the `CtrlCHandler` object. Variables captured by the
+  callback were therefore not released until static destruction. This fix
+  ensures that the destruction of the `CtrlCHandler` object now clears the
+  callback.
+
 - Fixed a debug assert in the Windows SChannel IceSSL implementation which would
-  occur in rare circumstances where SChannel returned SEC_E_INCOMPLETE_MESSAGE
-  with a cbBuffer value of 0. This occurred when running the JavaScript tests
+  occur in rare circumstances where SChannel returned `SEC_E_INCOMPLETE_MESSAGE`
+  with a `cbBuffer` value of 0. This occurred when running the JavaScript tests
   with Firefox and using a C++ debug build.
+
+- Fixed a bug in syslog logger that causes the program name not being correctly
+  displayed with log messages.
+
+- Fixed an IceStorm bug that prevents topics to being correctly restored from
+  the database when there are multiple topics.
+
+- Added support for systemd `Type=Notify` to `Ice::Service`, services
+  started without `--daemon` command line option will send notifications
+  to systemd using the `sd_notify` API.
+
+- Added systemd journal logger, this logger can be enabled by setting the
+  `Ice.UseSystemdJournal` property to a value greater than 1.
+
+- Fixed memory leak in the Ice iAP transport where the `EASession` object wasn't
+  correctly released. Thanks to @astreube on GitHub for reporting and suggesting
+  a fix.
+
+- Fixed a bug in Windows build system that cause wildcard to not be expanded in
+  Slice compiler command line arguments.
+
+- Fixed a bug in the code that parse command line options that cause short command
+  line options to be incorrectly parsed when multiple short command line options
+  are specify together, in which case only the last option was considered.
+
+- Fixed a bug in IceGrid that can result in an ifinite loop if `Ice.ChangeUser` is
+  set and the call to `getpwnam_r` fails with `ERANGE`.
+
+- Fixed SCHannel initialization to use a global mutex to avoid crashes ocurring with
+  latest SChannel updates see:
+
+  https://github.com/zeroc-ice/ice/issues/242
+
+## C# Changes
+
+- Fixed metrics bug where remote invocations for `flushBatchRequests` weren't
+  counted.
+
+- Add ability to build .NET Core assemblies with strong name.
+
+- Add Android and iOS platform support to Ice for .NET Core. Ice test
+  suite has been ported to Xamarin and can be run on iOS and Android.
+
+- Fixed marshaling code removing the unsafe code used in ByteBuffer
+  implementation that was causing problems with mono on Android.
+
+- Fixed a bug in slice2cs that can result in generated code using an
+  invalid namespace qualification for a type see #122
+
+- Remove dependency on Visual Studio Extension for C# builds.
 
 ## Java Changes
 
 - Fixed Android IceSSL issue which would cause SSL connections to hang
   with Android >= 8.0.
+
+- Fixed metrics bug where remote invocations for `flushBatchRequests` weren't
+  counted.
+
+- Improved Javadoc support for the Java mapping (and not Java-Compat). Internal
+  classes and methods with public or protected visibility are now excluded or
+  tagged `@hidden`. Since `@hidden` requires javadoc 9 or greater, javadoc is no
+  longer generated with javadoc 8.
+  The new Gradle target `alljavadoc` generates a complete API reference for all
+  Ice components (Ice, IceSSL, IceGrid, IceStorm, Glacier2, etc.).
+
+- IceGrid GUI settings are now stored in the operating system application data
+  directory `%LOCALAPPDATA%/ZeroC` for Windows, `~/Library/Application Support/ZeroC`
+  for macOS and `~/.ZeroC` for Linux, previous setting are automatically migrated to the
+  new location without user intervention.
+
+- Add support to build IceGrid GUI with OpenJFX and Java 11 JDK.
+
+## JavaScript Changes
+
+- Added TypeScript declaration files for Ice for JavaScript.
+
+- Slice to JavaScript compiler can now generate TypeScript declaration files
+  for JavaScript generated code using `--typescript` command line option.
+
+- Fixed generated code for sequences of interface by value types. The generated
+  sequence helper must use `Ice.Value` as the element type for the sequence
+  and not a class with the name of the interface when the element type is an
+  interface by value.
+
+- Add `OutputStream.writeException` method that was missing, keep
+  `OutputStream.writeUserException` for compatibility with 3.7.0,
+  the later will be removed in the next major release.
+
+- Update JavaScript build system to Babel 7 and gulp 4.0, support for building
+  Ice for JavaScript with NodeJS 4 and NodeJS 5 has been dropped.
+
+## MATLAB Changes
+
+- Fixed a bug that cause slice2matab generated code to throw type conversion
+  exception, this affects classes or struct containing an array mapped to an
+  structure array.
+
+- Add IceSSL::ConnectionInfo to matlab mapping
+
+## PHP Changes
+
+- Fixed Ice for PHP build failure when building with Debug configuration
+  on Windows.
+
+- Fixed a bug that cause generate code to reference undefined variables when
+  require the generated code from a static method.
+
+## Python Changes
+
+- Added support for unmarshaling sequences of basic types using the [buffer
+  protocol][1]. This can be enabled using the metadata `python:array.array`,
+  `python:numpy.ndarray` or `python:memoryview:<factory>`. The first two enable
+  mapping to the `array.array` and `numpy.ndarray` types respectively and the
+  last one allows to specify a custom Python factory function responsible for
+  creating the sequence from a `memoryview` object.
+
+- Added `python:default`, `python:list` and `python:tuple` metadata which are
+  equivalent to `python:seq:default`, `python:seq:list` and `python:seq:tuple`
+  respectively.
+
+- Fixed Python segfault that could occur because of KeyboardInterrupt.
 
 # Changes in Ice 3.7.1
 
@@ -749,3 +882,5 @@ These are the changes since the Ice 3.6 release or snapshot described in
 
 - Fixed a bug that prevented the data members of `IceSSL::ConnectionInfo` from
   being defined correctly.
+
+[1]: https://docs.python.org/3/c-api/buffer.html

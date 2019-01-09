@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -12,7 +9,7 @@
 #import <TestCommon.h>
 
 @implementation TestInterceptorMyObjectI
--(int) add:(int)x y:(int)y current:(ICECurrent*)current
+-(int) add:(int)x y:(int)y current:(ICECurrent*)__unused current
 {
     return x + y;
 }
@@ -28,17 +25,17 @@
     return x + y;
 }
 
--(int) badAdd:(int)x y:(int)y current:(ICECurrent*)current
+-(int) badAdd:(int)__unused x y:(int)__unused y current:(ICECurrent*)__unused current
 {
     @throw [TestInterceptorInvalidInputException invalidInputException];
 }
 
--(int) notExistAdd:(int)x y:(int)y current:(ICECurrent*)current
+-(int) notExistAdd:(int)__unused x y:(int)__unused y current:(ICECurrent*)__unused current
 {
     @throw [ICEObjectNotExistException objectNotExistException:__FILE__ line:__LINE__];
 }
 
--(int) badSystemAdd:(int)x y:(int)y current:(ICECurrent*)current
+-(int) badSystemAdd:(int)__unused x y:(int)__unused y current:(ICECurrent*)__unused current
 {
     @throw [ICEInitializationException initializationException:__FILE__ line:__LINE__ reason:@"testing"];
 }

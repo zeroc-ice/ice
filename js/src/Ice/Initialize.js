@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -21,20 +18,23 @@ const Protocol = Ice.Protocol;
 //
 // Ice.InitializationData
 //
-Ice.InitializationData = function()
+Ice.InitializationData = class
 {
-    this.properties = null;
-    this.logger = null;
-    this.valueFactoryManager = null;
-};
+    constructor()
+    {
+        this.properties = null;
+        this.logger = null;
+        this.valueFactoryManager = null;
+    }
 
-Ice.InitializationData.prototype.clone = function()
-{
-    const r = new Ice.InitializationData();
-    r.properties = this.properties;
-    r.logger = this.logger;
-    r.valueFactoryManager = this.valueFactoryManager;
-    return r;
+    clone()
+    {
+        const r = new Ice.InitializationData();
+        r.properties = this.properties;
+        r.logger = this.logger;
+        r.valueFactoryManager = this.valueFactoryManager;
+        return r;
+    }
 };
 
 //
@@ -105,12 +105,12 @@ Ice.currentEncoding = function()
 
 Ice.stringVersion = function()
 {
-    return "3.7.1"; // "A.B.C", with A=major, B=minor, C=patch
+    return "3.7.2"; // "A.B.C", with A=major, B=minor, C=patch
 };
 
 Ice.intVersion = function()
 {
-    return 30701; // AABBCC, with AA=major, BB=minor, CC=patch
+    return 30702; // AABBCC, with AA=major, BB=minor, CC=patch
 };
 
 module.exports.Ice = Ice;

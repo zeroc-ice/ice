@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -519,23 +516,23 @@ public:
 
     void opMyStructMyEnumD(const Test::MyStructMyEnumD& ro, const Test::MyStructMyEnumD& _do)
     {
-        Test::MyStruct s11 = { 1, 1 };
-        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStruct ms11 = { 1, 1 };
+        Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di1[s12] = ICE_ENUM(Test::MyEnum, enum2);
+        di1[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di1[ms12] = ICE_ENUM(Test::MyEnum, enum2);
         test(_do == di1);
-        Test::MyStruct s22 = { 2, 2 };
-        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStruct ms22 = { 2, 2 };
+        Test::MyStruct ms23 = { 2, 3 };
         test(ro.size() == 4);
-        test(ro.find(s11) != ro.end());
-        test(ro.find(s11)->second == ICE_ENUM(Test::MyEnum, enum1));
-        test(ro.find(s12) != ro.end());
-        test(ro.find(s12)->second == ICE_ENUM(Test::MyEnum, enum2));
-        test(ro.find(s22) != ro.end());
-        test(ro.find(s22)->second == ICE_ENUM(Test::MyEnum, enum3));
-        test(ro.find(s23) != ro.end());
-        test(ro.find(s23)->second == ICE_ENUM(Test::MyEnum, enum2));
+        test(ro.find(ms11) != ro.end());
+        test(ro.find(ms11)->second == ICE_ENUM(Test::MyEnum, enum1));
+        test(ro.find(ms12) != ro.end());
+        test(ro.find(ms12)->second == ICE_ENUM(Test::MyEnum, enum2));
+        test(ro.find(ms22) != ro.end());
+        test(ro.find(ms22)->second == ICE_ENUM(Test::MyEnum, enum3));
+        test(ro.find(ms23) != ro.end());
+        test(ro.find(ms23)->second == ICE_ENUM(Test::MyEnum, enum2));
         called();
     }
 
@@ -737,40 +734,40 @@ public:
 
     void opMyStructMyEnumDS(const Test::MyStructMyEnumDS& ro, const Test::MyStructMyEnumDS& _do)
     {
-        Test::MyStruct s11 = { 1, 1 };
-        Test::MyStruct s12 = { 1, 2 };
-        Test::MyStruct s22 = { 2, 2 };
-        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStruct ms11 = { 1, 1 };
+        Test::MyStruct ms12 = { 1, 2 };
+        Test::MyStruct ms22 = { 2, 2 };
+        Test::MyStruct ms23 = { 2, 3 };
 
         test(ro.size() == 2);
         test(ro[0].size() == 3);
-        test(ro[0].find(s11) != ro[0].end());
-        test(ro[0].find(s11)->second == ICE_ENUM(Test::MyEnum, enum1));
-        test(ro[0].find(s22) != ro[0].end());
-        test(ro[0].find(s22)->second == ICE_ENUM(Test::MyEnum, enum3));
-        test(ro[0].find(s23) != ro[0].end());
-        test(ro[0].find(s23)->second == ICE_ENUM(Test::MyEnum, enum2));
+        test(ro[0].find(ms11) != ro[0].end());
+        test(ro[0].find(ms11)->second == ICE_ENUM(Test::MyEnum, enum1));
+        test(ro[0].find(ms22) != ro[0].end());
+        test(ro[0].find(ms22)->second == ICE_ENUM(Test::MyEnum, enum3));
+        test(ro[0].find(ms23) != ro[0].end());
+        test(ro[0].find(ms23)->second == ICE_ENUM(Test::MyEnum, enum2));
         test(ro[1].size() == 2);
-        test(ro[1].find(s11) != ro[1].end());
-        test(ro[1].find(s11)->second == ICE_ENUM(Test::MyEnum, enum1));
-        test(ro[1].find(s12) != ro[1].end());
-        test(ro[1].find(s12)->second == ICE_ENUM(Test::MyEnum, enum2));
+        test(ro[1].find(ms11) != ro[1].end());
+        test(ro[1].find(ms11)->second == ICE_ENUM(Test::MyEnum, enum1));
+        test(ro[1].find(ms12) != ro[1].end());
+        test(ro[1].find(ms12)->second == ICE_ENUM(Test::MyEnum, enum2));
         test(_do.size() == 3);
         test(_do[0].size() == 1);
-        test(_do[0].find(s23) != _do[0].end());
-        test(_do[0].find(s23)->second == ICE_ENUM(Test::MyEnum, enum3));
+        test(_do[0].find(ms23) != _do[0].end());
+        test(_do[0].find(ms23)->second == ICE_ENUM(Test::MyEnum, enum3));
         test(_do[1].size() == 2);
-        test(_do[1].find(s11) != _do[1].end());
-        test(_do[1].find(s11)->second == ICE_ENUM(Test::MyEnum, enum1));
-        test(_do[1].find(s12) != _do[1].end());
-        test(_do[1].find(s12)->second == ICE_ENUM(Test::MyEnum, enum2));
+        test(_do[1].find(ms11) != _do[1].end());
+        test(_do[1].find(ms11)->second == ICE_ENUM(Test::MyEnum, enum1));
+        test(_do[1].find(ms12) != _do[1].end());
+        test(_do[1].find(ms12)->second == ICE_ENUM(Test::MyEnum, enum2));
         test(_do[2].size() == 3);
-        test(_do[2].find(s11) != _do[2].end());
-        test(_do[2].find(s11)->second == ICE_ENUM(Test::MyEnum, enum1));
-        test(_do[2].find(s22) != _do[2].end());
-        test(_do[2].find(s22)->second == ICE_ENUM(Test::MyEnum, enum3));
-        test(_do[2].find(s23) != _do[2].end());
-        test(_do[2].find(s23)->second == ICE_ENUM(Test::MyEnum, enum2));
+        test(_do[2].find(ms11) != _do[2].end());
+        test(_do[2].find(ms11)->second == ICE_ENUM(Test::MyEnum, enum1));
+        test(_do[2].find(ms22) != _do[2].end());
+        test(_do[2].find(ms22)->second == ICE_ENUM(Test::MyEnum, enum3));
+        test(_do[2].find(ms23) != _do[2].end());
+        test(_do[2].find(ms23)->second == ICE_ENUM(Test::MyEnum, enum2));
         called();
     }
 
@@ -1191,9 +1188,9 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         CallbackPtr cb = ICE_MAKE_SHARED(Callback);
 #ifdef ICE_CPP11_MAPPING
         p->opShortIntLongAsync(10, 11, 12,
-            [&](long long int l1, short s1, int i1, long long int l2)
+            [&](long long int l1, short s1P, int i1, long long int l2)
             {
-                cb->opShortIntLong(l1, s1, i1, l2);
+                cb->opShortIntLong(l1, s1P, i1, l2);
             },
             makeExceptionClosure(cb));
 #else
@@ -1225,9 +1222,9 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         CallbackPtr cb = ICE_MAKE_SHARED(Callback);
 #ifdef ICE_CPP11_MAPPING
         p->opStringAsync("hello", "world",
-            [&](string s1, string s2)
+            [&](string s1P, string s2P)
             {
-                cb->opString(move(s1), move(s2));
+                cb->opString(move(s1P), move(s2P));
             },
             makeExceptionClosure(cb));
 #else
@@ -1729,18 +1726,18 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     }
 
     {
-        Test::MyStruct s11 = { 1, 1 };
-        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStruct ms11 = { 1, 1 };
+        Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di1[s12] = ICE_ENUM(Test::MyEnum, enum2);
+        di1[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di1[ms12] = ICE_ENUM(Test::MyEnum, enum2);
 
-        Test::MyStruct s22 = { 2, 2 };
-        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStruct ms22 = { 2, 2 };
+        Test::MyStruct ms23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di2[s22] = ICE_ENUM(Test::MyEnum, enum3);
-        di2[s23] = ICE_ENUM(Test::MyEnum, enum2);
+        di2[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di2[ms22] = ICE_ENUM(Test::MyEnum, enum3);
+        di2[ms23] = ICE_ENUM(Test::MyEnum, enum2);
 
         CallbackPtr cb = ICE_MAKE_SHARED(Callback);
 #ifdef ICE_CPP11_MAPPING
@@ -1980,21 +1977,21 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyStructMyEnumDS dsi2;
         dsi2.resize(1);
 
-        Test::MyStruct s11 = { 1, 1 };
-        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStruct ms11 = { 1, 1 };
+        Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di1[s12] = ICE_ENUM(Test::MyEnum, enum2);
+        di1[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di1[ms12] = ICE_ENUM(Test::MyEnum, enum2);
 
-        Test::MyStruct s22 = { 2, 2 };
-        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStruct ms22 = { 2, 2 };
+        Test::MyStruct ms23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di2[s22] = ICE_ENUM(Test::MyEnum, enum3);
-        di2[s23] = ICE_ENUM(Test::MyEnum, enum2);
+        di2[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di2[ms22] = ICE_ENUM(Test::MyEnum, enum3);
+        di2[ms23] = ICE_ENUM(Test::MyEnum, enum2);
 
         Test::MyStructMyEnumD di3;
-        di3[s23] = ICE_ENUM(Test::MyEnum, enum3);
+        di3[ms23] = ICE_ENUM(Test::MyEnum, enum3);
 
         dsi1[0] = di1;
         dsi1[1] = di2;
@@ -2350,9 +2347,9 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
             CallbackPtr cb = ICE_MAKE_SHARED(Callback);
 #ifdef ICE_CPP11_MAPPING
             p->opIntSAsync(s,
-                [&](Test::IntS s1)
+                [&](Test::IntS s1P)
                 {
-                    cb->opIntS(s1);
+                    cb->opIntS(s1P);
                 },
                 makeExceptionClosure(cb));
 #else
@@ -2365,94 +2362,96 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     }
 
     {
-        Test::StringStringD ctx;
-        ctx["one"] = "ONE";
-        ctx["two"] = "TWO";
-        ctx["three"] = "THREE";
         {
-            test(p->ice_getContext().empty());
+            Ice::Context ctx;
+            ctx["one"] = "ONE";
+            ctx["two"] = "TWO";
+            ctx["three"] = "THREE";
+            {
+                test(p->ice_getContext().empty());
 #ifdef ICE_CPP11_MAPPING
-            promise<void> prom;
-            p->opContextAsync(
-                [&](Ice::Context c)
-                {
-                    test(c != ctx);
-                    prom.set_value();
-                },
-                [](exception_ptr)
-                {
-                    test(false);
-                });
-            prom.get_future().get();
+                promise<void> prom;
+                p->opContextAsync(
+                    [&](Ice::Context c)
+                    {
+                        test(c != ctx);
+                        prom.set_value();
+                    },
+                    [](exception_ptr)
+                    {
+                        test(false);
+                    });
+                prom.get_future().get();
 #else
-            Ice::AsyncResultPtr r = p->begin_opContext();
-            Ice::Context c = p->end_opContext(r);
-            test(c != ctx);
+                Ice::AsyncResultPtr r = p->begin_opContext();
+                Ice::Context c = p->end_opContext(r);
+                test(c != ctx);
 #endif
-        }
-        {
-            test(p->ice_getContext().empty());
+            }
+            {
+                test(p->ice_getContext().empty());
 #ifdef ICE_CPP11_MAPPING
-            promise<void> prom;
-            p->opContextAsync(
-                [&](Ice::Context c)
-                {
-                    test(c == ctx);
-                    prom.set_value();
-                },
-                [](exception_ptr)
-                {
-                    test(false);
-                }, nullptr, ctx);
-            prom.get_future().get();
+                promise<void> prom;
+                p->opContextAsync(
+                    [&](Ice::Context c)
+                    {
+                        test(c == ctx);
+                        prom.set_value();
+                    },
+                    [](exception_ptr)
+                    {
+                        test(false);
+                    }, nullptr, ctx);
+                prom.get_future().get();
 #else
-            Ice::AsyncResultPtr r = p->begin_opContext(ctx);
-            Ice::Context c = p->end_opContext(r);
-            test(c == ctx);
+                Ice::AsyncResultPtr r = p->begin_opContext(ctx);
+                Ice::Context c = p->end_opContext(r);
+                test(c == ctx);
 #endif
-        }
-        Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
-        test(p2->ice_getContext() == ctx);
-        {
+            }
+            {
+                Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
+                test(p2->ice_getContext() == ctx);
 #ifdef ICE_CPP11_MAPPING
-            promise<void> prom;
-            p2->opContextAsync(
-                [&](Ice::Context c)
-                {
-                    test(c == ctx);
-                    prom.set_value();
-                },
-                [](exception_ptr)
-                {
-                    test(false);
-                });
-            prom.get_future().get();
+                promise<void> prom;
+                p2->opContextAsync(
+                    [&](Ice::Context c)
+                    {
+                        test(c == ctx);
+                        prom.set_value();
+                    },
+                    [](exception_ptr)
+                    {
+                        test(false);
+                    });
+                prom.get_future().get();
 #else
-            Ice::AsyncResultPtr r = p2->begin_opContext();
-            Ice::Context c = p2->end_opContext(r);
-            test(c == ctx);
+                Ice::AsyncResultPtr r = p2->begin_opContext();
+                Ice::Context c = p2->end_opContext(r);
+                test(c == ctx);
 #endif
-        }
-        {
-            Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
+            }
+            {
+                Test::MyClassPrxPtr p2 = ICE_CHECKED_CAST(Test::MyClassPrx, p->ice_context(ctx));
 #ifdef ICE_CPP11_MAPPING
-            promise<void> prom;
-            p2->opContextAsync(
-                [&](Ice::Context c)
-                {
-                    test(c == ctx);
-                    prom.set_value();
-                },
-                [](exception_ptr)
-                {
-                    test(false);
-                }, nullptr, ctx);
-            prom.get_future().get();
+                promise<void> prom;
+                p2->opContextAsync(
+                    [&](Ice::Context c)
+                    {
+                        test(c == ctx);
+                        prom.set_value();
+                    },
+                    [](exception_ptr)
+                    {
+                        test(false);
+                    }, nullptr, ctx);
+                prom.get_future().get();
 #else
-            Ice::AsyncResultPtr r = p2->begin_opContext(ctx);
-            Ice::Context c = p2->end_opContext(r);
-            test(c == ctx);
+                Ice::AsyncResultPtr r = p2->begin_opContext(ctx);
+                Ice::Context c = p2->end_opContext(r);
+                test(c == ctx);
 #endif
+            }
         }
 
         if(p->ice_getConnection() && communicator->getProperties()->getProperty("Ice.Default.Protocol") != "bt")
@@ -2476,7 +2475,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 ctx["three"] = "THREE";
 
                 Ice::PropertiesPtr properties = ic->getProperties();
-                Test::MyClassPrxPtr p =
+                Test::MyClassPrxPtr q =
                     ICE_UNCHECKED_CAST(Test::MyClassPrx,
                                        ic->stringToProxy("test:" + TestHelper::getTestEndpoint(properties)));
                 ic->getImplicitContext()->setContext(ctx);
@@ -2484,7 +2483,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 {
 #ifdef ICE_CPP11_MAPPING
                     promise<void> prom;
-                    p->opContextAsync(
+                    q->opContextAsync(
                         [&](Ice::Context c)
                         {
                             test(c == ctx);
@@ -2496,8 +2495,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                         });
                     prom.get_future().get();
 #else
-                    Ice::AsyncResultPtr r = p->begin_opContext();
-                    Ice::Context c = p->end_opContext(r);
+                    Ice::AsyncResultPtr r = q->begin_opContext();
+                    Ice::Context c = q->end_opContext(r);
                     test(c == ctx);
 #endif
                 }
@@ -2508,7 +2507,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 {
 #ifdef ICE_CPP11_MAPPING
                     promise<void> prom;
-                    p->opContextAsync(
+                    q->opContextAsync(
                         [&](Ice::Context c)
                         {
                             test(c == ctx);
@@ -2528,8 +2527,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                         });
                     prom.get_future().get();
 #else
-                    Ice::AsyncResultPtr r = p->begin_opContext();
-                    Ice::Context c = p->end_opContext(r);
+                    Ice::AsyncResultPtr r = q->begin_opContext();
+                    Ice::Context c = q->end_opContext(r);
                     test(c == ctx);
 #endif
                 }
@@ -2542,13 +2541,13 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 combined.insert(ctx.begin(), ctx.end());
                 test(combined["one"] == "UN");
 
-                p = ICE_UNCHECKED_CAST(Test::MyClassPrx, p->ice_context(prxContext));
+                q = ICE_UNCHECKED_CAST(Test::MyClassPrx, q->ice_context(prxContext));
 
                 ic->getImplicitContext()->setContext(Ice::Context());
                 {
 #ifdef ICE_CPP11_MAPPING
                     promise<void> prom;
-                    p->opContextAsync(
+                    q->opContextAsync(
                         [&](Ice::Context c)
                         {
                             test(c == prxContext);
@@ -2560,8 +2559,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                         });
                     prom.get_future().get();
 #else
-                    Ice::AsyncResultPtr r = p->begin_opContext();
-                    Ice::Context c = p->end_opContext(r);
+                    Ice::AsyncResultPtr r = q->begin_opContext();
+                    Ice::Context c = q->end_opContext(r);
                     test(c == prxContext);
 #endif
                 }
@@ -2570,7 +2569,7 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                 {
 #ifdef ICE_CPP11_MAPPING
                     promise<void> prom;
-                    p->opContextAsync(
+                    q->opContextAsync(
                         [&](Ice::Context c)
                         {
                             test(c == combined);
@@ -2582,8 +2581,8 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
                         });
                     prom.get_future().get();
 #else
-                    Ice::AsyncResultPtr r = p->begin_opContext();
-                    Ice::Context c = p->end_opContext(r);
+                    Ice::AsyncResultPtr r = q->begin_opContext();
+                    Ice::Context c = q->end_opContext(r);
                     test(c == combined);
 #endif
                 }
@@ -3305,18 +3304,18 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
     }
 
     {
-        Test::MyStruct s11 = { 1, 1 };
-        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStruct ms11 = { 1, 1 };
+        Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di1[s12] = ICE_ENUM(Test::MyEnum, enum2);
+        di1[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di1[ms12] = ICE_ENUM(Test::MyEnum, enum2);
 
-        Test::MyStruct s22 = { 2, 2 };
-        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStruct ms22 = { 2, 2 };
+        Test::MyStruct ms23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di2[s22] = ICE_ENUM(Test::MyEnum, enum3);
-        di2[s23] = ICE_ENUM(Test::MyEnum, enum2);
+        di2[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di2[ms22] = ICE_ENUM(Test::MyEnum, enum3);
+        di2[ms23] = ICE_ENUM(Test::MyEnum, enum2);
 
         CallbackPtr cb = ICE_MAKE_SHARED(Callback);
         auto f = p->opMyStructMyEnumDAsync(di1, di2);
@@ -3569,21 +3568,21 @@ twowaysAMI(const Ice::CommunicatorPtr& communicator, const Test::MyClassPrxPtr& 
         Test::MyStructMyEnumDS dsi2;
         dsi2.resize(1);
 
-        Test::MyStruct s11 = { 1, 1 };
-        Test::MyStruct s12 = { 1, 2 };
+        Test::MyStruct ms11 = { 1, 1 };
+        Test::MyStruct ms12 = { 1, 2 };
         Test::MyStructMyEnumD di1;
-        di1[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di1[s12] = ICE_ENUM(Test::MyEnum, enum2);
+        di1[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di1[ms12] = ICE_ENUM(Test::MyEnum, enum2);
 
-        Test::MyStruct s22 = { 2, 2 };
-        Test::MyStruct s23 = { 2, 3 };
+        Test::MyStruct ms22 = { 2, 2 };
+        Test::MyStruct ms23 = { 2, 3 };
         Test::MyStructMyEnumD di2;
-        di2[s11] = ICE_ENUM(Test::MyEnum, enum1);
-        di2[s22] = ICE_ENUM(Test::MyEnum, enum3);
-        di2[s23] = ICE_ENUM(Test::MyEnum, enum2);
+        di2[ms11] = ICE_ENUM(Test::MyEnum, enum1);
+        di2[ms22] = ICE_ENUM(Test::MyEnum, enum3);
+        di2[ms23] = ICE_ENUM(Test::MyEnum, enum2);
 
         Test::MyStructMyEnumD di3;
-        di3[s23] = ICE_ENUM(Test::MyEnum, enum3);
+        di3[ms23] = ICE_ENUM(Test::MyEnum, enum3);
 
         dsi1[0] = di1;
         dsi1[1] = di2;

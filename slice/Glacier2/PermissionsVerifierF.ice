@@ -1,15 +1,21 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "cpp:doxygen:include:Glacier2/Glacier2.h", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API", "js:ice-build", "python:pkgdir:Glacier2"]]
+[["cpp:dll-export:GLACIER2_API"]]
+[["cpp:doxygen:include:Glacier2/Glacier2.h"]]
+[["cpp:header-ext:h"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:GLACIER2_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Glacier2"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]

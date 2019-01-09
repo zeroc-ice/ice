@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -119,6 +116,12 @@ public:
     virtual Test::IPtr getH(const Ice::Current&);
 #endif
 
+    virtual Test::KPtr getK(const Ice::Current&);
+
+    virtual Ice::ValuePtr opValue(ICE_IN(Ice::ValuePtr), Ice::ValuePtr&, const Ice::Current&);
+    virtual Test::ValueSeq opValueSeq(ICE_IN(Test::ValueSeq), Test::ValueSeq&, const Ice::Current&);
+    virtual Test::ValueMap opValueMap(ICE_IN(Test::ValueMap), Test::ValueMap&, const Ice::Current&);
+
     virtual Test::D1Ptr getD1(ICE_IN(Test::D1Ptr), const Ice::Current&);
     virtual void throwEDerived(const Ice::Current&);
 
@@ -138,6 +141,8 @@ public:
 
     virtual void throwInnerEx(const Ice::Current&);
     virtual void throwInnerSubEx(const Ice::Current&);
+
+    virtual Test::MPtr opM(ICE_IN(Test::MPtr), Test::MPtr&, const Ice::Current&);
 
 private:
 

@@ -5,7 +5,7 @@ classdef InterfaceByValue < Ice.Value
     % interfaces by value. The constructor expects the Slice type ID of
     % the interface.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     methods
         function obj = InterfaceByValue(id)

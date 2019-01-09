@@ -1,13 +1,11 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -93,6 +91,31 @@ namespace Ice
                 return new HI();
             }
 
+            public override Test.K getK(Ice.Current current)
+            {
+                return new Test.K(new Test.L("l"));
+            }
+
+            public override Ice.Value opValue(Ice.Value v1, out Ice.Value v2, Ice.Current current)
+            {
+                v2 = v1;
+                return v1;
+            }
+
+            public override Ice.Value[] opValueSeq(Ice.Value[] v1, out Ice.Value[] v2, Ice.Current current)
+            {
+                v2 = v1;
+                return v1;
+            }
+
+            public override Dictionary<string, Ice.Value>
+            opValueMap(Dictionary<string, Ice.Value> v1, out Dictionary<string, Ice.Value> v2,
+                       Ice.Current current)
+            {
+                v2 = v1;
+                return v1;
+            }
+
             public override void setRecursive(Test.Recursive r, Ice.Current current)
             {
             }
@@ -166,6 +189,13 @@ namespace Ice
             public override Task<Test.Initial_GetAMDMBMarshaledResult> getAMDMBAsync(Ice.Current current)
             {
                 return Task.FromResult(new Test.Initial_GetAMDMBMarshaledResult(_b1, current));
+            }
+
+            public override Test.M
+            opM(Test.M v1, out Test.M v2, Ice.Current current)
+            {
+                v2 = v1;
+                return v1;
             }
 
             private Ice.ObjectAdapter _adapter;

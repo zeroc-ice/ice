@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -11,311 +8,308 @@
 {
     const Ice = require("ice").Ice;
     const Test = require("Test").Test;
+    const TestHelper = require("TestHelper").TestHelper;
+    const test = TestHelper.test;
 
-    async function allTests(communicator, out)
+    class Client extends TestHelper
     {
-        function test(value, ex)
+        async allTests()
         {
-            if(!value)
+            async function testExceptions(obj)
             {
-                let message = "test failed";
-                if(ex)
+                try
                 {
-                    message += "\n" + ex.toString();
+                    await obj.requestFailedException();
+                    test(false);
                 }
-                throw new Error(message);
-            }
-        }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.ObjectNotExistException, ex);
+                    test(ex.id.equals(obj.ice_getIdentity()));
+                    test(ex.facet == obj.ice_getFacet());
+                    test(ex.operation == "requestFailedException");
+                }
 
-        async function testExceptions(obj)
-        {
+                try
+                {
+                    await obj.unknownUserException();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnknownUserException, ex);
+                    test(ex.unknown == "reason");
+                }
+
+                try
+                {
+                    await obj.unknownLocalException();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnknownLocalException, ex);
+                    test(ex.unknown == "reason");
+                }
+
+                try
+                {
+                    await obj.unknownException();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnknownException, ex);
+                    test(ex.unknown == "reason");
+                }
+
+                try
+                {
+                    await obj.userException();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test((ex instanceof Ice.OperationNotExistException) ||
+                         (ex instanceof Ice.UnknownUserException &&
+                          ex.unknown == "::Test::TestIntfUserException"), ex);
+                }
+
+                try
+                {
+                    await obj.localException();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnknownLocalException, ex);
+                    test(ex.unknown.indexOf("Ice::SocketException") >= 0 ||
+                         ex.unknown.indexOf("Ice.SocketException") >= 0);
+                }
+
+                try
+                {
+                    await obj.jsException();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test((ex instanceof Ice.OperationNotExistException) ||
+                         (ex instanceof Ice.UnknownException || ex.unknown.indexOf("") >= 0), ex);
+                }
+
+                try
+                {
+                    await obj.unknownExceptionWithServantException();
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnknownException, ex);
+                    test(ex.unknown == "reason");
+                }
+
+                try
+                {
+                    await obj.impossibleException(false);
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnknownUserException, ex);
+                }
+
+                try
+                {
+                    await obj.impossibleException(true);
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Ice.UnknownUserException, ex);
+                }
+
+                try
+                {
+                    await obj.intfUserException(false);
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Test.TestImpossibleException, ex);
+                }
+
+                try
+                {
+                    await obj.intfUserException(true);
+                    test(false);
+                }
+                catch(ex)
+                {
+                    test(ex instanceof Test.TestImpossibleException, ex);
+                }
+            }
+
+            const out = this.getWriter();
+            const communicator = this.communicator();
+            out.write("testing stringToProxy... ");
+            const ref = "asm:" + this.getTestEndpoint();
+            let base = communicator.stringToProxy(ref);
+            test(base !== null);
+            out.writeLine("ok");
+
+            out.write("testing checked cast... ");
+            let obj = await Test.TestIntfPrx.checkedCast(base);
+            test(obj !== null);
+            test(obj.equals(base));
+            out.writeLine("ok");
+
+            out.write("testing ice_ids... ");
             try
             {
-                await obj.requestFailedException();
+                const o = communicator.stringToProxy("category/locate:" + this.getTestEndpoint());
+                await o.ice_ids();
+                test(false);
+            }
+            catch(ex)
+            {
+                test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex);
+            }
+
+            try
+            {
+                const o = communicator.stringToProxy("category/finished:" + this.getTestEndpoint());
+                await o.ice_ids();
+                test(false);
+            }
+            catch(ex)
+            {
+                test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex);
+            }
+            out.writeLine("ok");
+
+            out.write("testing servant locator... ");
+            base = communicator.stringToProxy("category/locate:" + this.getTestEndpoint());
+            obj = await Test.TestIntfPrx.checkedCast(base);
+
+            try
+            {
+                await Test.TestIntfPrx.checkedCast(
+                    communicator.stringToProxy("category/unknown:" + this.getTestEndpoint()));
                 test(false);
             }
             catch(ex)
             {
                 test(ex instanceof Ice.ObjectNotExistException, ex);
-                test(ex.id.equals(obj.ice_getIdentity()));
-                test(ex.facet == obj.ice_getFacet());
-                test(ex.operation == "requestFailedException");
             }
+            out.writeLine("ok");
 
+            out.write("testing default servant locator... ");
+            base = communicator.stringToProxy("anothercat/locate:" + this.getTestEndpoint());
+            obj = await Test.TestIntfPrx.checkedCast(base);
+            base = communicator.stringToProxy("locate:" + this.getTestEndpoint());
+            obj = await Test.TestIntfPrx.checkedCast(base);
             try
             {
-                await obj.unknownUserException();
+                await Test.TestIntfPrx.checkedCast(
+                    communicator.stringToProxy("anothercat/unknown:" + this.getTestEndpoint()));
                 test(false);
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownUserException, ex);
-                test(ex.unknown == "reason");
+                test(ex instanceof Ice.ObjectNotExistException, ex);
             }
 
             try
             {
-                await obj.unknownLocalException();
+                await Test.TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:" + this.getTestEndpoint()));
                 test(false);
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownLocalException, ex);
-                test(ex.unknown == "reason");
+                test(ex instanceof Ice.ObjectNotExistException, ex);
+            }
+            out.writeLine("ok");
+
+            out.write("testing locate exceptions... ");
+            base = communicator.stringToProxy("category/locate:" + this.getTestEndpoint());
+            obj = await Test.TestIntfPrx.checkedCast(base);
+            await testExceptions(obj);
+            out.writeLine("ok");
+
+            out.write("testing finished exceptions... ");
+            base = communicator.stringToProxy("category/finished:" + this.getTestEndpoint());
+            obj = await Test.TestIntfPrx.checkedCast(base);
+            await testExceptions(obj);
+
+            try
+            {
+                //
+                // Only call these for category/finished.
+                //
+                await obj.asyncResponse();
+                test(false);
+            }
+            catch(ex)
+            {
+                test(ex instanceof Test.TestImpossibleException, ex); // Called by finished().
             }
 
             try
             {
-                await obj.unknownException();
+                await obj.asyncException();
                 test(false);
             }
             catch(ex)
             {
-                test(ex instanceof Ice.UnknownException, ex);
-                test(ex.unknown == "reason");
+                test(ex instanceof Test.TestImpossibleException, ex); // Called by finished().
             }
+            out.writeLine("ok");
 
+            out.write("testing servant locator removal... ");
+            base = communicator.stringToProxy("test/activation:" + this.getTestEndpoint());
+            const activation = await Test.TestActivationPrx.checkedCast(base);
+            await activation.activateServantLocator(false);
             try
             {
-                await obj.userException();
+                await obj.ice_ping();
                 test(false);
             }
             catch(ex)
             {
-                test((ex instanceof Ice.OperationNotExistException) ||
-                     (ex instanceof Ice.UnknownUserException &&
-                      ex.unknown == "::Test::TestIntfUserException"), ex);
+                test(ex instanceof Ice.ObjectNotExistException, ex);
             }
+            out.writeLine("ok");
 
-            try
-            {
-                await obj.localException();
-                test(false);
-            }
-            catch(ex)
-            {
-                test(ex instanceof Ice.UnknownLocalException, ex);
-                test(ex.unknown.indexOf("Ice::SocketException") >= 0 ||
-                     ex.unknown.indexOf("Ice.SocketException") >= 0);
-            }
-
-            try
-            {
-                await obj.jsException();
-                test(false);
-            }
-            catch(ex)
-            {
-                test((ex instanceof Ice.OperationNotExistException) ||
-                     (ex instanceof Ice.UnknownException || ex.unknown.indexOf("") >= 0), ex);
-            }
-
-            try
-            {
-                await obj.unknownExceptionWithServantException();
-                test(false);
-            }
-            catch(ex)
-            {
-                test(ex instanceof Ice.UnknownException, ex);
-                test(ex.unknown == "reason");
-            }
-
-            try
-            {
-                await obj.impossibleException(false);
-                test(false);
-            }
-            catch(ex)
-            {
-                test(ex instanceof Ice.UnknownUserException, ex);
-            }
-
-            try
-            {
-                await obj.impossibleException(true);
-                test(false);
-            }
-            catch(ex)
-            {
-                test(ex instanceof Ice.UnknownUserException, ex);
-            }
-
-            try
-            {
-                await obj.intfUserException(false);
-                test(false);
-            }
-            catch(ex)
-            {
-                test(ex instanceof Test.TestImpossibleException, ex);
-            }
-
-            try
-            {
-                await obj.intfUserException(true);
-                test(false);
-            }
-            catch(ex)
-            {
-                test(ex instanceof Test.TestImpossibleException, ex);
-            }
-        }
-
-        out.write("testing stringToProxy... ");
-        const ref = "asm:default -p 12010";
-        let base = communicator.stringToProxy(ref);
-        test(base !== null);
-        out.writeLine("ok");
-
-        out.write("testing checked cast... ");
-        let obj = await Test.TestIntfPrx.checkedCast(base);
-        test(obj !== null);
-        test(obj.equals(base));
-        out.writeLine("ok");
-
-        out.write("testing ice_ids... ");
-        try
-        {
-            const o = communicator.stringToProxy("category/locate:default -p 12010");
-            await o.ice_ids();
-            test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex);
-        }
-
-        try
-        {
-            const o = communicator.stringToProxy("category/finished:default -p 12010");
-            await o.ice_ids();
-            test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Ice.UnknownUserException && ex.unknown == "::Test::TestIntfUserException", ex);
-        }
-        out.writeLine("ok");
-
-        out.write("testing servant locator... ");
-        base = communicator.stringToProxy("category/locate:default -p 12010");
-        obj = await Test.TestIntfPrx.checkedCast(base);
-
-        try
-        {
-            await Test.TestIntfPrx.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010"));
-            test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
-        }
-        out.writeLine("ok");
-
-        out.write("testing default servant locator... ");
-        base = communicator.stringToProxy("anothercat/locate:default -p 12010");
-        obj = await Test.TestIntfPrx.checkedCast(base);
-        base = communicator.stringToProxy("locate:default -p 12010");
-        obj = await Test.TestIntfPrx.checkedCast(base);
-        try
-        {
-            await Test.TestIntfPrx.checkedCast(communicator.stringToProxy("anothercat/unknown:default -p 12010"));
-            test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
-        }
-
-        try
-        {
-            await Test.TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:default -p 12010"));
-            test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
-        }
-        out.writeLine("ok");
-
-        out.write("testing locate exceptions... ");
-        base = communicator.stringToProxy("category/locate:default -p 12010");
-        obj = await Test.TestIntfPrx.checkedCast(base);
-        await testExceptions(obj);
-        out.writeLine("ok");
-
-        out.write("testing finished exceptions... ");
-        base = communicator.stringToProxy("category/finished:default -p 12010");
-        obj = await Test.TestIntfPrx.checkedCast(base);
-        await testExceptions(obj);
-
-        try
-        {
-            //
-            // Only call these for category/finished.
-            //
-            await obj.asyncResponse();
-            test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Test.TestImpossibleException, ex); // Called by finished().
-        }
-
-        try
-        {
-            await obj.asyncException();
-            test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Test.TestImpossibleException, ex); // Called by finished().
-        }
-        out.writeLine("ok");
-
-        out.write("testing servant locator removal... ");
-        base = communicator.stringToProxy("test/activation:default -p 12010");
-        const activation = await Test.TestActivationPrx.checkedCast(base);
-        await activation.activateServantLocator(false);
-        try
-        {
+            out.write("testing servant locator addition... ");
+            await activation.activateServantLocator(true);
             await obj.ice_ping();
-            test(false);
-        }
-        catch(ex)
-        {
-            test(ex instanceof Ice.ObjectNotExistException, ex);
-        }
-        out.writeLine("ok");
+            out.writeLine("ok");
 
-        out.write("testing servant locator addition... ");
-        await activation.activateServantLocator(true);
-        await obj.ice_ping();
-        out.writeLine("ok");
-
-        await obj.shutdown();
-    }
-
-    async function run(out, initData)
-    {
-        let communicator;
-        try
-        {
-            communicator = Ice.initialize(initData);
-            await allTests(communicator, out);
+            await obj.shutdown();
         }
-        finally
+
+        async run(args)
         {
-            if(communicator)
+            let communicator;
+            try
             {
-                await communicator.destroy();
+                [communicator] = this.initialize(args);
+                await this.allTests();
+            }
+            finally
+            {
+                if(communicator)
+                {
+                    await communicator.destroy();
+                }
             }
         }
     }
+    exports.Client = Client;
 
-    exports._test = run;
-    exports._runServer = true;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));

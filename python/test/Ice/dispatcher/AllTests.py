@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -51,14 +48,14 @@ class Callback:
         else:
             test(Dispatcher.Dispatcher.isDispatcherThread())
 
-def allTests(communicator, collocated):
-    sref = "test:default -p 12010"
+def allTests(helper, communicator):
+    sref = "test:{0}".format(helper.getTestEndpoint())
     obj = communicator.stringToProxy(sref)
     test(obj)
 
     p = Test.TestIntfPrx.uncheckedCast(obj)
 
-    sref = "testController:default -p 12011"
+    sref = "testController:{0}".format(helper.getTestEndpoint(num=1))
     obj = communicator.stringToProxy(sref)
     test(obj)
 

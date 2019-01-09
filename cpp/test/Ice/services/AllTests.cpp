@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -55,12 +52,12 @@ public:
     }
 
     virtual void
-    connectFailed(const Glacier2::SessionHelperPtr&, const Ice::Exception& ex)
+    connectFailed(const Glacier2::SessionHelperPtr&, const Ice::Exception&)
     {
     }
 
     virtual void
-    createdCommunicator(const Glacier2::SessionHelperPtr& session)
+    createdCommunicator(const Glacier2::SessionHelperPtr&)
     {
     }
 };
@@ -69,7 +66,7 @@ class SessionHelperClient
 {
 public:
 
-    int run(int argc, char* argv[])
+    int run(int, char*[])
     {
         _factory = ICE_MAKE_SHARED(Glacier2::SessionFactoryHelper, ICE_MAKE_SHARED(SessionCallbackI));
         return EXIT_SUCCESS;

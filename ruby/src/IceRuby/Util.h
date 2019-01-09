@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -89,6 +86,12 @@ bool arrayToStringSeq(VALUE, std::vector<std::string>&);
 // RubyException.
 //
 VALUE stringSeqToArray(const std::vector<std::string>&);
+
+//
+// Convert a vector of Ice::Byte into a Ruby array of numbers.
+// May raise RubyException.
+//
+VALUE createNumSeq(const std::vector<Ice::Byte>&);
 
 //
 // Convert a Ruby hash to Ice::Context. Returns true on success

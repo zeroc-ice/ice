@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -13,10 +10,10 @@ def test(b)
     end
 end
 
-def allTests(communicator)
+def allTests(helper, communicator)
     print "testing stringToProxy... "
     STDOUT.flush
-    ref = "initial:default -p 12010"
+    ref = "initial:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     test(base)
     puts "ok"

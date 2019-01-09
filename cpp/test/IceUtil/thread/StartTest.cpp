@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -64,8 +61,8 @@ StartTest::run()
     {
         for(int j = 0; j < 40; j++)
         {
-            Thread* t = new StartTestThread;
-            t->start().detach();
+            Thread* thread = new StartTestThread;
+            thread->start().detach();
         }
         ThreadControl::sleep(Time::milliSeconds(5));
     }

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -52,17 +49,17 @@ void breakRetainCycleD(TestObjectsD* d1)
 }
 
 @interface TestObjectsAbstractBaseI : TestObjectsAbstractBase<TestObjectsAbstractBase>
--(void) op:(ICECurrent *)current;
+-(void) op:(ICECurrent *)__unused current;
 @end
 
 @implementation TestObjectsAbstractBaseI
--(void) op:(ICECurrent *)current;
+-(void) op:(ICECurrent *)__unused current
 {
 }
 @end
 
 id<TestObjectsInitialPrx>
-objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
+objectsAllTests(id<ICECommunicator> communicator, BOOL __unused collocated)
 {
     tprintf("testing stringToProxy... ");
     NSString* ref = @"initial:default -p 12010";
@@ -244,6 +241,42 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     }
     @catch(ICEOperationNotExistException*)
     {
+    }
+    tprintf("ok\n");
+
+    tprintf("getting K... ");
+    {
+        TestObjectsK* k = (TestObjectsK*)[initial getK];
+        TestObjectsL* l = (TestObjectsL*)k.value;
+        test([l.data isEqualToString:@"l"]);
+    }
+    tprintf("ok\n");
+
+    tprintf("testing Value as parameter... ");
+    {
+        TestObjectsL* v1 = [[TestObjectsL alloc] init:@"l"];
+        ICEObject* v2;
+        TestObjectsL* v3 = (TestObjectsL*)[initial opValue:v1 v2:&v2];
+        test([v3.data isEqualToString:@"l"]);
+        test([((TestObjectsL*)v2).data isEqualToString:@"l"]);
+    }
+
+    {
+        TestObjectsL* l = [[TestObjectsL alloc] init:@"l"];
+        NSArray* v1 = @[l];
+        NSMutableArray* v2;
+        NSArray* v3 = [initial opValueSeq:v1 v2:&v2];
+        test([((TestObjectsL*)v3[0]).data isEqualToString:@"l"]);
+        test([((TestObjectsL*)v2[0]).data isEqualToString:@"l"]);
+    }
+
+    {
+        TestObjectsL* l = [[TestObjectsL alloc] init:@"l"];
+        NSDictionary* v1 = @{@"l" : l};
+        NSMutableDictionary* v2;
+        NSDictionary* v3 = [initial opValueMap:v1 v2:&v2];
+        test([((TestObjectsL*)v3[@"l"]).data isEqualToString:@"l"]);
+        test([((TestObjectsL*)v2[@"l"]).data isEqualToString:@"l"]);
     }
     tprintf("ok\n");
 
@@ -443,8 +476,8 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         TestObjectsMutableBasePrxSeq* seq = [TestObjectsMutableBasePrxSeq array];
 
         [seq addObject:[NSNull null]];
-        NSString* ref = @"base:default -p 12010";
-        id<ICEObjectPrx> base = [communicator stringToProxy:ref];
+        ref = @"base:default -p 12010";
+        base = [communicator stringToProxy:ref];
         id<TestObjectsBasePrx> b = [TestObjectsBasePrx uncheckedCast:base];
         [seq addObject:b];
 
@@ -507,7 +540,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         TestObjectsMutableObjectPrxDict* dict = [TestObjectsMutableObjectPrxDict dictionary];
 
         [dict setObject:[NSNull null] forKey:@"zero"];
-        NSString* ref = @"object:default -p 12010";
+        ref = @"object:default -p 12010";
         id<ICEObjectPrx> o = [communicator stringToProxy:ref];
         [dict setObject:o forKey:@"one"];
 
@@ -570,8 +603,8 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
         TestObjectsMutableBasePrxDict* dict = [TestObjectsMutableBasePrxDict dictionary];
 
         [dict setObject:[NSNull null] forKey:@"zero"];
-        NSString* ref = @"base:default -p 12010";
-        id<ICEObjectPrx> base = [communicator stringToProxy:ref];
+        ref = @"base:default -p 12010";
+        base = [communicator stringToProxy:ref];
         id<TestObjectsBasePrx> b = [TestObjectsBasePrx uncheckedCast:base];
         [dict setObject:b forKey:@"one"];
 
@@ -604,14 +637,14 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
     @try
     {
-        NSString* ref = @"test:default -p 12010";
-        id<TestObjectsTestIntfPrx> p = [TestObjectsTestIntfPrx checkedCast:[communicator stringToProxy:ref]];
+        ref = @"test:default -p 12010";
+        id<TestObjectsTestIntfPrx> q = [TestObjectsTestIntfPrx checkedCast:[communicator stringToProxy:ref]];
 
         {
                tprintf("testing getting ObjectFactory registration... ");
-               TestObjectsBase *base = [p opDerived];
-               test(base);
-               test([[base ice_id] isEqualToString:@"::Test::Derived"]);
+               TestObjectsBase *base2 = [q opDerived];
+               test(base2);
+               test([[base2 ice_id] isEqualToString:@"::Test::Derived"]);
                tprintf("ok\n");
         }
 
@@ -619,7 +652,7 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
             tprintf("testing getting ExceptionFactory registration... ");
             @try
             {
-                [p throwDerived];
+                [q throwDerived];
                 test(NO);
             }
             @catch(TestObjectsBaseEx* ex)
@@ -632,6 +665,29 @@ objectsAllTests(id<ICECommunicator> communicator, BOOL collocated)
     @catch(ICEObjectNotExistException*)
     {
         // cross-test server does not implement this object
+    }
+
+    {
+        tprintf("testing class containing a complex dictionary... ");
+        TestObjectsMutableLMap* v = [TestObjectsMutableLMap dictionary];
+        TestObjectsStructKey* k1 = [[TestObjectsStructKey alloc] init:1 s:@"1"];
+        [v setObject:[[TestObjectsL alloc] init:@"one"] forKey:k1];
+        TestObjectsStructKey* k2 = [[TestObjectsStructKey alloc] init:2 s:@"2"];
+        [v setObject:[[TestObjectsL alloc] init:@"two"] forKey:k2];
+        TestObjectsM* m = [[TestObjectsM alloc] init:v];
+
+        TestObjectsM* m1;
+        TestObjectsM* m2 = [initial opM:m v2:&m1];
+        test([m1.v count] == 2);
+        test([m2.v count] == 2);
+
+        test([((TestObjectsL*)[m1.v objectForKey:k1]).data isEqualToString:@"one"]);
+        test([((TestObjectsL*)[m1.v objectForKey:k2]).data isEqualToString:@"two"]);
+
+        test([((TestObjectsL*)[m2.v objectForKey:k1]).data isEqualToString:@"one"]);
+        test([((TestObjectsL*)[m2.v objectForKey:k2]).data isEqualToString:@"two"]);
+
+        tprintf("ok\n");
     }
 
     return initial;

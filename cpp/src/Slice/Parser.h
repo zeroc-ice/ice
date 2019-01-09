@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -319,7 +316,7 @@ public:
 
 protected:
 
-    SyntaxTreeBase(const UnitPtr&);
+    SyntaxTreeBase(const UnitPtr&, const DefinitionContextPtr& = 0);
 
     UnitPtr _unit;
     DefinitionContextPtr _definitionContext;
@@ -507,7 +504,8 @@ public:
     bool hasNonLocalInterfaceDefs() const;
     bool hasValueDefs() const;
     bool hasOnlyClassDecls() const;
-    bool hasAbstractClassDefs() const;
+    bool hasOperations() const; // interfaces or classes with operations
+    bool hasNonLocalAbstractClassDefs() const; // interfaces or abstract classes
     bool hasNonLocalDataOnlyClasses() const;
     bool hasOtherConstructedOrExceptions() const; // Exceptions or constructed types other than classes.
     bool hasContentsWithMetaData(const std::string&) const;
@@ -1092,7 +1090,8 @@ public:
     ContainedList findUsedBy(const ContainedPtr&) const;
 
     void addTypeId(int, const std::string&);
-    std::string getTypeId(int);
+    std::string getTypeId(int) const;
+    bool hasCompactTypeId() const;
 
     bool usesNonLocals() const;
     bool usesConsts() const;

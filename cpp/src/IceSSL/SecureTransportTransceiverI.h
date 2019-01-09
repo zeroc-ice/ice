@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -77,7 +74,7 @@ private:
         SSLWantWrite = 0x2
     };
 
-    mutable Ice::Byte _flags;
+    mutable Ice::Byte _tflags;
     size_t _maxSendPacketSize;
     size_t _maxRecvPacketSize;
     std::string _cipher;

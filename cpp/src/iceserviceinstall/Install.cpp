@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -13,39 +10,47 @@
 #include <ServiceInstaller.h>
 
 using namespace std;
-using namespace Ice;
 using namespace IceInternal;
 
-class Install : public Application
+int run(const Ice::StringSeq&);
+
+Ice::CommunicatorPtr communicator;
+
+void
+destroyCommunicator(int)
 {
-public:
-    virtual int run(int, char*[]);
+    communicator->destroy();
+}
 
-    Install();
-
-    bool pauseEnabled() const;
-    bool debug() const;
-    bool pause() const;
-
-private:
-
-    void usage() const;
-
-    bool _debug;
-    bool _pauseEnabled;
-    bool _pause;
-};
+bool debug = false;
+bool pauseEnabled = true;
+bool pause = false;
 
 int
 wmain(int argc, wchar_t* argv[])
 {
-    Install app;
-    InitializationData id;
-    id.properties = Ice::createProperties();
-    id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
-    int status = app.main(argc, argv, id);
+    int status = 0;
 
-    if(app.pauseEnabled() && (app.pause() || app.debug() || status != 0))
+    try
+    {
+        Ice::CtrlCHandler ctrlCHandler;
+        Ice::InitializationData id;
+        id.properties = Ice::createProperties();
+        id.properties->setProperty("Ice.Plugin.IceSSL", "IceSSL:createIceSSL");
+        Ice::CommunicatorHolder ich(argc, argv, id);
+        communicator = ich.communicator();
+
+        ctrlCHandler.setCallback(&destroyCommunicator);
+
+        status = run(Ice::argsToStringSeq(argc, argv));
+    }
+    catch(const std::exception& ex)
+    {
+        consoleErr << ex.what() << endl;
+        status = 1;
+    }
+
+    if(pauseEnabled && (pause || debug || status != 0))
     {
         system("pause");
     }
@@ -53,138 +58,13 @@ wmain(int argc, wchar_t* argv[])
     return status;
 }
 
-int
-Install::run(int argc, char* argv[])
-{
-    IceUtilInternal::Options opts;
-    opts.addOpt("h", "help");
-    opts.addOpt("v", "version");
-    opts.addOpt("u", "uninstall");
-    opts.addOpt("n", "nopause");
-
-    vector<string> propNames = IceServiceInstaller::getPropertyNames();
-
-    for(size_t i = 0; i < propNames.size(); ++i)
-    {
-        opts.addOpt("", propNames[i], IceUtilInternal::Options::NeedArg);
-    }
-
-    vector<string> commands;
-    try
-    {
-        commands = opts.parse(argc, (const char**)argv);
-    }
-    catch(const IceUtilInternal::BadOptException& e)
-    {
-        consoleErr << "Error:" << e.reason << endl;
-        usage();
-        return EXIT_FAILURE;
-    }
-
-    _pauseEnabled = !opts.isSet("nopause");
-
-    if(opts.isSet("help"))
-    {
-        usage();
-        _pause = true;
-        return EXIT_SUCCESS;
-    }
-    if(opts.isSet("version"))
-    {
-        consoleOut << ICE_STRING_VERSION << endl;
-        _pause = true;
-        return EXIT_SUCCESS;
-    }
-
-    if(commands.size() != 2)
-    {
-        usage();
-        return EXIT_FAILURE;
-    }
-
-    int serviceType = -1;
-    for(int j = 0; j < IceServiceInstaller::serviceCount; ++j)
-    {
-        if(commands[0] == IceServiceInstaller::serviceTypeToLowerString(j))
-        {
-            serviceType = j;
-            break; // for
-        }
-    }
-
-    if(serviceType == -1)
-    {
-        consoleErr << "Invalid service " << commands[0] << endl;
-        return EXIT_FAILURE;
-    }
-
-    string configFile = commands[1];
-
-    try
-    {
-        IceServiceInstaller installer(serviceType, configFile, communicator());
-
-        if(opts.isSet("uninstall"))
-        {
-            installer.uninstall();
-        }
-        else
-        {
-            PropertiesPtr properties = communicator()->getProperties();
-
-            for(size_t j = 0; j < propNames.size(); ++j)
-            {
-                if(opts.isSet(propNames[j]))
-                {
-                    properties->setProperty(propNames[j], opts.optArg(propNames[j]));
-                }
-            }
-
-            _debug = properties->getPropertyAsInt("Debug") > 0;
-
-            installer.install(properties);
-        }
-    }
-    catch(const exception& ex)
-    {
-        consoleErr << "Error: " << ex.what() << endl;
-        return EXIT_FAILURE;
-    }
-    return EXIT_SUCCESS;
-}
-
-Install::Install() :
-    _pauseEnabled(true),
-    _debug(false),
-    _pause(false)
-{
-}
-
-bool
-Install::pauseEnabled() const
-{
-    return _pauseEnabled;
-}
-
-bool
-Install::debug() const
-{
-    return _debug;
-}
-
-bool
-Install::pause() const
-{
-    return _pause;
-}
-
 void
-Install::usage() const
+usage(const string& name)
 {
     string defaultImagePath = IceServiceInstaller::getServiceInstallerPath();
     if(defaultImagePath.empty())
     {
-        defaultImagePath = string("<error: cannot retrieve path of ") + appName() + ">";
+        defaultImagePath = string("<error: cannot retrieve path of ") + name + ">";
     }
     defaultImagePath += "\\<service>";
 #ifdef _DEBUG
@@ -192,7 +72,7 @@ Install::usage() const
 #endif
     defaultImagePath += ".exe";
 
-    consoleErr << "Usage: " << appName()
+    consoleErr << "Usage: " << name
          << " [options] service config-file [property] [property]\n";
     consoleErr <<
         "Options:\n"
@@ -225,4 +105,104 @@ Install::usage() const
         "                     NT Authority\\LocalService.\n"
         "Password             Password for ObjectName.\n"
         ;
+}
+
+int
+run(const Ice::StringSeq& args)
+{
+    IceUtilInternal::Options opts;
+    opts.addOpt("h", "help");
+    opts.addOpt("v", "version");
+    opts.addOpt("u", "uninstall");
+    opts.addOpt("n", "nopause");
+
+    vector<string> propNames = IceServiceInstaller::getPropertyNames();
+
+    for(size_t i = 0; i < propNames.size(); ++i)
+    {
+        opts.addOpt("", propNames[i], IceUtilInternal::Options::NeedArg);
+    }
+
+    vector<string> commands;
+    try
+    {
+        commands = opts.parse(args);
+    }
+    catch(const IceUtilInternal::BadOptException& e)
+    {
+        consoleErr << "Error:" << e.reason << endl;
+        usage(args[0]);
+        return 1;
+    }
+
+    pauseEnabled = !opts.isSet("nopause");
+
+    if(opts.isSet("help"))
+    {
+        usage(args[0]);
+        pause = true;
+        return 0;
+    }
+    if(opts.isSet("version"))
+    {
+        consoleOut << ICE_STRING_VERSION << endl;
+        pause = true;
+        return 0;
+    }
+
+    if(commands.size() != 2)
+    {
+        usage(args[0]);
+        return 1;
+    }
+
+    int serviceType = -1;
+    for(int j = 0; j < IceServiceInstaller::serviceCount; ++j)
+    {
+        if(commands[0] == IceServiceInstaller::serviceTypeToLowerString(j))
+        {
+            serviceType = j;
+            break; // for
+        }
+    }
+
+    if(serviceType == -1)
+    {
+        consoleErr << "Invalid service " << commands[0] << endl;
+        return 1;
+    }
+
+    string configFile = commands[1];
+
+    try
+    {
+        IceServiceInstaller installer(serviceType, configFile, communicator);
+
+        if(opts.isSet("uninstall"))
+        {
+            installer.uninstall();
+        }
+        else
+        {
+            Ice::PropertiesPtr properties = communicator->getProperties();
+
+            for(size_t j = 0; j < propNames.size(); ++j)
+            {
+                if(opts.isSet(propNames[j]))
+                {
+                    properties->setProperty(propNames[j], opts.optArg(propNames[j]));
+                }
+            }
+
+            debug = properties->getPropertyAsInt("Debug") > 0;
+
+            installer.install(properties);
+        }
+    }
+    catch(const exception& ex)
+    {
+        consoleErr << "Error: " << ex.what() << endl;
+        return 1;
+    }
+    return 0;
 }

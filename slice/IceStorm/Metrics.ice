@@ -1,16 +1,22 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICESTORM_API", "cpp:doxygen:include:IceStorm/IceStorm.h", "objc:header-dir:objc", "objc:dll-export:ICESTORM_API", "js:ice-build", "python:pkgdir:IceStorm"]]
+[["cpp:dll-export:ICESTORM_API"]]
+[["cpp:doxygen:include:IceStorm/IceStorm.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:IceStorm/Config.h"]]
+
+[["ice-prefix"]]
+
+[["objc:dll-export:ICESTORM_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceStorm"]]
 
 #include <Ice/Metrics.ice>
 
@@ -18,7 +24,7 @@
 [["java:package:com.zeroc"]]
 #endif
 
-["objc:prefix:ICEMX"]
+["objc:prefix:ICEMX", "js:module:ice"]
 module IceMX
 {
 

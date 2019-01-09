@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -13,8 +10,8 @@ def test(b)
     end
 end
 
-def allTests(communicator)
-    obj = communicator.stringToProxy("Test:default -p 12010")
+def allTests(helper, communicator)
+    obj = communicator.stringToProxy("Test:#{helper.getTestEndpoint()}")
     t = Test::TestIntfPrx::checkedCast(obj)
 
     print "base... "

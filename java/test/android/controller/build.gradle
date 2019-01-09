@@ -1,0 +1,107 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+//
+// **********************************************************************
+
+buildscript {
+    repositories {
+        jcenter()
+        google()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.2.1'
+        classpath 'gradle.plugin.com.zeroc.gradle.ice-builder:slice:1.4.5'
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'com.zeroc.gradle.ice-builder.slice'
+
+slice {
+    output = file("${project.buildDir}/generated/source/ice")
+    cppConfiguration = project.cppConfiguration
+    cppPlatform = project.cppPlatform
+    if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
+        iceHome = project.hasProperty('iceHome') ? project.iceHome
+                : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File("$rootProject.projectDir/../../../..").getCanonicalPath()
+    }
+    java {
+        files = fileTree(dir: "$rootProject.projectDir/../../../../scripts/", includes: ['*.ice'])
+    }
+}
+
+repositories {
+    if(slice.jarDir != null) {
+        flatDir {
+            name "local"
+            dirs slice.jarDir
+        }
+    }
+
+    if(this.devRepo) {
+        maven {
+            url this.devRepo
+        }
+    }
+
+    google()
+    jcenter()
+}
+
+android {
+    compileSdkVersion 28
+
+    defaultConfig {
+        applicationId "com.zeroc.testcontroller"
+        minSdkVersion 24
+        targetSdkVersion 28
+        multiDexEnabled true // Necessary otherwise we'd exceed the 64K DEX limit.
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
+    }
+
+    buildTypes {
+        debug {
+            //
+            // Set minifyEnabled to false because the test app loads classes dynamically.
+            //
+            minifyEnabled false
+        }
+
+        release {
+            //
+            // Set minifyEnabled to false because the test app loads classes dynamically.
+            //
+            minifyEnabled false
+        }
+    }
+}
+
+task copyBksTask(type: Copy) {
+    from "${rootProject.projectDir}/../../../../certs/client.bks"
+    from "${rootProject.projectDir}/../../../../certs/server.bks"
+    into "src/main/res/raw"
+}
+preBuild.dependsOn(copyBksTask)
+
+clean {
+    delete("src/main/res/raw/client.bks")
+    delete("src/main/res/raw/server.bks")
+}
+
+dependencies {
+    implementation "com.zeroc:glacier2:${project.iceVersion}"
+    implementation "com.zeroc:ice:${project.iceVersion}"
+    implementation "com.zeroc:icessl:${project.iceVersion}"
+    runtimeOnly "com.zeroc:icediscovery:${project.iceVersion}"
+    runtimeOnly "com.zeroc:icebt:${project.iceVersion}"
+
+    implementation files("${rootProject.projectDir}/../../../lib/test.jar")
+    runtimeOnly "org.apache.commons:commons-compress:1.14"
+}

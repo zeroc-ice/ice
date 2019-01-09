@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Test Controller</string>
+    <string name="no_bluetooth">Bluetooth disabled</string>
+    <string name="ipv6">IPv6</string>
+    <string name="ipv4">IPv4</string>
+</resources>

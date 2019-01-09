@@ -9,13 +9,13 @@ WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:dll-e
 WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:dll-export:'
 WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:include'
 WarningInvalidMetaData.ice: warning: ignoring invalid global metadata `cpp:include:'
-WarningInvalidMetaData.ice:37: warning: ignoring metadata `cpp:noexcept' for non local interface
-WarningInvalidMetaData.ice:40: warning: ignoring invalid metadata `cpp:type:std::list< ::std::string>' for operation with void return type
-WarningInvalidMetaData.ice:43: warning: ignoring invalid metadata `cpp:view-type:std::experimental::string_view' for operation with void return type
-WarningInvalidMetaData.ice:46: warning: ignoring invalid metadata `cpp:array' for operation with void return type
-WarningInvalidMetaData.ice:49: warning: ignoring invalid metadata `cpp:range' for operation with void return type
-WarningInvalidMetaData.ice:54: warning: ignoring invalid metadata `cpp:class'
-WarningInvalidMetaData.ice:54: warning: ignoring invalid metadata `cpp:comparable'
-WarningInvalidMetaData.ice:59: warning: ignoring invalid metadata `cpp:const'
-WarningInvalidMetaData.ice:59: warning: ignoring invalid metadata `cpp:ice_print'
-WarningInvalidMetaData.ice:65: warning: ignoring invalid metadata `cpp:virtual'
+WarningInvalidMetaData.ice:34: warning: ignoring metadata `cpp:noexcept' for non local interface
+WarningInvalidMetaData.ice:37: warning: ignoring invalid metadata `cpp:type:std::list< ::std::string>' for operation with void return type
+WarningInvalidMetaData.ice:40: warning: ignoring invalid metadata `cpp:view-type:std::experimental::string_view' for operation with void return type
+WarningInvalidMetaData.ice:43: warning: ignoring invalid metadata `cpp:array' for operation with void return type
+WarningInvalidMetaData.ice:46: warning: ignoring invalid metadata `cpp:range' for operation with void return type
+WarningInvalidMetaData.ice:51: warning: ignoring invalid metadata `cpp:class'
+WarningInvalidMetaData.ice:51: warning: ignoring invalid metadata `cpp:comparable'
+WarningInvalidMetaData.ice:56: warning: ignoring invalid metadata `cpp:const'
+WarningInvalidMetaData.ice:56: warning: ignoring invalid metadata `cpp:ice_print'
+WarningInvalidMetaData.ice:62: warning: ignoring invalid metadata `cpp:virtual'

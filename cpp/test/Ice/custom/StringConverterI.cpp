@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -21,7 +18,7 @@ Test::StringConverterI::toUTF8(const char* sourceStart, const char* sourceEnd, U
 
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = tolower(sourceStart[i]);
+        targetStart[i] = static_cast<Byte>(tolower(sourceStart[i]));
     }
 
     return targetEnd;
@@ -35,7 +32,7 @@ Test::StringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd,
     target.resize(size);
     for(size_t i = 0; i < size; ++i)
     {
-        target[i] = toupper(sourceStart[i]);
+        target[i] = static_cast<Byte>(toupper(sourceStart[i]));
     }
 }
 
@@ -51,7 +48,7 @@ Test::WstringConverterI::toUTF8(const wchar_t* sourceStart, const wchar_t* sourc
 
     for(size_t i = 0; i < size; ++i)
     {
-        targetStart[i] = tolower(s[i]);
+        targetStart[i] = static_cast<Byte>(tolower(s[i]));
     }
     return targetEnd;
 }
@@ -63,7 +60,7 @@ Test::WstringConverterI::fromUTF8(const Byte* sourceStart, const Byte* sourceEnd
     string s(sourceStart, sourceEnd);
     for(size_t i = 0; i < s.size(); ++i)
     {
-        s[i] = toupper(s[i]);
+        s[i] = static_cast<char>(toupper(s[i]));
     }
     target = stringToWstring(s);
 }

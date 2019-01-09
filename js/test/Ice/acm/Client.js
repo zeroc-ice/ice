@@ -1,24 +1,15 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 (function(module, require, exports)
 {
     const Ice = require("ice").Ice;
+    const TestHelper = require("TestHelper").TestHelper;
     const Test = require("Test").Test;
-
-    function test(value)
-    {
-        if(!value)
-        {
-            throw new Error("test failed");
-        }
-    }
+    const test = TestHelper.test;
 
     class LoggerI
     {
@@ -460,73 +451,78 @@
         }
     }
 
-    async function allTests(out, communicator)
+    class Client extends TestHelper
     {
-        const ref = "communicator:default -p 12010";
-        const com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
-
-        const tests = [];
-        //
-        // Skip some tests with IE it opens too many connections and
-        // IE doesn't allow more than 6 connections.
-        //
-        if(typeof navigator !== "undefined" &&
-           ["MSIE", "Trident/7.0", "Edge/12", "Edge/13"].some(value => navigator.userAgent.indexOf(value) !== -1))
+        async allTests()
         {
-            tests.push(new HeartbeatOnIdleTest(com, out));
-            tests.push(new SetACMTest(com, out));
-        }
-        else
-        {
-            tests.push(new InvocationHeartbeatTest(com, out));
-            tests.push(new InvocationHeartbeatOnHoldTest(com, out));
-            tests.push(new InvocationNoHeartbeatTest(com, out));
-            tests.push(new InvocationHeartbeatCloseOnIdleTest(com, out));
+            const communicator = this.communicator();
+            const out = this.getWriter();
+            const ref = "communicator:" + this.getTestEndpoint();
+            const com = Test.RemoteCommunicatorPrx.uncheckedCast(communicator.stringToProxy(ref));
 
-            tests.push(new CloseOnIdleTest(com, out));
-            tests.push(new CloseOnInvocationTest(com, out));
-            tests.push(new CloseOnIdleAndInvocationTest(com, out));
-            tests.push(new ForcefullCloseOnIdleAndInvocationTest(com, out));
-
-            tests.push(new HeartbeatOnIdleTest(com, out));
-            tests.push(new HeartbeatAlwaysTest(com, out));
-            tests.push(new HeartbeatManualTest(com, out));
-            tests.push(new SetACMTest(com, out));
-        }
-
-        await Promise.all(tests.map(test => test.init()));
-        await Promise.all(tests.map(test => test.start()));
-        for(const test of tests)
-        {
-            test.join(out);
-        }
-        await Promise.all(tests.map(test => test.destroy()));
-
-        out.write("shutting down... ");
-        await com.shutdown();
-        out.writeLine("ok");
-    }
-
-    async function run(out, initData)
-    {
-        let communicator;
-        try
-        {
-            initData.properties.setProperty("Ice.Warn.Connections", "0");
-            communicator = Ice.initialize(initData);
-            await allTests(out, communicator);
-        }
-        finally
-        {
-            if(communicator)
+            const tests = [];
+            //
+            // Skip some tests with IE it opens too many connections and
+            // IE doesn't allow more than 6 connections.
+            //
+            if(typeof navigator !== "undefined" &&
+               ["MSIE", "Trident/7.0", "Edge/12", "Edge/13"].some(value => navigator.userAgent.indexOf(value) !== -1))
             {
-                await communicator.destroy();
+                tests.push(new HeartbeatOnIdleTest(com, out));
+                tests.push(new SetACMTest(com, out));
+            }
+            else
+            {
+                tests.push(new InvocationHeartbeatTest(com, out));
+                tests.push(new InvocationHeartbeatOnHoldTest(com, out));
+                tests.push(new InvocationNoHeartbeatTest(com, out));
+                tests.push(new InvocationHeartbeatCloseOnIdleTest(com, out));
+
+                tests.push(new CloseOnIdleTest(com, out));
+                tests.push(new CloseOnInvocationTest(com, out));
+                tests.push(new CloseOnIdleAndInvocationTest(com, out));
+                tests.push(new ForcefullCloseOnIdleAndInvocationTest(com, out));
+
+                tests.push(new HeartbeatOnIdleTest(com, out));
+                tests.push(new HeartbeatAlwaysTest(com, out));
+                tests.push(new HeartbeatManualTest(com, out));
+                tests.push(new SetACMTest(com, out));
+            }
+
+            await Promise.all(tests.map(test => test.init()));
+            await Promise.all(tests.map(test => test.start()));
+            for(const test of tests)
+            {
+                test.join(out);
+            }
+            await Promise.all(tests.map(test => test.destroy()));
+
+            out.write("shutting down... ");
+            await com.shutdown();
+            out.writeLine("ok");
+        }
+
+        async run(args)
+        {
+            let communicator;
+            try
+            {
+                [communicator, args] = this.initialize(args);
+                await this.allTests();
+            }
+            finally
+            {
+                if(communicator)
+                {
+                    await communicator.destroy();
+                }
             }
         }
     }
+    exports.Client = Client;
 
-    exports._test = run;
-    exports._runServer = true;
 }(typeof global !== "undefined" && typeof global.process !== "undefined" ? module : undefined,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? require : this.Ice._require,
-  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports : this));
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? require :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,
+  typeof global !== "undefined" && typeof global.process !== "undefined" ? exports :
+  (typeof WorkerGlobalScope !== "undefined" && self instanceof WorkerGlobalScope) ? self : window));

@@ -1,10 +1,7 @@
 
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -235,9 +232,8 @@ Mutex::init(MutexProtocol
     }
 
     //
-    // Enable mutex error checking in debug builds
+    // Enable mutex error checking
     //
-#ifndef NDEBUG
     rc = pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
     assert(rc == 0);
     if(rc != 0)
@@ -245,7 +241,6 @@ Mutex::init(MutexProtocol
         pthread_mutexattr_destroy(&attr);
         throw ThreadSyscallException(__FILE__, __LINE__, rc);
     }
-#endif
 
     //
     // If system has support for priority inheritance we set the protocol

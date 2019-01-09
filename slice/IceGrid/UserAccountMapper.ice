@@ -1,16 +1,24 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "js:ice-build", "python:pkgdir:IceGrid"]]
+[["cpp:dll-export:ICEGRID_API"]]
+[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:IceGrid/Config.h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICEGRID_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceGrid"]]
 
 #ifndef __SLICE2JAVA_COMPAT__
 [["java:package:com.zeroc"]]
@@ -44,10 +52,10 @@ interface UserAccountMapper
      * used by IceGrid nodes to figure out the user account to use
      * to run servers.
      *
-     * @param user The value of the server descriptor's <tt>user</tt>
+     * @param user The value of the server descriptor's <code>user</code>
      * attribute. If this attribute is not defined, and the server's
-     * activation mode is <tt>session</tt>, the default value of
-     * <tt>user</tt> is the session identifier.
+     * activation mode is <code>session</code>, the default value of
+     * <code>user</code> is the session identifier.
      *
      * @return The user account name.
      *

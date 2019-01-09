@@ -1,0 +1,92 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <Import Project="..\..\..\msbuild\ice.common.props" />
+  <PropertyGroup>
+      <EnableDefaultCompileItems>true</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="test\**" />
+    <EmbeddedResource Remove="test\**" />
+    <None Remove="test\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Xamarin.Forms" Version="3.1.0.697729" />
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.4" />
+    <Compile Update="generated\Controller.cs">
+      <SliceCompileSource>..\..\..\..\scripts\Controller.ice</SliceCompileSource>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="generated\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <SliceCompile Include="..\..\..\..\scripts\Controller.ice" Link="Controller.ice" />
+  </ItemGroup>
+
+  <Choose>
+    <When Condition="'$(ICE_BIN_DIST)' == 'all'">
+      <ItemGroup>
+        <PackageReference Include="zeroc.ice.net" Version="3.7.2" />
+      </ItemGroup>
+    </When>
+    <Otherwise>
+      <ItemGroup>
+        <Reference Include="..\..\..\lib\netstandard2.0\Ice.dll" />
+        <Reference Include="..\..\..\lib\netstandard2.0\IceSSL.dll" />
+        <Reference Include="..\..\..\lib\netstandard2.0\IceDiscovery.dll" />
+      </ItemGroup>
+    </Otherwise>
+  </Choose>
+
+  <ItemGroup>
+    <SliceCompile Remove="test\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\..\..\certs\cacert.der" Link="cacert.der" />
+    <EmbeddedResource Include="..\..\..\..\certs\client.p12" Link="client.p12" />
+    <EmbeddedResource Include="..\..\..\..\certs\server.p12" Link="server.p12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Ice\acm\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\adapterDeactivation\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\admin\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\ami\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\binding\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\checksum\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\defaultServant\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\defaultValue\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\dictMapping\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\enums\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\exceptions\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\facets\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\hold\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\info\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\inheritance\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\interceptor\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\invoke\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\location\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\objects\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\operations\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\optional\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\namespacemd\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\proxy\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\retry\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\scope\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\seqMapping\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\serialize\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\servantLocator\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\stream\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\threadPoolPriority\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\timeout\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\Ice\udp\msbuild\test\netstandard2.0\test.csproj" />
+    <ProjectReference Include="..\..\TestCommon\msbuild\testcommon\netstandard2.0\testcommon.csproj" />
+  </ItemGroup>
+</Project>

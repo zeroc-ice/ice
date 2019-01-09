@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -643,7 +640,7 @@ ProxyOutgoingAsyncBase::cancelable(const CancellationHandlerPtr& handler)
 }
 
 void
-ProxyOutgoingAsyncBase::retryException(const Exception& ex)
+ProxyOutgoingAsyncBase::retryException(const Exception&)
 {
     try
     {
@@ -907,7 +904,7 @@ OutgoingAsync::prepare(const string& operation, OperationMode mode, const Contex
 
 #if defined(_MSC_VER) && (_MSC_VER <= 1600)
     //
-    // COMPILERFIX VC90 and VC100 get confused with namespaces and we need to
+    // COMPILERFIX v90 and v100 get confused with namespaces and we need to
     // defined both Ice::noExplicitContext and IceProxy::Ice::noExplicitContext
     // see comments in Ice/Proxy.h.
     //
@@ -1036,6 +1033,7 @@ OutgoingAsync::response()
                 ex->facet = facet;
                 ex->operation = operation;
                 ex->ice_throw();
+                break;
             }
 
             case replyUnknownException:
@@ -1075,6 +1073,7 @@ OutgoingAsync::response()
 
                 ex->unknown = unknown;
                 ex->ice_throw();
+                break;
             }
 
             default:

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -45,7 +42,7 @@ public:
 };
 
 void
-Client5::run(int argc, char** argv)
+Client5::run(int, char**)
 {
     //
     // Run Client application 20 times, each times it generate 512 bytes of log messages,

@@ -1,14 +1,17 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 package com.zeroc.Ice;
 
+/**
+ * Interface to marshal (write) Slice types into sequence of bytes encoded using the
+ * Ice encoding.
+ *
+ * @see InputStream
+ **/
 public class OutputStream
 {
     /**
@@ -450,11 +453,11 @@ public class OutputStream
      * Marks the start of a new slice for a class instance or user exception.
      *
      * @param typeId The Slice type ID corresponding to this slice.
-
+     *
      * @param compactId The Slice compact type ID corresponding to
      *        this slice or -1 if no compact ID is defined for the
      *        type ID.
-
+     *
      * @param last True if this is the last slice, false otherwise.
      **/
     public void startSlice(String typeId, int compactId, boolean last)
@@ -2458,6 +2461,7 @@ public class OutputStream
         }
     }
 
+    /** @hidden */
     @FunctionalInterface
     static public interface Marshaler
     {

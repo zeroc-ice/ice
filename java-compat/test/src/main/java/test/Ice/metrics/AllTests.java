@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -1214,14 +1211,66 @@ public class AllTests
         test(map.size() == 1);
 
         im1 = (IceMX.InvocationMetrics)map.get("op");
-        out.print(im1.current);
-        out.print(im1.total);
         test(im1.current == 0 && im1.total == 3 && im1.failures == 0 && im1.retry == 0);
         test(im1.remotes.length == 0);
 
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway",
                       new InvokeOp(metricsBatchOneway), out);
 
+        //
+        // Tests flushBatchRequests
+        //
+        props.put("IceMX.Metrics.View.Map.Invocation.GroupBy", "operation");
+        props.put("IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy", "localPort");
+        updateProps(clientProps, serverProps, update, props, "Invocation");
+
+        metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
+        metricsBatchOneway.op();
+
+        metricsBatchOneway.ice_flushBatchRequests();
+        metricsBatchOneway.end_ice_flushBatchRequests(metricsBatchOneway.begin_ice_flushBatchRequests());
+
+        map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Invocation"));
+        test(map.size() == 2);
+
+        im1 = (IceMX.InvocationMetrics)map.get("ice_flushBatchRequests");
+        test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+        if(!collocated)
+        {
+            test(im1.remotes.length == 1); // The first operation got sent over a connection
+        }
+
+        if(!collocated)
+        {
+            clearView(clientProps, serverProps, update);
+
+            Ice.Connection con = metricsBatchOneway.ice_getConnection();
+
+            metricsBatchOneway = (MetricsPrx)metricsBatchOneway.ice_fixed(con);
+            metricsBatchOneway.op();
+
+            con.flushBatchRequests(Ice.CompressBatch.No);
+            con.end_flushBatchRequests(con.begin_flushBatchRequests(Ice.CompressBatch.No));
+
+            map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Invocation"));
+            test(map.size() == 3);
+
+            im1 = (IceMX.InvocationMetrics)map.get("flushBatchRequests");
+            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            test(im1.remotes.length == 1); // The first operation got sent over a connection
+
+            clearView(clientProps, serverProps, update);
+            metricsBatchOneway.op();
+
+            communicator.flushBatchRequests(Ice.CompressBatch.No);
+            communicator.end_flushBatchRequests(communicator.begin_flushBatchRequests(Ice.CompressBatch.No));
+            map = toMap(clientMetrics.getMetricsView("View", timestamp).get("Invocation"));
+            test(map.size() == 2);
+
+            im1 = (IceMX.InvocationMetrics)map.get("flushBatchRequests");
+            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            test(im1.remotes.length == 1); // The first operation got sent over a connection
+        }
         out.println("ok");
 
         out.print("testing metrics view enable/disable...");

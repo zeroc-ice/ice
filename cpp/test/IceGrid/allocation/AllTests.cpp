@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -1003,8 +1000,8 @@ allTests(Test::TestHelper* helper)
         cout << "ok" << endl;
         cout << "testing application updates with allocated objects... " << flush;
         {
-            SessionPrx session1 = registry->createSession("Client1", "");
-            SessionPrx session2 = registry->createSession("Client2", "");
+            session1 = registry->createSession("Client1", "");
+            session2 = registry->createSession("Client2", "");
 
             ServerDescriptorPtr objectAllocOriginal = admin->getServerInfo("ObjectAllocation").descriptor;
             ServerDescriptorPtr objectAllocUpdate = ServerDescriptorPtr::dynamicCast(objectAllocOriginal->ice_clone());
@@ -1100,7 +1097,6 @@ allTests(Test::TestHelper* helper)
             test(session1);
             session1->ice_ping();
 
-            Ice::ObjectPrx obj;
             obj = session1->allocateObjectById(allocatable)->ice_connectionId("client1")->ice_router(router1);
             obj->ice_ping();
             session1->releaseObject(allocatable);

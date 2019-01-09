@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -12,6 +9,23 @@
 #import <AMITest.h>
 
 #import <Foundation/Foundation.h>
+
+@interface TestAMIPingReplyI : TestAMIPingReply<TestAMIPingReply>
+{
+    BOOL _received;
+}
+@end
+
+@implementation TestAMIPingReplyI
+-(void) reply:(ICECurrent*)__unused current
+{
+    _received = YES;
+}
+-(BOOL) checkReceived
+{
+    return _received;
+}
+@end
 
 @interface TestAMICallback : NSObject
 {
@@ -150,7 +164,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
     {
         TestAMICallback* cb = [TestAMICallback create];
         ICEContext* ctx = [NSDictionary dictionary];
-        void (^exCB)(ICEException*) = ^(ICEException* ex)
+        void (^exCB)(ICEException*) = ^(ICEException* __unused ex)
             {
                 test(NO);
             };
@@ -324,7 +338,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
             [cb called];
         };
 
-        void (^isACB)(BOOL) = ICE_AUTORELEASE([ ^(BOOL ret) { test(NO); } copy ]);
+        void (^isACB)(BOOL) = ICE_AUTORELEASE([ ^(BOOL __unused ret) { test(NO); } copy ]);
         [i begin_ice_isA:@"dummy" response:isACB exception:exCB];
         [cb check];
         [i begin_ice_isA:@"dummy" context:ctx response:isACB exception:exCB];
@@ -336,13 +350,13 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         [i begin_ice_ping:ctx response:pingCB exception:exCB];
         [cb check];
 
-        void (^idCB)(NSString*) = ICE_AUTORELEASE([ ^(NSString* ret) { test(NO); } copy ]);
+        void (^idCB)(NSString*) = ICE_AUTORELEASE([ ^(NSString* __unused ret) { test(NO); } copy ]);
         [i begin_ice_id:idCB exception:exCB];
         [cb check];
         [i begin_ice_id:ctx response:idCB exception:exCB];
         [cb check];
 
-        void (^idsCB)(NSArray*) = ICE_AUTORELEASE([ ^(NSArray* ret) { test(NO); } copy ]);
+        void (^idsCB)(NSArray*) = ICE_AUTORELEASE([ ^(NSArray* __unused ret) { test(NO); } copy ]);
         [i begin_ice_ids:idsCB exception:exCB];
         [cb check];
         [i begin_ice_ids:ctx response:idsCB exception:exCB];
@@ -350,7 +364,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
         if(!collocated)
         {
-            void (^conCB)(id<ICEConnection>) = ICE_AUTORELEASE([ ^(id<ICEConnection> ret) { test(NO); } copy ]);
+            void (^conCB)(id<ICEConnection>) = ICE_AUTORELEASE([ ^(id<ICEConnection> __unused ret) { test(NO); } copy ]);
             [i begin_ice_getConnection:conCB exception:exCB];
             [cb check];
         }
@@ -363,7 +377,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
         @try
         {
-            [p begin_opWithResult:nil exception:^(ICEException* ex) { test(NO); }];
+            [p begin_opWithResult:nil exception:^(ICEException* __unused ex) { test(NO); }];
             test(NO);
         }
         @catch(NSException* ex)
@@ -377,11 +391,11 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
     {
         TestAMICallback* cb = [TestAMICallback create];
         ICEContext* ctx = [NSDictionary dictionary];
-        void (^exCB)(ICEException*) = ^(ICEException* ex) {
+        void (^exCB)(ICEException*) = ^(ICEException* __unused ex) {
             test(NO);
         };
 
-        void (^sentCB)(BOOL) = ^(BOOL ss) { [cb called]; };
+        void (^sentCB)(BOOL) = ^(BOOL __unused ss) { [cb called]; };
 
         [p begin_ice_isA:@"test" response:nil exception:exCB sent:sentCB];
         [cb check];
@@ -417,19 +431,19 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         {
             @try
             {
-                TestAMICallback* cb = [TestAMICallback create];
+                TestAMICallback* cb2 = [TestAMICallback create];
                 while(true)
                 {
                     if(![[p begin_opWithPayload:seq response:nil exception:exCB sent:
-                                ^(BOOL ss) {
-                                   [cb called];
+                                ^(BOOL __unused ss) {
+                                   [cb2 called];
                                }] sentSynchronously])
                     {
-                        [cbs addObject:cb];
+                        [cbs addObject:cb2];
                         break;
                     }
-                    [cbs addObject:cb];
-                    cb = [TestAMICallback create];
+                    [cbs addObject:cb2];
+                    cb2 = [TestAMICallback create];
                 }
             }
             @catch(NSException* ex)
@@ -438,9 +452,9 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 @throw ex;
             }
             [testController resumeAdapter];
-            for(TestAMICallback* cb in cbs)
+            for(TestAMICallback* cb2 in cbs)
             {
-                [cb check];
+                [cb2 check];
             }
         }
     }
@@ -509,7 +523,7 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 }
             };
 
-        void (^exCB)(ICEException*) = ^(ICEException* ex)
+        void (^exCB)(ICEException*) = ^(ICEException* __unused ex)
             {
                 test(NO);
             };
@@ -518,8 +532,8 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
         for(i = 0; i < 3; ++i)
         {
             void (^throwResponse)(void) = ^{ thrower(i); };
-            void (^throwEx)(ICEException*) = ^(ICEException* ex){ thrower(i); };
-            void (^throwSent)(BOOL) = ^(BOOL b){ thrower(i); };
+            void (^throwEx)(ICEException*) = ^(ICEException* __unused ex){ thrower(i); };
+            void (^throwSent)(BOOL) = ^(BOOL __unused b){ thrower(i); };
 
             [p begin_ice_ping:throwResponse exception:exCB];
             [cb check];
@@ -552,8 +566,8 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
             test(![br isSent]);
             [b1 opBatch];
             TestAMICallback* cb = [TestAMICallback create];
-            id<ICEAsyncResult> r = [b1 begin_ice_flushBatchRequests:^(ICEException* ex) { test(NO); }
-                                                               sent:^(BOOL sentSynchronously) { [cb called]; }];
+            id<ICEAsyncResult> r = [b1 begin_ice_flushBatchRequests:^(ICEException* __unused ex) { test(NO); }
+                                                               sent:^(BOOL __unused sentSynchronously) { [cb called]; }];
             [cb check];
             test([r isSent]);
             test([r isCompleted]);
@@ -588,11 +602,11 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 [b1 opBatch];
                 TestAMICallback* cb = [TestAMICallback create];
                 id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:ICECompressBatchBasedOnProxy
-                                            exception:^(ICEException* ex)
+                                            exception:^(ICEException* __unused ex)
                                                       {
                                                           test(NO);
                                                       }
-                                                 sent:^(BOOL sentSynchronously) { [cb called]; }];
+                                                 sent:^(BOOL __unused sentSynchronously) { [cb called]; }];
             [cb check];
                 test([r isSent]);
                 test([r isCompleted]);
@@ -609,8 +623,8 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 [[b1 ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
                 TestAMICallback* cb = [TestAMICallback create];
                 id<ICEAsyncResult> r = [[b1 ice_getConnection] begin_flushBatchRequests:ICECompressBatchBasedOnProxy
-                                                        exception:^(ICEException* ex) { [cb called]; }
-                                                        sent:^(BOOL sentSynchronously) { test(NO); }];
+                                                        exception:^(ICEException* __unused ex) { [cb called]; }
+                                                        sent:^(BOOL __unused sentSynchronously) { test(NO); }];
                 [cb check];
                 test(![r isSent]);
                 test([r isCompleted]);
@@ -630,8 +644,8 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 [b1 opBatch];
                 TestAMICallback* cb = [TestAMICallback create];
                 id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:ICECompressBatchBasedOnProxy
-                                                           exception:^(ICEException* ex) { test(NO); }
-                                                                sent:^(BOOL sentSynchronously) { [cb called]; }];
+                                                           exception:^(ICEException* __unused ex) { test(NO); }
+                                                                sent:^(BOOL __unused sentSynchronously) { [cb called]; }];
                 [cb check];
                 test([r isSent]);
                 test([r isCompleted]);
@@ -648,8 +662,8 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
                 [[b1 ice_getConnection] close:ICEConnectionCloseGracefullyWithWait];
                 TestAMICallback* cb = [TestAMICallback create];
                 id<ICEAsyncResult> r = [communicator begin_flushBatchRequests:ICECompressBatchBasedOnProxy
-                                                                 exception:^(ICEException* ex) { test(NO); }
-                                                                      sent:^(BOOL sentSynchronously) { [cb called]; }];
+                                                                 exception:^(ICEException* __unused ex) { test(NO); }
+                                                                      sent:^(BOOL __unused sentSynchronously) { [cb called]; }];
                 [cb check];
                 test([r isSent]);
                 test([r isCompleted]);
@@ -848,5 +862,19 @@ amiAllTests(id<ICECommunicator> communicator, BOOL collocated)
 
     tprintf("ok\n");
 
+    if([p ice_getConnection])
+    {
+        tprintf("testing bidir... ");
+        id<ICEObjectAdapter> adapter = [communicator createObjectAdapter:@""];
+        TestAMIPingReplyI* replyI = [TestAMIPingReplyI pingReply];
+        id<TestAMIPingReplyPrx> reply = [TestAMIPingReplyPrx uncheckedCast:[adapter addWithUUID:replyI]];
+        [adapter activate];
+
+        [[p ice_getConnection] setAdapter:adapter];
+        [p pingBiDir:reply];
+        test([replyI checkReceived]);
+        [adapter destroy];
+        tprintf("ok\n");
+    }
     [p shutdown];
 }

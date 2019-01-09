@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -212,22 +209,22 @@ IceInternal::ServantManager::findServant(const Identity& ident, const string& fa
 
     if(p == servantMapMap.end() || (q = p->second.find(facet)) == p->second.end())
     {
-        DefaultServantMap::const_iterator p = _defaultServantMap.find(ident.category);
-        if(p == _defaultServantMap.end())
+        DefaultServantMap::const_iterator d = _defaultServantMap.find(ident.category);
+        if(d == _defaultServantMap.end())
         {
-            p = _defaultServantMap.find("");
-            if(p == _defaultServantMap.end())
+            d = _defaultServantMap.find("");
+            if(d == _defaultServantMap.end())
             {
                 return 0;
             }
             else
             {
-                return p->second;
+                return d->second;
             }
         }
         else
         {
-            return p->second;
+            return d->second;
         }
     }
     else

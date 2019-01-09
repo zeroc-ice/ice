@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -235,16 +232,6 @@ public class Coordinator
             //
             // Otherwise (for good tree), do nothing.
             //
-        }
-
-        private void disableAllEditMenusAndButtons()
-        {
-            _cut.setTarget(null);
-            _copy.setTarget(null);
-            _paste.setTarget(null);
-            _delete.setTarget(null);
-            _moveUp.setTarget(null);
-            _moveDown.setTarget(null);
         }
 
         private void enableTextEditActions(JTextComponent target)
@@ -711,6 +698,16 @@ public class Coordinator
     public Action getDiscardUpdatesAction()
     {
         return _discardUpdates;
+    }
+
+    public void disableAllEditMenusAndButtons()
+    {
+        _cut.setTarget(null);
+        _copy.setTarget(null);
+        _paste.setTarget(null);
+        _delete.setTarget(null);
+        _moveUp.setTarget(null);
+        _moveDown.setTarget(null);
     }
 
     //
@@ -1692,11 +1689,6 @@ public class Coordinator
                 return _session;
             }
 
-            synchronized public void setSessionTimeout(long sessionTimeout)
-            {
-                _sessionTimeout = sessionTimeout;
-            }
-
             synchronized public void setACMTimeout(int acmTimeout)
             {
                 _acmTimeout = acmTimeout;
@@ -1719,7 +1711,7 @@ public class Coordinator
                 _newApplicationWithDefaultTemplates.setEnabled(true);
                 _acquireExclusiveWriteAccess.setEnabled(true);
                 _mainPane.setSelectedComponent(_liveDeploymentPane);
-                _sessionKeeper.loginSuccess(parent, _sessionTimeout, _acmTimeout, _session, _replicaName, info);
+                _sessionKeeper.loginSuccess(parent, _acmTimeout, _session, _replicaName, info);
             }
 
             synchronized public void loginFailed()
@@ -1740,7 +1732,6 @@ public class Coordinator
             }
 
             private AdminSessionPrx _session;
-            private long _sessionTimeout = 0;
             private int _acmTimeout = 0;
             private String _replicaName;
             private boolean _failed = false;
@@ -1814,14 +1805,7 @@ public class Coordinator
                                    }
                                }
                                cb.setSession(AdminSessionPrx.uncheckedCast(s));
-                               cb.setSessionTimeout(router.getSessionTimeout());
-                               try
-                               {
-                                   cb.setACMTimeout(router.getACMTimeout());
-                               }
-                               catch(com.zeroc.Ice.OperationNotExistException ex)
-                               {
-                               }
+                               cb.setACMTimeout(router.getACMTimeout());
                                cb.setReplicaName(cb.getSession().getReplicaName());
                                SwingUtilities.invokeLater(() -> cb.loginSuccess());
                            }
@@ -2051,14 +2035,7 @@ public class Coordinator
                                                                                              info.getPassword() != null ? new String(info.getPassword()) : ""));
                                            assert cb.getSession() != null;
                                        }
-                                       cb.setSessionTimeout(cb.getRegistry().getSessionTimeout());
-                                       try
-                                       {
-                                           cb.setACMTimeout(cb.getRegistry().getACMTimeout());
-                                       }
-                                       catch(com.zeroc.Ice.OperationNotExistException ex)
-                                       {
-                                       }
+                                       cb.setACMTimeout(cb.getRegistry().getACMTimeout());
                                    }
                                    catch(final com.zeroc.IceGrid.PermissionDeniedException e)
                                    {
@@ -3138,7 +3115,7 @@ public class Coordinator
         else if(com.zeroc.IceInternal.Util.findClass("javafx.embed.swing.JFXPanel", null) == null)
         {
             JOptionPane.showMessageDialog(_mainFrame,
-                                          "The Metrics Graph view requires JavaFX 2",
+                                          "The Metrics Graph view requires JavaFX",
                                           "IceGrid GUI Info",
                                           JOptionPane.INFORMATION_MESSAGE);
         }
@@ -3279,7 +3256,7 @@ public class Coordinator
     {
         String text = "IceGrid GUI version "
             + com.zeroc.Ice.Util.stringVersion() + "\n"
-            + "Copyright \u00A9 2005-2018 ZeroC, Inc. All rights reserved.\n";
+            + "Copyright \u00A9 2005-present ZeroC, Inc. All rights reserved.\n";
 
         JOptionPane.showMessageDialog(
             _mainFrame,
@@ -3370,7 +3347,7 @@ public class Coordinator
         return _sessionKeeper.connectedToMaster();
     }
 
-    SessionKeeper getSessionKeeper()
+    public SessionKeeper getSessionKeeper()
     {
         return _sessionKeeper;
     }

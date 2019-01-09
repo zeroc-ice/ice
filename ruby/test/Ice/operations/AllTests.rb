@@ -1,25 +1,22 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
 require './Twoways'
 require './BatchOneways'
 
-def allTests(communicator)
-    ref = "test:default -p 12010"
+def allTests(helper, communicator)
+    ref = "test:#{helper.getTestEndpoint()}"
     base = communicator.stringToProxy(ref)
     cl = Test::MyClassPrx::checkedCast(base)
     derived = Test::MyDerivedClassPrx::checkedCast(cl)
 
     print "testing twoway operations... "
     STDOUT.flush
-    twoways(communicator, cl)
-    twoways(communicator, derived)
+    twoways(helper, communicator, cl)
+    twoways(helper, communicator, derived)
     derived.opDerived()
     puts "ok"
 

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -28,6 +25,22 @@ const StateConnectPending = 1;
 const StateProxyConnectRequest = 2;
 const StateProxyConnectRequestPending = 3;
 const StateConnected = 4;
+
+//
+// TODO: WORKAROUND: We can directly use Buffer.from once we drop
+// support for Node 4.x
+//
+let createBuffer = null;
+if(Buffer.from)
+{
+    createBuffer = Buffer.from;
+}
+else
+{
+    /* eslint-disable no-buffer-constructor */
+    createBuffer = data => new Buffer(data);
+    /* eslint-enable no-buffer-constructor */
+}
 
 class TcpTransceiver
 {
@@ -188,20 +201,13 @@ class TcpTransceiver
             const slice = byteBuffer.b.slice(byteBuffer.position, byteBuffer.position + packetSize);
 
             let sync = true;
-            //
-            // XXX: diasble for compatibility with Node 4.x replace by
-            // Buffer.from when we drop support to Node 4.x
-            //
-
-            /* eslint-disable no-buffer-constructor */
-            sync = this._fd.write(new Buffer(slice), null, () =>
+            sync = this._fd.write(createBuffer(slice), null, () =>
                 {
                     if(!sync)
                     {
                         this._bytesWrittenCallback();
                     }
                 });
-            /* eslint-enable no-buffer-constructor */
 
             byteBuffer.position += packetSize;
             if(!sync)
@@ -245,15 +251,8 @@ class TcpTransceiver
                 avail = byteBuffer.remaining;
             }
 
-            //
-            // XXX: diasble for compatibility with Node 4.x replace by
-            // Buffer.from when we drop support to Node 4.x
-            //
-
-            /* eslint-disable no-buffer-constructor */
-            this._readBuffers[0].copy(new Buffer(byteBuffer.b), byteBuffer.position, this._readPosition,
+            this._readBuffers[0].copy(createBuffer(byteBuffer.b), byteBuffer.position, this._readPosition,
                                       this._readPosition + avail);
-            /* eslint-enable no-buffer-constructor */
 
             byteBuffer.position += avail;
             this._readPosition += avail;

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -329,6 +326,33 @@ InitialI::getH(const Ice::Current&)
 }
 #endif
 
+KPtr
+InitialI::getK(const Ice::Current&)
+{
+    return ICE_MAKE_SHARED(K, ICE_MAKE_SHARED(L, "l"));
+}
+
+Ice::ValuePtr
+InitialI::opValue(ICE_IN(Ice::ValuePtr) v1, Ice::ValuePtr& v2, const Ice::Current&)
+{
+    v2 = v1;
+    return v1;
+}
+
+Test::ValueSeq
+InitialI::opValueSeq(ICE_IN(Test::ValueSeq) v1, Test::ValueSeq& v2, const Ice::Current&)
+{
+    v2 = v1;
+    return v1;
+}
+
+Test::ValueMap
+InitialI::opValueMap(ICE_IN(Test::ValueMap) v1, Test::ValueMap& v2, const Ice::Current&)
+{
+    v2 = v1;
+    return v1;
+}
+
 D1Ptr
 InitialI::getD1(ICE_IN(Test::D1Ptr) d1, const Ice::Current&)
 {
@@ -342,6 +366,13 @@ InitialI::throwEDerived(const Ice::Current&)
                    ICE_MAKE_SHARED(A1, "a2"),
                    ICE_MAKE_SHARED(A1, "a3"),
                    ICE_MAKE_SHARED(A1, "a4"));
+}
+
+Test::MPtr
+InitialI::opM(ICE_IN(Test::MPtr) v1, Test::MPtr& v2, const Ice::Current&)
+{
+    v2 = v1;
+    return v1;
 }
 
 bool

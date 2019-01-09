@@ -6,7 +6,7 @@ function r = stringToEncodingVersion(s)
     %
     % Returns (Ice.EncodingVersion) - The converted encoding version.
 
-    % Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
+    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
     tokens = regexp(s, '^([0-9]+)\.([0-9]+)$', 'tokens');
     if isempty(tokens)

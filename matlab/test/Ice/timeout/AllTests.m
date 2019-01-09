@@ -1,10 +1,7 @@
 %{
 **********************************************************************
 
-Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-
-This copy of Ice is licensed to you under the terms described in the
-ICE_LICENSE file included in this distribution.
+Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 
 **********************************************************************
 %}
@@ -28,19 +25,20 @@ classdef AllTests
             end
             r = prx.ice_getConnection(); % Establish connection
         end
-        function allTests(app)
+        function allTests(helper)
             import Test.*;
 
-            communicator = app.communicator();
+            communicator = helper.communicator();
 
-            sref = ['timeout:', app.getTestEndpoint(0)];
+            sref = ['timeout:', helper.getTestEndpoint()];
             obj = communicator.stringToProxy(sref);
             assert(~isempty(obj));
 
             timeout = TimeoutPrx.checkedCast(obj);
             assert(~isempty(timeout));
 
-            controller = ControllerPrx.checkedCast(communicator.stringToProxy(['controller:', app.getTestEndpoint(1)]));
+            controller = ControllerPrx.checkedCast(...
+                communicator.stringToProxy(['controller:', helper.getTestEndpoint(1)]));
             assert(~isempty(controller));
 
             fprintf('testing connect timeout... ');
@@ -240,10 +238,10 @@ classdef AllTests
             % Test Ice.Override.Timeout. This property overrides all
             % endpoint timeouts.
             %
-            initData = app.cloneInitData();
-            initData.properties_.setProperty('Ice.Override.ConnectTimeout', '250');
-            initData.properties_.setProperty('Ice.Override.Timeout', '100');
-            comm = Ice.initialize(initData);
+            properties = helper.communicator().getProperties().clone();
+            properties.setProperty('Ice.Override.ConnectTimeout', '250');
+            properties.setProperty('Ice.Override.Timeout', '100');
+            comm = helper.initialize(properties);
             to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
             AllTests.connect(to);
             controller.holdAdapter(-1);
@@ -277,10 +275,10 @@ classdef AllTests
             %
             % Test Ice.Override.ConnectTimeout.
             %
-            initData = app.cloneInitData();
-            initData.properties_.setProperty('Ice.Override.ConnectTimeout', '250');
+            properties = helper.communicator().getProperties().clone();
+            properties.setProperty('Ice.Override.ConnectTimeout', '250');
 
-            comm = Ice.initialize(initData);
+            comm = helper.initialize(properties);
             to = TimeoutPrx.uncheckedCast(comm.stringToProxy(sref));
             controller.holdAdapter(-1);
             try
@@ -328,9 +326,9 @@ classdef AllTests
             %
             % Test Ice.Override.CloseTimeout.
             %
-            initData = app.cloneInitData();
-            initData.properties_.setProperty('Ice.Override.CloseTimeout', '100');
-            comm = Ice.initialize(initData);
+            properties = helper.communicator().getProperties().clone();
+            properties.setProperty('Ice.Override.CloseTimeout', '100');
+            comm = helper.initialize(properties);
             comm.stringToProxy(sref).ice_getConnection();
             controller.holdAdapter(-1);
             tic();

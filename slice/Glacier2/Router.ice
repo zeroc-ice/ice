@@ -1,16 +1,22 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["cpp:header-ext:h", "cpp:dll-export:GLACIER2_API", "cpp:doxygen:include:Glacier2/Glacier2.h", "objc:header-dir:objc", "objc:dll-export:GLACIER2_API", "js:ice-build", "python:pkgdir:Glacier2"]]
+[["cpp:dll-export:GLACIER2_API"]]
+[["cpp:doxygen:include:Glacier2/Glacier2.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:Glacier2/Config.h"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:GLACIER2_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Glacier2"]]
 
 #include <Ice/Router.ice>
 #include <Glacier2/Session.ice>
@@ -46,7 +52,7 @@ exception SessionNotExistException
 
 /**
  *
- * The Glacier2 specialization of the <tt>Ice::Router</tt> interface.
+ * The Glacier2 specialization of the <code>Ice::Router</code> interface.
  *
  **/
 interface Router extends Ice::Router

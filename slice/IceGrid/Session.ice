@@ -1,16 +1,24 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICEGRID_API", "cpp:doxygen:include:IceGrid/IceGrid.h", "objc:header-dir:objc", "objc:dll-export:ICEGRID_API", "js:ice-build", "python:pkgdir:IceGrid"]]
+[["cpp:dll-export:ICEGRID_API"]]
+[["cpp:doxygen:include:IceGrid/IceGrid.h"]]
+[["cpp:header-ext:h"]]
 [["cpp:include:IceGrid/Config.h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICEGRID_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:IceGrid"]]
 
 #include <Glacier2/Session.ice>
 #include <IceGrid/Exception.ice>
@@ -27,7 +35,7 @@ module IceGrid
  *
  * A session object is used by IceGrid clients to allocate and
  * release objects. Client sessions are created either via the
- * {@link Registry} object or via the registry client <tt>SessionManager</tt>
+ * {@link Registry} object or via the registry client <code>SessionManager</code>
  * object.
  *
  * @see Registry
@@ -89,8 +97,8 @@ interface Session extends Glacier2::Session
 
     /**
      *
-     * Release an object that was allocated using <tt>allocateObjectById</tt> or
-     * <tt>allocateObjectByType</tt>.
+     * Release an object that was allocated using <code>allocateObjectById</code> or
+     * <code>allocateObjectByType</code>.
      *
      * @param id The identity of the object to release.
      *
@@ -108,8 +116,8 @@ interface Session extends Glacier2::Session
     /**
      *
      * Set the allocation timeout. If no objects are available for an
-     * allocation request, a call to <tt>allocateObjectById</tt> or
-     * <tt>allocateObjectByType</tt> will block for the duration of this
+     * allocation request, a call to <code>allocateObjectById</code> or
+     * <code>allocateObjectByType</code> will block for the duration of this
      * timeout.
      *
      * @param timeout The timeout in milliseconds.

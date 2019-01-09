@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -46,42 +43,45 @@ buildscript {
 // from gradle-ice-builder-plugin package and this is not possible when using gradle 3.2
 // included in stretch and the Plugin DSL.
 //
-if (!project.plugins.findPlugin(com.zeroc.gradle.icebuilder.slice.SlicePlugin)) {
-    project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
-}
+project.apply(plugin: com.zeroc.gradle.icebuilder.slice.SlicePlugin)
 
 slice {
-    cppConfiguration = this.cppConfiguration
-    cppPlatform = this.cppPlatform
+    cppConfiguration = project.cppConfiguration
+    cppPlatform = project.cppPlatform
     if(!System.env.ICE_BIN_DIST?.split(" ").find{ it == 'all' || it.contains('java')}) {
-        iceHome =  this.hasProperty('iceHome') ? this.iceHome
+        iceHome =  project.hasProperty('iceHome') ? project.iceHome
             : System.getenv("ICE_HOME") != null ? System.env.ICE_HOME : new File(project.ext.topSrcDir).getCanonicalPath()
     }
 }
 
-ext.generatedDir = "$project.buildDir/generated"
-
 // Android does not have a compileJava task
 if(!(project.hasProperty('android') && project.android.sourceSets)) {
     compileJava {
+        // target Java 8 using the --release option introduced in Java 9
+        if(JavaVersion.current() > JavaVersion.VERSION_1_8) {
+            options.compilerArgs.addAll(['--release', "${targetJavaRelease}"])
+        }
         options.debug = debug
     }
 }
 
-def env = System.getenv()
+// The corresponding -source and -target javac options are suppressed by gradle when
+// --release is set through options.compileArgs (see above).
+sourceCompatibility = "1.${targetJavaRelease}"
+targetCompatibility = "1.${targetJavaRelease}"
 
 // Determine the name of the Slice-to-Java translator
 def isWindows = System.properties['os.name'].toLowerCase().contains('windows')
 
 // If the prefix isn't set use these default locations.
-if (!prefix) {
+if(!prefix) {
     def prefixVersion = iceVersion
     if(prefixVersion.indexOf(".0-alpha")){
         prefixVersion = prefixVersion.replace(".0-alpha", "a")
     } else if(prefixVersion.indexOf(".0-beta")){
         prefixVersion = prefixVersion.replace(".0-beta", "b")
     }
-    if (isWindows) {
+    if(isWindows) {
         prefix = "C:\\Ice-${prefixVersion}"
     } else {
         prefix = "/opt/Ice-${prefixVersion}"
@@ -92,7 +92,7 @@ if (!prefix) {
 //
 // Note that we exclude /usr/src/packages because it's the RPM build directory on SLES.
 //
-if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.startsWith("/usr/src/packages")) {
+if((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.startsWith("/usr/src/packages")) {
     ext.jarDir = prefix + "/share/java"
     ext.binDir = prefix + "/bin"
 } else {
@@ -101,15 +101,11 @@ if ((prefix.startsWith("/usr") || prefix.startsWith("/usr/local")) && !prefix.st
 }
 
 // Check is DESTDIR is set (non-Windows)
-if (isWindows) {
+if(isWindows) {
     ext.DESTDIR = ""
 }
 
-ext.versionSuffix = "-${project.version}"
 ext.libDir = "$rootProject.projectDir/lib"
-
-ext.iceSourceCompatibility = 1.8
-ext.iceTargetCompatibility = 1.8
 
 ext.searchFile = { List<Closure> places, List<String> searchPaths ->
     def dirs = []
@@ -132,8 +128,10 @@ ext.searchFile = { List<Closure> places, List<String> searchPaths ->
     }
 }
 
+// Used for the tests
+//
 ext.localDependency = { artifactId ->
-    if (project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
+    if(project.slice.srcDist || System.env.ICE_BIN_DIST == "cpp") {
         return project(":${artifactId}")
     } else {
         return "com.zeroc:${artifactId}:${project.version}"

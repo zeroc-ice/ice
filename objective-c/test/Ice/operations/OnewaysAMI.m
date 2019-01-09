@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -68,7 +65,7 @@
 {
     [self called];
 }
--(void) opVoidException:(ICEException*)ex
+-(void) opVoidException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -85,7 +82,7 @@
 {
     test(NO);
 }
--(void) opByteEx:(ICEException*)ex
+-(void) opByteEx:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -97,7 +94,7 @@
 @end
 
 void
-onewaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> proxy)
+onewaysAMI(id<ICECommunicator> __unused communicator, id<TestOperationsMyClassPrx> proxy)
 {
     id<TestOperationsMyClassPrx> p = [TestOperationsMyClassPrx uncheckedCast:[proxy ice_oneway]];
 
@@ -110,7 +107,7 @@ onewaysAMI(id<ICECommunicator> communicator, id<TestOperationsMyClassPrx> proxy)
         OnewayAMICallback* cb = [OnewayAMICallback create];
         @try
         {
-            [p begin_opByte:0 p2:0 response:^(ICEByte r, ICEByte p3) { [cb opByteExResponse]; } exception:^(ICEException* ex) { [cb opByteExException:ex]; }];
+            [p begin_opByte:0 p2:0 response:^(ICEByte __unused r, ICEByte __unused p3) { [cb opByteExResponse]; } exception:^(ICEException* ex) { [cb opByteExException:ex]; }];
             [cb check];
         }
         @catch(NSException* ex)

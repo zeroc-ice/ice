@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -66,7 +63,6 @@ Ice_initialize(mxArray* args, void* propsImpl, void** r)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -80,7 +76,6 @@ Ice_stringToIdentity(mxArray* s)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -97,7 +92,6 @@ Ice_identityToString(mxArray* id, mxArray* mode)
     {
         return createResultException(convertException(ex));
     }
-    return 0;
 }
 
 mxArray*
@@ -135,7 +129,7 @@ Ice_currentProtocolEncoding()
 // This function exists so that mex may be used to compile the library. It is not otherwise needed.
 //
 void
-mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
+mexFunction(int /*nlhs*/, mxArray * /*plhs*/[], int /*nrhs*/, const mxArray* /*prhs*/[])
 {
 }
 

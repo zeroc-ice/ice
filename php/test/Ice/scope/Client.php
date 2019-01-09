@@ -1,41 +1,19 @@
 <?php
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-error_reporting(E_ALL | E_STRICT);
-
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
-$NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
 require_once('Test.php');
 
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
-
-function allTests($communicator)
+function allTests($helper)
 {
     global $NS;
 
+    $communicator = $helper->communicator();
     {
-        $base = $communicator->stringToProxy("i1:default -p 12010");
+        $base = $communicator->stringToProxy(sprintf("i1:%s", $helper->getTestEndpoint()));
         $i = $base->ice_checkedCast("::Test::I");
 
         $s1 = $NS ? eval("return new Test\\S(0);") :
@@ -59,7 +37,7 @@ function allTests($communicator)
     }
 
     {
-        $base = $communicator->stringToProxy("i2:default -p 12010");
+        $base = $communicator->stringToProxy(sprintf("i2:%s", $helper->getTestEndpoint()));
         $i = $base->ice_checkedCast("::Test::Inner::Inner2::I");
 
         $s1 = $NS ? eval("return new Test\\Inner\\Inner2\\S(0);") :
@@ -83,7 +61,7 @@ function allTests($communicator)
     }
 
     {
-        $base = $communicator->stringToProxy("i3:default -p 12010");
+        $base = $communicator->stringToProxy(sprintf("i3:%s", $helper->getTestEndpoint()));
         $i = $base->ice_checkedCast("::Test::Inner::I");
 
         $s1 = $NS ? eval("return new Test\\Inner\\Inner2\\S(0);") :
@@ -107,7 +85,7 @@ function allTests($communicator)
     }
 
     {
-        $base = $communicator->stringToProxy("i4:default -p 12010");
+        $base = $communicator->stringToProxy(sprintf("i4:%s", $helper->getTestEndpoint()));
         $i = $base->ice_checkedCast("::Inner::Test::Inner2::I");
 
         $s1 = $NS ? eval("return new Test\\S(0);") :
@@ -131,20 +109,31 @@ function allTests($communicator)
     }
 
     {
-        $base = $communicator->stringToProxy("i1:default -p 12010");
+        $base = $communicator->stringToProxy(sprintf("i1:%s", $helper->getTestEndpoint()));
         $i = $base->ice_checkedCast("::Test::I");
         $i->shutdown();
     }
 }
 
-echo "test same Slice type name in different scopes... ";
-flush();
-
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
-                      eval("return Ice_initialize(\$argv);");
-
-allTests($communicator);
-
-echo "ok\n";
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        try
+        {
+            echo "test same Slice type name in different scopes... ";
+            flush();
+            $communicator = $this->initialize($args);
+            allTests($this);
+            echo "ok\n";
+            $communicator->destroy();
+        }
+        catch(Exception $ex)
+        {
+            $communicator->destroy();
+            throw $ex;
+       }
+    }
+}
 
 ?>

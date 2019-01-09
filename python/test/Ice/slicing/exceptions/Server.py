@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
+from TestHelper import TestHelper
+TestHelper.loadSlice("-I. --all ServerPrivate.ice")
 import Ice
-Ice.loadSlice('-I. --all ServerPrivate.ice')
 import Test
+
 
 class TestI(Test.TestIntf):
     def shutdown(self, current=None):
@@ -155,22 +153,15 @@ class TestI(Test.TestIntf):
         p = Test.RelayPrx.uncheckedCast(current.con.createProxy(r.ice_getIdentity()))
         p.unknownPreservedAsKnownPreserved()
 
-def run(args, communicator):
-    properties = communicator.getProperties()
-    properties.setProperty("Ice.Warn.Dispatch", "0")
-    properties.setProperty("TestAdapter.Endpoints", "default -p 12010 -t 10000")
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    object = TestI()
-    adapter.add(object, Ice.stringToIdentity("Test"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
 
-try:
-    with Ice.initialize(sys.argv) as communicator:
-         status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
-
-sys.exit(not status)
+class Server(TestHelper):
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        properties.setProperty("Ice.Warn.Dispatch", "0")
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints",
+                                                     "{0} -t 10000".format(self.getTestEndpoint()))
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(TestI(), Ice.stringToIdentity("Test"))
+            adapter.activate()
+            communicator.waitForShutdown()

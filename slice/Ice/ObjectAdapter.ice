@@ -1,15 +1,23 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #pragma once
 
-[["ice-prefix", "cpp:header-ext:h", "cpp:dll-export:ICE_API", "cpp:doxygen:include:Ice/Ice.h", "objc:header-dir:objc", "objc:dll-export:ICE_API", "python:pkgdir:Ice"]]
+[["cpp:dll-export:ICE_API"]]
+[["cpp:doxygen:include:Ice/Ice.h"]]
+[["cpp:header-ext:h"]]
+
+[["ice-prefix"]]
+
+[["js:module:ice"]]
+
+[["objc:dll-export:ICE_API"]]
+[["objc:header-dir:objc"]]
+
+[["python:pkgdir:Ice"]]
 
 #include <Ice/CommunicatorF.ice>
 #include <Ice/ServantLocatorF.ice>
@@ -71,7 +79,7 @@ local interface ObjectAdapter
      * @see #deactivate
      *
      **/
-    void activate();
+    ["js:async"] void activate();
 
     /**
      *
@@ -101,7 +109,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    void waitForHold();
+    ["js:async"] void waitForHold();
 
     /**
      *
@@ -128,7 +136,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    ["cpp:noexcept"] void deactivate();
+    ["cpp:noexcept", "js:async"] void deactivate();
 
     /**
      *
@@ -142,7 +150,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    ["cpp:noexcept"] void waitForDeactivate();
+    ["cpp:noexcept", "js:async"] void waitForDeactivate();
 
     /**
      *
@@ -169,7 +177,7 @@ local interface ObjectAdapter
      * @see Communicator#destroy
      *
      **/
-    ["cpp:noexcept"] void destroy();
+    ["cpp:noexcept", "js:async"] void destroy();
 
     /**
      *
@@ -197,7 +205,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #add}, but with a facet. Calling <tt>add(servant, id)</tt>
+     * Like {@link #add}, but with a facet. Calling <code>add(servant, id)</code>
      * is equivalent to calling {@link #addFacet} with an empty facet.
      *
      * @param servant The servant to add.
@@ -224,7 +232,7 @@ local interface ObjectAdapter
      * Add a servant to this object adapter's Active Servant Map,
      * using an automatically generated UUID as its identity. Note that
      * the generated UUID identity can be accessed using the proxy's
-     * <tt>ice_getIdentity</tt> operation.
+     * <code>ice_getIdentity</code> operation.
      *
      * @param servant The servant to add.
      *
@@ -243,7 +251,7 @@ local interface ObjectAdapter
     /**
      *
      * Like {@link #addWithUUID}, but with a facet. Calling
-     * <tt>addWithUUID(servant)</tt> is equivalent to calling
+     * <code>addWithUUID(servant)</code> is equivalent to calling
      * {@link #addFacetWithUUID} with an empty facet.
      *
      * @param servant The servant to add.
@@ -325,7 +333,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #remove}, but with a facet. Calling <tt>remove(id)</tt>
+     * Like {@link #remove}, but with a facet. Calling <code>remove(id)</code>
      * is equivalent to calling {@link #removeFacet} with an empty facet.
      *
      * @param id The identity of the Ice object that is implemented by
@@ -400,7 +408,7 @@ local interface ObjectAdapter
 
     /**
      *
-     * Like {@link #find}, but with a facet. Calling <tt>find(id)</tt>
+     * Like {@link #find}, but with a facet. Calling <code>find(id)</code>
      * is equivalent to calling {@link #findFacet} with an empty
      * facet.
      *
@@ -659,7 +667,7 @@ local interface ObjectAdapter
      * an object adapter if the network interfaces used by a host changes.
      *
      **/
-    void refreshPublishedEndpoints();
+    ["js:async"] void refreshPublishedEndpoints();
 
     /**
      *

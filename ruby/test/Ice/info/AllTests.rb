@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -25,7 +22,7 @@ def getTCPConnectionInfo(info)
     end
 end
 
-def allTests(communicator)
+def allTests(helper, communicator)
     print "testing proxy endpoint information..."
     STDOUT.flush
 
@@ -72,14 +69,16 @@ def allTests(communicator)
     puts "ok"
 
     defaultHost = communicator.getProperties().getProperty("Ice.Default.Host")
-    base = communicator.stringToProxy("test:default -p 12010:udp -p 12010")
+    tcpEndpoint = helper.getTestEndpoint()
+    udpEndpoint = helper.getTestEndpoint(protocol:"udp")
+    base = communicator.stringToProxy("test:#{tcpEndpoint}:#{udpEndpoint}")
     testIntf = Test::TestIntfPrx::checkedCast(base)
 
     print "test connection endpoint information..."
     STDOUT.flush
-
+    port = helper.getTestPort()
     tcpinfo = getTCPEndpointInfo(base.ice_getConnection().getEndpoint().getInfo())
-    test(tcpinfo.port == 12010)
+    test(tcpinfo.port == port)
     test(!tcpinfo.compress)
     test(tcpinfo.host == defaultHost)
 
@@ -90,7 +89,7 @@ def allTests(communicator)
     test(port > 0)
 
     udp = base.ice_datagram().ice_getConnection().getEndpoint().getInfo()
-    test(udp.port == 12010)
+    test(udp.port == port)
     test(udp.host == defaultHost)
 
     puts "ok"
@@ -106,7 +105,7 @@ def allTests(communicator)
 
     test(!info.incoming)
     test(info.adapterName.length == 0)
-    test(tcpinfo.remotePort == 12010)
+    test(tcpinfo.remotePort == port)
     if defaultHost == "127.0.0.1"
         test(tcpinfo.remoteAddress == defaultHost)
         test(tcpinfo.localAddress == defaultHost)

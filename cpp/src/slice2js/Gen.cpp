@@ -1,30 +1,29 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <IceUtil/Functional.h>
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/InputUtil.h>
 #include <Gen.h>
-#include <limits>
-#include <sys/stat.h>
-#ifndef _WIN32
-#include <unistd.h>
-#else
-#include <direct.h>
-#endif
 #include <IceUtil/Iterator.h>
 #include <IceUtil/UUID.h>
 #include <Slice/Checksum.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
-#include <string.h>
+
+// TODO: fix this warning!
+#if defined(_MSC_VER)
+#   pragma warning(disable:4456) // shadow
+#   pragma warning(disable:4457) // shadow
+#   pragma warning(disable:4459) // shadow
+#elif defined(__clang__)
+#   pragma clang diagnostic ignored "-Wshadow"
+#elif defined(__GNUC__)
+#   pragma GCC diagnostic ignored "-Wshadow"
+#endif
 
 using namespace std;
 using namespace Slice;
@@ -87,14 +86,297 @@ getDeprecateReason(const ContainedPtr& p1, const ContainedPtr& p2, const string&
     return deprecateReason;
 }
 
+void
+printHeader(IceUtilInternal::Output& out)
+{
+    static const char* header =
+        "// **********************************************************************\n"
+        "//\n"
+        "// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
+        "//\n"
+        "// **********************************************************************\n"
+        ;
+
+    out << header;
+    out << "//\n";
+    out << "// Ice version " << ICE_STRING_VERSION << "\n";
+    out << "//\n";
 }
 
-Slice::JsVisitor::JsVisitor(Output& out) : _out(out)
+string
+escapeParam(const ParamDeclList& params, const string& name)
+{
+    string r = name;
+    for(ParamDeclList::const_iterator p = params.begin(); p != params.end(); ++p)
+    {
+        if(Slice::JsGenerator::fixId((*p)->name()) == name)
+        {
+            r = name + "_";
+            break;
+        }
+    }
+    return r;
+}
+
+void
+writeDocLines(Output& out, const StringList& lines, bool commentFirst, const string& space = " ")
+{
+    StringList l = lines;
+    if(!commentFirst)
+    {
+        out << l.front();
+        l.pop_front();
+    }
+    for(StringList::const_iterator i = l.begin(); i != l.end(); ++i)
+    {
+        out << nl << " *";
+        if(!i->empty())
+        {
+            out << space << *i;
+        }
+    }
+}
+
+void
+writeSeeAlso(Output& out, const StringList& lines, const string& space = " ")
+{
+    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    {
+        out << nl << " *";
+        if(!i->empty())
+        {
+            out << space << "@see " << *i;
+        }
+    }
+}
+
+string
+getDocSentence(const StringList& lines)
+{
+    //
+    // Extract the first sentence.
+    //
+    ostringstream ostr;
+    for(StringList::const_iterator i = lines.begin(); i != lines.end(); ++i)
+    {
+        const string ws = " \t";
+
+        if(i->empty())
+        {
+            break;
+        }
+        if(i != lines.begin() && i->find_first_not_of(ws) == 0)
+        {
+            ostr << " ";
+        }
+        string::size_type pos = i->find('.');
+        if(pos == string::npos)
+        {
+            ostr << *i;
+        }
+        else if(pos == i->size() - 1)
+        {
+            ostr << *i;
+            break;
+        }
+        else
+        {
+            //
+            // Assume a period followed by whitespace indicates the end of the sentence.
+            //
+            while(pos != string::npos)
+            {
+                if(ws.find((*i)[pos + 1]) != string::npos)
+                {
+                    break;
+                }
+                pos = i->find('.', pos + 1);
+            }
+            if(pos != string::npos)
+            {
+                ostr << i->substr(0, pos + 1);
+                break;
+            }
+            else
+            {
+                ostr << *i;
+            }
+        }
+    }
+
+    return ostr.str();
+}
+
+void
+writeDocSummary(Output& out, const ContainedPtr& p)
+{
+    if(p->comment().empty())
+    {
+        return;
+    }
+
+    CommentPtr doc = p->parseComment(false);
+
+    out << nl << "/**";
+
+    if(!doc->overview().empty())
+    {
+        writeDocLines(out, doc->overview(), true);
+    }
+
+    if(!doc->misc().empty())
+    {
+        writeDocLines(out, doc->misc(), true);
+    }
+
+    if(!doc->seeAlso().empty())
+    {
+        writeSeeAlso(out, doc->seeAlso());
+    }
+
+    if(!doc->deprecated().empty())
+    {
+        out << nl << " *";
+        out << nl << " * @deprecated ";
+        writeDocLines(out, doc->deprecated(), false);
+    }
+    else if(doc->isDeprecated())
+    {
+        out << nl << " *";
+        out << nl << " * @deprecated";
+    }
+
+    out << nl << " */";
+}
+
+enum OpDocParamType { OpDocInParams, OpDocOutParams, OpDocAllParams };
+
+void
+writeOpDocParams(Output& out, const OperationPtr& op, const CommentPtr& doc, OpDocParamType type,
+                 const StringList& preParams = StringList(), const StringList& postParams = StringList())
+{
+    ParamDeclList params;
+    switch (type)
+    {
+    case OpDocInParams:
+        params = op->inParameters();
+        break;
+    case OpDocOutParams:
+        params = op->outParameters();
+        break;
+    case OpDocAllParams:
+        params = op->parameters();
+        break;
+    }
+
+    if (!preParams.empty())
+    {
+        writeDocLines(out, preParams, true);
+    }
+
+    map<string, StringList> paramDoc = doc->parameters();
+    for (ParamDeclList::iterator p = params.begin(); p != params.end(); ++p)
+    {
+        map<string, StringList>::iterator q = paramDoc.find((*p)->name());
+        if(q != paramDoc.end())
+        {
+            out << nl << " * @param " << Slice::JsGenerator::fixId(q->first) << " ";
+            writeDocLines(out, q->second, false);
+        }
+    }
+
+    if(!postParams.empty())
+    {
+        writeDocLines(out, postParams, true);
+    }
+}
+
+void
+writeOpDocExceptions(Output& out, const OperationPtr& op, const CommentPtr& doc)
+{
+    map<string, StringList> exDoc = doc->exceptions();
+    for (map<string, StringList>::iterator p = exDoc.begin(); p != exDoc.end(); ++p)
+    {
+        //
+        // Try to locate the exception's definition using the name given in the comment.
+        //
+        string name = p->first;
+        ExceptionPtr ex = op->container()->lookupException(name, false);
+        if (ex)
+        {
+            name = ex->scoped().substr(2);
+        }
+        out << nl << " * @throws " << name << " ";
+        writeDocLines(out, p->second, false);
+    }
+}
+
+void
+writeOpDocSummary(Output& out, const OperationPtr& op, const CommentPtr& doc, OpDocParamType type, bool showExceptions,
+                  const StringList& preParams = StringList(), const StringList& postParams = StringList(),
+                  const StringList& returns = StringList())
+{
+    out << nl << "/**";
+
+    if (!doc->overview().empty())
+    {
+        writeDocLines(out, doc->overview(), true);
+    }
+
+    writeOpDocParams(out, op, doc, type, preParams, postParams);
+
+    if(!returns.empty())
+    {
+        out << nl << " * @return ";
+        writeDocLines(out, returns, false);
+    }
+
+    if(showExceptions)
+    {
+        writeOpDocExceptions(out, op, doc);
+    }
+
+    if(!doc->misc().empty())
+    {
+        writeDocLines(out, doc->misc(), true);
+    }
+
+    if(!doc->seeAlso().empty())
+    {
+        writeSeeAlso(out, doc->seeAlso());
+    }
+
+    if(!doc->deprecated().empty())
+    {
+        out << nl << " *";
+        out << nl << " * @deprecated ";
+        writeDocLines(out, doc->deprecated(), false);
+    }
+    else if(doc->isDeprecated())
+    {
+        out << nl << " *";
+        out << nl << " * @deprecated";
+    }
+
+    out << nl << " */";
+}
+
+}
+
+Slice::JsVisitor::JsVisitor(Output& out, const vector<pair<string, string> >& imports) :
+    _out(out),
+    _imports(imports)
 {
 }
 
 Slice::JsVisitor::~JsVisitor()
 {
+}
+
+vector<pair<string, string> >
+Slice::JsVisitor::imports() const
+{
+    return _imports;
 }
 
 void
@@ -132,7 +414,7 @@ Slice::JsVisitor::writeUnmarshalDataMembers(const DataMemberList& dataMembers, c
 }
 
 void
-Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers, const string& scope)
+Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers)
 {
     for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
     {
@@ -142,7 +424,7 @@ Slice::JsVisitor::writeInitDataMembers(const DataMemberList& dataMembers, const 
 }
 
 string
-Slice::JsVisitor::getValue(const string& scope, const TypePtr& type)
+Slice::JsVisitor::getValue(const string& /*scope*/, const TypePtr& type)
 {
     assert(type);
 
@@ -189,7 +471,7 @@ Slice::JsVisitor::getValue(const string& scope, const TypePtr& type)
     EnumPtr en = EnumPtr::dynamicCast(type);
     if(en)
     {
-        return getReference(scope, en->scoped()) + '.' + fixId((*en->enumerators().begin())->name());
+        return fixId(en->scoped()) + '.' + fixId((*en->enumerators().begin())->name());
     }
 
     StructPtr st = StructPtr::dynamicCast(type);
@@ -202,14 +484,14 @@ Slice::JsVisitor::getValue(const string& scope, const TypePtr& type)
 }
 
 string
-Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
+Slice::JsVisitor::writeConstantValue(const string& /*scope*/, const TypePtr& type, const SyntaxTreeBasePtr& valueType,
                                      const string& value)
 {
     ostringstream os;
     ConstPtr constant = ConstPtr::dynamicCast(valueType);
     if(constant)
     {
-        os << getReference(scope, constant->scoped());
+        os << fixId(constant->scoped());
     }
     else
     {
@@ -244,7 +526,7 @@ Slice::JsVisitor::writeConstantValue(const string& scope, const TypePtr& type, c
         {
             EnumeratorPtr lte = EnumeratorPtr::dynamicCast(valueType);
             assert(lte);
-            os << getReference(scope, ep->scoped()) << '.' << fixId(lte->name());
+            os << fixId(ep->scoped()) << '.' << fixId(lte->name());
         }
         else
         {
@@ -332,11 +614,13 @@ Slice::JsVisitor::writeDocComment(const ContainedPtr& p, const string& deprecate
     _out << nl << " **/";
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) :
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, bool typeScript) :
     _includePaths(includePaths),
-    _useStdout(false)
+    _useStdout(false),
+    _typeScript(typeScript)
 {
     _fileBase = base;
+
     string::size_type pos = base.find_last_of("/\\");
     if(pos != string::npos)
     {
@@ -350,23 +634,42 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
         file = dir + '/' + file;
     }
 
-    _out.open(file.c_str());
-    if(!_out)
+    _jsout.open(file.c_str());
+    if(!_jsout)
     {
         ostringstream os;
-        os << "cannot open `" << file << "': " << strerror(errno);
+        os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
     FileTracker::instance()->addFile(file);
 
-    printHeader();
-    printGeneratedHeader(_out, _fileBase + ".ice");
+    if(typeScript)
+    {
+        file = _fileBase + ".d.ts";
+
+        if(!dir.empty())
+        {
+            file = dir + '/' + file;
+        }
+
+        _tsout.open(file.c_str());
+        if(!_tsout)
+        {
+            ostringstream os;
+            os << "cannot open `" << file << "': " << IceUtilInternal::errorToString(errno);
+            throw FileException(__FILE__, __LINE__, os.str());
+        }
+        FileTracker::instance()->addFile(file);
+    }
 }
 
-Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir, ostream& out) :
-    _out(out),
+Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const string& /*dir*/, bool typeScript,
+                ostream& out) :
+    _jsout(out),
+    _tsout(out),
     _includePaths(includePaths),
-    _useStdout(true)
+    _useStdout(true),
+    _typeScript(typeScript)
 {
     _fileBase = base;
     string::size_type pos = base.find_last_of("/\\");
@@ -374,87 +677,153 @@ Slice::Gen::Gen(const string& base, const vector<string>& includePaths, const st
     {
         _fileBase = base.substr(pos + 1);
     }
-
-    printHeader();
-    printGeneratedHeader(_out, _fileBase + ".ice");
 }
 
 Slice::Gen::~Gen()
 {
-    if(_out.isOpen() || _useStdout)
+    if(_jsout.isOpen() || _useStdout)
     {
-        _out << '\n';
+        _jsout << '\n';
+    }
+
+    if(_tsout.isOpen() || _useStdout)
+    {
+        _tsout << '\n';
     }
 }
 
 void
 Slice::Gen::generate(const UnitPtr& p)
 {
-    //
-    // Check for global "js:ice-build" and "js:es6-module"
-    // metadata. If this is set then we are building Ice.
-    //
+    string module;
     DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
     assert(dc);
-    StringList globalMetaData = dc->getMetaData();
-    bool icejs = find(globalMetaData.begin(), globalMetaData.end(), "js:ice-build") != globalMetaData.end();
-    bool es6module = find(globalMetaData.begin(), globalMetaData.end(), "js:es6-module") != globalMetaData.end();
 
-    _out << nl << "/* eslint-disable */";
-    _out << nl << "/* jshint ignore: start */";
-    _out << nl;
+    {
+        const string prefix = "js:module:";
+        const string m = dc->findMetaData(prefix);
+        if(!m.empty())
+        {
+            module = m.substr(prefix.size());
+        }
+    }
+
+    if(_useStdout)
+    {
+        _jsout << "\n";
+        _jsout << "/** slice2js: " << _fileBase << ".js generated begin module:\"" << module << "\" **/";
+        _jsout << "\n";
+    }
+    printHeader(_jsout);
+    printGeneratedHeader(_jsout, _fileBase + ".ice");
+
+    //
+    // Check for global "js:module:ice" metadata. If this is set then we are building Ice.
+    //
+    bool icejs = module == "ice";
+
+    //
+    // Check for global "js:es6-module" metadata. If this is set we are using es6 module mapping
+    //
+    bool es6module = dc->findMetaData("js:es6-module") == "js:es6-module";
+
+    _jsout << nl << "/* eslint-disable */";
+    _jsout << nl << "/* jshint ignore: start */";
+    _jsout << nl;
 
     if(!es6module)
     {
         if(icejs)
         {
-            _out.zeroIndent();
-            _out << nl << "/* slice2js browser-bundle-skip */";
-            _out.restoreIndent();
+            _jsout.zeroIndent();
+            _jsout << nl << "/* slice2js browser-bundle-skip */";
+            _jsout.restoreIndent();
         }
-        _out << nl << "(function(module, require, exports)";
-        _out << sb;
+        _jsout << nl << "(function(module, require, exports)";
+        _jsout << sb;
         if(icejs)
         {
-            _out.zeroIndent();
-            _out << nl << "/* slice2js browser-bundle-skip-end */";
-            _out.restoreIndent();
+            _jsout.zeroIndent();
+            _jsout << nl << "/* slice2js browser-bundle-skip-end */";
+            _jsout.restoreIndent();
         }
     }
-    RequireVisitor requireVisitor(_out, _includePaths, icejs, es6module);
+    RequireVisitor requireVisitor(_jsout, _includePaths, icejs, es6module);
     p->visit(&requireVisitor, false);
     vector<string> seenModules = requireVisitor.writeRequires(p);
 
-    TypesVisitor typesVisitor(_out, seenModules, icejs);
+    TypesVisitor typesVisitor(_jsout, seenModules, icejs);
     p->visit(&typesVisitor, false);
 
     //
     // Export the top-level modules.
     //
-    ExportVisitor exportVisitor(_out, icejs, es6module);
+    ExportVisitor exportVisitor(_jsout, icejs, es6module);
     p->visit(&exportVisitor, false);
 
     if(!es6module)
     {
         if(icejs)
         {
-            _out.zeroIndent();
-            _out << nl << "/* slice2js browser-bundle-skip */";
-            _out.restoreIndent();
+            _jsout.zeroIndent();
+            _jsout << nl << "/* slice2js browser-bundle-skip */";
+            _jsout.restoreIndent();
         }
 
-        _out << eb;
-        _out << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
-             << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require :"
-             << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,"
-             << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports :"
-             << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self : window));";
+        _jsout << eb;
+        _jsout << nl << "(typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? module : undefined,"
+               << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? require :"
+               << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self.Ice._require : window.Ice._require,"
+               << nl << " typeof(global) !== \"undefined\" && typeof(global.process) !== \"undefined\" ? exports :"
+               << nl << " (typeof WorkerGlobalScope !== \"undefined\" && self instanceof WorkerGlobalScope) ? self : window));";
 
         if(icejs)
         {
-            _out.zeroIndent();
-            _out << nl << "/* slice2js browser-bundle-skip-end */";
-            _out.restoreIndent();
+            _jsout.zeroIndent();
+            _jsout << nl << "/* slice2js browser-bundle-skip-end */";
+            _jsout.restoreIndent();
+        }
+    }
+
+    if(_useStdout)
+    {
+        _jsout << "\n";
+        _jsout << "/** slice2js: generated end **/";
+        _jsout << "\n";
+    }
+
+    if(_typeScript)
+    {
+        if(_useStdout)
+        {
+            _tsout << "\n";
+            _tsout << "/** slice2js: " << _fileBase << ".d.ts generated begin module:\"" << module << "\" **/";
+            _tsout << "\n";
+        }
+        printHeader(_tsout);
+        printGeneratedHeader(_tsout, _fileBase + ".ice");
+
+        TypeScriptRequireVisitor requireVisitor(_tsout, icejs);
+        p->visit(&requireVisitor, false);
+
+        //
+        // If at some point TypeScript adds an operator to refer to a type in the global scope
+        // we can get rid of the TypeScriptAliasVisitor and use this. For now we need to generate
+        // a type alias when there is an abiguity.
+        // see: https://github.com/Microsoft/TypeScript/issues/983
+        //
+        TypeScriptAliasVisitor aliasVisitor(_tsout);
+        p->visit(&aliasVisitor, false);
+        aliasVisitor.writeAlias(p);
+
+        TypeScriptVisitor typeScriptVisitor(_tsout, requireVisitor.imports());
+        p->visit(&typeScriptVisitor, false);
+
+        if(_useStdout)
+        {
+            _tsout << "\n";
+            _tsout << "/** slice2js: generated end **/";
+            _tsout << "\n";
         }
     }
 }
@@ -462,27 +831,15 @@ Slice::Gen::generate(const UnitPtr& p)
 void
 Slice::Gen::closeOutput()
 {
-    _out.close();
-}
+    if(_jsout.isOpen())
+    {
+        _jsout.close();
+    }
 
-void
-Slice::Gen::printHeader()
-{
-    static const char* header =
-"// **********************************************************************\n"
-"//\n"
-"// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.\n"
-"//\n"
-"// This copy of Ice is licensed to you under the terms described in the\n"
-"// ICE_LICENSE file included in this distribution.\n"
-"//\n"
-"// **********************************************************************\n"
-        ;
-
-    _out << header;
-    _out << "//\n";
-    _out << "// Ice version " << ICE_STRING_VERSION << "\n";
-    _out << "//\n";
+    if(_tsout.isOpen())
+    {
+        _tsout.close();
+    }
 }
 
 Slice::Gen::RequireVisitor::RequireVisitor(IceUtilInternal::Output& out, vector<string> includePaths,
@@ -519,14 +876,14 @@ Slice::Gen::RequireVisitor::visitClassDefStart(const ClassDefPtr& p)
 }
 
 bool
-Slice::Gen::RequireVisitor::visitStructStart(const StructPtr& p)
+Slice::Gen::RequireVisitor::visitStructStart(const StructPtr&)
 {
     _seenStruct = true; // Set regardless of whether p->isLocal()
     return false;
 }
 
 void
-Slice::Gen::RequireVisitor::visitOperation(const OperationPtr& p)
+Slice::Gen::RequireVisitor::visitOperation(const OperationPtr&)
 {
     _seenOperation = true;
 }
@@ -550,9 +907,19 @@ void
 Slice::Gen::RequireVisitor::visitSequence(const SequencePtr& seq)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(seq->type());
-    if(builtin && builtin->kind() == Builtin::KindObject)
+    if(builtin)
     {
-        _seenObjectSeq = true;
+        switch(builtin->kind())
+        {
+        case Builtin::KindObject:
+            _seenObjectSeq = true;
+            break;
+        case Builtin::KindObjectProxy:
+            _seenObjectProxySeq = true;
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -560,14 +927,24 @@ void
 Slice::Gen::RequireVisitor::visitDictionary(const DictionaryPtr& dict)
 {
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(dict->valueType());
-    if(builtin && builtin->kind() == Builtin::KindObject)
+    if(builtin)
     {
-        _seenObjectDict = true;
+        switch(builtin->kind())
+        {
+        case Builtin::KindObject:
+            _seenObjectDict = true;
+            break;
+        case Builtin::KindObjectProxy:
+            _seenObjectProxyDict = true;
+            break;
+        default:
+            break;
+        }
     }
 }
 
 void
-Slice::Gen::RequireVisitor::visitEnum(const EnumPtr& p)
+Slice::Gen::RequireVisitor::visitEnum(const EnumPtr&)
 {
     _seenEnum = true;
 }
@@ -580,66 +957,12 @@ bool iceBuiltinModule(const string& name)
     return name == "Glacier2" || name == "Ice" || name == "IceGrid" || name == "IceMX" || name == "IceStorm";
 }
 
-string
-relativePath(string p1, string p2)
-{
-    vector<string> tokens1;
-    vector<string> tokens2;
-
-    splitString(p1, "/\\", tokens1);
-    splitString(p2, "/\\", tokens2);
-
-    string f1 = tokens1.back();
-    string f2 = tokens2.back();
-
-    tokens1.pop_back();
-    tokens2.pop_back();
-
-    vector<string>::const_iterator i1 = tokens1.begin();
-    vector<string>::const_iterator i2 = tokens2.begin();
-
-    while(i1 != tokens1.end() && i2 != tokens2.end() && *i1 == *i2)
-    {
-        i1++;
-        i2++;
-    }
-
-    //
-    // Different volumes, relative path not possible.
-    //
-    if(i1 == tokens1.begin() && i2 == tokens2.begin())
-    {
-        return p1;
-    }
-
-    string newPath;
-    if(i2 == tokens2.end())
-    {
-        newPath += "./";
-        for(; i1 != tokens1.end(); ++i1)
-        {
-            newPath += *i1 + "/";
-        }
-    }
-    else
-    {
-        for(;i2 != tokens2.end();++i2)
-        {
-            newPath += "../";
-        }
-    }
-    newPath += f1;
-
-    return newPath;
-}
-
 }
 
 vector<string>
 Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
 {
     vector<string> seenModules;
-
     map<string, list<string> > requires;
     if(_icejs)
     {
@@ -696,58 +1019,111 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
     StringList includes = p->includeFiles();
     if(_es6modules)
     {
-        _out << nl << "import { Ice } from \"ice\";";
-        _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
+        const string prefix = "js:module:";
+        DefinitionContextPtr dc = p->findDefinitionContext(p->topLevelFile());
+        string m1 = dc->findMetaData(prefix);
+        if(!m1.empty())
+        {
+            m1 = m1.substr(prefix.size());
+        }
 
         seenModules.push_back("Ice");
+
+        map<string, set<string> > imports;
+        set<string> mImports;
+        {
+            mImports.insert("Ice");
+            imports["ice"] = mImports;
+        }
 
         for(StringList::const_iterator i = includes.begin(); i != includes.end(); ++i)
         {
             set<string> modules = p->getTopLevelModules(*i);
-            vector<string> newModules;
-            bool externals = false; // is there any external modules?
-            for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
+
+            dc = p->findDefinitionContext(*i);
+
+            string m2 = dc->findMetaData(prefix);
+            if(!m2.empty())
             {
-                if(find(seenModules.begin(), seenModules.end(), *j) == seenModules.end())
+                m2 = m2.substr(prefix.size());
+            }
+
+            if(m1 != m2 && !m2.empty())
+            {
+                for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
                 {
-                    seenModules.push_back(*j);
-                    if(!_icejs && iceBuiltinModule(*j))
+                    if(imports.find(m2) == imports.end())
                     {
-                        _out << nl << "import { " << *j << " } from \"ice\";";
+                        set<string> mImports;
+                        mImports.insert(*j);
+                        imports[m2] = mImports;
                     }
                     else
                     {
-                        newModules.push_back(*j);
-                        externals = true;
+                        imports[m2].insert(*j);
                     }
                 }
             }
-
-            if(externals)
+            else
             {
+                set<string> newModules;
+                for(set<string>::const_iterator j = modules.begin(); j != modules.end(); ++j)
+                {
+                    if(find(seenModules.begin(), seenModules.end(), *j) == seenModules.end())
+                    {
+                        seenModules.push_back(*j);
+                        newModules.insert(*j);
+                    }
+                }
+
+                string f = relativePath(*i, p->topLevelFile());
+                string::size_type pos;
+                if((pos = f.rfind('.')) != string::npos)
+                {
+                    f.erase(pos);
+                }
+
+                imports[f] = newModules;
+            }
+        }
+
+        //
+        // We first import the Ice runtime
+        //
+        _out << nl << "import { ";
+        mImports = imports["ice"];
+        for(set<string>::const_iterator i = mImports.begin(); i != mImports.end();)
+        {
+            _out << (*i);
+            if(++i != mImports.end())
+            {
+                _out << ", ";
+            }
+        }
+        _out << " } from \"ice\";";
+
+        _out << nl << "const _ModuleRegistry = Ice._ModuleRegistry;";
+
+        for(map<string, set<string> >::const_iterator i = imports.begin(); i != imports.end(); ++i)
+        {
+            if(i->first != "ice")
+            {
+                mImports = i->second;
                 _out << nl << "import ";
-                if(!newModules.empty())
+                if(!mImports.empty())
                 {
                     _out << "{ ";
-                    for(vector<string>::const_iterator j = newModules.begin(); j != newModules.end();)
+                    for(set<string>::const_iterator i = mImports.begin(); i != mImports.end();)
                     {
-                        _out << *j;
-                        ++j;
-                        if(j != newModules.end())
+                        _out << (*i);
+                        if(++i != mImports.end())
                         {
                             _out << ", ";
                         }
                     }
                     _out << " } from ";
                 }
-
-                string result = relativePath(*i, p->topLevelFile());
-                string::size_type pos;
-                if((pos = result.rfind('.')) != string::npos)
-                {
-                    result.erase(pos);
-                }
-                _out << "\"" << result << "\";";
+                _out << "\"" << i->first << "\";";
             }
         }
         _out << nl << "const Slice = Ice.Slice;";
@@ -777,6 +1153,7 @@ Slice::Gen::RequireVisitor::writeRequires(const UnitPtr& p)
                 }
             }
         }
+
         if(_icejs)
         {
             _out.zeroIndent();
@@ -898,7 +1275,7 @@ Slice::Gen::TypesVisitor::visitModuleStart(const ModulePtr& p)
 }
 
 void
-Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr& p)
+Slice::Gen::TypesVisitor::visitModuleEnd(const ModulePtr&)
 {
 }
 
@@ -926,7 +1303,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         base = bases.front();
         bases.erase(bases.begin());
-        baseRef = getReference(scope, base->scoped());
+        baseRef = fixId(base->scoped());
     }
     else
     {
@@ -1041,7 +1418,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             {
                 _out << nl << "super" << spar << baseParamNames << epar << ';';
             }
-            writeInitDataMembers(dataMembers, scope);
+            writeInitDataMembers(dataMembers);
             _out << eb;
 
             if(!p->isLocal())
@@ -1092,12 +1469,12 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
     //
     // Define servant an proxy types for non local classes
     //
-    if(!p->isLocal())
+    if(!p->isLocal() && (p->isInterface() || !p->allOperations().empty()))
     {
         _out << sp;
         writeDocComment(p, getDeprecateReason(p, 0, "type"));
         _out << nl << localScope << "." << (p->isInterface() ? p->name() :  p->name() + "Disp") << " = class extends ";
-        if(hasBaseClass)
+        if(hasBaseClass && !base->allOperations().empty())
         {
             _out << getLocalScope(base->scope())  << "." << base->name() << "Disp";
         }
@@ -1141,7 +1518,7 @@ Slice::Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
         // Generate a proxy class for interfaces or classes with operations.
         //
         string proxyType = "undefined";
-        if(p->isInterface() || p->allOperations().size() > 0)
+        if(p->isInterface() || !p->allOperations().empty())
         {
             proxyType = localScope + '.' + prxName;
             string baseProxy = "Ice.ObjectPrx";
@@ -1443,7 +1820,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     string baseRef;
     if(base)
     {
-        baseRef = getReference(scope, base->scoped());
+        baseRef = fixId(base->scoped());
     }
     else
     {
@@ -1515,7 +1892,7 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << "_cause = \"\"" << epar;
     _out << sb;
     _out << nl << "super" << spar << baseParamNames << "_cause" << epar << ';';
-    writeInitDataMembers(dataMembers, scope);
+    writeInitDataMembers(dataMembers);
     _out << eb;
 
     _out << sp;
@@ -1529,8 +1906,6 @@ Slice::Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     _out << sb;
     _out << nl << "return \"" << p->scoped() << "\";";
     _out << eb;
-
-    // TODO: equals?
 
     if(!p->isLocal())
     {
@@ -1631,7 +2006,7 @@ Slice::Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     _out << epar;
     _out << sb;
-    writeInitDataMembers(dataMembers, scope);
+    writeInitDataMembers(dataMembers);
     _out << eb;
 
     if(!p->isLocal())
@@ -1900,4 +2275,1024 @@ Slice::Gen::ExportVisitor::visitModuleStart(const ModulePtr& p)
         }
     }
     return false;
+}
+
+Slice::Gen::TypeScriptRequireVisitor::TypeScriptRequireVisitor(IceUtilInternal::Output& out, bool icejs) :
+    JsVisitor(out),
+    _icejs(icejs),
+    _nextImport(0)
+{
+}
+
+string
+Slice::Gen::TypeScriptRequireVisitor::nextImportPrefix()
+{
+    ostringstream ns;
+    ns << "iceNS" << _nextImport++;
+    return ns.str();
+}
+
+void
+Slice::Gen::TypeScriptRequireVisitor::addImport(const TypePtr& definition, const ContainedPtr& toplevel)
+{
+    if(!BuiltinPtr::dynamicCast(definition))
+    {
+        const string m1 = getModuleMetadata(definition);
+        const string m2 = getModuleMetadata(toplevel);
+
+        const string p1 = definition->definitionContext()->filename();
+        const string p2 = toplevel->definitionContext()->filename();
+
+        addImport(m1, m2, p1, p2);
+    }
+}
+
+void
+Slice::Gen::TypeScriptRequireVisitor::addImport(const ContainedPtr& definition, const ContainedPtr& toplevel)
+{
+    const string m1 = getModuleMetadata(definition);
+    const string m2 = getModuleMetadata(toplevel);
+
+    const string p1 = definition->definitionContext()->filename();
+    const string p2 = toplevel->definitionContext()->filename();
+
+    addImport(m1, m2, p1, p2);
+}
+
+void
+Slice::Gen::TypeScriptRequireVisitor::addImport(const string& m1, const string& m2,
+                                                const string& p1, const string& p2)
+{
+    //
+    // Generate an import for a definition that is outside a JS module and comes from
+    // a different definition context or for a definition defined in a module different
+    // than the current module.
+    //
+    if(m1.empty())
+    {
+        if(p1 != p2)
+        {
+            string relpath = relativePath(p1, p2);
+
+            string::size_type pos = relpath.rfind('.');
+            if(pos != string::npos)
+            {
+                relpath.erase(pos);
+            }
+
+            for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+            {
+                if(i->first == relpath)
+                {
+                    return;
+                }
+            }
+            _imports.push_back(make_pair(relpath, nextImportPrefix()));
+        }
+    }
+    else if(m1 != m2)
+    {
+        for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+        {
+            if(i->first == m1)
+            {
+                return;
+            }
+        }
+        _imports.push_back(make_pair(m1, nextImportPrefix()));
+    }
+}
+
+bool
+Slice::Gen::TypeScriptRequireVisitor::visitModuleStart(const ModulePtr& p)
+{
+    //
+    // Import ice module if not building Ice
+    //
+    if(UnitPtr::dynamicCast(p->container()) && !_icejs && _imports.empty())
+    {
+        _imports.push_back(make_pair("ice", nextImportPrefix()));
+    }
+    return true;
+}
+
+bool
+Slice::Gen::TypeScriptRequireVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    //
+    // Add imports required for base classes
+    //
+    ClassList bases = p->bases();
+    for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    {
+        addImport(ContainedPtr::dynamicCast(*i), p);
+    }
+
+    //
+    // Add imports required for data members
+    //
+    const DataMemberList allDataMembers = p->allDataMembers();
+    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    {
+        addImport((*i)->type(), p);
+    }
+
+    //
+    // Add imports required for operation parameters and return type
+    //
+    const OperationList operationList = p->allOperations();
+    for(OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
+    {
+        const TypePtr ret = (*i)->returnType();
+        if(ret && ret->definitionContext())
+        {
+            addImport(ret, p);
+        }
+
+        const ParamDeclList paramList = (*i)->parameters();
+        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        {
+            addImport((*j)->type(), p);
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Gen::TypeScriptRequireVisitor::visitStructStart(const StructPtr& p)
+{
+    //
+    // Add imports required for data members
+    //
+    const DataMemberList dataMembers = p->dataMembers();
+    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    {
+        addImport((*i)->type(), p);
+    }
+    return false;
+}
+
+bool
+Slice::Gen::TypeScriptRequireVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    //
+    // Add imports required for base exceptions
+    //
+    ExceptionPtr base = p->base();
+    if(base)
+    {
+        addImport(ContainedPtr::dynamicCast(base), p);
+    }
+
+    //
+    // Add imports required for data members
+    //
+    const DataMemberList allDataMembers = p->allDataMembers();
+    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    {
+        addImport((*i)->type(), p);
+    }
+    return false;
+}
+
+void
+Slice::Gen::TypeScriptRequireVisitor::visitSequence(const SequencePtr& seq)
+{
+    //
+    // Add import required for the sequence element type
+    //
+    addImport(seq->type(), seq);
+}
+
+void
+Slice::Gen::TypeScriptRequireVisitor::visitDictionary(const DictionaryPtr& dict)
+{
+    //
+    // Add imports required for the dictionary key and value types
+    //
+    addImport(dict->keyType(), dict);
+    addImport(dict->valueType(), dict);
+}
+
+Slice::Gen::TypeScriptAliasVisitor::TypeScriptAliasVisitor(IceUtilInternal::Output& out) :
+    JsVisitor(out)
+{
+}
+
+void
+Slice::Gen::TypeScriptAliasVisitor::addAlias(const ExceptionPtr& type, const ContainedPtr& toplevel)
+{
+    string m1 = getModuleMetadata(ContainedPtr::dynamicCast(type));
+    string m2 = getModuleMetadata(toplevel);
+
+    //
+    // Do not add alias for a type defined in the current module
+    //
+    if(!m1.empty() && m1 == m2)
+    {
+        return;
+    }
+
+    const string prefix = importPrefix(ContainedPtr::dynamicCast(type), toplevel, imports());
+    const string typeS = prefix + getUnqualified(fixId(type->scoped()), toplevel->scope(), prefix);
+
+    addAlias(typeS, prefix, toplevel);
+}
+
+void
+Slice::Gen::TypeScriptAliasVisitor::addAlias(const TypePtr& type, const ContainedPtr& toplevel)
+{
+    string m1 = getModuleMetadata(type);
+    string m2 = getModuleMetadata(toplevel);
+
+    //
+    // Do not add alias for a type defined in the current module
+    //
+    if(!m1.empty() && m1 == m2)
+    {
+        return;
+    }
+
+    addAlias(typeToString(type, toplevel, imports(), true),
+             importPrefix(type, toplevel, imports()),
+             toplevel);
+}
+
+void
+Slice::Gen::TypeScriptAliasVisitor::addAlias(const string& type, const string& prefix,
+                                             const ContainedPtr& toplevel)
+{
+    const string scope = fixId(toplevel->scoped()) + ".";
+    //
+    // When using an import prefix we don't need an alias, prefixes use iceNSXX that is reserved
+    // name prefix
+    //
+    string::size_type i = type.find(".");
+    if(prefix.empty() && i != string::npos)
+    {
+        if(scope.find("." + type.substr(0, i + 1)) != string::npos)
+        {
+            for(vector<pair<string, string> >::const_iterator j = _aliases.begin(); j != _aliases.end(); ++j)
+            {
+                if(j->first == type)
+                {
+                    return;
+                }
+            }
+            string alias = type;
+            replace(alias.begin(), alias.end(), '.', '_');
+            //
+            // We prefix alias with iceA this avoid conflict with iceNSX used for
+            // import prefixes
+            //
+            _aliases.push_back(make_pair(type, "iceA_" + alias));
+        }
+    }
+}
+
+bool
+Slice::Gen::TypeScriptAliasVisitor::visitModuleStart(const ModulePtr&)
+{
+    return true;
+}
+
+bool
+Slice::Gen::TypeScriptAliasVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    ModulePtr module = ModulePtr::dynamicCast(p->container());
+    //
+    // Add alias required for base classes
+    //
+    ClassList bases = p->bases();
+    for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    {
+        addAlias(TypePtr::dynamicCast((*i)->declaration()), module);
+    }
+
+    //
+    // Add alias required for data members
+    //
+    const DataMemberList allDataMembers = p->allDataMembers();
+    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    {
+        addAlias((*i)->type(), module);
+    }
+
+    //
+    // Add alias required for operation parameters
+    //
+    const OperationList operationList = p->allOperations();
+    for(OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
+    {
+        const TypePtr ret = (*i)->returnType();
+        if(ret && ret->definitionContext())
+        {
+            addAlias(ret, module);
+        }
+
+        const ParamDeclList paramList = (*i)->parameters();
+        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        {
+            addAlias((*j)->type(), module);
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Gen::TypeScriptAliasVisitor::visitStructStart(const StructPtr& p)
+{
+    ModulePtr module = ModulePtr::dynamicCast(p->container());
+    //
+    // Add alias required for data members
+    //
+    const DataMemberList dataMembers = p->dataMembers();
+    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    {
+        addAlias((*i)->type(), module);
+    }
+    return false;
+}
+
+bool
+Slice::Gen::TypeScriptAliasVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    ModulePtr module = ModulePtr::dynamicCast(p->container());
+    //
+    // Add alias required for base exception
+    //
+    ExceptionPtr base = p->base();
+    if(base)
+    {
+        addAlias(base, module);
+    }
+
+    //
+    // Add alias required for data members
+    //
+    const DataMemberList allDataMembers = p->allDataMembers();
+    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    {
+        addAlias((*i)->type(), module);
+    }
+    return false;
+}
+
+void
+Slice::Gen::TypeScriptAliasVisitor::visitSequence(const SequencePtr& seq)
+{
+    addAlias(seq->type(), ModulePtr::dynamicCast(seq->container()));
+}
+
+void
+Slice::Gen::TypeScriptAliasVisitor::visitDictionary(const DictionaryPtr& dict)
+{
+    ModulePtr module = ModulePtr::dynamicCast(dict->container());
+    addAlias(dict->keyType(), module);
+    addAlias(dict->valueType(), module);
+}
+
+void
+Slice::Gen::TypeScriptAliasVisitor::writeAlias(const UnitPtr&)
+{
+    if(!_aliases.empty())
+    {
+        _out << sp;
+        for(vector<pair<string, string> >::const_iterator i = _aliases.begin(); i != _aliases.end(); ++i)
+        {
+            _out << nl << "type " << i->second << " = " << i->first << ";";
+        }
+    }
+}
+
+Slice::Gen::TypeScriptVisitor::TypeScriptVisitor(::IceUtilInternal::Output& out,
+                                                 const vector<pair<string, string> >& imports) :
+    JsVisitor(out, imports),
+    _wroteImports(false)
+{
+}
+
+void
+Slice::Gen::TypeScriptVisitor::writeImports()
+{
+    if(!_wroteImports)
+    {
+        for(vector<pair<string, string> >::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+        {
+            _out << nl << "import * as " << i->second << " from \"" << i->first << "\"";
+        }
+        _wroteImports = true;
+    }
+}
+
+bool
+Slice::Gen::TypeScriptVisitor::visitModuleStart(const ModulePtr& p)
+{
+    UnitPtr unit = UnitPtr::dynamicCast(p->container());
+    if(unit)
+    {
+        _out << sp;
+        writeImports();
+        _out << nl << "export namespace " << fixId(p->name()) << sb;
+    }
+    else
+    {
+        _out << nl << "namespace " << fixId(p->name()) << sb;
+    }
+    return true;
+}
+
+void
+Slice::Gen::TypeScriptVisitor::visitModuleEnd(const ModulePtr&)
+{
+    _out << eb; // namespace end
+}
+
+bool
+Slice::Gen::TypeScriptVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string icePrefix = importPrefix("Ice.", p);
+    if(p->isDelegate())
+    {
+        // A delegate only has one operation
+        OperationPtr op = p->allOperations().front();
+        CommentPtr comment = op->parseComment(false);
+        if(comment)
+        {
+            writeOpDocSummary(_out, op, comment, OpDocAllParams, true, StringList(), StringList(), comment->returns());
+        }
+        _out << nl << "type " << fixId(p->name()) << " = " << spar;
+        ParamDeclList paramList = op->parameters();
+        for(ParamDeclList::iterator q = paramList.begin(); q != paramList.end(); ++q)
+        {
+            ostringstream os;
+            os << fixId((*q)->name()) << ":";
+            if((*q)->isOutParam())
+            {
+                os << icePrefix << getUnqualified("Ice.Holder", p->scope(), icePrefix) << "<";
+            }
+            os << typeToString((*q)->type(), p, imports(), true, false, true);
+            if((*q)->isOutParam())
+            {
+                os << ">";
+            }
+            _out << os.str();
+        }
+        _out << epar << " => ";
+        TypePtr ret = op->returnType();
+        if(ret)
+        {
+            _out << typeToString(ret, p, imports(), true, false, true) << ";";
+        }
+        else
+        {
+            _out << "void;";
+        }
+    }
+    else if(p->isLocal())
+    {
+        const ClassList bases = p->bases();
+        const DataMemberList dataMembers = p->dataMembers();
+        const DataMemberList allDataMembers = p->allDataMembers();
+
+        _out << sp;
+        writeDocSummary(_out, p);
+        _out << nl;
+        _out << (p->isInterface() ? "interface" : "class") << " " << fixId(p->name());
+        if(!bases.empty() && !bases.front()->isInterface())
+        {
+            const string prefix = importPrefix(ContainedPtr::dynamicCast(bases.front()), p, imports());
+            _out << " extends " << prefix << getUnqualified(fixId(bases.front()->scoped()), p->scope(), prefix);
+        }
+        _out << sb;
+        if(!p->isInterface())
+        {
+            _out << nl << "/**";
+            _out << nl << " * One-shot constructor to initialize all data members.";
+            for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+            {
+                CommentPtr comment = (*q)->parseComment(false);
+                if(comment)
+                {
+                    _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+                }
+            }
+            _out << nl << " */";
+            _out << nl << "constructor" << spar;
+            for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+            {
+                _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+            }
+            _out << epar << ";";
+
+            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            {
+                writeDocSummary(_out, *q);
+                _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true)
+                     << ";";
+            }
+        }
+
+        OperationList allOperations = p->allOperations();
+        for(OperationList::const_iterator q = allOperations.begin(); q != allOperations.end(); ++q)
+        {
+            OperationPtr op = *q;
+            ParamDeclList params = op->parameters();
+            ParamDeclList inParams, outParams;
+            for(ParamDeclList::const_iterator r = params.begin(); r != params.end(); ++r)
+            {
+                if((*r)->isOutParam())
+                {
+                    outParams.push_back(*r);
+                }
+                else
+                {
+                    inParams.push_back(*r);
+                }
+            }
+
+            TypePtr ret = op->returnType();
+            bool async = op->hasMetaData("js:async") || op->hasMetaData("async-oneway");
+            CommentPtr comment = op->parseComment(false);
+            if(comment)
+            {
+                StringList returns;
+                if(async)
+                {
+                    returns.push_back("@returns The asynchronous result object for the invocation.");
+                }
+                else if(ret)
+                {
+                    returns = comment->returns();
+                }
+                writeOpDocSummary(_out, op, comment, OpDocAllParams, true, StringList(), StringList(), returns);
+            }
+
+            _out << nl << fixId((*q)->name()) << spar;
+            for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); r++)
+            {
+                _out << (fixId((*r)->name()) + ":" + typeToString((*r)->type(), p, imports(), true, false, true));
+            }
+
+            for(ParamDeclList::const_iterator r = outParams.begin(); r != outParams.end(); r++)
+            {
+                const string prefix = importPrefix("Ice.Holder", p);
+                _out << (fixId((*r)->name()) + ":"  + prefix +
+                         getUnqualified("Ice.Holder", p->scope(), prefix) + "<" +
+                         typeToString((*r)->type(), p, imports(), true, false, true) + ">");
+            }
+
+            _out << epar;
+
+            _out << ":";
+            if(async)
+            {
+               _out << icePrefix << getUnqualified("Ice.AsyncResultBase", p->scope(), icePrefix) << "<";
+            }
+
+            if(ret)
+            {
+                _out << typeToString(ret, p, imports(), true, false, true);
+            }
+            else
+            {
+                _out << "void";
+            }
+
+            if (async)
+            {
+                _out << ">";
+            }
+            _out << ";";
+        }
+
+        if(p->hasMetaData("js:comparable"))
+        {
+            _out << nl << "equals(rhs:any):boolean";
+        }
+        _out << eb;
+    }
+    else
+    {
+        const OperationList ops = p->allOperations();
+        if(p->isInterface() || !ops.empty())
+        {
+            //
+            // Define servant an proxy types for non local classes
+            //
+            _out << sp;
+            _out << nl << "abstract class " << fixId(p->name() + "Prx")
+                 << " extends " << icePrefix << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix);
+            _out << sb;
+
+            for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+            {
+                const OperationPtr op = *q;
+                const ParamDeclList paramList = op->parameters();
+                const TypePtr ret = op->returnType();
+                ParamDeclList inParams, outParams;
+                for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+                {
+                    if((*r)->isOutParam())
+                    {
+                        outParams.push_back(*r);
+                    }
+                    else
+                    {
+                        inParams.push_back(*r);
+                    }
+                }
+
+                const string contextParam = escapeParam(paramList, "context");
+                CommentPtr comment = op->parseComment(false);
+                const string contextDoc = "@param " + contextParam + " The Context map to send with the invocation.";
+                const string asyncDoc = "The asynchronous result object for the invocation.";
+                if(comment)
+                {
+                    StringList postParams, returns;
+                    postParams.push_back(contextDoc);
+                    returns.push_back(asyncDoc);
+                    writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
+                }
+                _out << nl << fixId((*q)->name()) << spar;
+                for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+                {
+                    _out << (fixId((*r)->name()) +
+                             ((*r)->optional() ? "?" : "") +
+                             ":" +
+                             typeToString((*r)->type(), p, imports(), true, false, true));
+                }
+                _out << "context?:Map<string, string>";
+                _out << epar;
+
+                _out << ":" << icePrefix << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix);
+                if(!ret && outParams.empty())
+                {
+                    _out << "<void>";
+                }
+                else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+                {
+                    TypePtr t = ret ? ret : outParams.front()->type();
+                    _out << "<" << typeToString(t, p, imports(), true, false, true) << ">";
+                }
+                else
+                {
+                    _out << "<[";
+                    if(ret)
+                    {
+                        _out << typeToString(ret, p, imports(), true, false, true) << ", ";
+                    }
+
+                    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+                    {
+                        _out << typeToString((*i)->type(), p, imports(), true, false, true);
+                        if(++i != outParams.end())
+                        {
+                            _out << ", ";
+                        }
+                    }
+
+                    _out << "]>";
+                }
+
+                _out << ";";
+            }
+
+            const string icePrefix = importPrefix("Ice.ObjectPrx", p);
+            _out << sp;
+            _out << nl << "/**";
+            _out << nl << " * Downcasts a proxy without confirming the target object's type via a remote invocation.";
+            _out << nl << " * @param prx The target proxy.";
+            _out << nl << " * @return A proxy with the requested type.";
+            _out << nl << " */";
+            _out << nl << "static uncheckedCast(prx:" << icePrefix
+                 << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
+                 << "facet?:string):"
+                 << fixId(p->name() + "Prx") << ";";
+            _out << nl << "/**";
+            _out << nl << " * Downcasts a proxy after confirming the target object's type via a remote invocation.";
+            _out << nl << " * @param prx The target proxy.";
+            _out << nl << " * @param facet A facet name.";
+            _out << nl << " * @param context The context map for the invocation.";
+            _out << nl << " * @return A proxy with the requested type and facet, or nil if the target proxy is nil or the target";
+            _out << nl << " * object does not support the requested type.";
+            _out << nl << " */";
+            _out << nl << "static checkedCast(prx:" << icePrefix
+                 << getUnqualified("Ice.ObjectPrx", p->scope(), icePrefix) << ", "
+                 << "facet?:string, contex?:Map<string, string>):" << icePrefix
+                 << getUnqualified("Ice.AsyncResult", p->scope(), icePrefix) << "<" << fixId(p->name() + "Prx") << ">;";
+            _out << eb;
+
+            _out << sp;
+            _out << nl << "abstract class " << fixId(p->name() + (p->isInterface() ? "" : "Disp"))
+                 << " extends " << icePrefix << getUnqualified("Ice.Object", p->scope(), icePrefix);
+            _out << sb;
+            for(OperationList::const_iterator q = ops.begin(); q != ops.end(); ++q)
+            {
+                const OperationPtr op = *q;
+                const ParamDeclList paramList = op->parameters();
+                const TypePtr ret = op->returnType();
+                ParamDeclList inParams, outParams;
+                for(ParamDeclList::const_iterator r = paramList.begin(); r != paramList.end(); ++r)
+                {
+                    if((*r)->isOutParam())
+                    {
+                        outParams.push_back(*r);
+                    }
+                    else
+                    {
+                        inParams.push_back(*r);
+                    }
+                }
+
+                const string currentParam = escapeParam(inParams, "current");
+                CommentPtr comment = p->parseComment(false);
+                const string currentDoc = "@param " + currentParam + " The Current object for the invocation.";
+                const string resultDoc = "The result or a promise like object that will "
+                    "be resolved with the result of the invocation.";
+                if(comment)
+                {
+                    StringList postParams, returns;
+                    postParams.push_back(currentDoc);
+                    returns.push_back(resultDoc);
+                    writeOpDocSummary(_out, op, comment, OpDocInParams, false, StringList(), postParams, returns);
+                }
+                _out << nl << "abstract " << fixId((*q)->name()) << spar;
+                for(ParamDeclList::const_iterator r = inParams.begin(); r != inParams.end(); ++r)
+                {
+                    _out << (fixId((*r)->name()) + ":" + typeToString((*r)->type(), p, imports(), true, false, true));
+                }
+                _out << ("current:" + icePrefix + getUnqualified("Ice.Current", p->scope(), icePrefix));
+                _out << epar << ":";
+
+                if(!ret && outParams.empty())
+                {
+                    _out << "PromiseLike<void>|void";
+                }
+                else if((ret && outParams.empty()) || (!ret && outParams.size() == 1))
+                {
+                    TypePtr t = ret ? ret : outParams.front()->type();
+                    string returnType = typeToString(t, p, imports(), true, false, true);
+                    _out << "PromiseLike<" << returnType  << ">|" << returnType;
+                }
+                else
+                {
+                    ostringstream os;
+                    if(ret)
+                    {
+                        os << typeToString(ret, p, imports(), true, false, true) << ", ";
+                    }
+
+                    for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end();)
+                    {
+                        os << typeToString((*i)->type(), p, imports(), true, false, true);
+                        if(++i != outParams.end())
+                        {
+                            os << ", ";
+                        }
+                    }
+                    _out << "PromiseLike<[" << os.str() << "]>|[" << os.str() << "]";
+                }
+                _out << ";";
+            }
+            _out << nl << "/**";
+            _out << nl << " * Obtains the Slice type ID of this type.";
+            _out << nl << " * @return The return value is always \"" + p->scoped() + "\".";
+            _out << nl << " */";
+            _out << nl << "static ice_staticId():string;";
+            _out << eb;
+        }
+
+        if(!p->isInterface())
+        {
+            const DataMemberList dataMembers = p->dataMembers();
+            const DataMemberList allDataMembers = p->allDataMembers();
+            _out << sp;
+            writeDocSummary(_out, p);
+            _out << nl << "class " << fixId(p->name()) << " extends ";
+            const string scope = p->scope();
+            const string scoped = p->scoped();
+            ClassList bases = p->bases();
+            if(!bases.empty() && !bases.front()->isInterface())
+            {
+                ClassDefPtr base = bases.front();
+                const string prefix = importPrefix(ContainedPtr::dynamicCast(base), p, imports());
+                _out << prefix << getUnqualified(fixId(base->scoped()), p->scope(), prefix);
+            }
+            else
+            {
+                _out << icePrefix << getUnqualified("Ice.Value", p->scope(), icePrefix);
+            }
+            _out << sb;
+            _out << nl << "/**";
+            _out << nl << " * One-shot constructor to initialize all data members.";
+            for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+            {
+                CommentPtr comment = (*q)->parseComment(false);
+                if(comment)
+                {
+                    _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+                }
+            }
+            _out << nl << " */";
+            _out << nl << "constructor" << spar;
+            for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+            {
+                _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+            }
+            _out << epar << ";";
+            for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+            {
+                writeDocSummary(_out, *q);
+                _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true)
+                     << ";";
+            }
+            _out << eb;
+        }
+    }
+    return false;
+}
+
+bool
+Slice::Gen::TypeScriptVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    const string name = fixId(p->name());
+    const DataMemberList dataMembers = p->dataMembers();
+    const DataMemberList allDataMembers = p->allDataMembers();
+    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string icePrefix = importPrefix("Ice.", p);
+
+    ExceptionPtr base = p->base();
+    string baseRef;
+    if(base)
+    {
+        const string prefix = importPrefix(ContainedPtr::dynamicCast(base), p, imports());
+        baseRef = prefix + getUnqualified(fixId(base->scoped()), p->scope(), prefix);
+    }
+    else
+    {
+        baseRef = p->isLocal() ?
+            icePrefix + getUnqualified("Ice.LocalException", p->scope(), icePrefix) :
+            icePrefix + getUnqualified("Ice.UserException", p->scope(), icePrefix);
+    }
+
+    _out << sp;
+    writeDocSummary(_out, p);
+    _out << nl << "class " << name << " extends " << baseRef << sb;
+    if(!allDataMembers.empty())
+    {
+        _out << nl << "/**";
+        _out << nl << " * One-shot constructor to initialize all data members.";
+        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        {
+            CommentPtr comment = (*q)->parseComment(false);
+            if(comment)
+            {
+                _out << nl << " * @param " << fixId((*q)->name()) << " " << getDocSentence(comment->overview());
+            }
+        }
+        _out << nl << " * @param ice_cause The error that cause this exception.";
+        _out << nl << " */";
+        _out << nl << "constructor" << spar;
+        for(DataMemberList::const_iterator q = allDataMembers.begin(); q != allDataMembers.end(); ++q)
+        {
+            _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+        }
+        _out << "ice_cause?:string|Error";
+        _out << epar << ";";
+    }
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
+    }
+    _out << eb;
+    return false;
+}
+
+bool
+Slice::Gen::TypeScriptVisitor::visitStructStart(const StructPtr& p)
+{
+    const string icePrefix = importPrefix("Ice.", p);
+    const string name = fixId(p->name());
+    const DataMemberList dataMembers = p->dataMembers();
+    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    _out << sp;
+    writeDocSummary(_out, p);
+    _out << nl << "class " << name << sb;
+    _out << nl << "constructor" << spar;
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        _out << (fixId((*q)->name()) + "?:" + typeToString((*q)->type(), p, imports(), true, false, true));
+    }
+    _out << epar << ";";
+
+    _out << nl << "clone():" << name << ";";
+    _out << nl << "equals(rhs:any):boolean;";
+
+    //
+    // Only generate hashCode if this structure type is a legal dictionary key type.
+    //
+    bool containsSequence = false;
+    bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
+    if(legalKeyType)
+    {
+        _out << nl << "hashCode():number;";
+    }
+
+    for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+    {
+        _out << nl << fixId((*q)->name()) << ":" << typeToString((*q)->type(), p, imports(), true, false, true) << ";";
+    }
+
+    //
+    // Streaming API
+    //
+    _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
+         << ", value:" << name << "):void;";
+    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix) << "):"
+         << name << ";";
+    _out << eb;
+    return false;
+}
+
+void
+Slice::Gen::TypeScriptVisitor::visitSequence(const SequencePtr& p)
+{
+    const string icePrefix = importPrefix("Ice.", p);
+    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string name = fixId(p->name());
+    _out << sp;
+    writeDocSummary(_out, p);
+    _out << nl << "type " << name << " = " << typeToString(p, p, imports(), true, true) << ";";
+
+    _out << sp;
+    _out << nl << "class " << fixId(p->name() + "Helper");
+    _out << sb;
+    //
+    // Streaming API
+    //
+    _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
+         << ", value:" << name << "):void;";
+    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix) << "):"
+         << name << ";";
+    _out << eb;
+}
+
+void
+Slice::Gen::TypeScriptVisitor::visitDictionary(const DictionaryPtr& p)
+{
+    const string icePrefix = importPrefix("Ice.", p);
+    const string toplevelModule = getModuleMetadata(ContainedPtr::dynamicCast(p));
+    const string name = fixId(p->name());
+    _out << sp;
+    writeDocSummary(_out, p);
+    _out << nl << "class " << name << " extends " << typeToString(p, p, imports(), true, true);
+    _out << sb;
+    _out << eb;
+
+    _out << sp;
+    _out << nl << "class " << fixId(p->name() + "Helper");
+    _out << sb;
+    //
+    // Streaming API
+    //
+    _out << nl << "static write(outs:" << icePrefix << getUnqualified("Ice.OutputStream", p->scope(), icePrefix)
+         << ", value:" << name << "):void;";
+    _out << nl << "static read(ins:" << icePrefix << getUnqualified("Ice.InputStream", p->scope(), icePrefix) << "):"
+         << name << ";";
+    _out << eb;
+}
+
+void
+Slice::Gen::TypeScriptVisitor::visitEnum(const EnumPtr& p)
+{
+    _out << sp;
+    writeDocSummary(_out, p);
+    _out << nl << "class " << fixId(p->name());
+    _out << sb;
+    const EnumeratorList enumerators = p->enumerators();
+    for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
+    {
+        writeDocSummary(_out, *en);
+        _out << nl << "static readonly " << fixId((*en)->name()) << ":" << fixId(p->name()) << ";";
+    }
+    _out << nl;
+    _out << nl << "static valueOf(value:number):" << fixId(p->name()) << ";";
+    _out << nl << "equals(other:any):boolean;";
+    _out << nl << "hashCode():number;";
+    _out << nl << "toString():string;";
+    _out << nl;
+    _out << nl << "readonly name:string;";
+    _out << nl << "readonly value:number;";
+    _out << eb;
+}
+
+void
+Slice::Gen::TypeScriptVisitor::visitConst(const ConstPtr& p)
+{
+    const string toplevelModule = getModuleMetadata(p->type());
+    _out << sp;
+    writeDocSummary(_out, p);
+    _out << nl << "const " << fixId(p->name()) << ":" << typeToString(p->type(), p, imports(), true) << ";";
 }

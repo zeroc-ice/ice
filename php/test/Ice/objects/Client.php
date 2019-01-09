@@ -1,23 +1,11 @@
 <?php
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-error_reporting(E_ALL | E_STRICT);
-
-if(!extension_loaded("ice"))
-{
-    echo "\nerror: Ice extension is not loaded.\n\n";
-    exit(1);
-}
-
 $NS = function_exists("Ice\\initialize");
-require_once('Ice.php');
 require_once('Test.php');
 
 if($NS)
@@ -37,6 +25,7 @@ if($NS)
         class Ice_InterfaceByValue extends Ice\InterfaceByValue {}
         interface Ice_ObjectFactory extends Ice\ObjectFactory {}
         interface Ice_ValueFactory extends Ice\ValueFactory {}
+        class Test_L extends Test\L {}
 EOT;
     eval($code);
 }
@@ -181,23 +170,14 @@ class MyObjectFactory implements Ice_ObjectFactory
     }
 }
 
-function test($b)
-{
-    if(!$b)
-    {
-        $bt = debug_backtrace();
-        echo "\ntest failed in ".$bt[0]["file"]." line ".$bt[0]["line"]."\n";
-        exit(1);
-    }
-}
-
-function allTests($communicator)
+function allTests($helper)
 {
     global $NS;
 
     echo "testing stringToProxy... ";
     flush();
-    $ref = "initial:default -p 12010";
+    $ref = sprintf("initial:%s", $helper->getTestEndpoint());
+    $communicator = $helper->communicator();
     $base = $communicator->stringToProxy($ref);
     test($base != null);
     echo "ok\n";
@@ -363,6 +343,37 @@ function allTests($communicator)
     test($h != null and $h instanceof HI);
     echo "ok\n";
 
+    echo "getting K... ";
+    flush();
+    $k = $initial->getK();
+    test($k->value->data == "l");
+    echo "ok\n";
+
+    echo "testing Value as parameter... ";
+    flush();
+    $v1 = new Test_L();
+    $v1->data = "l";
+    $v2 = null;
+    $v3 = $initial->opValue($v1, $v2);
+    test($v2->data == "l");
+    test($v3->data == "l");
+
+    $v1 = array(new Test_L());
+    $v1[0]->data = "l";
+    $v2 = null;
+    $v3 = $initial->opValueSeq($v1, $v2);
+    test($v2[0]->data == "l");
+    test($v3[0]->data == "l");
+
+    $v1 = array("l" => new Test_L());
+    $v1["l"]->data = "l";
+    $v2 = null;
+    $v3 = $initial->opValueMap($v1, $v2);
+    test($v2["l"]->data == "l");
+    test($v3["l"]->data == "l");
+
+    echo "ok\n";
+
     echo "getting D1... ";
     flush();
     $d1 = $initial->getD1(new Test_D1(new Test_A1("a1"), new Test_A1("a2"), new Test_A1("a3"), new Test_A1("a4")));
@@ -422,9 +433,29 @@ function allTests($communicator)
     $outS = null;
     $initial->opBaseSeq(array(), $outS);
 
-    $base = $NS ? eval("return new Test\\Base;") : eval("return new Test_Base;");
-    $retS = $initial->opBaseSeq(array($base), $outS);
-    test(count($retS) == 1 && count($outS) == 1);
+    $seq = array();
+    for($i = 0; $i < 120; $i++)
+    {
+        $b = $NS ? eval("return new Test\\Base;") : eval("return new Test_Base;");
+        $b->str = "b" . $i;
+        $b->theS = $NS ? eval("return new Test\\S;") : eval("return new Test_S;");
+        $b->theS->str = "b" . $i;
+        $seq[$i] = $b;
+    }
+
+    $retS = $initial->opBaseSeq($seq, $outS);
+    test($seq == $retS);
+    test($seq == $outS);
+    $i = 0;
+    foreach($retS as $obj)
+    {
+        test($obj == $seq[$i++]);
+    }
+    $i = 0;
+    foreach($outS as $obj)
+    {
+        test($obj == $seq[$i++]);
+    }
     echo "ok\n";
 
     echo "testing recursive type... ";
@@ -496,7 +527,7 @@ function allTests($communicator)
 
     echo "testing UnexpectedObjectException... ";
     flush();
-    $ref = "uoet:default -p 12010";
+    $ref = sprintf("uoet:%s", $helper->getTestEndpoint());
     $base = $communicator->stringToProxy($ref);
     test($base != null);
     $uoet = $base->ice_uncheckedCast("::Test::UnexpectedObjectExceptionTest");
@@ -541,20 +572,32 @@ function allTests($communicator)
     return $initial;
 }
 
-$communicator = $NS ? eval("return Ice\\initialize(\$argv);") :
-                      eval("return Ice_initialize(\$argv);");
-$factory = new MyValueFactory();
-$communicator->getValueFactoryManager()->add($factory, "::Test::B");
-$communicator->getValueFactoryManager()->add($factory, "::Test::C");
-$communicator->getValueFactoryManager()->add($factory, "::Test::D");
-$communicator->getValueFactoryManager()->add($factory, "::Test::E");
-$communicator->getValueFactoryManager()->add($factory, "::Test::F");
-$communicator->getValueFactoryManager()->add($factory, "::Test::I");
-$communicator->getValueFactoryManager()->add($factory, "::Test::J");
-$communicator->getValueFactoryManager()->add($factory, "::Test::H");
-$communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
-$initial = allTests($communicator);
-$initial->shutdown();
-$communicator->destroy();
-exit();
+class Client extends TestHelper
+{
+    function run($args)
+    {
+        try
+        {
+            $communicator = $this->initialize($args);
+            $factory = new MyValueFactory();
+            $communicator->getValueFactoryManager()->add($factory, "::Test::B");
+            $communicator->getValueFactoryManager()->add($factory, "::Test::C");
+            $communicator->getValueFactoryManager()->add($factory, "::Test::D");
+            $communicator->getValueFactoryManager()->add($factory, "::Test::E");
+            $communicator->getValueFactoryManager()->add($factory, "::Test::F");
+            $communicator->getValueFactoryManager()->add($factory, "::Test::I");
+            $communicator->getValueFactoryManager()->add($factory, "::Test::J");
+            $communicator->getValueFactoryManager()->add($factory, "::Test::H");
+            $communicator->addObjectFactory(new MyObjectFactory(), "TestOF");
+            $initial = allTests($this);
+            $initial->shutdown();
+            $communicator->destroy();
+        }
+        catch(Exception $ex)
+        {
+            $communicator->destroy();
+            throw $ex;
+        }
+    }
+}
 ?>

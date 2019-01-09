@@ -1,13 +1,10 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
+#include <IceUtil/StringUtil.h>
 #include <Slice/JavaUtil.h>
 #include <Slice/FileTracker.h>
 #include <Slice/Util.h>
@@ -231,9 +228,9 @@ public:
         TypePtr returnType = p->returnType();
         StringList metaData = getMetaData(p);
 
-        UnitPtr unit = p->unit();
+        UnitPtr unt = p->unit();
         string file = p->file();
-        DefinitionContextPtr dc = unit->findDefinitionContext(p->file());
+        DefinitionContextPtr dc = unt->findDefinitionContext(p->file());
 
         if(!returnType)
         {
@@ -284,8 +281,8 @@ public:
 
         const string file =  p->file();
         const string line = p->line();
-        const UnitPtr unit = p->unit();
-        const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc = unt->findDefinitionContext(file);
 
         for(StringList::const_iterator q = metaData.begin(); q != metaData.end(); )
         {
@@ -363,9 +360,9 @@ private:
         StringList metaData = cont->getMetaData();
         StringList result;
 
-        UnitPtr unit = cont->container()->unit();
+        UnitPtr unt = cont->container()->unit();
         string file = cont->file();
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        DefinitionContextPtr dc = unt->findDefinitionContext(file);
         assert(dc);
 
         for(StringList::const_iterator p = metaData.begin(); p != metaData.end(); ++p)
@@ -452,8 +449,8 @@ private:
     StringList validateType(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file,
                             const string& line)
     {
-        const UnitPtr unit = p->unit();
-        const DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc = unt->findDefinitionContext(file);
         assert(dc);
         StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
@@ -549,8 +546,8 @@ private:
     StringList validateGetSet(const SyntaxTreeBasePtr& p, const StringList& metaData, const string& file,
                               const string& line)
     {
-        const UnitPtr unit = p->unit();
-        const DefinitionContextPtr dc= unit->findDefinitionContext(file);
+        const UnitPtr unt = p->unit();
+        const DefinitionContextPtr dc= unt->findDefinitionContext(file);
         assert(dc);
         StringList newMetaData;
         for(StringList::const_iterator i = metaData.begin(); i != metaData.end(); ++i)
@@ -740,7 +737,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
             if(IceUtilInternal::mkdir(path, 0777) != 0)
             {
                 ostringstream os;
-                os << "cannot create directory `" << path << "': " << strerror(errno);
+                os << "cannot create directory `" << path << "': " << IceUtilInternal::errorToString(errno);
                 throw FileException(__FILE__, __LINE__, os.str());
             }
             FileTracker::instance()->addDirectory(path);
@@ -779,7 +776,7 @@ Slice::JavaOutput::openClass(const string& cls, const string& prefix, const stri
     else
     {
         ostringstream os;
-        os << "cannot open file `" << path << "': " << strerror(errno);
+        os << "cannot open file `" << path << "': " << IceUtilInternal::errorToString(errno);
         throw FileException(__FILE__, __LINE__, os.str());
     }
 }
@@ -790,10 +787,7 @@ Slice::JavaOutput::printHeader()
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.\n"
-"//\n"
-"// This copy of Ice is licensed to you under the terms described in the\n"
-"// ICE_LICENSE file included in this distribution.\n"
+"// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// **********************************************************************\n"
         ;
@@ -971,11 +965,11 @@ Slice::JavaCompatGenerator::getPackagePrefix(const ContainedPtr& cont) const
     string q;
     if(!m->findMetaData(prefix, q))
     {
-        UnitPtr unit = cont->unit();
+        UnitPtr ut = cont->unit();
         string file = cont->file();
         assert(!file.empty());
 
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        DefinitionContextPtr dc = ut->findDefinitionContext(file);
         assert(dc);
         q = dc->findMetaData(prefix);
     }
@@ -2192,7 +2186,7 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
             }
 
-            string ignore;
+            string ignored;
             const size_t wireSize = elemType->minWireSize();
 
             if(marshal)
@@ -2220,8 +2214,8 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                     writeSequenceMarshalUnmarshalCode(out, package, seq, s, marshal, iter, true, customStream, metaData);
                     out << nl << stream << ".endSize(pos);";
                 }
-                else if(findMetaData("java:type:", metaData, ignore) ||
-                        findMetaData("java:type:", seq->getMetaData(), ignore))
+                else if(findMetaData("java:type:", metaData, ignored) ||
+                        findMetaData("java:type:", seq->getMetaData(), ignored))
                 {
                     //
                     // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
@@ -2247,8 +2241,8 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                     }
                     writeSequenceMarshalUnmarshalCode(out, package, seq, tmpName, marshal, iter, true, customStream, metaData);
                 }
-                else if(findMetaData("java:protobuf:", seq->getMetaData(), ignore) ||
-                        findMetaData("java:serializable:", seq->getMetaData(), ignore))
+                else if(findMetaData("java:protobuf:", seq->getMetaData(), ignored) ||
+                        findMetaData("java:serializable:", seq->getMetaData(), ignored))
                 {
                     //
                     // This just writes a byte sequence.
@@ -2309,8 +2303,8 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
                 else if(wireSize > 1)
                 {
-                    if(findMetaData("java:type:", metaData, ignore) ||
-                       findMetaData("java:type:", seq->getMetaData(), ignore))
+                    if(findMetaData("java:type:", metaData, ignored) ||
+                       findMetaData("java:type:", seq->getMetaData(), ignored))
                     {
                         //
                         // The sequence is an instance of java.util.List<E>, where E is a fixed-size type.
@@ -2318,8 +2312,8 @@ Slice::JavaCompatGenerator::writeMarshalUnmarshalCode(Output& out,
 
                         out << nl << stream << ".skipSize();";
                     }
-                    else if(!findMetaData("java:protobuf:", seq->getMetaData(), ignore) &&
-                            !findMetaData("java:serializable:", seq->getMetaData(), ignore))
+                    else if(!findMetaData("java:protobuf:", seq->getMetaData(), ignored) &&
+                            !findMetaData("java:serializable:", seq->getMetaData(), ignored))
                     {
                         out << nl << stream << ".skipSize();";
                     }
@@ -2777,7 +2771,7 @@ Slice::JavaCompatGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << nl << "else";
             out << sb;
             out << nl << stream << ".writeSize(" << v << ".size());";
-            string typeS = typeToString(type, TypeModeIn, package);
+            typeS = typeToString(type, TypeModeIn, package);
             out << nl << "for(" << typeS << " elem : " << v << ')';
             out << sb;
             writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", true, iter, false, customStream);
@@ -3208,8 +3202,8 @@ Slice::JavaCompatGenerator::getSequenceTypes(const SequencePtr& seq,
         {
             string prefix = "java:buffer";
             string meta;
-            string ignore;
-            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
+            string ignored;
+            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignored))
             {
                 instanceType = formalType = typeToBufferString(seq->type());
                 return true;
@@ -3451,11 +3445,11 @@ Slice::JavaGenerator::getPackagePrefix(const ContainedPtr& cont) const
     string q;
     if(!m->findMetaData(prefix, q))
     {
-        UnitPtr unit = cont->unit();
+        UnitPtr ut = cont->unit();
         string file = cont->file();
         assert(!file.empty());
 
-        DefinitionContextPtr dc = unit->findDefinitionContext(file);
+        DefinitionContextPtr dc = ut->findDefinitionContext(file);
         assert(dc);
         q = dc->findMetaData(prefix);
     }
@@ -4182,7 +4176,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
     {
         if(optionalParam || mode == OptionalMember)
         {
-            string ignore;
+            string ignored;
             TypePtr elemType = seq->type();
             BuiltinPtr eltBltin = BuiltinPtr::dynamicCast(elemType);
             if(!hasTypeMetaData(seq, metaData) && eltBltin && eltBltin->kind() < Builtin::KindObject)
@@ -4199,7 +4193,7 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     return;
                 }
             }
-            else if(findMetaData("java:serializable", seq->getMetaData(), ignore))
+            else if(findMetaData("java:serializable", seq->getMetaData(), ignored))
             {
                 if(marshal)
                 {
@@ -4213,8 +4207,8 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                 }
             }
             else if(!hasTypeMetaData(seq, metaData) ||
-                    findMetaData("java:type", seq->getMetaData(), ignore) ||
-                    findMetaData("java:type", metaData, ignore))
+                    findMetaData("java:type", seq->getMetaData(), ignored) ||
+                    findMetaData("java:type", metaData, ignored))
             {
                 string instanceType, formalType, origInstanceType, origFormalType;
                 getSequenceTypes(seq, "", metaData, instanceType, formalType, false);
@@ -4265,10 +4259,10 @@ Slice::JavaGenerator::writeMarshalUnmarshalCode(Output& out,
                     string s = optionalParam && optionalMapping ? param + ".get()" : param;
                     if(sz > 1)
                     {
-                        string ignore;
+                        string ignored2;
                         out << nl << "final int optSize = " << s << " == null ? 0 : ";
-                        if(findMetaData("java:buffer", seq->getMetaData(), ignore) ||
-                           findMetaData("java:buffer", metaData, ignore))
+                        if(findMetaData("java:buffer", seq->getMetaData(), ignored2) ||
+                           findMetaData("java:buffer", metaData, ignored2))
                         {
                             out << s << ".remaining() / " << sz << ";";
                         }
@@ -4470,7 +4464,7 @@ Slice::JavaGenerator::writeDictionaryMarshalUnmarshalCode(Output& out,
             out << nl << "final " << keyS << " key;";
             writeMarshalUnmarshalCode(out, package, key, OptionalNone, false, 0, "key", false, iter, customStream);
 
-            string valueS = typeToObjectString(value, TypeModeIn, package);
+            valueS = typeToObjectString(value, TypeModeIn, package);
             ostringstream patchParams;
             patchParams << "value -> " << v << ".put(key, value), " << valueS << ".class";
             writeMarshalUnmarshalCode(out, package, value, OptionalNone, false, 0, "value", false, iter, customStream,
@@ -4671,7 +4665,7 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
         // Marshal/unmarshal a custom sequence type.
         //
         BuiltinPtr b = BuiltinPtr::dynamicCast(type);
-        string typeS = getUnqualified(seq, package);
+        typeS = getUnqualified(seq, package);
         ostringstream o;
         o << origContentS;
         int d = depth;
@@ -4689,8 +4683,8 @@ Slice::JavaGenerator::writeSequenceMarshalUnmarshalCode(Output& out,
             out << nl << "else";
             out << sb;
             out << nl << stream << ".writeSize(" << v << ".size());";
-            string typeS = typeToString(type, TypeModeIn, package);
-            out << nl << "for(" << typeS << " elem : " << v << ')';
+            string ctypeS = typeToString(type, TypeModeIn, package);
+            out << nl << "for(" << ctypeS << " elem : " << v << ')';
             out << sb;
             writeMarshalUnmarshalCode(out, package, type, OptionalNone, false, 0, "elem", true, iter, customStream);
             out << eb;
@@ -5112,8 +5106,8 @@ Slice::JavaGenerator::getSequenceTypes(const SequencePtr& seq,
         {
             string prefix = "java:buffer";
             string meta;
-            string ignore;
-            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignore))
+            string ignored;
+            if(seq->findMetaData(prefix, meta) || findMetaData(prefix, metaData, ignored))
             {
                 instanceType = formalType = typeToBufferString(seq->type());
                 return true;

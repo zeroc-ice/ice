@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -241,10 +238,10 @@ IceMatlab::createStringMap(const map<string, string>& m)
         auto keys = mxCreateCellArray(2, dims);
         auto values = mxCreateCellArray(2, dims);
         int idx = 0;
-        for(auto p = m.begin(); p != m.end(); ++p)
+        for(auto p : m)
         {
-            mxSetCell(keys, idx, createStringFromUTF8(p->first));
-            mxSetCell(values, idx, createStringFromUTF8(p->second));
+            mxSetCell(keys, idx, createStringFromUTF8(p.first));
+            mxSetCell(values, idx, createStringFromUTF8(p.second));
             idx++;
         }
         mxArray* params[2];
@@ -429,6 +426,10 @@ IceMatlab::convertException(const std::exception& exc)
         {
             params[idx++] = createIdentity(e.id);
         }
+        catch(const Ice::IllegalServantException& e)
+        {
+            params[idx++] = createStringFromUTF8(e.reason);
+        }
         catch(const Ice::RequestFailedException& e)
         {
             params[idx++] = createIdentity(e.id);
@@ -449,8 +450,14 @@ IceMatlab::convertException(const std::exception& exc)
             params[idx++] = mxCreateDoubleScalar(e.error);
             params[idx++] = createStringFromUTF8(e.host);
         }
+        catch(const Ice::BadMagicException& e)
+        {
+            params[idx++] = createStringFromUTF8(e.reason);
+            params[idx++] = createByteList(e.badMagic);
+        }
         catch(const Ice::UnsupportedProtocolException& e)
         {
+            params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createProtocolVersion(e.bad);
             params[idx++] = createProtocolVersion(e.supported);
         }
@@ -459,10 +466,6 @@ IceMatlab::convertException(const std::exception& exc)
             params[idx++] = createStringFromUTF8(e.reason);
             params[idx++] = createEncodingVersion(e.bad);
             params[idx++] = createEncodingVersion(e.supported);
-        }
-        catch(const Ice::ConnectionManuallyClosedException& e)
-        {
-            params[idx++] = mxCreateLogicalScalar(e.graceful ? 1 : 0);
         }
         catch(const Ice::NoValueFactoryException& e)
         {
@@ -479,15 +482,15 @@ IceMatlab::convertException(const std::exception& exc)
         {
             params[idx++] = createStringFromUTF8(e.reason);
         }
+        catch(const Ice::ConnectionManuallyClosedException& e)
+        {
+            params[idx++] = mxCreateLogicalScalar(e.graceful ? 1 : 0);
+        }
         catch(const Ice::FeatureNotSupportedException& e)
         {
             params[idx++] = createStringFromUTF8(e.unsupportedFeature);
         }
         catch(const Ice::SecurityException& e)
-        {
-            params[idx++] = createStringFromUTF8(e.reason);
-        }
-        catch(const Ice::IllegalServantException& e)
         {
             params[idx++] = createStringFromUTF8(e.reason);
         }
@@ -558,13 +561,13 @@ IceMatlab::createOptionalValue(bool hasValue, mxArray* value)
 }
 
 mxArray*
-IceMatlab::createStringList(const vector<string>& v)
+IceMatlab::createStringList(const vector<string>& strings)
 {
-    auto r = mxCreateCellMatrix(1, static_cast<int>(v.size()));
+    auto r = mxCreateCellMatrix(1, static_cast<int>(strings.size()));
     mwIndex i = 0;
-    for(auto p = v.begin(); p != v.end(); ++p, ++i)
+    for(auto s : strings)
     {
-        mxSetCell(r, i, createStringFromUTF8(*p));
+        mxSetCell(r, i++, createStringFromUTF8(s));
     }
     return r;
 }
@@ -594,6 +597,30 @@ IceMatlab::createByteArray(const Ice::Byte* begin, const Ice::Byte* end)
 {
     mxArray* r = mxCreateUninitNumericMatrix(1, end - begin, mxUINT8_CLASS, mxREAL);
     memcpy(reinterpret_cast<Ice::Byte*>(mxGetData(r)), begin, end - begin);
+    return r;
+}
+
+mxArray*
+IceMatlab::createByteList(const vector<Ice::Byte>& bytes)
+{
+    auto r = mxCreateCellMatrix(1, static_cast<int>(bytes.size()));
+    mwIndex i = 0;
+    for(auto byte : bytes)
+    {
+        mxSetCell(r, i++, createByte(byte));
+    }
+    return r;
+}
+
+mxArray*
+IceMatlab::createCertificateList(const vector<IceSSL::CertificatePtr>& certs)
+{
+    auto r = mxCreateCellMatrix(1, static_cast<int>(certs.size()));
+    mwIndex i = 0;
+    for(auto cert : certs)
+    {
+        mxSetCell(r, i++, createStringFromUTF8(cert->encode()));
+    }
     return r;
 }
 

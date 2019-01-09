@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -213,7 +210,6 @@ public:
 #define YYSTYPE Slice::GrammarBasePtr
 #define YY_DECL int slice_lex(YYSTYPE* yylvalp)
 YY_DECL;
-int slice_parse();
 
 //
 // I must set the initial stack depth to the maximum stack depth to

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -21,6 +18,8 @@
 
 extern FILE* yyin;
 extern int yydebug;
+
+int yyparse();
 
 using namespace std;
 using namespace Ice;
@@ -45,9 +44,9 @@ class UnknownManagerException : public Exception
 {
 public:
 
-    UnknownManagerException(const string& name, const char* file, int line) :
+    UnknownManagerException(const string& nameP, const char* file, int line) :
         Exception(file, line),
-        name(name)
+        name(nameP)
     {
     }
 
@@ -410,7 +409,7 @@ Parser::current(const list<string>& args)
 void
 Parser::showBanner()
 {
-    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-2018 ZeroC, Inc." << endl;
+    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-present ZeroC, Inc." << endl;
 }
 
 //
@@ -485,7 +484,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
         string line;
         while(true)
         {
-            char c = static_cast<char>(getc(yyin));
+            int c = getc(yyin);
             if(c == EOF)
             {
                 if(line.size())
@@ -495,7 +494,7 @@ Parser::getInput(char* buf, size_t& result, size_t maxSize)
                 break;
             }
 
-            line += c;
+            line += static_cast<char>(c);
             if(c == '\n')
             {
                 break;
@@ -681,12 +680,12 @@ Parser::Parser(const CommunicatorPtr& communicator, const TopicManagerPrx& admin
 }
 
 void
-Parser::exception(const Ice::Exception& ex, bool warn)
+Parser::exception(const Ice::Exception& pex, bool warn)
 {
     ostringstream os;
     try
     {
-        ex.ice_throw();
+        pex.ice_throw();
     }
     catch(const LinkExists& ex)
     {

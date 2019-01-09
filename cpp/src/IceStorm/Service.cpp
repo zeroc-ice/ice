@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -95,7 +92,7 @@ extern "C"
 {
 
 ICESTORM_SERVICE_API ::IceBox::Service*
-createIceStorm(CommunicatorPtr communicator)
+createIceStorm(CommunicatorPtr)
 {
     return new ServiceI;
 }
@@ -300,11 +297,11 @@ ServiceI::start(
                 int nodeid = atoi(adapterid.substr(start, end-start).c_str());
                 ostringstream os;
                 os << "node" << nodeid;
-                Ice::Identity id;
-                id.category = instanceName;
-                id.name = os.str();
+                Ice::Identity ident;
+                ident.category = instanceName;
+                ident.name = os.str();
 
-                nodes[nodeid] = NodePrx::uncheckedCast((*p)->ice_adapterId(adapterid)->ice_identity(id));
+                nodes[nodeid] = NodePrx::uncheckedCast((*p)->ice_adapterId(adapterid)->ice_identity(ident));
             }
         }
 

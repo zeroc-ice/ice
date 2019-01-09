@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -181,6 +178,11 @@ private:
     PyObjectHandle _type;
     PyObjectHandle _tb;
 };
+
+//
+// Convert Ice::ByteSeq to a Python list.
+//
+PyObject* byteSeqToList(const Ice::ByteSeq&);
 
 //
 // Convert Ice::StringSeq to and from a Python list.

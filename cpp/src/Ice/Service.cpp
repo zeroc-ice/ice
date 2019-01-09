@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -34,6 +31,9 @@
 #   include <sys/types.h>
 #   include <sys/stat.h>
 #   include <csignal>
+#   ifdef ICE_USE_SYSTEMD
+#       include <systemd/sd-daemon.h>
+#   endif
 #endif
 
 using namespace std;
@@ -564,7 +564,6 @@ Ice::Service::main(int argc, const char* const argv[], const InitializationData&
     // First check for the --service option.
     //
     string name;
-    string eventLogSource;
     int idx = 1;
     const StringConverterPtr stringConverter = getProcessStringConverter();
     while(idx < av.argc)
@@ -764,12 +763,6 @@ Ice::Service::name() const
     return _name;
 }
 
-bool
-Ice::Service::checkSystem() const
-{
-    return true;
-}
-
 #ifdef _WIN32
 int
 Ice::Service::run(int argc, const wchar_t* const argv[], const InitializationData& initData, int version)
@@ -828,11 +821,20 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
         //
         if(start(av.argc, av.argv, status))
         {
+#ifdef ICE_USE_SYSTEMD
+            sd_notify(0, "READY=1");
+#endif
             //
             // Wait for service shutdown.
             //
             waitForShutdown();
 
+#ifdef ICE_USE_SYSTEMD
+            //
+            // Inform the service manager that the service is beginning its shutdown.
+            //
+            sd_notify(0, "STOPPING=1");
+#endif
             //
             // Stop the service.
             //
@@ -846,25 +848,42 @@ Ice::Service::run(int argc, const char* const argv[], const InitializationData& 
     {
         ServiceError err(this);
         err << "service terminating after catching exception:\n" << ex;
+#ifdef ICE_USE_SYSTEMD
+        const string msg = err.str();
+        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
+#endif
     }
     catch(const std::exception& ex)
     {
         ServiceError err(this);
         err << "service terminating after catching exception:\n" << ex;
+#ifdef ICE_USE_SYSTEMD
+        const string msg = err.str();
+        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
+#endif
     }
     catch(const std::string& msg)
     {
         ServiceError err(this);
         err << "service terminating after catching exception:\n" << msg;
+#ifdef ICE_USE_SYSTEMD
+        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg.c_str());
+#endif
     }
     catch(const char* msg)
     {
         ServiceError err(this);
         err << "service terminating after catching exception:\n" << msg;
+#ifdef ICE_USE_SYSTEMD
+        sd_notifyf(0, "STATUS=Failed service terminating after catching exception: %s", msg);
+#endif
     }
     catch(...)
     {
         error("service terminating after catching unknown exception");
+#ifdef ICE_USE_SYSTEMD
+        sd_notify(0, "STATUS=Failed service terminating after catching unknown exception");
+#endif
     }
 
     if(_communicator)
@@ -1056,12 +1075,6 @@ int
 Ice::Service::runService(int argc, const char* const argv[], const InitializationData& initData)
 {
     assert(_service);
-
-    if(!checkSystem())
-    {
-        error("Win32 service not supported on Windows 9x/ME");
-        return EXIT_FAILURE;
-    }
 
     if(_name.empty())
     {
@@ -1530,7 +1543,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
         {
             consoleErr << argv[0] << ": ";
         }
-        consoleErr << strerror(errno) << endl;
+        consoleErr << IceUtilInternal::errorToString(errno) << endl;
         return EXIT_FAILURE;
     }
 
@@ -1563,7 +1576,7 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                 {
                     consoleErr << argv[0] << ": ";
                 }
-                consoleErr << strerror(errno) << endl;
+                consoleErr << IceUtilInternal::errorToString(errno) << endl;
                 _exit(EXIT_FAILURE);
             }
             break;
@@ -1590,7 +1603,8 @@ Ice::Service::runDaemon(int argc, char* argv[], const InitializationData& initDa
                     {
                         consoleErr << ": ";
                     }
-                    consoleErr << "I/O error while reading error message from child:\n" << strerror(errno) << endl;
+                    consoleErr << "I/O error while reading error message from child:\n"
+                               << IceUtilInternal::errorToString(errno) << endl;
                     _exit(EXIT_FAILURE);
                 }
                 pos += n;

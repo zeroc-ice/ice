@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -142,6 +139,19 @@ class Recursive
     Recursive v;
 }
 
+class K
+{
+    Value value;
+}
+
+class L
+{
+    string data;
+}
+
+sequence<Value> ValueSeq;
+dictionary<string, Value> ValueMap;
+
 interface Initial
 {
     void shutdown();
@@ -160,9 +170,14 @@ interface Initial
 
     void getAll(out B b1, out B b2, out C theC, out D theD);
 
+    I getH();
     I getI();
     I getJ();
-    I getH();
+    K getK();
+
+    Value opValue(Value v1, out Value v2);
+    ValueSeq opValueSeq(ValueSeq v1, out ValueSeq v2);
+    ValueMap opValueMap(ValueMap v1, out ValueMap v2);
 
     D1 getD1(D1 d1);
     void throwEDerived() throws EDerived;

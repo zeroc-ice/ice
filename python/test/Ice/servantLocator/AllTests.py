@@ -1,9 +1,6 @@
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -13,7 +10,7 @@ def test(b):
     if not b:
         raise RuntimeError('test assertion failed')
 
-def testExceptions(obj, collocated):
+def testExceptions(obj):
 
     try:
         obj.requestFailedException()
@@ -64,10 +61,7 @@ def testExceptions(obj, collocated):
         obj.localException()
         test(False)
     except Ice.UnknownLocalException as ex:
-        test(not collocated)
         test(ex.unknown.find("Ice.SocketException") >= 0 or ex.unknown.find("Ice::SocketException") >= 0)
-    except SocketException:
-        test(collocated)
     except:
         test(False)
 
@@ -127,10 +121,10 @@ def testExceptions(obj, collocated):
     except:
         test(False)
 
-def allTests(communicator, collocated):
+def allTests(helper, communicator):
     sys.stdout.write("testing stringToProxy... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("asm:default -p 12010")
+    base = communicator.stringToProxy("asm:{0}".format(helper.getTestEndpoint()))
     test(base)
     print("ok")
 
@@ -144,7 +138,7 @@ def allTests(communicator, collocated):
     sys.stdout.write("testing ice_ids... ")
     sys.stdout.flush()
     try:
-        obj = communicator.stringToProxy("category/locate:default -p 12010")
+        obj = communicator.stringToProxy("category/locate:{0}".format(helper.getTestEndpoint()))
         obj.ice_ids()
         test(False)
     except Ice.UnknownUserException as ex:
@@ -153,7 +147,7 @@ def allTests(communicator, collocated):
         test(False)
 
     try:
-        obj = communicator.stringToProxy("category/finished:default -p 12010")
+        obj = communicator.stringToProxy("category/finished:{0}".format(helper.getTestEndpoint()))
         obj.ice_ids()
         test(False)
     except Ice.UnknownUserException as ex:
@@ -164,47 +158,49 @@ def allTests(communicator, collocated):
 
     sys.stdout.write("testing servant locator... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("category/locate:default -p 12010")
+    base = communicator.stringToProxy("category/locate:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
     try:
-        Test.TestIntfPrx.checkedCast(communicator.stringToProxy("category/unknown:default -p 12010"))
+        Test.TestIntfPrx.checkedCast(
+            communicator.stringToProxy("category/unknown:{0}".format(helper.getTestEndpoint())))
     except Ice.ObjectNotExistException:
         pass
     print("ok")
 
     sys.stdout.write("testing default servant locator... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("anothercat/locate:default -p 12010")
+    base = communicator.stringToProxy("anothercat/locate:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
-    base = communicator.stringToProxy("locate:default -p 12010")
+    base = communicator.stringToProxy("locate:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
     try:
-        Test.TestIntfPrx.checkedCast(communicator.stringToProxy("anothercat/unknown:default -p 12010"))
+        Test.TestIntfPrx.checkedCast(
+            communicator.stringToProxy("anothercat/unknown:{0}".format(helper.getTestEndpoint())))
     except Ice.ObjectNotExistException:
         pass
     try:
-        Test.TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:default -p 12010"))
+        Test.TestIntfPrx.checkedCast(communicator.stringToProxy("unknown:{0}".format(helper.getTestEndpoint())))
     except Ice.ObjectNotExistException:
         pass
     print("ok")
 
     sys.stdout.write("testing locate exceptions... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("category/locate:default -p 12010")
+    base = communicator.stringToProxy("category/locate:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
-    testExceptions(obj, collocated)
+    testExceptions(obj)
     print("ok")
 
     sys.stdout.write("testing finished exceptions... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("category/finished:default -p 12010")
+    base = communicator.stringToProxy("category/finished:{0}".format(helper.getTestEndpoint()))
     obj = Test.TestIntfPrx.checkedCast(base)
-    testExceptions(obj, collocated)
+    testExceptions(obj)
     print("ok")
 
     sys.stdout.write("testing servant locator removal... ")
     sys.stdout.flush()
-    base = communicator.stringToProxy("test/activation:default -p 12010")
+    base = communicator.stringToProxy("test/activation:{0}".format(helper.getTestEndpoint()))
     activation = Test.TestActivationPrx.checkedCast(base)
     activation.activateServantLocator(False)
     try:

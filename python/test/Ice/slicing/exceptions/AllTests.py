@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -222,15 +219,15 @@ class RelayI(Test.Relay):
         ex.p2 = ex.p1
         raise ex
 
-def allTests(communicator):
-    obj = communicator.stringToProxy("Test:default -p 12010")
+def allTests(helper, communicator):
+    obj = communicator.stringToProxy("Test:{0}".format(helper.getTestEndpoint()))
     t = Test.TestIntfPrx.checkedCast(obj)
 
     sys.stdout.write("base... ")
     sys.stdout.flush()
     try:
         t.baseAsBase()
-        test(false)
+        test(False)
     except Test.Base as b:
         test(b.b == "Base.b")
         test(b.ice_id() == "::Test::Base")
@@ -249,7 +246,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.unknownDerivedAsBase()
-        test(false)
+        test(False)
     except Test.Base as b:
         test(b.b == "UnknownDerived.b")
         test(b.ice_id() == "::Test::Base")
@@ -268,7 +265,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.knownDerivedAsBase()
-        test(false)
+        test(False)
     except Test.KnownDerived as k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
@@ -288,7 +285,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.knownDerivedAsKnownDerived()
-        test(false)
+        test(False)
     except Test.KnownDerived as k:
         test(k.b == "KnownDerived.b")
         test(k.kd == "KnownDerived.kd")
@@ -308,7 +305,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.unknownIntermediateAsBase()
-        test(false)
+        test(False)
     except Test.Base as b:
         test(b.b == "UnknownIntermediate.b")
         test(b.ice_id() == "::Test::Base")
@@ -327,7 +324,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.knownIntermediateAsBase()
-        test(false)
+        test(False)
     except Test.KnownIntermediate as ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
@@ -347,7 +344,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.knownMostDerivedAsBase()
-        test(false)
+        test(False)
     except Test.KnownMostDerived as kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
@@ -368,7 +365,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.knownIntermediateAsKnownIntermediate()
-        test(false)
+        test(False)
     except Test.KnownIntermediate as ki:
         test(ki.b == "KnownIntermediate.b")
         test(ki.ki == "KnownIntermediate.ki")
@@ -388,7 +385,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.knownMostDerivedAsKnownIntermediate()
-        test(false)
+        test(False)
     except Test.KnownMostDerived as kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
@@ -409,7 +406,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.knownMostDerivedAsKnownMostDerived()
-        test(false)
+        test(False)
     except Test.KnownMostDerived as kmd:
         test(kmd.b == "KnownMostDerived.b")
         test(kmd.ki == "KnownMostDerived.ki")
@@ -430,7 +427,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.unknownMostDerived1AsBase()
-        test(false)
+        test(False)
     except Test.KnownIntermediate as ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
@@ -450,7 +447,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.unknownMostDerived1AsKnownIntermediate()
-        test(false)
+        test(False)
     except Test.KnownIntermediate as ki:
         test(ki.b == "UnknownMostDerived1.b")
         test(ki.ki == "UnknownMostDerived1.ki")
@@ -471,7 +468,7 @@ def allTests(communicator):
     sys.stdout.flush()
     try:
         t.unknownMostDerived2AsBase()
-        test(false)
+        test(False)
     except Test.Base as b:
         test(b.b == "UnknownMostDerived2.b")
         test(b.ice_id() == "::Test::Base")

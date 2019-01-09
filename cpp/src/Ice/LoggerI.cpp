@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -176,22 +173,22 @@ Ice::LoggerI::write(const string& message, bool indent)
                 string date = IceUtil::Time::now().toString("%Y%m%d-%H%M%S");
                 while(true)
                 {
-                    ostringstream s;
-                    s << basename << "-" << date;
+                    ostringstream oss;
+                    oss << basename << "-" << date;
                     if(id > 0)
                     {
-                        s << "-" << id;
+                        oss << "-" << id;
                     }
                     if(!ext.empty())
                     {
-                        s << "." << ext;
+                        oss << "." << ext;
                     }
-                    if(IceUtilInternal::fileExists(s.str()))
+                    if(IceUtilInternal::fileExists(oss.str()))
                     {
                         id++;
                         continue;
                     }
-                    archive = s.str();
+                    archive = oss.str();
                     break;
                 }
 

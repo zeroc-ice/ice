@@ -1,14 +1,12 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
 
 namespace Ice
 {
@@ -276,6 +274,43 @@ namespace Ice
                     test(h != null);
                     output.WriteLine("ok");
 
+                    output.Write("getting K... ");
+                    {
+                        output.Flush();
+                        var k = initial.getK();
+                        var l = k.value as L;
+                        test(l != null);
+                        test(l.data.Equals("l"));
+                    }
+                    output.WriteLine("ok");
+
+                    output.Write("testing Value as parameter... ");
+                    output.Flush();
+                    {
+                        Ice.Value v1 = new L("l");
+                        Ice.Value v2;
+                        Ice.Value v3 = initial.opValue(v1, out v2);
+                        test(((L)v2).data.Equals("l"));
+                        test(((L)v3).data.Equals("l"));
+                    }
+                    {
+                        L l = new L("l");
+                        Ice.Value[] v1 = new Ice.Value[]{ l };
+                        Ice.Value[] v2;
+                        Ice.Value[] v3 = initial.opValueSeq(v1, out v2);
+                        test(((L)v2[0]).data.Equals("l"));
+                        test(((L)v3[0]).data.Equals("l"));
+                    }
+                    {
+                        L l = new L("l");
+                        Dictionary<string, Ice.Value> v1 = new Dictionary<string, Ice.Value>{ {"l", l} };
+                        Dictionary<string, Ice.Value> v2;
+                        Dictionary<string, Ice.Value> v3 = initial.opValueMap(v1, out v2);
+                        test(((L)v2["l"]).data.Equals("l"));
+                        test(((L)v3["l"]).data.Equals("l"));
+                    }
+                    output.WriteLine("ok");
+
                     output.Write("getting D1... ");
                     output.Flush();
                     D1 d1 = new D1(new A1("a1"), new A1("a2"), new A1("a3"), new A1("a4"));
@@ -448,6 +483,29 @@ namespace Ice
 
                     var sc1 = new SC1();
                     test(sc1.id.Equals("My id"));
+                    output.WriteLine("ok");
+
+                    output.Write("testing class containing complex dictionary... ");
+                    output.Flush();
+                    {
+                        var m = new Test.M();
+                        m.v = new Dictionary<StructKey, L>();
+                        var k1 = new StructKey(1, "1");
+                        m.v[k1] = new L("one");
+                        var k2 = new StructKey(2, "2");
+                        m.v[k2] = new L("two");
+                        Test.M m1;
+                        var m2 = initial.opM(m, out m1);
+                        test(m1.v.Count == 2);
+                        test(m2.v.Count == 2);
+
+                        test(m1.v[k1].data.Equals("one"));
+                        test(m2.v[k1].data.Equals("one"));
+
+                        test(m1.v[k2].data.Equals("two"));
+                        test(m2.v[k2].data.Equals("two"));
+
+                    }
                     output.WriteLine("ok");
                     return initial;
                 }

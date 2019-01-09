@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -711,6 +708,9 @@ public interface ObjectPrx
     @Override
     boolean equals(java.lang.Object r);
 
+    /**
+     * The type ID of the target's interface: "::Ice::Object".
+     **/
     static final String ice_staticId = "::Ice::Object";
 
     /**
@@ -849,28 +849,80 @@ public interface ObjectPrx
         return istr.readProxy();
     }
 
+    /**
+     * @hidden
+     * @param <T> -
+     * @param obj -
+     * @param id -
+     * @param proxy -
+     * @param impl -
+     * @return -
+     **/
     static <T> T _checkedCast(ObjectPrx obj, String id, Class<T> proxy, Class<?> impl)
     {
         return _checkedCast(obj, false, null, noExplicitContext, id, proxy, impl);
     }
 
+    /**
+     * @hidden
+     * @param <T> -
+     * @param obj -
+     * @param ctx -
+     * @param id -
+     * @param proxy -
+     * @param impl -
+     * @return -
+     **/
     static <T> T _checkedCast(ObjectPrx obj, java.util.Map<String, String> ctx, String id, Class<T> proxy,
                                Class<?> impl)
     {
         return _checkedCast(obj, false, null, ctx, id, proxy, impl);
     }
 
+    /**
+     * @hidden
+     * @param <T> -
+     * @param obj -
+     * @param facet -
+     * @param id -
+     * @param proxy -
+     * @param impl -
+     * @return -
+     **/
     static <T> T _checkedCast(ObjectPrx obj, String facet, String id, Class<T> proxy, Class<?> impl)
     {
         return _checkedCast(obj, true, facet, noExplicitContext, id, proxy, impl);
     }
 
+    /**
+     * @hidden
+     * @param <T> -
+     * @param obj -
+     * @param facet -
+     * @param ctx -
+     * @param id -
+     * @param proxy -
+     * @param impl -
+     * @return -
+     **/
     static <T> T _checkedCast(ObjectPrx obj, String facet, java.util.Map<String, String> ctx, String id,
                                Class<T> proxy, Class<?> impl)
     {
         return _checkedCast(obj, true, facet, ctx, id, proxy, impl);
     }
 
+    /**
+     * @hidden
+     * @param <T> -
+     * @param obj -
+     * @param explicitFacet -
+     * @param facet -
+     * @param ctx -
+     * @param id -
+     * @param proxy -
+     * @param impl -
+     * @return -
+     **/
     static <T> T _checkedCast(ObjectPrx obj, boolean explicitFacet, String facet, java.util.Map<String, String> ctx,
                                String id, Class<T> proxy, Class<?> impl)
     {
@@ -925,16 +977,43 @@ public interface ObjectPrx
         return r;
     }
 
+    /**
+     * @hidden
+     * @param <T> -
+     * @param obj -
+     * @param proxy -
+     * @param impl -
+     * @return -
+     **/
     static <T> T _uncheckedCast(ObjectPrx obj, Class<T> proxy, Class<?> impl)
     {
         return _uncheckedCast(obj, false, null, proxy, impl);
     }
 
+    /**
+     * @hidden
+     * @param <T> -
+     * @param obj -
+     * @param facet -
+     * @param proxy -
+     * @param impl -
+     * @return -
+     **/
     static <T> T _uncheckedCast(ObjectPrx obj, String facet, Class<T> proxy, Class<?> impl)
     {
         return _uncheckedCast(obj, true, facet, proxy, impl);
     }
 
+    /**
+     * @hidden
+     * @param <T> -
+     * @param obj -
+     * @param explicitFacet -
+     * @param facet -
+     * @param proxy -
+     * @param impl -
+     * @return -
+     **/
     static <T> T _uncheckedCast(ObjectPrx obj, boolean explicitFacet, String facet, Class<T> proxy, Class<?> impl)
     {
         T r = null;
@@ -982,16 +1061,46 @@ public interface ObjectPrx
         return r;
     }
 
+    /**
+     * @hidden
+     * @param os -
+     **/
     void _write(OutputStream os);
+
+    /**
+     * @hidden
+     * @param p -
+     **/
     void _copyFrom(ObjectPrx p);
+
+    /**
+     * @hidden
+     * @return -
+     **/
     com.zeroc.IceInternal.Reference _getReference();
+
+    /**
+     * @hidden
+     * @param r -
+     * @return -
+     **/
     ObjectPrx _newInstance(com.zeroc.IceInternal.Reference r);
 
+    /**
+     * @hidden
+     * @param newContext -
+     * @return -
+     **/
     default ObjectPrx _ice_context(java.util.Map<String, String> newContext)
     {
         return _newInstance(_getReference().changeContext(newContext));
     }
 
+    /**
+     * @hidden
+     * @param newAdapterId -
+     * @return -
+     **/
     default ObjectPrx _ice_adapterId(String newAdapterId)
     {
         if(newAdapterId == null)
@@ -1009,6 +1118,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param newEndpoints -
+     * @return -
+     **/
     default ObjectPrx _ice_endpoints(Endpoint[] newEndpoints)
     {
         if(java.util.Arrays.equals(newEndpoints, _getReference().getEndpoints()))
@@ -1023,6 +1137,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param connection -
+     * @return -
+     **/
     default ObjectPrx _ice_fixed(com.zeroc.Ice.Connection connection)
     {
         if(connection == null)
@@ -1043,6 +1162,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param newTimeout -
+     * @return -
+     **/
     default ObjectPrx _ice_locatorCacheTimeout(int newTimeout)
     {
         if(newTimeout < -1)
@@ -1059,6 +1183,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param newTimeout -
+     * @return -
+     **/
     default ObjectPrx _ice_invocationTimeout(int newTimeout)
     {
         if(newTimeout < 1 && newTimeout != -1 && newTimeout != -2)
@@ -1075,6 +1204,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param newCache -
+     * @return -
+     **/
     default ObjectPrx _ice_connectionCached(boolean newCache)
     {
         if(newCache == _getReference().getCacheConnection())
@@ -1087,6 +1221,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param newType -
+     * @return -
+     **/
     default ObjectPrx _ice_endpointSelection(EndpointSelectionType newType)
     {
         if(newType == _getReference().getEndpointSelection())
@@ -1099,6 +1238,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param b -
+     * @return -
+     **/
     default ObjectPrx _ice_secure(boolean b)
     {
         if(b == _getReference().getSecure())
@@ -1111,6 +1255,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param e -
+     * @return -
+     **/
     default ObjectPrx _ice_encodingVersion(EncodingVersion e)
     {
         if(e.equals(_getReference().getEncoding()))
@@ -1123,6 +1272,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param b -
+     * @return -
+     **/
     default ObjectPrx _ice_preferSecure(boolean b)
     {
         if(b == _getReference().getPreferSecure())
@@ -1135,6 +1289,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param router -
+     * @return -
+     **/
     default ObjectPrx _ice_router(RouterPrx router)
     {
         com.zeroc.IceInternal.Reference ref = _getReference().changeRouter(router);
@@ -1148,6 +1307,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param locator -
+     * @return -
+     **/
     default ObjectPrx _ice_locator(LocatorPrx locator)
     {
         com.zeroc.IceInternal.Reference ref = _getReference().changeLocator(locator);
@@ -1161,6 +1325,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param b -
+     * @return -
+     **/
     default ObjectPrx _ice_collocationOptimized(boolean b)
     {
         if(b == _getReference().getCollocationOptimized())
@@ -1173,6 +1342,10 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @return -
+     **/
     default ObjectPrx _ice_twoway()
     {
         if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeTwoway)
@@ -1185,6 +1358,10 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @return -
+     **/
     default ObjectPrx _ice_oneway()
     {
         if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeOneway)
@@ -1197,6 +1374,10 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @return -
+     **/
     default ObjectPrx _ice_batchOneway()
     {
         if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeBatchOneway)
@@ -1209,6 +1390,10 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @return -
+     **/
     default ObjectPrx _ice_datagram()
     {
         if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeDatagram)
@@ -1221,6 +1406,10 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @return -
+     **/
     default ObjectPrx _ice_batchDatagram()
     {
         if(_getReference().getMode() == com.zeroc.IceInternal.Reference.ModeBatchDatagram)
@@ -1233,6 +1422,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param co -
+     * @return -
+     **/
     default ObjectPrx _ice_compress(boolean co)
     {
         com.zeroc.IceInternal.Reference ref = _getReference().changeCompress(co);
@@ -1246,6 +1440,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param t -
+     * @return -
+     **/
     default ObjectPrx _ice_timeout(int t)
     {
         if(t < 1 && t != -1)
@@ -1263,6 +1462,11 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * @hidden
+     * @param connectionId -
+     * @return -
+     **/
     default ObjectPrx _ice_connectionId(String connectionId)
     {
         com.zeroc.IceInternal.Reference ref = _getReference().changeConnectionId(connectionId);
@@ -1276,5 +1480,10 @@ public interface ObjectPrx
         }
     }
 
+    /**
+     * A special empty context that is indistinguishable from the absence of a context parameter.
+     * For example, <code>prx.op(noExplicitContext)</code> is the same as <code>prx.op()</code>
+     * and does not override the current implicit context (if any).
+     **/
     static final java.util.Map<String, String> noExplicitContext = new java.util.HashMap<>();
 }

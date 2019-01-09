@@ -1,11 +1,12 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
+
+#ifdef _MSC_VER
+#   pragma warning(disable:4244) // '=': conversion from x to y, possible loss of data
+#endif
 
 #include <Ice/Ice.h>
 #include <TestHelper.h>
@@ -907,24 +908,24 @@ allTests(Test::TestHelper* helper, bool)
     cout << "ok" << endl;
 
     cout << "testing tag marshalling... " << flush;
-    BPtr b = ICE_MAKE_SHARED(B);
-    BPtr b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
-    test(!b2->ma);
-    test(!b2->mb);
-    test(!b2->mc);
-
-    b->ma = 10;
-    b->mb = 11;
-    b->mc = 12;
-    b->md = 13;
-
-    b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
-    test(b2->ma == 10);
-    test(b2->mb == 11);
-    test(b2->mc == 12);
-    test(b2->md == 13);
-
     {
+        BPtr b = ICE_MAKE_SHARED(B);
+        BPtr b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
+        test(!b2->ma);
+        test(!b2->mb);
+        test(!b2->mc);
+
+        b->ma = 10;
+        b->mb = 11;
+        b->mc = 12;
+        b->md = 13;
+
+        b2 = ICE_DYNAMIC_CAST(B, initial->pingPong(b));
+        test(b2->ma == 10);
+        test(b2->mb == 11);
+        test(b2->mc == 12);
+        test(b2->md == 13);
+
         factory->setEnabled(true);
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
@@ -1523,8 +1524,8 @@ allTests(Test::TestHelper* helper, bool)
         Ice::OutputStream out(communicator);
         out.startEncapsulation();
 #ifdef ICE_CPP11_MAPPING
-        out.write(1, make_optional(f));
-        out.write(2, make_optional(f->ae));
+        out.write(1, Ice::make_optional(f));
+        out.write(2, Ice::make_optional(f->ae));
 #else
         out.write(1, makeOptional(f));
         out.write(2, makeOptional(f->ae));

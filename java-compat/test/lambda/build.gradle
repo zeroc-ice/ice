@@ -1,0 +1,39 @@
+// **********************************************************************
+//
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+//
+// **********************************************************************
+
+// Override defaults otherwise this code won't compile!
+//
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+compileJava {
+    // See ice.gradle
+    if(JavaVersion.current() > JavaVersion.VERSION_1_8) {
+        options.compilerArgs.addAll(['--release', '8'])
+    }
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs "$rootProject.projectDir/test/lambda"
+        }
+    }
+}
+
+dependencies {
+    implementation localDependency('ice-compat')
+    implementation project(':test')
+}
+
+jar {
+    archiveName = "IceTestLambda.jar"
+    destinationDir = new File("$rootProject.projectDir/lib/")
+}
+
+clean {
+    delete("$rootProject.projectDir/lib/IceTestLambda.jar")
+}

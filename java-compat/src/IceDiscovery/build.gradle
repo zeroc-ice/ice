@@ -1,14 +1,8 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
-
-sourceCompatibility = 1.7
-targetCompatibility = 1.7
 
 project.ext.displayName = "IceDiscovery Compat"
 project.ext.description = "Allow Ice applications to discover objects and object adapters"
@@ -20,7 +14,7 @@ slice {
 }
 
 dependencies {
-    compile project(':ice-compat')
+    implementation project(':ice-compat')
 }
 
 apply from: "$project.ext.topSrcDir/java/gradle/library.gradle"

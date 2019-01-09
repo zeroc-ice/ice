@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -1076,7 +1073,13 @@ public class AllTests : Test.AllTests
         if(!collocated)
         {
             im1 = (IceMX.InvocationMetrics)map["fail"];
-            test(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 6);
+            if(!(im1.current <= 1 && im1.total == 3 && im1.failures == 3 && im1.retry == 3 && im1.remotes.Length == 6))
+            {
+                System.Console.Error.WriteLine("current: " + im1.current + " total: " + im1.total +
+                                               " failures: " + im1.failures + " retry: " + im1.retry +
+                                               " remotes: " + im1.remotes.Length);
+                test(false);
+            }
             test(im1.remotes[0].current == 0 && im1.remotes[0].total == 1 && im1.remotes[0].failures == 1);
             test(im1.remotes[1].current == 0 && im1.remotes[1].total == 1 && im1.remotes[1].failures == 1);
             test(im1.remotes[2].current == 0 && im1.remotes[2].total == 1 && im1.remotes[2].failures == 1);
@@ -1149,6 +1152,60 @@ public class AllTests : Test.AllTests
         testAttribute(clientMetrics, clientProps, update, "Invocation", "mode", "batch-oneway",
                       () => { invokeOp(metricsBatchOneway); }, output);
 
+        //
+        // Tests flushBatchRequests
+        //
+        props["IceMX.Metrics.View.Map.Invocation.GroupBy"] = "operation";
+        props["IceMX.Metrics.View.Map.Invocation.Map.Remote.GroupBy"] = "localPort";
+        updateProps(clientProps, serverProps, update, props, "Invocation");
+
+        metricsBatchOneway = (MetricsPrx)metrics.ice_batchOneway();
+        metricsBatchOneway.op();
+
+        metricsBatchOneway.ice_flushBatchRequests();
+        metricsBatchOneway.ice_flushBatchRequestsAsync().Wait();
+
+        map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+        test(map.Count == 2);
+
+        im1 = (IceMX.InvocationMetrics)map["ice_flushBatchRequests"];
+        test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+        if(!collocated)
+        {
+            test(im1.remotes.Length == 1); // The first operation got sent over a connection
+        }
+
+        if(!collocated)
+        {
+            clearView(clientProps, serverProps, update);
+
+            Ice.Connection con = metricsBatchOneway.ice_getConnection();
+
+            metricsBatchOneway = (MetricsPrx)metricsBatchOneway.ice_fixed(con);
+            metricsBatchOneway.op();
+
+            con.flushBatchRequests(Ice.CompressBatch.No);
+            con.flushBatchRequestsAsync(Ice.CompressBatch.No).Wait();
+
+            map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+            test(map.Count == 3);
+
+            im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
+            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            test(im1.remotes.Length == 1); // The first operation got sent over a connection
+
+            clearView(clientProps, serverProps, update);
+            metricsBatchOneway.op();
+
+            communicator.flushBatchRequests(Ice.CompressBatch.No);
+            communicator.flushBatchRequestsAsync(Ice.CompressBatch.No).Wait();
+            map = toMap(clientMetrics.getMetricsView("View", out timestamp)["Invocation"]);
+            test(map.Count == 2);
+
+            im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
+            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            test(im1.remotes.Length == 1); // The first operation got sent over a connection
+        }
         output.WriteLine("ok");
 
         output.Write("testing metrics view enable/disable...");

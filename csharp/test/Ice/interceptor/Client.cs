@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -42,7 +39,7 @@ namespace Ice
                 test(interceptor.getLastOperation().Equals("addWithRetry"));
                 test(!interceptor.getLastStatus());
                 output.WriteLine("ok");
-                output.WriteLine("testing user exception... ");
+                output.Write("testing user exception... ");
                 output.Flush();
                 try
                 {
@@ -115,7 +112,7 @@ namespace Ice
                 test(interceptor.getLastStatus());
                 output.WriteLine("ok");
 
-                output.WriteLine("testing user exception... ");
+                output.Write("testing user exception... ");
                 try
                 {
                     prx.amdBadAdd(33, 12);
@@ -172,9 +169,7 @@ namespace Ice
 
             public override void run(string[] args)
             {
-                var properties = createTestProperties(ref args);
-                properties.setProperty("Ice.Package.Test", "Ice.interceptor");
-                using(var communicator = initialize(properties))
+                using(var communicator = initialize(ref args))
                 {
                     //
                     // Create OA and servants

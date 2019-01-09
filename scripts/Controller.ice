@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -68,6 +65,8 @@ interface Controller
     OptionOverrides getOptionOverrides();
 
     StringSeq getTestSuites(string mapping);
+
+    string getHost(string protocol, bool ipv6);
 }
 
 exception ProcessFailedException

@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -121,6 +118,28 @@ public class Root extends ListTreeNode
 
         copy.distrib = copy.distrib.clone();
         return copy;
+    }
+
+    @Override
+    public void delete()
+    {
+        if(_file == null && !_live)
+        {
+            int confirm = JOptionPane.showConfirmDialog(_coordinator.getMainFrame(),
+                                                        "You are about to remove application '" + _id + "'. "
+                                                        + "Do you want to proceed?",
+                                                        "Remove Confirmation",
+                                                        JOptionPane.YES_NO_OPTION);
+
+            if(confirm == JOptionPane.YES_OPTION)
+            {
+                super.delete();
+            }
+        }
+        else
+        {
+            super.delete();
+        }
     }
 
     @Override

@@ -1,13 +1,9 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
-#include <IceUtil/DisableWarnings.h>
 #include <Ice/CollocatedRequestHandler.h>
 #include <Ice/ObjectAdapterI.h>
 #include <Ice/ThreadPool.h>
@@ -271,7 +267,7 @@ CollocatedRequestHandler::systemException(Int requestId, const SystemException& 
 }
 
 void
-CollocatedRequestHandler::invokeException(Int requestId, const LocalException& ex, int invokeNum, bool amd)
+CollocatedRequestHandler::invokeException(Int requestId, const LocalException& ex, int /*invokeNum*/, bool amd)
 {
     handleException(requestId, ex, amd);
     _adapter->decDirectCount();

@@ -1,28 +1,24 @@
 #!/usr/bin/env python
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
-import os, sys, traceback
-
+import os
 import Ice
-Ice.loadSlice('Test.ice')
+from TestHelper import TestHelper
+TestHelper.loadSlice("Test.ice")
 import Test
 
-def usage(n):
-    sys.stderr.write("Usage: " + n + " port\n")
 
 class TestI(Test.TestIntf):
+
     def shutdown(self, current=None):
         current.adapter.getCommunicator().shutdown()
 
     def abort(self, current=None):
-        sys.stdout.write("aborting...")
+        print("aborting...")
         os._exit(0)
 
     def idempotentAbort(self, current=None):
@@ -31,48 +27,35 @@ class TestI(Test.TestIntf):
     def pid(self, current=None):
         return os.getpid()
 
-def run(args, communicator):
-    port = 0
-    for arg in args[1:]:
-        if arg[0] == '-':
-            sys.stderr.write(args[0] + ": unknown option `" + arg + "'\n")
-            usage(args[0])
-            return False
-        if port > 0:
-            sys.stderr.write(args[0] + ": only one port can be specified\n")
-            usage(args[0])
-            return False
 
-        port = 12010 + int(arg)
+class Server(TestHelper):
 
-    if port <= 0:
-        sys.stderr.write(args[0] + ": no port specified\n")
-        usage(args[0])
-        return False
+    def run(self, args):
+        properties = self.createTestProperties(args)
+        #
+        # In this test, we need a longer server idle time, otherwise
+        # our test servers may time out before they are used in the
+        # test.
+        #
+        properties.setProperty("Ice.ServerIdleTime", "120")  # Two minutes.
 
-    endpts = "default -p " + str(port)
-    communicator.getProperties().setProperty("TestAdapter.Endpoints", endpts)
-    adapter = communicator.createObjectAdapter("TestAdapter")
-    object = TestI()
-    adapter.add(object, Ice.stringToIdentity("test"))
-    adapter.activate()
-    communicator.waitForShutdown()
-    return True
+        port = 0
+        for arg in args:
 
-try:
-    #
-    # In this test, we need a longer server idle time, otherwise
-    # our test servers may time out before they are used in the
-    # test.
-    #
-    initData = Ice.InitializationData()
-    initData.properties = Ice.createProperties(sys.argv)
-    initData.properties.setProperty("Ice.ServerIdleTime", "120") # Two minutes.
+            if arg[0] == '-':
+                continue
 
-    with Ice.initialize(sys.argv, initData) as communicator:
-        status = run(sys.argv, communicator)
-except:
-    traceback.print_exc()
-    status = False
+            if port > 0:
+                raise RuntimeError("only one port can be specified")
 
-sys.exit(not status)
+            port = int(arg)
+
+        if port <= 0:
+            raise RuntimeError("no port specified\n")
+
+        with self.initialize(properties=properties) as communicator:
+            communicator.getProperties().setProperty("TestAdapter.Endpoints", self.getTestEndpoint(num=port))
+            adapter = communicator.createObjectAdapter("TestAdapter")
+            adapter.add(TestI(), Ice.stringToIdentity("test"))
+            adapter.activate()
+            communicator.waitForShutdown()

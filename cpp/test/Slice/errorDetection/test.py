@@ -1,10 +1,7 @@
 # -*- coding: utf-8 -*-
 # **********************************************************************
 #
-# Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-#
-# This copy of Ice is licensed to you under the terms described in the
-# ICE_LICENSE file included in this distribution.
+# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 #
 # **********************************************************************
 
@@ -13,7 +10,7 @@ import glob
 class SliceErrorDetectionTestCase(ClientTestCase):
 
     def runClientSide(self, current):
-        testdir = self.getPath()
+        testdir = current.testsuite.getPath()
         slice2cpp = SliceTranslator("slice2cpp")
 
         files = glob.glob("{0}/*.ice".format(testdir))
@@ -23,8 +20,6 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                 current.write(os.path.basename(file) + "... ")
 
                 args = ["-I.", file, "--output-dir", "tmp"]
-                if file.find("Underscore") >= 0:
-                    args.append("--underscore")
 
                 # Don't print out slice2cpp output and expect failures
                 slice2cpp.run(current, args=args, exitstatus=0 if file.find("Warning") >= 0 else 1)

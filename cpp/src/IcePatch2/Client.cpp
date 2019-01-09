@@ -1,15 +1,12 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
 #include <IceUtil/Options.h>
 #include <IceUtil/StringUtil.h>
-#include <Ice/Application.h>
+#include <Ice/Ice.h>
 #include <Ice/ConsoleUtil.h>
 #include <IcePatch2Lib/Util.h>
 #include <IcePatch2/ClientUtil.h>
@@ -22,12 +19,9 @@
 #endif
 
 using namespace std;
-using namespace Ice;
 using namespace IceInternal;
-using namespace IcePatch2;
-using namespace IcePatch2Internal;
 
-class TextPatcherFeedback : public PatcherFeedback
+class TextPatcherFeedback : public IcePatch2::PatcherFeedback
 {
 public:
 
@@ -83,7 +77,7 @@ public:
     virtual bool
     checksumProgress(const string& path)
     {
-        consoleOut << "Calculating checksum for " << getBasename(path) << endl;
+        consoleOut << "Calculating checksum for " << IcePatch2Internal::getBasename(path) << endl;
         return !keyPressed();
     }
 
@@ -108,7 +102,7 @@ public:
     }
 
     virtual bool
-    fileListProgress(Int percent)
+    fileListProgress(Ice::Int percent)
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
@@ -129,7 +123,7 @@ public:
     }
 
     virtual bool
-    patchStart(const string& path, Long size, Long totalProgress, Long totalSize)
+    patchStart(const string& path, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
     {
         if(!_pressAnyKeyMessage)
         {
@@ -140,12 +134,12 @@ public:
         ostringstream s;
         s << "0/" << size << " (" << totalProgress << '/' << totalSize << ')';
         _lastProgress = s.str();
-        consoleOut << getBasename(path) << ' ' << _lastProgress << flush;
+        consoleOut << IcePatch2Internal::getBasename(path) << ' ' << _lastProgress << flush;
         return !keyPressed();
     }
 
     virtual bool
-    patchProgress(Long progress, Long size, Long totalProgress, Long totalSize)
+    patchProgress(Ice::Long progress, Ice::Long size, Ice::Long totalProgress, Ice::Long totalSize)
     {
         for(unsigned int i = 0; i < _lastProgress.size(); ++i)
         {
@@ -255,71 +249,111 @@ private:
     bool _pressAnyKeyMessage;
 };
 
-class Client : public Ice::Application
+int run(const Ice::StringSeq&);
+
+Ice::CommunicatorPtr communicator;
+
+void
+destroyCommunicator(int)
 {
-public:
-
-    virtual int run(int, char*[]);
-
-private:
-
-    void usage(const std::string&);
-};
+    communicator->destroy();
+}
 
 int
-Client::run(int argc, char* argv[])
+#ifdef _WIN32
+wmain(int argc, wchar_t* argv[])
+#else
+main(int argc, char* argv[])
+#endif
 {
-    PropertiesPtr properties = communicator()->getProperties();
+    int status = 0;
+
+    try
+    {
+        Ice::CtrlCHandler ctrlCHandler;
+        Ice::CommunicatorHolder ich(argc, argv);
+        communicator = ich.communicator();
+
+        ctrlCHandler.setCallback(&destroyCommunicator);
+
+        status = run(Ice::argsToStringSeq(argc, argv));
+    }
+    catch(const std::exception& ex)
+    {
+        consoleErr << ex.what() << endl;
+        status = 1;
+    }
+
+    return status;
+}
+
+void
+usage(const string& appName)
+{
+    string options =
+        "Options:\n"
+        "-h, --help           Show this message.\n"
+        "-v, --version        Display the Ice version.\n"
+        "-t, --thorough       Recalculate all checksums.";
+
+    consoleErr << "Usage: " << appName << " [options] [DIR]" << endl;
+    consoleErr << options << endl;
+}
+
+int
+run(const Ice::StringSeq& args)
+{
+    Ice::PropertiesPtr properties = communicator->getProperties();
 
     IceUtilInternal::Options opts;
     opts.addOpt("h", "help");
     opts.addOpt("v", "version");
     opts.addOpt("t", "thorough");
 
-    vector<string> args;
+    vector<string> props;
     try
     {
-        args = opts.parse(argc, const_cast<const char**>(argv));
+        props = opts.parse(args);
     }
     catch(const IceUtilInternal::BadOptException& e)
     {
         consoleErr << e.reason << endl;
-        usage(argv[0]);
-        return EXIT_FAILURE;
+        usage(args[0]);
+        return 1;
     }
 
     if(opts.isSet("help"))
     {
-        usage(argv[0]);
-        return EXIT_SUCCESS;
+        usage(args[0]);
+        return 0;
     }
     if(opts.isSet("version"))
     {
         consoleOut << ICE_STRING_VERSION << endl;
-        return EXIT_SUCCESS;
+        return 0;
     }
     if(opts.isSet("thorough"))
     {
         properties->setProperty("IcePatch2Client.Thorough", "1");
     }
 
-    if(args.size() > 1)
+    if(props.size() > 1)
     {
-        consoleErr << argv[0] << ": too many arguments" << endl;
-        usage(argv[0]);
-        return EXIT_FAILURE;
+        consoleErr << args[0] << ": too many arguments" << endl;
+        usage(args[0]);
+        return 1;
     }
-    if(args.size() == 1)
+    if(props.size() == 1)
     {
-        properties->setProperty("IcePatch2Client.Directory", simplify(args[0]));
+        properties->setProperty("IcePatch2Client.Directory", IcePatch2Internal::simplify(props[0]));
     }
 
     bool aborted = false;
 
     try
     {
-        PatcherFeedbackPtr feedback = new TextPatcherFeedback;
-        PatcherPtr patcher = PatcherFactory::create(communicator(), feedback);
+        IcePatch2::PatcherFeedbackPtr feedback = new TextPatcherFeedback;
+        IcePatch2::PatcherPtr patcher = IcePatch2::PatcherFactory::create(communicator, feedback);
 
         aborted = !patcher->prepare();
 
@@ -335,46 +369,17 @@ Client::run(int argc, char* argv[])
     }
     catch(const exception& ex)
     {
-        consoleErr << argv[0] << ": " << ex.what() << endl;
-        return EXIT_FAILURE;
+        consoleErr << args[0] << ": " << ex.what() << endl;
+        return 1;
     }
 
     if(aborted)
     {
         consoleOut << "\n[Aborted]" << endl;
-        return EXIT_FAILURE;
+        return 1;
     }
     else
     {
-        return EXIT_SUCCESS;
+        return 0;
     }
-}
-
-void
-Client::usage(const string& appName)
-{
-    string options =
-        "Options:\n"
-        "-h, --help           Show this message.\n"
-        "-v, --version        Display the Ice version.\n"
-        "-t, --thorough       Recalculate all checksums.";
-
-    consoleErr << "Usage: " << appName << " [options] [DIR]" << endl;
-    consoleErr << options << endl;
-}
-
-#ifdef _WIN32
-
-int
-wmain(int argc, wchar_t* argv[])
-
-#else
-
-int
-main(int argc, char* argv[])
-
-#endif
-{
-    Client app;
-    return app.main(argc, argv);
 }

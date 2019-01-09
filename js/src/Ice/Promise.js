@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -29,13 +26,6 @@ class P extends Promise
 
         this.resolve = res;
         this.reject = rej;
-    }
-
-    finally(cb)
-    {
-        return this.then(
-            value => P.resolve(cb()).then(() => value),
-            reason => P.resolve(cb()).then(() => { throw reason; }));
     }
 
     delay(ms)

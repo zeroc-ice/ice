@@ -1,3 +1,11 @@
+%{
+**********************************************************************
+
+Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+
+**********************************************************************
+%}
+
 function buildToolbox(iceVersion)
   rootDir = fileparts(mfilename('fullpath'));
   packageDir = fullfile(rootDir, 'toolbox');
@@ -10,7 +18,7 @@ function buildToolbox(iceVersion)
     fprintf(f, '%% Version %s (R%s) %s\r\n', iceVersion, version('-release'), date);
     fprintf(f, '%%\r\n');
     fprintf(f, ['%% Please refer to the '...
-                '<a href="https://doc.zeroc.com/display/Rel/Ice+3.7.1+Release+Notes">Ice Release Notes</a> '...
+                '<a href="https://doc.zeroc.com/display/Rel/Ice+3.7.2+Release+Notes">Ice Release Notes</a> '...
                 'for more information\r\n']);
     fclose(f);
     matlab.addons.toolbox.packageToolbox(projectFile, sprintf('ice-%s-R%s.mltbx', iceVersion, version('-release')))

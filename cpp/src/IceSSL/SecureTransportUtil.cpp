@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -363,11 +360,11 @@ loadPrivateKey(const string& file, SecCertificateRef cert, SecKeychainRef keycha
     UniqueRef<SecKeyRef> key;
     for(int i = 0; i < count; ++i)
     {
-        SecKeychainItemRef item =
+        SecKeychainItemRef itemRef =
             static_cast<SecKeychainItemRef>(const_cast<void*>(CFArrayGetValueAtIndex(items.get(), 0)));
-        if(SecKeyGetTypeID() == CFGetTypeID(item))
+        if(SecKeyGetTypeID() == CFGetTypeID(itemRef))
         {
-            key.retain(reinterpret_cast<SecKeyRef>(item));
+            key.retain(reinterpret_cast<SecKeyRef>(itemRef));
             break;
         }
     }
@@ -524,9 +521,15 @@ loadCerts(const string& file)
 //
 CFArrayRef
 IceSSL::SecureTransport::loadCertificateChain(const string& file,
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+                                              const string& /*keyFile*/,
+                                              const std::string& /*keychainPath*/,
+                                              const string& /*keychainPassword*/,
+#else
                                               const string& keyFile,
                                               const std::string& keychainPath,
                                               const string& keychainPassword,
+#endif
                                               const string& password,
                                               const PasswordPromptPtr& prompt,
                                               int retryMax)
@@ -652,9 +655,15 @@ IceSSL::SecureTransport::loadCACertificates(const string& file)
 }
 
 CFArrayRef
+#if defined(ICE_USE_SECURE_TRANSPORT_IOS)
+IceSSL::SecureTransport::findCertificateChain(const std::string&,
+                                              const std::string&,
+                                              const string& value)
+#else
 IceSSL::SecureTransport::findCertificateChain(const std::string& keychainPath,
                                               const std::string& keychainPassword,
                                               const string& value)
+#endif
 {
     //
     //  Search the keychain using key:value pairs. The following keys are supported:

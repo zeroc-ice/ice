@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_FOR_ACTIONSCRIPT_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -243,7 +240,7 @@ class OutgoingAsync extends ProxyOutgoingAsyncBase
         {
             if(ctx !== null && !(ctx instanceof Map))
             {
-                throw new Error("illegal context value, expecting null or Map");
+                throw new RangeError("illegal context value, expecting null or Map");
             }
 
             //

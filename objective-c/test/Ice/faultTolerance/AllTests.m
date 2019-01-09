@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 
@@ -66,7 +63,7 @@
     [self called];
 }
 
--(void) pidException:(ICEException*)ex
+-(void) pidException:(ICEException*)__unused ex
 {
     test(NO);
 }
@@ -79,7 +76,7 @@
     [self called];
 }
 
--(void) shutdownException:(ICEException*)ex
+-(void) shutdownException:(ICEException*)__unused ex
 {
     test(NO);
 }
