@@ -49,7 +49,6 @@
 #define HAVE_ISFINITE 1
 #endif
 
-
 //
 // BUGFIX: Workaround unused parameter in ruby.h header file
 //
