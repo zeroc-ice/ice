@@ -1201,7 +1201,7 @@ IcePy::callMethod(PyObject* method, PyObject* arg1, PyObject* arg2)
 
 extern "C"
 PyObject*
-IcePy_stringVersion(PyObject* /*self*/)
+IcePy_stringVersion(PyObject* /*self*/, PyObject* /*args*/)
 {
     string s = ICE_STRING_VERSION;
     return IcePy::createString(s);
@@ -1209,28 +1209,28 @@ IcePy_stringVersion(PyObject* /*self*/)
 
 extern "C"
 PyObject*
-IcePy_intVersion(PyObject* /*self*/)
+IcePy_intVersion(PyObject* /*self*/, PyObject* /*args*/)
 {
     return PyLong_FromLong(ICE_INT_VERSION);
 }
 
 extern "C"
 PyObject*
-IcePy_currentProtocol(PyObject* /*self*/)
+IcePy_currentProtocol(PyObject* /*self*/, PyObject* /*args*/)
 {
     return IcePy::createProtocolVersion(Ice::currentProtocol);
 }
 
 extern "C"
 PyObject*
-IcePy_currentProtocolEncoding(PyObject* /*self*/)
+IcePy_currentProtocolEncoding(PyObject* /*self*/, PyObject* /*args*/)
 {
     return IcePy::createEncodingVersion(Ice::currentProtocolEncoding);
 }
 
 extern "C"
 PyObject*
-IcePy_currentEncoding(PyObject* /*self*/)
+IcePy_currentEncoding(PyObject* /*self*/, PyObject* /*args*/)
 {
     return IcePy::createEncodingVersion(Ice::currentEncoding);
 }
@@ -1265,7 +1265,7 @@ IcePy_stringToEncodingVersion(PyObject* /*self*/, PyObject* args)
 
 extern "C"
 PyObject*
-IcePy_generateUUID(PyObject* /*self*/)
+IcePy_generateUUID(PyObject* /*self*/, PyObject* /*args*/)
 {
     string uuid = Ice::generateUUID();
     return IcePy::createString(uuid);

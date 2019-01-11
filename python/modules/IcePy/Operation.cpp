@@ -855,7 +855,7 @@ asyncResultDealloc(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultGetCommunicator(AsyncResultObject* self)
+asyncResultGetCommunicator(AsyncResultObject* self, PyObject* /*args*/)
 {
     if(self->communicator)
     {
@@ -869,7 +869,7 @@ asyncResultGetCommunicator(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultCancel(AsyncResultObject* self)
+asyncResultCancel(AsyncResultObject* self, PyObject* /*args*/)
 {
     try
     {
@@ -887,7 +887,7 @@ asyncResultCancel(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultGetConnection(AsyncResultObject* self)
+asyncResultGetConnection(AsyncResultObject* self, PyObject* /*args*/)
 {
     if(self->connection)
     {
@@ -901,7 +901,7 @@ asyncResultGetConnection(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultGetProxy(AsyncResultObject* self)
+asyncResultGetProxy(AsyncResultObject* self, PyObject* /*args*/)
 {
     if(self->proxy)
     {
@@ -915,7 +915,7 @@ asyncResultGetProxy(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultIsCompleted(AsyncResultObject* self)
+asyncResultIsCompleted(AsyncResultObject* self, PyObject* /*args*/)
 {
     bool b = false;
 
@@ -936,7 +936,7 @@ asyncResultIsCompleted(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultWaitForCompleted(AsyncResultObject* self)
+asyncResultWaitForCompleted(AsyncResultObject* self, PyObject* /*args*/)
 {
     AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
     try
@@ -956,7 +956,7 @@ asyncResultWaitForCompleted(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultIsSent(AsyncResultObject* self)
+asyncResultIsSent(AsyncResultObject* self, PyObject* /*args*/)
 {
     bool b = false;
 
@@ -977,7 +977,7 @@ asyncResultIsSent(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultWaitForSent(AsyncResultObject* self)
+asyncResultWaitForSent(AsyncResultObject* self, PyObject* /*args*/)
 {
     AllowThreads allowThreads; // Release Python's global interpreter lock during remote invocations.
     try
@@ -997,7 +997,7 @@ asyncResultWaitForSent(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultThrowLocalException(AsyncResultObject* self)
+asyncResultThrowLocalException(AsyncResultObject* self, PyObject* /*args*/)
 {
     try
     {
@@ -1021,7 +1021,7 @@ asyncResultThrowLocalException(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultSentSynchronously(AsyncResultObject* self)
+asyncResultSentSynchronously(AsyncResultObject* self, PyObject* /*args*/)
 {
     bool b = false;
 
@@ -1042,7 +1042,7 @@ asyncResultSentSynchronously(AsyncResultObject* self)
 extern "C"
 #endif
 static PyObject*
-asyncResultGetOperation(AsyncResultObject* self)
+asyncResultGetOperation(AsyncResultObject* self, PyObject* /*args*/)
 {
     string op;
 

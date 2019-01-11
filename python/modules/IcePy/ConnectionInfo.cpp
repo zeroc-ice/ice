@@ -48,7 +48,7 @@ connectionInfoDealloc(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionInfoGetUnderlying(ConnectionInfoObject* self)
+connectionInfoGetUnderlying(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     return createConnectionInfo((*self->connectionInfo)->underlying);
 }
@@ -57,7 +57,7 @@ connectionInfoGetUnderlying(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionInfoGetIncoming(ConnectionInfoObject* self)
+connectionInfoGetIncoming(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     return (*self->connectionInfo)->incoming ? incTrue() : incFalse();
 }
@@ -66,7 +66,7 @@ connectionInfoGetIncoming(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionInfoGetAdapterName(ConnectionInfoObject* self)
+connectionInfoGetAdapterName(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     return createString((*self->connectionInfo)->adapterName);
 }
@@ -75,7 +75,7 @@ connectionInfoGetAdapterName(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-ipConnectionInfoGetLocalAddress(ConnectionInfoObject* self)
+ipConnectionInfoGetLocalAddress(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -86,7 +86,7 @@ ipConnectionInfoGetLocalAddress(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-ipConnectionInfoGetLocalPort(ConnectionInfoObject* self)
+ipConnectionInfoGetLocalPort(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -97,7 +97,7 @@ ipConnectionInfoGetLocalPort(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-ipConnectionInfoGetRemoteAddress(ConnectionInfoObject* self)
+ipConnectionInfoGetRemoteAddress(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -108,7 +108,7 @@ ipConnectionInfoGetRemoteAddress(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-ipConnectionInfoGetRemotePort(ConnectionInfoObject* self)
+ipConnectionInfoGetRemotePort(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::IPConnectionInfoPtr info = Ice::IPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -119,7 +119,7 @@ ipConnectionInfoGetRemotePort(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-tcpConnectionInfoGetRcvSize(ConnectionInfoObject* self)
+tcpConnectionInfoGetRcvSize(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -130,7 +130,7 @@ tcpConnectionInfoGetRcvSize(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-tcpConnectionInfoGetSndSize(ConnectionInfoObject* self)
+tcpConnectionInfoGetSndSize(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::TCPConnectionInfoPtr info = Ice::TCPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -141,7 +141,7 @@ tcpConnectionInfoGetSndSize(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-udpConnectionInfoGetMcastAddress(ConnectionInfoObject* self)
+udpConnectionInfoGetMcastAddress(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -152,7 +152,7 @@ udpConnectionInfoGetMcastAddress(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-udpConnectionInfoGetMcastPort(ConnectionInfoObject* self, void* /*member*/)
+udpConnectionInfoGetMcastPort(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -163,7 +163,7 @@ udpConnectionInfoGetMcastPort(ConnectionInfoObject* self, void* /*member*/)
 extern "C"
 #endif
 static PyObject*
-udpConnectionInfoGetRcvSize(ConnectionInfoObject* self)
+udpConnectionInfoGetRcvSize(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -174,7 +174,7 @@ udpConnectionInfoGetRcvSize(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-udpConnectionInfoGetSndSize(ConnectionInfoObject* self)
+udpConnectionInfoGetSndSize(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::UDPConnectionInfoPtr info = Ice::UDPConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -185,7 +185,7 @@ udpConnectionInfoGetSndSize(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-wsConnectionInfoGetHeaders(ConnectionInfoObject* self)
+wsConnectionInfoGetHeaders(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     Ice::WSConnectionInfoPtr info = Ice::WSConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -211,7 +211,7 @@ wsConnectionInfoGetHeaders(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-sslConnectionInfoGetCipher(ConnectionInfoObject* self)
+sslConnectionInfoGetCipher(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -222,7 +222,7 @@ sslConnectionInfoGetCipher(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-sslConnectionInfoGetCerts(ConnectionInfoObject* self)
+sslConnectionInfoGetCerts(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);
@@ -240,7 +240,7 @@ sslConnectionInfoGetCerts(ConnectionInfoObject* self)
 extern "C"
 #endif
 static PyObject*
-sslConnectionInfoGetVerified(ConnectionInfoObject* self)
+sslConnectionInfoGetVerified(ConnectionInfoObject* self, PyObject* /*args*/)
 {
     IceSSL::ConnectionInfoPtr info = IceSSL::ConnectionInfoPtr::dynamicCast(*self->connectionInfo);
     assert(info);

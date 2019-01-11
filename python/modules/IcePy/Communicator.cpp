@@ -33,6 +33,10 @@
 using namespace std;
 using namespace IcePy;
 
+#if defined(__GNUC__) && ((__GNUC__ >= 8))
+#   pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
+
 #if PY_VERSION_HEX < 0x03070000
 static long _mainThreadId;
 #else
@@ -379,7 +383,7 @@ communicatorDealloc(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
-communicatorDestroy(CommunicatorObject* self)
+communicatorDestroy(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
 
@@ -424,7 +428,7 @@ communicatorDestroy(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
-communicatorShutdown(CommunicatorObject* self)
+communicatorShutdown(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     try
@@ -530,7 +534,7 @@ communicatorWaitForShutdown(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorIsShutdown(CommunicatorObject* self)
+communicatorIsShutdown(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     bool isShutdown;
@@ -1023,7 +1027,7 @@ communicatorCreateAdmin(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorGetAdmin(CommunicatorObject* self)
+communicatorGetAdmin(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::ObjectPrx proxy;
@@ -1146,7 +1150,7 @@ communicatorFindAdminFacet(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorFindAllAdminFacets(CommunicatorObject* self)
+communicatorFindAllAdminFacets(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::FacetMap facetMap;
@@ -1265,7 +1269,7 @@ communicatorSetWrapper(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorGetWrapper(CommunicatorObject* self)
+communicatorGetWrapper(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->wrapper);
     Py_INCREF(self->wrapper);
@@ -1276,7 +1280,7 @@ communicatorGetWrapper(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
-communicatorGetProperties(CommunicatorObject* self)
+communicatorGetProperties(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::PropertiesPtr properties;
@@ -1297,7 +1301,7 @@ communicatorGetProperties(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
-communicatorGetLogger(CommunicatorObject* self)
+communicatorGetLogger(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::LoggerPtr logger;
@@ -1401,7 +1405,7 @@ communicatorFindObjectFactory(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorGetValueFactoryManager(CommunicatorObject* self)
+communicatorGetValueFactoryManager(CommunicatorObject* self, PyObject* /*args*/)
 {
     ValueFactoryManagerPtr vfm = ValueFactoryManagerPtr::dynamicCast((*self->communicator)->getValueFactoryManager());
 
@@ -1412,7 +1416,7 @@ communicatorGetValueFactoryManager(CommunicatorObject* self)
 extern "C"
 #endif
 static PyObject*
-communicatorGetImplicitContext(CommunicatorObject* self)
+communicatorGetImplicitContext(CommunicatorObject* self, PyObject* /*args*/)
 {
     Ice::ImplicitContextPtr implicitContext = (*self->communicator)->getImplicitContext();
 
@@ -1580,7 +1584,7 @@ communicatorCreateObjectAdapterWithRouter(CommunicatorObject* self, PyObject* ar
 extern "C"
 #endif
 static PyObject*
-communicatorGetDefaultRouter(CommunicatorObject* self)
+communicatorGetDefaultRouter(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::RouterPrx router;
@@ -1644,7 +1648,7 @@ communicatorSetDefaultRouter(CommunicatorObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-communicatorGetDefaultLocator(CommunicatorObject* self)
+communicatorGetDefaultLocator(CommunicatorObject* self, PyObject* /*args*/)
 {
     assert(self->communicator);
     Ice::LocatorPrx locator;

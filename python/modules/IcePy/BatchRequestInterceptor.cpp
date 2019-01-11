@@ -52,7 +52,7 @@ batchRequestDealloc(BatchRequestObject* self)
 extern "C"
 #endif
 static PyObject*
-batchRequestGetSize(BatchRequestObject* self)
+batchRequestGetSize(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
     if(!self->size)
@@ -78,7 +78,7 @@ batchRequestGetSize(BatchRequestObject* self)
 extern "C"
 #endif
 static PyObject*
-batchRequestGetOperation(BatchRequestObject* self)
+batchRequestGetOperation(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
     if(!self->operation)
@@ -104,7 +104,7 @@ batchRequestGetOperation(BatchRequestObject* self)
 extern "C"
 #endif
 static PyObject*
-batchRequestGetProxy(BatchRequestObject* self)
+batchRequestGetProxy(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
     if(!self->proxy)
@@ -130,7 +130,7 @@ batchRequestGetProxy(BatchRequestObject* self)
 extern "C"
 #endif
 static PyObject*
-batchRequestEnqueue(BatchRequestObject* self)
+batchRequestEnqueue(BatchRequestObject* self, PyObject* /*args*/)
 {
     assert(self->request);
 

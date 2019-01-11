@@ -47,6 +47,10 @@ extern "C"
 #   pragma GCC diagnostic warning "-Wnarrowing"
 #endif
 
+#if defined(__GNUC__) && ((__GNUC__ >= 8))
+#   pragma GCC diagnostic ignored "-Wignored-qualifiers"
+#endif
+
 //
 // The php.h header defines/undefines NDEBUG based on how the PHP binary was built.
 // As a result, asserts are always disabled unless building against a php binary

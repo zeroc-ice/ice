@@ -281,15 +281,15 @@ PyObject* callMethod(PyObject*, PyObject* = 0, PyObject* = 0);
 
 }
 
-extern "C" PyObject* IcePy_stringVersion(PyObject*);
-extern "C" PyObject* IcePy_intVersion(PyObject*);
-extern "C" PyObject* IcePy_currentProtocol(PyObject*);
-extern "C" PyObject* IcePy_currentProtocolEncoding(PyObject*);
-extern "C" PyObject* IcePy_currentEncoding(PyObject*);
+extern "C" PyObject* IcePy_stringVersion(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_intVersion(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_currentProtocol(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_currentProtocolEncoding(PyObject*, PyObject*);
+extern "C" PyObject* IcePy_currentEncoding(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_protocolVersionToString(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_stringToProtocolVersion(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_encodingVersionToString(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_stringToEncodingVersion(PyObject*, PyObject*);
-extern "C" PyObject* IcePy_generateUUID(PyObject*);
+extern "C" PyObject* IcePy_generateUUID(PyObject*, PyObject*);
 
 #endif

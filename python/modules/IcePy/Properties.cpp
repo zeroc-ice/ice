@@ -490,7 +490,7 @@ propertiesSetProperty(PropertiesObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-propertiesGetCommandLineOptions(PropertiesObject* self)
+propertiesGetCommandLineOptions(PropertiesObject* self, PyObject* /*args*/)
 {
     Ice::StringSeq options;
     assert(self->properties);
@@ -647,7 +647,7 @@ propertiesLoad(PropertiesObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-propertiesClone(PropertiesObject* self)
+propertiesClone(PropertiesObject* self, PyObject* /*args*/)
 {
     Ice::PropertiesPtr properties;
     assert(self->properties);
