@@ -7,6 +7,8 @@
 supported-platforms             = macosx iphoneos iphonesimulator
 
 macosx_ar                       = libtool
+iphoneos_cc                     = xcrun -sdk macosx clang
+iphoneos_cxx                    = xcrun -sdk macosx clang++
 macosx_cppflags                 = -mmacosx-version-min=10.9 -arch x86_64
 macosx_ldflags                  = $(macosx_cppflags)
 macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
