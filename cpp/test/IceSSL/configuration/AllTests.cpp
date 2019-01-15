@@ -2121,6 +2121,10 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         }
 
         //
+        // Skip the test if OpenSSL was build without SSL3 support
+        //
+#if !defined(OPENSSL_NO_SSL3_METHOD)
+        //
         // This should fail because the client only accept SSLv3 and the server
         // use the default protocol set that disables SSLv3
         //
@@ -2157,6 +2161,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             fact->destroyServer(server);
             comm->destroy();
         }
+#endif
 
         //
         // SSLv3 is now disabled by default with some SSL implementations.
@@ -2601,6 +2606,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
 #ifndef ICE_OS_UWP
     cout << "testing ciphers... " << flush;
     {
+
+        //
+        // With OpenSSL 1.1.1 the initialization will success because TLS 1.3
+        // ciphersuites are still enabled. They are not affected by IceSSL.Ciphers
+        // properties
+        //
+#  if !(defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010100fL)
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_rsa_ca1", "cacert1");
         initData.properties->setProperty("IceSSL.Ciphers", "UNKNOWN");
@@ -2612,6 +2624,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         catch(const Ice::PluginInitializationException&)
         {
         }
+#  endif
     }
 #  ifndef ICE_USE_SCHANNEL
     {
@@ -2623,6 +2636,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         initData.properties = createClientProps(defaultProps, p12);
 #    ifdef ICE_USE_OPENSSL
         initData.properties->setProperty("IceSSL.Ciphers", anonCiphers);
+#       if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010100fL
+        //
+        // With OpenSSL 1.1 disable tls1.3 so that client and server negotiate
+        // an anon cipher
+        //
+        initData.properties->setProperty("IceSSL.Protocols", "tls1_2,tls1_1");
+#       endif
 #    else
         initData.properties->setProperty("IceSSL.Ciphers", "(DH_anon*)");
 #    endif
@@ -2929,6 +2949,13 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
         initData.properties = createClientProps(defaultProps, p12);
         initData.properties->setProperty("IceSSL.Ciphers", "ADH");
+#if defined(OPENSSL_VERSION_NUMBER) && OPENSSL_VERSION_NUMBER >= 0x1010100fL
+        //
+        // With OpenSSL 1.1 disable tls1.3 so that client and server negotiate
+        // an anon cipher
+        //
+        initData.properties->setProperty("IceSSL.Protocols", "tls1_2,tls1_1");
+#endif
         comm = initialize(initData);
         fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);

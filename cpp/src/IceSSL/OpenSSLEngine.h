@@ -45,7 +45,7 @@ private:
     void cleanup();
     SSL_METHOD* getMethod(int);
     void setOptions(int);
-    enum Protocols { SSLv3 = 0x01, TLSv1_0 = 0x02, TLSv1_1 = 0x04, TLSv1_2 = 0x08 };
+    enum Protocols { SSLv3 = 1, TLSv1_0 = 2, TLSv1_1 = 4, TLSv1_2 = 8, TLSv1_3 = 16 };
     int parseProtocols(const Ice::StringSeq&) const;
 
     SSL_CTX* _ctx;

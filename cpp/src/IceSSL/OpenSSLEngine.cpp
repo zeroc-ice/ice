@@ -399,9 +399,21 @@ OpenSSL::SSLEngine::initialize()
         // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
         //
         vector<string> defaultProtocols;
+#if defined(TLS1_VERSION) && !defined(OPENSSL_NO_TLS1_METHOD)
         defaultProtocols.push_back("tls1_0");
+#endif
+
+#if defined(TLS1_1_VERSION) && !defined(OPENSSL_NO_TLS1_1_METHOD)
         defaultProtocols.push_back("tls1_1");
+#endif
+
+#if defined(TLS1_2_VERSION) && !defined(OPENSSL_NO_TLS1_2_METHOD)
         defaultProtocols.push_back("tls1_2");
+#endif
+
+#if defined(TLS1_3_VERSION) && !defined(OPENSSL_NO_TLS1_3_METHOD)
+        defaultProtocols.push_back("tls1_3");
+#endif
 
         const int protocols =
                 parseProtocols(properties->getPropertyAsListWithDefault(propPrefix + "Protocols", defaultProtocols));
@@ -541,8 +553,9 @@ OpenSSL::SSLEngine::initialize()
                 vector<string> files;
                 if(!IceUtilInternal::splitString(certFile, IceUtilInternal::pathsep, files) || files.size() > 2)
                 {
-                    PluginInitializationException ex(__FILE__, __LINE__,
-                                            "IceSSL: invalid value for " + propPrefix + "CertFile:\n" + certFile);
+                    throw PluginInitializationException(__FILE__, __LINE__,
+                                                        "IceSSL: invalid value for " + propPrefix + "CertFile:\n" +
+                                                        certFile);
                 }
                 numCerts = files.size();
                 for(vector<string>::iterator p = files.begin(); p != files.end(); ++p)
@@ -551,8 +564,8 @@ OpenSSL::SSLEngine::initialize()
                     string resolved;
                     if(!checkPath(file, defaultDir, false, resolved))
                     {
-                        PluginInitializationException ex(__FILE__, __LINE__,
-                                                         "IceSSL: certificate file not found:\n" + file);
+                        throw PluginInitializationException(__FILE__, __LINE__,
+                                                            "IceSSL: certificate file not found:\n" + file);
                     }
                     file = resolved;
 
@@ -963,19 +976,48 @@ OpenSSL::SSLEngine::parseProtocols(const StringSeq& protocols) const
         string prot = IceUtilInternal::toUpper(*p);
         if(prot == "SSL3" || prot == "SSLV3")
         {
+#if defined(OPENSSL_NO_SSL3_METHOD) || !defined(SSL3_VERSION)
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: OpenSSL was build without SSLv3 support");
+#else
             v |= SSLv3;
+#endif
         }
         else if(prot == "TLS" || prot == "TLS1" || prot == "TLSV1" || prot == "TLS1_0" || prot == "TLSV1_0")
         {
+#if defined(OPENSSL_NO_TLS1_METHOD) || !defined(TLS1_VERSION)
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: OpenSSL was build without TLS 1.0 support");
+#else
             v |= TLSv1_0;
+#endif
         }
         else if(prot == "TLS1_1" || prot == "TLSV1_1")
         {
+#if defined(OPENSSL_NO_TLS1_1_METHOD) || !defined(TLS1_1_VERSION)
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: OpenSSL was build without TLS 1.1 support");
+#else
             v |= TLSv1_1;
+#endif
         }
         else if(prot == "TLS1_2" || prot == "TLSV1_2")
         {
+#if defined(OPENSSL_NO_TLS1_2_METHOD) || !defined(TLS1_2_VERSION)
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: OpenSSL was build without TLS 1.2 support");
+#else
             v |= TLSv1_2;
+#endif
+        }
+        else if(prot == "TLS1_3" || prot == "TLSV1_3")
+        {
+#if defined(OPENSSL_NO_TLS1_3_METHOD) || !defined(TLS1_3_VERSION)
+            throw PluginInitializationException(__FILE__, __LINE__,
+                                                "IceSSL: OpenSSL was build without TLS 1.3 support");
+#else
+            v |= TLSv1_3;
+#endif
         }
         else
         {
@@ -1014,14 +1056,21 @@ void
 OpenSSL::SSLEngine::setOptions(int protocols)
 {
     long opts = SSL_OP_NO_SSLv2; // SSLv2 is not supported.
+
+#ifdef SSL_OP_NO_SSLv3
     if(!(protocols & SSLv3))
     {
         opts |= SSL_OP_NO_SSLv3;
     }
+#endif
+
+#ifdef SSL_OP_NO_TLSv1
     if(!(protocols & TLSv1_0))
     {
         opts |= SSL_OP_NO_TLSv1;
     }
+#endif
+
 #ifdef SSL_OP_NO_TLSv1_1
     if(!(protocols & TLSv1_1))
     {
@@ -1040,6 +1089,13 @@ OpenSSL::SSLEngine::setOptions(int protocols)
     if(!(protocols & TLSv1_2))
     {
         opts |= SSL_OP_NO_TLSv1_2;
+    }
+#endif
+
+#ifdef SSL_OP_NO_TLSv1_3
+    if(!(protocols & TLSv1_3))
+    {
+        opts |= SSL_OP_NO_TLSv1_3;
     }
 #endif
     SSL_CTX_set_options(_ctx, opts);
