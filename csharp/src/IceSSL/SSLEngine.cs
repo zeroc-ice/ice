@@ -67,8 +67,22 @@ namespace IceSSL
             // Protocols selects which protocols to enable, by default we only enable TLS1.0
             // TLS1.1 and TLS1.2 to avoid security issues with SSLv3
             //
-            _protocols = parseProtocols(
-                properties.getPropertyAsListWithDefault(prefix + "Protocols", new string[]{"TLS1_0", "TLS1_1", "TLS1_2"}));
+            var protocols = properties.getPropertyAsList(prefix + "Protocols");
+            if(protocols.Length > 0)
+            {
+                _protocols = parseProtocols(protocols);
+            }
+            else
+            {
+                _protocols = 0;
+                foreach(int v in Enum.GetValues(typeof(SslProtocols)))
+                {
+                    if(v > (int)SslProtocols.Ssl3 && v != (int)SslProtocols.Default)
+                    {
+                        _protocols |= (SslProtocols)v;
+                    }
+                }
+            }
             //
             // CheckCertName determines whether we compare the name in a peer's
             // certificate against its hostname.
@@ -662,6 +676,12 @@ namespace IceSSL
                         case "TLSV1_2":
                         {
                             protocol = "Tls12";
+                            break;
+                        }
+                        case "TLS1_3":
+                        case "TLSV1_3":
+                        {
+                            protocol = "Tls13";
                             break;
                         }
                         default:
