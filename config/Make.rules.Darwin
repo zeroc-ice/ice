@@ -6,11 +6,13 @@
 
 supported-platforms             = macosx iphoneos iphonesimulator
 
+homebrew			:= $(shell brew --prefix)
+
 macosx_ar                       = libtool
 macosx_cc                       = xcrun -sdk macosx clang
 macosx_cxx                      = xcrun -sdk macosx clang++
-macosx_cppflags                 = -mmacosx-version-min=10.9 -arch x86_64
-macosx_ldflags                  = $(macosx_cppflags)
+macosx_cppflags                 = -mmacosx-version-min=10.9 -arch x86_64 -I$(homebrew)/include
+macosx_ldflags                  = $(macosx_cppflags) -L$(homebrew)/lib
 macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
 
 iphoneos_ar                     = libtool
