@@ -9,6 +9,7 @@ applications to this release, and the manual for complete details on a
 particular aspect of Ice.
 
 - [Changes in Ice 3.7.2](#changes-in-ice-372-pre-release-snapshot)
+  * [General Changes](#general-changes)
   * [C++ Changes](#c-changes)
   * [C# Changes](#c-changes-1)
   * [Java Changes](#java-changes)
@@ -16,7 +17,7 @@ particular aspect of Ice.
   * [MATLAB Changes](#matlab-changes)
   * [Python Changes](#python-changes)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
-  * [General Changes](#general-changes)
+  * [General Changes](#general-changes-1)
   * [C++ Changes](#c-changes-2)
   * [C# Changes](#c-changes-3)
   * [Java Changes](#java-changes-1)
@@ -27,7 +28,7 @@ particular aspect of Ice.
   * [Python Changes](#python-changes-1)
   * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
-  * [General Changes](#general-changes-1)
+  * [General Changes](#general-changes-2)
   * [C++ Changes](#c-changes-4)
   * [C# Changes](#c-changes-5)
   * [Java Changes](#java-changes-2)
@@ -42,6 +43,8 @@ particular aspect of Ice.
 These are the changes since Ice 3.7.1.
 
 ## General Changes
+
+- Add TLS 1.3 support to IceSSL.
 
 - Add support to read properties from HKCU Windows registry, there was already
   support for reading properties from HKLM Windows registry.
