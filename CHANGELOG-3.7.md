@@ -15,6 +15,7 @@ particular aspect of Ice.
   * [Java Changes](#java-changes)
   * [JavaScript Changes](#javascript-changes)
   * [MATLAB Changes](#matlab-changes)
+  * [PHP Changes](#php-changes)
   * [Python Changes](#python-changes)
 - [Changes in Ice 3.7.1](#changes-in-ice-371)
   * [General Changes](#general-changes-1)
@@ -24,7 +25,7 @@ particular aspect of Ice.
   * [JavaScript Changes](#javascript-changes-1)
   * [MATLAB Changes](#matlab-changes-1)
   * [Objective-C Changes](#objective-c-changes)
-  * [PHP Changes](#php-changes)
+  * [PHP Changes](#php-changes-1)
   * [Python Changes](#python-changes-1)
   * [Ruby Changes](#ruby-changes)
 - [Changes in Ice 3.7.0](#changes-in-ice-370)
@@ -34,7 +35,7 @@ particular aspect of Ice.
   * [Java Changes](#java-changes-2)
   * [JavaScript Changes](#javascript-changes-2)
   * [Objective-C Changes](#objective-c-changes-1)
-  * [PHP Changes](#php-changes-1)
+  * [PHP Changes](#php-changes-2)
   * [Python Changes](#python-changes-2)
   * [Ruby Changes](#ruby-changes-1)
 
@@ -164,7 +165,7 @@ builds.
 - Fixed build failure when building with the Debug configuration on Windows.
 
 - Fixed a bug that caused the generated code to reference undefined variables
-  when require the generated code from a static method.
+  when included (using `require` or `require_once`) from a static method.
 
 ## Python Changes
 
