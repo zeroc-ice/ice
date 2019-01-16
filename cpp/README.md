@@ -420,9 +420,13 @@ For the C++11 mapping, you need to specify a C++11 config:
  python allTests.py --config=cpp11-shared # cpp11-shared config with the default platform
 ```
 
-* Windows
+* Windows C++11 debug builds
 ```
 python allTests.py --config Cpp11-Debug
+```
+
+* Windows C++11 release builds
+```
 python allTests.py --config Cpp11-Release
 ```
 
@@ -448,18 +452,26 @@ C++98 Test Controller app or C++11 Test Controller app from Xcode:
  match the configuration(s) selected when building the test suite).
 
 #### iOS Simulator
+ - C++98 controller
 ```
 python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
+```
+ - C++11 controller
+```
 python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controller-app
 ```
 
 #### iOS
  - Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your
  iOS device, from Xcode.
- - On your Mac:
+
+ - Start the C++98 controller on your Mac:
 ```
-python3 allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
-python3 allTests.py --config=cpp11-xcodesdk --platform=iphoneos # C++11 controller
+python allTests.py --config=xcodesdk --platform=iphoneos
+```
+ - Start the C++11 controller on your Mac:
+```
+python allTests.py --config=cpp11-xcodesdk --platform=iphoneos
 ```
 
 All the test clients and servers run on the iOS device, not on your Mac computer.
