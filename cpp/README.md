@@ -377,9 +377,9 @@ msbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
 This creates: `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
 `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
 `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2015
-builds or `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
-`zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
-`zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2017
+builds or `zeroc.ice.uwp.v141\zeroc.ice.uwp.v141.nupkg`,
+`zeroc.ice.uwp.v141.x64\zeroc.ice.uwp.v141.x64.nupkg` and
+`zeroc.ice.uwp.v141.x86\zeroc.ice.uwp.v141.x86.nupkg` for Visual Studio 2017
 builds.
 
 ## Cleaning the source build on macOS or Linux
