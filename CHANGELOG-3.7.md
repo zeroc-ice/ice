@@ -64,7 +64,7 @@ These are the changes since Ice 3.7.1.
   with a `cbBuffer` value of 0. This occurred when running the JavaScript tests
   with Firefox and using a C++ debug build.
 
-- Fixed a bug in syslog logger that causes the program name to not be correctly
+- Fixed a bug in the syslog logger that caused the program name to not be correctly
   displayed with log messages.
 
 - Fixed an IceStorm bug that prevented topics from being restored from the database
@@ -94,12 +94,12 @@ These are the changes since Ice 3.7.1.
 - Fixed SChannel initialization to use a global mutex to avoid crashes occurring with
   latest SChannel updates. See: https://github.com/zeroc-ice/ice/issues/242
 
-- Add support to build Ice using C++17 mode.
+- Add support to build Ice in C++17 mode.
 
-- Add support for ARM buils with Rhel and Centos.
+- Add support for ARM builds with RHELP and CentOS.
 
-- Add support to configure the adapter created by IceGridAdmin when run in server mode,
-  thanks to Michael Dorner for the pull request https://github.com/zeroc-ice/ice/pull/58
+- Allow users to configure the adapter created by `icegridadmin` when run in server mode.
+  Thanks to Michael Dorner for the pull request: https://github.com/zeroc-ice/ice/pull/58
 
 ## C# Changes
 
@@ -120,7 +120,7 @@ These are the changes since Ice 3.7.1.
 
 - Removed dependency on the Ice Builder Visual Studio Extension for C# source builds.
 
-- Add support to map Slice modules to different C# namespaces using `cs:namespace`
+- You can now map Slice modules to custom C# namespaces using the `cs:namespace`
   metadata directive.
 
 ## Java Changes
@@ -145,7 +145,7 @@ These are the changes since Ice 3.7.1.
 
 - Add support to build IceGrid GUI with OpenJFX and Java 11 JDK.
 
-- Fixed a bug in IceGrid GUI that can cause IceGrid GUI to hang after a login
+- Fixed a bug in the IceGrid GUI that could cause IceGrid GUI to hang after a login
   failure.
 
 ## JavaScript Changes
@@ -165,8 +165,8 @@ These are the changes since Ice 3.7.1.
 - Update JavaScript build system to Babel 7 and gulp 4.0. Support for building
   Ice for JavaScript with NodeJS 4 and NodeJS 5 has been removed.
 
-- Fixed a bug in Slice-to-JavaScript compiler that result in bogus code generated
-  for classes containing a data member of type `Value`. Thanks to Daniel Lytkin
+- Fixed a bug in Slice-to-JavaScript compiler that resulted in incorrect generated
+  code for classes containing a data member of type `Value`. Thanks to Daniel Lytkin
   for the bug report and fix. See https://github.com/zeroc-ice/ice/pull/203
 
 ## MATLAB Changes
@@ -179,8 +179,8 @@ These are the changes since Ice 3.7.1.
 
 ## Objective-C Changes
 
-- Fixed a bug in Slice-to-Objective-C compiler that result in bogus code generated
-  for classes containing a data member of type `Value`
+- Fixed a bug in Slice-to-Objective-C compiler that resulted in incorrect generated
+  code for classes containing a data member of type `Value`.
 
 ## PHP Changes
 
@@ -204,7 +204,7 @@ These are the changes since Ice 3.7.1.
 
 - Fixed Python segfault that could occur because of a KeyboardInterrupt.
 
-- Add support to build Ice for Python using Python 3.7
+- Add support to build Ice for Python using Python 3.7.
 
 # Changes in Ice 3.7.1
 
