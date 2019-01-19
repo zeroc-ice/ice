@@ -1,7 +1,7 @@
-WrongProxyType.ice:11: warning: use of sequences in dictionary keys has been deprecated
+WrongProxyType.ice:9: warning: use of sequences in dictionary keys has been deprecated
+WrongProxyType.ice:13: `Seq' must be class or interface
+WrongProxyType.ice:14: `Seq' must be class or interface
 WrongProxyType.ice:15: `Seq' must be class or interface
-WrongProxyType.ice:16: `Seq' must be class or interface
-WrongProxyType.ice:17: `Seq' must be class or interface
+WrongProxyType.ice:17: `Dict' must be class or interface
+WrongProxyType.ice:18: `Dict' must be class or interface
 WrongProxyType.ice:19: `Dict' must be class or interface
-WrongProxyType.ice:20: `Dict' must be class or interface
-WrongProxyType.ice:21: `Dict' must be class or interface

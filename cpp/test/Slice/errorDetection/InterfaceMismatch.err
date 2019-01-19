@@ -1,6 +1,6 @@
-InterfaceMismatch.ice:11: class `Foo1' was declared as interface
-InterfaceMismatch.ice:12: class `Foo1' was declared as interface
-InterfaceMismatch.ice:15: class `Foo2' was defined as interface
-InterfaceMismatch.ice:18: interface `Foo3' was declared as class
-InterfaceMismatch.ice:19: interface `Foo3' was declared as class
-InterfaceMismatch.ice:22: interface `Foo4' was defined as class
+InterfaceMismatch.ice:9: class `Foo1' was declared as interface
+InterfaceMismatch.ice:10: class `Foo1' was declared as interface
+InterfaceMismatch.ice:13: class `Foo2' was defined as interface
+InterfaceMismatch.ice:16: interface `Foo3' was declared as class
+InterfaceMismatch.ice:17: interface `Foo3' was declared as class
+InterfaceMismatch.ice:20: interface `Foo4' was defined as class

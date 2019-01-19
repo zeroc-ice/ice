@@ -1,8 +1,8 @@
-DummyAtGlobalLevel.ice:8: `Foo': an interface can be defined only at module scope
-DummyAtGlobalLevel.ice:9: `UndefinedException' is not defined
-DummyAtGlobalLevel.ice:10: keyword `class' cannot be used as exception name
-DummyAtGlobalLevel.ice:13: `IntSeq': a sequence can be defined only at module scope
-DummyAtGlobalLevel.ice:16: `S': a structure can be defined only at module scope
-DummyAtGlobalLevel.ice:20: `StringDict': a dictionary can be defined only at module scope
-DummyAtGlobalLevel.ice:22: `E': an enumeration can be defined only at module scope
-DummyAtGlobalLevel.ice:24: `x': a constant can be defined only at module scope
+DummyAtGlobalLevel.ice:6: `Foo': an interface can be defined only at module scope
+DummyAtGlobalLevel.ice:7: `UndefinedException' is not defined
+DummyAtGlobalLevel.ice:8: keyword `class' cannot be used as exception name
+DummyAtGlobalLevel.ice:11: `IntSeq': a sequence can be defined only at module scope
+DummyAtGlobalLevel.ice:14: `S': a structure can be defined only at module scope
+DummyAtGlobalLevel.ice:18: `StringDict': a dictionary can be defined only at module scope
+DummyAtGlobalLevel.ice:20: `E': an enumeration can be defined only at module scope
+DummyAtGlobalLevel.ice:22: `x': a constant can be defined only at module scope

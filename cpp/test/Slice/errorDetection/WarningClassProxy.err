@@ -1,6 +1,6 @@
-WarningClassProxy.ice:11: warning: proxy for a class is deprecated
-WarningClassProxy.ice:15: warning: proxy for a class is deprecated
-WarningClassProxy.ice:20: warning: proxy for a class is deprecated
-WarningClassProxy.ice:25: warning: proxy for a class is deprecated
-WarningClassProxy.ice:28: warning: proxy for a class is deprecated
-WarningClassProxy.ice:29: warning: proxy for a class is deprecated
+WarningClassProxy.ice:9: warning: proxy for a class is deprecated
+WarningClassProxy.ice:13: warning: proxy for a class is deprecated
+WarningClassProxy.ice:18: warning: proxy for a class is deprecated
+WarningClassProxy.ice:23: warning: proxy for a class is deprecated
+WarningClassProxy.ice:26: warning: proxy for a class is deprecated
+WarningClassProxy.ice:27: warning: proxy for a class is deprecated

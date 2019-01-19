@@ -1,83 +1,83 @@
-IdentAsKeywordUnderscore.ice:12: syntax error
-IdentAsKeywordUnderscore.ice:14: `Void': an exception can be defined only at module scope
-IdentAsKeywordUnderscore.ice:15: keyword `int' cannot be used as exception name
-IdentAsKeywordUnderscore.ice:15: `int': an exception can be defined only at module scope
-IdentAsKeywordUnderscore.ice:17: `OUT': a structure can be defined only at module scope
-IdentAsKeywordUnderscore.ice:18: keyword `double' cannot be used as struct name
-IdentAsKeywordUnderscore.ice:18: `double': a structure can be defined only at module scope
-IdentAsKeywordUnderscore.ice:20: `s1': a structure can be defined only at module scope
-IdentAsKeywordUnderscore.ice:21: `s2': a structure can be defined only at module scope
+IdentAsKeywordUnderscore.ice:10: syntax error
+IdentAsKeywordUnderscore.ice:12: `Void': an exception can be defined only at module scope
+IdentAsKeywordUnderscore.ice:13: keyword `int' cannot be used as exception name
+IdentAsKeywordUnderscore.ice:13: `int': an exception can be defined only at module scope
+IdentAsKeywordUnderscore.ice:15: `OUT': a structure can be defined only at module scope
+IdentAsKeywordUnderscore.ice:16: keyword `double' cannot be used as struct name
+IdentAsKeywordUnderscore.ice:16: `double': a structure can be defined only at module scope
+IdentAsKeywordUnderscore.ice:18: `s1': a structure can be defined only at module scope
+IdentAsKeywordUnderscore.ice:19: `s2': a structure can be defined only at module scope
+IdentAsKeywordUnderscore.ice:19: keyword `byte' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:20: `s3': a structure can be defined only at module scope
+IdentAsKeywordUnderscore.ice:21: `s4': a structure can be defined only at module scope
 IdentAsKeywordUnderscore.ice:21: keyword `byte' cannot be used as data member name
-IdentAsKeywordUnderscore.ice:22: `s3': a structure can be defined only at module scope
-IdentAsKeywordUnderscore.ice:23: `s4': a structure can be defined only at module scope
-IdentAsKeywordUnderscore.ice:23: keyword `byte' cannot be used as data member name
-IdentAsKeywordUnderscore.ice:25: `inTERface': a class can be defined only at module scope
-IdentAsKeywordUnderscore.ice:26: keyword `interface' cannot be used as class name
-IdentAsKeywordUnderscore.ice:26: `interface': a class can be defined only at module scope
-IdentAsKeywordUnderscore.ice:28: `MOdule': a class can be defined only at module scope
-IdentAsKeywordUnderscore.ice:29: keyword `module' cannot be used as class name
-IdentAsKeywordUnderscore.ice:29: `module': a class can be defined only at module scope
-IdentAsKeywordUnderscore.ice:31: `C': a class can be defined only at module scope
-IdentAsKeywordUnderscore.ice:32: `C': a class can be defined only at module scope
-IdentAsKeywordUnderscore.ice:32: keyword `extends' cannot be used as data member name
-IdentAsKeywordUnderscore.ice:33: `D': a class can be defined only at module scope
-IdentAsKeywordUnderscore.ice:33: keyword `extends' cannot be used as data member name
-IdentAsKeywordUnderscore.ice:35: keyword `local' cannot be used as interface name
-IdentAsKeywordUnderscore.ice:35: `local': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:36: `Local': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:38: keyword `Object' cannot be used as interface name
-IdentAsKeywordUnderscore.ice:38: `Object': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:39: `object': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:40: keyword `long' cannot be used as interface name
-IdentAsKeywordUnderscore.ice:40: `long': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:42: `impLEments': a sequence can be defined only at module scope
-IdentAsKeywordUnderscore.ice:43: sequence `implements' differs only in capitalization from sequence `impLEments'
-IdentAsKeywordUnderscore.ice:43: keyword `implements' cannot be used as sequence name
-IdentAsKeywordUnderscore.ice:44: `short': a sequence can be defined only at module scope
-IdentAsKeywordUnderscore.ice:44: keyword `short' cannot be used as sequence name
-IdentAsKeywordUnderscore.ice:46: syntax error
-IdentAsKeywordUnderscore.ice:47: `moDule' is not defined
-IdentAsKeywordUnderscore.ice:49: `throws': a dictionary can be defined only at module scope
-IdentAsKeywordUnderscore.ice:49: keyword `throws' cannot be used as dictionary name
-IdentAsKeywordUnderscore.ice:50: dictionary `thRows' differs only in capitalization from dictionary `throws'
-IdentAsKeywordUnderscore.ice:51: `LOCALobject': a dictionary can be defined only at module scope
-IdentAsKeywordUnderscore.ice:53: syntax error
-IdentAsKeywordUnderscore.ice:54: `MODULE' is not defined
-IdentAsKeywordUnderscore.ice:56: syntax error
-IdentAsKeywordUnderscore.ice:57: `d4': a dictionary can be defined only at module scope
-IdentAsKeywordUnderscore.ice:59: syntax error
-IdentAsKeywordUnderscore.ice:60: `VOID' is an exception, which cannot be used as a type
-IdentAsKeywordUnderscore.ice:62: keyword `local' cannot be used as enumeration name
-IdentAsKeywordUnderscore.ice:62: `local': an enumeration can be defined only at module scope
-IdentAsKeywordUnderscore.ice:63: enumeration `LOCAL' differs only in capitalization from enumeration `local'
-IdentAsKeywordUnderscore.ice:65: `e1': an enumeration can be defined only at module scope
-IdentAsKeywordUnderscore.ice:65: keyword `long' cannot be used as enumerator
-IdentAsKeywordUnderscore.ice:65: keyword `byte' cannot be used as enumerator
-IdentAsKeywordUnderscore.ice:66: `e2': an enumeration can be defined only at module scope
-IdentAsKeywordUnderscore.ice:68: `i1': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:69: `i2': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:71: `i3': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:72: `i4': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:74: `i5': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:74: syntax error
-IdentAsKeywordUnderscore.ice:75: `i6': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:77: `i7': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:78: `i8': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:80: `i9': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:81: `i10': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:83: `true': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:85: illegal leading underscore in identifier `_a'
-IdentAsKeywordUnderscore.ice:85: `_a': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:86: illegal leading underscore in identifier `_true'
-IdentAsKeywordUnderscore.ice:86: `_true': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:87: illegal leading underscore in identifier `_true'
-IdentAsKeywordUnderscore.ice:87: `_true': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:89: illegal trailing underscore in identifier `b_'
-IdentAsKeywordUnderscore.ice:89: `b_': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:91: illegal double underscore in identifier `b__c'
-IdentAsKeywordUnderscore.ice:91: `b__c': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:92: illegal double underscore in identifier `b___c'
-IdentAsKeywordUnderscore.ice:92: `b___c': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:94: `a_b': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:95: `a_b_c': an interface can be defined only at module scope
-IdentAsKeywordUnderscore.ice:97: syntax error
+IdentAsKeywordUnderscore.ice:23: `inTERface': a class can be defined only at module scope
+IdentAsKeywordUnderscore.ice:24: keyword `interface' cannot be used as class name
+IdentAsKeywordUnderscore.ice:24: `interface': a class can be defined only at module scope
+IdentAsKeywordUnderscore.ice:26: `MOdule': a class can be defined only at module scope
+IdentAsKeywordUnderscore.ice:27: keyword `module' cannot be used as class name
+IdentAsKeywordUnderscore.ice:27: `module': a class can be defined only at module scope
+IdentAsKeywordUnderscore.ice:29: `C': a class can be defined only at module scope
+IdentAsKeywordUnderscore.ice:30: `C': a class can be defined only at module scope
+IdentAsKeywordUnderscore.ice:30: keyword `extends' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:31: `D': a class can be defined only at module scope
+IdentAsKeywordUnderscore.ice:31: keyword `extends' cannot be used as data member name
+IdentAsKeywordUnderscore.ice:33: keyword `local' cannot be used as interface name
+IdentAsKeywordUnderscore.ice:33: `local': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:34: `Local': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:36: keyword `Object' cannot be used as interface name
+IdentAsKeywordUnderscore.ice:36: `Object': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:37: `object': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:38: keyword `long' cannot be used as interface name
+IdentAsKeywordUnderscore.ice:38: `long': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:40: `impLEments': a sequence can be defined only at module scope
+IdentAsKeywordUnderscore.ice:41: sequence `implements' differs only in capitalization from sequence `impLEments'
+IdentAsKeywordUnderscore.ice:41: keyword `implements' cannot be used as sequence name
+IdentAsKeywordUnderscore.ice:42: `short': a sequence can be defined only at module scope
+IdentAsKeywordUnderscore.ice:42: keyword `short' cannot be used as sequence name
+IdentAsKeywordUnderscore.ice:44: syntax error
+IdentAsKeywordUnderscore.ice:45: `moDule' is not defined
+IdentAsKeywordUnderscore.ice:47: `throws': a dictionary can be defined only at module scope
+IdentAsKeywordUnderscore.ice:47: keyword `throws' cannot be used as dictionary name
+IdentAsKeywordUnderscore.ice:48: dictionary `thRows' differs only in capitalization from dictionary `throws'
+IdentAsKeywordUnderscore.ice:49: `LOCALobject': a dictionary can be defined only at module scope
+IdentAsKeywordUnderscore.ice:51: syntax error
+IdentAsKeywordUnderscore.ice:52: `MODULE' is not defined
+IdentAsKeywordUnderscore.ice:54: syntax error
+IdentAsKeywordUnderscore.ice:55: `d4': a dictionary can be defined only at module scope
+IdentAsKeywordUnderscore.ice:57: syntax error
+IdentAsKeywordUnderscore.ice:58: `VOID' is an exception, which cannot be used as a type
+IdentAsKeywordUnderscore.ice:60: keyword `local' cannot be used as enumeration name
+IdentAsKeywordUnderscore.ice:60: `local': an enumeration can be defined only at module scope
+IdentAsKeywordUnderscore.ice:61: enumeration `LOCAL' differs only in capitalization from enumeration `local'
+IdentAsKeywordUnderscore.ice:63: `e1': an enumeration can be defined only at module scope
+IdentAsKeywordUnderscore.ice:63: keyword `long' cannot be used as enumerator
+IdentAsKeywordUnderscore.ice:63: keyword `byte' cannot be used as enumerator
+IdentAsKeywordUnderscore.ice:64: `e2': an enumeration can be defined only at module scope
+IdentAsKeywordUnderscore.ice:66: `i1': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:67: `i2': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:69: `i3': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:70: `i4': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:72: `i5': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:72: syntax error
+IdentAsKeywordUnderscore.ice:73: `i6': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:75: `i7': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:76: `i8': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:78: `i9': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:79: `i10': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:81: `true': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:83: illegal leading underscore in identifier `_a'
+IdentAsKeywordUnderscore.ice:83: `_a': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:84: illegal leading underscore in identifier `_true'
+IdentAsKeywordUnderscore.ice:84: `_true': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:85: illegal leading underscore in identifier `_true'
+IdentAsKeywordUnderscore.ice:85: `_true': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:87: illegal trailing underscore in identifier `b_'
+IdentAsKeywordUnderscore.ice:87: `b_': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:89: illegal double underscore in identifier `b__c'
+IdentAsKeywordUnderscore.ice:89: `b__c': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:90: illegal double underscore in identifier `b___c'
+IdentAsKeywordUnderscore.ice:90: `b___c': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:92: `a_b': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:93: `a_b_c': an interface can be defined only at module scope
+IdentAsKeywordUnderscore.ice:95: syntax error
