@@ -6,7 +6,7 @@ function r = encodingVersionToString(v)
     %
     % Returns (char) - The encoding version as a string.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     if ~isa(v, 'Ice.EncodingVersion')
         throw(MException('Ice:ArgumentException', 'expecting an Ice.EncodingVersion'));

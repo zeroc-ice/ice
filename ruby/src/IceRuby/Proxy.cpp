@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
 #include <Proxy.h>
@@ -21,9 +19,7 @@ using namespace IceRuby;
 
 static VALUE _proxyClass;
 
-// **********************************************************************
 // ObjectPrx
-// **********************************************************************
 
 extern "C"
 void

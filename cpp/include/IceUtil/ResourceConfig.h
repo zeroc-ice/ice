@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_UTIL_RESOURCE_CONFIG_H
 #define ICE_UTIL_RESOURCE_CONFIG_H
@@ -13,7 +11,7 @@
 #define ICE_STRING_VERSION "3.7.2\0"
 #define ICE_SO_VERSION "37\0"
 #define ICE_COMPANY_NAME "ZeroC, Inc.\0"
-#define ICE_COPYRIGHT "\251 2003-present ZeroC, Inc.\0"
+#define ICE_COPYRIGHT "\251 ZeroC, Inc.\0"
 #define ICE_PRODUCT_NAME "Ice\0"
 
 #ifdef ICE_CPP11_MAPPING

@@ -1,8 +1,6 @@
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 $(project)_programs             := icepatch2server icepatch2client icepatch2calc
 $(project)_dependencies         := IcePatch2 Ice

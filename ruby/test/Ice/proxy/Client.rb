@@ -1,9 +1,7 @@
 #!/usr/bin/env ruby
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 require 'Ice'
 Ice::loadSlice("'-I#{Ice.getSliceDir()}' Test.ice")

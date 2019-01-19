@@ -1,9 +1,7 @@
 <?php
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 $NS = function_exists("Ice\\initialize");
 require_once('Ice.php');

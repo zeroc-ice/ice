@@ -8,7 +8,7 @@ classdef ConnectionInfo < Ice.ConnectionInfo
     %   certs - The certificate chain.
     %   verified - The certificate chain verification status.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
         function obj = ConnectionInfo(underlying, incoming, adapterName, connectionId, cipher, ...

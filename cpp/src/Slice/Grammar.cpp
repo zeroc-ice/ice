@@ -73,11 +73,9 @@
 #line 1 "src/Slice/Grammar.y"
 
 
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Slice/GrammarUtil.h>
 #include <IceUtil/InputUtil.h>

@@ -1,8 +1,6 @@
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 $(test)_client_sources = $(test-client-sources) ExceptionsI.cpp
 $(test)_server_sources = $(test-server-sources) ExceptionsI.cpp

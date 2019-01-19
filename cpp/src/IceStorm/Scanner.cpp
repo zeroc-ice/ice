@@ -462,11 +462,9 @@ char *yytext;
 #line 1 "src/IceStorm/Scanner.l"
 #line 2 "src/IceStorm/Scanner.l"
 
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>

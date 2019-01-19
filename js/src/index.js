@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 module.exports.Ice = require("./Ice/Ice").Ice;
 module.exports.IceMX = require("./Ice/Ice").IceMX;

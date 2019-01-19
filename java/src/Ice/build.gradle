@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 project.ext.displayName = "Ice"
 project.ext.description = "Ice is a comprehensive RPC framework that helps you build distributed applications" +

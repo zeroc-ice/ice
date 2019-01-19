@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_GRID_ADMIN_CALLBACK_ROUTER_H
 #define ICE_GRID_ADMIN_CALLBACK_ROUTER_H

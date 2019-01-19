@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 icestorm1 = IceStorm(createDb=True, cleanDb=False)
 icestorm2 = IceStorm(createDb=False, cleanDb=True)

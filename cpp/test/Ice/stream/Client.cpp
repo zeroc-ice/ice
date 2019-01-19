@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifdef _MSC_VER
 #   pragma warning(disable:4244) // '=': conversion from 'int' to 'Ice::Short', possible loss of data

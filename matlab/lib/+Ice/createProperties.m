@@ -24,7 +24,7 @@ function [properties, remArgs] = createProperties(varargin)
     %   remArgs (cell array of char) - Contains the remaining command-line arguments
     %     that were not used to set properties.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     if length(varargin) >= 1 && ~isempty(varargin{1})
         args = varargin{1};

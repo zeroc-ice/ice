@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICESSL_SECURE_TRANSPORT_ENGINE_H
 #define ICESSL_SECURE_TRANSPORT_ENGINE_H

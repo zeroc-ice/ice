@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/IceUtil.h>
@@ -1575,11 +1573,9 @@ static void
 printHeader(IceUtilInternal::Output& out)
 {
     static const char* header =
-        "// **********************************************************************\n"
         "//\n"
-        "// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
+        "// Copyright (c) ZeroC, Inc. All rights reserved.\n"
         "//\n"
-        "// **********************************************************************\n"
         ;
 
     out << header;

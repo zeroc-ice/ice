@@ -66,11 +66,9 @@
 #line 1 "src/IceStorm/Grammar.y"
 
 
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Ice/Ice.h>
 #include <IceStorm/Parser.h>
