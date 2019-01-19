@@ -108,8 +108,8 @@ These are the changes since Ice 3.7.1.
 
 - Add ability to build .NET Core assemblies with strong name.
 
-- Add Android and iOS platform support to Ice for .NET Core. The Ice test
-  suite now works with Xamarin and runs on iOS and Android.
+- Add Android, iOS and UWP platform support to Ice for .NET Core. The Ice test
+  suite now works with Xamarin and runs on Android, iOS and UWP.
 
 - Fixed marshaling code: removed unsafe code used in ByteBuffer that was
   causing problems with mono on Android.
