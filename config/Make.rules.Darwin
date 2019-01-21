@@ -4,15 +4,7 @@
 
 supported-platforms             = macosx iphoneos iphonesimulator
 
-homebrew                        := $(shell brew --prefix 2> /dev/null)
-
-# By default, use mcpp and lmdb from homebrew
-MCPP_HOME                       ?= $(if $(homebrew),$(homebrew)/opt/mcpp)
-LMDB_HOME                       ?= $(if $(homebrew),$(homebrew)/opt/lmdb)
-
 macosx_ar                       = libtool
-macosx_cc                       = xcrun -sdk macosx clang
-macosx_cxx                      = xcrun -sdk macosx clang++
 macosx_cppflags                 = -mmacosx-version-min=10.9 -arch x86_64
 macosx_ldflags                  = $(macosx_cppflags)
 macosx_targetdir                = $(if $(filter %/build,$5),/macosx)
