@@ -60,8 +60,59 @@ public final class Server
         System.err.println("Usage: IceBox.Server [options] --Ice.Config=<file>\n");
         System.err.println(
             "Options:\n" +
-            "-h, --help           Show this message.\n"
+            "-h, --help           Show this message.\n" +
+            "-v, --version        Display the Ice version."
         );
+    }
+
+    private static int
+    run(Ice.Communicator communicator, String[] argSeq)
+    {
+        final String prefix = "IceBox.Service.";
+        Ice.Properties properties = communicator.getProperties();
+        java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
+
+        java.util.List<String> iceBoxArgs = new java.util.ArrayList<String>();
+        for(String s : argSeq)
+        {
+            iceBoxArgs.add(s);
+        }
+
+        for(String key : services.keySet())
+        {
+            String name = key.substring(prefix.length());
+            for(int i = 0; i < iceBoxArgs.size(); ++i)
+            {
+                if(iceBoxArgs.get(i).startsWith("--" + name))
+                {
+                    iceBoxArgs.remove(i);
+                    i--;
+                }
+            }
+        }
+
+        for(String arg : iceBoxArgs)
+        {
+            if(arg.equals("-h") || arg.equals("--help"))
+            {
+                usage();
+                return 0;
+            }
+            else if(arg.equals("-v") || arg.equals("--version"))
+            {
+                System.out.println(Ice.Util.stringVersion());
+                return 0;
+            }
+            else
+            {
+                System.err.println("IceBox.Server: unknown option `" + arg + "'");
+                usage();
+                return 1;
+            }
+        }
+
+        ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argSeq);
+        return serviceManagerImpl.run();
     }
 
     public static void
@@ -80,42 +131,7 @@ public final class Server
             shutdownHook = new ShutdownHook(communicator);
             Runtime.getRuntime().addShutdownHook(shutdownHook);
 
-            final String prefix = "IceBox.Service.";
-            Ice.Properties properties = communicator.getProperties();
-            java.util.Map<String, String> services = properties.getPropertiesForPrefix(prefix);
-
-            for(String arg : argHolder.value)
-            {
-                boolean valid = false;
-                for(java.util.Map.Entry<String, String> entry : services.entrySet())
-                {
-                    String name = entry.getKey().substring(prefix.length());
-                    if(arg.startsWith("--" + name))
-                    {
-                        valid = true;
-                        break;
-                    }
-                }
-                if(!valid)
-                {
-                    if(arg.equals("-h") || arg.equals("--help"))
-                    {
-                        usage();
-                        status = 1;
-                        break;
-                    }
-                    else
-                    {
-                        System.err.println("IceBox.Server: unknown option `" + arg + "'");
-                        usage();
-                        status = 1;
-                        break;
-                    }
-                }
-            }
-
-            ServiceManagerI serviceManagerImpl = new ServiceManagerI(communicator, argHolder.value);
-            status = serviceManagerImpl.run();
+            status = run(communicator, argHolder.value);
         }
         finally
         {
