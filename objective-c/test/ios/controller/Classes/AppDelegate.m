@@ -12,6 +12,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+
+    // Ensure device does not become idle
+    [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
+
     return YES;
 }
 
