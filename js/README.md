@@ -90,7 +90,7 @@ failure, the tests abort with `failed`.
 
 You can start the browser tests with:
 ```
-python allTest.py --browser Manual
+python allTests.py --browser Manual
 ```
 
 Then open the test page (http://127.0.0.1:8080/start) using a web browser.
@@ -100,7 +100,7 @@ a recent version of Chrome, Firefox, Microsoft Edge or Safari.
 If you are using another web browser, such as Internet Explorer, you should
 use instead:
 ```
-python allTest.py --browser Manual --es5
+python allTests.py --browser Manual --es5
 ```
 
 Then open the test page (http://127.0.0.1:8080/es5/start)
