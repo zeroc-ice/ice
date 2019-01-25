@@ -58,7 +58,7 @@ public final class Admin
     public static int
     run(Ice.Communicator communicator, java.util.List<String> commands)
     {
-                if(commands.isEmpty())
+        if(commands.isEmpty())
         {
             usage();
             return 0;
