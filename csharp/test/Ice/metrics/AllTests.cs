@@ -1201,7 +1201,7 @@ public class AllTests : Test.AllTests
             test(map.Count == 2);
 
             im1 = (IceMX.InvocationMetrics)map["flushBatchRequests"];
-            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
             test(im1.remotes.Length == 1); // The first operation got sent over a connection
         }
         output.WriteLine("ok");

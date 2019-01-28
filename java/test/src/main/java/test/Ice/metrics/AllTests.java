@@ -1221,7 +1221,7 @@ public class AllTests
             test(map.size() == 2);
 
             im1 = (InvocationMetrics)map.get("flushBatchRequests");
-            test(im1.current == 0 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
+            test(im1.current <= 1 && im1.total == 2 && im1.failures == 0 && im1.retry == 0);
             test(im1.remotes.length == 1); // The first operation got sent over a connection
         }
         out.println("ok");
