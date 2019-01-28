@@ -210,8 +210,17 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
     // Limit the size of packets passed to SSLWrite/SSLRead to avoid
     // blocking and holding too much memory.
     //
-    _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_delegate->getNativeInfo()->fd()));
-    _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_delegate->getNativeInfo()->fd()));
+    if(_delegate->getNativeInfo()->fd() != INVALID_SOCKET)
+    {
+        _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(_delegate->getNativeInfo()->fd()));
+        _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(_delegate->getNativeInfo()->fd()));
+    }
+    else
+    {
+        _maxSendPacketSize = 128 * 1024; // 128KB
+        _maxRecvPacketSize = 128 * 1024; // 128KB
+    }
+
 
     OSStatus err = 0;
     if(!_ssl)

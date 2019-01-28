@@ -83,6 +83,7 @@ private:
         StateHandshakeNotStarted,
         StateHandshakeReadContinue,
         StateHandshakeWriteContinue,
+        StateHandshakeWriteNoContinue,
         StateHandshakeComplete
     };
 
@@ -93,6 +94,7 @@ private:
     const bool _incoming;
     const IceInternal::TransceiverPtr _delegate;
     State _state;
+    DWORD _ctxFlags;
 
     //
     // Buffered encrypted data that has not been written.

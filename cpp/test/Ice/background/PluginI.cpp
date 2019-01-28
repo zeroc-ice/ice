@@ -65,6 +65,22 @@ TestPluginI::initialize()
             facade->addEndpointFactory(new EndpointFactory(factory));
         }
     }
+    for(Ice::Short s = 1000; s < 1010; ++s)
+    {
+        IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
+        if(factory)
+        {
+            facade->addEndpointFactory(new EndpointFactory(factory));
+        }
+    }
+    for(Ice::Short s = 10000; s < 10010; ++s)
+    {
+        IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
+        if(factory)
+        {
+            facade->addEndpointFactory(new EndpointFactory(factory));
+        }
+    }
 }
 
 void

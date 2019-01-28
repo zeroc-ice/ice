@@ -175,6 +175,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
+        catch(const Ice::ConnectTimeoutException&)
+        {
+        }
     }
     cout << "ok" << endl;
 
