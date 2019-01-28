@@ -286,7 +286,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             {
                 ostringstream ostr;
                 ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
-                     << " connection:\nremote address = " << _delegate->toString() << "\n" << _engine->sslErrors();
+                     << " connection:\n" << _delegate->toString() << "\n" << _engine->sslErrors();
                 throw ProtocolException(__FILE__, __LINE__, ostr.str());
             }
             }
@@ -345,7 +345,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             out << "bits = " << SSL_CIPHER_get_bits(cipher, 0) << "\n";
             out << "protocol = " << SSL_get_version(_ssl) << "\n";
         }
-        out << IceInternal::fdToString(SSL_get_fd(_ssl));
+        out << toString();
     }
 
     return IceInternal::SocketOperationNone;
@@ -828,7 +828,7 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* c)
         out << "subject = " << buf << '\n';
         out << "depth = " << X509_STORE_CTX_get_error_depth(c) << '\n';
         out << "error = " << X509_verify_cert_error_string(err) << '\n';
-        out << IceInternal::fdToString(SSL_get_fd(_ssl));
+        out << toString();
     }
 
     //
