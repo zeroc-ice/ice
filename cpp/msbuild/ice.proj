@@ -34,7 +34,7 @@
         <IceConfiguration Condition="$(Configuration.Contains('Debug'))">Debug</IceConfiguration>
     </PropertyGroup>
 
-    <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v120'">
+    <PropertyGroup Condition="'$(DefaultPlatformToolset)' == 'v141' OR '$(DefaultPlatformToolset)' == 'v140' OR '$(DefaultPlatformToolset)' == 'v120'">
         <OpenSSL>yes</OpenSSL>
     </PropertyGroup>
 

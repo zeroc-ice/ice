@@ -260,7 +260,7 @@ The test suite is built using separate Visual Studio solutions:
 
  - Ice Test Suite for Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.test.sln](./msbuild/ice.test.sln)
  - Ice Test Suite for Visual Studio 2010 [msbuild/ice.test.v100.sln](./msbuild/ice.test.v100.sln)
- - Ice OpenSSL Test Suite for Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
+ - Ice OpenSSL Test Suite for Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
 The solution provides a separate project for each test component, the `Cpp11-Release` and `Cpp11-Debug` build
 configurations are setup to use the C++11 mapping in release and debug mode respectively, and are only supported
