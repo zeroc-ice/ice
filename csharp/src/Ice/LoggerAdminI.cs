@@ -180,7 +180,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
         //
         // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
-        // remote logggers
+        // remote loggers
         //
         if(sendLogCommunicator != null)
         {
