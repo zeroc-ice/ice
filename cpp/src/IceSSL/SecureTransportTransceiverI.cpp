@@ -221,7 +221,6 @@ IceSSL::SecureTransport::TransceiverI::initialize(IceInternal::Buffer& readBuffe
         _maxRecvPacketSize = 128 * 1024; // 128KB
     }
 
-
     OSStatus err = 0;
     if(!_ssl)
     {

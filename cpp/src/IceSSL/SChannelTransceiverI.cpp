@@ -384,7 +384,11 @@ SChannel::TransceiverI::sslHandshake()
     }
 
     //
-    // Check if the requested capabilities are met
+    // Check if the requested capabilities are met.
+    //
+    // NOTE: it's important for _ctxFlags to be a data member. The context flags might not be checked immediately
+    // if the last write can't complete without blocking above. In such a case, the context flags are checked here
+    // only once the sslHandshake is called again after the write completes.
     //
     if(flags != _ctxFlags)
     {
