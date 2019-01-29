@@ -108,10 +108,10 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         }
         else
         {
- #ifdef ICE_USE_IOCP
+#ifdef ICE_USE_IOCP
+            assert(_sentBytes == 0);
             _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(fd));
             _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(fd));
-            _sentBytes = 0;
             if(!BIO_new_bio_pair(&bio, _maxSendPacketSize, &_memBio, _maxRecvPacketSize))
             {
                 bio = 0;
