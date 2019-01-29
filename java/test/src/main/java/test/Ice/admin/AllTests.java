@@ -373,8 +373,6 @@ public class AllTests
             // No filtering
             //
             r = logger.getLog(null, null, -1);
-            remoteLogger.checkNextInit(r.prefix, r.returnValue);
-
             try
             {
                 logger.attachRemoteLogger(myProxy, null, null, -1);
@@ -383,13 +381,13 @@ public class AllTests
             {
                 test(false);
             }
-
             remoteLogger.wait(1);
 
-            remoteLogger.checkNextLog(LogMessageType.TraceMessage, "rtrace", "testCat");
-            remoteLogger.checkNextLog(LogMessageType.WarningMessage, "rwarning", "");
-            remoteLogger.checkNextLog(LogMessageType.ErrorMessage, "rerror", "");
-            remoteLogger.checkNextLog(LogMessageType.PrintMessage, "rprint", "");
+            for(int i = 0; i < r.returnValue.length; ++i)
+            {
+                com.zeroc.Ice.LogMessage m = r.returnValue[i];
+                remoteLogger.checkNextInit(r.prefix, m.type, m.message, m.traceCategory);
+            }
 
             rcom.trace("testCat", "rtrace");
             rcom.warning("rwarning");
@@ -397,6 +395,11 @@ public class AllTests
             rcom.print("rprint");
 
             remoteLogger.wait(4);
+
+            remoteLogger.checkNextLog(LogMessageType.TraceMessage, "rtrace", "testCat");
+            remoteLogger.checkNextLog(LogMessageType.WarningMessage, "rwarning", "");
+            remoteLogger.checkNextLog(LogMessageType.ErrorMessage, "rerror", "");
+            remoteLogger.checkNextLog(LogMessageType.PrintMessage, "rprint", "");
 
             test(logger.detachRemoteLogger(myProxy));
             test(!logger.detachRemoteLogger(myProxy));
@@ -406,7 +409,6 @@ public class AllTests
             //
             r = logger.getLog(messageTypes, categories, 4);
             test(r.returnValue.length == 4);
-            remoteLogger.checkNextInit(r.prefix, r.returnValue);
 
             try
             {
@@ -416,11 +418,13 @@ public class AllTests
             {
                 test(false);
             }
-
             remoteLogger.wait(1);
 
-            remoteLogger.checkNextLog(LogMessageType.TraceMessage, "rtrace2", "testCat");
-            remoteLogger.checkNextLog(LogMessageType.ErrorMessage, "rerror2", "");
+            for(int i = 0; i < r.returnValue.length; ++i)
+            {
+                com.zeroc.Ice.LogMessage m = r.returnValue[i];
+                remoteLogger.checkNextInit(r.prefix, m.type, m.message, m.traceCategory);
+            }
 
             rcom.warning("rwarning2");
             rcom.trace("testCat", "rtrace2");
@@ -430,6 +434,8 @@ public class AllTests
 
             remoteLogger.wait(2);
 
+            remoteLogger.checkNextLog(LogMessageType.TraceMessage, "rtrace2", "testCat");
+            remoteLogger.checkNextLog(LogMessageType.ErrorMessage, "rerror2", "");
             //
             // Attempt reconnection with slightly different proxy
             //

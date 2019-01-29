@@ -10,8 +10,11 @@ class RemoteLoggerI extends Ice._RemoteLoggerDisp
     @Override
     public synchronized void init(String prefix, Ice.LogMessage[] logMessages, Ice.Current current)
     {
-        test(prefix.equals(_expectedPrefix));
-        test(java.util.Arrays.equals(logMessages, _expectedInitMessages));
+        _prefix = prefix;
+        for(int i = 0; i < logMessages.length; ++i)
+        {
+            _initMessages.add(logMessages[i]);
+        }
         _receivedCalls++;
         notifyAll();
     }
@@ -19,24 +22,28 @@ class RemoteLoggerI extends Ice._RemoteLoggerDisp
     @Override
     public synchronized void log(Ice.LogMessage logMessage, Ice.Current current)
     {
-        Ice.LogMessage front = _expectedLogMessages.pollFirst();
-        test(front.type == logMessage.type && front.message.equals(logMessage.message) &&
-             front.traceCategory.equals(logMessage.traceCategory));
-
+        _logMessages.add(logMessage);
         _receivedCalls++;
         notifyAll();
     }
 
-    synchronized void checkNextInit(String prefix, Ice.LogMessage[] logMessages)
+    synchronized void checkNextInit(String prefix, Ice.LogMessageType type, String message, String category)
     {
-        _expectedPrefix = prefix;
-        _expectedInitMessages = logMessages;
+        test(_prefix.equals(prefix));
+        test(_initMessages.size() > 0);
+        Ice.LogMessage logMessage = _initMessages.pop();
+        test(logMessage.type == type);
+        test(logMessage.message.equals(message));
+        test(logMessage.traceCategory.equals(category));
     }
 
-    synchronized void checkNextLog(Ice.LogMessageType messageType, String message, String category)
+    synchronized void checkNextLog(Ice.LogMessageType type, String message, String category)
     {
-        Ice.LogMessage logMessage = new Ice.LogMessage(messageType, 0, category, message);
-        _expectedLogMessages.addLast(logMessage);
+        test(_logMessages.size() > 0);
+        Ice.LogMessage logMessage = _logMessages.pop();
+        test(logMessage.type == type);
+        test(logMessage.message.equals(message));
+        test(logMessage.traceCategory.equals(category));
     }
 
     synchronized void wait(int calls)
@@ -66,7 +73,7 @@ class RemoteLoggerI extends Ice._RemoteLoggerDisp
     }
 
     private int _receivedCalls;
-    private String _expectedPrefix;
-    private Ice.LogMessage[] _expectedInitMessages;
-    private java.util.Deque<Ice.LogMessage> _expectedLogMessages = new java.util.ArrayDeque<Ice.LogMessage>();
+    private String _prefix;
+    private java.util.Deque<Ice.LogMessage> _initMessages = new java.util.ArrayDeque<Ice.LogMessage>();
+    private java.util.Deque<Ice.LogMessage> _logMessages = new java.util.ArrayDeque<Ice.LogMessage>();
 }
