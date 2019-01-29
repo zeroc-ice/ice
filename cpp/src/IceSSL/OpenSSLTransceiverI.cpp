@@ -118,10 +118,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
                 _memBio = 0;
             }
 #else
-            //
-            // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
-            //
-            bio = BIO_new_socket(static_cast<int>(fd), 0);
+            bio = BIO_new_socket(fd, 0);
 #endif
         }
 
