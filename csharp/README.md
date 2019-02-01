@@ -27,7 +27,7 @@ A source build of Ice for .NET on Windows produces two sets of assemblies:
 
 In order to build Ice for .NET from source, you need all of the following:
  - a [supported version][3] of Visual Studio
- - the [.NET Core 2.2 SDK][4], if you use Visual Studio 2017
+ - the [.NET Core 2.1 SDK][4], if you use Visual Studio 2017
 
 > Note: Visual Studio 2017 version 15.3.0 or higher is required for .NET Core
 > builds.
@@ -59,7 +59,7 @@ The `BuildNet45`, `BuildNet45Dist`, `BuildNetStandard` and `BuildNetStandardDist
 allow you to build assemblies only for the .NET Framework 4.5 or .NET Standard 2.0,
 with or without the test suite.
 
-The iceboxnet and test applications target `netcoreapp2.2`. You can change the target framework
+The iceboxnet and test applications target `netcoreapp2.1`. You can change the target framework
 by setting the `AppTargetFrameworks` property to a different Target Framework Monikers (TFMs)
 value, for example:
 ```
@@ -111,7 +111,7 @@ This build retrieves and installs the `zeroc.ice.net` NuGet package if necessary
 
 ### Linux and macOS Build Requirements
 
-You need the [.NET Core 2.2 SDK][4] to build Ice for .NET from source.
+You need the [.NET Core 2.1 SDK][4] to build Ice for .NET from source.
 
 ### Compiling Ice for .NET on Linux or macOS
 
@@ -275,5 +275,5 @@ python allTests.py --controller-app --config Release --platform iphonesimulator
 [1]: https://zeroc.com/distributions/ice
 [2]: https://blogs.msdn.microsoft.com/dotnet/2017/08/14/announcing-net-standard-2-0
 [3]: https://doc.zeroc.com/display/Rel/Supported+Platforms+for+Ice+3.7.2
-[4]: https://www.microsoft.com/net/download
+[4]: https://dotnet.microsoft.com/download/dotnet-core/2.1
 [5]: https://docs.microsoft.com/en-us/dotnet/framework/app-domains/enhanced-strong-naming
