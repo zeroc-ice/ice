@@ -1015,17 +1015,17 @@ make-rpath-ldflag = $(if $(filter-out $1,$2),\
                             $(call rpath-ldflag,$1),\
                             $(call rpath-ldflag,$(loader_path)/$(call relpathfromdir,$(patsubst $(lang_srcdir)/%,%,$2))/$1)),\
                         $(call rpath-ldflag,$(loader_path)))
-make-shared-dep-ldflags = $(if $($1_targetdir),$(call make-rpath-ldflag,$($1_targetdir),$($2_targetdir)) -L$($1_targetdir)) -l$($1_targetname)
+make-shared-dep-ldflags = $(if $($1_targetdir),$(call make-rpath-ldflag,$($1_targetdir),$($2_targetdir)) -L$($1_targetdir)) $(if $($1_targetname),-l$($1_targetname))
 else
 # Add rpath with $(embedded_runpath_prefix) if linking with library installed in different directory.
 make-rpath-ldflag = $(if $(filter-out $1,$2),\
                         $(if $(filter $(prefix)/%,$1),\
                             $(call rpath-ldflag,$(patsubst $(prefix)/%,$(embedded_runpath_prefix)/%,$1)),\
                             $(call rpath-ldflag,$1)))
-make-shared-dep-ldflags = $(call make-rpath-ldflag,$($1_installdir),$($2_installdir)) $(if $($1_targetdir),-L$($1_targetdir)) -l$($1_targetname)
+make-shared-dep-ldflags = $(call make-rpath-ldflag,$($1_installdir),$($2_installdir)) $(if $($1_targetdir),-L$($1_targetdir)) $(if $($1_targetname),-l$($1_targetname))
 endif
 else
-make-shared-dep-ldflags = $(if $($1_targetdir),-L$($1_targetdir)) -l$($1_targetname)
+make-shared-dep-ldflags = $(if $($1_targetdir),-L$($1_targetdir)) $(if $($1_targetname),-l$($1_targetname))
 endif
 
 make-static-dep-ldflags = $(if $($1_targetdir),\

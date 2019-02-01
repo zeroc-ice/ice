@@ -156,6 +156,9 @@ class Component(object):
     def getRunOrder(self):
         return []
 
+    def getEnv(self, process, current):
+        return {}
+
     def isCross(self, testId):
         return False
 
@@ -1168,11 +1171,18 @@ class Process(Runnable):
         return allProps
 
     def getEffectiveEnv(self, current):
+
+        def merge(envs, newEnvs):
+            if platform.getLdPathEnvName() in newEnvs and platform.getLdPathEnvName() in envs:
+                newEnvs[platform.getLdPathEnvName()] += os.pathsep + envs[platform.getLdPathEnvName()]
+            envs.update(newEnvs)
+
         allEnvs = {}
-        allEnvs.update(self.getMapping(current).getEnv(self, current))
-        allEnvs.update(current.testcase.getEnv(self, current))
-        allEnvs.update(self.getEnv(current))
-        allEnvs.update(self.envs(self, current) if callable(self.envs) else self.envs)
+        merge(allEnvs, current.driver.getComponent().getEnv(self, current))
+        merge(allEnvs, self.getMapping(current).getEnv(self, current))
+        merge(allEnvs, current.testcase.getEnv(self, current))
+        merge(allEnvs, self.getEnv(current))
+        merge(allEnvs, self.envs(self, current) if callable(self.envs) else self.envs)
         return allEnvs
 
     def getEffectiveTraceProps(self, current):
