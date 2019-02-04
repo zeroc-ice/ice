@@ -1,8 +1,6 @@
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 known_distributions             := centos rhel fedora debian ubuntu amzn sles
 linux_ids                       := $(if $(wildcard /etc/os-release),$(shell . /etc/os-release && echo $${ID} $${ID_LIKE}),)

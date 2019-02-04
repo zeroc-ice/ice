@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Endpoint.h>
 #include <Util.h>
@@ -22,9 +20,7 @@ static VALUE _wsEndpointInfoClass;
 static VALUE _opaqueEndpointInfoClass;
 static VALUE _sslEndpointInfoClass;
 
-// **********************************************************************
 // Endpoint
-// **********************************************************************
 
 extern "C"
 void
@@ -112,9 +108,7 @@ IceRuby_Endpoint_equals(VALUE self, VALUE other)
     return IceRuby_Endpoint_cmp(self, other) == INT2NUM(0) ? Qtrue : Qfalse;
 }
 
-// **********************************************************************
 // EndpointInfo
-// **********************************************************************
 
 extern "C"
 void

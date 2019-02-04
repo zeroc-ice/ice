@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_TRACE_LEVELS_H
 #define ICE_TRACE_LEVELS_H

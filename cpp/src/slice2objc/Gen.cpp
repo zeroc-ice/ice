@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <IceUtil/StringUtil.h>
 #include <IceUtil/Functional.h>
@@ -878,11 +876,9 @@ void
 Slice::Gen::printHeader(Output& o)
 {
     static const char* header =
-"// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) ZeroC, Inc. All rights reserved.\n"
 "//\n"
-"// **********************************************************************\n"
         ;
 
     o << header;

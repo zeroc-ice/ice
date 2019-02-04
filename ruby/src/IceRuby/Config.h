@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_RUBY_CONFIG_H
 #define ICE_RUBY_CONFIG_H
@@ -48,7 +46,6 @@
 #if defined(__clang__) && defined(_LIBCPP_VERSION) && (_LIBCPP_VERSION >= 4000)
 #define HAVE_ISFINITE 1
 #endif
-
 
 //
 // BUGFIX: Workaround unused parameter in ruby.h header file

@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Ice/Ice.h>
 #include <TestHelper.h>
@@ -175,6 +173,9 @@ allTests(Test::TestHelper* helper)
             test(false);
         }
         catch(const Ice::ConnectFailedException&)
+        {
+        }
+        catch(const Ice::ConnectTimeoutException&)
         {
         }
     }

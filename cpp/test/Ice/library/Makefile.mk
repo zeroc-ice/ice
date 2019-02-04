@@ -1,8 +1,6 @@
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 $(test)_libraries            := $(test)_GenCode $(test)_Consumer $(test)_AllTests
 

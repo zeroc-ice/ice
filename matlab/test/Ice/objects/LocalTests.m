@@ -1,10 +1,6 @@
-%{
-**********************************************************************
-
-Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
-
-**********************************************************************
-%}
+%
+% Copyright (c) ZeroC, Inc. All rights reserved.
+%
 
 %
 % These tests exercise some corner cases of the mapping.

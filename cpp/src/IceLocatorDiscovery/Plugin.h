@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef LOCATOR_DISCOVERY_PLUGIN_I_H
 #define LOCATOR_DISCOVERY_PLUGIN_I_H

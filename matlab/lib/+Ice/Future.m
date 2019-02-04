@@ -19,7 +19,7 @@ classdef Future < IceInternal.WrapperObject
     %   Read - True if fetchOutputs has already been called.
     %   State - The current state of the future.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     properties(SetAccess=private)
         % ID - A unique identifier for this object.

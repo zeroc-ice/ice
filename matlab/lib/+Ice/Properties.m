@@ -25,7 +25,7 @@ classdef Properties < IceInternal.WrapperObject
     %   load - Load properties from a file.
     %   clone - Create a copy of this property set.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
         function obj = Properties(impl)

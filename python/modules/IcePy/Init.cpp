@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <BatchRequestInterceptor.h>
 #include <Communicator.h>
@@ -28,7 +26,7 @@
 using namespace std;
 using namespace IcePy;
 
-extern "C" PyObject* IcePy_cleanup(PyObject*);
+extern "C" PyObject* IcePy_cleanup(PyObject*, PyObject*);
 
 static PyMethodDef methods[] =
 {
@@ -239,7 +237,7 @@ initIcePy(void)
 
 extern "C"
 PyObject*
-IcePy_cleanup(PyObject* /*self*/)
+IcePy_cleanup(PyObject* /*self*/, PyObject* /*args*/)
 {
     cleanupLogger();
 

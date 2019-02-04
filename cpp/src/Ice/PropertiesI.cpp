@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Ice/PropertiesI.h>
 #include <IceUtil/StringUtil.h>
@@ -412,9 +410,9 @@ Ice::PropertiesI::load(const std::string& file)
             {
                 const unsigned char UTF8_BOM[3] = {0xEF, 0xBB, 0xBF};
                 if(line.size() >= 3 &&
-                   static_cast<const unsigned char>(line[0]) == UTF8_BOM[0] &&
-                   static_cast<const unsigned char>(line[1]) == UTF8_BOM[1] &&
-                   static_cast<const unsigned char>(line[2]) == UTF8_BOM[2])
+                   static_cast<unsigned char>(line[0]) == UTF8_BOM[0] &&
+                   static_cast<unsigned char>(line[1]) == UTF8_BOM[1] &&
+                   static_cast<unsigned char>(line[2]) == UTF8_BOM[2])
                 {
                     line = line.substr(3);
                 }

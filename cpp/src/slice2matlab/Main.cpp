@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <IceUtil/CtrlCHandler.h>
 #include <IceUtil/IceUtil.h>
@@ -256,7 +254,7 @@ writeCopyright(IceUtilInternal::Output& out, const string& file)
         f = f.substr(pos + 1);
     }
 
-    out << nl << "% Copyright (c) 2003-present ZeroC, Inc. All rights reserved.";
+    out << nl << "% Copyright (c) ZeroC, Inc. All rights reserved.";
     out << nl << "% Generated from " << f << " by slice2matlab version " << ICE_STRING_VERSION;
     out << nl;
 }

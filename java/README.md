@@ -285,17 +285,18 @@ Run the tests with the Android emulator by running the following command:
 python allTests.py --android --controller-app
 ```
 
-To run the tests on a specific Android connected device, you can use the
-`--device` argument as shown below:
+To run the tests on a Android device connected through USB, you can use
+the `--device=usb` option as shown below:
 
 ```
-python allTests.py --android --device=ZX1C2234XF --controller-app
+python allTests.py --android --device=usb --controller-app
 ```
 
-You can see the list of connected devices with the `adb` command:
+To connect to an Android device that is running adb you can use the
+`--device=<ip-address>`
 
 ```
-adb devices -l
+python allTests.py --android --device=<ip-address> --controller-app
 ```
 
 To run the tests against a `controller` application started from Android

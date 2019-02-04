@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef TEST_API_EXPORTS
 #   define TEST_API_EXPORTS
@@ -60,6 +58,22 @@ TestPluginI::initialize()
     IceInternal::ProtocolPluginFacadePtr facade = IceInternal::getProtocolPluginFacade(_communicator);
 
     for(Ice::Short s = 0; s < 100; ++s)
+    {
+        IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
+        if(factory)
+        {
+            facade->addEndpointFactory(new EndpointFactory(factory));
+        }
+    }
+    for(Ice::Short s = 1000; s < 1010; ++s)
+    {
+        IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
+        if(factory)
+        {
+            facade->addEndpointFactory(new EndpointFactory(factory));
+        }
+    }
+    for(Ice::Short s = 10000; s < 10010; ++s)
     {
         IceInternal::EndpointFactoryPtr factory = facade->getEndpointFactory(s);
         if(factory)

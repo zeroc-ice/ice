@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_NETWORK_H
 #define ICE_NETWORK_H
@@ -333,7 +331,7 @@ ICE_API void checkErrorCode(const char*, int, HRESULT);
 //
 // UWP impose some restriction on operations that block when run from
 // STA thread and throws concurrency::invalid_operation. We cannot
-// directly call task::get or task::way, this helper method is used to
+// directly call task::get or task::wait, this helper method is used to
 // workaround this limitation.
 //
 template<typename T>

@@ -260,7 +260,7 @@ The test suite is built using separate Visual Studio solutions:
 
  - Ice Test Suite for Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.test.sln](./msbuild/ice.test.sln)
  - Ice Test Suite for Visual Studio 2010 [msbuild/ice.test.v100.sln](./msbuild/ice.test.v100.sln)
- - Ice OpenSSL Test Suite for Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
+ - Ice OpenSSL Test Suite for Visual Studio 2017, Visual Studio 2015 and Visual Studio 2013 [msbuild/ice.openssl.test.sln](./msbuild/ice.openssl.test.sln)
 
 The solution provides a separate project for each test component, the `Cpp11-Release` and `Cpp11-Debug` build
 configurations are setup to use the C++11 mapping in release and debug mode respectively, and are only supported
@@ -336,7 +336,7 @@ After installation, make sure that the `<prefix>/bin` directory is in your
 If you choose to not embed a `runpath` into executables at build time (see your
 build settings in `../config/Make.rules`) or did not create a symbolic link from
 the `runpath` directory to the installation directory, you also need to add the
-library directory to your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH (macOS).
+library directory to your `LD_LIBRARY_PATH` (Linux) or `DYLD_LIBRARY_PATH` (macOS).
 
 On a Linux x86_64 system:
 ```
@@ -377,9 +377,9 @@ msbuild msbuild\ice.proj /t:UWPNuGetPack /p:BuildAllConfigurations=yes
 This creates: `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
 `zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
 `zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2015
-builds or `zeroc.ice.uwp.v140\zeroc.ice.uwp.v140.nupkg`,
-`zeroc.ice.uwp.v140.x64\zeroc.ice.uwp.v140.x64.nupkg` and
-`zeroc.ice.uwp.v140.x86\zeroc.ice.uwp.v140.x86.nupkg` for Visual Studio 2017
+builds or `zeroc.ice.uwp.v141\zeroc.ice.uwp.v141.nupkg`,
+`zeroc.ice.uwp.v141.x64\zeroc.ice.uwp.v141.x64.nupkg` and
+`zeroc.ice.uwp.v141.x86\zeroc.ice.uwp.v141.x86.nupkg` for Visual Studio 2017
 builds.
 
 ## Cleaning the source build on macOS or Linux
@@ -420,9 +420,13 @@ For the C++11 mapping, you need to specify a C++11 config:
  python allTests.py --config=cpp11-shared # cpp11-shared config with the default platform
 ```
 
-* Windows
+* Windows C++11 debug builds
 ```
 python allTests.py --config Cpp11-Debug
+```
+
+* Windows C++11 release builds
+```
 python allTests.py --config Cpp11-Release
 ```
 
@@ -448,18 +452,26 @@ C++98 Test Controller app or C++11 Test Controller app from Xcode:
  match the configuration(s) selected when building the test suite).
 
 #### iOS Simulator
+ - C++98 controller
 ```
 python allTests.py --config=xcodesdk --platform=iphonesimulator --controller-app
+```
+ - C++11 controller
+```
 python allTests.py --config=cpp11-xcodesdk --platform=iphonesimulator --controller-app
 ```
 
 #### iOS
  - Start the `C++98 Test Controller` or the `C++11 Test Controller` app on your
  iOS device, from Xcode.
- - On your Mac:
+
+ - Start the C++98 controller on your Mac:
 ```
-python3 allTests.py --config=xcodesdk --platform=iphoneos # C++98 controller
-python3 allTests.py --config=cpp11-xcodesdk --platform=iphoneos # C++11 controller
+python allTests.py --config=xcodesdk --platform=iphoneos
+```
+ - Start the C++11 controller on your Mac:
+```
+python allTests.py --config=cpp11-xcodesdk --platform=iphoneos
 ```
 
 All the test clients and servers run on the iOS device, not on your Mac computer.

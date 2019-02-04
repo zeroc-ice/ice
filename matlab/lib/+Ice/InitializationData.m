@@ -6,7 +6,7 @@ classdef (Sealed) InitializationData
     % InitializationData Properties:
     %   properties_ - The properties for the communicator.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
         function r = clone(obj)

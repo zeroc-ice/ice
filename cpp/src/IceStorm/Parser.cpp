@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <IceUtil/DisableWarnings.h>
 #include <Ice/Ice.h>
@@ -409,7 +407,7 @@ Parser::current(const list<string>& args)
 void
 Parser::showBanner()
 {
-    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) 2003-present ZeroC, Inc." << endl;
+    consoleOut << "Ice " << ICE_STRING_VERSION << "  Copyright (c) ZeroC, Inc." << endl;
 }
 
 //

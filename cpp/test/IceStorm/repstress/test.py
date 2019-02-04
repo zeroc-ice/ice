@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 #
 # Make sure IceStorm and the subscriber use the same buffer size for

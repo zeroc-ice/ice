@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Connection.h>
 #include <Communicator.h>
@@ -18,6 +16,10 @@
 
 using namespace std;
 using namespace IcePy;
+
+#if defined(__GNUC__) && ((__GNUC__ >= 8))
+#   pragma GCC diagnostic ignored "-Wcast-function-type"
+#endif
 
 namespace
 {
@@ -436,7 +438,7 @@ connectionSetAdapter(ConnectionObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-connectionGetAdapter(ConnectionObject* self)
+connectionGetAdapter(ConnectionObject* self, PyObject* /*args*/)
 {
     Ice::ObjectAdapterPtr adapter;
 
@@ -500,7 +502,7 @@ connectionFlushBatchRequests(ConnectionObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args, PyObject* /*kwds*/)
+connectionFlushBatchRequestsAsync(ConnectionObject* self, PyObject* args)
 {
     PyObject* compressBatchType = lookupType("Ice.CompressBatch");
     PyObject* compressBatch;
@@ -746,7 +748,7 @@ connectionSetHeartbeatCallback(ConnectionObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-connectionHeartbeat(ConnectionObject* self)
+connectionHeartbeat(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try
@@ -940,7 +942,7 @@ connectionSetACM(ConnectionObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-connectionGetACM(ConnectionObject* self)
+connectionGetACM(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
 
@@ -1013,7 +1015,7 @@ connectionGetACM(ConnectionObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionType(ConnectionObject* self)
+connectionType(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     string type;
@@ -1034,7 +1036,7 @@ connectionType(ConnectionObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionTimeout(ConnectionObject* self)
+connectionTimeout(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     int timeout;
@@ -1055,7 +1057,7 @@ connectionTimeout(ConnectionObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionToString(ConnectionObject* self)
+connectionToString(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     string str;
@@ -1076,7 +1078,7 @@ connectionToString(ConnectionObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionGetInfo(ConnectionObject* self)
+connectionGetInfo(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try
@@ -1095,7 +1097,7 @@ connectionGetInfo(ConnectionObject* self)
 extern "C"
 #endif
 static PyObject*
-connectionGetEndpoint(ConnectionObject* self)
+connectionGetEndpoint(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try
@@ -1142,7 +1144,7 @@ connectionSetBufferSize(ConnectionObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-connectionThrowException(ConnectionObject* self)
+connectionThrowException(ConnectionObject* self, PyObject* /*args*/)
 {
     assert(self->connection);
     try

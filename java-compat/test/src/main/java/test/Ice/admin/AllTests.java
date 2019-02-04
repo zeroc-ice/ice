@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 package test.Ice.admin;
 
@@ -364,7 +362,6 @@ public class AllTests
             // No filtering
             //
             logMessages = logger.getLog(null, null, -1, prefix);
-            remoteLogger.checkNextInit(prefix.value, logMessages);
 
             try
             {
@@ -374,13 +371,13 @@ public class AllTests
             {
                 test(false);
             }
-
             remoteLogger.wait(1);
 
-            remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
-            remoteLogger.checkNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
-            remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
-            remoteLogger.checkNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
+            for(int i = 0; i < logMessages.length; ++i)
+            {
+                Ice.LogMessage m = logMessages[i];
+                remoteLogger.checkNextInit(prefix.value, m.type, m.message, m.traceCategory);
+            }
 
             com.trace("testCat", "rtrace");
             com.warning("rwarning");
@@ -388,6 +385,11 @@ public class AllTests
             com.print("rprint");
 
             remoteLogger.wait(4);
+
+            remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
+            remoteLogger.checkNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
+            remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
+            remoteLogger.checkNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
 
             test(logger.detachRemoteLogger(myProxy));
             test(!logger.detachRemoteLogger(myProxy));
@@ -397,7 +399,6 @@ public class AllTests
             //
             logMessages = logger.getLog(messageTypes, categories, 4, prefix);
             test(logMessages.length == 4);
-            remoteLogger.checkNextInit(prefix.value, logMessages);
 
             try
             {
@@ -409,9 +410,11 @@ public class AllTests
             }
 
             remoteLogger.wait(1);
-
-            remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace2", "testCat");
-            remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror2", "");
+            for(int i = 0; i < logMessages.length; ++i)
+            {
+                Ice.LogMessage m = logMessages[i];
+                remoteLogger.checkNextInit(prefix.value, m.type, m.message, m.traceCategory);
+            }
 
             com.warning("rwarning2");
             com.trace("testCat", "rtrace2");
@@ -420,6 +423,9 @@ public class AllTests
             com.print("rprint2");
 
             remoteLogger.wait(2);
+
+            remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace2", "testCat");
+            remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror2", "");
 
             //
             // Attempt reconnection with slightly different proxy

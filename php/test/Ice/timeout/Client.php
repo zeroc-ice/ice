@@ -1,9 +1,7 @@
 <?php
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 //
 // We need to ensure that the memory limit is high enough

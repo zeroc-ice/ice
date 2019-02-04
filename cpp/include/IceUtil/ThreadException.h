@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_UTIL_THREAD_EXCEPTION_H
 #define ICE_UTIL_THREAD_EXCEPTION_H

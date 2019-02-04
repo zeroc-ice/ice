@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Slice/CPlusPlusUtil.h>
 #include <Slice/Util.h>
@@ -512,11 +510,9 @@ void
 Slice::printHeader(Output& out)
 {
     static const char* header =
-"// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) ZeroC, Inc. All rights reserved.\n"
 "//\n"
-"// **********************************************************************\n"
         ;
 
     out << header;

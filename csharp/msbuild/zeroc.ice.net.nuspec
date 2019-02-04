@@ -5,7 +5,7 @@
         <title>ZeroC Ice for .NET</title>
         <version>3.7.2</version>
         <authors>ZeroC</authors>
-        <copyright>Copyright (c) 2003-present ZeroC, Inc. All rights reserved</copyright>
+        <copyright>Copyright (c) ZeroC, Inc. All rights reserved</copyright>
         <license type="expression">GPL-2.0-only</license>
         <projectUrl>https://github.com/zeroc-ice/ice</projectUrl>
         <iconUrl>https://zeroc.com/images/logos/zeroc/zeroc_logo-64x64.png</iconUrl>

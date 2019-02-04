@@ -1,31 +1,31 @@
-ConstDef.ice:70: `XXX' is not defined
-ConstDef.ice:71: redefinition of constant `f11' as constant
-ConstDef.ice:72: constant `F10' differs only in capitalization from constant `f10'
-ConstDef.ice:75: constant `ic2' has illegal type
-ConstDef.ice:76: constant `ic3' has illegal type: `Object'
-ConstDef.ice:78: initializer of type `long' is incompatible with the type `bool' of constant `ic4'
-ConstDef.ice:79: initializer of type `string' is incompatible with the type `byte' of constant `ic5'
-ConstDef.ice:80: initializer of type `double' is incompatible with the type `short' of constant `ic6'
-ConstDef.ice:81: type of initializer is incompatible with the type `int' of constant `ic7'
-ConstDef.ice:82: initializer of type `bool' is incompatible with the type `long' of constant `ic8'
-ConstDef.ice:84: missing constant name
-ConstDef.ice:87: `two' does not designate an enumerator of `::Test::color'
-ConstDef.ice:88: type of initializer is incompatible with the type of constant `ic10'
-ConstDef.ice:104: integer constant `-9223372036854775809' out of range
-ConstDef.ice:105: integer constant `+9223372036854775808' out of range
-ConstDef.ice:109: initializer `-2147483649' for constant `i3' out of range for type int
-ConstDef.ice:110: initializer `2147483648' for constant `i4' out of range for type int
-ConstDef.ice:114: initializer `-32769' for constant `s3' out of range for type short
-ConstDef.ice:115: initializer `32768' for constant `s4' out of range for type short
-ConstDef.ice:119: initializer `-1' for constant `b3' out of range for type byte
-ConstDef.ice:120: initializer `256' for constant `b4' out of range for type byte
-ConstDef.ice:132: initializer `32767' for constant `c5' out of range for type byte
-ConstDef.ice:133: initializer `2147483647' for constant `c6' out of range for type short
-ConstDef.ice:134: initializer `9223372036854775807' for constant `c7' out of range for type int
-ConstDef.ice:145: warning: unknown escape sequence `\g'
-ConstDef.ice:146: unknown escape sequence in string literal: `\u000N'
-ConstDef.ice:147: unknown escape sequence in string literal: `\U0000000K'
-ConstDef.ice:148: octal escape sequence out of range: `\455'
-ConstDef.ice:149: no hex digit in hex escape sequence
-ConstDef.ice:150: a universal character name cannot designate a surrogate: `\uD83C'
-ConstDef.ice:150: a universal character name cannot designate a surrogate: `\uDF4C'
+ConstDef.ice:68: `XXX' is not defined
+ConstDef.ice:69: redefinition of constant `f11' as constant
+ConstDef.ice:70: constant `F10' differs only in capitalization from constant `f10'
+ConstDef.ice:73: constant `ic2' has illegal type
+ConstDef.ice:74: constant `ic3' has illegal type: `Object'
+ConstDef.ice:76: initializer of type `long' is incompatible with the type `bool' of constant `ic4'
+ConstDef.ice:77: initializer of type `string' is incompatible with the type `byte' of constant `ic5'
+ConstDef.ice:78: initializer of type `double' is incompatible with the type `short' of constant `ic6'
+ConstDef.ice:79: type of initializer is incompatible with the type `int' of constant `ic7'
+ConstDef.ice:80: initializer of type `bool' is incompatible with the type `long' of constant `ic8'
+ConstDef.ice:82: missing constant name
+ConstDef.ice:85: `two' does not designate an enumerator of `::Test::color'
+ConstDef.ice:86: type of initializer is incompatible with the type of constant `ic10'
+ConstDef.ice:102: integer constant `-9223372036854775809' out of range
+ConstDef.ice:103: integer constant `+9223372036854775808' out of range
+ConstDef.ice:107: initializer `-2147483649' for constant `i3' out of range for type int
+ConstDef.ice:108: initializer `2147483648' for constant `i4' out of range for type int
+ConstDef.ice:112: initializer `-32769' for constant `s3' out of range for type short
+ConstDef.ice:113: initializer `32768' for constant `s4' out of range for type short
+ConstDef.ice:117: initializer `-1' for constant `b3' out of range for type byte
+ConstDef.ice:118: initializer `256' for constant `b4' out of range for type byte
+ConstDef.ice:130: initializer `32767' for constant `c5' out of range for type byte
+ConstDef.ice:131: initializer `2147483647' for constant `c6' out of range for type short
+ConstDef.ice:132: initializer `9223372036854775807' for constant `c7' out of range for type int
+ConstDef.ice:143: warning: unknown escape sequence `\g'
+ConstDef.ice:144: unknown escape sequence in string literal: `\u000N'
+ConstDef.ice:145: unknown escape sequence in string literal: `\U0000000K'
+ConstDef.ice:146: octal escape sequence out of range: `\455'
+ConstDef.ice:147: no hex digit in hex escape sequence
+ConstDef.ice:148: a universal character name cannot designate a surrogate: `\uD83C'
+ConstDef.ice:148: a universal character name cannot designate a surrogate: `\uDF4C'

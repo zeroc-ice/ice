@@ -1,8 +1,6 @@
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 $(test)_server_impl     = Test
 $(test)_serveramd_impl  = TestAMD

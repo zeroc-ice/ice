@@ -3,7 +3,7 @@ classdef FormatType < uint32
     %
     % This enumeration describes the possible formats for classes and exceptions.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     enumeration
         % DefaultFormat   Indicates that no preference was specified.

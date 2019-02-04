@@ -8,7 +8,7 @@ classdef IPEndpointInfo < Ice.EndpointInfo
     %   port - The port number.
     %   sourceAddress - The source IP address.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
         function obj = IPEndpointInfo(type, datagram, secure, underlying, timeout, compress, host, port, sourceAddress)

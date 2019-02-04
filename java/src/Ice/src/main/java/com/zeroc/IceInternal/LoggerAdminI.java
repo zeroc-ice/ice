@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 package com.zeroc.IceInternal;
 
@@ -194,7 +192,7 @@ final class LoggerAdminI implements com.zeroc.Ice.LoggerAdmin
 
         //
         // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
-        // remote logggers
+        // remote loggers
         //
         if(sendLogCommunicator != null)
         {

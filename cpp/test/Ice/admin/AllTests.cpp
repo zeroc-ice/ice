@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Ice/Ice.h>
 #include <TestHelper.h>
@@ -98,7 +96,7 @@ public:
     virtual void init(ICE_IN(string), ICE_IN(Ice::LogMessageSeq), const Ice::Current&);
     virtual void log(ICE_IN(Ice::LogMessage), const Ice::Current&);
 
-    void checkNextInit(const string&, const Ice::LogMessageSeq&);
+    void checkNextInit(const string&, Ice::LogMessageType, const string&, const string& = "");
     void checkNextLog(Ice::LogMessageType, const string&, const string& = "");
 
     void wait(int);
@@ -106,13 +104,10 @@ public:
 private:
 
     IceUtil::Monitor<IceUtil::Mutex> _monitor;
-
     int _receivedCalls;
-
-    string _expectedPrefix;
-    Ice::LogMessageSeq _expectedInitMessages;
-
-    Ice::LogMessageSeq _expectedLogMessages;
+    string _prefix;
+    Ice::LogMessageSeq _initMessages;
+    Ice::LogMessageSeq _logMessages;
 };
 
 ICE_DEFINE_PTR(RemoteLoggerIPtr, RemoteLoggerI);
@@ -125,8 +120,8 @@ void
 RemoteLoggerI::init(ICE_IN(string) prefix, ICE_IN(Ice::LogMessageSeq) logMessages, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    test(prefix == _expectedPrefix);
-    test(logMessages == _expectedInitMessages);
+    _prefix = prefix;
+    _initMessages.insert(_initMessages.end(), logMessages.begin(), logMessages.end());
     _receivedCalls++;
     _monitor.notifyAll();
 }
@@ -135,32 +130,35 @@ void
 RemoteLoggerI::log(ICE_IN(Ice::LogMessage) logMessage, const Ice::Current&)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    Ice::LogMessage front = _expectedLogMessages.front();
-
-    test(front.type == logMessage.type && front.message == logMessage.message &&
-         front.traceCategory == logMessage.traceCategory);
-
-    _expectedLogMessages.pop_front();
+    _logMessages.push_back(logMessage);
     _receivedCalls++;
     _monitor.notifyAll();
 }
 
 void
-RemoteLoggerI::checkNextInit(const string& prefix, const Ice::LogMessageSeq& logMessages)
+RemoteLoggerI::checkNextInit(const string& prefix, Ice::LogMessageType type, const string& message,
+                             const string& category)
 {
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    _expectedPrefix = prefix;
-    _expectedInitMessages = logMessages;
+    test(_prefix == prefix);
+    test(_initMessages.size() > 0);
+    Ice::LogMessage front = _initMessages.front();
+    test(front.type == type);
+    test(front.message == message);
+    test(front.traceCategory == category);
+    _initMessages.pop_front();
 }
 
 void
-RemoteLoggerI::checkNextLog(Ice::LogMessageType messageType, const string& message,
-                            const string& category)
+RemoteLoggerI::checkNextLog(Ice::LogMessageType type, const string& message, const string& category)
 {
-    Ice::LogMessage logMessage = { messageType, 0, category, message };
-
     IceUtil::Monitor<IceUtil::Mutex>::Lock lock(_monitor);
-    _expectedLogMessages.push_back(logMessage);
+    test(_logMessages.size() > 0);
+    Ice::LogMessage front = _logMessages.front();
+    test(front.type == type);
+    test(front.message == message);
+    test(front.traceCategory == category);
+    _logMessages.pop_front();
 }
 
 void
@@ -511,21 +509,24 @@ allTests(Test::TestHelper* helper)
         // No filtering
         //
         logMessages = logger->getLog(Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1, prefix);
-        remoteLogger->checkNextInit(prefix, logMessages);
-
         logger->attachRemoteLogger(myProxy, Ice::LogMessageTypeSeq(), Ice::StringSeq(), -1);
         remoteLogger->wait(1);
 
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace", "testCat");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, WarningMessage), "rwarning");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, PrintMessage), "rprint");
+        for(LogMessageSeq::const_iterator i = logMessages.begin(); i != logMessages.end(); ++i)
+        {
+            remoteLogger->checkNextInit(prefix, i->type, i->message, i->traceCategory);
+        }
 
         com->trace("testCat", "rtrace");
         com->warning("rwarning");
         com->error("rerror");
         com->print("rprint");
         remoteLogger->wait(4);
+
+        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace", "testCat");
+        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, WarningMessage), "rwarning");
+        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror");
+        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, PrintMessage), "rprint");
 
         test(logger->detachRemoteLogger(myProxy));
         test(!logger->detachRemoteLogger(myProxy));
@@ -535,12 +536,13 @@ allTests(Test::TestHelper* helper)
         //
         logMessages = logger->getLog(messageTypes, categories, 4, prefix);
         test(logMessages.size() == 4);
-        remoteLogger->checkNextInit(prefix, logMessages);
         logger->attachRemoteLogger(myProxy, messageTypes, categories, 4);
         remoteLogger->wait(1);
 
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace2", "testCat");
-        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror2");
+        for(LogMessageSeq::const_iterator i = logMessages.begin(); i != logMessages.end(); ++i)
+        {
+            remoteLogger->checkNextInit(prefix, i->type, i->message, i->traceCategory);
+        }
 
         com->warning("rwarning2");
         com->trace("testCat", "rtrace2");
@@ -548,6 +550,9 @@ allTests(Test::TestHelper* helper)
         com->error("rerror2");
         com->print("rprint2");
         remoteLogger->wait(2);
+
+        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, TraceMessage), "rtrace2", "testCat");
+        remoteLogger->checkNextLog(ICE_ENUM(LogMessageType, ErrorMessage), "rerror2");
 
         //
         // Attempt reconnection with slightly different proxy

@@ -1,1 +1,1 @@
-EnumEmpty.ice:10: enum `foo' must have at least one enumerator
+EnumEmpty.ice:8: enum `foo' must have at least one enumerator

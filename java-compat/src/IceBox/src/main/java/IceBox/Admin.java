@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 package IceBox;
 
@@ -32,6 +30,7 @@ public final class Admin
             "Usage: IceBox.Admin [options] [command...]\n" +
             "Options:\n" +
             "-h, --help          Show this message.\n" +
+            "-v, --version       Display the Ice version.\n" +
             "\n" +
             "Commands:\n" +
             "start SERVICE       Start a service.\n" +
@@ -50,33 +49,7 @@ public final class Admin
             Runtime.getRuntime().addShutdownHook(new Thread(new ShutdownHook(communicator)));
 
             java.util.List<String> commands = new java.util.ArrayList<String>(java.util.Arrays.asList(argHolder.value));
-
-            for(String command : commands)
-            {
-                if(command.equals("-h") || command.equals("--help"))
-                {
-                    usage();
-                    status = 1;
-                    break;
-                }
-                else if(command.charAt(0) == '-')
-                {
-                    System.err.println("IceBox.Admin: unknown option `" + command + "'");
-                    usage();
-                    status = 1;
-                    break;
-                }
-            }
-
-            if(commands.isEmpty())
-            {
-                usage();
-                status = 0;
-            }
-            else if(status == 0)
-            {
-                status = run(communicator, commands);
-            }
+            status = run(communicator, commands);
         }
 
         System.exit(status);
@@ -85,6 +58,32 @@ public final class Admin
     public static int
     run(Ice.Communicator communicator, java.util.List<String> commands)
     {
+        if(commands.isEmpty())
+        {
+            usage();
+            return 0;
+        }
+
+        for(String command : commands)
+        {
+            if(command.equals("-h") || command.equals("--help"))
+            {
+                usage();
+                return 0;
+            }
+            else if(command.equals("-v") || command.equals("--version"))
+            {
+                System.out.println(Ice.Util.stringVersion());
+                return 0;
+            }
+            else if(command.startsWith("-"))
+            {
+                System.err.println("IceBox.Admin: unknown option `" + command + "'");
+                usage();
+                return 1;
+            }
+        }
+
         Ice.ObjectPrx base = communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
         if(base == null)

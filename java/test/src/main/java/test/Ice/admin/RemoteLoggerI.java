@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 package test.Ice.admin;
 
@@ -11,8 +9,11 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger
     @Override
     public synchronized void init(String prefix, com.zeroc.Ice.LogMessage[] logMessages, com.zeroc.Ice.Current current)
     {
-        test(prefix.equals(_expectedPrefix));
-        test(java.util.Arrays.equals(logMessages, _expectedInitMessages));
+        _prefix = prefix;
+        for(int i = 0; i < logMessages.length; ++i)
+        {
+            _initMessages.add(logMessages[i]);
+        }
         _receivedCalls++;
         notifyAll();
     }
@@ -20,24 +21,28 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger
     @Override
     public synchronized void log(com.zeroc.Ice.LogMessage logMessage, com.zeroc.Ice.Current current)
     {
-        com.zeroc.Ice.LogMessage front = _expectedLogMessages.pollFirst();
-        test(front.type == logMessage.type && front.message.equals(logMessage.message) &&
-             front.traceCategory.equals(logMessage.traceCategory));
-
+        _logMessages.add(logMessage);
         _receivedCalls++;
         notifyAll();
     }
 
-    synchronized void checkNextInit(String prefix, com.zeroc.Ice.LogMessage[] logMessages)
+    synchronized void checkNextInit(String prefix, com.zeroc.Ice.LogMessageType type, String message, String category)
     {
-        _expectedPrefix = prefix;
-        _expectedInitMessages = logMessages;
+        test(_prefix.equals(prefix));
+        test(_initMessages.size() > 0);
+        com.zeroc.Ice.LogMessage logMessage = _initMessages.pop();
+        test(logMessage.type == type);
+        test(logMessage.message.equals(message));
+        test(logMessage.traceCategory.equals(category));
     }
 
-    synchronized void checkNextLog(com.zeroc.Ice.LogMessageType messageType, String message, String category)
+    synchronized void checkNextLog(com.zeroc.Ice.LogMessageType type, String message, String category)
     {
-        com.zeroc.Ice.LogMessage logMessage = new com.zeroc.Ice.LogMessage(messageType, 0, category, message);
-        _expectedLogMessages.addLast(logMessage);
+        test(_logMessages.size() > 0);
+        com.zeroc.Ice.LogMessage logMessage = _logMessages.pop();
+        test(logMessage.type == type);
+        test(logMessage.message.equals(message));
+        test(logMessage.traceCategory.equals(category));
     }
 
     synchronized void wait(int calls)
@@ -66,8 +71,9 @@ class RemoteLoggerI implements com.zeroc.Ice.RemoteLogger
     }
 
     private int _receivedCalls;
-    private String _expectedPrefix;
-    private com.zeroc.Ice.LogMessage[] _expectedInitMessages;
-    private java.util.Deque<com.zeroc.Ice.LogMessage> _expectedLogMessages =
+    private String _prefix;
+    private java.util.Deque<com.zeroc.Ice.LogMessage> _initMessages =
+        new java.util.ArrayDeque<com.zeroc.Ice.LogMessage>();
+    private java.util.Deque<com.zeroc.Ice.LogMessage> _logMessages =
         new java.util.ArrayDeque<com.zeroc.Ice.LogMessage>();
 }

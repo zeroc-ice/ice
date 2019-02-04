@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICESSL_SCHANNELTRANSCEIVER_I_H
 #define ICESSL_SCHANNELTRANSCEIVER_I_H
@@ -85,6 +83,7 @@ private:
         StateHandshakeNotStarted,
         StateHandshakeReadContinue,
         StateHandshakeWriteContinue,
+        StateHandshakeWriteNoContinue,
         StateHandshakeComplete
     };
 
@@ -95,6 +94,7 @@ private:
     const bool _incoming;
     const IceInternal::TransceiverPtr _delegate;
     State _state;
+    DWORD _ctxFlags;
 
     //
     // Buffered encrypted data that has not been written.

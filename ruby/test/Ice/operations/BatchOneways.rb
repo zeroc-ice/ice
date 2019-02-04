@@ -1,8 +1,6 @@
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 def batchOneways(p)
     bs1 = "\0" * (10 * 1024);

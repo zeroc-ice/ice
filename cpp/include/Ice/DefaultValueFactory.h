@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_DEFAULT_VALUE_FACTORY_H
 #define ICE_DEFAULT_VALUE_FACTORY_H

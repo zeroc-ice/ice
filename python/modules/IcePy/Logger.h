@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICEPY_LOGGER_H
 #define ICEPY_LOGGER_H
@@ -48,7 +46,7 @@ PyObject* createLogger(const Ice::LoggerPtr&);
 
 }
 
-extern "C" PyObject* IcePy_getProcessLogger(PyObject*);
+extern "C" PyObject* IcePy_getProcessLogger(PyObject*, PyObject*);
 extern "C" PyObject* IcePy_setProcessLogger(PyObject*, PyObject*);
 
 #endif

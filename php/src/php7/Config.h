@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_PHP_CONFIG_H
 #define ICE_PHP_CONFIG_H
@@ -45,6 +43,10 @@ extern "C"
 
 #if defined(__GNUC__) && ((__GNUC__ > 4) || (__GNUC__ == 4 && __GNUC_MINOR__ >= 6))
 #   pragma GCC diagnostic warning "-Wnarrowing"
+#endif
+
+#if defined(__GNUC__) && ((__GNUC__ >= 8))
+#   pragma GCC diagnostic ignored "-Wignored-qualifiers"
 #endif
 
 //

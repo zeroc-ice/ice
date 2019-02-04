@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <IceUtil/StringUtil.h>
 #include <Slice/JavaUtil.h>
@@ -785,11 +783,9 @@ void
 Slice::JavaOutput::printHeader()
 {
     static const char* header =
-"// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.\n"
+"// Copyright (c) ZeroC, Inc. All rights reserved.\n"
 "//\n"
-"// **********************************************************************\n"
         ;
 
     print(header);

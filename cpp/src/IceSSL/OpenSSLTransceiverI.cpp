@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <IceSSL/OpenSSLTransceiverI.h>
 #include <IceSSL/OpenSSLEngine.h>
@@ -96,31 +94,33 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
     if(!_ssl)
     {
         SOCKET fd = _delegate->getNativeInfo()->fd();
+        BIO* bio = 0;
         if(fd == INVALID_SOCKET)
         {
-            //
-            // The delegate has finished its initialization but may not have a file descriptor yet (e.g., Bluetooth).
-            // The underlying transport must (eventually) be socket-based.
-            //
-            return IceInternal::SocketOperationRead;
+            assert(_sentBytes == 0);
+            _maxSendPacketSize = 128 * 1024; // 128KB
+            _maxRecvPacketSize = 128 * 1024; // 128KB
+            if(!BIO_new_bio_pair(&bio, _maxSendPacketSize, &_memBio, _maxRecvPacketSize))
+            {
+                bio = 0;
+                _memBio = 0;
+            }
         }
-
-#ifdef ICE_USE_IOCP
-        _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(fd));
-        _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(fd));
-        BIO* bio;
-        _sentBytes = 0;
-        if(!BIO_new_bio_pair(&bio, _maxSendPacketSize, &_iocpBio, _maxRecvPacketSize))
+        else
         {
-            bio = 0;
-            _iocpBio = 0;
-        }
+#ifdef ICE_USE_IOCP
+            assert(_sentBytes == 0);
+            _maxSendPacketSize = std::max(512, IceInternal::getSendBufferSize(fd));
+            _maxRecvPacketSize = std::max(512, IceInternal::getRecvBufferSize(fd));
+            if(!BIO_new_bio_pair(&bio, _maxSendPacketSize, &_memBio, _maxRecvPacketSize))
+            {
+                bio = 0;
+                _memBio = 0;
+            }
 #else
-        //
-        // This static_cast is necessary due to 64bit windows. There SOCKET is a non-int type.
-        //
-        BIO* bio = BIO_new_socket(static_cast<int>(fd), 0);
+            bio = BIO_new_socket(fd, 0);
 #endif
+        }
 
         if(!bio)
         {
@@ -131,10 +131,11 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         if(!_ssl)
         {
             BIO_free(bio);
-#ifdef ICE_USE_IOCP
-            BIO_free(_iocpBio);
-            _iocpBio = 0;
-#endif
+            if(_memBio)
+            {
+                BIO_free(_memBio);
+                _memBio = 0;
+            }
             throw SecurityException(__FILE__, __LINE__, "openssl failure");
         }
         SSL_set_bio(_ssl, bio, bio);
@@ -210,8 +211,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
         sync.release();
 #endif
 
-#ifdef ICE_USE_IOCP
-        if(BIO_ctrl_pending(_iocpBio))
+        if(_memBio && BIO_ctrl_pending(_memBio))
         {
             if(!send())
             {
@@ -219,7 +219,6 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             }
             continue;
         }
-#endif
 
         if(ret <= 0)
         {
@@ -236,58 +235,55 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             }
             case SSL_ERROR_WANT_READ:
             {
-#ifdef ICE_USE_IOCP
-                if(receive())
+                if(_memBio && receive())
                 {
                     continue;
                 }
-#endif
                 return IceInternal::SocketOperationRead;
             }
             case SSL_ERROR_WANT_WRITE:
             {
-#ifdef ICE_USE_IOCP
-                if(send())
+                if(_memBio && send())
                 {
                     continue;
                 }
-#endif
                 return IceInternal::SocketOperationWrite;
             }
             case SSL_ERROR_SYSCALL:
             {
-#ifndef ICE_USE_IOCP
-                if(IceInternal::interrupted())
+                if(!_memBio)
                 {
-                    break;
-                }
-
-                if(IceInternal::wouldBlock())
-                {
-                    if(SSL_want_read(_ssl))
+                    if(IceInternal::interrupted())
                     {
-                        return IceInternal::SocketOperationRead;
-                    }
-                    else if(SSL_want_write(_ssl))
-                    {
-                        return IceInternal::SocketOperationWrite;
+                        break;
                     }
 
-                    break;
-                }
+                    if(IceInternal::wouldBlock())
+                    {
+                        if(SSL_want_read(_ssl))
+                        {
+                            return IceInternal::SocketOperationRead;
+                        }
+                        else if(SSL_want_write(_ssl))
+                        {
+                            return IceInternal::SocketOperationWrite;
+                        }
 
-                if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
-                {
-                    throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+                        break;
+                    }
+
+                    if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
+                    {
+                        throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
+                    }
                 }
-#endif
                 throw SocketException(__FILE__, __LINE__, IceInternal::getSocketErrno());
             }
             case SSL_ERROR_SSL:
             {
                 ostringstream ostr;
                 ostr << "SSL error occurred for new " << (_incoming ? "incoming" : "outgoing")
-                     << " connection:\nremote address = " << _delegate->toString() << "\n" << _engine->sslErrors();
+                     << " connection:\n" << _delegate->toString() << "\n" << _engine->sslErrors();
                 throw ProtocolException(__FILE__, __LINE__, ostr.str());
             }
             }
@@ -346,7 +342,7 @@ OpenSSL::TransceiverI::initialize(IceInternal::Buffer& readBuffer, IceInternal::
             out << "bits = " << SSL_CIPHER_get_bits(cipher, 0) << "\n";
             out << "protocol = " << SSL_get_version(_ssl) << "\n";
         }
-        out << IceInternal::fdToString(SSL_get_fd(_ssl));
+        out << toString();
     }
 
     return IceInternal::SocketOperationNone;
@@ -379,13 +375,11 @@ OpenSSL::TransceiverI::close()
         _ssl = 0;
     }
 
-#ifdef ICE_USE_IOCP
-    if(_iocpBio)
+    if(_memBio)
     {
-        BIO_free(_iocpBio);
-        _iocpBio = 0;
+        BIO_free(_memBio);
+        _memBio = 0;
     }
-#endif
 
     _delegate->close();
 }
@@ -398,15 +392,13 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
         return _delegate->write(buf);
     }
 
-#ifdef ICE_USE_IOCP
-    if(_writeBuffer.i != _writeBuffer.b.end())
+    if(_memBio && _writeBuffer.i != _writeBuffer.b.end())
     {
         if(!send())
         {
             return IceInternal::SocketOperationWrite;
         }
     }
-#endif
 
     if(buf.i == buf.b.end())
     {
@@ -416,37 +408,39 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
     //
     // It's impossible for packetSize to be more than an Int.
     //
-    int packetSize =
-#ifdef ICE_USE_IOCP
-        std::min(static_cast<int>(_maxSendPacketSize), static_cast<int>(buf.b.end() - buf.i));
-#else
+    int packetSize = _memBio ?
+        std::min(static_cast<int>(_maxSendPacketSize), static_cast<int>(buf.b.end() - buf.i)) :
         static_cast<int>(buf.b.end() - buf.i);
-#endif
+
     while(buf.i != buf.b.end())
     {
         ERR_clear_error(); // Clear any spurious errors.
-#ifdef ICE_USE_IOCP
         int ret;
-        if(_sentBytes)
+        if(_memBio)
         {
-            ret = _sentBytes;
-            _sentBytes = 0;
+            if(_sentBytes)
+            {
+                ret = _sentBytes;
+                _sentBytes = 0;
+            }
+            else
+            {
+                ret = SSL_write(_ssl, reinterpret_cast<const void*>(&*buf.i), packetSize);
+                if(ret > 0)
+                {
+                    if(!send())
+                    {
+                        _sentBytes = ret;
+                        return IceInternal::SocketOperationWrite;
+                    }
+                }
+            }
         }
         else
         {
             ret = SSL_write(_ssl, reinterpret_cast<const void*>(&*buf.i), packetSize);
-            if(ret > 0)
-            {
-                if(!send())
-                {
-                    _sentBytes = ret;
-                    return IceInternal::SocketOperationWrite;
-                }
-            }
         }
-#else
-        int ret = SSL_write(_ssl, reinterpret_cast<const void*>(&*buf.i), packetSize);
-#endif
+
         if(ret <= 0)
         {
             switch(SSL_get_error(_ssl, ret))
@@ -465,35 +459,34 @@ OpenSSL::TransceiverI::write(IceInternal::Buffer& buf)
             }
             case SSL_ERROR_WANT_WRITE:
             {
-#ifdef ICE_USE_IOCP
-                if(send())
+                if(_memBio && send())
                 {
                     continue;
                 }
-#endif
                 return IceInternal::SocketOperationWrite;
             }
             case SSL_ERROR_SYSCALL:
             {
-#ifndef ICE_USE_IOCP
-
-                if(IceInternal::interrupted())
+                if(!_memBio)
                 {
-                    continue;
+                    if(IceInternal::interrupted())
+                    {
+                        continue;
+                    }
+
+                    if(IceInternal::noBuffers() && packetSize > 1024)
+                    {
+                        packetSize /= 2;
+                        continue;
+                    }
+
+                    if(IceInternal::wouldBlock())
+                    {
+                        assert(SSL_want_write(_ssl));
+                        return IceInternal::SocketOperationWrite;
+                    }
                 }
 
-                if(IceInternal::noBuffers() && packetSize > 1024)
-                {
-                    packetSize /= 2;
-                    continue;
-                }
-
-                if(IceInternal::wouldBlock())
-                {
-                    assert(SSL_want_write(_ssl));
-                    return IceInternal::SocketOperationWrite;
-                }
-#endif
                 if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
                 {
                     throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
@@ -529,15 +522,13 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
         return _delegate->read(buf);
     }
 
-#ifdef ICE_USE_IOCP
-    if(_readBuffer.i != _readBuffer.b.end())
+    if(_memBio && _readBuffer.i != _readBuffer.b.end())
     {
         if(!receive())
         {
             return IceInternal::SocketOperationRead;
         }
     }
-#endif
 
     //
     // Note: We assume that OpenSSL doesn't read more SSL records than
@@ -575,12 +566,10 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
             }
             case SSL_ERROR_WANT_READ:
             {
-#ifdef ICE_USE_IOCP
-                if(receive())
+                if(_memBio && receive())
                 {
                     continue;
                 }
-#endif
                 return IceInternal::SocketOperationRead;
             }
             case SSL_ERROR_WANT_WRITE:
@@ -590,24 +579,26 @@ OpenSSL::TransceiverI::read(IceInternal::Buffer& buf)
             }
             case SSL_ERROR_SYSCALL:
             {
-#ifndef ICE_USE_IOCP
-                if(IceInternal::interrupted())
+                if(!_memBio)
                 {
-                    continue;
+                    if(IceInternal::interrupted())
+                    {
+                        continue;
+                    }
+
+                    if(IceInternal::noBuffers() && packetSize > 1024)
+                    {
+                        packetSize /= 2;
+                        continue;
+                    }
+
+                    if(IceInternal::wouldBlock())
+                    {
+                        assert(SSL_want_read(_ssl));
+                        return IceInternal::SocketOperationRead;
+                    }
                 }
 
-                if(IceInternal::noBuffers() && packetSize > 1024)
-                {
-                    packetSize /= 2;
-                    continue;
-                }
-
-                if(IceInternal::wouldBlock())
-                {
-                    assert(SSL_want_read(_ssl));
-                    return IceInternal::SocketOperationRead;
-                }
-#endif
                 if(IceInternal::connectionLost() || IceInternal::getSocketErrno() == 0)
                 {
                     throw ConnectionLostException(__FILE__, __LINE__, IceInternal::getSocketErrno());
@@ -657,10 +648,10 @@ OpenSSL::TransceiverI::startWrite(IceInternal::Buffer& buffer)
         int packetSize = std::min(static_cast<int>(_maxSendPacketSize), static_cast<int>(buffer.b.end() - buffer.i));
         _sentBytes = SSL_write(_ssl, reinterpret_cast<void*>(&*buffer.i), packetSize);
 
-        assert(BIO_ctrl_pending(_iocpBio));
-        _writeBuffer.b.resize( BIO_ctrl_pending(_iocpBio));
+        assert(BIO_ctrl_pending(_memBio));
+        _writeBuffer.b.resize( BIO_ctrl_pending(_memBio));
         _writeBuffer.i = _writeBuffer.b.begin();
-        BIO_read(_iocpBio, _writeBuffer.i, static_cast<int>(_writeBuffer.b.size()));
+        BIO_read(_memBio, _writeBuffer.i, static_cast<int>(_writeBuffer.b.size()));
     }
 
     return _delegate->startWrite(_writeBuffer) && buffer.i == buffer.b.end();
@@ -702,8 +693,8 @@ OpenSSL::TransceiverI::startRead(IceInternal::Buffer& buffer)
             SSL_read(_ssl, reinterpret_cast<void*>(&*buffer.i), static_cast<int>(buffer.b.end() - buffer.i));
         assert(ret <= 0 && SSL_get_error(_ssl, ret) == SSL_ERROR_WANT_READ);
 
-        assert(BIO_ctrl_get_read_request(_iocpBio));
-        _readBuffer.b.resize(BIO_ctrl_get_read_request(_iocpBio));
+        assert(BIO_ctrl_get_read_request(_memBio));
+        _readBuffer.b.resize(BIO_ctrl_get_read_request(_memBio));
         _readBuffer.i = _readBuffer.b.begin();
     }
 
@@ -724,7 +715,7 @@ OpenSSL::TransceiverI::finishRead(IceInternal::Buffer& buffer)
     _delegate->finishRead(_readBuffer);
     if(_readBuffer.i == _readBuffer.b.end())
     {
-        int n = BIO_write(_iocpBio, _readBuffer.b.begin(), static_cast<int>(_readBuffer.b.size()));
+        int n = BIO_write(_memBio, _readBuffer.b.begin(), static_cast<int>(_readBuffer.b.size()));
         if(n < 0) // Expected if the transceiver was closed.
         {
             throw SecurityException(__FILE__, __LINE__, "SSL bio write failed");
@@ -834,7 +825,7 @@ OpenSSL::TransceiverI::verifyCallback(int ok, X509_STORE_CTX* c)
         out << "subject = " << buf << '\n';
         out << "depth = " << X509_STORE_CTX_get_error_depth(c) << '\n';
         out << "error = " << X509_verify_cert_error_string(err) << '\n';
-        out << IceInternal::fdToString(SSL_get_fd(_ssl));
+        out << toString();
     }
 
     //
@@ -874,13 +865,11 @@ OpenSSL::TransceiverI::TransceiverI(const InstancePtr& instance,
     _delegate(delegate),
     _connected(false),
     _verified(false),
-    _ssl(0)
-#ifdef ICE_USE_IOCP
-    , _iocpBio(0),
+    _ssl(0),
+    _memBio(0),
     _sentBytes(0),
     _maxSendPacketSize(0),
     _maxRecvPacketSize(0)
-#endif
 {
 }
 
@@ -888,14 +877,13 @@ OpenSSL::TransceiverI::~TransceiverI()
 {
 }
 
-#ifdef ICE_USE_IOCP
 bool
 OpenSSL::TransceiverI::receive()
 {
     if(_readBuffer.i == _readBuffer.b.end())
     {
-        assert(BIO_ctrl_get_read_request(_iocpBio));
-        _readBuffer.b.resize(BIO_ctrl_get_read_request(_iocpBio));
+        assert(BIO_ctrl_get_read_request(_memBio));
+        _readBuffer.b.resize(BIO_ctrl_get_read_request(_memBio));
         _readBuffer.i = _readBuffer.b.begin();
     }
 
@@ -912,7 +900,7 @@ OpenSSL::TransceiverI::receive()
 #ifndef NDEBUG
     int n =
 #endif
-        BIO_write(_iocpBio, &_readBuffer.b[0], static_cast<int>(_readBuffer.b.end() - _readBuffer.b.begin()));
+        BIO_write(_memBio, &_readBuffer.b[0], static_cast<int>(_readBuffer.b.end() - _readBuffer.b.begin()));
 
     assert(n == static_cast<int>(_readBuffer.b.end() - _readBuffer.b.begin()));
 
@@ -924,10 +912,10 @@ OpenSSL::TransceiverI::send()
 {
     if(_writeBuffer.i == _writeBuffer.b.end())
     {
-        assert(BIO_ctrl_pending(_iocpBio));
-        _writeBuffer.b.resize( BIO_ctrl_pending(_iocpBio));
+        assert(BIO_ctrl_pending(_memBio));
+        _writeBuffer.b.resize( BIO_ctrl_pending(_memBio));
         _writeBuffer.i = _writeBuffer.b.begin();
-        BIO_read(_iocpBio, _writeBuffer.i, static_cast<int>(_writeBuffer.b.size()));
+        BIO_read(_memBio, _writeBuffer.i, static_cast<int>(_writeBuffer.b.size()));
     }
 
     if(_writeBuffer.i != _writeBuffer.b.end())
@@ -939,4 +927,3 @@ OpenSSL::TransceiverI::send()
     }
     return _writeBuffer.i == _writeBuffer.b.end();
 }
-#endif

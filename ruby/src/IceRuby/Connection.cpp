@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Connection.h>
 #include <Endpoint.h>
@@ -23,9 +21,7 @@ static VALUE _udpConnectionInfoClass;
 static VALUE _wsConnectionInfoClass;
 static VALUE _sslConnectionInfoClass;
 
-// **********************************************************************
 // Connection
-// **********************************************************************
 
 extern "C"
 void
@@ -330,9 +326,7 @@ IceRuby_Connection_equals(VALUE self, VALUE other)
     return Qnil;
 }
 
-// **********************************************************************
 // ConnectionInfo
-// **********************************************************************
 
 extern "C"
 void

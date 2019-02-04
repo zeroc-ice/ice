@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 package com.zeroc.IceBox;
 
@@ -14,6 +12,7 @@ public final class Admin
             "Usage: com.zeroc.IceBox.Admin [options] [command...]\n" +
             "Options:\n" +
             "-h, --help          Show this message.\n" +
+            "-v, --version       Display the Ice version.\n" +
             "\n" +
             "Commands:\n" +
             "start SERVICE       Start a service.\n" +
@@ -33,32 +32,7 @@ public final class Admin
                 communicator.destroy();
             }));
 
-            for(String command : commands)
-            {
-                if(command.equals("-h") || command.equals("--help"))
-                {
-                    usage();
-                    status = 1;
-                    break;
-                }
-                else if(command.charAt(0) == '-')
-                {
-                    System.err.println("IceBox.Admin: unknown option `" + command + "'");
-                    usage();
-                    status = 1;
-                    break;
-                }
-            }
-
-            if(commands.isEmpty())
-            {
-                usage();
-                status = 0;
-            }
-            else
-            {
-                status = run(communicator, commands);
-            }
+            status = run(communicator, commands);
         }
 
         System.exit(status);
@@ -66,6 +40,32 @@ public final class Admin
 
     public static int run(com.zeroc.Ice.Communicator communicator, java.util.List<String> commands)
     {
+        if(commands.isEmpty())
+        {
+            usage();
+            return 0;
+        }
+
+        for(String command : commands)
+        {
+            if(command.equals("-h") || command.equals("--help"))
+            {
+                usage();
+                return 0;
+            }
+            else if(command.equals("-v") || command.equals("--version"))
+            {
+                System.out.println(com.zeroc.Ice.Util.stringVersion());
+                return 0;
+            }
+            else if(command.startsWith("-"))
+            {
+                System.err.println("IceBox.Admin: unknown option `" + command + "'");
+                usage();
+                return 1;
+            }
+        }
+
         com.zeroc.Ice.ObjectPrx base = communicator.propertyToProxy("IceBoxAdmin.ServiceManager.Proxy");
 
         if(base == null)

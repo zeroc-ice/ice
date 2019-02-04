@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICESSL_OPENSSL_TRANSCEIVER_I_H
 #define ICESSL_OPENSSL_TRANSCEIVER_I_H
@@ -58,10 +56,8 @@ private:
     TransceiverI(const InstancePtr&, const IceInternal::TransceiverPtr&, const std::string&, bool);
     virtual ~TransceiverI();
 
-#ifdef ICE_USE_IOCP
     bool receive();
     bool send();
-#endif
 
     friend class IceSSL::OpenSSL::SSLEngine;
 
@@ -77,14 +73,12 @@ private:
     bool _verified;
 
     SSL* _ssl;
-#ifdef ICE_USE_IOCP
-    BIO* _iocpBio;
+    BIO* _memBio;
     IceInternal::Buffer _writeBuffer;
     IceInternal::Buffer _readBuffer;
     int _sentBytes;
     size_t _maxSendPacketSize;
     size_t _maxRecvPacketSize;
-#endif
 };
 typedef IceUtil::Handle<TransceiverI> TransceiverIPtr;
 

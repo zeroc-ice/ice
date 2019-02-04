@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -182,7 +180,7 @@ sealed class LoggerAdminI : Ice.LoggerAdminDisp_
 
         //
         // Destroy outside lock to avoid deadlock when there are outstanding two-way log calls sent to
-        // remote logggers
+        // remote loggers
         //
         if(sendLogCommunicator != null)
         {

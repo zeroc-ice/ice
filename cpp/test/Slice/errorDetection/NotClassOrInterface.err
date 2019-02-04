@@ -1,9 +1,9 @@
-NotClassOrInterface.ice:14: `Seq' is not an interface
+NotClassOrInterface.ice:12: `Seq' is not an interface
+NotClassOrInterface.ice:13: `Seq' is not a class
+NotClassOrInterface.ice:14: `Sequence3' is not an interface
+NotClassOrInterface.ice:14: `Sequence2' is not an interface
+NotClassOrInterface.ice:14: `Sequence1' is not an interface
 NotClassOrInterface.ice:15: `Seq' is not a class
-NotClassOrInterface.ice:16: `Sequence3' is not an interface
-NotClassOrInterface.ice:16: `Sequence2' is not an interface
-NotClassOrInterface.ice:16: `Sequence1' is not an interface
-NotClassOrInterface.ice:17: `Seq' is not a class
-NotClassOrInterface.ice:17: `Sequence3' is not an interface
-NotClassOrInterface.ice:17: `Sequence2' is not an interface
-NotClassOrInterface.ice:17: `Sequence1' is not an interface
+NotClassOrInterface.ice:15: `Sequence3' is not an interface
+NotClassOrInterface.ice:15: `Sequence2' is not an interface
+NotClassOrInterface.ice:15: `Sequence1' is not an interface

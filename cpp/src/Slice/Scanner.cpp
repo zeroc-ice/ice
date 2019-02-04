@@ -546,11 +546,9 @@ char *slice_text;
 #line 1 "src/Slice/Scanner.l"
 #line 2 "src/Slice/Scanner.l"
 
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Slice/GrammarUtil.h>  // Before Grammer.h, so that YYSTYPE is defined
 #include <Slice/Grammar.h>

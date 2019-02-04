@@ -1,8 +1,6 @@
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 #
 # Select an installation base directory. The directory will be created
@@ -168,3 +166,17 @@ bz2_home                := $(BZ2_HOME)
 lmdb_home               := $(LMDB_HOME)
 
 $(foreach l,$(thirdparties),$(eval $(call make-lib,$l)))
+
+#
+# When building on Sierra, use clang from the Xcode macOS X SDK instead of relying on the
+# command line tools. Outdated Security.framework system headers are used otherwise with
+# the command line compiler (no TLS1.3 enum support).
+#
+ifeq ($(os),Darwin)
+ifneq ($(filter 16.%,$(shell uname -r)),)
+macosx_cc                       = xcrun -sdk macosx clang
+macosx_cxx                      = xcrun -sdk macosx clang++
+macosx_cppflags                 += -I/usr/local/include
+macosx_ldflags                  += -L/usr/local/lib
+endif
+endif

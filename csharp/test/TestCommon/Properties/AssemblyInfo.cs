@@ -1,8 +1,6 @@
-﻿// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -16,7 +14,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("ZeroC, Inc.")]
 [assembly: AssemblyProduct("Ice")]
-[assembly: AssemblyCopyright("© 2003-present ZeroC, Inc.")]
+[assembly: AssemblyCopyright("© ZeroC, Inc.")]
 [assembly: AssemblyCulture("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible

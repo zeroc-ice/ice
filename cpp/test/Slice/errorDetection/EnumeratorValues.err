@@ -1,5 +1,5 @@
-EnumeratorValues.ice:14: value for enumerator `C' is out of range
-EnumeratorValues.ice:14: enumerator `C' has the same value as enumerator `B'
-EnumeratorValues.ice:15: value for enumerator `D' is out of range
-EnumeratorValues.ice:16: value for enumerator `E' is out of range
-EnumeratorValues.ice:17: value for enumerator `F' is out of range
+EnumeratorValues.ice:12: value for enumerator `C' is out of range
+EnumeratorValues.ice:12: enumerator `C' has the same value as enumerator `B'
+EnumeratorValues.ice:13: value for enumerator `D' is out of range
+EnumeratorValues.ice:14: value for enumerator `E' is out of range
+EnumeratorValues.ice:15: value for enumerator `F' is out of range

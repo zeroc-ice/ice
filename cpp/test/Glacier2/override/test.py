@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 #
 # Note: we limit the send buffer size with Ice.TCP.SndSize, the

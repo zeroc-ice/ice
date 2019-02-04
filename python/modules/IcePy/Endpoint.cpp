@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Endpoint.h>
 #include <EndpointInfo.h>
@@ -100,7 +98,7 @@ endpointCompare(EndpointObject* p1, PyObject* other, int op)
 extern "C"
 #endif
 static PyObject*
-endpointToString(EndpointObject* self)
+endpointToString(EndpointObject* self, PyObject* /*args*/)
 {
     assert(self->endpoint);
     try
@@ -121,14 +119,14 @@ extern "C"
 static PyObject*
 endpointRepr(EndpointObject* self)
 {
-    return endpointToString(self);
+    return endpointToString(self, 0);
 }
 
 #ifdef WIN32
 extern "C"
 #endif
 static PyObject*
-endpointGetInfo(EndpointObject* self)
+endpointGetInfo(EndpointObject* self, PyObject* /*args*/)
 {
     assert(self->endpoint);
     try

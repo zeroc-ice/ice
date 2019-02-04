@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Properties.h>
 #include <Util.h>
@@ -490,7 +488,7 @@ propertiesSetProperty(PropertiesObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-propertiesGetCommandLineOptions(PropertiesObject* self)
+propertiesGetCommandLineOptions(PropertiesObject* self, PyObject* /*args*/)
 {
     Ice::StringSeq options;
     assert(self->properties);
@@ -647,7 +645,7 @@ propertiesLoad(PropertiesObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-propertiesClone(PropertiesObject* self)
+propertiesClone(PropertiesObject* self, PyObject* /*args*/)
 {
     Ice::PropertiesPtr properties;
     assert(self->properties);

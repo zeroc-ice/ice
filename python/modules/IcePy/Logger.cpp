@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #include <Logger.h>
 #include <Thread.h>
@@ -282,7 +280,7 @@ loggerError(LoggerObject* self, PyObject* args)
 extern "C"
 #endif
 static PyObject*
-loggerGetPrefix(LoggerObject* self)
+loggerGetPrefix(LoggerObject* self, PyObject* /*args*/)
 {
     string prefix;
 
@@ -456,7 +454,7 @@ IcePy::createLogger(const Ice::LoggerPtr& logger)
 
 extern "C"
 PyObject*
-IcePy_getProcessLogger(PyObject* /*self*/)
+IcePy_getProcessLogger(PyObject* /*self*/, PyObject* /*args*/)
 {
     Ice::LoggerPtr logger;
     try

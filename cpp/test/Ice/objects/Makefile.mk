@@ -1,8 +1,6 @@
-# **********************************************************************
 #
-# Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+# Copyright (c) ZeroC, Inc. All rights reserved.
 #
-# **********************************************************************
 
 $(test)_sliceflags              := -I$(test)
 $(test)_client_sources          = Client.cpp Test.ice Derived.ice DerivedEx.ice TestI.cpp AllTests.cpp

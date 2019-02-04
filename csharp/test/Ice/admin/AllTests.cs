@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 using System;
 using System.Collections.Generic;
@@ -364,15 +362,14 @@ namespace Ice
                     // No filtering
                     //
                     logMessages = logger.getLog(null, null, -1, out prefix);
-                    remoteLogger.checkNextInit(prefix, logMessages);
 
                     logger.attachRemoteLogger(myProxy, null, null, -1);
                     remoteLogger.wait(1);
 
-                    remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
-                    remoteLogger.checkNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
-                    remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
-                    remoteLogger.checkNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
+                    foreach(var m in logMessages)
+                    {
+                        remoteLogger.checkNextInit(prefix, m.type, m.message, m.traceCategory);
+                    }
 
                     com.trace("testCat", "rtrace");
                     com.warning("rwarning");
@@ -380,6 +377,11 @@ namespace Ice
                     com.print("rprint");
 
                     remoteLogger.wait(4);
+
+                    remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace", "testCat");
+                    remoteLogger.checkNextLog(Ice.LogMessageType.WarningMessage, "rwarning", "");
+                    remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror", "");
+                    remoteLogger.checkNextLog(Ice.LogMessageType.PrintMessage, "rprint", "");
 
                     test(logger.detachRemoteLogger(myProxy));
                     test(!logger.detachRemoteLogger(myProxy));
@@ -389,13 +391,14 @@ namespace Ice
                     //
                     logMessages = logger.getLog(messageTypes, categories, 4, out prefix);
                     test(logMessages.Length == 4);
-                    remoteLogger.checkNextInit(prefix, logMessages);
 
                     logger.attachRemoteLogger(myProxy, messageTypes, categories, 4);
                     remoteLogger.wait(1);
 
-                    remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace2", "testCat");
-                    remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror2", "");
+                    foreach(var m in logMessages)
+                    {
+                        remoteLogger.checkNextInit(prefix, m.type, m.message, m.traceCategory);
+                    }
 
                     com.warning("rwarning2");
                     com.trace("testCat", "rtrace2");
@@ -404,6 +407,9 @@ namespace Ice
                     com.print("rprint2");
 
                     remoteLogger.wait(2);
+
+                    remoteLogger.checkNextLog(Ice.LogMessageType.TraceMessage, "rtrace2", "testCat");
+                    remoteLogger.checkNextLog(Ice.LogMessageType.ErrorMessage, "rerror2", "");
 
                     //
                     // Attempt reconnection with slightly different proxy
@@ -539,45 +545,52 @@ namespace Ice
 
             private class RemoteLoggerI : Ice.RemoteLoggerDisp_
             {
-                override public void init(string prefix, Ice.LogMessage[] logMessages, Ice.Current current)
+                override public void init(string prefix, Ice.LogMessage[] messages, Ice.Current current)
                 {
                     lock(this)
                     {
-                        test(prefix.Equals(_expectedPrefix));
-                        test(Enumerable.SequenceEqual(logMessages, _expectedInitMessages));
+                        _prefix = prefix;
+                        foreach(var message in messages)
+                        {
+                            _initMessages.Enqueue(message);
+                        }
                         _receivedCalls++;
                         Monitor.PulseAll(this);
                     }
                 }
 
-                override public void log(Ice.LogMessage logMessage, Ice.Current current)
+                override public void log(Ice.LogMessage message, Ice.Current current)
                 {
                     lock(this)
                     {
-                        Ice.LogMessage front = _expectedLogMessages.Dequeue();
-                        test(front.type == logMessage.type && front.message.Equals(logMessage.message) &&
-                             front.traceCategory.Equals(logMessage.traceCategory));
-
+                        _logMessages.Enqueue(message);
                         _receivedCalls++;
                         Monitor.PulseAll(this);
                     }
                 }
 
-                internal void checkNextInit(string prefix, Ice.LogMessage[] logMessages)
+                internal void checkNextInit(string prefix, Ice.LogMessageType type, string message, string category)
                 {
                     lock(this)
                     {
-                        _expectedPrefix = prefix;
-                        _expectedInitMessages = logMessages;
+                        test(_prefix.Equals(prefix));
+                        test(_initMessages.Count > 0);
+                        var logMessage = _initMessages.Dequeue();
+                        test(logMessage.type == type);
+                        test(logMessage.message.Equals(message));
+                        test(logMessage.traceCategory.Equals(category));
                     }
                 }
 
-                internal void checkNextLog(Ice.LogMessageType messageType, string message, string category)
+                internal void checkNextLog(Ice.LogMessageType type, string message, string category)
                 {
                     lock(this)
                     {
-                        Ice.LogMessage logMessage = new Ice.LogMessage(messageType, 0, category, message);
-                        _expectedLogMessages.Enqueue(logMessage);
+                        test(_logMessages.Count > 0);
+                        var logMessage = _logMessages.Dequeue();
+                        test(logMessage.type == type);
+                        test(logMessage.message.Equals(message));
+                        test(logMessage.traceCategory.Equals(category));
                     }
                 }
 
@@ -595,9 +608,9 @@ namespace Ice
                 }
 
                 private int _receivedCalls = 0;
-                private string _expectedPrefix;
-                private Ice.LogMessage[] _expectedInitMessages;
-                private readonly Queue<Ice.LogMessage> _expectedLogMessages = new Queue<Ice.LogMessage>();
+                private string _prefix;
+                private readonly Queue<Ice.LogMessage> _initMessages = new Queue<Ice.LogMessage>();
+                private readonly Queue<Ice.LogMessage> _logMessages = new Queue<Ice.LogMessage>();
             }
         }
     }

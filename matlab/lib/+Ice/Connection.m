@@ -26,7 +26,7 @@ classdef Connection < IceInternal.WrapperObject
     %   throwException - Throw an exception indicating the reason for
     %     connection closure.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     methods
         function obj = Connection(impl, communicator)

@@ -10,7 +10,7 @@ function r = proxyIdentityAndFacetCompare(lhs, rhs)
     %   the identity and facet in rhs; 0 if the identities and facets compare
     %   equal; 1, otherwise.
 
-    % Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+    % Copyright (c) ZeroC, Inc. All rights reserved.
 
     if isempty(lhs) && isempty(rhs)
         r = 0;

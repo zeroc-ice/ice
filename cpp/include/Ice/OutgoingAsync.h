@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 #ifndef ICE_OUTGOING_ASYNC_H
 #define ICE_OUTGOING_ASYNC_H
@@ -582,7 +580,7 @@ public:
                 this->_is.startEncapsulation();
                 R v = this->_read(&this->_is);
                 this->_is.endEncapsulation();
-                this->_promise.set_value(v);
+                this->_promise.set_value(std::move(v));
             }
             else
             {

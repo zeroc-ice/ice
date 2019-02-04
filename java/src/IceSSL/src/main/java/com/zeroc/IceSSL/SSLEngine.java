@@ -1,8 +1,6 @@
-// **********************************************************************
 //
-// Copyright (c) 2003-present ZeroC, Inc. All rights reserved.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
-// **********************************************************************
 
 package com.zeroc.IceSSL;
 
@@ -67,6 +65,10 @@ class SSLEngine
                 else if(s.equals("TLS1_2") || s.equals("TLSV1_2"))
                 {
                     l.add("TLSv1.2");
+                }
+                else if(s.equals("TLS1_3") || s.equals("TLSV1_3"))
+                {
+                    l.add("TLSv1.3");
                 }
                 else
                 {
