@@ -14,9 +14,10 @@ class SliceErrorDetectionTestCase(ClientTestCase):
         testdir = current.testsuite.getPath()
         slice2cpp = SliceTranslator("slice2cpp")
 
-        if os.path.exists("tmp"):
-            shutil.rmtree("tmp")
-        os.mkdir("tmp")
+        outdir = "{0}/tmp".format(testdir)
+        if os.path.exists(outdir):
+            shutil.rmtree(outdir)
+        os.mkdir(outdir)
 
         files = glob.glob("{0}/*.ice".format(testdir))
         files.sort()
@@ -54,7 +55,7 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                 compiler.run(current, args=["forward/Forward.ice", "--output-dir", "tmp"])
             current.writeln("ok")
         finally:
-            if os.path.exists("{0}/tmp".format(testdir)):
-                shutil.rmtree("{0}/tmp".format(testdir))
+            if os.path.exists(outdir):
+                shutil.rmtree(outdir)
 
 TestSuite(__name__, [ SliceErrorDetectionTestCase() ])
