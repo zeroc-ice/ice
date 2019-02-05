@@ -14,6 +14,10 @@ class SliceErrorDetectionTestCase(ClientTestCase):
         testdir = current.testsuite.getPath()
         slice2cpp = SliceTranslator("slice2cpp")
 
+        if os.path.exists("tmp"):
+            shutil.rmtree("tmp")
+        os.mkdir("tmp")
+
         files = glob.glob("{0}/*.ice".format(testdir))
         files.sort()
         try:
