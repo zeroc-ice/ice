@@ -159,6 +159,9 @@ class Component(object):
     def getEnv(self, process, current):
         return {}
 
+    def getProps(self, process, current):
+        return {}
+
     def isCross(self, testId):
         return False
 
@@ -1162,6 +1165,7 @@ class Process(Runnable):
     def getEffectiveProps(self, current, props):
         allProps = {}
         allProps.update(current.driver.getProps(self, current))
+        allProps.update(current.driver.getComponent().getProps(self, current))
         allProps.update(current.config.getProps(self, current))
         allProps.update(self.getMapping(current).getProps(self, current))
         allProps.update(current.testcase.getProps(self, current))
