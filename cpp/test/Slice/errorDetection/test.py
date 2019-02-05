@@ -4,6 +4,9 @@
 #
 
 import glob
+import os
+import shutil
+
 
 class SliceErrorDetectionTestCase(ClientTestCase):
 
@@ -39,8 +42,15 @@ class SliceErrorDetectionTestCase(ClientTestCase):
                     i = i + 1
                 else:
                     current.writeln("ok")
+
+            for language in ["cpp", "cs", "html", "java", "js", "matlab", "objc", "php", "py", "rb"]:
+                compiler = SliceTranslator('slice2%s' % language)
+                if not os.path.isfile(compiler.getCommandLine(current)):
+                    continue
+                compiler.run(current, args=["forward/Forward.ice", "--output-dir", "tmp"])
+            current.writeln("ok")
         finally:
-            for file in glob.glob("{0}/tmp/*".format(testdir)):
-                current.files.append(file)
+            if os.path.exists("{0}/tmp".format(testdir)):
+                shutil.rmtree("{0}/tmp".format(testdir))
 
 TestSuite(__name__, [ SliceErrorDetectionTestCase() ])

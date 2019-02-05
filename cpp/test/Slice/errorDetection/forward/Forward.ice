@@ -1,0 +1,4 @@
+module test
+{
+class F;
+}
