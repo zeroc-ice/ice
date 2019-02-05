@@ -110,3 +110,4 @@ csharp/AppX
 *.runtimeconfig.dev.json
 *.runtimeconfig.json
 cpp/AppX
+cpp/test/Slice/errorDetection/tmp

@@ -26,6 +26,7 @@ Ice supports the following programming languages:
 - PHP
 - Python
 - Ruby
+- TypeScript
 
 ## Platforms
 

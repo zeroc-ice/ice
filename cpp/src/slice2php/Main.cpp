@@ -168,14 +168,15 @@ CodeVisitor::visitClassDecl(const ClassDeclPtr& p)
         _out << sp << nl << "global " << type << ';';
 
         bool isInterface = p->isInterface();
-        if(!p->isLocal() && (isInterface || p->definition()->allOperations().size() > 0))
+        ClassDefPtr def = p->definition();
+        if(!p->isLocal() && (isInterface || (def && def->allOperations().size() > 0)))
         {
             _out << nl << "global " << type << "Prx;";
         }
         _out << nl << "if(!isset(" << type << "))";
         _out << sb;
         _out << nl << type << " = IcePHP_declareClass('" << scoped << "');";
-        if(!p->isLocal() && (isInterface || p->definition()->allOperations().size() > 0))
+        if(!p->isLocal() && (isInterface || (def && def->allOperations().size() > 0)))
         {
             _out << nl << type << "Prx = IcePHP_declareProxy('" << scoped << "');";
         }
@@ -1233,7 +1234,7 @@ CodeVisitor::getType(const TypePtr& p)
     if(prx)
     {
         ClassDefPtr def = prx->_class()->definition();
-        if(def->isInterface() || def->allOperations().size() > 0)
+        if(def && (def->isInterface() || def->allOperations().size() > 0))
         {
             return getTypeVar(prx->_class(), "Prx");
         }
