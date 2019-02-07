@@ -333,7 +333,7 @@ PlatformInfo::PlatformInfo(const string& prefix,
     {
 #if defined(_WIN32)
         _nProcessorSockets = getSocketCount(_traceLevels->logger);
-#elif defined(__linux)
+#elif defined(__linux__)
         ifstream is("/proc/cpuinfo");
         set<string> ids;
 
@@ -484,7 +484,7 @@ PlatformInfo::getLoadInfo()
     info.avg1 = static_cast<float>(_last1Total) / _usages1.size() / 100.0f;
     info.avg5 = static_cast<float>(_last5Total) / _usages5.size() / 100.0f;
     info.avg15 = static_cast<float>(_last15Total) / _usages15.size() / 100.0f;
-#elif defined(__sun) || defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
+#elif defined(__sun) || defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
     //
     // We use the load average divided by the number of
     // processors to figure out if the machine is busy or
