@@ -46,7 +46,7 @@
 #   include <sys/ioctl.h>
 #endif
 
-#if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+#if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
 #  include <ifaddrs.h>
 #elif defined(__sun)
 #  include <sys/sockio.h>
@@ -279,7 +279,7 @@ getLocalAddresses(ProtocolSupport protocol, bool includeLoopback)
 
         free(adapter_addresses);
     }
-#elif defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+#elif defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
     struct ifaddrs* ifap;
     if(::getifaddrs(&ifap) == SOCKET_ERROR)
     {
@@ -563,7 +563,7 @@ getInterfaceIndex(const string& name)
     //
     if(isAddr)
     {
-#  if defined(__linux) || defined(__APPLE__) || defined(__FreeBSD__)
+#  if defined(__linux__) || defined(__APPLE__) || defined(__FreeBSD__)
         struct ifaddrs* ifap;
         if(::getifaddrs(&ifap) != SOCKET_ERROR)
         {
@@ -2293,7 +2293,7 @@ repeatConnect:
         }
     }
 
-#if defined(__linux)
+#if defined(__linux__)
     //
     // Prevent self connect (self connect happens on Linux when a client tries to connect to
     // a server which was just deactivated if the client socket re-uses the same ephemeral
@@ -2372,7 +2372,7 @@ IceInternal::doFinishConnect(SOCKET fd)
         }
     }
 
-#if defined(__linux)
+#if defined(__linux__)
     //
     // Prevent self connect (self connect happens on Linux when a client tries to connect to
     // a server which was just deactivated if the client socket re-uses the same ephemeral
