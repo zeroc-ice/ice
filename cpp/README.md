@@ -60,7 +60,7 @@ that do not include them. You can install these packages as shown below:
 wget https://zeroc.com/download/GPG-KEY-zeroc-release-B6391CB2CFBA643D
 sudo rpm --import GPG-KEY-zeroc-release-B6391CB2CFBA643D
 cd /etc/yum.repos.d
-sudo wget https://zeroc.com/download/Ice/3.7/amzn1/zeroc-ice3.7.repo
+sudo wget https://zeroc.com/download/Ice/3.7/amzn2/zeroc-ice3.7.repo
 sudo yum install lmdb-devel mcpp-devel
 ```
 ##### RHEL 7
