@@ -43,7 +43,7 @@ typedef int ssize_t;
 #   include <netdb.h>
 #endif
 
-#if defined(__linux) && !defined(ICE_NO_EPOLL)
+#if defined(__linux__) && !defined(ICE_NO_EPOLL)
 #   define ICE_USE_EPOLL 1
 #elif (defined(__APPLE__) || defined(__FreeBSD__) || defined(__FreeBSD_kernel__)) && TARGET_OS_IPHONE == 0 && !defined(ICE_NO_KQUEUE)
 #   define ICE_USE_KQUEUE 1

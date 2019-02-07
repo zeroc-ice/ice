@@ -85,7 +85,7 @@
 #   elif defined(__WORDSIZE) && (__WORDSIZE == 32)
 #      define ICE_32
 #   elif defined(__sun) && (defined(__sparcv9) || defined(__x86_64))  || \
-         defined(__linux) && defined(__x86_64)                        || \
+         defined(__linux__) && defined(__x86_64)                      || \
          defined(__APPLE__) && defined(__x86_64)                      || \
          defined(__hppa) && defined(__LP64__)                         || \
          defined(_ARCH_COM) && defined(__64BIT__)                     || \

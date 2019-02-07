@@ -28,7 +28,7 @@
 #elif ((defined(__GNUC__) && (((__GNUC__* 100) + __GNUC_MINOR__) >= 401)) || __clang__)  &&                         \
         ((defined(__sun) && (defined(__sparc) || defined(__sparcv9))) || \
          defined(__APPLE__) || \
-        (defined(__linux) && \
+        (defined(__linux__) && \
                 (defined(__i486) || defined(__i586) || \
                  defined(__i686) || defined(__x86_64))))
 
