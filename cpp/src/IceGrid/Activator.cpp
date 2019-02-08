@@ -32,7 +32,7 @@
 #endif
 #endif
 
-#if defined(__linux) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)
+#if defined(__linux__) || defined(__sun) || defined(_AIX) || defined(__GLIBC__)
 #   include <grp.h> // for setgroups
 #endif
 
@@ -1413,7 +1413,7 @@ Activator::waitPid(pid_t processPid)
     try
     {
         int status;
-#if defined(__linux)
+#if defined(__linux__)
         int nRetry = 0;
         while(true) // The while loop is necessary for the linux workaround.
         {
