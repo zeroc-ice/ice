@@ -609,14 +609,14 @@ OpenSSL::SSLEngine::initialize()
                                 if(!cert || !SSL_CTX_use_certificate(_ctx, cert))
                                 {
                                     throw PluginInitializationException(__FILE__, __LINE__,
-                                                                "IceSSL: unable to establish SSL certificate:\n" +
+                                                                "IceSSL: unable to load SSL certificate:\n" +
                                                                 (cert ? sslErrors() : "certificate not found"));
                                 }
 
                                 if(!key || !SSL_CTX_use_PrivateKey(_ctx, key))
                                 {
                                     throw PluginInitializationException(__FILE__, __LINE__,
-                                                                "IceSSL: unable to establish SSL private key:\n" +
+                                                                "IceSSL: unable to load SSL private key:\n" +
                                                                 (key ? sslErrors() : "key not found"));
                                 }
                                 keyLoaded = true;

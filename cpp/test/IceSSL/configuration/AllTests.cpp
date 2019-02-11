@@ -1513,16 +1513,16 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         const char* authorities[] =
         {
             "", // Self signed CA cert has not X509v3 Authority Key Identifier extension
-            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
-            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
+            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
+            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
             0
         };
 
         const char* subjects[] =
         {
-            "FE:D7:C6:06:55:BB:4D:C2:96:E3:25:C0:D4:E0:A1:2F:E8:62:62:19",
-            "FC:5D:4F:AB:F0:6C:03:11:B8:F3:68:CF:89:54:92:3F:F9:79:2A:06",
-            "47:84:AE:F9:F2:85:3D:99:30:6A:03:38:41:1A:B9:EB:C3:9C:B5:4D",
+            "92:BC:96:A7:23:4B:DE:59:E9:28:3B:B4:42:5A:BD:F7:F6:9D:25:7D",
+            "8A:8A:BD:67:CA:23:2B:5C:07:84:B6:BB:B2:40:5B:C0:29:46:FC:00",
+            "6B:85:D1:63:35:D4:EC:67:3F:FE:BB:7B:93:B1:72:F3:ED:14:5C:ED",
             0
         };
 
@@ -1854,7 +1854,7 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
             "0A:0C:05:5A:65:72:6F:43:31:0C:30:0A:06:03:55:04:0B:0C:03:49:63:65:"
             "31:0B:30:09:06:03:55:04:03:0C:02:43:41:31:1D:30:1B:06:09:2A:86:48:"
             "86:F7:0D:01:09:01:16:0E:69:6E:66:6F:40:7A:65:72:6F:63:2E:63:6F:6D:"
-            "82:09:00:CE:F0:96:A8:8D:19:5B:FF";
+            "82:09:00:EA:2A:B7:FB:3B:A3:DF:5A";
 
         const string subjectAltName =
             "30:0B:82:09:7A:65:72:6F:63:2E:63:6F:6D";
@@ -2887,14 +2887,15 @@ allTests(Test::TestHelper* helper, const string& /*testDir*/, bool p12)
         //
         // First try a client with a DSA certificate.
         //
+        const string ciphers = openSSLVersion >= 0x10100000L ? "DHE:DSS:@SECLEVEL=0" : "DHE:DSS";
         InitializationData initData;
         initData.properties = createClientProps(defaultProps, p12, "c_dsa_ca1", "cacert1");
-        initData.properties->setProperty("IceSSL.Ciphers", "DHE:DSS");
+        initData.properties->setProperty("IceSSL.Ciphers", ciphers);
         CommunicatorPtr comm = initialize(initData);
         Test::ServerFactoryPrxPtr fact = ICE_CHECKED_CAST(Test::ServerFactoryPrx, comm->stringToProxy(factoryRef));
         test(fact);
         Test::Properties d = createServerProps(defaultProps, p12, "s_dsa_ca1", "cacert1");
-        d["IceSSL.Ciphers"] = "DHE:DSS";
+        d["IceSSL.Ciphers"] = ciphers;
         d["IceSSL.VerifyPeer"] = "1";
 
         Test::ServerPrxPtr server = fact->createServer(d);
