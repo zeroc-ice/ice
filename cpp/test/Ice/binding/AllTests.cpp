@@ -119,11 +119,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
     }
     cout << "ok" << endl;
 
@@ -490,11 +488,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -564,11 +560,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
     }
     cout << "ok" << endl;
 
@@ -692,11 +686,9 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -779,11 +771,10 @@ allTests(Test::TestHelper* helper)
         catch(const Ice::ConnectFailedException&)
         {
         }
-#ifdef _WIN32
         catch(const Ice::ConnectTimeoutException&)
         {
         }
-#endif
+
         Ice::EndpointSeq endpoints = test->ice_getEndpoints();
 
         adapters.clear();
@@ -881,11 +872,9 @@ allTests(Test::TestHelper* helper)
             catch(const Ice::ConnectFailedException&)
             {
             }
-#ifdef _WIN32
             catch(const Ice::ConnectTimeoutException&)
             {
             }
-#endif
 
             deactivate(com, adapters);
         }

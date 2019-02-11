@@ -70,12 +70,12 @@ Selector::initialize(EventHandler* handler)
 
 #ifdef ICE_USE_IOCP
     SOCKET socket = handler->getNativeInfo()->fd();
-    if (socket != INVALID_SOCKET)
+    if(socket != INVALID_SOCKET)
     {
-        if (CreateIoCompletionPort(reinterpret_cast<HANDLE>(socket),
-                                   _handle,
-                                   reinterpret_cast<ULONG_PTR>(handler),
-                                   0) == ICE_NULLPTR)
+        if(CreateIoCompletionPort(reinterpret_cast<HANDLE>(socket),
+                                  _handle,
+                                  reinterpret_cast<ULONG_PTR>(handler),
+                                  0) == ICE_NULLPTR)
         {
             throw Ice::SocketException(__FILE__, __LINE__, GetLastError());
         }
