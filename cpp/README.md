@@ -33,8 +33,11 @@ unnecessary.
 Ice was extensively tested using the operating systems and compiler versions
 listed on [supported platforms][2].
 
-On Windows, the build requires a recent version of Visual Studio, and the
-Windows 10 SDK (10.0.14393.0) component when building with Visual Studio 2017.
+On Windows, the build requires a recent version of Visual Studio. When building
+with Visual Studio 2017 you have to install Desktop development with C++ workload
+and select the optional component Windows 8.1 SDK and UCRT SDK. For UWP build you
+must also install Windows 10 SDK (10.0.14393.0) available with Visual Studio 2017
+installer.
 
 ### Third-Party Libraries
 
