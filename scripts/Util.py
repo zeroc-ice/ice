@@ -662,7 +662,6 @@ class Mapping(object):
             options.update(current.testcase.getMapping().getOptions(current))
             options.update(current.testcase.getTestSuite().getOptions(current))
             options.update(current.testcase.getOptions(current))
-            options = current.driver.filterOptions(current.driver.getComponent().getOptions(current.testcase, current))
 
             for (k, v) in options.items():
                 if hasattr(self, k):
@@ -682,7 +681,7 @@ class Mapping(object):
             options.update(current.testcase.getMapping().getOptions(current))
             options.update(current.testcase.getTestSuite().getOptions(current))
             options.update(current.testcase.getOptions(current))
-            options = current.driver.filterOptions(current.driver.getComponent().getOptions(current.testcase, current))
+
             clone = copy.copy(self)
             for o in self.parsedOptions:
                 if o in options and getattr(self, o) not in options[o]:
