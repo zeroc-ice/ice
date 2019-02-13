@@ -162,6 +162,9 @@ class Component(object):
     def getProps(self, process, current):
         return {}
 
+    def overrideConfig(self, mapping, config):
+        return config
+
     def isCross(self, testId):
         return False
 
@@ -659,6 +662,7 @@ class Mapping(object):
             options.update(current.testcase.getMapping().getOptions(current))
             options.update(current.testcase.getTestSuite().getOptions(current))
             options.update(current.testcase.getOptions(current))
+            options = current.driver.filterOptions(current.driver.getComponent().getOptions(current.testcase, current))
 
             for (k, v) in options.items():
                 if hasattr(self, k):
@@ -678,6 +682,7 @@ class Mapping(object):
             options.update(current.testcase.getMapping().getOptions(current))
             options.update(current.testcase.getTestSuite().getOptions(current))
             options.update(current.testcase.getOptions(current))
+            options = current.driver.filterOptions(current.driver.getComponent().getOptions(current.testcase, current))
             clone = copy.copy(self)
             for o in self.parsedOptions:
                 if o in options and getattr(self, o) not in options[o]:
@@ -806,7 +811,8 @@ class Mapping(object):
         return self.component.getTestDir(self)
 
     def createConfig(self, options):
-        return self.Config(options)
+        config = self.Config(options)
+        return self.component.overrideConfig(self, config)
 
     def filterTestSuite(self, testId, config, filters=[], rfilters=[]):
         if len(filters) > 0:
