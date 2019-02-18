@@ -175,7 +175,7 @@ local interface Communicator
      * @see #stringToProxy
      *
      **/
-    ["cpp:const"] string proxyToString(Object* obj);
+    ["cpp:const"] string proxyToString(["swift:non-optional"] Object* obj);
 
     /**
      *
@@ -206,7 +206,8 @@ local interface Communicator
      * @return The property set.
      *
      **/
-    ["cpp:const"] PropertyDict proxyToProperty(Object* proxy, string property);
+    ["cpp:const", "swift:non-optional"] PropertyDict proxyToProperty(["swift:non-optional"] Object* proxy,
+                                                                     string property);
 
     /**
      *
@@ -258,7 +259,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["js:async"] ObjectAdapter createObjectAdapter(string name);
+    ["js:async", "swift:non-optional"] ObjectAdapter createObjectAdapter(string name);
 
     /**
      *
@@ -281,7 +282,8 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["js:async"] ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
+
+    ["js:async", "swift:non-optional"] ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
     /**
      *
@@ -302,8 +304,10 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["js:async"] ObjectAdapter createObjectAdapterWithRouter(string name, ["objc:param:router"] Router* rtr);
+    ["js:async", "swift:non-optional"] ObjectAdapter
+    createObjectAdapterWithRouter(string name, ["objc:param:router", "swift:non-optional"] Router* rtr);
 
+#if !defined(__SLICE2SWIFT__)
     /**
      *
      * Add an object factory to this communicator. Installing a
@@ -374,6 +378,8 @@ local interface Communicator
     ["cpp:const", "cpp:noexcept", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
     ObjectFactory findObjectFactory(string id);
 
+#endif
+
     /**
      * Get the implicit context associated with this communicator.
      *
@@ -382,7 +388,8 @@ local interface Communicator
      * or is set to None.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] ImplicitContext getImplicitContext();
+    ["cpp:const", "cpp:noexcept", "swift:non-optional", "swift:nothrow"]
+    ImplicitContext getImplicitContext();
 
     /**
      *
@@ -393,7 +400,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["cpp:const", "cpp:noexcept"] Properties getProperties();
+    ["cpp:const", "cpp:noexcept", "swift:non-optional"] Properties getProperties();
 
     /**
      *
@@ -404,9 +411,9 @@ local interface Communicator
      * @see Logger
      *
      **/
-    ["cpp:const", "cpp:noexcept"] Logger getLogger();
+    ["cpp:const", "cpp:noexcept", "swift:non-optional"] Logger getLogger();
 
-#ifndef __SLICE2JS__
+#if !defined(__SLICE2SWIFT__) && !defined(__SLICE2JS__)
     /**
      *
      * Get the observer resolver object for this communicator.
@@ -481,7 +488,7 @@ local interface Communicator
      **/
     void setDefaultLocator(Locator* loc);
 
-#ifndef __SLICE2JS__
+#if !defined(__SLICE2SWIFT__) && !defined(__SLICE2JS__)
     /**
      *
      * Get the plug-in manager for this communicator.
@@ -503,7 +510,8 @@ local interface Communicator
      * @see ValueFactoryManager
      *
      **/
-    ["cpp:const", "cpp:noexcept"] ValueFactoryManager getValueFactoryManager();
+    ["cpp:const", "cpp:noexcept", "swift:non-optional", "swift:nothrow"]
+    ValueFactoryManager getValueFactoryManager();
 
     /**
      *
@@ -537,7 +545,7 @@ local interface Communicator
      * @see #getAdmin
      *
      **/
-    Object* createAdmin(ObjectAdapter adminAdapter, Identity adminId);
+    ["swift:non-optional"] Object* createAdmin(["swift:non-optional"] ObjectAdapter adminAdapter, Identity adminId);
 
     /**
      *
@@ -568,7 +576,7 @@ local interface Communicator
      * @param facet The name of the new Admin facet.
      *
      **/
-    void addAdminFacet(Object servant, string facet);
+    void addAdminFacet(["swift:non-optional"] Object servant, string facet);
 
     /**
      *
@@ -580,7 +588,7 @@ local interface Communicator
      * @return The servant associated with this Admin facet.
      *
      **/
-    Object removeAdminFacet(string facet);
+    ["swift:non-optional"] Object removeAdminFacet(string facet);
 
     /**
      *

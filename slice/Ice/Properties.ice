@@ -235,7 +235,7 @@ local interface Properties
      * @return A copy of this property set.
      *
      **/
-    ["cpp:noexcept"] Properties clone();
+    ["cpp:noexcept", "swift:non-optional"] Properties clone();
 }
 
 #endif

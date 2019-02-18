@@ -112,7 +112,7 @@ local interface ValueFactoryManager
      * an empty string for the default factory.
      *
      **/
-    void add(ValueFactory factory, ["objc:param:sliceId"] string id);
+    void add(["swift:non-optional"] ValueFactory factory, ["objc:param:sliceId"] string id);
 
     /**
      *

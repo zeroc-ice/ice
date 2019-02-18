@@ -60,7 +60,7 @@ local interface ImplicitContext
      * @return A copy of the underlying context.
      *
      **/
-    ["cpp:const"] Context getContext();
+    ["cpp:const", "swift:nothrow"] Context getContext();
 
     /**
      * Set the underlying context.
@@ -68,7 +68,7 @@ local interface ImplicitContext
      * @param newContext The new context.
      *
      **/
-    void setContext(Context newContext);
+    ["swift:nothrow"] void setContext(Context newContext);
 
     /**
      * Check if this key has an associated value in the underlying context.
@@ -78,7 +78,7 @@ local interface ImplicitContext
      * @return True if the key has an associated value, False otherwise.
      *
      **/
-    ["cpp:const"] bool containsKey(string key);
+    ["cpp:const", "swift:nothrow"] bool containsKey(string key);
 
     /**
      * Get the value associated with the given key in the underlying context.
@@ -91,7 +91,7 @@ local interface ImplicitContext
      * @return The value associated with the key.
      *
      **/
-    ["cpp:const"] string get(string key);
+    ["cpp:const", "swift:nothrow"] string get(string key);
 
     /**
      * Create or update a key/value entry in the underlying context.
@@ -103,7 +103,7 @@ local interface ImplicitContext
      * @return The previous value associated with the key, if any.
      *
      **/
-    string put(string key, string \value);
+    ["swift:nothrow"] string put(string key, string \value);
 
     /**
      * Remove the entry for the given key in the underlying context.
@@ -113,6 +113,6 @@ local interface ImplicitContext
      * @return The value associated with the key, if any.
      *
      **/
-    string remove(string key);
+    ["swift:nothrow"] string remove(string key);
 }
 }

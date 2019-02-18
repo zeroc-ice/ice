@@ -40,7 +40,7 @@ local interface Logger
      *
      * @param message The message to log.
      **/
-    void print(string message);
+    ["swift:nothrow"] void print(string message);
 
     /**
      *
@@ -51,7 +51,7 @@ local interface Logger
      * @param message The trace message to log.
      *
      **/
-    void trace(string category, string message);
+    ["swift:nothrow"] void trace(string category, string message);
 
     /**
      *
@@ -62,7 +62,7 @@ local interface Logger
      * @see #error
      *
      **/
-    void warning(string message);
+    ["swift:nothrow"] void warning(string message);
 
     /**
      *
@@ -73,7 +73,7 @@ local interface Logger
      * @see #warning
      *
      **/
-    void error(string message);
+    ["swift:nothrow"] void error(string message);
 
     /**
      *
@@ -82,7 +82,7 @@ local interface Logger
      * @return The prefix.
      *
      **/
-    string getPrefix();
+    ["swift:nothrow"] string getPrefix();
 
     /**
      *
@@ -92,7 +92,7 @@ local interface Logger
      * @return A logger instance.
      *
      */
-    Logger cloneWithPrefix(string prefix);
+    ["swift:nothrow", "swift:non-optional"] Logger cloneWithPrefix(string prefix);
 }
 
 }

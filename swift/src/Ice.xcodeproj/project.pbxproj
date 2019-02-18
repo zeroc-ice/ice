@@ -1,0 +1,910 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		D802891D2189F63800356234 /* OptionalFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = D802891C2189F63800356234 /* OptionalFormat.swift */; };
+		D802891F2189FA5E00356234 /* FormatType.swift in Sources */ = {isa = PBXBuildFile; fileRef = D802891E2189FA5E00356234 /* FormatType.swift */; };
+		D8028924218A087100356234 /* SlicedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8028923218A087100356234 /* SlicedData.swift */; };
+		D8028926218A08A700356234 /* SliceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8028925218A08A700356234 /* SliceInfo.swift */; };
+		D80A9D8D216D2528004E219E /* EndpointInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80A9D8C216D2528004E219E /* EndpointInfoFactory.swift */; };
+		D80A9D8F216D3C85004E219E /* LocalExceptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80A9D8E216D3C85004E219E /* LocalExceptionFactory.swift */; };
+		D8112393217A5EFF0019489C /* IceObjc.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = D84D1C7A2167F367004E7474 /* IceObjc.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		D819DE33216E9DF900D85ED9 /* ConnectionInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D819DE32216E9DF900D85ED9 /* ConnectionInfoFactory.swift */; };
+		D81D913F216BAE0400FDADB8 /* IceObjc.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D84D1C7A2167F367004E7474 /* IceObjc.framework */; };
+		D81D9141216BAE6200FDADB8 /* LocalObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = D81D9140216BAE6200FDADB8 /* LocalObject.swift */; };
+		D81D9146216BB09600FDADB8 /* ObjectAdapter.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C942167F398004E7474 /* ObjectAdapter.ice */; };
+		D81D9147216BB09600FDADB8 /* SliceChecksumDict.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C952167F398004E7474 /* SliceChecksumDict.ice */; };
+		D81D9148216BB09600FDADB8 /* ImplicitContextF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C962167F398004E7474 /* ImplicitContextF.ice */; };
+		D81D9149216BB09600FDADB8 /* Logger.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C972167F398004E7474 /* Logger.ice */; };
+		D81D914A216BB09600FDADB8 /* Connection.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C982167F398004E7474 /* Connection.ice */; };
+		D81D914C216BB09600FDADB8 /* PropertiesAdmin.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C9A2167F398004E7474 /* PropertiesAdmin.ice */; };
+		D81D914D216BB09600FDADB8 /* EndpointF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C9B2167F398004E7474 /* EndpointF.ice */; };
+		D81D914E216BB09600FDADB8 /* ValueFactory.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C9C2167F398004E7474 /* ValueFactory.ice */; };
+		D81D914F216BB09600FDADB8 /* Communicator.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C9D2167F398004E7474 /* Communicator.ice */; };
+		D81D9150216BB09600FDADB8 /* Plugin.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C9E2167F398004E7474 /* Plugin.ice */; };
+		D81D9151216BB09600FDADB8 /* ObjectAdapterF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C9F2167F398004E7474 /* ObjectAdapterF.ice */; };
+		D81D9152216BB09600FDADB8 /* Properties.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA02167F398004E7474 /* Properties.ice */; };
+		D81D9153216BB09600FDADB8 /* ConnectionF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA12167F398004E7474 /* ConnectionF.ice */; };
+		D81D9154216BB09600FDADB8 /* LocalException.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA22167F398004E7474 /* LocalException.ice */; };
+		D81D9155216BB09600FDADB8 /* Locator.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA32167F398004E7474 /* Locator.ice */; };
+		D81D9156216BB09600FDADB8 /* PluginF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA42167F398004E7474 /* PluginF.ice */; };
+		D81D9157216BB09600FDADB8 /* PropertiesF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA52167F398004E7474 /* PropertiesF.ice */; };
+		D81D9158216BB09600FDADB8 /* BuiltinSequences.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA62167F398004E7474 /* BuiltinSequences.ice */; };
+		D81D9159216BB09600FDADB8 /* Version.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA72167F398004E7474 /* Version.ice */; };
+		D81D915A216BB09600FDADB8 /* ServantLocator.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA82167F398004E7474 /* ServantLocator.ice */; };
+		D81D915B216BB09600FDADB8 /* InstrumentationF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CA92167F398004E7474 /* InstrumentationF.ice */; };
+		D81D915C216BB09600FDADB8 /* Router.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CAA2167F398004E7474 /* Router.ice */; };
+		D81D915D216BB09600FDADB8 /* Endpoint.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CAB2167F398004E7474 /* Endpoint.ice */; };
+		D81D915F216BB09600FDADB8 /* ObjectFactory.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CAD2167F398004E7474 /* ObjectFactory.ice */; };
+		D81D9161216BB09600FDADB8 /* Identity.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CAF2167F398004E7474 /* Identity.ice */; };
+		D81D9162216BB09600FDADB8 /* LoggerF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB02167F398004E7474 /* LoggerF.ice */; };
+		D81D9163216BB09600FDADB8 /* LocatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB12167F398004E7474 /* LocatorF.ice */; };
+		D81D9164216BB09600FDADB8 /* EndpointTypes.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB22167F398004E7474 /* EndpointTypes.ice */; };
+		D81D9165216BB09600FDADB8 /* CommunicatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB32167F398004E7474 /* CommunicatorF.ice */; };
+		D81D9166216BB09600FDADB8 /* Current.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB42167F398004E7474 /* Current.ice */; };
+		D81D9167216BB09600FDADB8 /* ProcessF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB52167F398004E7474 /* ProcessF.ice */; };
+		D81D9168216BB09600FDADB8 /* RouterF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB62167F398004E7474 /* RouterF.ice */; };
+		D81D9169216BB09600FDADB8 /* Process.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB72167F398004E7474 /* Process.ice */; };
+		D81D916A216BB09600FDADB8 /* ImplicitContext.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB82167F398004E7474 /* ImplicitContext.ice */; };
+		D81D916B216BB09600FDADB8 /* FacetMap.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CB92167F398004E7474 /* FacetMap.ice */; };
+		D81D916C216BB09600FDADB8 /* ServantLocatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1CBA2167F398004E7474 /* ServantLocatorF.ice */; };
+		D81D916D216BB09600FDADB8 /* EndpointInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C902167F398004E7474 /* EndpointInfo.ice */; };
+		D81D916E216BB09600FDADB8 /* ConnectionInfoF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C912167F398004E7474 /* ConnectionInfoF.ice */; };
+		D81D916F216BB09600FDADB8 /* ConnectionInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C922167F398004E7474 /* ConnectionInfo.ice */; };
+		D838D3C7218A35C100E83EC2 /* Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = D838D3C6218A35C100E83EC2 /* Protocol.swift */; };
+		D84567012167F2E200FD3B8B /* IceSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = D84566FF2167F2E200FD3B8B /* IceSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D84D1C602167F34B004E7474 /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C4B2167F34A004E7474 /* Value.swift */; };
+		D84D1C612167F34B004E7474 /* ConnectionI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C4C2167F34B004E7474 /* ConnectionI.swift */; };
+		D84D1C622167F34B004E7474 /* InputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C4D2167F34B004E7474 /* InputStream.swift */; };
+		D84D1C632167F34B004E7474 /* EndpointI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C4E2167F34B004E7474 /* EndpointI.swift */; };
+		D84D1C642167F34B004E7474 /* ValueFactoryManagerI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C4F2167F34B004E7474 /* ValueFactoryManagerI.swift */; };
+		D84D1C652167F34B004E7474 /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C502167F34B004E7474 /* Mutex.swift */; };
+		D84D1C662167F34B004E7474 /* OutputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C512167F34B004E7474 /* OutputStream.swift */; };
+		D84D1C672167F34B004E7474 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C522167F34B004E7474 /* Exception.swift */; };
+		D84D1C682167F34B004E7474 /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C532167F34B004E7474 /* Object.swift */; };
+		D84D1C692167F34B004E7474 /* ObjectPrx.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C542167F34B004E7474 /* ObjectPrx.swift */; };
+		D84D1C6A2167F34B004E7474 /* PropertiesI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C552167F34B004E7474 /* PropertiesI.swift */; };
+		D84D1C6B2167F34B004E7474 /* InitializationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C562167F34B004E7474 /* InitializationData.swift */; };
+		D84D1C6C2167F34B004E7474 /* ObjectAdapterI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C572167F34B004E7474 /* ObjectAdapterI.swift */; };
+		D84D1C6F2167F34B004E7474 /* Buffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C5A2167F34B004E7474 /* Buffer.swift */; };
+		D84D1C702167F34B004E7474 /* ImplicitContextI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C5B2167F34B004E7474 /* ImplicitContextI.swift */; };
+		D84D1C712167F34B004E7474 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C5C2167F34B004E7474 /* Util.swift */; };
+		D84D1C722167F34B004E7474 /* Streamable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C5D2167F34B004E7474 /* Streamable.swift */; };
+		D84D1C732167F34B004E7474 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C5E2167F34B004E7474 /* Globals.swift */; };
+		D84D1C742167F34B004E7474 /* CommunicatorI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C5F2167F34B004E7474 /* CommunicatorI.swift */; };
+		D84D1C7E2167F367004E7474 /* IceObjc.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C7C2167F367004E7474 /* IceObjc.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D84D1C822167F371004E7474 /* IceUtil.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C332167F338004E7474 /* IceUtil.mm */; };
+		D84D1C832167F371004E7474 /* Ice-Objc.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C342167F338004E7474 /* Ice-Objc.h */; };
+		D84D1C842167F371004E7474 /* Connection.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C352167F338004E7474 /* Connection.mm */; };
+		D84D1C852167F371004E7474 /* Endpoint.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C362167F338004E7474 /* Endpoint.mm */; };
+		D84D1C862167F371004E7474 /* ImplicitContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C372167F338004E7474 /* ImplicitContext.mm */; };
+		D84D1C872167F371004E7474 /* InputStream.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C382167F338004E7474 /* InputStream.mm */; };
+		D84D1C882167F371004E7474 /* LocalObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C392167F338004E7474 /* LocalObject.mm */; };
+		D84D1C892167F371004E7474 /* Properties.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C3A2167F338004E7474 /* Properties.mm */; };
+		D84D1C8A2167F371004E7474 /* Util.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C3B2167F338004E7474 /* Util.h */; };
+		D84D1C8B2167F371004E7474 /* ObjectPrx.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C3C2167F338004E7474 /* ObjectPrx.mm */; };
+		D84D1C8C2167F371004E7474 /* Ice-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C3D2167F338004E7474 /* Ice-Bridging-Header.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D84D1C8D2167F371004E7474 /* Util.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C3E2167F338004E7474 /* Util.mm */; };
+		D84D1CE5216809B1004E7474 /* Communicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C582167F34B004E7474 /* Communicator.mm */; };
+		D87038602179197F00BE6773 /* LoggerI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D870385F2179197F00BE6773 /* LoggerI.swift */; };
+		D870386221791B3100BE6773 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = D870386121791B3100BE6773 /* Logger.mm */; };
+		D88018B5217E1C55003C8C26 /* LoggerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88018B4217E1C55003C8C26 /* LoggerWrapper.swift */; };
+		D8B8D1A72194988A00EDB491 /* UnknownSlicedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8B8D1A62194988A00EDB491 /* UnknownSlicedValue.swift */; };
+		D8C3A0442190DE9100F7DC57 /* libIceSSL++11.37.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D8C3A0422190DE9100F7DC57 /* libIceSSL++11.37.dylib */; };
+		D8C3A0452190DE9100F7DC57 /* libIce++11.37.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D8C3A0432190DE9100F7DC57 /* libIce++11.37.dylib */; };
+		D8C3A0462190DE9F00F7DC57 /* libIce++11.37.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8C3A0432190DE9100F7DC57 /* libIce++11.37.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		D8C3A0472190DE9F00F7DC57 /* libIceSSL++11.37.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = D8C3A0422190DE9100F7DC57 /* libIceSSL++11.37.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		D8E8F97A21921DBC0093C2BC /* ClassResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8E8F97921921DBC0093C2BC /* ClassResolver.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		D81D9142216BAF1F00FDADB8 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/../config/xcode-slice2swift.sh\n";
+		};
+/* End PBXBuildRule section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		D80A9D4C216D0113004E219E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D8C3A0462190DE9F00F7DC57 /* libIce++11.37.dylib in CopyFiles */,
+				D8C3A0472190DE9F00F7DC57 /* libIceSSL++11.37.dylib in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D8112392217A5EF30019489C /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				D8112393217A5EFF0019489C /* IceObjc.framework in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		D802891C2189F63800356234 /* OptionalFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalFormat.swift; sourceTree = "<group>"; };
+		D802891E2189FA5E00356234 /* FormatType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatType.swift; sourceTree = "<group>"; };
+		D8028923218A087100356234 /* SlicedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlicedData.swift; sourceTree = "<group>"; };
+		D8028925218A08A700356234 /* SliceInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliceInfo.swift; sourceTree = "<group>"; };
+		D8064652216CF2110037F4A4 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		D80A9D8C216D2528004E219E /* EndpointInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EndpointInfoFactory.swift; sourceTree = "<group>"; };
+		D80A9D8E216D3C85004E219E /* LocalExceptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalExceptionFactory.swift; sourceTree = "<group>"; };
+		D819DE32216E9DF900D85ED9 /* ConnectionInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionInfoFactory.swift; sourceTree = "<group>"; };
+		D81D9140216BAE6200FDADB8 /* LocalObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalObject.swift; sourceTree = "<group>"; };
+		D81D9143216BAF7900FDADB8 /* xcode-slice2swift.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = "xcode-slice2swift.sh"; path = "../config/xcode-slice2swift.sh"; sourceTree = "<group>"; };
+		D838D3C6218A35C100E83EC2 /* Protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocol.swift; sourceTree = "<group>"; };
+		D84566FC2167F2E200FD3B8B /* Ice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D84566FF2167F2E200FD3B8B /* IceSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IceSwift.h; sourceTree = "<group>"; };
+		D84567002167F2E200FD3B8B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D84D1C332167F338004E7474 /* IceUtil.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IceUtil.mm; sourceTree = "<group>"; };
+		D84D1C342167F338004E7474 /* Ice-Objc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Ice-Objc.h"; sourceTree = "<group>"; };
+		D84D1C352167F338004E7474 /* Connection.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Connection.mm; sourceTree = "<group>"; };
+		D84D1C362167F338004E7474 /* Endpoint.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Endpoint.mm; sourceTree = "<group>"; };
+		D84D1C372167F338004E7474 /* ImplicitContext.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ImplicitContext.mm; sourceTree = "<group>"; };
+		D84D1C382167F338004E7474 /* InputStream.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = InputStream.mm; sourceTree = "<group>"; };
+		D84D1C392167F338004E7474 /* LocalObject.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = LocalObject.mm; sourceTree = "<group>"; };
+		D84D1C3A2167F338004E7474 /* Properties.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Properties.mm; sourceTree = "<group>"; };
+		D84D1C3B2167F338004E7474 /* Util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util.h; sourceTree = "<group>"; };
+		D84D1C3C2167F338004E7474 /* ObjectPrx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ObjectPrx.mm; sourceTree = "<group>"; };
+		D84D1C3D2167F338004E7474 /* Ice-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Ice-Bridging-Header.h"; sourceTree = "<group>"; };
+		D84D1C3E2167F338004E7474 /* Util.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Util.mm; sourceTree = "<group>"; };
+		D84D1C4B2167F34A004E7474 /* Value.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
+		D84D1C4C2167F34B004E7474 /* ConnectionI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionI.swift; sourceTree = "<group>"; };
+		D84D1C4D2167F34B004E7474 /* InputStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputStream.swift; sourceTree = "<group>"; };
+		D84D1C4E2167F34B004E7474 /* EndpointI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndpointI.swift; sourceTree = "<group>"; };
+		D84D1C4F2167F34B004E7474 /* ValueFactoryManagerI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ValueFactoryManagerI.swift; sourceTree = "<group>"; };
+		D84D1C502167F34B004E7474 /* Mutex.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Mutex.swift; sourceTree = "<group>"; };
+		D84D1C512167F34B004E7474 /* OutputStream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutputStream.swift; sourceTree = "<group>"; };
+		D84D1C522167F34B004E7474 /* Exception.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Exception.swift; sourceTree = "<group>"; };
+		D84D1C532167F34B004E7474 /* Object.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Object.swift; sourceTree = "<group>"; };
+		D84D1C542167F34B004E7474 /* ObjectPrx.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectPrx.swift; sourceTree = "<group>"; };
+		D84D1C552167F34B004E7474 /* PropertiesI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PropertiesI.swift; sourceTree = "<group>"; };
+		D84D1C562167F34B004E7474 /* InitializationData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InitializationData.swift; sourceTree = "<group>"; };
+		D84D1C572167F34B004E7474 /* ObjectAdapterI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectAdapterI.swift; sourceTree = "<group>"; };
+		D84D1C582167F34B004E7474 /* Communicator.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Communicator.mm; sourceTree = "<group>"; };
+		D84D1C5A2167F34B004E7474 /* Buffer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Buffer.swift; sourceTree = "<group>"; };
+		D84D1C5B2167F34B004E7474 /* ImplicitContextI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImplicitContextI.swift; sourceTree = "<group>"; };
+		D84D1C5C2167F34B004E7474 /* Util.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Util.swift; sourceTree = "<group>"; };
+		D84D1C5D2167F34B004E7474 /* Streamable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Streamable.swift; sourceTree = "<group>"; };
+		D84D1C5E2167F34B004E7474 /* Globals.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Globals.swift; sourceTree = "<group>"; };
+		D84D1C5F2167F34B004E7474 /* CommunicatorI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CommunicatorI.swift; sourceTree = "<group>"; };
+		D84D1C7A2167F367004E7474 /* IceObjc.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IceObjc.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D84D1C7C2167F367004E7474 /* IceObjc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IceObjc.h; sourceTree = "<group>"; };
+		D84D1C7D2167F367004E7474 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D84D1C902167F398004E7474 /* EndpointInfo.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EndpointInfo.ice; sourceTree = "<group>"; };
+		D84D1C912167F398004E7474 /* ConnectionInfoF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ConnectionInfoF.ice; sourceTree = "<group>"; };
+		D84D1C922167F398004E7474 /* ConnectionInfo.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ConnectionInfo.ice; sourceTree = "<group>"; };
+		D84D1C942167F398004E7474 /* ObjectAdapter.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectAdapter.ice; sourceTree = "<group>"; };
+		D84D1C952167F398004E7474 /* SliceChecksumDict.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = SliceChecksumDict.ice; sourceTree = "<group>"; };
+		D84D1C962167F398004E7474 /* ImplicitContextF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ImplicitContextF.ice; sourceTree = "<group>"; };
+		D84D1C972167F398004E7474 /* Logger.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Logger.ice; sourceTree = "<group>"; };
+		D84D1C982167F398004E7474 /* Connection.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Connection.ice; sourceTree = "<group>"; };
+		D84D1C992167F398004E7474 /* RemoteLogger.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RemoteLogger.ice; sourceTree = "<group>"; };
+		D84D1C9A2167F398004E7474 /* PropertiesAdmin.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PropertiesAdmin.ice; sourceTree = "<group>"; };
+		D84D1C9B2167F398004E7474 /* EndpointF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EndpointF.ice; sourceTree = "<group>"; };
+		D84D1C9C2167F398004E7474 /* ValueFactory.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ValueFactory.ice; sourceTree = "<group>"; };
+		D84D1C9D2167F398004E7474 /* Communicator.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Communicator.ice; sourceTree = "<group>"; };
+		D84D1C9E2167F398004E7474 /* Plugin.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Plugin.ice; sourceTree = "<group>"; };
+		D84D1C9F2167F398004E7474 /* ObjectAdapterF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectAdapterF.ice; sourceTree = "<group>"; };
+		D84D1CA02167F398004E7474 /* Properties.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Properties.ice; sourceTree = "<group>"; };
+		D84D1CA12167F398004E7474 /* ConnectionF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ConnectionF.ice; sourceTree = "<group>"; };
+		D84D1CA22167F398004E7474 /* LocalException.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocalException.ice; sourceTree = "<group>"; };
+		D84D1CA32167F398004E7474 /* Locator.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Locator.ice; sourceTree = "<group>"; };
+		D84D1CA42167F398004E7474 /* PluginF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PluginF.ice; sourceTree = "<group>"; };
+		D84D1CA52167F398004E7474 /* PropertiesF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = PropertiesF.ice; sourceTree = "<group>"; };
+		D84D1CA62167F398004E7474 /* BuiltinSequences.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = BuiltinSequences.ice; sourceTree = "<group>"; };
+		D84D1CA72167F398004E7474 /* Version.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Version.ice; sourceTree = "<group>"; };
+		D84D1CA82167F398004E7474 /* ServantLocator.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ServantLocator.ice; sourceTree = "<group>"; };
+		D84D1CA92167F398004E7474 /* InstrumentationF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = InstrumentationF.ice; sourceTree = "<group>"; };
+		D84D1CAA2167F398004E7474 /* Router.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Router.ice; sourceTree = "<group>"; };
+		D84D1CAB2167F398004E7474 /* Endpoint.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Endpoint.ice; sourceTree = "<group>"; };
+		D84D1CAC2167F398004E7474 /* Metrics.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Metrics.ice; sourceTree = "<group>"; };
+		D84D1CAD2167F398004E7474 /* ObjectFactory.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ObjectFactory.ice; sourceTree = "<group>"; };
+		D84D1CAE2167F398004E7474 /* Instrumentation.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Instrumentation.ice; sourceTree = "<group>"; };
+		D84D1CAF2167F398004E7474 /* Identity.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Identity.ice; sourceTree = "<group>"; };
+		D84D1CB02167F398004E7474 /* LoggerF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LoggerF.ice; sourceTree = "<group>"; };
+		D84D1CB12167F398004E7474 /* LocatorF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LocatorF.ice; sourceTree = "<group>"; };
+		D84D1CB22167F398004E7474 /* EndpointTypes.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = EndpointTypes.ice; sourceTree = "<group>"; };
+		D84D1CB32167F398004E7474 /* CommunicatorF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CommunicatorF.ice; sourceTree = "<group>"; };
+		D84D1CB42167F398004E7474 /* Current.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Current.ice; sourceTree = "<group>"; };
+		D84D1CB52167F398004E7474 /* ProcessF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ProcessF.ice; sourceTree = "<group>"; };
+		D84D1CB62167F398004E7474 /* RouterF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = RouterF.ice; sourceTree = "<group>"; };
+		D84D1CB72167F398004E7474 /* Process.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Process.ice; sourceTree = "<group>"; };
+		D84D1CB82167F398004E7474 /* ImplicitContext.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ImplicitContext.ice; sourceTree = "<group>"; };
+		D84D1CB92167F398004E7474 /* FacetMap.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FacetMap.ice; sourceTree = "<group>"; };
+		D84D1CBA2167F398004E7474 /* ServantLocatorF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ServantLocatorF.ice; sourceTree = "<group>"; };
+		D870385F2179197F00BE6773 /* LoggerI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerI.swift; sourceTree = "<group>"; };
+		D870386121791B3100BE6773 /* Logger.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Logger.mm; sourceTree = "<group>"; };
+		D88018B4217E1C55003C8C26 /* LoggerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerWrapper.swift; sourceTree = "<group>"; };
+		D8B8D1A62194988A00EDB491 /* UnknownSlicedValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnknownSlicedValue.swift; sourceTree = "<group>"; };
+		D8C3A0422190DE9100F7DC57 /* libIceSSL++11.37.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libIceSSL++11.37.dylib"; path = "../../cpp/lib/libIceSSL++11.37.dylib"; sourceTree = "<group>"; };
+		D8C3A0432190DE9100F7DC57 /* libIce++11.37.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libIce++11.37.dylib"; path = "../../cpp/lib/libIce++11.37.dylib"; sourceTree = "<group>"; };
+		D8E8F97921921DBC0093C2BC /* ClassResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassResolver.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		D84566F92167F2E200FD3B8B /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D81D913F216BAE0400FDADB8 /* IceObjc.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D84D1C772167F367004E7474 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D8C3A0442190DE9100F7DC57 /* libIceSSL++11.37.dylib in Frameworks */,
+				D8C3A0452190DE9100F7DC57 /* libIce++11.37.dylib in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		D81D913E216BAE0400FDADB8 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				D8C3A0432190DE9100F7DC57 /* libIce++11.37.dylib */,
+				D8C3A0422190DE9100F7DC57 /* libIceSSL++11.37.dylib */,
+				D8064652216CF2110037F4A4 /* Foundation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		D84566F22167F2E200FD3B8B = {
+			isa = PBXGroup;
+			children = (
+				D81D9143216BAF7900FDADB8 /* xcode-slice2swift.sh */,
+				D84566FE2167F2E200FD3B8B /* Ice */,
+				D84D1C322167F338004E7474 /* IceObjc */,
+				D84D1C8E2167F384004E7474 /* Slice */,
+				D84566FD2167F2E200FD3B8B /* Products */,
+				D81D913E216BAE0400FDADB8 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		D84566FD2167F2E200FD3B8B /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D84566FC2167F2E200FD3B8B /* Ice.framework */,
+				D84D1C7A2167F367004E7474 /* IceObjc.framework */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		D84566FE2167F2E200FD3B8B /* Ice */ = {
+			isa = PBXGroup;
+			children = (
+				D84D1C5A2167F34B004E7474 /* Buffer.swift */,
+				D8E8F97921921DBC0093C2BC /* ClassResolver.swift */,
+				D84D1C5F2167F34B004E7474 /* CommunicatorI.swift */,
+				D84D1C4C2167F34B004E7474 /* ConnectionI.swift */,
+				D819DE32216E9DF900D85ED9 /* ConnectionInfoFactory.swift */,
+				D84D1C4E2167F34B004E7474 /* EndpointI.swift */,
+				D80A9D8C216D2528004E219E /* EndpointInfoFactory.swift */,
+				D84D1C522167F34B004E7474 /* Exception.swift */,
+				D802891E2189FA5E00356234 /* FormatType.swift */,
+				D84D1C5E2167F34B004E7474 /* Globals.swift */,
+				D84566FF2167F2E200FD3B8B /* IceSwift.h */,
+				D84D1C5B2167F34B004E7474 /* ImplicitContextI.swift */,
+				D84567002167F2E200FD3B8B /* Info.plist */,
+				D84D1C562167F34B004E7474 /* InitializationData.swift */,
+				D84D1C4D2167F34B004E7474 /* InputStream.swift */,
+				D80A9D8E216D3C85004E219E /* LocalExceptionFactory.swift */,
+				D81D9140216BAE6200FDADB8 /* LocalObject.swift */,
+				D870385F2179197F00BE6773 /* LoggerI.swift */,
+				D88018B4217E1C55003C8C26 /* LoggerWrapper.swift */,
+				D84D1C502167F34B004E7474 /* Mutex.swift */,
+				D84D1C532167F34B004E7474 /* Object.swift */,
+				D84D1C572167F34B004E7474 /* ObjectAdapterI.swift */,
+				D84D1C542167F34B004E7474 /* ObjectPrx.swift */,
+				D802891C2189F63800356234 /* OptionalFormat.swift */,
+				D84D1C512167F34B004E7474 /* OutputStream.swift */,
+				D84D1C552167F34B004E7474 /* PropertiesI.swift */,
+				D838D3C6218A35C100E83EC2 /* Protocol.swift */,
+				D8028923218A087100356234 /* SlicedData.swift */,
+				D8028925218A08A700356234 /* SliceInfo.swift */,
+				D84D1C5D2167F34B004E7474 /* Streamable.swift */,
+				D8B8D1A62194988A00EDB491 /* UnknownSlicedValue.swift */,
+				D84D1C5C2167F34B004E7474 /* Util.swift */,
+				D84D1C4B2167F34A004E7474 /* Value.swift */,
+				D84D1C4F2167F34B004E7474 /* ValueFactoryManagerI.swift */,
+			);
+			path = Ice;
+			sourceTree = "<group>";
+		};
+		D84D1C322167F338004E7474 /* IceObjc */ = {
+			isa = PBXGroup;
+			children = (
+				D84D1C582167F34B004E7474 /* Communicator.mm */,
+				D84D1C352167F338004E7474 /* Connection.mm */,
+				D84D1C362167F338004E7474 /* Endpoint.mm */,
+				D84D1C3D2167F338004E7474 /* Ice-Bridging-Header.h */,
+				D84D1C342167F338004E7474 /* Ice-Objc.h */,
+				D84D1C7C2167F367004E7474 /* IceObjc.h */,
+				D84D1C332167F338004E7474 /* IceUtil.mm */,
+				D84D1C372167F338004E7474 /* ImplicitContext.mm */,
+				D84D1C7D2167F367004E7474 /* Info.plist */,
+				D84D1C382167F338004E7474 /* InputStream.mm */,
+				D84D1C392167F338004E7474 /* LocalObject.mm */,
+				D870386121791B3100BE6773 /* Logger.mm */,
+				D84D1C3C2167F338004E7474 /* ObjectPrx.mm */,
+				D84D1C3A2167F338004E7474 /* Properties.mm */,
+				D84D1C3B2167F338004E7474 /* Util.h */,
+				D84D1C3E2167F338004E7474 /* Util.mm */,
+			);
+			path = IceObjc;
+			sourceTree = "<group>";
+		};
+		D84D1C8E2167F384004E7474 /* Slice */ = {
+			isa = PBXGroup;
+			children = (
+				D84D1C932167F398004E7474 /* Ice */,
+				D84D1C8F2167F398004E7474 /* IceSSL */,
+			);
+			name = Slice;
+			path = ../../slice;
+			sourceTree = "<group>";
+		};
+		D84D1C8F2167F398004E7474 /* IceSSL */ = {
+			isa = PBXGroup;
+			children = (
+				D84D1C902167F398004E7474 /* EndpointInfo.ice */,
+				D84D1C912167F398004E7474 /* ConnectionInfoF.ice */,
+				D84D1C922167F398004E7474 /* ConnectionInfo.ice */,
+			);
+			path = IceSSL;
+			sourceTree = "<group>";
+		};
+		D84D1C932167F398004E7474 /* Ice */ = {
+			isa = PBXGroup;
+			children = (
+				D84D1C942167F398004E7474 /* ObjectAdapter.ice */,
+				D84D1C952167F398004E7474 /* SliceChecksumDict.ice */,
+				D84D1C962167F398004E7474 /* ImplicitContextF.ice */,
+				D84D1C972167F398004E7474 /* Logger.ice */,
+				D84D1C982167F398004E7474 /* Connection.ice */,
+				D84D1C992167F398004E7474 /* RemoteLogger.ice */,
+				D84D1C9A2167F398004E7474 /* PropertiesAdmin.ice */,
+				D84D1C9B2167F398004E7474 /* EndpointF.ice */,
+				D84D1C9C2167F398004E7474 /* ValueFactory.ice */,
+				D84D1C9D2167F398004E7474 /* Communicator.ice */,
+				D84D1C9E2167F398004E7474 /* Plugin.ice */,
+				D84D1C9F2167F398004E7474 /* ObjectAdapterF.ice */,
+				D84D1CA02167F398004E7474 /* Properties.ice */,
+				D84D1CA12167F398004E7474 /* ConnectionF.ice */,
+				D84D1CA22167F398004E7474 /* LocalException.ice */,
+				D84D1CA32167F398004E7474 /* Locator.ice */,
+				D84D1CA42167F398004E7474 /* PluginF.ice */,
+				D84D1CA52167F398004E7474 /* PropertiesF.ice */,
+				D84D1CA62167F398004E7474 /* BuiltinSequences.ice */,
+				D84D1CA72167F398004E7474 /* Version.ice */,
+				D84D1CA82167F398004E7474 /* ServantLocator.ice */,
+				D84D1CA92167F398004E7474 /* InstrumentationF.ice */,
+				D84D1CAA2167F398004E7474 /* Router.ice */,
+				D84D1CAB2167F398004E7474 /* Endpoint.ice */,
+				D84D1CAC2167F398004E7474 /* Metrics.ice */,
+				D84D1CAD2167F398004E7474 /* ObjectFactory.ice */,
+				D84D1CAE2167F398004E7474 /* Instrumentation.ice */,
+				D84D1CAF2167F398004E7474 /* Identity.ice */,
+				D84D1CB02167F398004E7474 /* LoggerF.ice */,
+				D84D1CB12167F398004E7474 /* LocatorF.ice */,
+				D84D1CB22167F398004E7474 /* EndpointTypes.ice */,
+				D84D1CB32167F398004E7474 /* CommunicatorF.ice */,
+				D84D1CB42167F398004E7474 /* Current.ice */,
+				D84D1CB52167F398004E7474 /* ProcessF.ice */,
+				D84D1CB62167F398004E7474 /* RouterF.ice */,
+				D84D1CB72167F398004E7474 /* Process.ice */,
+				D84D1CB82167F398004E7474 /* ImplicitContext.ice */,
+				D84D1CB92167F398004E7474 /* FacetMap.ice */,
+				D84D1CBA2167F398004E7474 /* ServantLocatorF.ice */,
+			);
+			path = Ice;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		D84566F72167F2E200FD3B8B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D84567012167F2E200FD3B8B /* IceSwift.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D84D1C752167F367004E7474 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D84D1C7E2167F367004E7474 /* IceObjc.h in Headers */,
+				D84D1C832167F371004E7474 /* Ice-Objc.h in Headers */,
+				D84D1C8C2167F371004E7474 /* Ice-Bridging-Header.h in Headers */,
+				D84D1C8A2167F371004E7474 /* Util.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		D84566FB2167F2E200FD3B8B /* Ice */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D84567042167F2E200FD3B8B /* Build configuration list for PBXNativeTarget "Ice" */;
+			buildPhases = (
+				D84566F72167F2E200FD3B8B /* Headers */,
+				D84566F82167F2E200FD3B8B /* Sources */,
+				D84566F92167F2E200FD3B8B /* Frameworks */,
+				D84566FA2167F2E200FD3B8B /* Resources */,
+				D8112392217A5EF30019489C /* CopyFiles */,
+			);
+			buildRules = (
+				D81D9142216BAF1F00FDADB8 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = Ice;
+			productName = Ice;
+			productReference = D84566FC2167F2E200FD3B8B /* Ice.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		D84D1C792167F367004E7474 /* IceObjc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D84D1C7F2167F367004E7474 /* Build configuration list for PBXNativeTarget "IceObjc" */;
+			buildPhases = (
+				D84D1C752167F367004E7474 /* Headers */,
+				D84D1C762167F367004E7474 /* Sources */,
+				D84D1C772167F367004E7474 /* Frameworks */,
+				D84D1C782167F367004E7474 /* Resources */,
+				D80A9D4C216D0113004E219E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = IceObjc;
+			productName = IceObjc;
+			productReference = D84D1C7A2167F367004E7474 /* IceObjc.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		D84566F32167F2E200FD3B8B /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = ICE;
+				LastSwiftUpdateCheck = 1000;
+				LastUpgradeCheck = 1000;
+				ORGANIZATIONNAME = ZeroC;
+				TargetAttributes = {
+					D84566FB2167F2E200FD3B8B = {
+						CreatedOnToolsVersion = 10.0;
+						LastSwiftMigration = 1000;
+					};
+					D84D1C792167F367004E7474 = {
+						CreatedOnToolsVersion = 10.0;
+					};
+				};
+			};
+			buildConfigurationList = D84566F62167F2E200FD3B8B /* Build configuration list for PBXProject "Ice" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = D84566F22167F2E200FD3B8B;
+			productRefGroup = D84566FD2167F2E200FD3B8B /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				D84566FB2167F2E200FD3B8B /* Ice */,
+				D84D1C792167F367004E7474 /* IceObjc */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		D84566FA2167F2E200FD3B8B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D84D1C782167F367004E7474 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		D84566F82167F2E200FD3B8B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D81D9146216BB09600FDADB8 /* ObjectAdapter.ice in Sources */,
+				D81D9147216BB09600FDADB8 /* SliceChecksumDict.ice in Sources */,
+				D81D9148216BB09600FDADB8 /* ImplicitContextF.ice in Sources */,
+				D81D9149216BB09600FDADB8 /* Logger.ice in Sources */,
+				D81D914A216BB09600FDADB8 /* Connection.ice in Sources */,
+				D81D914C216BB09600FDADB8 /* PropertiesAdmin.ice in Sources */,
+				D81D914D216BB09600FDADB8 /* EndpointF.ice in Sources */,
+				D81D914E216BB09600FDADB8 /* ValueFactory.ice in Sources */,
+				D81D914F216BB09600FDADB8 /* Communicator.ice in Sources */,
+				D81D9150216BB09600FDADB8 /* Plugin.ice in Sources */,
+				D81D9151216BB09600FDADB8 /* ObjectAdapterF.ice in Sources */,
+				D81D9152216BB09600FDADB8 /* Properties.ice in Sources */,
+				D81D9153216BB09600FDADB8 /* ConnectionF.ice in Sources */,
+				D81D9154216BB09600FDADB8 /* LocalException.ice in Sources */,
+				D81D9155216BB09600FDADB8 /* Locator.ice in Sources */,
+				D81D9156216BB09600FDADB8 /* PluginF.ice in Sources */,
+				D81D9157216BB09600FDADB8 /* PropertiesF.ice in Sources */,
+				D81D9158216BB09600FDADB8 /* BuiltinSequences.ice in Sources */,
+				D802891F2189FA5E00356234 /* FormatType.swift in Sources */,
+				D8028924218A087100356234 /* SlicedData.swift in Sources */,
+				D81D9159216BB09600FDADB8 /* Version.ice in Sources */,
+				D81D915A216BB09600FDADB8 /* ServantLocator.ice in Sources */,
+				D8028926218A08A700356234 /* SliceInfo.swift in Sources */,
+				D81D915B216BB09600FDADB8 /* InstrumentationF.ice in Sources */,
+				D81D915C216BB09600FDADB8 /* Router.ice in Sources */,
+				D81D915D216BB09600FDADB8 /* Endpoint.ice in Sources */,
+				D81D915F216BB09600FDADB8 /* ObjectFactory.ice in Sources */,
+				D81D9161216BB09600FDADB8 /* Identity.ice in Sources */,
+				D80A9D8D216D2528004E219E /* EndpointInfoFactory.swift in Sources */,
+				D838D3C7218A35C100E83EC2 /* Protocol.swift in Sources */,
+				D81D9162216BB09600FDADB8 /* LoggerF.ice in Sources */,
+				D81D9163216BB09600FDADB8 /* LocatorF.ice in Sources */,
+				D81D9164216BB09600FDADB8 /* EndpointTypes.ice in Sources */,
+				D81D9165216BB09600FDADB8 /* CommunicatorF.ice in Sources */,
+				D81D9166216BB09600FDADB8 /* Current.ice in Sources */,
+				D81D9167216BB09600FDADB8 /* ProcessF.ice in Sources */,
+				D81D9168216BB09600FDADB8 /* RouterF.ice in Sources */,
+				D81D9169216BB09600FDADB8 /* Process.ice in Sources */,
+				D81D916A216BB09600FDADB8 /* ImplicitContext.ice in Sources */,
+				D81D916B216BB09600FDADB8 /* FacetMap.ice in Sources */,
+				D81D916C216BB09600FDADB8 /* ServantLocatorF.ice in Sources */,
+				D81D916D216BB09600FDADB8 /* EndpointInfo.ice in Sources */,
+				D81D916E216BB09600FDADB8 /* ConnectionInfoF.ice in Sources */,
+				D81D916F216BB09600FDADB8 /* ConnectionInfo.ice in Sources */,
+				D81D9141216BAE6200FDADB8 /* LocalObject.swift in Sources */,
+				D8B8D1A72194988A00EDB491 /* UnknownSlicedValue.swift in Sources */,
+				D84D1C732167F34B004E7474 /* Globals.swift in Sources */,
+				D84D1C632167F34B004E7474 /* EndpointI.swift in Sources */,
+				D84D1C722167F34B004E7474 /* Streamable.swift in Sources */,
+				D84D1C6F2167F34B004E7474 /* Buffer.swift in Sources */,
+				D87038602179197F00BE6773 /* LoggerI.swift in Sources */,
+				D80A9D8F216D3C85004E219E /* LocalExceptionFactory.swift in Sources */,
+				D88018B5217E1C55003C8C26 /* LoggerWrapper.swift in Sources */,
+				D84D1C682167F34B004E7474 /* Object.swift in Sources */,
+				D84D1C6A2167F34B004E7474 /* PropertiesI.swift in Sources */,
+				D819DE33216E9DF900D85ED9 /* ConnectionInfoFactory.swift in Sources */,
+				D84D1C652167F34B004E7474 /* Mutex.swift in Sources */,
+				D8E8F97A21921DBC0093C2BC /* ClassResolver.swift in Sources */,
+				D84D1C622167F34B004E7474 /* InputStream.swift in Sources */,
+				D84D1C712167F34B004E7474 /* Util.swift in Sources */,
+				D84D1C702167F34B004E7474 /* ImplicitContextI.swift in Sources */,
+				D84D1C612167F34B004E7474 /* ConnectionI.swift in Sources */,
+				D802891D2189F63800356234 /* OptionalFormat.swift in Sources */,
+				D84D1C662167F34B004E7474 /* OutputStream.swift in Sources */,
+				D84D1C642167F34B004E7474 /* ValueFactoryManagerI.swift in Sources */,
+				D84D1C672167F34B004E7474 /* Exception.swift in Sources */,
+				D84D1C602167F34B004E7474 /* Value.swift in Sources */,
+				D84D1C6B2167F34B004E7474 /* InitializationData.swift in Sources */,
+				D84D1C742167F34B004E7474 /* CommunicatorI.swift in Sources */,
+				D84D1C692167F34B004E7474 /* ObjectPrx.swift in Sources */,
+				D84D1C6C2167F34B004E7474 /* ObjectAdapterI.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D84D1C762167F367004E7474 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D84D1C8D2167F371004E7474 /* Util.mm in Sources */,
+				D84D1C892167F371004E7474 /* Properties.mm in Sources */,
+				D84D1C882167F371004E7474 /* LocalObject.mm in Sources */,
+				D870386221791B3100BE6773 /* Logger.mm in Sources */,
+				D84D1C822167F371004E7474 /* IceUtil.mm in Sources */,
+				D84D1C852167F371004E7474 /* Endpoint.mm in Sources */,
+				D84D1C872167F371004E7474 /* InputStream.mm in Sources */,
+				D84D1CE5216809B1004E7474 /* Communicator.mm in Sources */,
+				D84D1C8B2167F371004E7474 /* ObjectPrx.mm in Sources */,
+				D84D1C862167F371004E7474 /* ImplicitContext.mm in Sources */,
+				D84D1C842167F371004E7474 /* Connection.mm in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		D84567022167F2E200FD3B8B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		D84567032167F2E200FD3B8B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		D84567052167F2E200FD3B8B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = Ice/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Ice;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Debug;
+		};
+		D84567062167F2E200FD3B8B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = Ice/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Ice;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_VERSION = 4.2;
+			};
+			name = Release;
+		};
+		D84D1C802167F367004E7474 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../cpp/include/",
+					"$(SRCROOT)/../../cpp/include/generated",
+				);
+				INFOPLIST_FILE = IceObjc/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../cpp/lib";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceObjc;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+			};
+			name = Debug;
+		};
+		D84D1C812167F367004E7474 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../../cpp/include/",
+					"$(SRCROOT)/../../cpp/include/generated",
+				);
+				INFOPLIST_FILE = IceObjc/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../cpp/lib";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceObjc;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		D84566F62167F2E200FD3B8B /* Build configuration list for PBXProject "Ice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D84567022167F2E200FD3B8B /* Debug */,
+				D84567032167F2E200FD3B8B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D84567042167F2E200FD3B8B /* Build configuration list for PBXNativeTarget "Ice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D84567052167F2E200FD3B8B /* Debug */,
+				D84567062167F2E200FD3B8B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D84D1C7F2167F367004E7474 /* Build configuration list for PBXNativeTarget "IceObjc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D84D1C802167F367004E7474 /* Debug */,
+				D84D1C812167F367004E7474 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = D84566F32167F2E200FD3B8B /* Project object */;
+}

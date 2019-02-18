@@ -619,16 +619,6 @@
 		140C31281E02F7FF00142503 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				14CF1432215A47DF00499968 /* objects */,
-				140C3B801E02FCE000142503 /* metrics */,
-				140C3B901E02FCE000142503 /* operations */,
-				140C3B9F1E02FCE000142503 /* optional */,
-				140C3BA61E02FCE000142503 /* proxy */,
-				140C3BAE1E02FCE000142503 /* retry */,
-				140C3BB61E02FCE000142503 /* servantLocator */,
-				140C3BC11E02FCE000142503 /* services */,
-				140C3BC61E02FCE000142503 /* stream */,
-				140C3BC91E02FCE000142503 /* timeout */,
 				140C3BD01E02FCE000142503 /* acm */,
 				140C3BD71E02FCE000142503 /* adapterDeactivation */,
 				140C3BDF1E02FCE000142503 /* admin */,
@@ -647,7 +637,17 @@
 				140C3C411E02FCE000142503 /* interceptor */,
 				140C3C491E02FCE000142503 /* invoke */,
 				140C3C511E02FCE000142503 /* location */,
+				140C3B801E02FCE000142503 /* metrics */,
+				14CF1432215A47DF00499968 /* objects */,
+				140C3B901E02FCE000142503 /* operations */,
+				140C3B9F1E02FCE000142503 /* optional */,
+				140C3BA61E02FCE000142503 /* proxy */,
+				140C3BAE1E02FCE000142503 /* retry */,
+				140C3BB61E02FCE000142503 /* servantLocator */,
+				140C3BC11E02FCE000142503 /* services */,
 				140C3C5B1E02FCE000142503 /* slicing */,
+				140C3BC61E02FCE000142503 /* stream */,
+				140C3BC91E02FCE000142503 /* timeout */,
 			);
 			name = Tests;
 			sourceTree = "<group>";
