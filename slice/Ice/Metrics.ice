@@ -58,14 +58,16 @@ class Metrics
 
     /**
      *
-     * The total number of objects that were observed by this metrics.
+     * The total number of objects observed by this metrics. This includes
+     * the number of currently observed objects and the number of objects
+     * observed in the past.
      *
      **/
     long total = 0;
 
     /**
      *
-     * The current number of objects observed by this metrics.
+     * The number of objects currently observed by this metrics.
      *
      **/
     int current = 0;
@@ -73,7 +75,8 @@ class Metrics
     /**
      *
      * The sum of the lifetime of each observed objects. This does not
-     * include the lifetime of objects which are currently observed.
+     * include the lifetime of objects which are currently observed,
+     * only the objects observed in the past.
      *
      **/
     long totalLifetime = 0;
