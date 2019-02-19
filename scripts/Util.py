@@ -2669,13 +2669,20 @@ class BrowserProcessController(RemoteProcessController):
                                                                                   self.host)
         if url != self.url:
             self.url = url
+            ident = current.driver.getCommunicator().stringToIdentity("Browser/ProcessController")
             if self.driver:
+                # Clear the previous controller connection if it exists. This ensures that the reload
+                # of the test controller will use a new connection (with Chrome the connection close
+                # callback for the old page is sometime called after the new paged is loaded).
+                with self.cond:
+                    if ident in self.processControllerProxies:
+                        prx = self.processControllerProxies[ident]
+                        self.clearProcessController(prx, prx.ice_getCachedConnection())
                 self.driver.get(url)
             else:
                 # If no process controller is registered, we request the user to load the controller
                 # page in the browser. Once loaded, the controller will register and we'll redirect to
                 # the correct testsuite page.
-                ident = current.driver.getCommunicator().stringToIdentity("Browser/ProcessController")
                 prx = None
                 with self.cond:
                     while True:
