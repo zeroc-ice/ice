@@ -3216,7 +3216,9 @@ class JavaMapping(Mapping):
                 "IceSSL.Keystore": "server.bks" if isinstance(process, Server) else "client.bks"
             })
         else:
+            # WORKAROUND JDK 11 sporadic connection failures with OpenSSL TLS 1.3 enabled server
             props.update({
+                "IceSSL.Protocols": "TLS1_2",
                 "IceSSL.Keystore": "server.jks" if isinstance(process, Server) else "client.jks",
             })
         return props
