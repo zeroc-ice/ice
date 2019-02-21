@@ -21,7 +21,7 @@
 {
     assert(prx);
     self = [super init];
-    _objectPrx = std::shared_ptr<Ice::ObjectPrx>([prx objectPrx]);
+    _prx = std::shared_ptr<Ice::ObjectPrx>([prx prx]);
     return self;
 }
 
@@ -38,19 +38,19 @@
         return nil;
     }
 
-    self->_objectPrx = prx;
+    self->_prx = prx;
 
     return self;
 }
 
 -(nonnull NSString*) ice_toString
 {
-    return toNSString(_objectPrx->ice_toString());
+    return toNSString(_prx->ice_toString());
 }
 
 -(ICECommunicator*) ice_getCommunicator
 {
-    auto comm = _objectPrx->ice_getCommunicator().get();
+    auto comm = _prx->ice_getCommunicator().get();
     return [ICECommunicator fromLocalObject:comm];
 }
 
@@ -58,7 +58,7 @@
                category:(NSString* __strong _Nonnull * _Nonnull)category
 {
     // TODO: verify that __strong does not leak back in Swift
-    auto identity = _objectPrx->ice_getIdentity();
+    auto identity = _prx->ice_getIdentity();
     *name = toNSString(identity.name);
     *category = toNSString(identity.category);
 }
@@ -69,8 +69,8 @@
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_identity(Ice::Identity{fromNSString(name),
-                                                                                     fromNSString(category)})];
+        auto prx = _prx->ice_identity(Ice::Identity{fromNSString(name), fromNSString(category)});
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -81,36 +81,40 @@
 
 -(NSDictionary<NSString*, NSString*>*) ice_getContext
 {
-    return toNSDictionary(_objectPrx->ice_getContext());
+    return toNSDictionary(_prx->ice_getContext());
 }
 
 -(instancetype) ice_context:(NSDictionary<NSString*, NSString*>*)context
 {
     Ice::Context ctx;
     fromNSDictionary(context, ctx);
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_context(ctx)];
+
+    auto prx = _prx->ice_context(ctx);
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(NSString*) ice_getFacet
 {
-    return toNSString(_objectPrx->ice_getFacet());
+    return toNSString(_prx->ice_getFacet());
 }
 
 -(instancetype) ice_facet:(NSString*)facet
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_facet(fromNSString(facet))];
+    auto prx = _prx->ice_facet(fromNSString(facet));
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(NSString*) ice_getAdapterId
 {
-    return toNSString(_objectPrx->ice_getAdapterId());
+    return toNSString(_prx->ice_getAdapterId());
 }
 
 -(instancetype) ice_adapterId:(NSString*)id error:(NSError**)error
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_adapterId(fromNSString(id))];
+        auto prx = _prx->ice_adapterId(fromNSString(id));
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -121,7 +125,7 @@
 
 -(NSArray<ICEEndpoint*>*) ice_getEndpoints
 {
-    return toNSArray(_objectPrx->ice_getEndpoints());
+    return toNSArray(_prx->ice_getEndpoints());
 }
 
 -(instancetype) ice_endpoints:(NSArray<ICEEndpoint*>*)endpoints error:(NSError**)error
@@ -130,7 +134,9 @@
     {
         Ice::EndpointSeq endpts;
         fromNSArray(endpoints, endpts);
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_endpoints(endpts)];
+
+        auto prx = _prx->ice_endpoints(endpts);
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -141,14 +147,15 @@
 
 -(int32_t) ice_getLocatorCacheTimeout
 {
-    return _objectPrx->ice_getLocatorCacheTimeout();
+    return _prx->ice_getLocatorCacheTimeout();
 }
 
 -(instancetype) ice_locatorCacheTimeout:(int32_t)timeout error:(NSError**)error
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_locatorCacheTimeout(timeout)];
+        auto prx = _prx->ice_locatorCacheTimeout(timeout);
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -159,14 +166,15 @@
 
 -(int32_t) ice_getInvocationTimeout
 {
-    return _objectPrx->ice_getInvocationTimeout();
+    return _prx->ice_getInvocationTimeout();
 }
 
 -(instancetype) ice_invocationTimeout:(int32_t)timeout error:(NSError**)error
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_invocationTimeout(timeout)];
+        auto prx = _prx->ice_invocationTimeout(timeout);
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -177,14 +185,15 @@
 
 -(NSString*) ice_getConnectionId
 {
-    return toNSString(_objectPrx->ice_getConnectionId());
+    return toNSString(_prx->ice_getConnectionId());
 }
 
 -(instancetype) ice_connectionId:(NSString*)connectionId error:(NSError**)error
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_connectionId(fromNSString(connectionId))];
+        auto prx = _prx->ice_connectionId(fromNSString(connectionId));
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -195,14 +204,15 @@
 
 -(bool) ice_isConnectionCached
 {
-    return _objectPrx->ice_isConnectionCached();
+    return _prx->ice_isConnectionCached();
 }
 
 -(instancetype) ice_connectionCached:(bool)cached error:(NSError**)error
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_connectionCached(cached)];
+        auto prx = _prx->ice_connectionCached(cached);
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -213,14 +223,15 @@
 
 -(uint8_t) ice_getEndpointSelection
 {
-    return static_cast<uint8_t>(_objectPrx->ice_getEndpointSelection());
+    return static_cast<uint8_t>(_prx->ice_getEndpointSelection());
 }
 
 -(instancetype) ice_endpointSelection:(uint8_t)type error:(NSError**)error
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_endpointSelection(Ice::EndpointSelectionType(type))];
+        auto prx = _prx->ice_endpointSelection(Ice::EndpointSelectionType(type));
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -232,28 +243,30 @@
 -(instancetype) ice_encodingVersion:(uint8_t)major minor:(uint8_t)minor
 {
     Ice::EncodingVersion encoding{major, minor};
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_encodingVersion(encoding)];
+
+    auto prx = _prx->ice_encodingVersion(encoding);
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(void) ice_getEncodingVersion:(uint8_t*)major minor:(uint8_t*)minor
 {
-    Ice::EncodingVersion v = _objectPrx->ice_getEncodingVersion();
+    Ice::EncodingVersion v = _prx->ice_getEncodingVersion();
     *major = v.major;
     *minor = v.minor;
 }
 
 -(ICEObjectPrx*) ice_getRouter
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_getRouter()];
+    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_prx->ice_getRouter()];
 }
 
 -(instancetype) ice_router:(ICEObjectPrx*)router error:(NSError**)error
 {
     try
     {
-        auto r = router ? [router objectPrx] : nullptr;
-        auto prx = _objectPrx->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(r));
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
+        auto r = router ? [router prx] : nullptr;
+        auto prx = _prx->ice_router(Ice::uncheckedCast<Ice::RouterPrx>(r));
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -264,16 +277,16 @@
 
 -(ICEObjectPrx*) ice_getLocator
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_getLocator()];
+    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_prx->ice_getLocator()];
 }
 
 -(instancetype) ice_locator:(ICEObjectPrx*)locator error:(NSError**)error
 {
     try
     {
-        auto l = locator ? [locator objectPrx] : nullptr;
-        auto prx = _objectPrx->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
+        auto l = locator ? [locator prx] : nullptr;
+        auto prx = _prx->ice_locator(Ice::uncheckedCast<Ice::LocatorPrx>(l));
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -284,24 +297,26 @@
 
 -(bool) ice_isSecure
 {
-    return _objectPrx->ice_isSecure();
+    return _prx->ice_isSecure();
 }
 
 -(instancetype) ice_secure:(bool)b
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_secure(b)];
+    auto prx = _prx->ice_secure(b);
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(bool) ice_isPreferSecure
 {
-    return _objectPrx->ice_isPreferSecure();
+    return _prx->ice_isPreferSecure();
 }
 
 -(instancetype) ice_preferSecure:(bool)b error:(NSError**)error
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_preferSecure(b)];
+        auto prx = _prx->ice_preferSecure(b);
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -312,57 +327,62 @@
 
 -(bool) ice_isTwoway
 {
-    return _objectPrx->ice_isTwoway();
+    return _prx->ice_isTwoway();
 }
 
 -(nonnull instancetype) ice_twoway
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_twoway()];
+    auto prx = _prx->ice_twoway();
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(bool) ice_isOneway
 {
-    return _objectPrx->ice_isOneway();
+    return _prx->ice_isOneway();
 }
 
 -(nonnull instancetype) ice_oneway
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_oneway()];
+    auto prx = _prx->ice_oneway();
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(bool) ice_isBatchOneway
 {
-    return _objectPrx->ice_isBatchOneway();
+    return _prx->ice_isBatchOneway();
 }
 
 -(instancetype) ice_batchOneway
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_batchOneway()];
+    auto prx = _prx->ice_batchOneway();
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(bool) ice_isDatagram
 {
-    return _objectPrx->ice_isDatagram();
+    return _prx->ice_isDatagram();
 }
 
 -(instancetype) ice_datagram
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_datagram()];
+    auto prx = _prx->ice_datagram();
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(bool) ice_isBatchDatagram
 {
-    return _objectPrx->ice_isBatchDatagram();
+    return _prx->ice_isBatchDatagram();
 }
 
 -(instancetype) ice_batchDatagram
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_batchDatagram()];
+    auto prx = _prx->ice_batchDatagram();
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(nullable id) ice_getCompress
 {
-    auto compress = _objectPrx->ice_getCompress();
+    auto compress = _prx->ice_getCompress();
     if(!compress.has_value())
     {
         return nil;
@@ -372,12 +392,13 @@
 
 -(instancetype) ice_compress:(bool)compress
 {
-    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_compress(compress)];
+    auto prx = _prx->ice_compress(compress);
+    return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
 }
 
 -(id) ice_getTimeout
 {
-    auto timeout = _objectPrx->ice_getTimeout();
+    auto timeout = _prx->ice_getTimeout();
     if(!timeout.has_value())
     {
         return nil;
@@ -389,7 +410,8 @@
 {
     try
     {
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:_objectPrx->ice_timeout(timeout)];
+        auto prx = _prx->ice_timeout(timeout);
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -402,8 +424,8 @@
 {
     try
     {
-        auto prx = _objectPrx->ice_fixed([connection connection]);
-        return [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
+        auto prx = _prx->ice_fixed([connection connection]);
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
     }
     catch(const std::exception& ex)
     {
@@ -416,7 +438,7 @@
 {
     try
     {
-        auto c = _objectPrx->ice_getConnection();
+        auto c = _prx->ice_getConnection();
 
         ICEConnection* connection = createLocalObject<Ice::Connection>(c, [&c]() -> id
         {
@@ -434,7 +456,7 @@
 
 -(ICEConnection*) ice_getCachedConnection
 {
-    auto c = _objectPrx->ice_getCachedConnection();
+    auto c = _prx->ice_getCachedConnection();
 
     return createLocalObject<Ice::Connection>(c, [&c]() -> id
     {
@@ -446,7 +468,7 @@
 {
     try
     {
-        _objectPrx->ice_flushBatchRequests();
+        _prx->ice_flushBatchRequests();
         return YES;
     }
     catch(const std::exception& ex) {
@@ -500,10 +522,10 @@
     //
     try
     {
-        auto communicator = _objectPrx->ice_getCommunicator();
-        auto encoding = _objectPrx->ice_getEncodingVersion();
+        auto communicator = _prx->ice_getCommunicator();
+        auto encoding = _prx->ice_getEncodingVersion();
         Ice::OutputStream out(communicator, encoding);
-        out.write(_objectPrx);
+        out.write(_prx);
         std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
         int count = static_cast<int>(p.second - p.first);
         [os copy:p.first count:[NSNumber numberWithInt:count]];
@@ -542,7 +564,7 @@
         }
 
         std::vector<Ice::Byte> v;
-        *returnValue = _objectPrx->ice_invoke(fromNSString(op), static_cast<Ice::OperationMode>(mode), params, v, ctx);
+        *returnValue = _prx->ice_invoke(fromNSString(op), static_cast<Ice::OperationMode>(mode), params, v, ctx);
         return [[ICEInputStream alloc] initWithBytes:std::move(v)];
     }
     catch(const std::exception& ex)

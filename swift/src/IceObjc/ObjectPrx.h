@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
 #ifdef __cplusplus
 
 @interface ICEObjectPrx()
-@property (nonatomic, readonly) std::shared_ptr<Ice::ObjectPrx> objectPrx;
+@property (nonatomic, readonly) std::shared_ptr<Ice::ObjectPrx> prx;
 -(nullable instancetype) initWithCppObjectPrx:(std::shared_ptr<Ice::ObjectPrx>)prx;
 @end
 

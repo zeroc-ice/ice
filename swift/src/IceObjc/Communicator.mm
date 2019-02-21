@@ -72,7 +72,7 @@
 {
     try
     {
-        return toNSString(_communicator->proxyToString([prx objectPrx]));
+        return toNSString(_communicator->proxyToString([prx prx]));
     }
     catch(const std::exception& ex)
     {
@@ -101,7 +101,7 @@
 
 -(NSDictionary<NSString*, NSString*>*) proxyToProperty:(ICEObjectPrx*)prx property:(NSString*)property error:(NSError* _Nullable * _Nullable)error
 {
-    return toNSDictionary(_communicator->proxyToProperty([prx objectPrx], fromNSString(property)));
+    return toNSDictionary(_communicator->proxyToProperty([prx prx], fromNSString(property)));
 }
 
 //-(ObjectAdapterI*) createObjectAdapter:(NSString*)name error:(NSError* _Nullable * _Nullable)error
