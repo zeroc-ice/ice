@@ -79,7 +79,6 @@
 		D84D1C742167F34B004E7474 /* CommunicatorI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C5F2167F34B004E7474 /* CommunicatorI.swift */; };
 		D84D1C7E2167F367004E7474 /* IceObjc.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C7C2167F367004E7474 /* IceObjc.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D84D1C822167F371004E7474 /* IceUtil.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C332167F338004E7474 /* IceUtil.mm */; };
-		D84D1C832167F371004E7474 /* Ice-Objc.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C342167F338004E7474 /* Ice-Objc.h */; };
 		D84D1C842167F371004E7474 /* Connection.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C352167F338004E7474 /* Connection.mm */; };
 		D84D1C852167F371004E7474 /* Endpoint.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C362167F338004E7474 /* Endpoint.mm */; };
 		D84D1C862167F371004E7474 /* ImplicitContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C372167F338004E7474 /* ImplicitContext.mm */; };
@@ -88,9 +87,21 @@
 		D84D1C892167F371004E7474 /* Properties.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C3A2167F338004E7474 /* Properties.mm */; };
 		D84D1C8A2167F371004E7474 /* Util.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C3B2167F338004E7474 /* Util.h */; };
 		D84D1C8B2167F371004E7474 /* ObjectPrx.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C3C2167F338004E7474 /* ObjectPrx.mm */; };
-		D84D1C8C2167F371004E7474 /* Ice-Bridging-Header.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C3D2167F338004E7474 /* Ice-Bridging-Header.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D84D1C8C2167F371004E7474 /* IceUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = D84D1C3D2167F338004E7474 /* IceUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D84D1C8D2167F371004E7474 /* Util.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C3E2167F338004E7474 /* Util.mm */; };
 		D84D1CE5216809B1004E7474 /* Communicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = D84D1C582167F34B004E7474 /* Communicator.mm */; };
+		D85E34A7221F2C4A0015D740 /* Communicator.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34A6221F2C4A0015D740 /* Communicator.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34A9221F2CE40015D740 /* LocalObject.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34A8221F2CE40015D740 /* LocalObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34AB221F2DC20015D740 /* Connection.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34AA221F2DC20015D740 /* Connection.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34AE221F2EF50015D740 /* ObjectPrx.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34AD221F2EF50015D740 /* ObjectPrx.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34B0221F2F520015D740 /* Properties.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34AF221F2F520015D740 /* Properties.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34B4221F2FF40015D740 /* ImplicitContext.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34B3221F2FF40015D740 /* ImplicitContext.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34B6221F30E20015D740 /* LocalException.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34B5221F30E20015D740 /* LocalException.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34B8221F31120015D740 /* OutputStream.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34B7221F31120015D740 /* OutputStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34BA221F33030015D740 /* Config.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34B9221F33030015D740 /* Config.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34C7221F3C730015D740 /* InputStream.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34B1221F2F860015D740 /* InputStream.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34C8221F3D740015D740 /* Logger.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34B2221F2FBA0015D740 /* Logger.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		D85E34C9221F3D7F0015D740 /* Endpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = D85E34AC221F2E440015D740 /* Endpoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		D87038602179197F00BE6773 /* LoggerI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D870385F2179197F00BE6773 /* LoggerI.swift */; };
 		D870386221791B3100BE6773 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = D870386121791B3100BE6773 /* Logger.mm */; };
 		D88018B5217E1C55003C8C26 /* LoggerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = D88018B4217E1C55003C8C26 /* LoggerWrapper.swift */; };
@@ -156,7 +167,6 @@
 		D84566FF2167F2E200FD3B8B /* IceSwift.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = IceSwift.h; sourceTree = "<group>"; };
 		D84567002167F2E200FD3B8B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D84D1C332167F338004E7474 /* IceUtil.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = IceUtil.mm; sourceTree = "<group>"; };
-		D84D1C342167F338004E7474 /* Ice-Objc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Ice-Objc.h"; sourceTree = "<group>"; };
 		D84D1C352167F338004E7474 /* Connection.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Connection.mm; sourceTree = "<group>"; };
 		D84D1C362167F338004E7474 /* Endpoint.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Endpoint.mm; sourceTree = "<group>"; };
 		D84D1C372167F338004E7474 /* ImplicitContext.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ImplicitContext.mm; sourceTree = "<group>"; };
@@ -165,7 +175,7 @@
 		D84D1C3A2167F338004E7474 /* Properties.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Properties.mm; sourceTree = "<group>"; };
 		D84D1C3B2167F338004E7474 /* Util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Util.h; sourceTree = "<group>"; };
 		D84D1C3C2167F338004E7474 /* ObjectPrx.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = ObjectPrx.mm; sourceTree = "<group>"; };
-		D84D1C3D2167F338004E7474 /* Ice-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Ice-Bridging-Header.h"; sourceTree = "<group>"; };
+		D84D1C3D2167F338004E7474 /* IceUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IceUtil.h; sourceTree = "<group>"; };
 		D84D1C3E2167F338004E7474 /* Util.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Util.mm; sourceTree = "<group>"; };
 		D84D1C4B2167F34A004E7474 /* Value.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Value.swift; sourceTree = "<group>"; };
 		D84D1C4C2167F34B004E7474 /* ConnectionI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectionI.swift; sourceTree = "<group>"; };
@@ -232,6 +242,18 @@
 		D84D1CB82167F398004E7474 /* ImplicitContext.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ImplicitContext.ice; sourceTree = "<group>"; };
 		D84D1CB92167F398004E7474 /* FacetMap.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = FacetMap.ice; sourceTree = "<group>"; };
 		D84D1CBA2167F398004E7474 /* ServantLocatorF.ice */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ServantLocatorF.ice; sourceTree = "<group>"; };
+		D85E34A6221F2C4A0015D740 /* Communicator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Communicator.h; sourceTree = "<group>"; };
+		D85E34A8221F2CE40015D740 /* LocalObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalObject.h; sourceTree = "<group>"; };
+		D85E34AA221F2DC20015D740 /* Connection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Connection.h; sourceTree = "<group>"; };
+		D85E34AC221F2E440015D740 /* Endpoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Endpoint.h; sourceTree = "<group>"; };
+		D85E34AD221F2EF50015D740 /* ObjectPrx.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ObjectPrx.h; sourceTree = "<group>"; };
+		D85E34AF221F2F520015D740 /* Properties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Properties.h; sourceTree = "<group>"; };
+		D85E34B1221F2F860015D740 /* InputStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = InputStream.h; sourceTree = "<group>"; };
+		D85E34B2221F2FBA0015D740 /* Logger.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Logger.h; sourceTree = "<group>"; };
+		D85E34B3221F2FF40015D740 /* ImplicitContext.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImplicitContext.h; sourceTree = "<group>"; };
+		D85E34B5221F30E20015D740 /* LocalException.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LocalException.h; sourceTree = "<group>"; };
+		D85E34B7221F31120015D740 /* OutputStream.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OutputStream.h; sourceTree = "<group>"; };
+		D85E34B9221F33030015D740 /* Config.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
 		D870385F2179197F00BE6773 /* LoggerI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerI.swift; sourceTree = "<group>"; };
 		D870386121791B3100BE6773 /* Logger.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = Logger.mm; sourceTree = "<group>"; };
 		D88018B4217E1C55003C8C26 /* LoggerWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoggerWrapper.swift; sourceTree = "<group>"; };
@@ -337,19 +359,30 @@
 		D84D1C322167F338004E7474 /* IceObjc */ = {
 			isa = PBXGroup;
 			children = (
+				D85E34A6221F2C4A0015D740 /* Communicator.h */,
 				D84D1C582167F34B004E7474 /* Communicator.mm */,
+				D85E34B9221F33030015D740 /* Config.h */,
+				D85E34AA221F2DC20015D740 /* Connection.h */,
 				D84D1C352167F338004E7474 /* Connection.mm */,
+				D85E34AC221F2E440015D740 /* Endpoint.h */,
 				D84D1C362167F338004E7474 /* Endpoint.mm */,
-				D84D1C3D2167F338004E7474 /* Ice-Bridging-Header.h */,
-				D84D1C342167F338004E7474 /* Ice-Objc.h */,
 				D84D1C7C2167F367004E7474 /* IceObjc.h */,
+				D84D1C3D2167F338004E7474 /* IceUtil.h */,
 				D84D1C332167F338004E7474 /* IceUtil.mm */,
+				D85E34B3221F2FF40015D740 /* ImplicitContext.h */,
 				D84D1C372167F338004E7474 /* ImplicitContext.mm */,
 				D84D1C7D2167F367004E7474 /* Info.plist */,
+				D85E34B1221F2F860015D740 /* InputStream.h */,
 				D84D1C382167F338004E7474 /* InputStream.mm */,
+				D85E34B5221F30E20015D740 /* LocalException.h */,
+				D85E34A8221F2CE40015D740 /* LocalObject.h */,
 				D84D1C392167F338004E7474 /* LocalObject.mm */,
+				D85E34B2221F2FBA0015D740 /* Logger.h */,
 				D870386121791B3100BE6773 /* Logger.mm */,
+				D85E34AD221F2EF50015D740 /* ObjectPrx.h */,
 				D84D1C3C2167F338004E7474 /* ObjectPrx.mm */,
+				D85E34B7221F31120015D740 /* OutputStream.h */,
+				D85E34AF221F2F520015D740 /* Properties.h */,
 				D84D1C3A2167F338004E7474 /* Properties.mm */,
 				D84D1C3B2167F338004E7474 /* Util.h */,
 				D84D1C3E2167F338004E7474 /* Util.mm */,
@@ -439,9 +472,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				D84D1C7E2167F367004E7474 /* IceObjc.h in Headers */,
-				D84D1C832167F371004E7474 /* Ice-Objc.h in Headers */,
-				D84D1C8C2167F371004E7474 /* Ice-Bridging-Header.h in Headers */,
+				D85E34B8221F31120015D740 /* OutputStream.h in Headers */,
+				D85E34C7221F3C730015D740 /* InputStream.h in Headers */,
+				D85E34B4221F2FF40015D740 /* ImplicitContext.h in Headers */,
+				D85E34AE221F2EF50015D740 /* ObjectPrx.h in Headers */,
+				D84D1C8C2167F371004E7474 /* IceUtil.h in Headers */,
+				D85E34B0221F2F520015D740 /* Properties.h in Headers */,
+				D85E34B6221F30E20015D740 /* LocalException.h in Headers */,
+				D85E34C8221F3D740015D740 /* Logger.h in Headers */,
+				D85E34A9221F2CE40015D740 /* LocalObject.h in Headers */,
+				D85E34AB221F2DC20015D740 /* Connection.h in Headers */,
+				D85E34A7221F2C4A0015D740 /* Communicator.h in Headers */,
 				D84D1C8A2167F371004E7474 /* Util.h in Headers */,
+				D85E34BA221F33030015D740 /* Config.h in Headers */,
+				D85E34C9221F3D7F0015D740 /* Endpoint.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -164,7 +164,6 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func fromICEObjectPrx(_ h: ICEObjectPrx) -> Self {
         return type(of: self).init(handle: h, communicator: self.communicator)
-
     }
 
     public func ice_getCommunicator() -> Communicator {

@@ -7,29 +7,12 @@
 //
 // **********************************************************************
 
-#import "InputStream.h"
+#import <Foundation/Foundation.h>
 
-@implementation ICEInputStream
+NS_ASSUME_NONNULL_BEGIN
 
--(instancetype) initWithBytes:(std::vector<Ice::Byte>)bytes;
-{
-    self = [super init];
-    if(!self)
-    {
-        return nil;
-    }
-    self->_bytes = std::move(bytes);
-    return self;
-}
-
--(void*) data
-{
-    return _bytes.data();
-}
-
--(size_t) size
-{
-    return _bytes.size();
-}
-
+@protocol ICEOutputStreamHelper
+-(void) copy:(const void*)start count:(NSNumber*)count;
 @end
+
+NS_ASSUME_NONNULL_END

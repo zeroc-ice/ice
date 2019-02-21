@@ -7,7 +7,10 @@
 //
 // **********************************************************************
 
-#import "Ice-Objc.h"
+#import "Communicator.h"
+#import "ObjectPrx.h"
+#import "Logger.h"
+#import "ImplicitContext.h"
 
 #include "Util.h"
 

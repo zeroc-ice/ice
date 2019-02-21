@@ -8,7 +8,7 @@
 //
 // **********************************************************************
 
-#import "Ice-Objc.h"
+#import "Properties.h"
 
 #import "Util.h"
 
@@ -127,7 +127,7 @@
 -(ICEProperties*) clone
 {
     auto props = _properties->clone();
-    return [[ICEProperties alloc] initWithLocalObject:&props];
+    return [[ICEProperties alloc] initWithCppProperties:props];
 }
 
 @end

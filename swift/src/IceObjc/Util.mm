@@ -7,12 +7,9 @@
 //
 // **********************************************************************
 
-//#include <Ice/Ice.h>
-//#include <IceSSL/IceSSL.h>
-
-#import "Ice-Objc.h"
-
-#include "Util.h"
+#import "LocalException.h"
+#import "IceUtil.h"
+#import "Util.h"
 
 NSError*
 convertException(const std::exception& exc)

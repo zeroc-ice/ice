@@ -7,9 +7,11 @@
 //
 // **********************************************************************
 
-#import "Ice-Objc.h"
-
-#include "Util.h"
+#import "Connection.h"
+#import "Endpoint.h"
+#import "ObjectPrx.h"
+#import "IceUtil.h"
+#import "Util.h"
 
 @implementation ICEConnection
 
@@ -57,7 +59,7 @@
 -(ICEEndpoint*) getEndpoint
 {
     auto endpoint = _connection->getEndpoint();
-    return [[ICEEndpoint alloc] initWithLocalObject:&endpoint];
+    return [[ICEEndpoint alloc] initWithCppEndpoint:endpoint];
 }
 
 -(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error

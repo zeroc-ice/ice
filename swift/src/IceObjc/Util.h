@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import <Foundation/Foundation.h>
+#import "LocalObject.h"
 
 #include <exception>
 #include <vector>

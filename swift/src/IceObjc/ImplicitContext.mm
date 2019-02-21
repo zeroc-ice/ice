@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import "Ice-Objc.h"
+#import "ImplicitContext.h"
 
 #include "Util.h"
 
