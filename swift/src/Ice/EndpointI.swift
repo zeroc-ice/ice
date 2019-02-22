@@ -55,7 +55,13 @@ class IPEndpointInfoI: EndpointInfoI, IPEndpointInfo {
     public var port: Int32
     public var sourceAddress: String
 
-    public init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool, host: String, port: Int32, sourceAddress: String) {
+    public init(handle: ICEEndpointInfo,
+                underlying: EndpointInfo?,
+                timeout: Int32,
+                compress: Bool,
+                host: String,
+                port: Int32,
+                sourceAddress: String) {
         self.host = host
         self.port = port
         self.sourceAddress = sourceAddress
@@ -69,10 +75,24 @@ class UDPEndpointInfoI: IPEndpointInfoI, UDPEndpointInfo {
     public var mcastInterface: String
     public var mcastTtl: Int32
 
-    public init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool, host: String, port: Int32, sourceAddress: String, mcastInterface: String, mcastTtl: Int32) {
+    public init(handle: ICEEndpointInfo,
+                underlying: EndpointInfo?,
+                timeout: Int32,
+                compress: Bool,
+                host: String,
+                port: Int32,
+                sourceAddress: String,
+                mcastInterface: String,
+                mcastTtl: Int32) {
         self.mcastInterface = mcastInterface
         self.mcastTtl = mcastTtl
-        super.init(handle: handle, underlying: underlying, timeout: timeout, compress: compress, host: host, port: port, sourceAddress: sourceAddress)
+        super.init(handle: handle,
+                   underlying: underlying,
+                   timeout: timeout,
+                   compress: compress,
+                   host: host,
+                   port: port,
+                   sourceAddress: sourceAddress)
     }
 }
 
@@ -89,7 +109,12 @@ class OpaqueEndpointInfoI: EndpointInfoI, OpaqueEndpointInfo {
     public var rawEncoding: EncodingVersion
     public var rawBytes: ByteSeq
 
-    public init(handle: ICEEndpointInfo, underlying: EndpointInfo?, timeout: Int32, compress: Bool, rawEncoding: EncodingVersion, rawBytes: ByteSeq) {
+    public init(handle: ICEEndpointInfo,
+                underlying: EndpointInfo?,
+                timeout: Int32,
+                compress: Bool,
+                rawEncoding: EncodingVersion,
+                rawBytes: ByteSeq) {
         self.rawEncoding = rawEncoding
         self.rawBytes = rawBytes
         super.init(handle: handle, underlying: underlying, timeout: timeout, compress: compress)

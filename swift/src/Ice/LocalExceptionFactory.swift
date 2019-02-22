@@ -138,8 +138,14 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
         return FacetNotExistException(id: Identity(name: name, category: category), facet: facet, operation: operation)
     }
 
-    static func operationNotExistException(_ name: String, category: String, facet: String, operation: String) -> Error {
-        return OperationNotExistException(id: Identity(name: name, category: category), facet: facet, operation: operation)
+    static func operationNotExistException(_ name: String,
+                                           category: String,
+                                           facet: String,
+                                           operation: String) -> Error {
+        return OperationNotExistException(id: Identity(name: name,
+                                                       category: category),
+                                          facet: facet,
+                                          operation: operation)
     }
 
     static func requestFailedException(_ name: String, category: String, facet: String, operation: String) -> Error {
@@ -196,13 +202,21 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
         return BadMagicException(reason: reason, badMagic: badMagic as! [UInt8])
     }
 
-    static func unsupportedProtocolException(_ reason: String, badMajor: UInt8, badMinor: UInt8, supportedMajor: UInt8, supportedMinor: UInt8) -> Error {
+    static func unsupportedProtocolException(_ reason: String,
+                                             badMajor: UInt8,
+                                             badMinor: UInt8,
+                                             supportedMajor: UInt8,
+                                             supportedMinor: UInt8) -> Error {
         return UnsupportedProtocolException(reason: reason,
                                             bad: ProtocolVersion(major: badMajor, minor: badMinor),
                                             supported: ProtocolVersion(major: supportedMajor, minor: supportedMinor))
     }
 
-    static func unsupportedEncodingException(_ reason: String, badMajor: UInt8, badMinor: UInt8, supportedMajor: UInt8, supportedMinor: UInt8) -> Error {
+    static func unsupportedEncodingException(_ reason: String,
+                                             badMajor: UInt8,
+                                             badMinor: UInt8,
+                                             supportedMajor: UInt8,
+                                             supportedMinor: UInt8) -> Error {
         return UnsupportedEncodingException(reason: reason,
                                             bad: EncodingVersion(major: badMajor, minor: badMinor),
                                             supported: EncodingVersion(major: supportedMajor, minor: supportedMinor))

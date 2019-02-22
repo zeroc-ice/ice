@@ -26,7 +26,7 @@ internal final class Buffer {
         owner = false
     }
 
-    //    TODO: default capacity?
+    // TODO: default capacity?
     init(count: Int = 240) {
         storage = UnsafeMutableRawBufferPointer.allocate(byteCount: count, alignment: MemoryLayout<UInt8>.alignment)
         owner = true

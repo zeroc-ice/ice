@@ -497,11 +497,11 @@
 			buildConfigurationList = D84567042167F2E200FD3B8B /* Build configuration list for PBXNativeTarget "Ice" */;
 			buildPhases = (
 				D84566F72167F2E200FD3B8B /* Headers */,
+				D8F773CC222048F40092F3DC /* ShellScript */,
 				D84566F82167F2E200FD3B8B /* Sources */,
 				D84566F92167F2E200FD3B8B /* Frameworks */,
 				D84566FA2167F2E200FD3B8B /* Resources */,
 				D8112392217A5EF30019489C /* CopyFiles */,
-				D8F773CC222048F40092F3DC /* ShellScript */,
 			);
 			buildRules = (
 				D81D9142216BAF1F00FDADB8 /* PBXBuildRule */,
@@ -603,7 +603,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftlint >/dev/null; then\n    src_dir=$(pwd)\n    cd ../\n    config=$(pwd)/.swiftlint.yml\n    swiftlint --path $src_dir --config $config\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "if which swiftformat >/dev/null; then\n    swiftformat ./\nelse \n    echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n\nif which swiftlint >/dev/null; then\n    src_dir=$(pwd)\n    cd ../\n    config=$(pwd)/.swiftlint.yml\n    swiftlint --path $src_dir --config $config\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

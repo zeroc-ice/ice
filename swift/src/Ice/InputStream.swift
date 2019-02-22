@@ -36,7 +36,9 @@ public class InputStream {
         buf = Buffer(start: baseAddress!, count: bytes.count)
     }
 
-    init(communicator: Communicator, encoding: EncodingVersion = currentEncoding(), inputStream handle: ICEInputStream) {
+    init(communicator: Communicator,
+         encoding: EncodingVersion = currentEncoding(),
+         inputStream handle: ICEInputStream) {
         self.communicator = communicator
         self.encoding = encoding
         self.handle = handle
@@ -468,7 +470,8 @@ public extension InputStream {
         preconditionFailure("not implemented")
     }
 
-    func readValue<ValueType>(cb: ((Value?) -> Void)?, cls: ValueType.Type = ValueType.self) throws where ValueType: Value {
+    func readValue<ValueType>(cb: ((Value?) -> Void)?,
+                              cls: ValueType.Type = ValueType.self) throws where ValueType: Value {
         initEncaps()
         if let cb = cb {
             var throwValue: Value?

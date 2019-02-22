@@ -8,8 +8,6 @@
 // **********************************************************************
 
 public protocol Streamable {
-//    var seqSizeMin: UInt8 { get }
-
     init(from ins: InputStream) throws
     func ice_write(to os: OutputStream)
 }
@@ -52,15 +50,11 @@ extension Int64: Streamable {
 
 extension Bool: Streamable {
     public init(from ins: InputStream) throws {
-        var b = UInt8()
-        try ins.read(numeric: &b)
-        self = b == 1 ? true : false
+        self = try ins.read(as: UInt8.self) == 1
     }
 
     public mutating func ice_read(from ins: InputStream) throws {
-        var b = UInt8()
-        try ins.read(numeric: &b)
-        self = b == 1 ? true : false
+        self = try ins.read(as: UInt8.self) == 1
     }
 
     public func ice_write(to os: OutputStream) {

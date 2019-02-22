@@ -21,7 +21,8 @@ class LocalObject<LocalObjectType: ICELocalObject> {
 
 extension ICELocalObject {
     func assign<ICELocalObjectType, LocalObjectType>(to _: LocalObjectType.Type,
-                                                     initializer: () -> LocalObjectType) -> LocalObjectType where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
+                                                     initializer: () -> LocalObjectType) -> LocalObjectType
+        where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
         if let swiftClass = swiftRef {
             precondition(swiftClass is LocalObjectType)
             // swiftlint:disable force_cast

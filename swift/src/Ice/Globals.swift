@@ -56,7 +56,7 @@ public func initialize(args: StringSeq = [],
         }
 
         let propsHandle = (initData.properties as? PropertiesI)?._handle
-        #warning("TODO: we should only install LoggerI if the user as not set their own logger or a logger property (eg. syslog)")
+        // TODO: we should only install LoggerI if the user as not set their own logger or a logger property (eg. syslog)
         let logger: ICELoggerProtocol = initData.logger as? LoggerI ?? LoggerWrapper(impl: initData.logger!)
         let handle = try ICEUtil.initialize(args, properties: propsHandle, logger: logger)
 
