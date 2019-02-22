@@ -7,12 +7,9 @@
 //
 // **********************************************************************
 
-public protocol Exception: Error {
+public protocol Exception: Error {}
 
-}
-
-public class LocalException: Exception  {
-}
+public class LocalException: Exception {}
 
 public protocol UserException: Exception, Streamable, CustomStringConvertible {
     var description: String { get }
@@ -21,7 +18,7 @@ public protocol UserException: Exception, Streamable, CustomStringConvertible {
 }
 
 public extension UserException {
-    public var description: String {
+    var description: String {
         return Self.ice_staticId()
     }
 
@@ -31,5 +28,5 @@ public extension UserException {
 }
 
 #warning("TODO: Add proper LocalException  CustomStringConvertible impl")
-// TODO All LocalExceptions should be CustomStringConvertible and print detailed messages
+// TODO: All LocalExceptions should be CustomStringConvertible and print detailed messages
 // like C++ (by calling IceUtilInternal::errorToString from ObjC)

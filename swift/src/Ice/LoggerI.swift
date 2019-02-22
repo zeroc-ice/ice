@@ -7,8 +7,8 @@
 //
 // **********************************************************************
 
-import os
 import IceObjc
+import os
 
 class LoggerI: Logger {
     let log: OSLog
@@ -16,13 +16,13 @@ class LoggerI: Logger {
     let subsystem: String
 
     init(prefix: String = "") {
-        self.subsystem = prefix.isEmpty ? "com.zeroc.ice":  "com.zeroc.ice.\(prefix)"
-        self.log = OSLog(subsystem: self.subsystem, category: "")
+        subsystem = prefix.isEmpty ? "com.zeroc.ice" : "com.zeroc.ice.\(prefix)"
+        log = OSLog(subsystem: subsystem, category: "")
         self.prefix = prefix
     }
 
     func print(message: String) {
-        os_log("%{public}s", log: self.log, type: .default, message)
+        os_log("%{public}s", log: log, type: .default, message)
     }
 
     func trace(category: String, message: String) {
@@ -31,11 +31,11 @@ class LoggerI: Logger {
     }
 
     func warning(message: String) {
-        os_log("%{public}s", log: self.log, type: .error, message)
+        os_log("%{public}s", log: log, type: .error, message)
     }
 
     func error(message: String) {
-        os_log("%{public}s", log: self.log, type: .fault, message)
+        os_log("%{public}s", log: log, type: .fault, message)
     }
 
     func getPrefix() -> String {

@@ -18,7 +18,6 @@ import Foundation
 // @objc dynamic Module_MyClass() -> Value.Type
 
 public class ClassResolver: NSObject {
-
     private static func mangle(typeId: String) -> String {
         precondition(typeId.count > 2, "invalid type id")
 

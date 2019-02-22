@@ -14,23 +14,23 @@ class LocalObject<LocalObjectType: ICELocalObject> {
 
     init(handle: LocalObjectType) {
         precondition(handle.swiftRef == nil)
-        self._handle = handle
-        self._handle.swiftRef = self
+        _handle = handle
+        _handle.swiftRef = self
     }
 }
 
 extension ICELocalObject {
-
-    func assign<ICELocalObjectType, LocalObjectType>(to type: LocalObjectType.Type,
-                                                 initializer: () -> LocalObjectType) -> LocalObjectType where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType>{
+    func assign<ICELocalObjectType, LocalObjectType>(to _: LocalObjectType.Type,
+                                                     initializer: () -> LocalObjectType) -> LocalObjectType where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
         if let swiftClass = swiftRef {
             precondition(swiftClass is LocalObjectType)
+            // swiftlint:disable force_cast
             return swiftClass as! LocalObjectType
         }
         return initializer()
     }
 
-    func to<ICELocalObjectType, LocalObjectType>(type: LocalObjectType.Type) -> LocalObjectType?
+    func to<ICELocalObjectType, LocalObjectType>(type _: LocalObjectType.Type) -> LocalObjectType?
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
         guard let swiftClass = swiftRef else {
             return nil

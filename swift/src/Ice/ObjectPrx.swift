@@ -63,34 +63,35 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
 
 public extension ObjectPrx {
     var impl: _ObjectPrxI {
+        // swiftlint:disable force_cast
         return self as! _ObjectPrxI
     }
 
     func ice_ping() throws {
-        let _ = try impl._invoke(operation: "ice_ping",
-                                 mode: OperationMode.Nonmutating,
-                                 twowayOnly: false,
-                                 inParams: nil,
-                                 hasOutParams: false)
+        _ = try impl._invoke(operation: "ice_ping",
+                             mode: OperationMode.Nonmutating,
+                             twowayOnly: false,
+                             inParams: nil,
+                             hasOutParams: false)
     }
 
     func ice_isA(id: String, context: Context? = nil) throws -> Bool {
-            let impl = self as! _ObjectPrxI
-            let os = impl._createOutputStream()
-            os.startEncapsulation()
-            id.ice_write(to: os)
-            os.endEncapsulation()
-            let ins = try impl._invoke(operation: "ice_isA",
-                                       mode: .Nonmutating,
-                                       twowayOnly: true,
-                                       inParams: os,
-                                       hasOutParams: true,
-                                       context: context)
-            try ins.startEncapsulation()
-            var r = Bool()
-            try r.ice_read(from: ins)
-            try ins.endEncapsulation()
-            return r
+        let impl = self as! _ObjectPrxI
+        let os = impl._createOutputStream()
+        os.startEncapsulation()
+        id.ice_write(to: os)
+        os.endEncapsulation()
+        let ins = try impl._invoke(operation: "ice_isA",
+                                   mode: .Nonmutating,
+                                   twowayOnly: true,
+                                   inParams: os,
+                                   hasOutParams: true,
+                                   context: context)
+        try ins.startEncapsulation()
+        var r = Bool()
+        try r.ice_read(from: ins)
+        try ins.endEncapsulation()
+        return r
     }
 
     func ice_id(context: Context? = nil) throws -> String {
@@ -114,7 +115,7 @@ public extension ObjectPrx {
                                    inParams: nil,
                                    hasOutParams: true,
                                    context: context)
-        try ins.startEncapsulation();
+        try ins.startEncapsulation()
         let id = try StringSeq(from: ins)
         try ins.endEncapsulation()
         return id
@@ -122,7 +123,6 @@ public extension ObjectPrx {
 }
 
 open class _ObjectPrxI: ObjectPrx {
-
     let handle: ICEObjectPrx
     private let communicator: Communicator
     private let encoding: EncodingVersion
@@ -136,34 +136,34 @@ open class _ObjectPrxI: ObjectPrx {
         print("Destroying objectprx")
     }
 
-    required public init() {
+    public required init() {
         preconditionFailure("TODO")
     }
 
-    required public init(handle: ICEObjectPrx, communicator: Communicator) {
+    public required init(handle: ICEObjectPrx, communicator: Communicator) {
         self.handle = handle
         self.communicator = communicator
         var encoding = EncodingVersion()
         handle.ice_getEncodingVersion(&encoding.major, minor: &encoding.minor)
         self.encoding = encoding
-        self.isTwoway = handle.ice_isTwoway()
+        isTwoway = handle.ice_isTwoway()
     }
 
-    required public init(from prx: ObjectPrx) {
+    public required init(from prx: ObjectPrx) {
         let impl = prx as! _ObjectPrxI
-        self.communicator = impl.communicator
-        self.encoding = impl.encoding
-        self.isTwoway = impl.isTwoway
-        self.handle = impl.handle
+        communicator = impl.communicator
+        encoding = impl.encoding
+        isTwoway = impl.isTwoway
+        handle = impl.handle
     }
 
-    public func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType : _ObjectPrxI {
-        return ObjectPrxType.init(handle: h,
-                                  communicator: self.communicator)
+    public func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: _ObjectPrxI {
+        return ObjectPrxType(handle: h,
+                             communicator: communicator)
     }
 
     public func fromICEObjectPrx(_ h: ICEObjectPrx) -> Self {
-        return type(of: self).init(handle: h, communicator: self.communicator)
+        return type(of: self).init(handle: h, communicator: communicator)
     }
 
     public func ice_getCommunicator() -> Communicator {
@@ -183,7 +183,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_identity(id: Identity) throws -> Self {
         return try autoreleasepool {
-            return try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category))
+            try fromICEObjectPrx(handle.ice_identity(id.name, category: id.category))
         }
     }
 
@@ -209,7 +209,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_adapterId(id: String) throws -> Self {
         return try autoreleasepool {
-            return try fromICEObjectPrx(handle.ice_adapterId(id))
+            try fromICEObjectPrx(handle.ice_adapterId(id))
         }
     }
 
@@ -219,7 +219,7 @@ open class _ObjectPrxI: ObjectPrx {
         }
     }
 
-    public func ice_endpoints(endpoints: [Endpoint]) throws -> Self {
+    public func ice_endpoints(endpoints _: [Endpoint]) throws -> Self {
         return try autoreleasepool {
             preconditionFailure("TODO")
 //            return try handle.ice_endpoints(endpoints as! [EndpointI])
@@ -232,7 +232,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_locatorCacheTimeout(timeout: Int32) throws -> Self {
         return try autoreleasepool {
-            return try fromICEObjectPrx(handle.ice_locatorCacheTimeout(timeout))
+            try fromICEObjectPrx(handle.ice_locatorCacheTimeout(timeout))
         }
     }
 
@@ -242,7 +242,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_invocationTimeout(timeout: Int32) throws -> Self {
         return try autoreleasepool {
-            return try fromICEObjectPrx(handle.ice_invocationTimeout(timeout))
+            try fromICEObjectPrx(handle.ice_invocationTimeout(timeout))
         }
     }
 
@@ -252,7 +252,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_connectionId(id: String) throws -> Self {
         return try autoreleasepool {
-            return try fromICEObjectPrx(handle.ice_connectionId(id))
+            try fromICEObjectPrx(handle.ice_connectionId(id))
         }
     }
 
@@ -262,7 +262,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_connectionCached(cached: Bool) throws -> Self {
         return try autoreleasepool {
-            return try fromICEObjectPrx(handle.ice_connectionCached(cached))
+            try fromICEObjectPrx(handle.ice_connectionCached(cached))
         }
     }
 
@@ -272,12 +272,12 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_endpointSelection(type: EndpointSelectionType) throws -> Self {
         return try autoreleasepool {
-            return try fromICEObjectPrx(handle.ice_endpointSelection(type.rawValue))
+            try fromICEObjectPrx(handle.ice_endpointSelection(type.rawValue))
         }
     }
 
     public func ice_getEncodingVersion() -> EncodingVersion {
-        return self.encoding
+        return encoding
     }
 
     public func ice_encodingVersion(encoding: EncodingVersion) -> Self {
@@ -285,7 +285,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getRouter() -> RouterPrx? {
-        guard let routerHandle =  handle.ice_getRouter() else {
+        guard let routerHandle = handle.ice_getRouter() else {
             return nil
         }
         return fromICEObjectPrx(routerHandle) as _RouterPrxI
@@ -299,7 +299,7 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     public func ice_getLocator() -> LocatorPrx? {
-        guard let locatorHandle =  handle.ice_getLocator() else {
+        guard let locatorHandle = handle.ice_getLocator() else {
             return nil
         }
         return fromICEObjectPrx(locatorHandle) as _LocatorPrxI
@@ -326,7 +326,7 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_preferSecure(preferSecure: Bool) throws -> Self {
         return try autoreleasepool {
-            return try fromICEObjectPrx(handle.ice_preferSecure(preferSecure))
+            try fromICEObjectPrx(handle.ice_preferSecure(preferSecure))
         }
     }
 
@@ -406,7 +406,7 @@ open class _ObjectPrxI: ObjectPrx {
             guard let handle = try handle.ice_getConnection() as? ICEConnection else {
                 return nil
             }
-            return handle.assign(to: ConnectionI.self) { return ConnectionI(handle: handle) }
+            return handle.assign(to: ConnectionI.self) { ConnectionI(handle: handle) }
         }
     }
 
@@ -414,12 +414,12 @@ open class _ObjectPrxI: ObjectPrx {
         guard let handle = handle.ice_getCachedConnection() else {
             return nil
         }
-        return handle.assign(to: ConnectionI.self) { return ConnectionI(handle: handle) }
+        return handle.assign(to: ConnectionI.self) { ConnectionI(handle: handle) }
     }
 
     public func ice_flushBatchRequests() throws {
         return try autoreleasepool {
-            return try handle.ice_flushBatchRequests()
+            try handle.ice_flushBatchRequests()
         }
     }
 
@@ -427,37 +427,37 @@ open class _ObjectPrxI: ObjectPrx {
         handle.iceWrite(os)
     }
 
-    static public func ice_read(from ins: InputStream) throws -> Self? {
+    public static func ice_read(from _: InputStream) throws -> Self? {
 //        handle.iceRead()
         #warning("TODO")
         preconditionFailure("not implemented")
     }
 
     public func _createOutputStream() -> OutputStream {
-        return OutputStream(communicator: self.communicator, encoding: self.encoding)
+        return OutputStream(communicator: communicator, encoding: encoding)
     }
 
     public func _invoke(operation op: String,
-                 mode: OperationMode,
-                 twowayOnly: Bool,
-                 inParams: OutputStream?,
-                 hasOutParams: Bool,
-                 exceptions: [UserException] = [],
-                 context: Context? = nil) throws -> InputStream {
+                        mode: OperationMode,
+                        twowayOnly _: Bool,
+                        inParams: OutputStream?,
+                        hasOutParams: Bool,
+                        exceptions: [UserException] = [],
+                        context: Context? = nil) throws -> InputStream {
         return try autoreleasepool {
-            //TODO
+            // TODO:
 //            if twowayOnly && !self.isTwoway {
 //                throw TwowayOnlyException(operation: op)
 //                //            throw(Ice.TwowayOnlyException('', 'invocation requires twoway proxy', op));
 //            }
 
             var ok = Bool()
-            let ins = try InputStream(inputStream: handle.iceInvoke(op, mode: Int(mode.rawValue),
+            let ins = try InputStream(communicator: self.communicator,
+                                      inputStream: handle.iceInvoke(op, mode: Int(mode.rawValue),
                                                                     inParams: inParams?.getBytes(),
                                                                     inSize: inParams?.getCount() ?? 0,
                                                                     context: context,
-                                                                    returnValue: &ok),
-                                      communicator: self.communicator)
+                                                                    returnValue: &ok))
             if self.isTwoway {
                 if !ok {
                     do {
@@ -471,7 +471,7 @@ open class _ObjectPrxI: ObjectPrx {
                             }
                         }
                         // TODO: error.ice_id
-                        throw UnknownUserException(unknown:"")
+                        throw UnknownUserException(unknown: "")
                     }
                     // We let any all other error types propagate
                 }
@@ -484,9 +484,9 @@ open class _ObjectPrxI: ObjectPrx {
         }
     }
 
-    static public func checkedCast<ProxyImpl>(prx: ObjectPrx,
-                                       facet: String? = nil,
-                                       context: Context? = nil) throws -> ProxyImpl? where ProxyImpl: _ObjectPrxI {
+    public static func checkedCast<ProxyImpl>(prx: ObjectPrx,
+                                              facet: String? = nil,
+                                              context: Context? = nil) throws -> ProxyImpl? where ProxyImpl: _ObjectPrxI {
         let objPrx = facet != nil ? prx.ice_facet(facet: facet!) : prx
         guard try objPrx.ice_isA(id: ProxyImpl.ice_staticId(), context: context) else {
             return nil
@@ -494,9 +494,9 @@ open class _ObjectPrxI: ObjectPrx {
         return ProxyImpl(from: objPrx)
     }
 
-    static public func uncheckedCast<ProxyImpl>(prx: ObjectPrx,
-                                         facet: String? = nil,
-                                         context: Context? = nil) -> ProxyImpl where ProxyImpl: _ObjectPrxI {
+    public static func uncheckedCast<ProxyImpl>(prx: ObjectPrx,
+                                                facet: String? = nil,
+                                                context _: Context? = nil) -> ProxyImpl where ProxyImpl: _ObjectPrxI {
         let objPrx = facet != nil ? prx.ice_facet(facet: facet!) : prx
         return ProxyImpl(from: objPrx)
     }

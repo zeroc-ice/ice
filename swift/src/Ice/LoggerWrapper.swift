@@ -11,7 +11,6 @@ import IceObjc
 
 // Wrapps Swift Loggers so they can be callbed by ObjC/C++
 class LoggerWrapper: ICELoggerProtocol {
-
     let impl: Logger
 
     init(impl: Logger) {
@@ -39,7 +38,7 @@ class LoggerWrapper: ICELoggerProtocol {
     }
 
     func cloneWithPrefix(prefix: String) -> Any {
-        return impl.cloneWithPrefix(prefix:prefix)
+        return impl.cloneWithPrefix(prefix: prefix)
     }
 }
 
@@ -66,6 +65,7 @@ class ObjcLoggerWrapper: LocalObject<ICELogger>, Logger {
     }
 
     func cloneWithPrefix(prefix: String) -> Logger {
+        // swiftlint:disable force_cast
         return ObjcLoggerWrapper(handle: _handle.cloneWithPrefix(prefix: prefix) as! ICELogger)
     }
 }

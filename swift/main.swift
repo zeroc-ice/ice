@@ -21,7 +21,7 @@ extension HelloPrx {
         os.startEncapsulation()
         iceP_timeout.ice_write(to: os)
         os.endEncapsulation()
-        let _ = try impl._invoke(operation: "sayHello",
+        _ = try impl._invoke(operation: "sayHello",
                                  mode: OperationMode.Idempotent,
                                  twowayOnly: false,
                                  inParams: os,
@@ -35,11 +35,17 @@ class _HelloPrxI: Ice._ObjectPrxI, HelloPrx {
     }
 }
 
-func checkedCast(prx: ObjectPrx, type: HelloPrx.Protocol, facet: String? = nil, context: Context? = nil) throws -> HelloPrx? {
+func checkedCast(prx: ObjectPrx,
+                 type: HelloPrx.Protocol,
+                 facet: String? = nil,
+                 context: Context? = nil) throws -> HelloPrx? {
     return try _HelloPrxI.checkedCast(prx: prx, facet: facet, context: context) as _HelloPrxI?
 }
 
-func uncheckedCast(prx: ObjectPrx, type: HelloPrx.Protocol, facet: String? = nil, context: Context? = nil) -> HelloPrx? {
+func uncheckedCast(prx: ObjectPrx,
+                   type: HelloPrx.Protocol,
+                   facet: String? = nil,
+                   context: Context? = nil) -> HelloPrx? {
     return _HelloPrxI.uncheckedCast(prx: prx, facet: facet, context: context) as _HelloPrxI?
 }
 
@@ -136,10 +142,8 @@ do {
 
     print(m.foobar == nil)
 
-}
-catch let error as LocalException {
+} catch let error as LocalException {
     print(error)
-}
-catch let err {
+} catch let err {
     print("more errors \(err)")
 }

@@ -10,7 +10,6 @@
 import IceObjc
 
 class LocalExceptionFactory: ICELocalExceptionFactory {
-
     static func initializationException(_ reason: String) -> Error {
         return InitializationException(reason: reason)
     }
@@ -192,7 +191,8 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
     }
 
     static func badMagicException(_ reason: String, badMagic: [NSNumber]) -> Error {
-        //TODO
+        // TODO: check this cast
+        // swiftlint:disable force_cast
         return BadMagicException(reason: reason, badMagic: badMagic as! [UInt8])
     }
 
@@ -279,5 +279,4 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
     static func protocolException(_ reason: String) -> Error {
         return ProtocolException(reason: reason)
     }
-
 }

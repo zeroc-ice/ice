@@ -11,12 +11,11 @@
  * Unknown sliced value holds an instance of an unknown Slice class type.
  **/
 public final class UnknownSlicedValue: Value {
-
     private let unknownTypeId: String
     private var slicedData: SlicedData?
 
     public init() {
-        self.unknownTypeId = ""
+        unknownTypeId = ""
     }
 
     public init(unknownTypeId: String) {
@@ -25,8 +24,8 @@ public final class UnknownSlicedValue: Value {
 
     public init(from ins: InputStream) throws {
         ins.startValue()
-        self.unknownTypeId = ""
-        self.slicedData = try ins.endValue(preserve: true)
+        unknownTypeId = ""
+        slicedData = try ins.endValue(preserve: true)
     }
 
     public func ice_id() -> String {

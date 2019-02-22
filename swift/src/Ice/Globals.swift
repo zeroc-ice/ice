@@ -9,9 +9,9 @@
 
 import IceObjc
 
-//var valueMap = [String:Value.Type]()
-//var exceptionMap = [String: UserException.Type]()
-//autoreleasepool {
+// var valueMap = [String:Value.Type]()
+// var exceptionMap = [String: UserException.Type]()
+// autoreleasepool {
 //    var classCount = UInt32(0)
 //    let classList = objc_copyClassList(&classCount)!
 //
@@ -25,23 +25,21 @@ import IceObjc
 //        }
 //    }
 //    free(UnsafeMutableRawPointer(classList))
-//}
+// }
 
 let factoriesInitialized: Bool = {
-    return ICEUtil.registerFactories(localException: LocalExceptionFactory.self,
-                                     connectionInfo: ConnectionInfoFactory.self,
-                                     endpointInfo: EndpointInfoFactory.self)
+    ICEUtil.registerFactories(localException: LocalExceptionFactory.self,
+                              connectionInfo: ConnectionInfoFactory.self,
+                              endpointInfo: EndpointInfoFactory.self)
 }()
 
 public func initialize(args: StringSeq = [],
-                initData userInitData: InitializationData? = nil,
-                configFile: String? = nil) throws -> Communicator {
-
+                       initData userInitData: InitializationData? = nil,
+                       configFile: String? = nil) throws -> Communicator {
     // Ensure factores are initialized
     precondition(factoriesInitialized)
 
     return try autoreleasepool {
-
         var initData = userInitData ?? InitializationData()
 
         if initData.logger == nil {
@@ -66,7 +64,7 @@ public func initialize(args: StringSeq = [],
     }
 }
 
-public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil) throws -> (Properties, StringSeq?)  {
+public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil) throws -> (Properties, StringSeq?) {
     return try autoreleasepool {
         var remArgs: NSArray?
         let propertiesHandle = try ICEUtil.createProperties(args,

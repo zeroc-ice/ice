@@ -69,16 +69,16 @@ extension Bool: Streamable {
 }
 
 extension String: Streamable {
-    public init(from ins: InputStream) throws {
+    public init(from _: InputStream) throws {
         preconditionFailure("not implemented")
     }
 
-    public mutating func ice_read(from ins: InputStream) throws {
+    public mutating func ice_read(from _: InputStream) throws {
         preconditionFailure("not implemented")
     }
 
     public func ice_write(to os: OutputStream) {
-        os.write(utf8view: self.utf8)
+        os.write(utf8view: utf8)
     }
 }
 
@@ -87,7 +87,7 @@ extension Array where Element: Streamable {
         let sz = try Int(ins.readAndCheckSeqSize(minSize: minSize))
         var a = [Element]()
         a.reserveCapacity(sz)
-        for i in 0..<sz {
+        for i in 0 ..< sz {
             a[i] = try Element(from: ins)
         }
         self = a
@@ -111,15 +111,15 @@ extension Array where Element: Numeric, Element: Streamable {
 }
 
 extension Dictionary where Key: Streamable, Value: Streamable {
-    public init(from ins: InputStream) throws {
+    public init(from _: InputStream) throws {
         preconditionFailure("not implemented")
     }
 
-    mutating public func ice_read(from ins: InputStream) throws {
+    public mutating func ice_read(from _: InputStream) throws {
         preconditionFailure("not implemented")
     }
 
-    public func ice_write(to os: OutputStream) {
+    public func ice_write(to _: OutputStream) {
         preconditionFailure("not implemented")
     }
 }
@@ -129,16 +129,15 @@ extension Optional where Wrapped: Streamable {
         self = Optional.none
     }
 
-    public init(from ins: InputStream) throws {
+    public init(from _: InputStream) throws {
         preconditionFailure("not implemented")
     }
 
-    mutating public func ice_read(from ins: InputStream) throws {
+    public mutating func ice_read(from _: InputStream) throws {
         preconditionFailure("not implemented")
     }
 
-    public func ice_write(to os: OutputStream) {
+    public func ice_write(to _: OutputStream) {
         preconditionFailure("not implemented")
     }
-
 }

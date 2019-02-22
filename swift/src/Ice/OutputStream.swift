@@ -24,9 +24,9 @@ public class OutputStream {
         buf = Buffer()
 
         if communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Default.SlicedFormat", value: 0) > 0 {
-            self.format = FormatType.SlicedFormat
+            format = FormatType.SlicedFormat
         } else {
-            self.format = FormatType.CompactFormat
+            format = FormatType.CompactFormat
         }
     }
 
@@ -36,7 +36,7 @@ public class OutputStream {
         // encapsulation encoding version if there's a current write
         // encapsulation, otherwise, use the stream encoding version.
         //
-        if(encapsStack != nil) {
+        if encapsStack != nil {
             startEncapsulation(encoding: encapsStack.encoding, format: encapsStack.format)
         } else {
             startEncapsulation(encoding: encoding, format: FormatType.DefaultFormat)
@@ -65,7 +65,7 @@ public class OutputStream {
     public func endEncapsulation() {
         // Size includes size and version.
         let start = encapsStack.start
-        var sz = Int32(self.buf.count - start)
+        var sz = Int32(buf.count - start)
         write(bytes: &sz, at: start)
 
         let curr = encapsStack!
@@ -111,16 +111,16 @@ public class OutputStream {
 
         encapsStack.setEncoding(encoding)
 
-        if(encapsStack.format == FormatType.DefaultFormat) {
+        if encapsStack.format == FormatType.DefaultFormat {
             encapsStack.format = format
         }
 
-         // Lazy initialization.
-        if(encapsStack.encoder == nil) {
-            if(encapsStack.encoding_1_0) {
-                encapsStack.encoder = EncapsEncoder10(os: self, encaps: encapsStack);
+        // Lazy initialization.
+        if encapsStack.encoder == nil {
+            if encapsStack.encoding_1_0 {
+                encapsStack.encoder = EncapsEncoder10(os: self, encaps: encapsStack)
             } else {
-                encapsStack.encoder = EncapsEncoder11(os: self, encaps: encapsStack);
+                encapsStack.encoder = EncapsEncoder11(os: self, encaps: encapsStack)
             }
         }
     }
@@ -143,12 +143,12 @@ public extension OutputStream {
     func write(size: Int32) {
         if size > 254 {
             // pre-allocate size memory
-            self.buf.ensure(bytesNeeded: Int(5))
+            buf.ensure(bytesNeeded: Int(5))
             write(numeric: UInt8(255))
             write(numeric: size)
         } else {
             // pre-allocate size memory
-            self.buf.ensure(bytesNeeded: Int(1 + size))
+            buf.ensure(bytesNeeded: Int(1 + size))
             write(numeric: UInt8(size))
         }
     }
@@ -192,7 +192,7 @@ public extension OutputStream {
         write(size: Int32(size))
     }
 
-    func write<Element>(array: Array<Element>) where Element: Streamable {
+    func write<Element>(array: [Element]) where Element: Streamable {
         write(numeric: Int32(array.count))
         for item in array {
             item.ice_write(to: self)
@@ -231,7 +231,7 @@ extension OutputStream: ICEOutputStreamHelper {
     }
 }
 
-fileprivate class Encaps {
+private class Encaps {
     var start: Int = 0
     var format: FormatType = FormatType.DefaultFormat
     var encoding: EncodingVersion = Ice.currentEncoding()
@@ -250,13 +250,13 @@ fileprivate class Encaps {
     }
 }
 
-fileprivate enum SliceType {
+private enum SliceType {
     case NoSlice
     case ValueSlice
     case ExceptionSlice
 }
 
-fileprivate struct ValueHolder: Hashable {
+private struct ValueHolder: Hashable {
     let value: Value
     var hashValue: Int {
         return ObjectIdentifier(value).hashValue
@@ -271,14 +271,14 @@ fileprivate struct ValueHolder: Hashable {
     }
 }
 
-fileprivate protocol EncapsEncoder: AnyObject {
+private protocol EncapsEncoder: AnyObject {
     var os: OutputStream { get }
     var encaps: Encaps { get }
 
     // Encapsulation attributes for instance marshaling.
-    var marshaledMap: [ValueHolder : Int32] { get }
-    var typeIdMap: [String : Int32] { get set }
-    var typeIdIndex: Int32 { get set}
+    var marshaledMap: [ValueHolder: Int32] { get }
+    var typeIdMap: [String: Int32] { get set }
+    var typeIdIndex: Int32 { get set }
 
     init(os: OutputStream, encaps: Encaps)
 
@@ -297,12 +297,11 @@ fileprivate protocol EncapsEncoder: AnyObject {
 }
 
 extension EncapsEncoder {
-    func writeOptional(tag: Int, format: OptionalFormat) -> Bool {
+    func writeOptional(tag _: Int, format _: OptionalFormat) -> Bool {
         return false
     }
 
-    func writePendingValues() {
-    }
+    func writePendingValues() {}
 
     func registerTypeId(_ typeId: String) -> Int32 {
         guard let p = typeIdMap[typeId] else {
@@ -314,11 +313,11 @@ extension EncapsEncoder {
     }
 }
 
-fileprivate final class EncapsEncoder10: EncapsEncoder {
+private final class EncapsEncoder10: EncapsEncoder {
     var os: OutputStream
     var encaps: Encaps
-    var marshaledMap: [ValueHolder : Int32]
-    lazy var typeIdMap: [String : Int32] = [String:Int32]()
+    var marshaledMap: [ValueHolder: Int32]
+    lazy var typeIdMap: [String: Int32] = [String: Int32]()
     var typeIdIndex: Int32
 
     // Instance attributes
@@ -332,8 +331,8 @@ fileprivate final class EncapsEncoder10: EncapsEncoder {
     init(os: OutputStream, encaps: Encaps) {
         self.os = os
         self.encaps = encaps
-        self.marshaledMap = [ValueHolder : Int32]()
-        self.typeIdIndex = 0
+        marshaledMap = [ValueHolder: Int32]()
+        typeIdIndex = 0
     }
 
     func writeValue(v: Value?) {
@@ -359,31 +358,31 @@ fileprivate final class EncapsEncoder10: EncapsEncoder {
 //        let usesClasses = v._usesClasses();
 //    }
 
-    func startInstance(type: SliceType, data: SlicedData?) {
+    func startInstance(type: SliceType, data _: SlicedData?) {
         sliceType = type
     }
 
     func endInstance() {
-        if(sliceType == SliceType.ValueSlice) {
+        if sliceType == SliceType.ValueSlice {
             //
             // Write the Object slice.
             //
-            startSlice(typeId: "::Ice::Object", compactId: -1, last: true);
+            startSlice(typeId: "::Ice::Object", compactId: -1, last: true)
             os.write(size: 0) // For compatibility with the old AFM.
-            endSlice();
+            endSlice()
         }
         sliceType = SliceType.NoSlice
     }
 
-    func startSlice(typeId: String, compactId: Int32, last: Bool) {
+    func startSlice(typeId: String, compactId _: Int32, last _: Bool) {
         //
         // For instance slices, encode a boolean to indicate how the type ID
         // is encoded and the type ID either as a string or index. For
         // exception slices, always encode the type ID as a string.
         //
-        if(sliceType == SliceType.ValueSlice) {
+        if sliceType == SliceType.ValueSlice {
             let index = registerTypeId(typeId)
-            if(index < 0) {
+            if index < 0 {
                 false.ice_write(to: os)
                 typeId.ice_write(to: os)
             } else {
@@ -402,7 +401,7 @@ fileprivate final class EncapsEncoder10: EncapsEncoder {
         //
         // Write the slice length.
         //
-        var sz = Int32(os.getCount()) - writeSlice + 4;
+        var sz = Int32(os.getCount()) - writeSlice + 4
         os.write(bytes: &sz, at: Int(writeSlice - 4))
     }
 
@@ -414,15 +413,15 @@ fileprivate final class EncapsEncoder10: EncapsEncoder {
             // marshaled instances" into _toBeMarshaledMap while writing
             // instances.
             //
-            toBeMarshaledMap.forEach { (key, value) in
+            toBeMarshaledMap.forEach { key, value in
                 marshaledMap[key] = value
             }
 
             let savedMap = toBeMarshaledMap
-            toBeMarshaledMap = [ValueHolder : Int32]()
+            toBeMarshaledMap = [ValueHolder: Int32]()
             os.write(size: savedMap.count)
 
-            savedMap.forEach { (key,value) in
+            savedMap.forEach { key, value in
                 //
                 // Consider the to be marshalled instances as marshaled now,
                 // this is necessary to avoid adding again the "to be
@@ -461,26 +460,26 @@ fileprivate final class EncapsEncoder10: EncapsEncoder {
         //
         valueIdIndex += 1
         toBeMarshaledMap[val] = valueIdIndex
-        return valueIdIndex;
+        return valueIdIndex
     }
 }
 
-fileprivate final class EncapsEncoder11: EncapsEncoder {
+private final class EncapsEncoder11: EncapsEncoder {
     var os: OutputStream
     var encaps: Encaps
 
-    var marshaledMap: [ValueHolder : Int32]
-    lazy var typeIdMap: [String : Int32] = [String:Int32]()
+    var marshaledMap: [ValueHolder: Int32]
+    lazy var typeIdMap: [String: Int32] = [String: Int32]()
     var typeIdIndex: Int32
 
     var current: InstanceData!
-    var valueIdIndex: Int32 = 0  // The ID of the next instance to marhsal
+    var valueIdIndex: Int32 = 0 // The ID of the next instance to marhsal
 
     init(os: OutputStream, encaps: Encaps) {
         self.os = os
         self.encaps = encaps
-        self.marshaledMap = [ValueHolder : Int32]()
-        self.typeIdIndex = 0
+        marshaledMap = [ValueHolder: Int32]()
+        typeIdIndex = 0
     }
 
     func writeValue(v: Value?) {
@@ -489,7 +488,7 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
             return
         }
 
-        if let curr = current, current != nil && encaps.format == FormatType.SlicedFormat {
+        if let curr = current, current != nil, encaps.format == FormatType.SlicedFormat {
             //
             // If writing an instance within a slice and using the sliced
             // format, write an index from the instance indirection
@@ -499,7 +498,7 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
             //
             let vh = ValueHolder(v)
             if let index = curr.indirectionMap[vh] {
-                os.write(size: index);
+                os.write(size: index)
             } else {
                 curr.indirectionTable.append(vh)
                 let idx = curr.indirectionTable.count // Position + 1 (0 is reserved for nil)
@@ -543,11 +542,11 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
         current.sliceFlagsPos = Int32(os.getCount())
         current.sliceFlags = 0
 
-        if(encaps.format == FormatType.SlicedFormat) {
+        if encaps.format == FormatType.SlicedFormat {
             // Encode the slice size if using the sliced format.
             current.sliceFlags |= Protocol.FLAG_HAS_SLICE_SIZE.rawValue
         }
-        if(last) {
+        if last {
             current.sliceFlags |= Protocol.FLAG_IS_LAST_SLICE.rawValue // This is the last slice.
         }
 
@@ -558,18 +557,18 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
         // string or index. For exception slices, always encode the type
         // ID a string.
         //
-        if(current.sliceType == SliceType.ValueSlice) {
+        if current.sliceType == SliceType.ValueSlice {
             //
             // Encode the type ID (only in the first slice for the compact
             // encoding).
             //
-            if(encaps.format == FormatType.SlicedFormat || current.firstSlice) {
-                if(compactId >= 0) {
+            if encaps.format == FormatType.SlicedFormat || current.firstSlice {
+                if compactId >= 0 {
                     current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_COMPACT.rawValue
                     os.write(size: compactId)
                 } else {
                     let index = registerTypeId(typeId)
-                    if(index < 0) {
+                    if index < 0 {
                         current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_STRING.rawValue
                         typeId.ice_write(to: os)
                     } else {
@@ -582,7 +581,7 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
             typeId.ice_write(to: os)
         }
 
-        if((current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0) {
+        if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
             os.write(numeric: Int32(0)) // Placeholder for the slice length.
         }
 
@@ -599,22 +598,22 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
         // were encoded. Note that the optional members are encoded before
         // the indirection table and are included in the slice size.
         //
-        if((current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0) {
+        if (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0 {
             Protocol.OPTIONAL_END_MARKER.rawValue.ice_write(to: os)
         }
 
         //
         // Write the slice length if necessary.
         //
-        if((current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0) {
-            var sz: Int32 = Int32(os.getCount()) - current.writeSlice + 4;
+        if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
+            var sz: Int32 = Int32(os.getCount()) - current.writeSlice + 4
             os.write(bytes: &sz, at: Int(current.writeSlice - 4))
         }
 
         //
         // Only write the indirection table if it contains entries.
         //
-        if(!current.indirectionTable.isEmpty) {
+        if !current.indirectionTable.isEmpty {
             precondition(encaps.format == FormatType.SlicedFormat)
             current.sliceFlags |= Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue
 
@@ -655,7 +654,7 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
             //
             info.bytes.ice_write(to: os)
 
-            if(info.hasOptionalMembers) {
+            if info.hasOptionalMembers {
                 current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue
             }
 
@@ -666,7 +665,7 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
                 current.indirectionTable.append(ValueHolder(o))
             }
 
-            endSlice();
+            endSlice()
         }
     }
 
@@ -692,24 +691,24 @@ fileprivate final class EncapsEncoder11: EncapsEncoder {
     }
 }
 
-fileprivate class InstanceData {
+private class InstanceData {
     // Instance attributes
     var sliceType: SliceType = SliceType.NoSlice
     var firstSlice: Bool = true
 
     // Slice attributes
     var sliceFlags: UInt8 = 0
-    var writeSlice: Int32 = 0    // Position of the slice data members
+    var writeSlice: Int32 = 0 // Position of the slice data members
     var sliceFlagsPos: Int32 = 0 // Position of the slice flags
     lazy var indirectionTable = [ValueHolder]()
-    lazy var indirectionMap = [ValueHolder : Int32]()
+    lazy var indirectionMap = [ValueHolder: Int32]()
 
     let previous: InstanceData?
     var next: InstanceData?
 
     init(previous: InstanceData?) {
         self.previous = previous
-        self.next = nil
+        next = nil
         if let p = previous {
             p.next = self
         }

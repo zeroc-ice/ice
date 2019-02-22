@@ -9,7 +9,7 @@
 
 import IceObjc
 
-class CommunicatorI : LocalObject<ICECommunicator>, Communicator {
+class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     //    classResolver
     //    implicitContext
 
@@ -53,12 +53,12 @@ class CommunicatorI : LocalObject<ICECommunicator>, Communicator {
     }
 
     func isShutdown() -> Bool {
-        return _handle.isShutdown();
+        return _handle.isShutdown()
     }
 
     func stringToProxy(str: String) throws -> ObjectPrx? {
         return try autoreleasepool {
-            guard let prxHandle = try _handle.string(toProxy:str) as? ICEObjectPrx else {
+            guard let prxHandle = try _handle.string(toProxy: str) as? ICEObjectPrx else {
                 return nil
             }
             return _ObjectPrxI(handle: prxHandle, communicator: self)
@@ -85,17 +85,17 @@ class CommunicatorI : LocalObject<ICECommunicator>, Communicator {
         return try Ice.identityToString(identity: ident)
     }
 
-    func createObjectAdapter(name: String) throws -> ObjectAdapter {
+    func createObjectAdapter(name _: String) throws -> ObjectAdapter {
         preconditionFailure("TODO")
 //        return try _handle.createObjectAdapter(name)
     }
 
-    func createObjectAdapterWithEndpoints(name: String, endpoints: String) throws -> ObjectAdapter {
+    func createObjectAdapterWithEndpoints(name _: String, endpoints _: String) throws -> ObjectAdapter {
         preconditionFailure("TODO")
 //        return try _handle.createObjectAdapterWithEndpoints(name, endpoints: endpoints)
     }
 
-    func createObjectAdapterWithRouter(name: String, rtr: RouterPrx) throws -> ObjectAdapter {
+    func createObjectAdapterWithRouter(name _: String, rtr _: RouterPrx) throws -> ObjectAdapter {
         preconditionFailure("TODO")
 //        return try _handle.createObjectAdapterWithRouter(name, router: rtr as! _RouterPrxI)
     }
@@ -103,7 +103,7 @@ class CommunicatorI : LocalObject<ICECommunicator>, Communicator {
     func getImplicitContext() -> ImplicitContext {
         let handle = _handle.getImplicitContext()
         return handle.assign(to: ImplicitContextI.self) {
-            return ImplicitContextI(handle: handle)
+            ImplicitContextI(handle: handle)
         }
     }
 
@@ -130,22 +130,22 @@ class CommunicatorI : LocalObject<ICECommunicator>, Communicator {
     }
 
     func getDefaultRouter() throws -> RouterPrx? {
-        //TODO
+        // TODO:
         preconditionFailure("TODO")
     }
 
-    func setDefaultRouter(rtr: RouterPrx?) throws {
-        //TODO
+    func setDefaultRouter(rtr _: RouterPrx?) throws {
+        // TODO:
         preconditionFailure("TODO")
     }
 
     func getDefaultLocator() throws -> LocatorPrx? {
-        //TODO
+        // TODO:
         preconditionFailure("TODO")
     }
 
-    func setDefaultLocator(loc: LocatorPrx?) throws {
-        //TODO
+    func setDefaultLocator(loc _: LocatorPrx?) throws {
+        // TODO:
         preconditionFailure("TODO")
     }
 
@@ -153,38 +153,38 @@ class CommunicatorI : LocalObject<ICECommunicator>, Communicator {
         return valueFactoryManager
     }
 
-    func flushBatchRequests(compress: CompressBatch) throws {
-        //TODO
+    func flushBatchRequests(compress _: CompressBatch) throws {
+        // TODO:
         preconditionFailure("Not yet implemented")
     }
 
-    func createAdmin(adminAdapter: ObjectAdapter, adminId: Identity) throws -> ObjectPrx {
-        //TODO
+    func createAdmin(adminAdapter _: ObjectAdapter, adminId _: Identity) throws -> ObjectPrx {
+        // TODO:
         preconditionFailure("Not yet implemented")
     }
 
     func getAdmin() throws -> ObjectPrx? {
-        //TODO
+        // TODO:
         preconditionFailure("Not yet implemented")
     }
 
-    func addAdminFacet(servant: Object, facet: String) throws {
-        //TODO
+    func addAdminFacet(servant _: Object, facet _: String) throws {
+        // TODO:
         preconditionFailure("Not yet implemented")
     }
 
-    func removeAdminFacet(facet: String) throws -> Object {
-        //TODO
+    func removeAdminFacet(facet _: String) throws -> Object {
+        // TODO:
         preconditionFailure("Not yet implemented")
     }
 
-    func findAdminFacet(facet: String) throws -> Object? {
-        //TODO
+    func findAdminFacet(facet _: String) throws -> Object? {
+        // TODO:
         preconditionFailure("Not yet implemented")
     }
 
     func findAllAdminFacets() throws -> FacetMap {
-        //TODO
+        // TODO:
         preconditionFailure("Not yet implemented")
     }
 }

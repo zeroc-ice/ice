@@ -8,13 +8,12 @@
 // **********************************************************************
 
 class ValueFactoryManagerI: ValueFactoryManager {
-
-    var factories = [String:ValueFactory]()
+    var factories = [String: ValueFactory]()
     var mutex = Mutex()
 
     func add(factory: @escaping ValueFactory, id: String) throws {
         try mutex.sync {
-            if let _ = factories[id] {
+            if factories[id] != nil {
                 throw AlreadyRegisteredException(kindOfObject: "value factory", id: id)
             }
             factories[id] = factory
@@ -23,7 +22,7 @@ class ValueFactoryManagerI: ValueFactoryManager {
 
     func find(id: String) -> ValueFactory? {
         return mutex.sync {
-            return factories[id]
+            factories[id]
         }
     }
 }

@@ -1,0 +1,7 @@
+disabled_rules:
+  - identifier_name
+  - function_parameter_count
+  - type_name
+
+file_length:
+  error: 2000

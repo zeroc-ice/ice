@@ -20,9 +20,7 @@ public extension Value {
         return "::Ice::Object"
     }
 
-    public func ice_preMarshal() {
-    }
+    func ice_preMarshal() {}
 
-    public func ice_postUnmarshal() {
-    }
+    func ice_postUnmarshal() {}
 }

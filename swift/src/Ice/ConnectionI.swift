@@ -10,7 +10,6 @@
 import IceObjc
 
 class ConnectionI: LocalObject<ICEConnection>, Connection {
-
     public var description: String {
         return toString()
     }
@@ -21,11 +20,11 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
 
     public func createProxy(id: Identity) throws -> ObjectPrx? {
         return try autoreleasepool {
-            return try _handle.createProxy(id.name, category: id.category) as? ObjectPrx ?? nil
+            try _handle.createProxy(id.name, category: id.category) as? ObjectPrx ?? nil
         }
     }
 
-    public func setAdapter(adapter: ObjectAdapter?) throws {
+    public func setAdapter(adapter _: ObjectAdapter?) throws {
         return autoreleasepool {
             preconditionFailure("not implemented yet")
         }
@@ -35,7 +34,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         preconditionFailure("not implemented yet")
     }
 
-    // TODO should this be non-optional
+    // TODO: should this be non-optional
     public func getEndpoint() -> Endpoint? {
         return EndpointI(handle: _handle.getEndpoint())
     }
@@ -109,7 +108,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         return _handle.toString()
     }
 
-    //TODO should this be non-optional
+    // TODO: should this be non-optional
     public func getInfo() throws -> ConnectionInfo? {
         return try _handle.getInfo() as? ConnectionInfo
     }
@@ -125,5 +124,4 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
             try _handle.throwException()
         }
     }
-
 }

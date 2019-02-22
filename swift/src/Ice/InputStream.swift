@@ -10,7 +10,6 @@
 import IceObjc
 
 public class InputStream {
-
     private var handle: ICEInputStream!
     private var bytes: [UInt8]!
 
@@ -19,7 +18,7 @@ public class InputStream {
     private var encoding: EncodingVersion
 
     // TODO: move encaps into InputStream
-    lazy private var encaps: Encaps = Encaps()
+    private lazy var encaps: Encaps = Encaps()
 
 //    private pos: Int32 = 1
 //    private size: Int32
@@ -34,14 +33,14 @@ public class InputStream {
         self.bytes = bytes
         var baseAddress: UnsafeMutableRawPointer?
         self.bytes.withUnsafeMutableBytes { baseAddress = $0.baseAddress }
-        self.buf = Buffer(start: baseAddress!, count: bytes.count)
+        buf = Buffer(start: baseAddress!, count: bytes.count)
     }
 
     init(communicator: Communicator, encoding: EncodingVersion = currentEncoding(), inputStream handle: ICEInputStream) {
         self.communicator = communicator
         self.encoding = encoding
         self.handle = handle
-        self.buf = Buffer(start: handle.data(), count: handle.size())
+        buf = Buffer(start: handle.data(), count: handle.size())
     }
 
     fileprivate func getBuffer() -> Buffer {
@@ -68,11 +67,11 @@ public class InputStream {
         let sz = try Int32(from: self)
 
         if sz < 6 {
-            // TODO file/line
+            // TODO: file/line
             throw UnmarshalOutOfBoundsException(reason: "")
         }
         if sz - 4 > buf.capacity - buf.count {
-            // TODO file/line
+            // TODO: file/line
             throw UnmarshalOutOfBoundsException(reason: "")
         }
 
@@ -119,17 +118,16 @@ public class InputStream {
         let encoding = try EncodingVersion(from: self)
         try Protocol.checkSupportedEncoding(encoding) // Make sure the encoding is supported.
 
-        if encoding == Protocol.Encoding_1_0  {
+        if encoding == Protocol.Encoding_1_0 {
             if sz != 6 {
                 throw EncapsulationException(reason: "")
             }
-        }
-        else {
+        } else {
             //
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
             //
-            buf.count = buf.count + Int(sz) + 6
+            buf.count += Int(sz) + 6
         }
     }
 
@@ -140,7 +138,7 @@ public class InputStream {
             throw EncapsulationException(reason: "invalid size")
         }
 
-        let _ = try EncodingVersion(from: self)
+        _ = try EncodingVersion(from: self)
 
         try buf.position(buf.count + Int(sz) - 6)
     }
@@ -213,7 +211,7 @@ public class InputStream {
         //
         // Skip remaining un-read optional members.
         //
-        while(true) {
+        while true {
             if buf.count >= encaps.start + encaps.sz {
                 return // End of encapsulation also indicates end of optionals.
             }
@@ -224,7 +222,7 @@ public class InputStream {
             }
 
             // Read first 3 bits.
-            guard let format = OptionalFormat.init(rawValue: v & 0x07) else {
+            guard let format = OptionalFormat(rawValue: v & 0x07) else {
                 preconditionFailure("invalid optional format")
             }
 
@@ -286,7 +284,7 @@ public extension InputStream {
     }
 
     func read<Element>(as type: Element.Type) throws -> Element where Element: Numeric, Element: Streamable {
-        return try self.buf.load(as: type)
+        return try buf.load(as: type)
     }
 
     func readSize() throws -> Int32 {
@@ -397,7 +395,7 @@ public extension InputStream {
         if encoding == Protocol.Encoding_1_0 {
             if maxValue < 127 {
                 val = try read(as: UInt8.self)
-            } else if maxValue <  32767 {
+            } else if maxValue < 32767 {
                 let v = try read(as: Int16.self)
                 guard v <= UInt8.max else {
                     throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
@@ -433,13 +431,13 @@ public extension InputStream {
         }
     }
 
-    func read<Element>(array: inout Array<Element>) throws where Element: Streamable {
+    func read<Element>(array: inout [Element]) throws where Element: Streamable {
         var count = Int32()
         try read(numeric: &count)
 
         array.reserveCapacity(Int(count))
 
-        for i in 0...count {
+        for i in 0 ... count {
             let e = try Element(from: self)
             array.insert(e, at: Int(i))
         }
@@ -450,7 +448,7 @@ public extension InputStream {
         if size == 0 {
             return ""
         } else {
-            let bytes = try self.buf.read(count: Int(size))
+            let bytes = try buf.read(count: Int(size))
             #warning("should we add more checks here")
             return String(data: Data(bytes: bytes.baseAddress!, count: bytes.count), encoding: .utf8)!
         }
@@ -460,12 +458,12 @@ public extension InputStream {
         string = try readString()
     }
 
-    func read(proxy: ObjectPrx.Protocol) throws -> ObjectPrx? {
+    func read(proxy _: ObjectPrx.Protocol) throws -> ObjectPrx? {
         preconditionFailure("not implemented")
 //        return try _ObjectPrxI.ice_read(from: self)
     }
 
-    func read(proxyArray: ObjectPrx.Protocol) throws -> [ObjectPrx?] {
+    func read(proxyArray _: ObjectPrx.Protocol) throws -> [ObjectPrx?] {
         #warning("Add proxy array unmarshaling")
         preconditionFailure("not implemented")
     }
@@ -490,10 +488,9 @@ public extension InputStream {
             try encaps.decoder.readValue(cb: nil)
         }
     }
-
 }
 
-fileprivate class Encaps {
+private class Encaps {
     var start: Int = 0
     var sz: Int = 0
     var encoding: EncodingVersion = Ice.currentEncoding()
@@ -512,16 +509,15 @@ fileprivate class Encaps {
     }
 }
 
-fileprivate enum SliceType {
+private enum SliceType {
     case NoSlice
     case ValueSlice
     case ExceptionSlice
 }
 
-fileprivate typealias Callback = (Value?) -> Void
+private typealias Callback = (Value?) -> Void
 
-fileprivate protocol EncapsDecoder: AnyObject {
-
+private protocol EncapsDecoder: AnyObject {
     var stream: InputStream { get }
     var sliceValues: Bool { get }
     var valueFactoryManager: ValueFactoryManager { get }
@@ -529,13 +525,13 @@ fileprivate protocol EncapsDecoder: AnyObject {
     //
     // Encapsulation attributes for value unmarshaling.
     //
-    var patchMap: [Int32 : [Callback] ] { get set }
-    var unmarshaledMap: [Int32 : Value] { get set }
-    var typeIdMap: [Int32 : String] { get set }
+    var patchMap: [Int32: [Callback]] { get set }
+    var unmarshaledMap: [Int32: Value] { get set }
+    var typeIdMap: [Int32: String] { get set }
     var typeIdIndex: Int32 { get set }
     var valueList: [Value] { get set }
 
-    var typeIdCache: [String : Value.Type?] { get set }
+    var typeIdCache: [String: Value.Type?] { get set }
 
     func readValue(cb: Callback?) throws
     func throwException() throws
@@ -550,15 +546,14 @@ fileprivate protocol EncapsDecoder: AnyObject {
 }
 
 extension EncapsDecoder {
-    func readOptional(tag: Int32, format: OptionalFormat) -> Bool {
+    func readOptional(tag _: Int32, format _: OptionalFormat) -> Bool {
         return false
     }
 
-    func readPendingValues() throws {
-    }
+    func readPendingValues() throws {}
 
     func readTypeId(isIndex: Bool) throws -> String {
-        if(isIndex) {
+        if isIndex {
             let index = try stream.readSize()
             guard let typeId = typeIdMap[index] else {
                 throw UnmarshalOutOfBoundsException(reason: "invalid typeId")
@@ -612,7 +607,7 @@ extension EncapsDecoder {
         return nil
     }
 
-    func addPatchEntry(index: Int32, cb: @escaping Callback)  {
+    func addPatchEntry(index: Int32, cb: @escaping Callback) {
         precondition(index > 0, "invalid index")
 
         //
@@ -648,7 +643,7 @@ extension EncapsDecoder {
         // Patch all instances now that the instance is unmarshaled.
         //
         if let l = patchMap[index] {
-            precondition(l.count > 0)
+            precondition(!l.isEmpty)
 
             //
             // Patch all pointers that refer to the instance.
@@ -664,7 +659,7 @@ extension EncapsDecoder {
             patchMap.removeValue(forKey: index)
         }
 
-        if patchMap.isEmpty && valueList.isEmpty {
+        if patchMap.isEmpty, valueList.isEmpty {
             v.ice_postUnmarshal()
         } else {
             valueList.append(v)
@@ -685,17 +680,17 @@ extension EncapsDecoder {
     }
 }
 
-fileprivate class EncapsDecoder10: EncapsDecoder {
+private class EncapsDecoder10: EncapsDecoder {
     // EncapsDecoder members
     var stream: InputStream
     var sliceValues: Bool
     var valueFactoryManager: ValueFactoryManager
-    lazy var patchMap = [Int32 : [Callback]]()
-    lazy var unmarshaledMap = [Int32 : Value]()
-    lazy var typeIdMap = [Int32 : String]()
+    lazy var patchMap = [Int32: [Callback]]()
+    lazy var unmarshaledMap = [Int32: Value]()
+    lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()
-    lazy var typeIdCache = [String : Value.Type?]()
+    lazy var typeIdCache = [String: Value.Type?]()
 
     // Value/exception attributes
     var sliceType: SliceType
@@ -709,7 +704,7 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
         self.stream = stream
         self.sliceValues = sliceValues
         self.valueFactoryManager = valueFactoryManager
-        self.sliceType = SliceType.NoSlice
+        sliceType = SliceType.NoSlice
     }
 
     func readValue(cb: Callback?) throws {
@@ -721,16 +716,14 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
         // Object references are encoded as a negative integer in 1.0.
         //
         var index = try stream.read(as: Int32.self)
-        if(index > 0) {
+        if index > 0 {
             throw MarshalException(reason: "invalid object id")
         }
         index = -index
 
-        if(index == 0) {
+        if index == 0 {
             cb(nil)
-        }
-        else
-        {
+        } else {
             addPatchEntry(index: index, cb: cb)
         }
     }
@@ -757,7 +750,7 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
         try startSlice()
         let mostDerivedId = typeId!
 
-        while(true) {
+        while true {
             //
             // Look for user exception
             //
@@ -769,7 +762,7 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
             //
             if let userEx = userExceptionType {
                 let ex = try userEx.init(from: stream)
-                if(usesClasses) {
+                if usesClasses {
                     try readPendingValues()
                 }
                 throw ex
@@ -802,14 +795,14 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
         skipFirstSlice = true
     }
 
-    func endInstance(preserve: Bool) throws -> SlicedData? {
+    func endInstance(preserve _: Bool) throws -> SlicedData? {
         //
         // Read the Ice::Value slice.
         //
-        if(sliceType == .ValueSlice) {
+        if sliceType == .ValueSlice {
             try startSlice()
             let sz = try stream.readSize() // For compatibility with the old AFM.
-            if(sz != 0) {
+            if sz != 0 {
                 throw MarshalException(reason: "invalid Object slice")
             }
             try endSlice()
@@ -824,7 +817,7 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
         // If first slice, don't read the header, it was already read in
         // readInstance or throwException to find the factory.
         //
-        if(skipFirstSlice) {
+        if skipFirstSlice {
             skipFirstSlice = false
             return
         }
@@ -836,22 +829,20 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
         // string.
         //
         // For exceptions, the type ID is always encoded as a string
-        if(sliceType == .ValueSlice) {
+        if sliceType == .ValueSlice {
             let isIndex = try Bool(from: stream)
             typeId = try readTypeId(isIndex: isIndex)
-        }
-        else {
+        } else {
             typeId = try stream.readString()
         }
 
         let sliceSize = try stream.read(as: Int32.self)
-        if(sliceSize < 4) {
+        if sliceSize < 4 {
             throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
         }
     }
 
-    func endSlice() throws {
-    }
+    func endSlice() throws {}
 
     func skipSlice() throws {
         #warning("TODO add this stream tracing")
@@ -863,7 +854,7 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
         var num = Int32(0)
         while num > 0 {
             num = try stream.readSize()
-            for _ in 0..<num {
+            for _ in 0 ..< num {
                 try readInstance()
             }
         }
@@ -880,8 +871,8 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
     func readInstance() throws {
         let index = try Int32(from: stream)
 
-        if(index <= 0) {
-            throw MarshalException(reason: "invalid object id");
+        if index <= 0 {
+            throw MarshalException(reason: "invalid object id")
         }
 
         sliceType = SliceType.ValueSlice
@@ -890,17 +881,16 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
         //
         // Read the first slice header.
         //
-        let _ = try startSlice()
+        _ = try startSlice()
         let mostDerivedId = typeId!
         var v: Value!
 
-        while(true)
-        {
+        while true {
             //
             // For the 1.0 encoding, the type ID for the base Object class
             // marks the last slice.
             //
-            if(typeId == "::Ice::Object") {
+            if typeId == "::Ice::Object" {
                 throw NoValueFactoryException(reason: "invalid typeId", type: mostDerivedId)
             }
 
@@ -909,16 +899,14 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
             //
             // We found a factory, we get out of this loop.
             //
-            if v != nil
-            {
+            if v != nil {
                 break
             }
 
             //
             // If slicing is disabled, stop unmarshaling.
             //
-            if(!sliceValues)
-            {
+            if !sliceValues {
                 throw NoValueFactoryException(reason: "no value factory found and slicing is disabled", type: typeId)
             }
 
@@ -926,7 +914,7 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
             // Slice off what we don't understand.
             //
             try skipSlice()
-            let _ = try startSlice() // Read next Slice header for next iteration.
+            _ = try startSlice() // Read next Slice header for next iteration.
         }
 
         //
@@ -936,22 +924,21 @@ fileprivate class EncapsDecoder10: EncapsDecoder {
     }
 }
 
-fileprivate class EncapsDecoder11: EncapsDecoder {
-
+private class EncapsDecoder11: EncapsDecoder {
     // EncapsDecoder members
     var stream: InputStream
     var sliceValues: Bool
     var valueFactoryManager: ValueFactoryManager
-    lazy var patchMap = [Int32 : [Callback]]()
-    lazy var unmarshaledMap = [Int32 : Value]()
-    lazy var typeIdMap = [Int32 : String]()
+    lazy var patchMap = [Int32: [Callback]]()
+    lazy var unmarshaledMap = [Int32: Value]()
+    lazy var typeIdMap = [Int32: String]()
     var typeIdIndex: Int32 = 0
     lazy var valueList = [Value]()
-    lazy var typeIdCache = [String : Value.Type?]()
+    lazy var typeIdCache = [String: Value.Type?]()
 
     private var current: InstanceData!
     var valueIdIndex: Int32 = 1 // The ID of the next instance to unmarshal.
-    lazy var compactIdCache = [Int32 : Value.Type]() // Cache of compact type IDs.
+    lazy var compactIdCache = [Int32: Value.Type]() // Cache of compact type IDs.
 
     private struct IndirectPatchEntry {
         var index: Int32
@@ -967,7 +954,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         // Instance attributes
         var sliceType: SliceType!
         var skipFirstSlice: Bool!
-        lazy var slices = [SliceInfo]()     // Preserved slices.
+        lazy var slices = [SliceInfo]() // Preserved slices.
         lazy var indirectionTables = [[Int32]]()
 
         // Slice attributes
@@ -982,7 +969,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
 
         init(previous: InstanceData?) {
             self.previous = previous
-            self.next = nil
+            next = nil
 
             previous?.next = self
         }
@@ -1001,7 +988,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
             throw MarshalException(reason: "invalid object id")
         } else if index == 0 {
             cb?(nil)
-        } else if current != nil && (current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue) != 0 {
+        } else if current != nil, (current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue) != 0 {
             //
             // When reading a class instance within a slice and there's an
             // indirect instance table, always read an indirect reference
@@ -1017,7 +1004,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
                 current.indirectPatchList.append(IndirectPatchEntry(index: index - 1, cb: c))
             }
         } else {
-            let _ = try readInstance(index: index, cb: cb)
+            _ = try readInstance(index: index, cb: cb)
         }
     }
 
@@ -1030,7 +1017,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         //
         try startSlice()
         let mostDerivedId = current.typeId!
-        while(true) {
+        while true {
             //
             // Look for user exception
             //
@@ -1069,7 +1056,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
 
     func endInstance(preserve: Bool) throws -> SlicedData? {
         var slicedData: SlicedData?
-        if(preserve) {
+        if preserve {
             slicedData = readSlicedData()
         }
 
@@ -1104,11 +1091,11 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
                 current.typeId = ""
                 current.compactId = try stream.readSize()
             } else if (current.sliceFlags & (Protocol.FLAG_HAS_TYPE_ID_INDEX.rawValue |
-                Protocol.FLAG_HAS_TYPE_ID_STRING.rawValue)) != 0 {
+                    Protocol.FLAG_HAS_TYPE_ID_STRING.rawValue)) != 0 {
                 current.typeId = try readTypeId(isIndex: (current.sliceFlags &
-                    Protocol.FLAG_HAS_TYPE_ID_INDEX.rawValue) != 0)
+                        Protocol.FLAG_HAS_TYPE_ID_INDEX.rawValue) != 0)
                 current.compactId = -1
-            } else  {
+            } else {
                 //
                 // Only the most derived slice encodes the type ID for the compact format.
                 //
@@ -1116,9 +1103,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
 
                 current.compactId = -1
             }
-        }
-        else
-        {
+        } else {
             current.typeId = try String(from: stream)
             current.compactId = -1
         }
@@ -1128,7 +1113,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         //
         if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
             current.sliceSize = try Int32(from: stream)
-            if(current.sliceSize < 4) {
+            if current.sliceSize < 4 {
                 throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
             }
         } else {
@@ -1150,7 +1135,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         if (current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue) != 0 {
             var indirectionTable = [Int32](repeating: 0, count: Int(try stream.readAndCheckSeqSize(minSize: 1)))
 
-            for i in 0..<indirectionTable.count {
+            for i in 0 ..< indirectionTable.count {
                 indirectionTable[i] = try readInstance(index: stream.readSize(), cb: nil)
             }
 
@@ -1159,10 +1144,10 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
             // that not all instance references were read if they are from
             // unknown optional data members.
             //
-            if(indirectionTable.count == 0) {
+            if indirectionTable.isEmpty {
                 throw MarshalException(reason: "empty indirection table")
             }
-            if current.indirectPatchList.isEmpty &&
+            if current.indirectPatchList.isEmpty,
                 (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) == 0 {
                 throw MarshalException(reason: "no references to indirection table")
             }
@@ -1172,8 +1157,8 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
             //
             try current.indirectPatchList.forEach { e in
                 precondition(e.index >= 0)
-                if(e.index >= indirectionTable.count) {
-                    throw MarshalException(reason: "indirection out of range");
+                if e.index >= indirectionTable.count {
+                    throw MarshalException(reason: "indirection out of range")
                 }
                 addPatchEntry(index: indirectionTable[Int(e.index)], cb: e.cb)
             }
@@ -1194,7 +1179,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
             if current.sliceType == .ValueSlice {
                 throw NoValueFactoryException(reason: "no value factory found and compact format prevents " +
                     "slicing (the sender should use the sliced format instead)",
-                                              type: current.typeId);
+                                              type: current.typeId)
             } else {
                 if let r = current.typeId.range(of: "::") {
                     throw UnknownUserException(unknown: String(current.typeId[r.upperBound...]))
@@ -1243,7 +1228,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         if (current.sliceFlags & Protocol.FLAG_HAS_INDIRECTION_TABLE.rawValue) != 0 {
             var indirectionTable = [Int32](repeating: 0, count: Int(try stream.readAndCheckSeqSize(minSize: 1)))
 
-            for i in 0..<indirectionTable.count {
+            for i in 0 ..< indirectionTable.count {
                 indirectionTable[i] = try readInstance(index: stream.readSize(), cb: nil)
             }
             current.indirectionTables.append(indirectionTable)
@@ -1255,7 +1240,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
     }
 
     func readOptional(tag: Int32, format: OptionalFormat) throws -> Bool {
-        if(current != nil) {
+        if current != nil {
             return try stream.readOptionalImpl(readTag: tag, expectedFormat: format)
         } else if (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0 {
             return try stream.readOptionalImpl(readTag: tag, expectedFormat: format)
@@ -1290,8 +1275,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         let mostDerivedId = current.typeId!
 
         var v: Value?
-        while(true)
-        {
+        while true {
             var updateCache = false
 
             if current.compactId >= 0 {
@@ -1314,12 +1298,12 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
                 // If we haven't already cached a class for the compact ID, then try to translate the
                 // compact ID into a type ID.
                 //
-                if(v == nil) {
+                if v == nil {
                     current.typeId = TypeIdResolver.resolve(compactId: current.compactId) ?? ""
                 }
             }
 
-            if v == nil && !current.typeId.isEmpty {
+            if v == nil, !current.typeId.isEmpty {
                 v = try newInstance(typeId: current.typeId)
             }
 
@@ -1363,10 +1347,10 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
                     v = UnknownSlicedValue(unknownTypeId: mostDerivedId)
                 }
 
-                break;
+                break
             }
 
-            let _ = try startSlice() // Read next Slice header for next iteration.
+            _ = try startSlice() // Read next Slice header for next iteration.
         }
 
         //
@@ -1375,7 +1359,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         try unmarshal(index: index, v: &v!)
 
         #warning("check if this is really even possible. Can current ever be nil here?")
-        if current == nil && !patchMap.isEmpty {
+        if current == nil, !patchMap.isEmpty {
             //
             // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
             // to supply the instance.
@@ -1390,7 +1374,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
 
     func readSlicedData() -> SlicedData? {
         // No preserved slices.
-        if(current.slices.isEmpty) {
+        if current.slices.isEmpty {
             return nil
         }
 
@@ -1400,7 +1384,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         //
         precondition(current.slices.count == current.indirectionTables.count)
 
-        for n in 0..<current.slices.count {
+        for n in 0 ..< current.slices.count {
             //
             // We use the "instances" list in SliceInfo to hold references
             // to the target instances. Note that the instances might not have
@@ -1408,7 +1392,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
             // enclosing instance.
 
             let m = n
-            for j in 0..<current.slices[m].instances.count {
+            for j in 0 ..< current.slices[m].instances.count {
                 let k = j
                 addPatchEntry(index: current.indirectionTables[m][j]) { v in
                     self.current.slices[m].instances[k] = v!
@@ -1423,7 +1407,7 @@ fileprivate class EncapsDecoder11: EncapsDecoder {
         if current == nil {
             current = InstanceData(previous: nil)
         } else {
-            current = current.next ??  InstanceData(previous: current)
+            current = current.next ?? InstanceData(previous: current)
         }
         current.sliceType = sliceType
         current.skipFirstSlice = false

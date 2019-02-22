@@ -19,14 +19,13 @@ class EndpointI: LocalObject<ICEEndpoint>, Endpoint {
     }
 }
 
-extension Endpoint where Self:CustomStringConvertible {
+extension Endpoint where Self: CustomStringConvertible {
     var description: String {
         return toString()
     }
 }
 
 class EndpointInfoI: LocalObject<ICEEndpointInfo>, EndpointInfo {
-
     public var underlying: EndpointInfo?
     public var timeout: Int32
     public var compress: Bool
@@ -39,15 +38,15 @@ class EndpointInfoI: LocalObject<ICEEndpointInfo>, EndpointInfo {
     }
 
     func type() -> Int16 {
-        return  self.underlying?.type() ?? _handle.getType()
+        return underlying?.type() ?? _handle.getType()
     }
 
     func datagram() -> Bool {
-        return self.underlying?.datagram() ?? _handle.getDatagram()
+        return underlying?.datagram() ?? _handle.getDatagram()
     }
 
     func secure() -> Bool {
-        return self.underlying?.secure() ?? _handle.getSecure()
+        return underlying?.secure() ?? _handle.getSecure()
     }
 }
 
@@ -64,8 +63,7 @@ class IPEndpointInfoI: EndpointInfoI, IPEndpointInfo {
     }
 }
 
-class TCPEndpointInfoI: IPEndpointInfoI, TCPEndpointInfo {
-}
+class TCPEndpointInfoI: IPEndpointInfoI, TCPEndpointInfo {}
 
 class UDPEndpointInfoI: IPEndpointInfoI, UDPEndpointInfo {
     public var mcastInterface: String
@@ -102,5 +100,4 @@ class OpaqueEndpointInfoI: EndpointInfoI, OpaqueEndpointInfo {
 // IceSSL
 //
 
-class SSLEndpointInfoI: EndpointInfoI, SSLEndpointInfo {
-}
+class SSLEndpointInfoI: EndpointInfoI, SSLEndpointInfo {}

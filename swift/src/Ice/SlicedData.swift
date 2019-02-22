@@ -13,7 +13,7 @@ public struct SlicedData {
     //
     public let slices: [SliceInfo]
 
-    public init (slices: [SliceInfo]) {
+    public init(slices: [SliceInfo]) {
         self.slices = slices
     }
 }

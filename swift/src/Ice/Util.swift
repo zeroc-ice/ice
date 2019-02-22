@@ -14,7 +14,7 @@ func stringToEncodingVersion(_ s: String) throws -> EncodingVersion {
 
 func stringToMajorMinor(_ s: String) throws -> (UInt8, UInt8) {
     let components = s.components(separatedBy: ".")
-    guard components.count == 2  else {
+    guard components.count == 2 else {
         throw VersionParseException(str: "malformed value `\(s)'")
     }
 
