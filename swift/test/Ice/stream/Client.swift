@@ -14,28 +14,32 @@ func main() throws {
             communicator.destroy()
         }
 
+        var inS:Ice.InputStream
+        var outS:Ice.OutputStream
+
         do {
-            var data = [UInt8]()
-            var inS = Ice.InputStream(communicator, data)
+            let data = [UInt8]()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
         }
 
-        var outS = Ice.OutputStream(communicator)
-        outS.startEncapsulation()
-        outS.write(true)
-        outS.endEncapsulation()
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.startEncapsulation()
+            outS.write(true)
+            outS.endEncapsulation()
+            var data = outS.finished()
+            
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            try inS.startEncapsulation()
+            assert(inS.read(as: Bool.self))
+            
+            
+            
+        }
     }
     catch let err
     {
         print(err)
     }
     print("ok")
-}
-
-do
-{
-    try main()
-}
-catch let err
-{
-    print(err)
 }

@@ -18,7 +18,7 @@ public class OutputStream {
     private var encapsStack: Encaps!
     private var encapsCache: Encaps?
 
-    init(communicator: Communicator, encoding: EncodingVersion) {
+    public init(communicator: Communicator, encoding: EncodingVersion = currentEncoding()) {
         self.communicator = communicator
         self.encoding = encoding
         buf = Buffer()
