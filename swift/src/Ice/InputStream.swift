@@ -11,8 +11,10 @@ import IceObjc
 
 public class InputStream {
 
-    private var handle: ICEInputStream
-    private var buf: Buffer // buf overlays the C++ unmarshal buffer stored in ICEInputStream
+    private var handle: ICEInputStream!
+    private var bytes: [UInt8]!
+
+    private var buf: Buffer // buf overlays the C++ unmarshal buffer stored in ICEInputStream or user buffer
     private var communicator: Communicator
     private var encoding: EncodingVersion
 
@@ -24,7 +26,18 @@ public class InputStream {
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
 
-    init(inputStream handle: ICEInputStream, communicator: Communicator, encoding: EncodingVersion = currentEncoding()) {
+    public init(communicator: Communicator,
+                encoding: EncodingVersion = currentEncoding(),
+                bytes: [UInt8]) {
+        self.communicator = communicator
+        self.encoding = encoding
+        self.bytes = bytes
+        var baseAddress: UnsafeMutableRawPointer?
+        self.bytes.withUnsafeMutableBytes { baseAddress = $0.baseAddress }
+        self.buf = Buffer(start: baseAddress!, count: bytes.count)
+    }
+
+    init(communicator: Communicator, encoding: EncodingVersion = currentEncoding(), inputStream handle: ICEInputStream) {
         self.communicator = communicator
         self.encoding = encoding
         self.handle = handle
