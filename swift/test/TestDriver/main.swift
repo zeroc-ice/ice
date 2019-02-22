@@ -7,5 +7,7 @@
 //
 
 import Foundation
+import stream
 
-print("Hello, World!")
+var client = stream.Client()
+try client.run(args: CommandLine.arguments)

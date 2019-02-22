@@ -36,10 +36,6 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         super.init(handle: handle)
     }
 
-    deinit {
-        print("destryoing communicator")
-    }
-
     func destroy() {
         _handle.destroy()
     }

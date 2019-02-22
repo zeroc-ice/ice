@@ -125,7 +125,7 @@ public class OutputStream {
         }
     }
 
-    func finished() -> [UInt8] {
+    public func finished() -> [UInt8] {
         // Create a copy
         return Array(UnsafeRawBufferPointer(start: buf.baseAddress!, count: buf.count))
     }

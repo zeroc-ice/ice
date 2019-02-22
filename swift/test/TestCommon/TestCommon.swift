@@ -5,136 +5,133 @@
 import Ice
 import Foundation
 
-protocol TextWriter
+public protocol TextWriter
 {
     func write(data:String)
     func writeLine(data:String)
 }
 
-class StdoutWriter : TextWriter
+public class StdoutWriter : TextWriter
 {
-    func write(data:String)
+    public func write(data:String)
     {
         fputs(data, stdout)
     }
 
-    func writeLine(data:String)
+    public func writeLine(data:String)
     {
         print(data)
     }
 }
 
-protocol TestHelper
+public protocol TestHelper
 {
-    func run(args:[String]?) -> Void
-    func getTestEndpoint(num:Int, prot:String) -> String
-    func getTestEndpoint(properties:Ice.Properties, num:Int, prot:String) -> String
+    func run(args:[String]) throws
+    func getTestEndpoint(num:Int32, prot:String) -> String
+    func getTestEndpoint(properties:Ice.Properties, num:Int32, prot:String) -> String
     func getTestHost() -> String
     func getTestHost(properties:Ice.Properties) -> String
     func getTestProtocol() -> String
     func getTestProtocol(properties:Ice.Properties) -> String
-    func getTestPort(num:Int) -> Int
-    func getTestPort(properties:Ice.Properties, num:Int) -> Int
-    func createTestProperties(args:[String]?) -> (Ice.Properties, [String]?)
-    func initialize(args:[String]?) -> (Ice.Communicator, [String]?)
-    func initialize(properties:Ice.Properties) -> Ice.Communicator
-    func initialize(initData:Ice.InitializationData) -> Ice.Communicator
+    func getTestPort(num:Int32) -> Int32
+    func getTestPort(properties:Ice.Properties, num:Int32) -> Int32
+    func createTestProperties(args:[String]) throws -> (Ice.Properties, [String])
+    func initialize(args:[String]) throws -> (Ice.Communicator, [String])
+    func initialize(properties:Ice.Properties) throws -> Ice.Communicator
+    func initialize(initData:Ice.InitializationData) throws -> Ice.Communicator
 
     func getWriter() -> TextWriter
-    func setWriter(writer:TextWriter) -> Void
+    func setWriter(writer:TextWriter)
 }
 
-extension TestHelper
-{
-    private var _communicator:Ice.Communicator
-    private var _writer:StdoutWriter
+open class TestHelperI : TestHelper {
 
-    func getTestEndpoint(num:Int = 0, prot:String = "") -> String
-    {
-        return getTestEndpoint(_communicator.getProperties(), num, prot)
+    private var _communicator:Ice.Communicator!
+    private var _writer:TextWriter!
+    
+    public init(){
     }
 
-    func getTestEndpoint(properties:Ice.Properties, num:Int = 0, prot:String = "") -> String
-    {
+    open func run(args:[String]) throws {
+        print("Subclass has not implemented abstract method `run`!")
+        abort()
+    }
+
+    public func getTestEndpoint(num:Int32 = 0, prot:String = "") -> String {
+        return getTestEndpoint(properties:_communicator!.getProperties(),
+                                      num:num,
+                                     prot:prot)
+    }
+
+    public func getTestEndpoint(properties: Ice.Properties, num: Int32 = 0, prot: String = "") -> String {
         var s = "";
-        s += (prot == "") ?  properties.getPropertyWithDefault("Ice.Default.Protocol", "default") : prot
+        s += (prot == "") ?  properties.getPropertyWithDefault(key:"Ice.Default.Protocol", value:"default") : prot
         s += " -p "
-        s += properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num
+        let port = properties.getPropertyAsIntWithDefault(key:"Test.BasePort", value:12010) + num
+        s += String(port)
         return s
     }
 
-    func getTestHost() -> String
-    {
-        return getTestHost(_communicator.getProperties())
+    public func getTestHost() -> String {
+        return getTestHost(properties: _communicator!.getProperties())
     }
 
-    func getTestHost(properties:Ice.Properties) -> String
-    {
-        return properties.getPropertyWithDefault("Ice.Default.Host", "127.0.0.1")
+    public func getTestHost(properties:Ice.Properties) -> String {
+        return properties.getPropertyWithDefault(key: "Ice.Default.Host", value: "127.0.0.1")
     }
 
-    func getTestProtocol() -> String
-    {
-        return getTestProtocol(_communicator.getProperties());
+    public func getTestProtocol() -> String {
+        return getTestProtocol(properties: _communicator!.getProperties());
     }
 
-    func getTestProtocol(properties:Ice.Properties) -> String
-    {
-        return properties.getPropertyWithDefault("Ice.Default.Protocol", "tcp")
+    public func getTestProtocol(properties: Ice.Properties) -> String {
+        return properties.getPropertyWithDefault(key: "Ice.Default.Protocol", value: "tcp")
     }
 
-    func getTestPort(num:Int) -> Int
-    {
-        return getTestPort(_communicator.getProperties(), num)
+    public func getTestPort(num:Int32) -> Int32 {
+        return getTestPort(properties: _communicator.getProperties(), num: num)
     }
 
-    func getTestPort(properties:Ice.Properties, num:Int) -> Int
-    {
-        return properties.getPropertyAsIntWithDefault("Test.BasePort", 12010) + num;
+    public func getTestPort(properties: Ice.Properties, num: Int32) -> Int32 {
+        return properties.getPropertyAsIntWithDefault(key: "Test.BasePort", value: 12010) + num;
     }
 
-    func createTestProperties(args:[String]?) -> (Ice.Properties, [String]?)
-    {
-        var (properties, args) = createProperties(args)
-        args = properties.parseCommandLineOptions("Test", args)
+    public func createTestProperties(args: [String]) throws -> (Ice.Properties, [String]) {
+        var (properties, args) = try Ice.createProperties(args: args)
+        args = try properties.parseCommandLineOptions(prefix: "Test", options: args)
         return (properties, args)
     }
 
-    func initialize(args:[String]?) -> (Ice.Communicator, [String]?)
-    {
+    public func initialize(args: [String]) throws -> (Ice.Communicator, [String]) {
         var initData = Ice.InitializationData()
-        initData.properties = createTestProperties(args)
-        return initialize(initData)
+        var (props, args) = try createTestProperties(args: args)
+        (initData.properties, args) = (props, args)
+        let communicator = try initialize(initData: initData)
+        return (communicator, args)
     }
 
-    func initialize(properties:Ice.Properties) -> Ice.Communicator
-    {
+    public func initialize(properties:Ice.Properties) throws -> Ice.Communicator {
         var initData = Ice.InitializationData()
         initData.properties = properties
-        return initialize(initData)
+        return try initialize(initData: initData)
     }
 
-    func initialize(initData:Ice.InitializationData) -> Ice.Communicator
-    {
-        var communicator = Ice.initialize(initData)
-        if(_communicator == nil)
-        {
+    public func initialize(initData: Ice.InitializationData) throws -> Ice.Communicator {
+        let communicator = try Ice.initialize(initData: initData)
+        if(_communicator == nil) {
             _communicator = communicator
         }
         return communicator
     }
 
-    func getWriter() -> TextWriter
-    {
-        if(_writer == nil)
-        {
+    public func getWriter() -> TextWriter {
+        if(_writer == nil) {
             _writer = StdoutWriter()
         }
         return _writer
     }
 
-    func setWriter(writer:TextWriter)
-    {
+    public func setWriter(writer:TextWriter) {
         _writer = writer
     }
 }

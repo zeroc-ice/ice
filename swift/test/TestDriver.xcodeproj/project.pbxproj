@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8279A2F222206F7B0053BC0E /* stream.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82E6C09E2220535300B7A404 /* stream.framework */; };
+		8279A2F3222074E00053BC0E /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82E6C0802220515F00B7A404 /* TestCommon.framework */; };
 		82AB3A8522205B5E001A88F1 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82AB3A8422205B5E001A88F1 /* Ice.framework */; };
 		82E6C0752220514000B7A404 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82E6C0742220514000B7A404 /* main.swift */; };
 		82E6C0842220515F00B7A404 /* TestCommon.h in Headers */ = {isa = PBXBuildFile; fileRef = 82E6C0822220515F00B7A404 /* TestCommon.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -46,6 +48,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8279A2F222206F7B0053BC0E /* stream.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -60,6 +63,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8279A2F3222074E00053BC0E /* TestCommon.framework in Frameworks */,
 				82AB3A8522205B5E001A88F1 /* Ice.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

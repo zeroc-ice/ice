@@ -64,14 +64,14 @@ public func initialize(args: StringSeq = [],
     }
 }
 
-public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil) throws -> (Properties, StringSeq?) {
+public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil) throws -> (Properties, StringSeq) {
     return try autoreleasepool {
         var remArgs: NSArray?
         let propertiesHandle = try ICEUtil.createProperties(args,
                                                             defaults: (defaults as? PropertiesI)?._handle,
                                                             remArgs: &remArgs)
 
-        return (PropertiesI(handle: propertiesHandle), remArgs as? StringSeq)
+        return (PropertiesI(handle: propertiesHandle), remArgs as! StringSeq)
     }
 }
 

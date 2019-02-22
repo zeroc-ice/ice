@@ -8,6 +8,8 @@
 // **********************************************************************
 
 public struct InitializationData {
-    var properties: Properties?
-    var logger: Logger?
+    public init() {}
+
+    public var properties: Properties?
+    public var logger: Logger?
 }
