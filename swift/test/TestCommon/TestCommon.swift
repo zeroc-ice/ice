@@ -24,6 +24,11 @@ public class StdoutWriter : TextWriter
     }
 }
 
+enum TestFailed : Error
+{
+    case testFailed
+}
+
 public protocol TestHelper
 {
     func run(args:[String]) throws
@@ -39,6 +44,8 @@ public protocol TestHelper
     func initialize(args:[String]) throws -> (Ice.Communicator, [String])
     func initialize(properties:Ice.Properties) throws -> Ice.Communicator
     func initialize(initData:Ice.InitializationData) throws -> Ice.Communicator
+
+    func test(value:Bool) throws
 
     func getWriter() -> TextWriter
     func setWriter(writer:TextWriter)
@@ -133,5 +140,16 @@ open class TestHelperI : TestHelper {
 
     public func setWriter(writer:TextWriter) {
         _writer = writer
+    }
+    
+    public func test(value:Bool) throws {
+        if(!value) {
+            let writer = getWriter()
+            writer.writeLine(data: "")
+            for line in Thread.callStackSymbols {
+                writer.writeLine(data: line)
+            }
+            throw TestFailed.testFailed
+        }
     }
 }
