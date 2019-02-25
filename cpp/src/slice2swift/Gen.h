@@ -38,6 +38,30 @@ private:
     std::vector<std::string> _includePaths;
     std::string _fileBase;
 
+    class ImportVisitor : public SwiftGenerator, public ParserVisitor
+    {
+    public:
+
+        ImportVisitor(IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual bool visitStructStart(const StructPtr&);
+        virtual bool visitExceptionStart(const ExceptionPtr&);
+        virtual void visitSequence(const SequencePtr&);
+        virtual void visitDictionary(const DictionaryPtr&);
+
+        void writeImports();
+
+    private:
+
+        void addImport(const TypePtr&, const ContainedPtr&);
+        void addImport(const ContainedPtr&, const ContainedPtr&);
+
+        IceUtilInternal::Output& out;
+        std::vector< std::string> _imports;
+    };
+
     class TypesVisitor : public SwiftGenerator, public ParserVisitor
     {
 
@@ -54,6 +78,7 @@ private:
         virtual void visitConst(const ConstPtr&);
 
     private:
+
         IceUtilInternal::Output& out;
     };
 };

@@ -301,7 +301,13 @@ compile(const vector<string>& argv)
                         u->destroy();
                         consoleErr << argv[0] << ": error: " << ex.reason() << endl;
                         status = EXIT_FAILURE;
-                        FileTracker::instance()->error();
+                        break;
+                    }
+                    catch(const Slice::CompilerException&)
+                    {
+                        FileTracker::instance()->cleanup();
+                        u->destroy();
+                        status = EXIT_FAILURE;
                         break;
                     }
                 }

@@ -7,6 +7,7 @@
 
 #include <IceUtil/Shared.h>
 #include <IceUtil/Handle.h>
+#include <IceUtil/Exception.h>
 #include <string>
 #include <vector>
 #include <list>
@@ -17,6 +18,29 @@
 
 namespace Slice
 {
+
+class CompilerException : public ::IceUtil::Exception
+{
+public:
+
+    CompilerException(const char*, int, const std::string&);
+#ifndef ICE_CPP11_COMPILER
+    ~CompilerException() throw();
+#endif
+    virtual std::string ice_id() const;
+    virtual void ice_print(std::ostream&) const;
+#ifndef ICE_CPP11_MAPPING
+    virtual CompilerException* ice_clone() const;
+#endif
+    virtual void ice_throw() const;
+
+    std::string reason() const;
+
+private:
+
+    static const char* _name;
+    const std::string _reason;
+};
 
 #if defined(_WIN32) && !defined(__MINGW32__)
 
@@ -240,6 +264,9 @@ public:
     //
     void warning(WarningCategory, const std::string&, int, const std::string&) const;
     void warning(WarningCategory, const std::string&, const std::string&, const std::string&) const;
+
+    void error(const std::string&, int, const std::string&) const;
+    void error(const std::string&, const std::string&, const std::string&) const;
 
 private:
 

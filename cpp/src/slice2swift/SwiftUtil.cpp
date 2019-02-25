@@ -108,63 +108,79 @@ fixIds(const StringList& ids)
 
 }
 
-SwiftGenerator::ModuleMap SwiftGenerator::_modules;
+string
+Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
+{
+    const string modulePrefix = "swift:module:";
+
+    string swiftModule;
+
+    if(module->findMetaData(modulePrefix, swiftModule))
+    {
+        swiftModule = swiftModule.substr(modulePrefix.size());
+
+        size_t pos = swiftModule.find(':');
+        if(pos != string::npos)
+        {
+            swiftPrefix = swiftModule.substr(pos + 1);
+            swiftModule = swiftModule.substr(0, pos);
+        }
+    }
+    else
+    {
+        swiftModule = module->name();
+        swiftPrefix = "";
+    }
+    return swiftModule;
+}
+
+string
+Slice::getSwiftModule(const ModulePtr& module)
+{
+    string prefix;
+    return getSwiftModule(module, prefix);
+}
+
+ModulePtr
+Slice::getTopLevelModule(const ContainedPtr& cont)
+{
+    //
+    // Traverse to the top-level module.
+    //
+    ModulePtr m;
+    ContainedPtr p = cont;
+    while(true)
+    {
+        if(ModulePtr::dynamicCast(p))
+        {
+            m = ModulePtr::dynamicCast(p);
+        }
+
+        ContainerPtr c = p->container();
+        p = ContainedPtr::dynamicCast(c); // This cast fails for Unit.
+        if(!p)
+        {
+            break;
+        }
+    }
+    return m;
+}
+
+ModulePtr
+Slice::getTopLevelModule(const TypePtr& type)
+{
+    assert(ProxyPtr::dynamicCast(type) || ContainedPtr::dynamicCast(type));
+
+    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
+    return getTopLevelModule(proxy ? ContainedPtr::dynamicCast(proxy->_class()->definition()) :
+                                     ContainedPtr::dynamicCast(type));
+}
 
 void
 SwiftGenerator::validateMetaData(const UnitPtr& u)
 {
     MetaDataVisitor visitor;
     u->visit(&visitor, true);
-}
-
-bool
-SwiftGenerator::addModule(const ModulePtr& m, const string& module, const string& name)
-{
-    string scoped = m->scoped();
-    ModuleMap::const_iterator i = _modules.find(scoped);
-    if(i != _modules.end())
-    {
-        if(i->second.module != module || i->second.name != name)
-        {
-            return false;
-        }
-    }
-    else
-    {
-        ModulePrefix mp;
-        mp.m = m;
-        mp.module = module;
-        mp.name = name;
-        _modules[scoped] = mp;
-    }
-    return true;
-}
-
-SwiftGenerator::ModulePrefix
-SwiftGenerator::modulePrefix(const ModulePtr& m)
-{
-    return _modules[m->scoped()];
-}
-
-string
-SwiftGenerator::moduleName(const ModulePtr& m)
-{
-    return _modules[m->scoped()].name;
-}
-
-ModulePtr
-SwiftGenerator::findModule(const ContainedPtr& cont)
-{
-    ModulePtr m = ModulePtr::dynamicCast(cont);
-    ContainerPtr container = cont->container();
-    while(container && !m)
-    {
-        ContainedPtr contained = ContainedPtr::dynamicCast(container);
-        container = contained->container();
-        m = ModulePtr::dynamicCast(contained);
-    }
-    assert(m);
-    return m;
 }
 
 string
@@ -348,7 +364,7 @@ SwiftGenerator::fixIdent(const std::string& ident)
 std::string
 SwiftGenerator::fixName(const ContainedPtr& cont)
 {
-    return moduleName(findModule(cont)) + cont->name();
+    return cont->name();
 }
 
 //
@@ -797,12 +813,83 @@ SwiftGenerator::writeMarshalUnmarshalCode(IceUtilInternal::Output& out, const Cl
     }
 }
 
-const string SwiftGenerator::MetaDataVisitor::_msg= "ignoring invalid metadata";
-
 bool
 SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
 {
-    validate(p);
+    if(UnitPtr::dynamicCast(p->container()))
+    {
+        const UnitPtr ut = p->unit();
+        const DefinitionContextPtr dc = ut->findDefinitionContext(p->file());
+        assert(dc);
+
+        // top-level module
+        ModulePtr m = ModulePtr::dynamicCast(p);
+        const string modulePrefix = "swift:module:";
+
+        string swiftModule;
+        string swiftPrefix;
+
+        if(m->findMetaData(modulePrefix, swiftModule))
+        {
+            swiftModule = swiftModule.substr(modulePrefix.size());
+
+            size_t pos = swiftModule.find(':');
+            if(pos != string::npos)
+            {
+                swiftPrefix = swiftModule.substr(pos + 1);
+                swiftModule = swiftModule.substr(0, pos);
+            }
+        }
+        else
+        {
+            swiftModule = m->name();
+        }
+
+        const string filename = m->definitionContext()->filename();
+        ModuleMap::const_iterator current = _modules.find(filename);
+
+        if(current == _modules.end())
+        {
+            _modules[filename] = swiftModule;
+        }
+        else if(current->second != swiftModule)
+        {
+            ostringstream os;
+            os << "invalid module mapping:\n Slice module `" << m->scoped() << "' should be map to Swift module `"
+               << current->second << "'" << endl;
+            dc->error(p->file(), p->line(), os.str());
+        }
+
+        ModulePrefix::iterator prefixes = _prefixes.find(swiftModule);
+        if(prefixes == _prefixes.end())
+        {
+            ModuleMap mappings;
+            mappings[p->name()] = swiftPrefix;
+            _prefixes[swiftModule] = mappings;
+        }
+        else
+        {
+            current = prefixes->second.find(p->name());
+            if(current == prefixes->second.end())
+            {
+                prefixes->second[p->name()] = swiftPrefix;
+            }
+            else
+            {
+                ostringstream os;
+                os << "invalid module prefix:\n Slice module `" << m->scoped() << "' is already using";
+                if(current->second.empty())
+                {
+                    os << " no prefix " << endl;
+                }
+                else
+                {
+                   os << " a different Swift module prefix `" << current->second << "'" << endl;
+                }
+                dc->error(p->file(), p->line(), os.str());
+            }
+        }
+    }
     return true;
 }
 
@@ -825,21 +912,25 @@ SwiftGenerator::MetaDataVisitor::visitStructStart(const StructPtr& p)
     validate(p);
     return true;
 }
+
 void
 SwiftGenerator::MetaDataVisitor::visitSequence(const SequencePtr& p)
 {
     validate(p);
 }
+
 void
 SwiftGenerator::MetaDataVisitor::visitDictionary(const DictionaryPtr& p)
 {
     validate(p);
 }
+
 void
 SwiftGenerator::MetaDataVisitor::visitEnum(const EnumPtr& p)
 {
     validate(p);
 }
+
 void
 SwiftGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 {
@@ -847,85 +938,6 @@ SwiftGenerator::MetaDataVisitor::visitConst(const ConstPtr& p)
 }
 
 void
-SwiftGenerator::MetaDataVisitor::validate(const ContainedPtr& cont)
+SwiftGenerator::MetaDataVisitor::validate(const ContainedPtr&)
 {
-    ModulePtr m = ModulePtr::dynamicCast(cont);
-    if(m)
-    {
-        bool error = false;
-        bool found = false;
-        StringList meta = cont->getMetaData();
-
-        for(StringList::iterator p = meta.begin(); p != meta.end();)
-        {
-            string s = *p++;
-
-            // Module metadata must be of the form swift:module:{{modulename}}:{{prefix}}
-            const string modulePrefix = "swift:module:";
-            string module;
-            string prefix;
-            if(s.find(modulePrefix) == 0)
-            {
-                found = true;
-                string metadata = trim(s.substr(modulePrefix.size()));
-
-                size_t pos = metadata.find(":");
-                if(pos != string::npos)
-                {
-                    module = metadata.substr(0, pos);
-                    prefix = metadata.substr(pos+1, metadata.size());
-                }
-
-                if(module.empty() || prefix.empty())
-                {
-                    m->definitionContext()->warning(InvalidMetaData, m->definitionContext()->filename(),
-                                                    m->line(), _msg + " `" + s + "'");
-                    meta.remove(s);
-                    error = true;
-                }
-                else
-                {
-                    if(!addModule(m, module, prefix))
-                    {
-                        modulePrefixError(m, s);
-                    }
-                }
-            }
-            // else
-            // {
-            //     m->definitionContext()->warning(InvalidMetaData, m->definitionContext()->filename(),
-            //                                     m->line(), _msg + " `" + s + "'");
-            //     meta.remove(s);
-            //     error = true;
-            // }
-        }
-        m->setMetaData(meta);
-    }
-}
-
-void
-SwiftGenerator::MetaDataVisitor::modulePrefixError(const ModulePtr& m, const std::string& metadata)
-{
-    string file = m->definitionContext()->filename();
-    string line = m->line();
-    ModulePrefix mp = modulePrefix(m);
-    string old_file = mp.m->definitionContext()->filename();
-    string old_line = mp.m->line();
-    ostringstream os;
-    if(!metadata.empty())
-    {
-        os << _msg << " `" << metadata << "': ";
-    }
-    os << "inconsistent module prefix previously defined ";
-    if(old_file != file)
-    {
-         os << "in " << old_file << ":";
-    }
-    else
-    {
-        os << "at line ";
-    }
-    os << line;
-    os << " as `" << mp.name << "'" << endl;
-    m->definitionContext()->warning(All, file, line, os.str());
 }

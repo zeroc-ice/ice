@@ -16,6 +16,11 @@
 namespace Slice
 {
 
+std::string getSwiftModule(const ModulePtr&, std::string&);
+std::string getSwiftModule(const ModulePtr&);
+ModulePtr getTopLevelModule(const ContainedPtr&);
+ModulePtr getTopLevelModule(const TypePtr&);
+
 class SwiftGenerator : private IceUtil::noncopyable
 {
 public:
@@ -25,19 +30,6 @@ public:
     static void validateMetaData(const UnitPtr&);
 
 protected:
-
-    struct ModulePrefix
-    {
-        ModulePtr m;
-        std::string module;
-        std::string name;
-    };
-
-    static bool addModule(const ModulePtr&, const std::string&, const std::string&);
-    static ModulePrefix modulePrefix(const ModulePtr&);
-    static std::string moduleName(const ModulePtr&);
-    static ModulePtr findModule(const ContainedPtr&);
-    static void modulePrefixError(const ModulePtr&, const std::string&);
 
     std::string getLocalScope(const std::string&, const std::string& = ".");
     std::string typeToString(const TypePtr&, const ContainedPtr& = 0);
@@ -67,6 +59,7 @@ protected:
 
 private:
 
+
     class MetaDataVisitor : public ParserVisitor
     {
     public:
@@ -81,17 +74,24 @@ private:
         virtual void visitConst(const ConstPtr&);
 
     private:
+
         void validate(const ContainedPtr&);
-        static void modulePrefixError(const ModulePtr&, const std::string&);
+
+        typedef std::map<std::string, std::string> ModuleMap;
+        typedef std::map<std::string, ModuleMap> ModulePrefix;
+
+        //
+        // Each Slice unit has to map all top-level modules to a single Swift module
+        //
+        ModuleMap _modules;
+
+        //
+        // With a given Swift module a Slice module has to map to a single prefix
+        //
+        ModulePrefix _prefixes;
 
         static const std::string _msg;
     };
-
-    //
-    // Map of module scoped name to ModulePtr. Used to verify that objc:prefix metadata directives are consistent.
-    //
-    typedef std::map<std::string, ModulePrefix> ModuleMap;
-    static ModuleMap _modules;
 };
 
 }

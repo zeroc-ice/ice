@@ -69,6 +69,10 @@ Gen::generate(const UnitPtr& p)
 {
     SwiftGenerator::validateMetaData(p);
 
+    ImportVisitor importVisitor(_out);
+    p->visit(&importVisitor, false);
+    importVisitor.writeImports();
+
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor, false);
 }
@@ -97,6 +101,167 @@ Gen::printHeader()
     _out << "//\n";
     _out << "// Ice version " << ICE_STRING_VERSION << "\n";
     _out << "//\n";
+}
+
+Gen::ImportVisitor::ImportVisitor(IceUtilInternal::Output& o) : out(o)
+{
+}
+
+bool
+Gen::ImportVisitor::visitModuleStart(const ModulePtr& p)
+{
+    //
+    // Always import Ice module first if not building Ice
+    //
+    if(UnitPtr::dynamicCast(p->container()) && _imports.empty())
+    {
+        string swiftModule = getSwiftModule(p);
+        if(swiftModule != "Ice")
+        {
+            _imports.push_back("Ice");
+        }
+    }
+    return true;
+}
+
+bool
+Gen::ImportVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    //
+    // Add imports required for base classes
+    //
+    ClassList bases = p->bases();
+    for(ClassList::const_iterator i = bases.begin(); i != bases.end(); ++i)
+    {
+        addImport(ContainedPtr::dynamicCast(*i), p);
+    }
+
+    //
+    // Add imports required for data members
+    //
+    const DataMemberList allDataMembers = p->allDataMembers();
+    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    {
+        addImport((*i)->type(), p);
+    }
+
+    //
+    // Add imports required for operation parameters and return type
+    //
+    const OperationList operationList = p->allOperations();
+    for(OperationList::const_iterator i = operationList.begin(); i != operationList.end(); ++i)
+    {
+        const TypePtr ret = (*i)->returnType();
+        if(ret && ret->definitionContext())
+        {
+            addImport(ret, p);
+        }
+
+        const ParamDeclList paramList = (*i)->parameters();
+        for(ParamDeclList::const_iterator j = paramList.begin(); j != paramList.end(); ++j)
+        {
+            addImport((*j)->type(), p);
+        }
+    }
+    return false;
+}
+
+bool
+Gen::ImportVisitor::visitStructStart(const StructPtr& p)
+{
+    //
+    // Add imports required for data members
+    //
+    const DataMemberList dataMembers = p->dataMembers();
+    for(DataMemberList::const_iterator i = dataMembers.begin(); i != dataMembers.end(); ++i)
+    {
+        addImport((*i)->type(), p);
+    }
+
+    return true;
+}
+
+bool
+Gen::ImportVisitor::visitExceptionStart(const ExceptionPtr& p)
+{
+    //
+    // Add imports required for base exceptions
+    //
+    ExceptionPtr base = p->base();
+    if(base)
+    {
+        addImport(ContainedPtr::dynamicCast(base), p);
+    }
+
+    //
+    // Add imports required for data members
+    //
+    const DataMemberList allDataMembers = p->allDataMembers();
+    for(DataMemberList::const_iterator i = allDataMembers.begin(); i != allDataMembers.end(); ++i)
+    {
+        addImport((*i)->type(), p);
+    }
+    return true;
+}
+
+void
+Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
+{
+    //
+    // Add import required for the sequence element type
+    //
+    addImport(seq->type(), seq);
+}
+
+
+void
+Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
+{
+    //
+    // Add imports required for the dictionary key and value types
+    //
+    addImport(dict->keyType(), dict);
+    addImport(dict->valueType(), dict);
+}
+
+void
+Gen::ImportVisitor::writeImports()
+{
+    for(vector<string>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
+    {
+        out << "import " << *i << nl;
+    }
+}
+
+void
+Gen::ImportVisitor::addImport(const TypePtr& definition, const ContainedPtr& toplevel)
+{
+    if(!BuiltinPtr::dynamicCast(definition))
+    {
+        ModulePtr m1 = getTopLevelModule(definition);
+        ModulePtr m2 = getTopLevelModule(toplevel);
+
+        string swiftM1 = getSwiftModule(m1);
+        string swiftM2 = getSwiftModule(m2);
+        if(swiftM1 != swiftM2 && find(_imports.begin(), _imports.end(), swiftM1) == _imports.end())
+        {
+            _imports.push_back(swiftM1);
+        }
+    }
+}
+
+void
+Gen::ImportVisitor::addImport(const ContainedPtr& definition, const ContainedPtr& toplevel)
+{
+    ModulePtr m1 = getTopLevelModule(definition);
+    ModulePtr m2 = getTopLevelModule(toplevel);
+
+    string swiftM1 = getSwiftModule(m1);
+    string swiftM2 = getSwiftModule(m2);
+    if(swiftM1 != swiftM2 && find(_imports.begin(), _imports.end(), swiftM1) == _imports.end())
+    {
+        _imports.push_back(swiftM1);
+    }
 }
 
 Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& o) : out(o)
@@ -223,7 +388,7 @@ bool Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             if(!p->dataMembers().empty())
             {
-                writeDataMembers(out, p->dataMembers(), true);
+                writeDataMembers(out, p->dataMembers());
                 writeInitializer(out, p->dataMembers(), p->allDataMembers());
             }
             out << eb << nl;

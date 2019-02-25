@@ -19,6 +19,52 @@
 using namespace std;
 using namespace Slice;
 
+
+Slice::CompilerException::CompilerException(const char* file, int line, const string& r) :
+    IceUtil::Exception(file, line),
+    _reason(r)
+{
+}
+
+#ifndef ICE_CPP11_COMPILER
+Slice::CompilerException::~CompilerException() throw()
+{
+}
+#endif
+
+string
+Slice::CompilerException::ice_id() const
+{
+    return "::Slice::CompilerException";
+}
+
+void
+Slice::CompilerException::ice_print(ostream& out) const
+{
+    IceUtil::Exception::ice_print(out);
+    out << ": " << _reason;
+}
+
+#ifndef ICE_CPP11_MAPPING
+Slice::CompilerException*
+Slice::CompilerException::ice_clone() const
+{
+    return new CompilerException(*this);
+}
+#endif
+
+void
+Slice::CompilerException::ice_throw() const
+{
+    throw *this;
+}
+
+string
+Slice::CompilerException::reason() const
+{
+    return _reason;
+}
+
 extern FILE* slice_in;
 extern int slice_debug;
 
@@ -225,6 +271,20 @@ Slice::DefinitionContext::warning(WarningCategory category, const string& file, 
     {
         emitWarning(file, line, msg);
     }
+}
+
+void
+Slice::DefinitionContext::error(const string& file, int line, const string& msg) const
+{
+    emitError(file, line, msg);
+    throw CompilerException(__FILE__, __LINE__, msg);
+}
+
+void
+Slice::DefinitionContext::error(const string& file, const string& line, const string& msg) const
+{
+    emitError(file, line, msg);
+    throw CompilerException(__FILE__, __LINE__, msg);
 }
 
 bool
