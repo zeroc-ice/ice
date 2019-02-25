@@ -56,7 +56,8 @@ public func initialize(args: StringSeq = [],
         }
 
         let propsHandle = (initData.properties as? PropertiesI)?._handle
-        // TODO: we should only install LoggerI if the user as not set their own logger or a logger property (eg. syslog)
+        // TODO: we should only install LoggerI if the user as not set their own
+        // logger or a logger property (eg. syslog)
         let logger: ICELoggerProtocol = initData.logger as? LoggerI ?? LoggerWrapper(impl: initData.logger!)
         let handle = try ICEUtil.initialize(args, properties: propsHandle, logger: logger)
 
@@ -71,7 +72,9 @@ public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil
                                                             defaults: (defaults as? PropertiesI)?._handle,
                                                             remArgs: &remArgs)
 
+        // swiftlint:disable force_cast
         return (PropertiesI(handle: propertiesHandle), remArgs as! StringSeq)
+        // swiftlint:enable force_cast
     }
 }
 

@@ -152,6 +152,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		82A145FB2224027300B41660 /* TestCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestCommon.h; sourceTree = "<group>"; };
+		82A145FC2224027300B41660 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D802891C2189F63800356234 /* OptionalFormat.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OptionalFormat.swift; sourceTree = "<group>"; };
 		D802891E2189FA5E00356234 /* FormatType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatType.swift; sourceTree = "<group>"; };
 		D8028923218A087100356234 /* SlicedData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlicedData.swift; sourceTree = "<group>"; };
@@ -284,6 +286,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		82A145FA2224027300B41660 /* TestCommon */ = {
+			isa = PBXGroup;
+			children = (
+				82A145FB2224027300B41660 /* TestCommon.h */,
+				82A145FC2224027300B41660 /* Info.plist */,
+			);
+			path = TestCommon;
+			sourceTree = "<group>";
+		};
 		D81D913E216BAE0400FDADB8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -301,6 +312,7 @@
 				D84566FE2167F2E200FD3B8B /* Ice */,
 				D84D1C322167F338004E7474 /* IceObjc */,
 				D84D1C8E2167F384004E7474 /* Slice */,
+				82A145FA2224027300B41660 /* TestCommon */,
 				D84566FD2167F2E200FD3B8B /* Products */,
 				D81D913E216BAE0400FDADB8 /* Frameworks */,
 			);
