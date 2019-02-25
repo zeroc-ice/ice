@@ -2,14 +2,12 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
+import Foundation
 import Ice
 import TestCommon
-import Foundation
 
-public class Client : TestHelperI {
-
-    public override func run(args: [String]) throws {
-
+public class Client: TestHelperI {
+    public override func run(args _: [String]) throws {
         var writer = getWriter()
         writer.write(data: "testing primitive types... ")
         var communicator = try Ice.initialize()
@@ -17,8 +15,8 @@ public class Client : TestHelperI {
             communicator.destroy()
         }
 
-        var inS:Ice.InputStream
-        var outS:Ice.OutputStream
+        var inS: Ice.InputStream
+        var outS: Ice.OutputStream
 
         do {
             let data = [UInt8]()
@@ -31,85 +29,80 @@ public class Client : TestHelperI {
             outS.write(true)
             outS.endEncapsulation()
             let data = outS.finished()
-            
+
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             try inS.startEncapsulation()
             try test(value: try Bool(from: inS))
-            
+
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             try inS.startEncapsulation()
             try test(value: try Bool(from: inS))
         }
-        
+
         do {
             inS = Ice.InputStream(communicator: communicator, bytes: [UInt8]())
             do {
-                let v = try Bool(from: inS)
+                _ = try Bool(from: inS)
                 try test(value: false)
-                try test(value: v) // keep compiler happy
-            } catch  {
-                
-            }
+            } catch {}
         }
-        
+
         do {
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(true)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Bool(from:inS))
+            try test(value: try Bool(from: inS))
         }
-        
+
         do {
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(UInt8(1))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try UInt8(from:inS) == 1)
+            try test(value: try UInt8(from: inS) == 1)
         }
-        
+
         do {
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(Int16(2))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Int16(from:inS) == 2)
+            try test(value: try Int16(from: inS) == 2)
         }
-        
+
         do {
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(Int32(3))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Int32(from:inS) == 3)
+            try test(value: try Int32(from: inS) == 3)
         }
-        
+
         do {
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(Int64(4))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Int64(from:inS) == 4)
+            try test(value: try Int64(from: inS) == 4)
         }
-        
-        // TODO Float stream
+
         do {
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(Float(5.0))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Float(from:inS) == 5.0)
+            try test(value: try Float(from: inS) == 5.0)
         }
-        
-        // TODO Double stream
-        /*do {
+
+        do {
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(Double(6.0))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Double(from:inS) == 6.0)
-        }*/
-        
+            try test(value: try Double(from: inS) == 6.0)
+        }
+
         do {
             outS = Ice.OutputStream(communicator: communicator)
             outS.write(utf8view: "hello world".utf8)
@@ -119,7 +112,7 @@ public class Client : TestHelperI {
         }
 
         writer.writeLine(data: "ok")
-        
+
         writer.write(data: "testing constructed types... ")
         outS = Ice.OutputStream(communicator: communicator)
         writer.writeLine(data: "ok")

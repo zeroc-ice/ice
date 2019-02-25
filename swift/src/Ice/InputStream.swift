@@ -17,7 +17,7 @@ public class InputStream {
     private var communicator: Communicator
     private var encoding: EncodingVersion
 
-    // TODO: move encaps into InputStream
+    // TODO: move encaps into InputStream?
     private lazy var encaps: Encaps = Encaps()
 
 //    private pos: Int32 = 1

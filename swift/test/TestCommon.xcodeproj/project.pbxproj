@@ -18,19 +18,6 @@
 		82A146382224127D00B41660 /* Test.ice in Resources */ = {isa = PBXBuildFile; fileRef = 82A146372224127D00B41660 /* Test.ice */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXBuildRule section */
-		82A1463922242E6C00B41660 /* PBXBuildRule */ = {
-			isa = PBXBuildRule;
-			compilerSpec = com.apple.compilers.proxy.script;
-			filePatterns = "*.ice";
-			fileType = pattern.proxy;
-			isEditable = 1;
-			outputFiles = (
-			);
-			script = "/usr/local/bin/icebuilder\n";
-		};
-/* End PBXBuildRule section */
-
 /* Begin PBXFileReference section */
 		82A1460B222402A800B41660 /* TestCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		82A1460E222402A800B41660 /* TestCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestCommon.h; sourceTree = "<group>"; };
@@ -165,7 +152,6 @@
 				82A1461E2224036E00B41660 /* Resources */,
 			);
 			buildRules = (
-				82A1463922242E6C00B41660 /* PBXBuildRule */,
 			);
 			dependencies = (
 			);

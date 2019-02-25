@@ -34,8 +34,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         preconditionFailure("not implemented yet")
     }
 
-    // TODO: should this be non-optional
-    public func getEndpoint() -> Endpoint? {
+    public func getEndpoint() -> Endpoint {
         return EndpointI(handle: _handle.getEndpoint())
     }
 

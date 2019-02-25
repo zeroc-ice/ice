@@ -2,14 +2,13 @@
 // Copyright (c) ZeroC, Inc. All rights reserved.
 //
 
-import Ice
 import Foundation
+import Ice
 import TestCommon
 
 func main() throws {
     fputs("testing stringToProxy... ", stdout)
-    do
-    {
+    do {
         var communicator = try Ice.initialize()
         defer {
             communicator.destroy()
@@ -19,24 +18,19 @@ func main() throws {
         // Test nil proxies.
         //
         do {
-            var p = try communicator.stringToProxy(str:"")
+            var p = try communicator.stringToProxy(str: "")
             assert(p == nil)
-            p = try communicator.stringToProxy(str:"bogus")
+            p = try communicator.stringToProxy(str: "bogus")
             assert(p == nil)
         }
-    }
-    catch let err
-    {
+    } catch let err {
         print(err)
     }
     print("ok")
 }
 
-do
-{
+do {
     try main()
-}
-catch let err
-{
+} catch let err {
     print(err)
 }

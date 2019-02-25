@@ -289,7 +289,7 @@ local interface Connection
      * @return The endpoint from which the connection was created.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] Endpoint getEndpoint();
+    ["cpp:const", "cpp:noexcept", "swift:non-optional"] Endpoint getEndpoint();
 
     /**
      *

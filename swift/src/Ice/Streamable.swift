@@ -48,6 +48,18 @@ extension Int64: Streamable {
     }
 }
 
+extension Float: Streamable {
+    public init(from ins: InputStream) throws {
+        self = try ins.read(as: Float.self)
+    }
+}
+
+extension Double: Streamable {
+    public init(from ins: InputStream) throws {
+        self = try ins.read(as: Double.self)
+    }
+}
+
 extension Bool: Streamable {
     public init(from ins: InputStream) throws {
         self = try ins.read(as: UInt8.self) == 1

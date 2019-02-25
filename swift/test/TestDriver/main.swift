@@ -3,18 +3,19 @@
 //
 
 import Foundation
-import TestCommon
 import IceStream
+import TestCommon
 
-var client:TestHelper? = nil;
+var client: TestHelper?
 
-if(CommandLine.arguments.count < 2) {
+if CommandLine.arguments.count < 2 {
     print("Usage: \(CommandLine.arguments[0]) <test> <args>")
     exit(1)
 }
-var name = CommandLine.arguments[1];
 
-if(name == "Ice.stream.Client") {
+var name = CommandLine.arguments[1]
+
+if name == "Ice.stream.Client" {
     client = IceStream.Client()
 }
 
