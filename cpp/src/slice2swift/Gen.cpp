@@ -317,7 +317,7 @@ bool Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             if(!p->dataMembers().empty())
             {
-                writeDataMembers(out, p->dataMembers());
+                writeDataMembers(out, p, p->dataMembers());
                 writeInitializer(out, p->dataMembers(), p->allDataMembers());
             }
             out << eb << nl;
@@ -341,7 +341,7 @@ bool Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
 
             if(!p->dataMembers().empty())
             {
-                writeDataMembers(out, p->dataMembers(), true);
+                writeDataMembers(out, p, p->dataMembers(), true);
             }
 
             OperationList ops = p->operations();
@@ -388,7 +388,7 @@ bool Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
             out << sb;
             if(!p->dataMembers().empty())
             {
-                writeDataMembers(out, p->dataMembers());
+                writeDataMembers(out, p, p->dataMembers());
                 writeInitializer(out, p->dataMembers(), p->allDataMembers());
             }
             out << eb << nl;
@@ -469,7 +469,7 @@ bool Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     if(!p->dataMembers().empty())
     {
 
-        writeDataMembers(out, p->dataMembers());
+        writeDataMembers(out, p, p->dataMembers());
         out << nl;
         writeInitializer(out, p->dataMembers(), p->allDataMembers());
     }
@@ -535,7 +535,7 @@ bool Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     out << nl << "public struct " << name << hashable << sb;
 
-    writeDataMembers(out, members);
+    writeDataMembers(out, p, members);
     writeInitializer(out, members);
 
     out << eb << nl;

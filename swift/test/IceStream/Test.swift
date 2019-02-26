@@ -19,6 +19,7 @@
 //
 
 import Foundation
+import Ice
 
 public enum MyEnum: UInt8
 {
@@ -98,7 +99,7 @@ extension SmallStruct: Ice.Streamable
     
     public init(from ins: Ice.InputStream) throws
     {
-        self.bo = try Bool(from: ins)
+        try self.bo = Bool(from: ins)
         try self.by = UInt8(from: ins)
         try self.sh = Int16(from: ins)
         try self.i = Int32(from: ins)

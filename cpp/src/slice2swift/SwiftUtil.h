@@ -48,7 +48,7 @@ protected:
     bool isProxyType(const TypePtr&);
 
     void writeTuple(IceUtilInternal::Output&, const StringList&);
-    void writeDataMembers(IceUtilInternal::Output&, const DataMemberList&, bool = false);
+    void writeDataMembers(IceUtilInternal::Output&, const ContainedPtr&, const DataMemberList&, bool = false);
     void writeInitializer(IceUtilInternal::Output&, const DataMemberList&, const DataMemberList& = DataMemberList());
     void writeInitializerMembers(IceUtilInternal::Output&, const DataMemberList&, bool = true);
     void writeOperation(IceUtilInternal::Output&, const OperationPtr&, bool);

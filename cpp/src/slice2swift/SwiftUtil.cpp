@@ -224,7 +224,7 @@ SwiftGenerator::getLocalScope(const string& scope, const string& separator)
 }
 
 string
-SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& c)
+SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel)
 {
     static const char* builtinTable[] =
     {
@@ -247,18 +247,12 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& c)
         return "";
     }
 
-    const bool hasNonOptionalMetadata = c && c->hasMetaData("swift:non-optional");
-    const ParamDeclPtr p = ParamDeclPtr::dynamicCast(c);
-    const bool isOptionalParam = p && p->optional();
 
     string str;
-    bool optional = isOptionalParam || (!isValueType(type) && !hasNonOptionalMetadata);
-
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
-        str = builtinTable[builtin->kind()];
-        return optional ? str + "?" : str;
+        return builtinTable[builtin->kind()];
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -289,22 +283,19 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& c)
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        str = getAbsolute(proxy->_class(), "", "Prx");
-        return optional ? str + "?" : str;
+        return getAbsolute(proxy->_class(), "", "Prx");
     }
 
     DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
     if(dict)
     {
-        str = getAbsolute(dict);
-        return optional ? str + "?" : str;
+        return getAbsolute(dict);
     }
 
     ContainedPtr contained = ContainedPtr::dynamicCast(type);
     if(contained)
     {
-        str = getAbsolute(contained);
-        return optional ? str + "?" : str;
+        return getAbsolute(contained);
     }
 
     return "???";
@@ -386,6 +377,24 @@ SwiftGenerator::getAbsolute(const ContainedPtr& cont,
     }
 
     return replace(str, "::", ".");
+}
+
+string
+SwiftGenerator::getUnqualified(const string& type, const string& module)
+{
+    if(importPrefix.empty())
+    {
+        const string localScope = getLocalScope(scope) + ".";
+        if(type.find(localScope) == 0)
+        {
+            string t = type.substr(localScope.size());
+            if(t.find(".") == string::npos)
+            {
+                return t;
+            }
+        }
+    }
+    return type;
 }
 
 std::string
