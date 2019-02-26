@@ -21,9 +21,9 @@
 
 /**
  *
- * The Ice Management eXtension facility. It provides the {@link
- * IceMX#MetricsAdmin} interface for management clients to retrieve
- * metrics from Ice applications.
+ * The Ice Management eXtension facility. It provides the
+ * {@link IceMX#MetricsAdmin} interface for management clients to
+ * retrieve metrics from Ice applications.
  *
  **/
 #ifndef __SLICE2JAVA_COMPAT__
@@ -325,8 +325,8 @@ class DispatchMetrics extends Metrics
  * Provides information on child invocations. A child invocation is
  * either remote (sent over an Ice connection) or collocated. An
  * invocation can have multiple child invocation if it is
- * retried. Child invocation metrics are embedded within {@link
- * InvocationMetrics}.
+ * retried. Child invocation metrics are embedded within
+ * {@link InvocationMetrics}.
  *
  **/
 class ChildInvocationMetrics extends Metrics
