@@ -74,7 +74,6 @@ public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil
 
         // swiftlint:disable force_cast
         return (PropertiesI(handle: propertiesHandle), remArgs as! StringSeq)
-        // swiftlint:enable force_cast
     }
 }
 

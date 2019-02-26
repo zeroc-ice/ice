@@ -75,12 +75,12 @@ extension Bool: Streamable {
 }
 
 extension String: Streamable {
-    public init(from _: InputStream) throws {
-        preconditionFailure("not implemented")
+    public init(from ins: InputStream) throws {
+        self = try ins.readString()
     }
 
-    public mutating func ice_read(from _: InputStream) throws {
-        preconditionFailure("not implemented")
+    public mutating func ice_read(from ins: InputStream) throws {
+        self = try ins.readString()
     }
 
     public func ice_write(to os: OutputStream) {

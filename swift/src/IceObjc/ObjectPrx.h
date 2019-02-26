@@ -80,8 +80,14 @@ NS_ASSUME_NONNULL_BEGIN
 -(BOOL) ice_flushBatchRequests:(NSError* _Nullable * _Nullable)error;
 
 // Either ICEObjectPrx or NSNull
-+(nullable id) iceRead:(void*)start size:(NSInteger)size communicator:(ICECommunicator*)communicator error:(NSError* _Nullable * _Nullable)error;
--(void) iceWrite:(id<ICEOutputStreamHelper>)os;
++(nullable id) iceRead:(void*)start size:(NSInteger)size
+          communicator:(ICECommunicator*)communicator
+         encodingMajor:(uint8_t)major
+         encodingMinor:(uint8_t)minor
+             bytesRead:(NSInteger*)bytesRead
+                 error:(NSError* _Nullable * _Nullable)error;
+
+-(BOOL) iceWrite:(id<ICEOutputStreamHelper>)os error:(NSError* _Nullable * _Nullable)error;
 
 -(nullable ICEInputStream*) iceInvoke:(NSString* _Nonnull)op
                                  mode:(NSInteger)mode

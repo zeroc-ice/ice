@@ -124,5 +124,4 @@ class OpaqueEndpointInfoI: EndpointInfoI, OpaqueEndpointInfo {
 //
 // IceSSL
 //
-
 class SSLEndpointInfoI: EndpointInfoI, SSLEndpointInfo {}

@@ -107,9 +107,9 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
         return _handle.toString()
     }
 
-    // TODO: should this be non-optional
-    public func getInfo() throws -> ConnectionInfo? {
-        return try _handle.getInfo() as? ConnectionInfo
+    public func getInfo() throws -> ConnectionInfo {
+        // swiftlint:disable force_cast
+        return try _handle.getInfo() as! ConnectionInfo
     }
 
     public func setBufferSize(rcvSize: Int32, sndSize: Int32) throws {

@@ -471,13 +471,20 @@
         _prx->ice_flushBatchRequests();
         return YES;
     }
-    catch(const std::exception& ex) {
+    catch(const std::exception& ex)
+    {
         *error = convertException(ex);
         return NO;
     }
 }
 
-+(id) iceRead:(void*)start size:(NSInteger)size communicator:(ICECommunicator*)communicator error:(NSError* _Nullable * _Nullable)error
++(id) iceRead:(void*)start
+         size:(NSInteger)size
+ communicator:(ICECommunicator*)communicator
+encodingMajor:(uint8_t)major
+encodingMinor:(uint8_t)minor
+    bytesRead:(NSInteger*)bytesRead
+        error:(NSError**)error
 {
 
     std::pair<const Ice::Byte*, const Ice::Byte*> p;
@@ -486,19 +493,14 @@
 
     auto comm = [communicator communicator];
 
-//    Ice::InputStream in(deref<Ice::Communicator>(communicator), ev, p);
-    //TODO
-
     try
     {
-        // TODO add encoding
-        Ice::InputStream in(comm, p);
-//        Ice::EncodingVersion ev;
-//        getEncodingVersion(encoding, ev);
+        Ice::InputStream ins(comm, Ice::EncodingVersion{major, minor}, p);
 
-//        Ice::InputStream in(deref<Ice::Communicator>(communicator), ev, p);
         std::shared_ptr<Ice::ObjectPrx> proxy;
-        in.read(proxy);
+        ins.read(proxy);
+
+        *bytesRead = ins.pos();
         if(proxy)
         {
             return [[ICEObjectPrx alloc] initWithCppObjectPrx:proxy];
@@ -515,7 +517,7 @@
     }
 }
 
--(void) iceWrite:(id<ICEOutputStreamHelper>)os
+-(BOOL) iceWrite:(id<ICEOutputStreamHelper>)os error:(NSError**)error
 {
     //
     // Marshal a proxy into a stream and return the encoded bytes.
@@ -529,13 +531,12 @@
         std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
         int count = static_cast<int>(p.second - p.first);
         [os copy:p.first count:[NSNumber numberWithInt:count]];
+        return YES;
     }
     catch(const std::exception& ex)
     {
-        //TODO can this actually throw?
-        assert(false);
-//        *error = convertException(ex);
-//        return NO;
+        *error = convertException(ex);
+        return NO;
     }
 }
 

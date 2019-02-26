@@ -394,7 +394,7 @@ local interface Connection
      * @return The connection information.
      *
      **/
-    ["cpp:const"] ConnectionInfo getInfo();
+    ["cpp:const", "swift:non-optional"] ConnectionInfo getInfo();
 
     /**
      *

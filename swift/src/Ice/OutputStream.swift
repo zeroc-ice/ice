@@ -204,11 +204,9 @@ public extension OutputStream {
         }
     }
 
-    func write(proxy: ObjectPrx?) {
+    func write(proxy: ObjectPrx?) throws {
         if let prxImpl = proxy as? _ObjectPrxI {
-            #warning("pass encoding when marshaling proxy")
-            // MATLAB: prx.iceWrite(obj, obj.getEncoding());
-            prxImpl.ice_write(to: self)
+            try prxImpl.ice_write(to: self)
         } else {
             //
             // A nil proxy is represented by an Identity with empty name and category fields.
@@ -222,10 +220,10 @@ public extension OutputStream {
         encapsStack.encoder?.writeValue(v: value)
     }
 
-    func write(proxyArray: [ObjectPrx?]) {
+    func write(proxyArray: [ObjectPrx?]) throws {
         write(numeric: Int32(proxyArray.count))
         for prx in proxyArray {
-            write(proxy: prx)
+            try write(proxy: prx)
         }
     }
 }

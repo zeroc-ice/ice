@@ -125,33 +125,34 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
         preconditionFailure("Unexpected logger type")
     }
 
-    func getDefaultRouter() throws -> RouterPrx? {
-        // TODO:
-        preconditionFailure("TODO")
+    func getDefaultRouter() -> RouterPrx? {
+        guard let handle = _handle.getDefaultRouter() else {
+            return nil
+        }
+        return _RouterPrxI.fromICEObjectPrx(handle: handle, communicator: self)
     }
 
-    func setDefaultRouter(rtr _: RouterPrx?) throws {
-        // TODO:
-        preconditionFailure("TODO")
+    func setDefaultRouter(rtr: RouterPrx?) throws {
+        try _handle.setDefaultRouter((rtr as? _RouterPrxI)?.handle)
     }
 
-    func getDefaultLocator() throws -> LocatorPrx? {
-        // TODO:
-        preconditionFailure("TODO")
+    func getDefaultLocator() -> LocatorPrx? {
+        guard let handle = _handle.getDefaultRouter() else {
+            return nil
+        }
+        return _LocatorPrxI.fromICEObjectPrx(handle: handle, communicator: self)
     }
 
-    func setDefaultLocator(loc _: LocatorPrx?) throws {
-        // TODO:
-        preconditionFailure("TODO")
+    func setDefaultLocator(loc: LocatorPrx?) throws {
+        try _handle.setDefaultRouter((loc as? _LocatorPrxI)?.handle)
     }
 
     func getValueFactoryManager() -> ValueFactoryManager {
         return valueFactoryManager
     }
 
-    func flushBatchRequests(compress _: CompressBatch) throws {
-        // TODO:
-        preconditionFailure("Not yet implemented")
+    func flushBatchRequests(compress: CompressBatch) throws {
+        try _handle.flushBatchRequests(compress.rawValue)
     }
 
     func createAdmin(adminAdapter _: ObjectAdapter, adminId _: Identity) throws -> ObjectPrx {

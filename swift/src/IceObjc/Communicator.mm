@@ -146,4 +146,58 @@
     });
 }
 
+-(nullable ICEObjectPrx*) getDefaultRouter
+{
+    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_communicator->getDefaultRouter()];
+}
+
+-(BOOL) setDefaultRouter:(ICEObjectPrx*)router error:(NSError**)error
+{
+    try
+    {
+        auto r = router ? [router prx] : nullptr;
+        _communicator->setDefaultRouter(Ice::uncheckedCast<Ice::RouterPrx>(r));
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
+-(nullable ICEObjectPrx*) getDefaultLocator
+{
+    return [[ICEObjectPrx alloc] initWithCppObjectPrx:_communicator->getDefaultLocator()];
+}
+
+-(BOOL) setDefaultLocator:(ICEObjectPrx*)locator error:(NSError**)error
+{
+    try
+    {
+        auto l = locator ? [locator prx] : nullptr;
+        _communicator->setDefaultLocator((Ice::uncheckedCast<Ice::LocatorPrx>(l)));
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
+-(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error
+{
+    try
+    {
+        _communicator->flushBatchRequests(Ice::CompressBatch(compress));
+        return YES;
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return NO;
+    }
+}
+
 @end

@@ -45,7 +45,7 @@ public class InputStream {
         buf = Buffer(start: handle.data(), count: handle.size())
     }
 
-    fileprivate func getBuffer() -> Buffer {
+    internal func getBuffer() -> Buffer {
         return buf
     }
 
@@ -55,6 +55,14 @@ public class InputStream {
 
     func getCount() -> Int {
         return buf.count
+    }
+
+    func getEncoding() -> EncodingVersion {
+        return encoding
+    }
+
+    func getCommunicator() -> Communicator {
+        return communicator
     }
 
     public func startEncapsulation() throws {
@@ -258,8 +266,7 @@ public class InputStream {
     }
 
     func initEncaps() {
-        #warning("Add proxy array unmarshaling")
-        preconditionFailure("not implemented")
+        // TODO: can we remove this now?
     }
 
     static func throwUOE(expectedType: Value.Type, v: Value) throws {
@@ -439,7 +446,7 @@ public extension InputStream {
 
         array.reserveCapacity(Int(count))
 
-        for i in 0 ... count {
+        for i in 0 ..< count {
             let e = try Element(from: self)
             array.insert(e, at: Int(i))
         }
@@ -451,8 +458,10 @@ public extension InputStream {
             return ""
         } else {
             let bytes = try buf.read(count: Int(size))
-            #warning("should we add more checks here")
-            return String(data: Data(bytes: bytes.baseAddress!, count: bytes.count), encoding: .utf8)!
+            guard let str = String(data: Data(bytes: bytes.baseAddress!, count: bytes.count), encoding: .utf8) else {
+                throw MarshalException(reason: "unable to read string")
+            }
+            return str
         }
     }
 
@@ -461,13 +470,20 @@ public extension InputStream {
     }
 
     func read(proxy _: ObjectPrx.Protocol) throws -> ObjectPrx? {
-        preconditionFailure("not implemented")
-//        return try _ObjectPrxI.ice_read(from: self)
+        return try _ObjectPrxI.ice_read(from: self)
     }
 
     func read(proxyArray _: ObjectPrx.Protocol) throws -> [ObjectPrx?] {
-        #warning("Add proxy array unmarshaling")
-        preconditionFailure("not implemented")
+        return try read(proxyArray: _ObjectPrxI.self)
+    }
+
+    func read<ProxyType>(proxyArray _: ProxyType.Type) throws -> [ProxyType?] where ProxyType: _ObjectPrxI {
+        let count = try readAndCheckSeqSize(minSize: 2)
+        var v = [ProxyType?](repeating: nil, count: count)
+        for i in 0 ..< count {
+            v[i] = try ProxyType.ice_read(from: self)
+        }
+        return v
     }
 
     func readValue<ValueType>(cb: ((Value?) -> Void)?,

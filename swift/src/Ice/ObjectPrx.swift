@@ -157,13 +157,18 @@ open class _ObjectPrxI: ObjectPrx {
         handle = impl.handle
     }
 
-    public func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: _ObjectPrxI {
+    internal func fromICEObjectPrx<ObjectPrxType>(_ h: ICEObjectPrx) -> ObjectPrxType where ObjectPrxType: _ObjectPrxI {
         return ObjectPrxType(handle: h,
                              communicator: communicator)
     }
 
-    public func fromICEObjectPrx(_ h: ICEObjectPrx) -> Self {
+    internal func fromICEObjectPrx(_ h: ICEObjectPrx) -> Self {
         return type(of: self).init(handle: h, communicator: communicator)
+    }
+
+    internal static func fromICEObjectPrx(handle: ICEObjectPrx,
+                                          communicator: Communicator) -> Self {
+        return self.init(handle: handle, communicator: communicator)
     }
 
     public func ice_getCommunicator() -> Communicator {
@@ -219,10 +224,9 @@ open class _ObjectPrxI: ObjectPrx {
         }
     }
 
-    public func ice_endpoints(endpoints _: [Endpoint]) throws -> Self {
+    public func ice_endpoints(endpoints: [Endpoint]) throws -> Self {
         return try autoreleasepool {
-            preconditionFailure("TODO")
-//            return try handle.ice_endpoints(endpoints as! [EndpointI])
+            try fromICEObjectPrx(handle.ice_endpoints(endpoints.map { ($0 as! EndpointI)._handle }))
         }
     }
 
@@ -423,14 +427,39 @@ open class _ObjectPrxI: ObjectPrx {
         }
     }
 
-    public func ice_write(to os: OutputStream) {
-        handle.iceWrite(os)
+    public func ice_write(to os: OutputStream) throws {
+        try handle.iceWrite(os)
     }
 
-    public static func ice_read(from _: InputStream) throws -> Self? {
-//        handle.iceRead()
-        #warning("TODO")
-        preconditionFailure("not implemented")
+    public static func ice_read(from ins: InputStream) throws -> Self? {
+        //
+        // Unmarshaling of proxies is done in C++. Since we don't know how big this proxy will
+        // be we pass the current buffer position and remaining buffer capacity.
+        //
+
+        // The number of bytes consumed reading the proxy
+        var bytesRead: Int = 0
+
+        let buf = ins.getBuffer()
+        let encoding = ins.getEncoding()
+        let communicator = ins.getCommunicator()
+
+        //
+        // Returns Any which is either NSNull or ICEObjectPrx
+        //
+        guard let handle = try ICEObjectPrx.iceRead(buf.baseAddress!.advanced(by: buf.count),
+                                                    size: buf.capacity - buf.count,
+                                                    communicator: (communicator as! CommunicatorI)._handle,
+                                                    encodingMajor: encoding.major,
+                                                    encodingMinor: encoding.minor,
+                                                    bytesRead: &bytesRead) as? ICEObjectPrx else {
+            return nil
+        }
+
+        // Since the proxy was read in C++ we need to skip over it
+        try buf.skip(count: bytesRead)
+
+        return self.init(handle: handle, communicator: communicator)
     }
 
     public func _createOutputStream() -> OutputStream {
@@ -439,17 +468,15 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func _invoke(operation op: String,
                         mode: OperationMode,
-                        twowayOnly _: Bool,
+                        twowayOnly: Bool,
                         inParams: OutputStream?,
                         hasOutParams: Bool,
                         exceptions: [UserException] = [],
                         context: Context? = nil) throws -> InputStream {
         return try autoreleasepool {
-            // TODO:
-//            if twowayOnly && !self.isTwoway {
-//                throw TwowayOnlyException(operation: op)
-//                //            throw(Ice.TwowayOnlyException('', 'invocation requires twoway proxy', op));
-//            }
+            if twowayOnly, !self.isTwoway {
+                throw TwowayOnlyException(operation: op)
+            }
 
             var ok = Bool()
             let ins = try InputStream(communicator: self.communicator,
@@ -470,6 +497,7 @@ open class _ObjectPrxI: ObjectPrx {
                                 throw error
                             }
                         }
+
                         // TODO: error.ice_id
                         throw UnknownUserException(unknown: "")
                     }

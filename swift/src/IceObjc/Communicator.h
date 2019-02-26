@@ -29,6 +29,11 @@ NS_ASSUME_NONNULL_BEGIN
 //-(nullable ObjectAdapterI*) createObjectAdapterWithRouter:(NSString*)name router:(ObjectPrxObjc*)router error:(NSError**)error;
 -(ICEImplicitContext*) getImplicitContext;
 -(id<ICELoggerProtocol>) getLogger;
+-(nullable ICEObjectPrx*) getDefaultRouter;
+-(BOOL) setDefaultRouter:(ICEObjectPrx* _Nullable)router error:(NSError**)error;
+-(nullable ICEObjectPrx*) getDefaultLocator;
+-(BOOL) setDefaultLocator:(ICEObjectPrx* _Nullable)locator error:(NSError**)error;
+-(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error;
 @end
 
 #ifdef __cplusplus

@@ -688,9 +688,7 @@ SwiftGenerator::writeCastFuncs(IceUtilInternal::Output& out, const ClassDefPtr& 
 
     out << "func read(proxyArray: " << prx << ".Protocol) throws -> [" << prx << "?]";
     out << sb << nl;
-    // out << "return try " << prxImpl << ".ice_read(from: self)";
-    out << "#warning(\"add generated proxy arrays\")" << nl;
-    out << "preconditionFailure(\"TODO\")";
+    out << "return try read(proxyArray: " << prxImpl << ".self)";
     out << eb << nl;
     out << eb << nl;
 }
@@ -728,11 +726,11 @@ SwiftGenerator::writeMarshalUnmarshalCode(IceUtilInternal::Output& out, const Cl
         const SequencePtr sequence = SequencePtr::dynamicCast(op->returnType());
         if(isProxyType((*q)->type()))
         {
-            out << nl << "os.write(proxy: " << (*q)->name() << ")";
+            out << nl << "try os.write(proxy: " << (*q)->name() << ")";
         }
         else if(sequence && isProxyType(sequence->type()))
         {
-            out << nl << "os.write(proxyArray: " << (*q)->name() << ")";
+            out << nl << "try os.write(proxyArray: " << (*q)->name() << ")";
         }
         else
         {

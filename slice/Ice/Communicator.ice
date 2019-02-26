@@ -434,7 +434,7 @@ local interface Communicator
      * @see Router
      *
      **/
-    ["cpp:const"] Router* getDefaultRouter();
+    ["cpp:const", "swift:nothrow"] Router* getDefaultRouter();
 
     /**
      *
@@ -465,7 +465,7 @@ local interface Communicator
      * @see Locator
      *
      **/
-    ["cpp:const"] Locator* getDefaultLocator();
+    ["cpp:const", "swift:nothrow"] Locator* getDefaultLocator();
 
     /**
      *
