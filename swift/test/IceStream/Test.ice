@@ -129,6 +129,7 @@ module Sub
 }
 }
 
+["swift:module:Test:Test2"]
 module Test2
 {
 module Sub2

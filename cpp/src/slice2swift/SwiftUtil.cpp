@@ -364,7 +364,9 @@ SwiftGenerator::fixIdent(const std::string& ident)
 std::string
 SwiftGenerator::fixName(const ContainedPtr& cont)
 {
-    return cont->name();
+    string swiftPrefix;
+    string swiftModule = getSwiftModule(getTopLevelModule(cont), swiftPrefix);
+    return swiftPrefix + cont->name();
 }
 
 //
@@ -520,7 +522,9 @@ SwiftGenerator::writeTuple(IceUtilInternal::Output& out, const StringList& tuple
 }
 
 void
-SwiftGenerator::writeDataMembers(IceUtilInternal::Output& out, const DataMemberList& members, bool writeGetter)
+SwiftGenerator::writeDataMembers(IceUtilInternal::Output& out,
+                                 const DataMemberList& members,
+                                 bool writeGetter)
 {
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
@@ -874,7 +878,7 @@ SwiftGenerator::MetaDataVisitor::visitModuleStart(const ModulePtr& p)
             {
                 prefixes->second[p->name()] = swiftPrefix;
             }
-            else
+            else if(current->second != swiftPrefix)
             {
                 ostringstream os;
                 os << "invalid module prefix:\n Slice module `" << m->scoped() << "' is already using";
