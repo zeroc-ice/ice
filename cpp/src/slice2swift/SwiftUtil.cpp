@@ -649,7 +649,6 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
 void
 SwiftGenerator::writeMarshalUnmarshalCode(IceUtilInternal::Output&, const ClassDefPtr&, const OperationPtr&)
 {
-    // TODO
 }
 
 bool

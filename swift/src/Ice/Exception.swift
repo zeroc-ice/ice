@@ -7,12 +7,20 @@
 //
 // **********************************************************************
 
-public protocol Exception: Error {}
+public protocol Exception: Error {
+    init()
+}
 
-public class LocalException: Exception {}
+public class LocalException: Exception {
+    public required init() {
+    }
+}
 
-public protocol UserException: Exception, Streamable, CustomStringConvertible {
+public protocol UserException: Exception, CustomStringConvertible {
     var description: String { get }
+
+    func _iceReadImpl(from: InputStream) throws
+    func _iceWriteImpl(to: OutputStream)
 
     static func ice_staticId() -> String
 }
@@ -25,6 +33,19 @@ public extension UserException {
     internal func isBase(of ex: UserException) -> Bool {
         return ex is Self
     }
+
+    func _iceRead(from ins: InputStream) throws {
+        ins.startException()
+        try _iceReadImpl(from: ins)
+        _ = try ins.endException(preserve: false)
+    }
+
+    func _iceWrite(to os: OutputStream) {
+        os.startException(data: nil)
+        _iceWriteImpl(to: os)
+        os.endException()
+    }
+
 }
 
 #warning("TODO: Add proper LocalException  CustomStringConvertible impl")

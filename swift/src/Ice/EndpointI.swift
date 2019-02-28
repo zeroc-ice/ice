@@ -9,7 +9,7 @@
 
 import IceObjc
 
-class EndpointI: LocalObject<ICEEndpoint>, Endpoint {
+class EndpointI: LocalObject<ICEEndpoint>, Endpoint, CustomStringConvertible {
     func toString() -> String {
         return _handle.toString()
     }

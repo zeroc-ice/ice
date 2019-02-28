@@ -74,7 +74,7 @@ public class InputStream {
         // stream. If I use an Int, it is always 4 bytes. For
         // readSize()/writeSize(), it could be 1 or 5 bytes.
         //
-        let sz = try Int32(from: self)
+        let sz: Int32 = try read()
 
         if sz < 6 {
             // TODO: file/line
@@ -87,7 +87,7 @@ public class InputStream {
 
         encaps.sz = Int(sz)
 
-        let encoding = try EncodingVersion(from: self)
+        let encoding: EncodingVersion = try read()
 
         try Protocol.checkSupportedEncoding(encoding)
         encaps.setEncoding(encoding)
@@ -115,7 +115,7 @@ public class InputStream {
     }
 
     func skipEmptyEncapsulation() throws {
-        let sz = try Int32(from: self)
+        let sz: Int32 = try read()
 
         if sz < 6 {
             throw EncapsulationException(reason: "invalid size")
@@ -125,7 +125,7 @@ public class InputStream {
             throw UnmarshalOutOfBoundsException(reason: "")
         }
 
-        let encoding = try EncodingVersion(from: self)
+        let encoding: EncodingVersion = try read()
         try Protocol.checkSupportedEncoding(encoding) // Make sure the encoding is supported.
 
         if encoding == Protocol.Encoding_1_0 {
@@ -142,13 +142,13 @@ public class InputStream {
     }
 
     func skipEncapsulation() throws {
-        let sz = try Int32(from: self)
+        let sz: Int32 = try read()
 
         if sz < 6 {
             throw EncapsulationException(reason: "invalid size")
         }
 
-        _ = try EncodingVersion(from: self)
+        _ = try read() as EncodingVersion
 
         try buf.position(buf.count + Int(sz) - 6)
     }
@@ -211,7 +211,7 @@ public class InputStream {
         case .VSize:
             try skip(readSize())
         case .FSize:
-            try skip(Int32(from: self))
+            try skip(read() as Int32)
         case .Class:
             try readValue(cb: nil, cls: UnknownSlicedValue.self)
         }
@@ -226,7 +226,7 @@ public class InputStream {
                 return // End of encapsulation also indicates end of optionals.
             }
 
-            let v = try UInt8(from: self)
+            let v: UInt8 = try read()
             if v == Protocol.OPTIONAL_END_MARKER.rawValue {
                 return
             }
@@ -249,7 +249,7 @@ public class InputStream {
     }
 
     func skipSize() throws {
-        let b = try read(as: UInt8.self)
+        let b: UInt8 = try read()
         if b == 255 {
             try buf.skip(count: 4)
         }
@@ -261,6 +261,16 @@ public class InputStream {
     }
 
     public func endValue(preserve: Bool) throws -> SlicedData? {
+        precondition(encaps.decoder != nil)
+        return try encaps.decoder.endInstance(preserve: preserve)
+    }
+
+    public func startException() {
+        precondition(encaps.decoder != nil)
+        encaps.decoder.startInstance(type: .ExceptionSlice)
+    }
+
+    public func endException(preserve: Bool) throws -> SlicedData? {
         precondition(encaps.decoder != nil)
         return try encaps.decoder.endInstance(preserve: preserve)
     }
@@ -286,20 +296,218 @@ public class InputStream {
 }
 
 public extension InputStream {
-    func read<Element>(numeric e: inout Element) throws where Element: Numeric, Element: Streamable {
+    private func readNumeric<Element>(_ e: inout Element) throws where Element: Numeric {
         try Swift.withUnsafeBytes(of: &e) {
             try self.buf.load(bytes: $0)
         }
     }
 
-    func read<Element>(as type: Element.Type) throws -> Element where Element: Numeric, Element: Streamable {
+    private func readNumeric<Element>(_ type: Element.Type) throws -> Element where Element: Numeric {
         return try buf.load(as: type)
     }
 
+    private func readNumeric<Element>(tag: Int32, expectedType: OptionalFormat) throws -> Element? where Element: Numeric {
+        guard try readOptional(tag: tag, expectedFormat: expectedType) else {
+            return nil
+        }
+        return try readNumeric(Element.self)
+    }
+
+    private func readNumeric<Element>(minSize: Int32) throws -> [Element] where Element: Numeric {
+        let sz = try readAndCheckSeqSize(minSize: 1)
+        var a = [Element]()
+        a.reserveCapacity(sz)
+        for i in 0 ..< sz {
+            a[i] = try readNumeric(Element.self)
+        }
+        return a
+    }
+
+    //
+    // UInt8
+    //
+    func read() throws -> UInt8 {
+        return try readNumeric(UInt8.self)
+    }
+
+    func read(_ tag: Int32) throws -> UInt8? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F1) else {
+            return nil
+        }
+        return try read() as UInt8
+    }
+
+    func read() throws -> [UInt8] {
+        return try readNumeric(minSize: 1)
+    }
+
+    func read(_ tag: Int32) throws -> [UInt8]? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+            return nil
+        }
+        return try read()
+    }
+
+    //
+    // Bool
+    //
+    func read() throws -> Bool {
+        return try readNumeric(UInt8.self) == 1
+    }
+
+    func read(_ tag: Int32) throws -> Bool? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F1) else {
+            return nil
+        }
+        return try read() as Bool
+    }
+
+    func read() throws -> [Bool] {
+        let sz = try readAndCheckSeqSize(minSize: 1)
+        var a = [Bool]()
+        a.reserveCapacity(sz)
+        for i in 0 ..< sz {
+            a[i] = (try readNumeric(UInt8.self) == 1)
+        }
+        return a
+    }
+
+    func read(_ tag: Int32) throws -> [Bool]? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+            return nil
+        }
+        return try read()
+    }
+
+    //
+    // Int16
+    //
+    func read() throws -> Int16 {
+        return try readNumeric(Int16.self)
+    }
+
+    func read(_ tag: Int32) throws -> Int16? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F2) else {
+            return nil
+        }
+        return try read() as Int16
+    }
+
+    func read() throws -> [Int16] {
+        return try readNumeric(minSize: 2)
+    }
+
+    func read(_ tag: Int32) throws -> [Int16]? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+            return nil
+        }
+        return try read()
+    }
+
+    //
+    // Int32
+    //
+    func read() throws -> Int32 {
+        return try readNumeric(Int32.self)
+    }
+
+    func read(_ tag: Int32) throws -> Int32? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F4) else {
+            return nil
+        }
+        return try read() as Int32
+    }
+
+    func read() throws -> [Int32] {
+        return try readNumeric(minSize: 4)
+    }
+
+    func read(_ tag: Int32) throws -> [Int32]? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+            return nil
+        }
+        return try read()
+    }
+
+    //
+    // Int64
+    //
+    func read() throws -> Int64 {
+        return try readNumeric(Int64.self)
+    }
+
+    func read(_ tag: Int32) throws -> Int64? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
+            return nil
+        }
+        return try read() as Int64
+    }
+
+    func read() throws -> [Int64] {
+        return try readNumeric(minSize: 8)
+    }
+
+    func read(_ tag: Int32) throws -> [Int64]? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+            return nil
+        }
+        return try read()
+    }
+
+    //
+    // Float
+    //
+    func read() throws -> Float {
+        return try readNumeric(Float.self)
+    }
+
+    func read(_ tag: Int32) throws -> Float? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
+            return nil
+        }
+        return try read() as Float
+    }
+
+    func read() throws -> [Float] {
+        return try readNumeric(minSize: 4)
+    }
+
+    func read(_ tag: Int32) throws -> [Float]? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+            return nil
+        }
+        return try read()
+    }
+
+    //
+    // Double
+    //
+    func read() throws -> Double {
+        return try readNumeric(Double.self)
+    }
+
+    func read(_ tag: Int32) throws -> Double? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
+            return nil
+        }
+        return try read() as Double
+    }
+
+    func read() throws -> [Double] {
+        return try readNumeric(minSize: 8)
+    }
+
+    func read(_ tag: Int32) throws -> [Double]? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+            return nil
+        }
+        return try read()
+    }
+
     func readSize() throws -> Int32 {
-        let b = try read(as: UInt8.self)
+        let b = try readNumeric(UInt8.self)
         if b == 255 {
-            return try read(as: Int32.self)
+            return try readNumeric(Int32.self)
         } else {
             return Int32(b)
         }
@@ -366,7 +574,7 @@ public extension InputStream {
                 return false // End of encapsulation also indicates end of optionals.
             }
 
-            let v = try UInt8(from: self)
+            let v: UInt8 = try read()
             if v == Protocol.OPTIONAL_END_MARKER.rawValue {
                 try buf.position(buf.count - 1) // Rewind
                 return false
@@ -403,15 +611,15 @@ public extension InputStream {
     func read(enum val: inout UInt8, maxValue: Int32) throws {
         if encoding == Protocol.Encoding_1_0 {
             if maxValue < 127 {
-                val = try read(as: UInt8.self)
+                val = try read()
             } else if maxValue < 32767 {
-                let v = try read(as: Int16.self)
+                let v: Int16 = try read()
                 guard v <= UInt8.max else {
                     throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
                 }
                 val = UInt8(v)
             } else {
-                let v = try read(as: Int32.self)
+                let v: Int32 = try read()
                 guard v <= UInt8.max else {
                     throw UnmarshalOutOfBoundsException(reason: "1.0 encoded enum value is larger than UInt8")
                 }
@@ -429,30 +637,30 @@ public extension InputStream {
     func read(enum val: inout Int32, maxValue: Int32) throws {
         if encoding == Protocol.Encoding_1_0 {
             if maxValue < 127 {
-                val = try Int32(read(as: UInt8.self))
+                val = Int32(try read() as UInt8)
             } else if maxValue < 32767 {
-                val = try Int32(read(as: Int16.self))
+                val = Int32(try read() as Int16)
             } else {
-                val = try read(as: Int32.self)
+                val = Int32(try read() as Int32)
             }
         } else {
             val = try readSize()
         }
     }
 
-    func read<Element>(array: inout [Element]) throws where Element: Streamable {
-        var count = Int32()
-        try read(numeric: &count)
+//    func read<Element>(array: inout [Element]) throws where Element: StreamReadable {
+//        var count = Int32()
+//        try read(numeric: &count)
+//
+//        array.reserveCapacity(Int(count))
+//
+//        for i in 0 ..< count {
+//            let e: Element = try Element(from: self)
+//            array.insert(e, at: Int(i))
+//        }
+//    }
 
-        array.reserveCapacity(Int(count))
-
-        for i in 0 ..< count {
-            let e = try Element(from: self)
-            array.insert(e, at: Int(i))
-        }
-    }
-
-    func readString() throws -> String {
+    func read() throws -> String {
         let size = try readSize()
         if size == 0 {
             return ""
@@ -466,7 +674,30 @@ public extension InputStream {
     }
 
     func read(string: inout String) throws {
-        string = try readString()
+        string = try read()
+    }
+
+    func read(_ tag: Int32) throws -> String? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
+            return nil
+        }
+        return try read() as String
+    }
+
+    func read() throws -> [String] {
+        let sz = try readAndCheckSeqSize(minSize: 1)
+        var r = [String].init(repeating: "", count: sz)
+        for i in 1 ..< sz {
+            r[i] = try read()
+        }
+        return r
+    }
+
+    func read(_ tag: Int32) throws -> [String]? {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.FSize) else {
+            return nil
+        }
+        return try read() as [String]
     }
 
     func read(proxy _: ObjectPrx.Protocol) throws -> ObjectPrx? {
@@ -486,16 +717,20 @@ public extension InputStream {
         return v
     }
 
-    func readValue<ValueType>(cb: ((Value?) -> Void)?,
+    func readValue<ValueType>(cb: ((ValueType?) -> Void)?,
                               cls: ValueType.Type = ValueType.self) throws where ValueType: Value {
         initEncaps()
         if let cb = cb {
             var throwValue: Value?
-            try encaps.decoder.readValue { v in
-                if v == nil || v is ValueType {
-                    cb(v)
+            try encaps.decoder.readValue { value in
+                if let v = value {
+                    if let v = v as? ValueType {
+                        cb(v)
+                    } else {
+                        throwValue = value
+                    }
                 } else {
-                    throwValue = v
+                    cb(nil)
                 }
             }
 
@@ -579,7 +814,7 @@ extension EncapsDecoder {
             }
             return typeId
         } else {
-            let typeId = try stream.readString()
+            let typeId: String = try stream.read()
             typeIdIndex += 1
             typeIdMap[typeIdIndex] = typeId
             return typeId
@@ -656,7 +891,7 @@ extension EncapsDecoder {
         //
         // Read the instance.
         //
-        try v.ice_read(from: stream)
+        try v._iceRead(from: stream)
 
         //
         // Patch all instances now that the instance is unmarshaled.
@@ -734,7 +969,7 @@ private class EncapsDecoder10: EncapsDecoder {
         //
         // Object references are encoded as a negative integer in 1.0.
         //
-        var index = try stream.read(as: Int32.self)
+        var index: Int32 = try stream.read()
         if index > 0 {
             throw MarshalException(reason: "invalid object id")
         }
@@ -758,7 +993,7 @@ private class EncapsDecoder10: EncapsDecoder {
         // the exception was sliced.
         //
 
-        let usesClasses = try Bool(from: stream)
+        let usesClasses: Bool = try stream.read()
 
         sliceType = .ExceptionSlice
         skipFirstSlice = false
@@ -780,7 +1015,8 @@ private class EncapsDecoder10: EncapsDecoder {
             // We found the exception.
             //
             if let userEx = userExceptionType {
-                let ex = try userEx.init(from: stream)
+                let ex = userEx.init()
+                try ex._iceRead(from: stream)
                 if usesClasses {
                     try readPendingValues()
                 }
@@ -849,13 +1085,13 @@ private class EncapsDecoder10: EncapsDecoder {
         //
         // For exceptions, the type ID is always encoded as a string
         if sliceType == .ValueSlice {
-            let isIndex = try Bool(from: stream)
+            let isIndex: Bool = try stream.read()
             typeId = try readTypeId(isIndex: isIndex)
         } else {
-            typeId = try stream.readString()
+            typeId = try stream.read()
         }
 
-        let sliceSize = try stream.read(as: Int32.self)
+        let sliceSize: Int32 = try stream.read()
         if sliceSize < 4 {
             throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
         }
@@ -888,7 +1124,7 @@ private class EncapsDecoder10: EncapsDecoder {
     }
 
     func readInstance() throws {
-        let index = try Int32(from: stream)
+        let index: Int32 = try stream.read()
 
         if index <= 0 {
             throw MarshalException(reason: "invalid object id")
@@ -1047,7 +1283,8 @@ private class EncapsDecoder11: EncapsDecoder {
             // We found the exception.
             //
             if let userEx = userExceptionType {
-                let ex = try userEx.init(from: stream)
+                let ex = userEx.init()
+                try ex._iceRead(from: stream)
                 throw ex
             }
 
@@ -1096,7 +1333,7 @@ private class EncapsDecoder11: EncapsDecoder {
             return
         }
 
-        current.sliceFlags = try UInt8(from: stream)
+        current.sliceFlags = try stream.read()
 
         //
         // Read the type ID, for value slices the type ID is encoded as a
@@ -1123,7 +1360,7 @@ private class EncapsDecoder11: EncapsDecoder {
                 current.compactId = -1
             }
         } else {
-            current.typeId = try String(from: stream)
+            current.typeId = try stream.read()
             current.compactId = -1
         }
 
@@ -1131,7 +1368,7 @@ private class EncapsDecoder11: EncapsDecoder {
         // Read the slice size if necessary.
         //
         if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
-            current.sliceSize = try Int32(from: stream)
+            current.sliceSize = try stream.read()
             if current.sliceSize < 4 {
                 throw UnmarshalOutOfBoundsException(reason: "invalid slice size")
             }

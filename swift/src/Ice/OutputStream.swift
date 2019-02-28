@@ -58,8 +58,8 @@ public class OutputStream {
         encapsStack.setEncoding(encoding)
         encapsStack.start = buf.count
 
-        Int32(0).ice_write(to: self) // Placeholder for the encapsulation length.
-        encapsStack.encoding.ice_write(to: self)
+        write(Int32(0)) // Placeholder for the encapsulation length.
+        write(encapsStack.encoding)
     }
 
     public func endEncapsulation() {
@@ -99,6 +99,16 @@ public class OutputStream {
         encapsStack.encoder.endInstance()
     }
 
+    func startException(data: SlicedData?) {
+        precondition(encapsStack.encoder != nil)
+        encapsStack.encoder.startInstance(type: .ExceptionSlice, data: data)
+    }
+
+    func endException() {
+        precondition(encapsStack.encoder != nil)
+        encapsStack.encoder.endInstance()
+    }
+
     private func initEncaps() {
         // Lazy initialization.
 
@@ -132,16 +142,186 @@ public class OutputStream {
 }
 
 public extension OutputStream {
-    func write(_ streamables: Streamable...) {
-        for streamable in streamables {
-            streamable.ice_write(to: self)
+
+    private func writeNumeric<Element>(_ v: Element) where Element: Numeric {
+        var value = v
+        return Swift.withUnsafeBytes(of: &value) {
+            self.buf.append(bytes: $0)
         }
     }
 
-    func write<Element>(numeric n: Element) where Element: Streamable, Element: Numeric {
-        var value = n
-        return Swift.withUnsafeBytes(of: &value) {
-            self.buf.append(bytes: $0)
+    private func writeNumeric<Element>(_ tag: Int32, _ v: Element?, _ format: OptionalFormat) where Element: Numeric {
+        if let val = v {
+            if writeOptional(tag: tag, format: format) {
+                writeNumeric(val)
+            }
+        }
+    }
+
+    private func writeNumeric<Element>(_ v: [Element]) where Element: Numeric {
+        write(size: v.count)
+        if v.count > 0 {
+            write(size: v.count)
+            v.forEach { e in
+                writeNumeric(e)
+            }
+        }
+    }
+
+    private func writeNumeric<Element>(_ tag: Int32, _ v: [Element]) where Element: Numeric {
+
+    }
+
+    //
+    // UInt8
+    //
+    func write(_ v: UInt8) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: UInt8?) {
+        writeNumeric(tag, v, OptionalFormat.F1)
+    }
+
+    func write(_ v: [UInt8]) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: [UInt8]?) {
+        if let val = v {
+            writeNumeric(tag, val)
+        }
+    }
+
+    //
+    // Bool
+    //
+    func write(_ v: Bool) {
+        writeNumeric(UInt8(v == true ? 1 : 0))
+    }
+
+    func write(_ tag: Int32, _ v: Bool?) {
+        writeNumeric(tag, UInt8(v == true ? 1 : 0), OptionalFormat.F1)
+    }
+
+    func write(_ v: [Bool]) {
+        write(size: v.count)
+        if v.count > 0 {
+            write(size: v.count)
+            v.forEach { e in
+                write(e)
+            }
+        }
+    }
+
+    func write(_ tag: Int32, _ v: [Bool]?) {
+        if let val = v {
+            write(val)
+        }
+    }
+
+    //
+    // Int16
+    //
+    func write(_ v: Int16) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: Int16?) {
+        writeNumeric(tag, v, OptionalFormat.F2)
+    }
+
+    func write(_ v: [Int16]) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: [Int16]?) {
+        if let val = v {
+            writeNumeric(tag, val)
+        }
+    }
+
+    //
+    // Int32
+    //
+    func write(_ v: Int32) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: Int32?) {
+        writeNumeric(tag, v, OptionalFormat.F4)
+    }
+
+    func write(_ v: [Int32]) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: [Int32]?) {
+        if let val = v {
+            writeNumeric(tag, val)
+        }
+    }
+
+    //
+    // Int64
+    //
+    func write(_ v: Int64) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: Int64?) {
+        writeNumeric(tag, v, OptionalFormat.F8)
+    }
+
+    func write(_ v: [Int64]) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: [Int64]?) {
+        if let val = v {
+            writeNumeric(tag, val)
+        }
+    }
+
+    //
+    // Float
+    //
+    func write(_ v: Float) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: Float?) {
+        writeNumeric(tag, v, OptionalFormat.F4)
+    }
+
+    func write(_ v: [Float]) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: [Float]?) {
+        if let val = v {
+            writeNumeric(tag, val)
+        }
+    }
+
+    //
+    // Double
+    //
+    func write(_ v: Double) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: Double?) {
+        writeNumeric(tag, v, OptionalFormat.F8)
+    }
+
+    func write(_ v: [Double]) {
+        writeNumeric(v)
+    }
+
+    func write(_ tag: Int32, _ v: [Double]?) {
+        if let val = v {
+            writeNumeric(tag, val)
         }
     }
 
@@ -149,23 +329,28 @@ public extension OutputStream {
         if size > 254 {
             // pre-allocate size memory
             buf.ensure(bytesNeeded: Int(5))
-            write(numeric: UInt8(255))
-            write(numeric: size)
+            write(UInt8(255))
+            write(size)
         } else {
             // pre-allocate size memory
             buf.ensure(bytesNeeded: Int(1 + size))
-            write(numeric: UInt8(size))
+            write(UInt8(size))
         }
+    }
+
+    func write(size: Int) {
+        precondition(size <= Int32.max, "Size is too large")
+        write(size: Int32(size))
     }
 
     func write(enum val: UInt8, maxValue: Int32) {
         if encoding == Protocol.Encoding_1_0 {
             if maxValue < 127 {
-                write(numeric: UInt8(val))
+                write(UInt8(val))
             } else if maxValue < 32767 {
-                write(numeric: Int16(val))
+                write(Int16(val))
             } else {
-                write(numeric: Int32(val))
+                write(Int32(val))
             }
         } else {
             write(size: Int32(val))
@@ -175,43 +360,39 @@ public extension OutputStream {
     func write(enum val: Int32, maxValue: Int32) {
         if encoding == Protocol.Encoding_1_0 {
             if maxValue < 127 {
-                write(numeric: UInt8(val))
+                write(UInt8(val))
             } else if maxValue < 32767 {
-                write(numeric: Int16(val))
+                write(Int16(val))
             } else {
-                write(numeric: Int32(val))
+                write(Int32(val))
             }
         } else {
             write(size: val)
         }
     }
 
-    func write(utf8view view: String.UTF8View) {
+    func write(_ str: String) {
+        let view = str.utf8
         let byteArray = [UInt8](view)
         write(size: byteArray.count)
         byteArray.withUnsafeBytes { self.buf.append(bytes: $0) }
     }
 
-    func write(size: Int) {
-        precondition(size <= Int32.max, "Size is too large")
-        write(size: Int32(size))
-    }
-
-    func write<Element>(array: [Element]) where Element: Streamable {
-        write(numeric: Int32(array.count))
-        for item in array {
-            item.ice_write(to: self)
-        }
-    }
-
-    func write(proxy: ObjectPrx?) throws {
+    func write(proxy: ObjectPrx?) {
         if let prxImpl = proxy as? _ObjectPrxI {
-            try prxImpl.ice_write(to: self)
+            prxImpl.ice_write(to: self)
         } else {
             //
             // A nil proxy is represented by an Identity with empty name and category fields.
             //
-            Ice.Identity().ice_write(to: self)
+            write(Identity())
+        }
+    }
+
+    func write(proxyArray: [ObjectPrx?]) {
+        write(size: Int32(proxyArray.count))
+        for prx in proxyArray {
+            write(proxy: prx)
         }
     }
 
@@ -220,11 +401,50 @@ public extension OutputStream {
         encapsStack.encoder?.writeValue(v: value)
     }
 
-    func write(proxyArray: [ObjectPrx?]) throws {
-        write(numeric: Int32(proxyArray.count))
-        for prx in proxyArray {
-            try write(proxy: prx)
+    func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {
+        precondition(encapsStack != nil)
+        if let encoder = encapsStack.encoder {
+            return encoder.writeOptional(tag: tag, format: format)
+        } else {
+            return writeOptionalImpl(tag: tag, format: format)
         }
+    }
+
+    func writeOptiaonalVSize(tag: Int32, len: Int32, elemSize: Int32) -> Bool {
+        if writeOptional(tag: tag, format: OptionalFormat.VSize) {
+            if len == 0 {
+                write(size: 1)
+                write(size: 0)
+            } else {
+                var sz = len * elemSize
+                if len > 254 {
+                    sz += 5
+                } else {
+                    sz += 1
+                }
+                write(size: sz)
+                return true
+            }
+        }
+        return false
+    }
+
+    internal func writeOptionalImpl(tag: Int32, format: OptionalFormat) -> Bool {
+        guard encoding != Protocol.Encoding_1_0 else {
+            return false
+        }
+
+        var v = format.rawValue
+        if tag < 30 {
+            v |= UInt8(tag) << 3
+            write(v)
+
+        } else {
+            v |= 0x0F0 // tag = 30
+            write(v)
+            write(size: tag)
+        }
+        return true
     }
 }
 
@@ -300,7 +520,7 @@ private protocol EncapsEncoder: AnyObject {
 }
 
 extension EncapsEncoder {
-    func writeOptional(tag _: Int, format _: OptionalFormat) -> Bool {
+    func writeOptional(tag _: Int32, format _: OptionalFormat) -> Bool {
         return false
     }
 
@@ -343,9 +563,9 @@ private final class EncapsEncoder10: EncapsEncoder {
         // Value references are encoded as a negative integer in 1.0.
         //
         if let val = v {
-            os.write(numeric: -registerValue(val))
+            os.write(-registerValue(val))
         } else {
-            os.write(numeric: Int32(0))
+            os.write(Int32(0))
         }
     }
 
@@ -386,17 +606,17 @@ private final class EncapsEncoder10: EncapsEncoder {
         if sliceType == SliceType.ValueSlice {
             let index = registerTypeId(typeId)
             if index < 0 {
-                false.ice_write(to: os)
-                typeId.ice_write(to: os)
+                os.write(false)
+                os.write(typeId)
             } else {
-                true.ice_write(to: os)
+                os.write(true)
                 os.write(size: index)
             }
         } else {
-            typeId.ice_write(to: os)
+            os.write(typeId)
         }
 
-        os.write(numeric: Int32(0)) // Placeholder for the slice length.
+        os.write(Int32(0)) // Placeholder for the slice length.
         writeSlice = Int32(os.getCount())
     }
 
@@ -431,14 +651,14 @@ private final class EncapsEncoder10: EncapsEncoder {
                 // marshaled instances" into _toBeMarshaledMap while writing
                 // instances.
                 //
-                os.write(numeric: Int32(value))
+                os.write(Int32(value))
 
                 key.value.ice_preMarshal()
 
-                key.value.ice_write(to: os)
+                key.value._iceWrite(to: os)
             }
         }
-        os.write(numeric: Int32(0)) // Zero marker indicates end of sequence of sequences of instances.
+        os.write(Int32(0)) // Zero marker indicates end of sequence of sequences of instances.
     }
 
     func registerValue(_ v: Value) -> Int32 {
@@ -553,7 +773,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             current.sliceFlags |= Protocol.FLAG_IS_LAST_SLICE.rawValue // This is the last slice.
         }
 
-        os.write(numeric: UInt8(0)) // Placeholder for the slice flags
+        os.write(UInt8(0)) // Placeholder for the slice flags
 
         //
         // For instance slices, encode the flag and the type ID either as a
@@ -573,7 +793,7 @@ private final class EncapsEncoder11: EncapsEncoder {
                     let index = registerTypeId(typeId)
                     if index < 0 {
                         current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_STRING.rawValue
-                        typeId.ice_write(to: os)
+                        os.write(typeId)
                     } else {
                         current.sliceFlags |= Protocol.FLAG_HAS_TYPE_ID_INDEX.rawValue
                         os.write(size: index)
@@ -581,11 +801,11 @@ private final class EncapsEncoder11: EncapsEncoder {
                 }
             }
         } else {
-            typeId.ice_write(to: os)
+            os.write(typeId)
         }
 
         if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
-            os.write(numeric: Int32(0)) // Placeholder for the slice length.
+            os.write(Int32(0)) // Placeholder for the slice length.
         }
 
         current.writeSlice = Int32(os.getCount())
@@ -602,7 +822,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         // the indirection table and are included in the slice size.
         //
         if (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0 {
-            Protocol.OPTIONAL_END_MARKER.rawValue.ice_write(to: os)
+            os.write(Protocol.OPTIONAL_END_MARKER.rawValue)
         }
 
         //
@@ -638,6 +858,19 @@ private final class EncapsEncoder11: EncapsEncoder {
         os.write(bytes: &current.sliceFlags, at: Int(current.sliceFlagsPos))
     }
 
+    func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {
+        guard let current = current else {
+            return os.writeOptionalImpl(tag: tag, format: format)
+        }
+
+        if os.writeOptionalImpl(tag: tag, format: format) {
+            current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue
+            return true
+        } else {
+            return false
+        }
+    }
+
     func writeSlicedData(_ slicedData: SlicedData) {
         //
         // We only remarshal preserved slices if we are using the sliced
@@ -655,7 +888,7 @@ private final class EncapsEncoder11: EncapsEncoder {
             //
             // Write the bytes associated with this slice.
             //
-            info.bytes.ice_write(to: os)
+            os.write(info.bytes)
 
             if info.hasOptionalMembers {
                 current.sliceFlags |= Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue
@@ -690,7 +923,7 @@ private final class EncapsEncoder11: EncapsEncoder {
 
         v.ice_preMarshal()
         os.write(size: 1) // Class instance marker.
-        v.ice_write(to: os)
+        v._iceWrite(to: os)
     }
 }
 

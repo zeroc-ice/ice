@@ -517,27 +517,18 @@ encodingMinor:(uint8_t)minor
     }
 }
 
--(BOOL) iceWrite:(id<ICEOutputStreamHelper>)os error:(NSError**)error
+-(void) iceWrite:(id<ICEOutputStreamHelper>)os
 {
     //
     // Marshal a proxy into a stream and return the encoded bytes.
     //
-    try
-    {
-        auto communicator = _prx->ice_getCommunicator();
-        auto encoding = _prx->ice_getEncodingVersion();
-        Ice::OutputStream out(communicator, encoding);
-        out.write(_prx);
-        std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
-        int count = static_cast<int>(p.second - p.first);
-        [os copy:p.first count:[NSNumber numberWithInt:count]];
-        return YES;
-    }
-    catch(const std::exception& ex)
-    {
-        *error = convertException(ex);
-        return NO;
-    }
+    auto communicator = _prx->ice_getCommunicator();
+    auto encoding = _prx->ice_getEncodingVersion();
+    Ice::OutputStream out(communicator, encoding);
+    out.write(_prx);
+    std::pair<const Ice::Byte*, const Ice::Byte*> p = out.finished();
+    int count = static_cast<int>(p.second - p.first);
+    [os copy:p.first count:[NSNumber numberWithInt:count]];
 }
 
 -(ICEInputStream*) iceInvoke:(NSString*)op

@@ -79,7 +79,7 @@ public extension ObjectPrx {
         let impl = self as! _ObjectPrxI
         let os = impl._createOutputStream()
         os.startEncapsulation()
-        id.ice_write(to: os)
+        os.write(id)
         os.endEncapsulation()
         let ins = try impl._invoke(operation: "ice_isA",
                                    mode: .Nonmutating,
@@ -88,8 +88,7 @@ public extension ObjectPrx {
                                    hasOutParams: true,
                                    context: context)
         try ins.startEncapsulation()
-        var r = Bool()
-        try r.ice_read(from: ins)
+        let r: Bool = try ins.read()
         try ins.endEncapsulation()
         return r
     }
@@ -102,8 +101,7 @@ public extension ObjectPrx {
                                    hasOutParams: true,
                                    context: context)
         try ins.startEncapsulation()
-        var id = String()
-        try id.ice_read(from: ins)
+        let id: String = try ins.read()
         try ins.endEncapsulation()
         return id
     }
@@ -116,7 +114,7 @@ public extension ObjectPrx {
                                    hasOutParams: true,
                                    context: context)
         try ins.startEncapsulation()
-        let id = try StringSeq(from: ins)
+        let id: StringSeq = try ins.read()
         try ins.endEncapsulation()
         return id
     }
@@ -130,14 +128,6 @@ open class _ObjectPrxI: ObjectPrx {
 
     public var description: String {
         return handle.ice_toString()
-    }
-
-    deinit {
-        print("Destroying objectprx")
-    }
-
-    public required init() {
-        preconditionFailure("TODO")
     }
 
     public required init(handle: ICEObjectPrx, communicator: Communicator) {
@@ -427,8 +417,8 @@ open class _ObjectPrxI: ObjectPrx {
         }
     }
 
-    public func ice_write(to os: OutputStream) throws {
-        try handle.iceWrite(os)
+    public func ice_write(to os: OutputStream) {
+        handle.iceWrite(os)
     }
 
     public static func ice_read(from ins: InputStream) throws -> Self? {

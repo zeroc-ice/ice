@@ -302,8 +302,7 @@ convertException(const std::exception& exc)
 NSObject*
 toObjC(const std::shared_ptr<Ice::Endpoint>& endpoint)
 {
-    //TODO double check this
-    return [[ICEEndpoint alloc] initWithLocalObject:&(*endpoint)];
+    return [[ICEEndpoint alloc] initWithCppEndpoint:endpoint];
 }
 
 void

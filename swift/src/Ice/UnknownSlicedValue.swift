@@ -11,19 +11,6 @@
  * Unknown sliced value holds an instance of an unknown Slice class type.
  **/
 public final class UnknownSlicedValue: Value {
-    public func iceReadImpl(from _: InputStream) throws {
-        // TODO:
-    }
-
-    public func iceWriteImpl(to _: OutputStream) {
-        // TODO:
-    }
-
-    public static func ice_staticId() -> String {
-        // TODO:
-        return ""
-    }
-
     private let unknownTypeId: String
     private var slicedData: SlicedData?
 
@@ -45,6 +32,10 @@ public final class UnknownSlicedValue: Value {
         return unknownTypeId
     }
 
+    public static func ice_staticId() -> String {
+        return "::Ice::UnknownSlicedValue"
+    }
+
     public func ice_getSlicedData() -> SlicedData? {
         return slicedData
     }
@@ -57,5 +48,13 @@ public final class UnknownSlicedValue: Value {
     public func ice_write(to os: OutputStream) {
         os.startValue(data: slicedData)
         os.endValue()
+    }
+
+    public func _iceReadImpl(from _: InputStream) throws {
+        // TODO:
+    }
+
+    public func _iceWriteImpl(to _: OutputStream) {
+        // TODO:
     }
 }

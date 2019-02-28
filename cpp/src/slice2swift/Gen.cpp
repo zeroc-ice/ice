@@ -214,7 +214,6 @@ Gen::ImportVisitor::visitSequence(const SequencePtr& seq)
     addImport(seq->type(), seq);
 }
 
-
 void
 Gen::ImportVisitor::visitDictionary(const DictionaryPtr& dict)
 {
@@ -304,40 +303,50 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
 
     bool rootClass = !base && !p->isLocal();
+    // bool required =
     writeMembers(out, members, p);
-    writeDefaultInitializer(out, members, p, rootClass);
+    writeDefaultInitializer(out, members, p, rootClass, true);
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass);
 
     if(!p->isLocal())
     {
         out << sp;
-        out << nl << "required public init(from ins: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
-        out << sb;
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-        {
-            DataMemberPtr member = *q;
-            StringList metadata = member->getMetaData();
-            out << nl << "self." << member->name() << " = try "
-                << getUnqualified(getAbsolute(member->type()), swiftModule) << "(from: ins)";
-        }
-        if(base)
-        {
-            out << nl << "try super.init(from: ins)";
-        }
-        out << eb;
-
-        out << sp;
-        out << nl;
         out << nl;
         if(base)
         {
             out << "override ";
         }
-        out << "public func ice_write(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+        out << "public func _iceWriteImpl(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
         out << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            out << nl << fixIdent((*q)->name()) << ".ice_write(to: os)";
+            out << nl << "os.write" << spar << fixIdent((*q)->name()) << epar;
+        }
+        if(base)
+        {
+            out << nl << "super._iceWriteImpl(to: os)";
+        }
+        out << eb;
+
+        out << sp;
+        out << nl;
+        if(base)
+        {
+            out << "override ";
+        }
+        out << "public func _iceReadImpl(from ins: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+        out << sb;
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        {
+            DataMemberPtr member = *q;
+            StringList metadata = member->getMetaData();
+            TypePtr type = member->type();
+            out << nl;
+            out << member->name() << " = try ins.read()";
+        }
+        if(base)
+        {
+            out << nl << "try super._iceReadImpl(from: ins)";
         }
         out << eb;
 
@@ -382,32 +391,38 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 
     if(!p->isLocal())
     {
-        out << nl << "extension " << name << ": Ice.Streamable" << sb;
-
-        out << sp;
-        out << nl << "public init(from ins: Ice.InputStream) throws" << sb;
+        out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
+        out << sb;
+        out << nl << "func read() throws -> " << name;
+        out << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             DataMemberPtr member = *q;
             StringList metadata = member->getMetaData();
             TypePtr type = member->type();
-            out << nl << "self." << member->name() << " = ";
-            if(isProxyType(type))
-            {
-                out << "try ins.read(proxy: " << getUnqualified(getAbsolute(type), swiftModule) << ".self)";
-            }
-            else
-            {
-                out << "try " << typeToString(type, p, metadata, member->optional()) << "(from: ins)";
-            }
+            out << nl;
+            out << "let " << member->name() << ": " << getUnqualified(getAbsolute(type), swiftModule) << " = try read()";
         }
+
+        out << nl << "return " << name;
+        out << spar;
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        {
+            out << ((*q)->name() + ": " + (*q)->name());
+        }
+        out << epar;
+        out << eb;
+
         out << eb;
 
         out << sp;
-        out << nl << "public func ice_write(to os: Ice.OutputStream)" << sb;
+        out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
+        out << sb;
+
+        out << nl << "func write(_ v: " << name << ")" << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            out << nl << fixIdent((*q)->name()) << ".ice_write(to: os)";
+            out << nl << "write(v." << fixIdent((*q)->name()) << ")";
         }
         out << eb;
 
@@ -456,32 +471,36 @@ Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     {
         out << nl << "case " << fixIdent((*en)->name()) << " = " << (*en)->value();
     }
-    out << eb;
-
-    out << sp;
-    out << nl << "extension " << name << ": Ice.Streamable";
-    out << sb;
 
     out << nl << "public init()";
     out << sb;
     out << nl << "self = ." << fixIdent((*enumerators.begin())->name());
     out << eb;
 
-    out << sp;
-    out << nl << "public init(from ins: Ice.InputStream) throws";
-    out << sb;
-    out << nl << "var rawValue = " << enumType << "()";
-    out << nl << "try ins.read(enum: &rawValue, maxValue: " << p->maxValue() << ")";
-    out << nl << "guard let val = " << name << "(rawValue: rawValue) else" << sb;
-    out << nl << "throw MarshalException(reason: \"invalid enum value\")";
-    out << eb;
-    out << nl << "self = val";
     out << eb;
 
     out << sp;
-    out << nl << "public func ice_write(to os: Ice.OutputStream)";
+    out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
-    out << nl << "os.write(enum: self.rawValue, maxValue: " << p->maxValue() << ")";
+    out << nl << "func read() throws -> " << name;
+    out << sb;
+    out << nl << "var rawValue = " << enumType << "()";
+    out << nl << "try read(enum: &rawValue, maxValue: " << p->maxValue() << ")";
+    out << nl << "guard let val = " << name << "(rawValue: rawValue) else";
+    out << sb;
+    out << nl << "throw MarshalException(reason: \"invalid enum value\")";
+    out << eb;
+    out << nl << "return val";
+    out << eb;
+
+    out << eb;
+
+    out << sp;
+    out << nl << "public extension " << getUnqualified("Ice.OutputStream", swiftModule);
+    out << sb;
+    out << nl << "func write(_ v: " << name << ")";
+    out << sb;
+    out << nl << "write(enum: v.rawValue, maxValue: " << p->maxValue() << ")";
     out << eb;
 
     out << eb;
@@ -577,7 +596,7 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << eb;
 
     //
-    // ImputStream extension
+    // InputStream extension
     //
     out << sp;
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
@@ -694,7 +713,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << "override ";
     }
-    out << "public func iceReadImpl(from: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+    out << "public func _iceReadImpl(from: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
     out << sb;
     out << eb;
 
@@ -704,7 +723,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << "override ";
     }
-    out << "public func iceWriteImpl(to: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    out << "public func _iceWriteImpl(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
     out << nl << "// to.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
@@ -712,7 +731,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         DataMemberPtr member = *i;
         if(!member->optional())
         {
-            out << nl << fixIdent(member->name()) << ".ice_write(to: to)";
+            out << nl << "os.write(" << fixIdent(member->name()) << ")";
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
@@ -721,7 +740,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "// to.endSlice();";
     if(base)
     {
-        out << nl << "super.iceWriteImpl(to: to);";
+        out << nl << "super._iceWriteImpl(to: os);";
     }
     out << eb;
 
@@ -738,7 +757,6 @@ void
 Gen::ValueVisitor::visitOperation(const OperationPtr&)
 {
 }
-
 
 Gen::ObjectVisitor::ObjectVisitor(::IceUtilInternal::Output& o) : out(o)
 {

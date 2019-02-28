@@ -14,6 +14,20 @@
 
 namespace
 {
+    class Init
+    {
+    public:
+
+        Init()
+        {
+            Ice::registerIceWS(true);
+            Ice::registerIceSSL(false);
+            Ice::registerIceDiscovery(false);
+            Ice::registerIceLocatorDiscovery(false);
+        }
+    };
+    Init init;
+
     class LoggerWrapperI : public Ice::Logger
     {
     public:

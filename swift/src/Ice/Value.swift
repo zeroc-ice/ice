@@ -7,14 +7,15 @@
 //
 // **********************************************************************
 
-public protocol Value: StreamableValue, AnyObject {
+public protocol Value: AnyObject {
+    init()
     func ice_id() -> String
     func ice_preMarshal()
     func ice_postUnmarshal()
     func ice_getSlicedData() -> SlicedData?
 
-    func iceReadImpl(from: InputStream) throws
-    func iceWriteImpl(to: OutputStream)
+    func _iceReadImpl(from: InputStream) throws
+    func _iceWriteImpl(to: OutputStream)
 
     static func ice_staticId() -> String
 }
@@ -32,15 +33,15 @@ public extension Value {
         return nil
     }
 
-    func ice_read(from: InputStream) throws {
+    func _iceRead(from: InputStream) throws {
         from.startValue()
-        try iceReadImpl(from: from)
+        try _iceReadImpl(from: from)
         _ = try from.endValue(preserve: false)
     }
 
-    func ice_write(to: OutputStream) {
+    func _iceWrite(to: OutputStream) {
         to.startValue(data: nil)
-        iceWriteImpl(to: to)
+        _iceWriteImpl(to: to)
         to.endValue()
     }
 }

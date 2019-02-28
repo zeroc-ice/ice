@@ -34,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable ICEObjectPrx*) getDefaultLocator;
 -(BOOL) setDefaultLocator:(ICEObjectPrx* _Nullable)locator error:(NSError**)error;
 -(BOOL) flushBatchRequests:(uint8_t)compress error:(NSError**)error;
+
 @end
 
 #ifdef __cplusplus

@@ -101,10 +101,16 @@ class EndpointInfoFactory: ICEEndpointInfoFactory {
                                 compress: compress)
     }
 
+//    static func createIAPEndpointInfo(_: ICEEndpointInfo,
+//                                      underlying _: Any,
+//                                      timeout _: Int32,
+//                                      compress _: Bool) -> Any {
+//        return IAPEndpoin
+//    }
+
     static func getUnderlying(_ info: Any) -> EndpointInfo? {
         return info as? EndpointInfo
     }
 }
 
-// TODO: add iAP
-#warning("TODO: Add iAP")
+// TODO: add iAP on iOS
