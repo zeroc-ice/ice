@@ -81,6 +81,72 @@ private:
 
         IceUtilInternal::Output& out;
     };
+
+    class ProxyVisitor : public SwiftGenerator, public ParserVisitor
+    {
+    public:
+
+        ProxyVisitor(::IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+
+    private:
+
+        IceUtilInternal::Output& out;
+    };
+
+    class ValueVisitor : public SwiftGenerator, public ParserVisitor
+    {
+    public:
+
+        ValueVisitor(::IceUtilInternal::Output&);
+
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+
+    private:
+
+        IceUtilInternal::Output& out;
+    };
+
+    class ObjectVisitor : public SwiftGenerator, public ParserVisitor
+    {
+    public:
+
+        ObjectVisitor(::IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+
+    private:
+
+        IceUtilInternal::Output& out;
+    };
+
+    class LocalObjectVisitor : public SwiftGenerator, public ParserVisitor
+    {
+    public:
+
+        LocalObjectVisitor(::IceUtilInternal::Output&);
+
+        virtual bool visitModuleStart(const ModulePtr&);
+        virtual void visitModuleEnd(const ModulePtr&);
+        virtual bool visitClassDefStart(const ClassDefPtr&);
+        virtual void visitClassDefEnd(const ClassDefPtr&);
+        virtual void visitOperation(const OperationPtr&);
+
+    private:
+
+        IceUtilInternal::Output& out;
+    };
 };
 
 }

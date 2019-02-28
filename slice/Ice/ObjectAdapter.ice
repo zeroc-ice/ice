@@ -54,7 +54,7 @@ local interface ObjectAdapter
      * @return This object adapter's name.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] string getName();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] string getName();
 
     /**
      *
@@ -65,7 +65,7 @@ local interface ObjectAdapter
      * @see Communicator
      *
      **/
-    ["cpp:const", "cpp:noexcept"] Communicator getCommunicator();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] Communicator getCommunicator();
 
     /**
      *
@@ -134,7 +134,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    ["cpp:noexcept", "js:async"] void deactivate();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void deactivate();
 
     /**
      *
@@ -148,7 +148,7 @@ local interface ObjectAdapter
      * @see Communicator#waitForShutdown
      *
      **/
-    ["cpp:noexcept", "js:async"] void waitForDeactivate();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void waitForDeactivate();
 
     /**
      *
@@ -159,7 +159,7 @@ local interface ObjectAdapter
      * @see Communicator#shutdown
      *
      **/
-    ["cpp:const", "cpp:noexcept"] bool isDeactivated();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] bool isDeactivated();
 
     /**
      *
@@ -175,7 +175,7 @@ local interface ObjectAdapter
      * @see Communicator#destroy
      *
      **/
-    ["cpp:noexcept", "js:async"] void destroy();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void destroy();
 
     /**
      *
@@ -643,7 +643,7 @@ local interface ObjectAdapter
      * @see #setLocator
      *
      **/
-    ["cpp:const", "cpp:noexcept"] Locator* getLocator();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] Locator* getLocator();
 
     /**
      *
@@ -654,7 +654,7 @@ local interface ObjectAdapter
      * @see Endpoint
      *
      **/
-    ["cpp:const", "cpp:noexcept"] EndpointSeq getEndpoints();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] EndpointSeq getEndpoints();
 
     /**
      * Refresh the set of published endpoints. The run time re-reads
@@ -678,7 +678,7 @@ local interface ObjectAdapter
      * @see Endpoint
      *
      **/
-    ["cpp:const", "cpp:noexcept"] EndpointSeq getPublishedEndpoints();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] EndpointSeq getPublishedEndpoints();
 
     /**
      *

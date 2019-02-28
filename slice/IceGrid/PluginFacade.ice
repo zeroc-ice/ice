@@ -285,7 +285,7 @@ local interface RegistryPluginFacade
      * @param filter The filter implementation.
      *
      **/
-    ["cpp:noexcept"] void addReplicaGroupFilter(string id, ReplicaGroupFilter filter);
+    ["cpp:noexcept", "swift:noexcept"] void addReplicaGroupFilter(string id, ReplicaGroupFilter filter);
 
     /**
      *
@@ -298,7 +298,7 @@ local interface RegistryPluginFacade
      * @return True of the filter was removed, false otherwise.
      *
      **/
-    ["cpp:noexcept"] bool removeReplicaGroupFilter(string id, ReplicaGroupFilter filter);
+    ["cpp:noexcept", "swift:noexcept"] bool removeReplicaGroupFilter(string id, ReplicaGroupFilter filter);
 
     /**
      *
@@ -309,7 +309,7 @@ local interface RegistryPluginFacade
      * @param filter The filter implementation.
      *
      **/
-    ["cpp:noexcept"] void addTypeFilter(string type, TypeFilter filter);
+    ["cpp:noexcept", "swift:noexcept"] void addTypeFilter(string type, TypeFilter filter);
 
     /**
      *
@@ -322,7 +322,7 @@ local interface RegistryPluginFacade
      * @return True of the filter was removed, false otherwise.
      *
      **/
-    ["cpp:noexcept"] bool removeTypeFilter(string type, TypeFilter filter);
+    ["cpp:noexcept", "swift:noexcept"] bool removeTypeFilter(string type, TypeFilter filter);
 }
 
 }

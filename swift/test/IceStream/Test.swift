@@ -1,9 +1,6 @@
 // **********************************************************************
 //
-// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.
-//
-// This copy of Ice is licensed to you under the terms described in the
-// ICE_LICENSE file included in this distribution.
+// Copyright (c) ZeroC, Inc. All rights reserved.
 //
 // **********************************************************************
 //
@@ -30,12 +27,11 @@ public enum MyEnum: UInt8
 
 extension MyEnum: Ice.Streamable
 {
-    
     public init()
     {
         self = .enum1
     }
-    
+
     public init(from ins: Ice.InputStream) throws
     {
         var rawValue = UInt8()
@@ -46,7 +42,7 @@ extension MyEnum: Ice.Streamable
         }
         self = val
     }
-    
+
     public func ice_write(to os: Ice.OutputStream)
     {
         os.write(enum: self.rawValue, maxValue: 2)
@@ -55,17 +51,32 @@ extension MyEnum: Ice.Streamable
 
 public struct SmallStruct
 {
-    public var bo: Bool
-    public var by: UInt8
-    public var sh: Int16
-    public var i: Int32
-    public var l: Int64
-    public var f: Float
-    public var d: Double
-    public var str: String
-    public var e: Test.MyEnum
-    public var p: Test.MyInterfacePrx?
-    public init(bo: Bool, by: UInt8, sh: Int16, i: Int32, l: Int64, f: Float, d: Double, str: String, e: Test.MyEnum, p: Test.MyInterfacePrx?)
+    public var bo: Swift.Bool
+    public var by: Swift.UInt8
+    public var sh: Swift.Int16
+    public var i: Swift.Int32
+    public var l: Swift.Int64
+    public var f: Swift.Float
+    public var d: Swift.Double
+    public var str: Swift.String
+    public var e: MyEnum
+    public var p: MyInterfacePrx?
+
+    public init()
+    {
+        self.bo = Swift.Bool()
+        self.by = Swift.UInt8()
+        self.sh = Swift.Int16()
+        self.i = Swift.Int32()
+        self.l = Swift.Int64()
+        self.f = Swift.Float()
+        self.d = Swift.Double()
+        self.str = Swift.String()
+        self.e = MyEnum()
+        self.p = nil
+    }
+
+    public init(bo: Swift.Bool, by: Swift.UInt8, sh: Swift.Int16, i: Swift.Int32, l: Swift.Int64, f: Swift.Float, d: Swift.Double, str: Swift.String, e: MyEnum, p: MyInterfacePrx?)
     {
         self.bo = bo
         self.by = by
@@ -82,45 +93,45 @@ public struct SmallStruct
 
 extension SmallStruct: Ice.Streamable
 {
-    
-    public init()
-    {
-        self.bo = Bool()
-        self.by = UInt8()
-        self.sh = Int16()
-        self.i = Int32()
-        self.l = Int64()
-        self.f = Float()
-        self.d = Double()
-        self.str = String()
-        self.e = Test.MyEnum()
-        self.p = Test.MyInterfacePrx?()
-    }
-    
     public init(from ins: Ice.InputStream) throws
     {
-        try self.bo = Bool(from: ins)
-        try self.by = UInt8(from: ins)
-        try self.sh = Int16(from: ins)
-        try self.i = Int32(from: ins)
-        try self.l = Int64(from: ins)
-        try self.f = Float(from: ins)
-        try self.d = Double(from: ins)
-        try self.str = String(from: ins)
-        try self.e = Test.MyEnum(from: ins)
-        try self.p = Test.MyInterfacePrx?(from: ins)
+        self.bo = try Swift.Bool(from: ins)
+        self.by = try Swift.UInt8(from: ins)
+        self.sh = try Swift.Int16(from: ins)
+        self.i = try Swift.Int32(from: ins)
+        self.l = try Swift.Int64(from: ins)
+        self.f = try Swift.Float(from: ins)
+        self.d = try Swift.Double(from: ins)
+        self.str = try Swift.String(from: ins)
+        self.e = try MyEnum(from: ins)
+        self.p = try ins.read(proxy: MyInterfacePrx.self)
     }
-    
+
     public func ice_write(to os: Ice.OutputStream)
     {
-        os.write(self.bo, self.by, self.sh, self.i, self.l, self.f, self.d, self.str, self.e, self.p)
+        bo.ice_write(to: os)
+        by.ice_write(to: os)
+        sh.ice_write(to: os)
+        i.ice_write(to: os)
+        l.ice_write(to: os)
+        f.ice_write(to: os)
+        d.ice_write(to: os)
+        str.ice_write(to: os)
+        e.ice_write(to: os)
+        p.ice_write(to: os)
     }
 }
 
-public struct ClassStruct: Hashable
+public struct ClassStruct: Swift.Hashable
 {
-    public var i: Int32
-    public init(i: Int32)
+    public var i: Swift.Int32
+
+    public init()
+    {
+        self.i = Swift.Int32()
+    }
+
+    public init(i: Swift.Int32)
     {
         self.i = i
     }
@@ -128,74 +139,465 @@ public struct ClassStruct: Hashable
 
 extension ClassStruct: Ice.Streamable
 {
-    
-    public init()
-    {
-        self.i = Int32()
-    }
-    
     public init(from ins: Ice.InputStream) throws
     {
-        try self.i = Int32(from: ins)
+        self.i = try Swift.Int32(from: ins)
     }
-    
+
     public func ice_write(to os: Ice.OutputStream)
     {
-        os.write(self.i)
+        i.ice_write(to: os)
     }
 }
 
-public protocol OptionalClassDisp: class
+public typealias MyEnumS = [MyEnum]
+
+public typealias SmallStructS = [SmallStruct]
+
+public typealias MyClassS = [MyClass?]
+
+public typealias BoolSS = [Ice.BoolSeq]
+
+public typealias ByteSS = [Ice.ByteSeq]
+
+public typealias ShortSS = [Ice.ShortSeq]
+
+public typealias IntSS = [Ice.IntSeq]
+
+public typealias LongSS = [Ice.LongSeq]
+
+public typealias FloatSS = [Ice.FloatSeq]
+
+public typealias DoubleSS = [Ice.DoubleSeq]
+
+public typealias StringSS = [Ice.StringSeq]
+
+public typealias MyEnumSS = [MyEnumS]
+
+public typealias SmallStructSS = [SmallStructS]
+
+public typealias MyClassSS = [MyClassS]
+
+public typealias ByteBoolD = [Swift.UInt8:Swift.Bool]
+
+public typealias ShortIntD = [Swift.Int16:Swift.Int32]
+
+public typealias LongFloatD = [Swift.Int64:Swift.Float]
+
+public typealias StringStringD = [Swift.String:Swift.String]
+
+public typealias StringMyClassD = [Swift.String:MyClass?]
+
+public class MyException: Ice.UserException
+{
+    public var c: MyClass?
+
+    public init(c: MyClass?)
+    {
+        self.c = c
+    }
+
+    required public init(from ins: Ice.InputStream) throws
+    {
+        self.c = try MyClass(from: ins)
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        c.ice_write(to: os)
+    }
+
+    public class func ice_staticId() -> Swift.String
+    {
+        return "::Test::MyException"
+    }
+}
+
+public enum SubNestedEnum: UInt8
+{
+    case nestedEnum1 = 0
+    case nestedEnum2 = 1
+    case nestedEnum3 = 2
+}
+
+extension SubNestedEnum: Ice.Streamable
+{
+    public init()
+    {
+        self = .nestedEnum1
+    }
+
+    public init(from ins: Ice.InputStream) throws
+    {
+        var rawValue = UInt8()
+        try ins.read(enum: &rawValue, maxValue: 2)
+        guard let val = SubNestedEnum(rawValue: rawValue) else
+        {
+            throw MarshalException(reason: "invalid enum value")
+        }
+        self = val
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        os.write(enum: self.rawValue, maxValue: 2)
+    }
+}
+
+public struct SubNestedStruct
+{
+    public var bo: Swift.Bool
+    public var by: Swift.UInt8
+    public var sh: Swift.Int16
+    public var i: Swift.Int32
+    public var l: Swift.Int64
+    public var f: Swift.Float
+    public var d: Swift.Double
+    public var str: Swift.String
+    public var e: SubNestedEnum
+
+    public init()
+    {
+        self.bo = Swift.Bool()
+        self.by = Swift.UInt8()
+        self.sh = Swift.Int16()
+        self.i = Swift.Int32()
+        self.l = Swift.Int64()
+        self.f = Swift.Float()
+        self.d = Swift.Double()
+        self.str = Swift.String()
+        self.e = SubNestedEnum()
+    }
+
+    public init(bo: Swift.Bool, by: Swift.UInt8, sh: Swift.Int16, i: Swift.Int32, l: Swift.Int64, f: Swift.Float, d: Swift.Double, str: Swift.String, e: SubNestedEnum)
+    {
+        self.bo = bo
+        self.by = by
+        self.sh = sh
+        self.i = i
+        self.l = l
+        self.f = f
+        self.d = d
+        self.str = str
+        self.e = e
+    }
+}
+
+extension SubNestedStruct: Ice.Streamable
+{
+    public init(from ins: Ice.InputStream) throws
+    {
+        self.bo = try Swift.Bool(from: ins)
+        self.by = try Swift.UInt8(from: ins)
+        self.sh = try Swift.Int16(from: ins)
+        self.i = try Swift.Int32(from: ins)
+        self.l = try Swift.Int64(from: ins)
+        self.f = try Swift.Float(from: ins)
+        self.d = try Swift.Double(from: ins)
+        self.str = try Swift.String(from: ins)
+        self.e = try SubNestedEnum(from: ins)
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        bo.ice_write(to: os)
+        by.ice_write(to: os)
+        sh.ice_write(to: os)
+        i.ice_write(to: os)
+        l.ice_write(to: os)
+        f.ice_write(to: os)
+        d.ice_write(to: os)
+        str.ice_write(to: os)
+        e.ice_write(to: os)
+    }
+}
+
+public struct SubNestedClassStruct: Swift.Hashable
+{
+    public var i: Swift.Int32
+
+    public init()
+    {
+        self.i = Swift.Int32()
+    }
+
+    public init(i: Swift.Int32)
+    {
+        self.i = i
+    }
+}
+
+extension SubNestedClassStruct: Ice.Streamable
+{
+    public init(from ins: Ice.InputStream) throws
+    {
+        self.i = try Swift.Int32(from: ins)
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        i.ice_write(to: os)
+    }
+}
+
+public class SubNestedException: Ice.UserException
+{
+    public var str: Swift.String
+
+    public init(str: Swift.String)
+    {
+        self.str = str
+    }
+
+    required public init(from ins: Ice.InputStream) throws
+    {
+        self.str = try Swift.String(from: ins)
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        str.ice_write(to: os)
+    }
+
+    public class func ice_staticId() -> Swift.String
+    {
+        return "::Test::Sub::NestedException"
+    }
+}
+
+public enum Test2Sub2NestedEnum2: UInt8
+{
+    case nestedEnum4 = 0
+    case nestedEnum5 = 1
+    case nestedEnum6 = 2
+}
+
+extension Test2Sub2NestedEnum2: Ice.Streamable
+{
+    public init()
+    {
+        self = .nestedEnum4
+    }
+
+    public init(from ins: Ice.InputStream) throws
+    {
+        var rawValue = UInt8()
+        try ins.read(enum: &rawValue, maxValue: 2)
+        guard let val = Test2Sub2NestedEnum2(rawValue: rawValue) else
+        {
+            throw MarshalException(reason: "invalid enum value")
+        }
+        self = val
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        os.write(enum: self.rawValue, maxValue: 2)
+    }
+}
+
+public struct Test2Sub2NestedStruct2
+{
+    public var bo: Swift.Bool
+    public var by: Swift.UInt8
+    public var sh: Swift.Int16
+    public var i: Swift.Int32
+    public var l: Swift.Int64
+    public var f: Swift.Float
+    public var d: Swift.Double
+    public var str: Swift.String
+    public var e: Test2Sub2NestedEnum2
+
+    public init()
+    {
+        self.bo = Swift.Bool()
+        self.by = Swift.UInt8()
+        self.sh = Swift.Int16()
+        self.i = Swift.Int32()
+        self.l = Swift.Int64()
+        self.f = Swift.Float()
+        self.d = Swift.Double()
+        self.str = Swift.String()
+        self.e = Test2Sub2NestedEnum2()
+    }
+
+    public init(bo: Swift.Bool, by: Swift.UInt8, sh: Swift.Int16, i: Swift.Int32, l: Swift.Int64, f: Swift.Float, d: Swift.Double, str: Swift.String, e: Test2Sub2NestedEnum2)
+    {
+        self.bo = bo
+        self.by = by
+        self.sh = sh
+        self.i = i
+        self.l = l
+        self.f = f
+        self.d = d
+        self.str = str
+        self.e = e
+    }
+}
+
+extension Test2Sub2NestedStruct2: Ice.Streamable
+{
+    public init(from ins: Ice.InputStream) throws
+    {
+        self.bo = try Swift.Bool(from: ins)
+        self.by = try Swift.UInt8(from: ins)
+        self.sh = try Swift.Int16(from: ins)
+        self.i = try Swift.Int32(from: ins)
+        self.l = try Swift.Int64(from: ins)
+        self.f = try Swift.Float(from: ins)
+        self.d = try Swift.Double(from: ins)
+        self.str = try Swift.String(from: ins)
+        self.e = try Test2Sub2NestedEnum2(from: ins)
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        bo.ice_write(to: os)
+        by.ice_write(to: os)
+        sh.ice_write(to: os)
+        i.ice_write(to: os)
+        l.ice_write(to: os)
+        f.ice_write(to: os)
+        d.ice_write(to: os)
+        str.ice_write(to: os)
+        e.ice_write(to: os)
+    }
+}
+
+public struct Test2Sub2NestedClassStruct2: Swift.Hashable
+{
+    public var i: Swift.Int32
+
+    public init()
+    {
+        self.i = Swift.Int32()
+    }
+
+    public init(i: Swift.Int32)
+    {
+        self.i = i
+    }
+}
+
+extension Test2Sub2NestedClassStruct2: Ice.Streamable
+{
+    public init(from ins: Ice.InputStream) throws
+    {
+        self.i = try Swift.Int32(from: ins)
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        i.ice_write(to: os)
+    }
+}
+
+public class Test2Sub2NestedException2: Ice.UserException
+{
+    public var str: Swift.String
+
+    public init(str: Swift.String)
+    {
+        self.str = str
+    }
+
+    required public init(from ins: Ice.InputStream) throws
+    {
+        self.str = try Swift.String(from: ins)
+    }
+
+    public func ice_write(to os: Ice.OutputStream)
+    {
+        str.ice_write(to: os)
+    }
+
+    public class func ice_staticId() -> Swift.String
+    {
+        return "::Test2::Sub2::NestedException2"
+    }
+}
+public protocol MyInterfacePrx: Ice.ObjectPrx
 {
 }
 
-public class OptionalClass
+public class _MyInterfacePrxI: Ice._ObjectPrxI, MyInterfacePrx
 {
-    public var bo: Bool
-    public var by: UInt8
-    public var sh: Int16
-    public var i: Int32
-    public init(bo: Bool, by: UInt8, sh: Int16, i: Int32)
+    override public class func ice_staticId() -> String
+    {
+        return "::Test::MyInterface"
+    }
+}
+
+public func checkedCast(prx: Ice.ObjectPrx, type: MyInterfacePrx.Protocol, facet: String? = nil, context: Context? = nil) throws -> MyInterfacePrx?
+{
+    return try _MyInterfacePrxI.checkedCast(prx: prx, facet: facet, context: context) as _MyInterfacePrxI?
+}
+
+public func uncheckedCast(prx: Ice.ObjectPrx, type: MyInterfacePrx.Protocol, facet: String? = nil, context: Context? = nil) -> MyInterfacePrx?
+{
+    return _MyInterfacePrxI.uncheckedCast(prx: prx, facet: facet, context: context) as _MyInterfacePrxI?
+}
+
+public extension Ice.InputStream
+{
+    func read(proxy: MyInterfacePrx.Protocol) throws -> MyInterfacePrx?
+    {
+        return try _MyInterfacePrxI.ice_read(from: self)
+    }
+
+    func read(proxyArray: MyInterfacePrx.Protocol) throws -> [MyInterfacePrx?]
+    {
+        return try read(proxyArray:_MyInterfacePrxI.self)
+    }
+}
+
+public extension MyInterfacePrx
+{
+}
+
+public class OptionalClass: Ice.Value
+{
+    public var bo: Swift.Bool
+    public var by: Swift.UInt8
+    public var sh: Swift.Int16?
+    public var i: Swift.Int32?
+
+    public required init()
+    {
+        self.bo = Swift.Bool()
+        self.by = Swift.UInt8()
+        self.sh = Swift.Int16()
+        self.i = Swift.Int32()
+    }
+
+    public init(bo: Swift.Bool, by: Swift.UInt8, sh: Swift.Int16?, i: Swift.Int32?)
     {
         self.bo = bo
         self.by = by
         self.sh = sh
         self.i = i
     }
+
+    public class func ice_staticId() -> Swift.String
+    {
+        return "::Test::OptionalClass"
+    }
+
+    public func ice_read(from: Ice.InputStream) throws
+    {
+    }
+
+    public func ice_write(to: Ice.OutputStream)
+    {
+        to.startSlice(ice_staticId(), -1, true);
+    }
 }
 
-public protocol OptionalClassPrx: Ice.ObjectPrx
+public class MyClass: Ice.Value
 {
-}
-
-public typealias MyEnumS = [Test.MyEnum]
-public typealias SmallStructS = [Test.SmallStruct]
-public typealias MyClassS = [Test.MyClass?]
-public typealias BoolSS = [Ice.BoolSeq]
-public typealias ByteSS = [Ice.ByteSeq]
-public typealias ShortSS = [Ice.ShortSeq]
-public typealias IntSS = [Ice.IntSeq]
-public typealias LongSS = [Ice.LongSeq]
-public typealias FloatSS = [Ice.FloatSeq]
-public typealias DoubleSS = [Ice.DoubleSeq]
-public typealias StringSS = [Ice.StringSeq]
-public typealias MyEnumSS = [Test.MyEnumS]
-public typealias SmallStructSS = [Test.SmallStructS]
-public typealias MyClassSS = [Test.MyClassS]
-public typealias ByteBoolD = [UInt8:Bool]
-public typealias ShortIntD = [Int16:Int32]
-public typealias LongFloatD = [Int64:Float]
-public typealias StringStringD = [String:String]
-public typealias StringMyClassD = [String:Test.MyClass?]
-public protocol MyClassDisp: class
-{
-}
-
-public class MyClass
-{
-    public var c: Test.MyClass?
+    public var c: MyClass?
     public var o: Ice.Object?
-    public var s: Test.SmallStruct
+    public var s: SmallStruct
     public var seq1: Ice.BoolSeq
     public var seq2: Ice.ByteSeq
     public var seq3: Ice.ShortSeq
@@ -204,10 +606,29 @@ public class MyClass
     public var seq6: Ice.FloatSeq
     public var seq7: Ice.DoubleSeq
     public var seq8: Ice.StringSeq
-    public var seq9: Test.MyEnumS
-    public var seq10: Test.MyClassS
-    public var d: Test.StringMyClassD
-    public init(c: Test.MyClass?, o: Ice.Object?, s: Test.SmallStruct, seq1: Ice.BoolSeq, seq2: Ice.ByteSeq, seq3: Ice.ShortSeq, seq4: Ice.IntSeq, seq5: Ice.LongSeq, seq6: Ice.FloatSeq, seq7: Ice.DoubleSeq, seq8: Ice.StringSeq, seq9: Test.MyEnumS, seq10: Test.MyClassS, d: Test.StringMyClassD)
+    public var seq9: MyEnumS
+    public var seq10: MyClassS
+    public var d: StringMyClassD
+
+    public required init()
+    {
+        self.c = nil
+        self.o = nil
+        self.s = SmallStruct()
+        self.seq1 = Ice.BoolSeq()
+        self.seq2 = Ice.ByteSeq()
+        self.seq3 = Ice.ShortSeq()
+        self.seq4 = Ice.IntSeq()
+        self.seq5 = Ice.LongSeq()
+        self.seq6 = Ice.FloatSeq()
+        self.seq7 = Ice.DoubleSeq()
+        self.seq8 = Ice.StringSeq()
+        self.seq9 = MyEnumS()
+        self.seq10 = MyClassS()
+        self.d = StringMyClassD()
+    }
+
+    public init(c: MyClass?, o: Ice.Object?, s: SmallStruct, seq1: Ice.BoolSeq, seq2: Ice.ByteSeq, seq3: Ice.ShortSeq, seq4: Ice.IntSeq, seq5: Ice.LongSeq, seq6: Ice.FloatSeq, seq7: Ice.DoubleSeq, seq8: Ice.StringSeq, seq9: MyEnumS, seq10: MyClassS, d: StringMyClassD)
     {
         self.c = c
         self.o = o
@@ -224,372 +645,18 @@ public class MyClass
         self.seq10 = seq10
         self.d = d
     }
-}
 
-public protocol MyClassPrx: Ice.ObjectPrx
-{
-}
+    public class func ice_staticId() -> Swift.String
+    {
+        return "::Test::MyClass"
+    }
 
-public protocol MyInterface: class
-{
-}
+    public func ice_read(from: Ice.InputStream) throws
+    {
+    }
 
-public protocol MyInterfacePrx: Ice.ObjectPrx
-{
-}
-
-public extension MyInterfacePrx
-{
-}
-public class _MyInterfacePrxI: _ObjectPrxI, MyInterfacePrx
-{
-    override public class func ice_staticId() -> String
+    public func ice_write(to: Ice.OutputStream)
     {
-        return "::Test::MyInterface"
+        to.startSlice(ice_staticId(), -1, true);
     }
 }
-
-public func checkedCast(prx: ObjectPrx, type: MyInterfacePrx.Protocol, facet: String? = nil, context: Context? = nil) throws -> MyInterfacePrx?
-{
-    return try _MyInterfacePrxI.checkedCast(prx: prx, facet: facet, context: context) as _MyInterfacePrxI?
-}
-
-public func uncheckedCast(prx: ObjectPrx, type: MyInterfacePrx.Protocol, facet: String? = nil, context: Context? = nil) -> MyInterfacePrx?
-{
-    return _MyInterfacePrxI.uncheckedCast(prx: prx, facet: facet, context: context) as _MyInterfacePrxI?
-}
-
-public extension Ice.InputStream
-{
-    func read(proxy: MyInterfacePrx.Protocol) throws -> MyInterfacePrx?
-    {
-        return try _MyInterfacePrxI.ice_read(from: self)
-    }
-    func read(proxyArray: MyInterfacePrx.Protocol) throws -> [MyInterfacePrx?]
-    {
-        #warning("add generated proxy arrays")
-        preconditionFailure("TODO")
-    }
-    
-}
-
-public func ice_staticId(_: MyInterfacePrx.Protocol) -> String
-{
-    return _MyInterfacePrxI.ice_staticId()
-}
-
-public class MyException: Ice.UserException
-{
-    public var c: Test.MyClass?
-    
-    public init(c: Test.MyClass?)
-    {
-        self.c = c
-    }
-    
-    required public init(from ins: Ice.InputStream) throws
-    {
-        try self.c = Test.MyClass?(from: ins)
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(self.c)
-    }
-    public class func ice_staticId() -> String
-    {
-        return "::Test::MyException"
-    }
-    
-}
-
-public enum NestedEnum: UInt8
-{
-    case nestedEnum1 = 0
-    case nestedEnum2 = 1
-    case nestedEnum3 = 2
-}
-
-extension NestedEnum: Ice.Streamable
-{
-    
-    public init()
-    {
-        self = .nestedEnum1
-    }
-    
-    public init(from ins: Ice.InputStream) throws
-    {
-        var rawValue = UInt8()
-        try ins.read(enum: &rawValue, maxValue: 2)
-        guard let val = NestedEnum(rawValue: rawValue) else
-        {
-            throw MarshalException(reason: "invalid enum value")
-        }
-        self = val
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(enum: self.rawValue, maxValue: 2)
-    }
-}
-
-public struct NestedStruct
-{
-    public var bo: Bool
-    public var by: UInt8
-    public var sh: Int16
-    public var i: Int32
-    public var l: Int64
-    public var f: Float
-    public var d: Double
-    public var str: String
-    public var e: Test.Sub.NestedEnum
-    public init(bo: Bool, by: UInt8, sh: Int16, i: Int32, l: Int64, f: Float, d: Double, str: String, e: Test.Sub.NestedEnum)
-    {
-        self.bo = bo
-        self.by = by
-        self.sh = sh
-        self.i = i
-        self.l = l
-        self.f = f
-        self.d = d
-        self.str = str
-        self.e = e
-    }
-}
-
-extension NestedStruct: Ice.Streamable
-{
-    
-    public init()
-    {
-        self.bo = Bool()
-        self.by = UInt8()
-        self.sh = Int16()
-        self.i = Int32()
-        self.l = Int64()
-        self.f = Float()
-        self.d = Double()
-        self.str = String()
-        self.e = Test.Sub.NestedEnum()
-    }
-    
-    public init(from ins: Ice.InputStream) throws
-    {
-        try self.bo = Bool(from: ins)
-        try self.by = UInt8(from: ins)
-        try self.sh = Int16(from: ins)
-        try self.i = Int32(from: ins)
-        try self.l = Int64(from: ins)
-        try self.f = Float(from: ins)
-        try self.d = Double(from: ins)
-        try self.str = String(from: ins)
-        try self.e = Test.Sub.NestedEnum(from: ins)
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(self.bo, self.by, self.sh, self.i, self.l, self.f, self.d, self.str, self.e)
-    }
-}
-
-public struct NestedClassStruct: Hashable
-{
-    public var i: Int32
-    public init(i: Int32)
-    {
-        self.i = i
-    }
-}
-
-extension NestedClassStruct: Ice.Streamable
-{
-    
-    public init()
-    {
-        self.i = Int32()
-    }
-    
-    public init(from ins: Ice.InputStream) throws
-    {
-        try self.i = Int32(from: ins)
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(self.i)
-    }
-}
-
-public class NestedException: Ice.UserException
-{
-    public var str: String
-    
-    public init(str: String)
-    {
-        self.str = str
-    }
-    
-    required public init(from ins: Ice.InputStream) throws
-    {
-        try self.str = String(from: ins)
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(self.str)
-    }
-    public class func ice_staticId() -> String
-    {
-        return "::Test::Sub::NestedException"
-    }
-    
-}
-
-public enum NestedEnum2: UInt8
-{
-    case nestedEnum4 = 0
-    case nestedEnum5 = 1
-    case nestedEnum6 = 2
-}
-
-extension NestedEnum2: Ice.Streamable
-{
-    
-    public init()
-    {
-        self = .nestedEnum4
-    }
-    
-    public init(from ins: Ice.InputStream) throws
-    {
-        var rawValue = UInt8()
-        try ins.read(enum: &rawValue, maxValue: 2)
-        guard let val = NestedEnum2(rawValue: rawValue) else
-        {
-            throw MarshalException(reason: "invalid enum value")
-        }
-        self = val
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(enum: self.rawValue, maxValue: 2)
-    }
-}
-
-public struct NestedStruct2
-{
-    public var bo: Bool
-    public var by: UInt8
-    public var sh: Int16
-    public var i: Int32
-    public var l: Int64
-    public var f: Float
-    public var d: Double
-    public var str: String
-    public var e: Test2.Sub2.NestedEnum2
-    public init(bo: Bool, by: UInt8, sh: Int16, i: Int32, l: Int64, f: Float, d: Double, str: String, e: Test2.Sub2.NestedEnum2)
-    {
-        self.bo = bo
-        self.by = by
-        self.sh = sh
-        self.i = i
-        self.l = l
-        self.f = f
-        self.d = d
-        self.str = str
-        self.e = e
-    }
-}
-
-extension NestedStruct2: Ice.Streamable
-{
-    
-    public init()
-    {
-        self.bo = Bool()
-        self.by = UInt8()
-        self.sh = Int16()
-        self.i = Int32()
-        self.l = Int64()
-        self.f = Float()
-        self.d = Double()
-        self.str = String()
-        self.e = Test2.Sub2.NestedEnum2()
-    }
-    
-    public init(from ins: Ice.InputStream) throws
-    {
-        try self.bo = Bool(from: ins)
-        try self.by = UInt8(from: ins)
-        try self.sh = Int16(from: ins)
-        try self.i = Int32(from: ins)
-        try self.l = Int64(from: ins)
-        try self.f = Float(from: ins)
-        try self.d = Double(from: ins)
-        try self.str = String(from: ins)
-        try self.e = Test2.Sub2.NestedEnum2(from: ins)
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(self.bo, self.by, self.sh, self.i, self.l, self.f, self.d, self.str, self.e)
-    }
-}
-
-public struct NestedClassStruct2: Hashable
-{
-    public var i: Int32
-    public init(i: Int32)
-    {
-        self.i = i
-    }
-}
-
-extension NestedClassStruct2: Ice.Streamable
-{
-    
-    public init()
-    {
-        self.i = Int32()
-    }
-    
-    public init(from ins: Ice.InputStream) throws
-    {
-        try self.i = Int32(from: ins)
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(self.i)
-    }
-}
-
-public class NestedException2: Ice.UserException
-{
-    public var str: String
-    
-    public init(str: String)
-    {
-        self.str = str
-    }
-    
-    required public init(from ins: Ice.InputStream) throws
-    {
-        try self.str = String(from: ins)
-    }
-    
-    public func ice_write(to os: Ice.OutputStream)
-    {
-        os.write(self.str)
-    }
-    public class func ice_staticId() -> String
-    {
-        return "::Test2::Sub2::NestedException2"
-    }
-    
-}
-

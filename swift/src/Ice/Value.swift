@@ -12,15 +12,38 @@ public protocol Value: StreamableValue, AnyObject {
     func ice_preMarshal()
     func ice_postUnmarshal()
     func ice_getSlicedData() -> SlicedData?
+
+    func iceReadImpl(from: InputStream) throws;
+    func iceWriteImpl(to: OutputStream);
+
     static func ice_staticId() -> String
 }
 
 public extension Value {
-    static func ice_staticId() -> String {
-        return "::Ice::Object"
+    
+    public func ice_id() -> String {
+        return Self.ice_staticId()
     }
 
-    func ice_preMarshal() {}
+    public func ice_preMarshal() {
+    }
 
-    func ice_postUnmarshal() {}
+    public func ice_postUnmarshal() {
+    }
+    
+    public func ice_getSlicedData() -> SlicedData?{
+        return nil;
+    }
+    
+    public func ice_read(from: InputStream) throws {
+        from.startValue();
+        try self.iceReadImpl(from: from);
+        _ = try from.endValue(preserve: false);
+    }
+    
+    public func ice_write(to: OutputStream) {
+        to.startValue(data: nil);
+        self.iceWriteImpl(to: to);
+        to.endValue();
+    }
 }

@@ -16,10 +16,16 @@
 namespace Slice
 {
 
+const int TypeContextInParam = 1;
+const int TypeContextProtocol = 2;
+
+
 std::string getSwiftModule(const ModulePtr&, std::string&);
 std::string getSwiftModule(const ModulePtr&);
 ModulePtr getTopLevelModule(const ContainedPtr&);
 ModulePtr getTopLevelModule(const TypePtr&);
+
+std::string fixIdent(const std::string&);
 
 class SwiftGenerator : private IceUtil::noncopyable
 {
@@ -31,30 +37,33 @@ public:
 
 protected:
 
-    std::string getLocalScope(const std::string&, const std::string& = ".");
-    std::string typeToString(const TypePtr&, const ContainedPtr& = 0);
-    std::string typeToProxyImpl(const TypePtr&);
-    std::string fixIdent(const std::string& ident);
-    std::string fixName(const ContainedPtr& cont);
-    std::string getAbsolute(const ContainedPtr&,
-                            const std::string& = std::string(),
-                            const std::string& = std::string());
+    std::string typeToString(const TypePtr&, const ContainedPtr&, const StringList& = StringList(), bool = false,
+                             int = 0);
 
+    std::string getAbsolute(const TypePtr&);
+    std::string getAbsolute(const ProxyPtr&);
+    std::string getAbsolute(const ClassDeclPtr&);
+    std::string getAbsolute(const ClassDefPtr&);
+    std::string getAbsolute(const StructPtr&);
+    std::string getAbsolute(const ExceptionPtr&);
+    std::string getAbsolute(const EnumPtr&);
+
+    std::string getUnqualified(const std::string&, const std::string&);
     std::string modeToString(Operation::Mode);
 
+    bool isNullableType(const TypePtr&);
     bool isObjcRepresentable(const TypePtr&);
     bool isObjcRepresentable(const DataMemberList&);
-    bool isValueType(const TypePtr&);
     bool isProxyType(const TypePtr&);
 
-    void writeTuple(IceUtilInternal::Output&, const StringList&);
-    void writeDataMembers(IceUtilInternal::Output&, const ContainedPtr&, const DataMemberList&, bool = false);
-    void writeInitializer(IceUtilInternal::Output&, const DataMemberList&, const DataMemberList& = DataMemberList());
-    void writeInitializerMembers(IceUtilInternal::Output&, const DataMemberList&, bool = true);
-    void writeOperation(IceUtilInternal::Output&, const OperationPtr&, bool);
-    void writeOperationsParameters(IceUtilInternal::Output&, const ParamDeclList&);
-    void writeCastFuncs(IceUtilInternal::Output&, const ClassDefPtr&);
-    void writeStaticId(IceUtilInternal::Output&, const ClassDefPtr&);
+    void writeConstantValue(IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
+    void writeDefaultInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, bool = false);
+    void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
+    void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const DataMemberList&,
+                                    const DataMemberList&, const ContainedPtr&, bool rootClass = false);
+    void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
+
+
     void writeMarshalUnmarshalCode(IceUtilInternal::Output&, const ClassDefPtr&, const OperationPtr&);
 
 private:

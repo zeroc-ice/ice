@@ -89,7 +89,7 @@ local interface Communicator
      * @see ObjectAdapter#destroy
      *
      **/
-    ["cpp:noexcept", "js:async"] void destroy();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void destroy();
 
     /**
      *
@@ -108,7 +108,7 @@ local interface Communicator
      * @see ObjectAdapter#deactivate
      *
      **/
-    ["cpp:noexcept", "js:async"] void shutdown();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void shutdown();
 
     /**
      *
@@ -129,7 +129,7 @@ local interface Communicator
      * @see ObjectAdapter#waitForDeactivate
      *
      **/
-    ["cpp:noexcept", "js:async"] void waitForShutdown();
+    ["cpp:noexcept", "swift:noexcept", "js:async"] void waitForShutdown();
 
     /**
      *
@@ -140,7 +140,7 @@ local interface Communicator
      * @see #shutdown
      *
      **/
-    ["cpp:const", "cpp:noexcept"] bool isShutdown();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] bool isShutdown();
 
     /**
      *
@@ -175,7 +175,7 @@ local interface Communicator
      * @see #stringToProxy
      *
      **/
-    ["cpp:const"] string proxyToString(["swift:non-optional"] Object* obj);
+    ["cpp:const"] string proxyToString(["swift:nonnull"] Object* obj);
 
     /**
      *
@@ -206,7 +206,7 @@ local interface Communicator
      * @return The property set.
      *
      **/
-    ["cpp:const", "swift:non-optional"] PropertyDict proxyToProperty(["swift:non-optional"] Object* proxy,
+    ["cpp:const", "swift:nonnull"] PropertyDict proxyToProperty(["swift:nonnull"] Object* proxy,
                                                                      string property);
 
     /**
@@ -259,7 +259,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["js:async", "swift:non-optional"] ObjectAdapter createObjectAdapter(string name);
+    ["js:async", "swift:nonnull"] ObjectAdapter createObjectAdapter(string name);
 
     /**
      *
@@ -283,7 +283,7 @@ local interface Communicator
      *
      **/
 
-    ["js:async", "swift:non-optional"] ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
+    ["js:async", "swift:nonnull"] ObjectAdapter createObjectAdapterWithEndpoints(string name, string endpoints);
 
     /**
      *
@@ -304,8 +304,8 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["js:async", "swift:non-optional"] ObjectAdapter
-    createObjectAdapterWithRouter(string name, ["objc:param:router", "swift:non-optional"] Router* rtr);
+    ["js:async", "swift:nonnull"] ObjectAdapter
+    createObjectAdapterWithRouter(string name, ["objc:param:router", "swift:nonnull"] Router* rtr);
 
 #if !defined(__SLICE2SWIFT__)
     /**
@@ -375,7 +375,7 @@ local interface Communicator
      * @see ValueFactoryManager#find
      *
      **/
-    ["cpp:const", "cpp:noexcept", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
+    ["cpp:const", "cpp:noexcept", "swift:noexcept", "deprecate:findObjectFactory() is deprecated, use ValueFactoryManager::find() instead."]
     ObjectFactory findObjectFactory(string id);
 
 #endif
@@ -388,7 +388,7 @@ local interface Communicator
      * or is set to None.
      *
      **/
-    ["cpp:const", "cpp:noexcept", "swift:non-optional", "swift:nothrow"]
+    ["cpp:const", "cpp:noexcept", "swift:noexcept", "swift:nonnull"]
     ImplicitContext getImplicitContext();
 
     /**
@@ -400,7 +400,7 @@ local interface Communicator
      * @see Properties
      *
      **/
-    ["cpp:const", "cpp:noexcept", "swift:non-optional"] Properties getProperties();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept", "swift:nonnull"] Properties getProperties();
 
     /**
      *
@@ -411,7 +411,7 @@ local interface Communicator
      * @see Logger
      *
      **/
-    ["cpp:const", "cpp:noexcept", "swift:non-optional"] Logger getLogger();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept", "swift:nonnull"] Logger getLogger();
 
 #if !defined(__SLICE2SWIFT__) && !defined(__SLICE2JS__)
     /**
@@ -421,7 +421,7 @@ local interface Communicator
      * @return This communicator's observer resolver object.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] Instrumentation::CommunicatorObserver getObserver();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] Instrumentation::CommunicatorObserver getObserver();
 #endif
 
     /**
@@ -434,7 +434,7 @@ local interface Communicator
      * @see Router
      *
      **/
-    ["cpp:const", "swift:nothrow"] Router* getDefaultRouter();
+    ["cpp:const", "swift:noexcept"] Router* getDefaultRouter();
 
     /**
      *
@@ -465,7 +465,7 @@ local interface Communicator
      * @see Locator
      *
      **/
-    ["cpp:const", "swift:nothrow"] Locator* getDefaultLocator();
+    ["cpp:const", "swift:noexcept"] Locator* getDefaultLocator();
 
     /**
      *
@@ -510,7 +510,7 @@ local interface Communicator
      * @see ValueFactoryManager
      *
      **/
-    ["cpp:const", "cpp:noexcept", "swift:non-optional", "swift:nothrow"]
+    ["cpp:const", "cpp:noexcept", "swift:noexcept", "swift:nonnull"]
     ValueFactoryManager getValueFactoryManager();
 
     /**
@@ -545,7 +545,7 @@ local interface Communicator
      * @see #getAdmin
      *
      **/
-    ["swift:non-optional"] Object* createAdmin(["swift:non-optional"] ObjectAdapter adminAdapter, Identity adminId);
+    ["swift:nonnull"] Object* createAdmin(["swift:nonnull"] ObjectAdapter adminAdapter, Identity adminId);
 
     /**
      *
@@ -576,7 +576,7 @@ local interface Communicator
      * @param facet The name of the new Admin facet.
      *
      **/
-    void addAdminFacet(["swift:non-optional"] Object servant, string facet);
+    void addAdminFacet(["swift:nonnull"] Object servant, string facet);
 
     /**
      *
@@ -588,7 +588,7 @@ local interface Communicator
      * @return The servant associated with this Admin facet.
      *
      **/
-    ["swift:non-optional"] Object removeAdminFacet(string facet);
+    ["swift:nonnull"] Object removeAdminFacet(string facet);
 
     /**
      *

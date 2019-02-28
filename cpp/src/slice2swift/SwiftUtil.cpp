@@ -31,8 +31,8 @@ lookupKwd(const string& name)
         "Any", "as", "associatedtype", "break", "case", "catch", "class", "continue", "default", "defer", "deinit",
         "do", "else", "enum", "extension", "fallthrough", "false", "fileprivate", "for", "func", "guard", "if",
         "import", "in", "init", "inout", "internal", "is", "let", "nil", "open", "operator", "private", "protocol",
-        "public", "repeat", "rethrows", "return", "self", "Self", "static", "struct", "subscript", "super", "switch",
-        "throw", "throws", "true", "try", "typealias", "var", "where", "while"
+        "public", "repeat", "rethrows", "return", "self", "Self", "static", "struct", "subscript", "super", "Swift",
+        "switch", "throw", "throws", "true", "try", "typealias", "var", "where", "while"
     };
     bool found = binary_search(&keywordList[0],
                                &keywordList[sizeof(keywordList) / sizeof(*keywordList)],
@@ -95,17 +95,27 @@ splitScopedName(const string& scoped)
     return ids;
 }
 
-static StringList
-fixIds(const StringList& ids)
-{
-    StringList newIds;
-    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
-    {
-        newIds.push_back(lookupKwd(*i));
-    }
-    return newIds;
 }
 
+//
+// Check the given identifier against Swift's list of reserved words. If it matches
+// a reserved word, then an escaped version is returned with a leading underscore.
+//
+string
+Slice::fixIdent(const string& ident)
+{
+    if(ident[0] != ':')
+    {
+        return lookupKwd(ident);
+    }
+    StringList ids = splitScopedName(ident);
+    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
+    ostringstream result;
+    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    {
+        result << "::" + *i;
+    }
+    return result.str();
 }
 
 string
@@ -131,7 +141,7 @@ Slice::getSwiftModule(const ModulePtr& module, string& swiftPrefix)
         swiftModule = module->name();
         swiftPrefix = "";
     }
-    return swiftModule;
+    return fixIdent(swiftModule);
 }
 
 string
@@ -183,63 +193,60 @@ SwiftGenerator::validateMetaData(const UnitPtr& u)
     u->visit(&visitor, true);
 }
 
-string
-SwiftGenerator::getLocalScope(const string& scope, const string& separator)
+//
+// Get the fully-qualified name of the given definition. If a suffix is provided,
+// it is prepended to the definition's unqualified name. If the nameSuffix
+// is provided, it is appended to the container's name.
+//
+namespace
 {
-    assert(!scope.empty());
 
-    //
-    // Remove trailing "::" if present.
-    //
-    string fixedScope;
-    if(scope[scope.size() - 1] == ':')
-    {
-        assert(scope[scope.size() - 2] == ':');
-        fixedScope = scope.substr(0, scope.size() - 2);
-    }
-    else
-    {
-        fixedScope = scope;
-    }
-    if(fixedScope.empty())
-    {
-        return "";
-    }
-    const StringList ids = fixIds(splitScopedName(fixedScope));
+string
+getAbsoluteImpl(const ContainedPtr& cont, const string& prefix = "", const string& suffix = "")
+{
+    string swiftPrefix;
+    string swiftModule = getSwiftModule(getTopLevelModule(cont), swiftPrefix);
 
-    //
-    // Return local scope for "::A::B::C" as A.B.C
-    //
-    stringstream result;
-    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
+    string str = cont->scope() + prefix + cont->name() + suffix;
+    if(str.find("::") == 0)
     {
-        if(i != ids.begin())
-        {
-            result << separator;
-        }
-        result << *i;
+        str.erase(0, 2);
     }
-    return result.str();
+
+    size_t pos = str.find("::");
+    //
+    // Replace the definition top-level module by the corresponding Swift module
+    // and append the Swift prefix for the Slice module, then any remaining nested
+    // modules become a Swift prefix
+    //
+    if(pos != string::npos)
+    {
+        str = str.substr(pos + 2);
+    }
+    return swiftModule + "." + fixIdent(swiftPrefix + replace(str, "::", ""));
+}
 
 }
 
 string
-SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel)
+SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
+                             const StringList& metadata, bool optional,
+                             int typeCtx)
 {
     static const char* builtinTable[] =
     {
-        "UInt8",
-        "Bool",
-        "Int16",
-        "Int32",
-        "Int64",
-        "Float",
-        "Double",
-        "String",
-        "Ice.Object",    // Object
-        "Ice.ObjectPrx", // ObjectPrx
-        "AnyObject",     // LocalObject
-        "Ice.Value"      // Value
+        "Swift.UInt8",
+        "Swift.Bool",
+        "Swift.Int16",
+        "Swift.Int32",
+        "Swift.Int64",
+        "Swift.Float",
+        "Swift.Double",
+        "Swift.String",
+        "Ice.Object",       // Object
+        "Ice.ObjectPrx",    // ObjectPrx
+        "Swift.AnyObject",  // LocalObject
+        "Ice.Value"         // Value
     };
 
     if(!type)
@@ -247,157 +254,138 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel)
         return "";
     }
 
+    string t = "???";
+    //
+    // The current module were the type is being used
+    //
+    string currentModule = getSwiftModule(getTopLevelModule(toplevel));
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    bool nonnull = find(metadata.begin(), metadata.end(), "swift:nonnull") != metadata.end();
+    bool inparam = typeCtx & TypeContextInParam;
 
-    string str;
+    if(builtin)
+    {
+        t = getUnqualified(builtinTable[builtin->kind()], currentModule);
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    if(cl)
+    {
+        //
+        // Annotate nonnull closure as @escaping, Swift optional closure parameters are always
+        // @escaping see https://www.jessesquires.com/blog/why-optional-swift-closures-are-escaping/
+        //
+        if(cl->isLocal() && cl->definition() && cl->definition()->isDelegate() && inparam && nonnull)
+        {
+            t = "@escaping ";
+        }
+        t += getUnqualified(getAbsoluteImpl(cl), currentModule);
+    }
+
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    if(prx)
+    {
+        t = getUnqualified(getAbsoluteImpl(prx->_class(), "", "Prx"), currentModule);
+    }
+
+    ContainedPtr cont = ContainedPtr::dynamicCast(type);
+    if(cont)
+    {
+        t = getUnqualified(getAbsoluteImpl(cont), currentModule);
+    }
+
+    if(!nonnull && (optional || isNullableType(type)))
+    {
+        t += "?";
+    }
+    return t;
+}
+
+string
+SwiftGenerator::getAbsolute(const TypePtr& type)
+{
+    static const char* builtinTable[] =
+    {
+        "Swift.UInt8",
+        "Swift.Bool",
+        "Swift.Int16",
+        "Swift.Int32",
+        "Swift.Int64",
+        "Swift.Float",
+        "Swift.Double",
+        "Swift.String",
+        "Ice.Object",       // Object
+        "Ice.ObjectPrx",    // ObjectPrx
+        "Swift.AnyObject",  // LocalObject
+        "Ice.Value"         // Value
+    };
+
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
     {
         return builtinTable[builtin->kind()];
     }
 
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
-    {
-        str = getAbsolute(cl);
-
-        if(cl->isLocal())
-        {
-            const ClassDefPtr def = cl->definition();
-            if(p && def && def->isDelegate())
-            {
-
-                // Swift closures are @escaping by default
-                if(p->hasMetaData("swift:non-optional"))
-                {
-                    return "@escaping " + str;
-                }
-                else
-                {
-                    return str + "?";
-                }
-            }
-        }
-        return optional ? str + "?" : str;
-    }
-
     ProxyPtr proxy = ProxyPtr::dynamicCast(type);
     if(proxy)
     {
-        return getAbsolute(proxy->_class(), "", "Prx");
+        return getAbsoluteImpl(proxy->_class(), "", "Prx");
     }
 
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
-    if(dict)
+    ContainedPtr cont = ContainedPtr::dynamicCast(type);
+    if(cont)
     {
-        return getAbsolute(dict);
+        return getAbsoluteImpl(cont);
     }
 
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if(contained)
-    {
-        return getAbsolute(contained);
-    }
-
+    assert(false);
     return "???";
-}
-
-std::string
-SwiftGenerator::typeToProxyImpl(const TypePtr& type)
-{
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindObjectProxy:
-            {
-                return "_ObjectPrxI";
-                break;
-            }
-            default:
-            {
-                assert(false);
-                break;
-            }
-        }
-
-    }
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
-    {
-        return getAbsolute(proxy->_class(), "_", "PrxI");
-    }
-
-    return "???";
-}
-
-//
-// Check the given identifier against Swift's list of reserved words. If it matches
-// a reserved word, then an escaped version is returned with a leading underscore.
-//
-std::string
-SwiftGenerator::fixIdent(const std::string& ident)
-{
-    if(ident[0] != ':')
-    {
-        return lookupKwd(ident);
-    }
-    StringList ids = splitScopedName(ident);
-    transform(ids.begin(), ids.end(), ids.begin(), ptr_fun(lookupKwd));
-    stringstream result;
-    for(StringList::const_iterator i = ids.begin(); i != ids.end(); ++i)
-    {
-        result << "::" + *i;
-    }
-    return result.str();
-}
-
-std::string
-SwiftGenerator::fixName(const ContainedPtr& cont)
-{
-    string swiftPrefix;
-    string swiftModule = getSwiftModule(getTopLevelModule(cont), swiftPrefix);
-    return swiftPrefix + cont->name();
-}
-
-//
-// Get the fully-qualified name of the given definition. If a suffix is provided,
-// it is prepended to the definition's unqualified name. If the nameSuffix
-// is provided, it is appended to the container's name.
-//
-std::string
-SwiftGenerator::getAbsolute(const ContainedPtr& cont,
-                            const string& pfx,
-                            const string& suffix)
-{
-    string str = fixIdent(cont->scope() + pfx + cont->name() + suffix);
-    if(str.find("::") == 0)
-    {
-        str.erase(0, 2);
-    }
-
-    return replace(str, "::", ".");
 }
 
 string
-SwiftGenerator::getUnqualified(const string& type, const string& module)
+SwiftGenerator::getAbsolute(const ClassDeclPtr& cl)
 {
-    if(importPrefix.empty())
-    {
-        const string localScope = getLocalScope(scope) + ".";
-        if(type.find(localScope) == 0)
-        {
-            string t = type.substr(localScope.size());
-            if(t.find(".") == string::npos)
-            {
-                return t;
-            }
-        }
-    }
-    return type;
+    return getAbsoluteImpl(cl);
 }
 
-std::string
+string
+SwiftGenerator::getAbsolute(const ClassDefPtr& cl)
+{
+    return getAbsoluteImpl(cl);
+}
+
+string
+SwiftGenerator::getAbsolute(const ProxyPtr& prx)
+{
+    return getAbsoluteImpl(prx->_class(), "", "Prx");
+}
+
+string
+SwiftGenerator::getAbsolute(const StructPtr& st)
+{
+    return getAbsoluteImpl(st);
+}
+
+string
+SwiftGenerator::getAbsolute(const ExceptionPtr& ex)
+{
+    return getAbsoluteImpl(ex);
+}
+
+string
+SwiftGenerator::getAbsolute(const EnumPtr& en)
+{
+    return getAbsoluteImpl(en);
+}
+
+string
+SwiftGenerator::getUnqualified(const string& type, const string& localModule)
+{
+    const string prefix = localModule + ".";
+    return type.find(prefix) == 0 ? type.substr(prefix.size()) : type;
+}
+
+string
 SwiftGenerator::modeToString(Operation::Mode opMode)
 {
     string mode;
@@ -428,6 +416,31 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
 }
 
 bool
+SwiftGenerator::isNullableType(const TypePtr& type)
+{
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindObject:
+            case Builtin::KindObjectProxy:
+            case Builtin::KindLocalObject:
+            case Builtin::KindValue:
+            {
+                return true;
+            }
+            default:
+            {
+                return false;
+            }
+        }
+    }
+
+    return ClassDeclPtr::dynamicCast(type) || ProxyPtr::dynamicCast(type);
+}
+
+bool
 SwiftGenerator::isObjcRepresentable(const TypePtr& type)
 {
     return BuiltinPtr::dynamicCast(type);
@@ -447,61 +460,6 @@ SwiftGenerator::isObjcRepresentable(const DataMemberList& members)
 }
 
 bool
-SwiftGenerator::isValueType(const TypePtr& type)
-{
-    if(!type)
-    {
-        return true;
-    }
-    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
-    if(builtin)
-    {
-        switch(builtin->kind())
-        {
-            case Builtin::KindObject:
-            case Builtin::KindObjectProxy:
-            case Builtin::KindLocalObject:
-            case Builtin::KindValue:
-            {
-                return false;
-                break;
-            }
-            default:
-            {
-                return true;
-                break;
-            }
-        }
-    }
-
-    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
-    if(cl)
-    {
-        return false;
-    }
-
-    ProxyPtr proxy = ProxyPtr::dynamicCast(type);
-    if(proxy)
-    {
-        return false;
-    }
-
-    DictionaryPtr dict = DictionaryPtr::dynamicCast(type);
-    if(dict)
-    {
-        return true;
-    }
-
-    ContainedPtr contained = ContainedPtr::dynamicCast(type);
-    if(contained)
-    {
-        return true;
-    }
-
-    return true;
-}
-
-bool
 SwiftGenerator::isProxyType(const TypePtr& p)
 {
     const BuiltinPtr builtin = BuiltinPtr::dynamicCast(p);
@@ -509,47 +467,117 @@ SwiftGenerator::isProxyType(const TypePtr& p)
 }
 
 void
-SwiftGenerator::writeTuple(IceUtilInternal::Output& out, const StringList& tuple)
+SwiftGenerator::writeConstantValue(IceUtilInternal::Output&,
+                                   const TypePtr&,
+                                   const SyntaxTreeBasePtr&,
+                                   const string&)
 {
-    if(tuple.size() > 1)
-    {
-        out << "(";
-    }
+    // TODO
+}
 
-    for(StringList::const_iterator q = tuple.begin(); q != tuple.end(); ++q)
+void
+SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
+                                        const DataMemberList& members,
+                                        const ContainedPtr& p,
+                                        bool required)
+{
+    out << sp;
+    out << nl << "public ";
+    if(required)
     {
-        if(q != tuple.begin())
-        {
-            out << ", ";
-        }
-        out << (*q);
+        out << "required ";
     }
-    if(tuple.size() > 1)
+    out << "init()";
+    out << sb;
+    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        out << ")";
+        DataMemberPtr member = *q;
+        TypePtr type = member->type();
+        out << nl << "self." << fixIdent(member->name()) << " = ";
+        if(member->defaultValueType())
+        {
+            out << typeToString(type, p) << "(";
+            writeConstantValue(out, type, member->defaultValueType(), member->defaultValue());
+            out << ")";
+        }
+        else if(isNullableType(type))
+        {
+            out << "nil";
+        }
+        else
+        {
+            out << typeToString(type, p) << "()";
+        }
+    }
+    out << eb;
+}
+
+void
+SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
+                                           const DataMemberList& members,
+                                           const ContainedPtr& p)
+{
+    writeMemberwiseInitializer(out, members, DataMemberList(), members, p, true);
+}
+
+void
+SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
+                                           const DataMemberList& members,
+                                           const DataMemberList& baseMembers,
+                                           const DataMemberList& allMembers,
+                                           const ContainedPtr& p,
+                                           bool rootClass)
+{
+    if(rootClass || allMembers.size() > baseMembers.size())
+    {
+        out << sp;
+        out << nl << "public init";
+        out << spar;
+        for(DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
+        {
+            DataMemberPtr m = *i;
+            out << (fixIdent(m->name()) + ": " +
+                    typeToString(m->type(), p, m->getMetaData(), m->optional(), TypeContextInParam));
+        }
+        out << epar;
+        out << sb;
+
+        for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+        {
+            DataMemberPtr m = *i;
+            out << nl << "self." << fixIdent(m->name()) << " = " << fixIdent(m->name());
+        }
+
+        if(!rootClass)
+        {
+            out << nl << "super.init";
+            out << spar;
+            for(DataMemberList::const_iterator i = baseMembers.begin(); i != baseMembers.end(); ++i)
+            {
+                const string name = fixIdent((*i)->name());
+                out << (name + ": " + name);
+            }
+            out << epar;
+        }
+        out << eb;
     }
 }
 
 void
-SwiftGenerator::writeDataMembers(IceUtilInternal::Output& out,
-                                 const DataMemberList& members,
-                                 bool writeGetter)
+SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
+                             const DataMemberList& members,
+                             const ContainedPtr& p,
+                             int typeCtx)
 {
+    string access = (typeCtx & TypeContextProtocol) ? "" : "public ";
+    bool getter = (typeCtx & TypeContextProtocol);
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
-        const TypePtr type = (*q)->type();
-        out << nl;
-
-        // not a protocol
-        if(!writeGetter)
-        {
-            out << "public ";
-        }
-
-        out << "var " << (*q)->name() << ": " << typeToString(type, (*q));
-
-        // protocol
-        if(writeGetter)
+        DataMemberPtr member = *q;
+        TypePtr type = member->type();
+        out << nl << access << "var " << fixIdent(member->name()) << ": "
+            << typeToString(type, p, member->getMetaData(), member->optional());
+        if(getter)
         {
             out << " { get }";
         }
@@ -557,271 +585,9 @@ SwiftGenerator::writeDataMembers(IceUtilInternal::Output& out,
 }
 
 void
-SwiftGenerator::writeInitializer(IceUtilInternal::Output& out,
-                                 const DataMemberList& members,
-                                 const DataMemberList& allMembers)
+SwiftGenerator::writeMarshalUnmarshalCode(IceUtilInternal::Output&, const ClassDefPtr&, const OperationPtr&)
 {
-
-    DataMemberList baseMembers;
-
-    for(DataMemberList::const_iterator q = allMembers.begin(); q != allMembers.end(); ++q)
-    {
-        if(find(members.begin(), members.end(), *q) == members.end())
-        {
-            baseMembers.push_back(*q);
-        }
-    }
-
-    // initializer
-    out << nl << "public init";
-    writeInitializerMembers(out, allMembers.empty() ? members : allMembers);
-    out << sb;
-
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-    {
-        const string n = (*q)->name();
-        out << nl << "self." << n << " = " << n;
-    }
-
-    // call base class init
-    if(!baseMembers.empty())
-    {
-        out << nl << "super.init";
-        writeInitializerMembers(out, baseMembers, false);
-    }
-
-    out << eb;
-}
-
-void
-SwiftGenerator::writeInitializerMembers(IceUtilInternal::Output& out, const DataMemberList& members, bool useType)
-{
-    out << "(";
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
-    {
-         if(q != members.begin())
-        {
-            out << ", ";
-        }
-        out << (*q)->name();
-
-        if(useType)
-        {
-            out << ": " << typeToString((*q)->type(), *q);
-        }
-        else
-        {
-            out << ": " << (*q)->name();
-        }
-    }
-    out << ")";
-}
-
-void
-SwiftGenerator::writeOperation(IceUtilInternal::Output& out, const OperationPtr& op, bool)
-{
-    const string opName = op->name();
-    StringList metaData = op->getMetaData();
-    ExceptionList throws = op->throws();
-    const ParamDeclList outParams = op->outParameters();
-    StringList returns;
-    throws.sort();
-    throws.unique();
-
-    out << nl << "func " << opName;
-    writeOperationsParameters(out, op->parameters());
-    //TODO: remove cpp:noexcept once swift:nothrow is everywhere
-    if(!op->hasMetaData("cpp:noexcept") && !op->hasMetaData("swift:nothrow"))
-    {
-        out << " throws";
-    }
-
-    string ret = typeToString(op->returnType(), op);
-    if(!ret.empty())
-    {
-        returns.push_back(ret);
-    }
-
-    for(ParamDeclList::const_iterator p = outParams.begin(); p != outParams.end(); ++p)
-    {
-        returns.push_back(typeToString((*p)->type()));
-    }
-
-    if(!returns.empty())
-    {
-        out << " -> ";
-        writeTuple(out, returns);
-    }
-}
-
-void
-SwiftGenerator::writeOperationsParameters(IceUtilInternal::Output& out, const ParamDeclList& parameters)
-{
-    out << "(";
-    for(ParamDeclList::const_iterator q = parameters.begin(); q != parameters.end() && !(*q)->isOutParam(); ++q)
-    {
-
-         if(q != parameters.begin())
-        {
-            out << ", ";
-        }
-
-        out << (*q)->name() << ": " << typeToString((*q)->type(), *q);
-    }
-    out << ")";
-}
-
-void
-SwiftGenerator::writeCastFuncs(IceUtilInternal::Output& out, const ClassDefPtr& p)
-{
-    const string prx = fixName(p) + "Prx";
-    const string prxImpl = "_" + prx + "I";
-    out << nl << "public func checkedCast(prx: ObjectPrx, type: " << prx << ".Protocol, ";
-    out << "facet: String? = nil, context: Context? = nil) throws -> " << prx << "?";
-    out << sb << nl;
-    out << "return try " << prxImpl << ".checkedCast(prx: prx, facet: facet, context: context) as " << prxImpl << "?";
-    out << eb << nl;
-
-    out << nl << "public func uncheckedCast(prx: ObjectPrx, type: " << prx << ".Protocol, ";
-    out << "facet: String? = nil, context: Context? = nil) -> " << prx << "?";
-    out << sb << nl;
-    out << "return " << prxImpl << ".uncheckedCast(prx: prx, facet: facet, context: context) as " << prxImpl << "?";
-    out << eb << nl;
-
-    out << nl << "public extension Ice.InputStream";
-    out << sb << nl;
-    out << "func read(proxy: " << prx << ".Protocol) throws -> " << prx << "?";
-    out << sb << nl;
-    out << "return try " << prxImpl << ".ice_read(from: self)";
-    out << eb << nl;
-
-    out << "func read(proxyArray: " << prx << ".Protocol) throws -> [" << prx << "?]";
-    out << sb << nl;
-    out << "return try read(proxyArray: " << prxImpl << ".self)";
-    out << eb << nl;
-    out << eb << nl;
-}
-
-void
-SwiftGenerator::writeStaticId(IceUtilInternal::Output& out, const ClassDefPtr& p)
-{
-    const string prx = fixName(p) + "Prx";
-    const string prxImpl = "_" + prx + "I";
-
-    out << nl << "public func ice_staticId(_: " << prx << ".Protocol) -> String";
-    out << sb << nl;
-    out << "return " << prxImpl << ".ice_staticId()";
-    out << eb << nl;
-}
-
-void
-SwiftGenerator::writeMarshalUnmarshalCode(IceUtilInternal::Output& out, const ClassDefPtr& p, const OperationPtr& op)
-{
-    const string prx = fixName(p) + "Prx";
-    const string proxyImpl = "_" + prx + "I";
-    const string returnType = typeToString(op->returnType());
-    const ParamDeclList inParams = op->inParameters();
-    const ParamDeclList outParams = op->outParameters();
-    const bool returnsData = op->returnsData();
-    const bool returnsInputStream = !op->outParameters().empty() || op->returnType();
-    StringList returnTuple;
-
-    out << "let impl = self as! " << proxyImpl;
-    out << nl << "let os = impl._createOutputStream()";
-    out << nl << "os.startEncapsulation()";
-
-    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
-    {
-        const SequencePtr sequence = SequencePtr::dynamicCast(op->returnType());
-        if(isProxyType((*q)->type()))
-        {
-            out << nl << "try os.write(proxy: " << (*q)->name() << ")";
-        }
-        else if(sequence && isProxyType(sequence->type()))
-        {
-            out << nl << "try os.write(proxyArray: " << (*q)->name() << ")";
-        }
-        else
-        {
-            out << nl << (*q)->name() << ".ice_write(to: os)";
-
-        }
-    }
-    out << nl << "os.endEncapsulation()";
-
-    out << nl << "let " << (returnsInputStream ? "ins  " : "_ ");
-    out << "= try impl._invoke(";
-
-    out.useCurrentPosAsIndent();
-    out << "operation: \"" << op->name() << "\",";
-    out << nl << "mode: " << modeToString(op->mode()) << ",";
-    out << nl << "twowayOnly: " << (returnsData ? "true" : "false") << ",";
-    out << nl << "inParams: os,";
-    out << nl << "hasOutParams: " << (op->outParameters().empty() ? "false" : "true");
-    out <<  ")";
-    out.restoreIndent();
-    out << nl;
-
-    //
-    // TODO: Sequence and optioanl read (eg. optional tags and array min size)
-    //
-
-    for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
-    {
-        out << "let " << (*q)->name() << " = try " << typeToString((*q)->type()) << "(from: ins)";
-        returnTuple.push_back((*q)->name());
-    }
-
-    if(!returnType.empty())
-    {
-        const SequencePtr sequence = SequencePtr::dynamicCast(op->returnType());
-        if(isProxyType(op->returnType()))
-        {
-            const ProxyPtr proxy = ProxyPtr::dynamicCast(op->returnType());
-            if(proxy)
-            {
-                const string retPrx = getAbsolute(proxy->_class(), "", "Prx");
-                out << nl << "let ret = try ins.read(proxy: " << retPrx << ".self)";
-            }
-            else
-            {
-                out << nl << "let ret = try ins.read(proxy: ObjectPrx.self)";
-            }
-            returnTuple.push_front("ret");
-        }
-        else if(sequence && isProxyType(sequence->type()))
-        {
-            const ProxyPtr proxy = ProxyPtr::dynamicCast(op->returnType());
-            if(proxy)
-            {
-                const string retPrx = getAbsolute(proxy->_class(), "", "Prx");
-                out << nl << "let ret = try ins.read(proxyArray: " << retPrx << ".self)";
-            }
-            else
-            {
-                out << nl << "let ret = try ins.read(proxyArray: ObjectPrx.self)";
-            }
-            returnTuple.push_front("ret");
-        }
-        else if(op->returnIsOptional())
-        {
-            out << nl << "var ret: " << returnType;
-            out << nl << "try " << "ret.ice_read(from: ins)";
-            returnTuple.push_front("ret");
-        }
-        else
-        {
-            out << nl << "var ret = " << returnType << "()";
-            out << nl << "try " << "ret.ice_read(from: ins)";
-            returnTuple.push_front("ret");
-        }
-    }
-
-    if(!returnTuple.empty())
-    {
-        out << nl << "return ";
-        writeTuple(out, returnTuple);
-    }
+    // TODO
 }
 
 bool

@@ -19,11 +19,6 @@ using namespace std;
 using namespace Slice;
 using namespace IceUtilInternal;
 
-namespace
-{
-
-}
-
 Gen::Gen(const string& base, const vector<string>& includePaths, const string& dir) :
     _includePaths(includePaths)
 {
@@ -53,7 +48,7 @@ Gen::Gen(const string& base, const vector<string>& includePaths, const string& d
     printHeader();
     printGeneratedHeader(_out, _fileBase + ".ice");
 
-    _out << nl << "import Foundation" << nl;
+    _out << nl << "import Foundation";
 }
 
 Gen::~Gen()
@@ -75,6 +70,15 @@ Gen::generate(const UnitPtr& p)
 
     TypesVisitor typesVisitor(_out);
     p->visit(&typesVisitor, false);
+
+    ProxyVisitor proxyVisitor(_out);
+    p->visit(&proxyVisitor, false);
+
+    ValueVisitor valueVisitor(_out);
+    p->visit(&valueVisitor, false);
+
+    LocalObjectVisitor localObjectVisitor(_out);
+    p->visit(&localObjectVisitor, false);
 }
 
 void
@@ -89,10 +93,7 @@ Gen::printHeader()
     static const char* header =
 "// **********************************************************************\n"
 "//\n"
-"// Copyright (c) 2003-2018 ZeroC, Inc. All rights reserved.\n"
-"//\n"
-"// This copy of Ice is licensed to you under the terms described in the\n"
-"// ICE_LICENSE file included in this distribution.\n"
+"// Copyright (c) ZeroC, Inc. All rights reserved.\n"
 "//\n"
 "// **********************************************************************\n"
         ;
@@ -229,7 +230,7 @@ Gen::ImportVisitor::writeImports()
 {
     for(vector<string>::const_iterator i = _imports.begin(); i != _imports.end(); ++i)
     {
-        out << "import " << *i << nl;
+        out << nl << "import " << *i;
     }
 }
 
@@ -268,364 +269,190 @@ Gen::TypesVisitor::TypesVisitor(IceUtilInternal::Output& o) : out(o)
 {
 }
 
-bool Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr& p)
+bool
+Gen::TypesVisitor::visitClassDefStart(const ClassDefPtr&)
 {
-    string name = p->name();
-    string swiftName = fixName(p);
-    ClassList bases = p->bases();
-    ClassDefPtr baseClass;
-    if(!bases.empty() && !bases.front()->isInterface())
-    {
-        baseClass = bases.front();
-    }
-
-    if(p->isDelegate())
-    {
-        const OperationPtr op = p->operations().front();
-        const ParamDeclList parameters = op->parameters();
-        const string ret = typeToString(op->returnType());
-        out << nl << "public typealias " << swiftName << " = ";
-        out << "(";
-        for(ParamDeclList::const_iterator q = parameters.begin(); q != parameters.end() && !(*q)->isOutParam(); ++q)
-        {
-             if(q != parameters.begin())
-            {
-                out << ", ";
-            }
-
-            out << typeToString((*q)->type());
-        }
-        out << ") -> " << (ret.empty() ? "Void" : ret);
-
-        return false;
-    }
-
-    if(p->isLocal())
-    {
-        //
-        // If there are any operations generate a protocol
-        // Otherwise if just datamembers then a class
-        //
-        if(p->allOperations().empty())
-        {
-            out << nl << "public class " << swiftName;
-            if(baseClass)
-            {
-                out << ": " << fixName(baseClass);
-            }
-            out << sb;
-
-            if(!p->dataMembers().empty())
-            {
-                writeDataMembers(out, p, p->dataMembers());
-                writeInitializer(out, p->dataMembers(), p->allDataMembers());
-            }
-            out << eb << nl;
-        }
-        else
-        {
-            out << nl << "public protocol " << swiftName;
-
-            // TODO check for delegate metadata and map to closure
-
-            if(baseClass)
-            {
-                out << ": " << fixName(baseClass);
-            }
-            else
-            {
-                // All protocols must be implemented by a class
-                out << ": AnyObject";
-            }
-            out << sb;
-
-            if(!p->dataMembers().empty())
-            {
-                writeDataMembers(out, p, p->dataMembers(), true);
-            }
-
-            OperationList ops = p->operations();
-            for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-            {
-                writeOperation(out, *r, p->isLocal());
-            }
-            out << eb << nl;
-        }
-
-    }
-    else
-    {
-        //
-        // interface: generate Swift protocol and protocolPrx
-        // class: generate class protocolPrx, and protocolDisp
-        //
-
-        out << nl << "public protocol " << swiftName;
-        if(!p->isInterface())
-        {
-            out << "Disp";
-        }
-        if(baseClass)
-        {
-            out << ": " << fixIdent(baseClass->name());
-        }
-        else
-        {
-            // All protocols must be implemented by a class
-            out << ": class";
-        }
-        out << sb;
-        // TODO
-        out << eb << nl;
-
-        if(!p->isInterface())
-        {
-            out << nl << "public class " << swiftName;
-            if(baseClass)
-            {
-                out << ": " << fixIdent(baseClass->name());
-            }
-            out << sb;
-            if(!p->dataMembers().empty())
-            {
-                writeDataMembers(out, p, p->dataMembers());
-                writeInitializer(out, p->dataMembers(), p->allDataMembers());
-            }
-            out << eb << nl;
-        }
-
-        out << nl << "public protocol " << swiftName << "Prx";
-        if(baseClass)
-        {
-            out << ": " << fixIdent(baseClass->name());
-        }
-        else
-        {
-            out << ": " << "Ice.ObjectPrx";
-        }
-        out << sb << eb << nl;
-
-        // TODO add class ClassResolver extension
-        // @objc dynamic Demo_ClassName() -> AnyObject
-
-        if(p->isInterface())
-        {
-            const string proxyImpl = "_" + swiftName + "PrxI";
-            out << nl << "public extension " << swiftName + "Prx";
-            out << sb;
-            OperationList ops = p->operations();
-            for(OperationList::iterator r = ops.begin(); r != ops.end(); ++r)
-            {
-                const OperationPtr op = *r;
-                writeOperation(out, op, p->isLocal());
-                out << sb << nl;
-                writeMarshalUnmarshalCode(out, p, op);
-                out << eb << nl;
-            }
-            out << eb << nl;
-
-            out << "public class " << proxyImpl << ": _ObjectPrxI, " << swiftName + "Prx";
-            out << sb;
-            out << nl << "override public class func ice_staticId() -> String";
-            out << sb;
-            out << nl << "return \"" << p->scoped() << "\"";
-            out << eb;
-            out << eb << nl;
-
-            writeCastFuncs(out, p);
-            writeStaticId(out, p);
-        }
-    }
-
     return false;
 }
 
-bool Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
+bool
+Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 {
-    // const string name = fixIdent(p->name());
-    const string name = p->name();
-    const string scoped = p->scoped();
-    // const string abs = getAbsolute(p);
-    // const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    // const bool preserved = p->hasMetaData("preserve-slice");
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
 
     ExceptionPtr base = p->base();
 
-    out << nl << "public class " << name;
+    out << sp;
+    out << nl << "public class " << name << ": ";
     if(base)
     {
-        out << ": " << getAbsolute(base);
+        out << getUnqualified(getAbsolute(base), swiftModule);
     }
     else if(p->isLocal())
     {
-        out << ": Ice.LocalException";
+        out << getUnqualified("Ice.LocalException", swiftModule);
     }
     else
     {
-        out << ": Ice.UserException";
+        out << getUnqualified("Ice.UserException", swiftModule);
     }
     out << sb;
 
-    if(!p->dataMembers().empty())
-    {
+    const DataMemberList dataMembers = p->dataMembers();
+    const DataMemberList allMembers = p->allDataMembers();
+    const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
 
-        writeDataMembers(out, p, p->dataMembers());
-        out << nl;
-        writeInitializer(out, p->dataMembers(), p->allDataMembers());
-    }
+    writeMembers(out, dataMembers, p);
+    writeMemberwiseInitializer(out, dataMembers, baseMembers, allMembers, p, !base && !p->isLocal());
 
     if(!p->isLocal())
     {
-        const DataMemberList members = p->dataMembers();
-
-        out << nl << nl << "required public init(from ins: Ice.InputStream) throws" << sb;
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q) {
-            out << nl << "try self." << (*q)->name() << " = " << typeToString((*q)->type()) << "(from: ins)";
+        out << sp;
+        out << nl << "required public init(from ins: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+        out << sb;
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            DataMemberPtr member = *q;
+            StringList metadata = member->getMetaData();
+            out << nl << "self." << member->name() << " = try "
+                << getUnqualified(getAbsolute(member->type()), swiftModule) << "(from: ins)";
         }
         out << eb;
 
-        // TODO if we no longer need this.
-        // out << nl << nl << "public func ice_read(from ins: Ice.InputStream) throws" << sb;
-        // for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q) {
-        //     out << nl << "try self." << (*q)->name() << ".ice_read(from: ins)";
-        // }
-        // out << eb;
-
-        out << nl << nl << "public func ice_write(to os: Ice.OutputStream)" << sb;
-        out << nl << "os.write(";
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q) {
-            if(q != members.begin())
-            {
-                out << ", ";
-            }
-            out << "self." << (*q)->name();
+        out << sp;
+        out << nl << "public func ice_write(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+        out << sb;
+        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        {
+            out << nl << fixIdent((*q)->name()) << ".ice_write(to: os)";
         }
-        out << ")";
         out << eb;
 
-        out << nl << "public class func ice_staticId() -> String";
+        out << sp;
+        out << nl << "public class func ice_staticId() -> Swift.String";
         out << sb;
         out << nl << "return \"" << p->scoped() << "\"";
         out << eb;
     }
 
-    out << nl << eb;
-    out << nl;
-
+    out << eb;
     return false;
 }
 
-bool Gen::TypesVisitor::visitStructStart(const StructPtr& p)
+bool
+Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 {
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
-
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
+    bool containsSequence;
+    bool legalKeyType = Dictionary::legalKeyType(p, containsSequence);
     const DataMemberList members = p->dataMembers();
 
-    string hashable = ": Hashable";
-    for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+    out << sp;
+    out << nl << "public struct " << name;
+    if(legalKeyType)
     {
-        if(!BuiltinPtr::dynamicCast((*q)->type()))
-        {
-            hashable = "";
-            break;
-        }
+        out << ": Swift.Hashable";
     }
+    out << sb;
 
-    out << nl << "public struct " << name << hashable << sb;
-
-    writeDataMembers(out, p, members);
-    writeInitializer(out, members);
+    writeMembers(out, members, p);
+    writeDefaultInitializer(out, members, p);
+    writeMemberwiseInitializer(out, members, p);
 
     out << eb << nl;
 
-    if(!p->isLocal()) {
+    if(!p->isLocal())
+    {
         out << nl << "extension " << name << ": Ice.Streamable" << sb;
 
-        out << nl << nl << "public init()" << sb;
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q) {
-            out << nl << "self." << (*q)->name() << " = " << typeToString((*q)->type()) << "()";
-        }
-        out << eb;
-
-        out << nl << nl << "public init(from ins: Ice.InputStream) throws" << sb;
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q) {
-            out << nl << "try self." << (*q)->name() << " = " << typeToString((*q)->type()) << "(from: ins)";
-        }
-        out << eb;
-
-        // TODO: remove if we no longer need this
-        // out << nl << nl << "public mutating func ice_read(from ins: Ice.InputStream) throws" << sb;
-        // for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q) {
-        //     out << nl << "try self." << (*q)->name() << ".ice_read(from: ins)";
-        // }
-        // out << eb;
-
-        out << nl << nl << "public func ice_write(to os: Ice.OutputStream)" << sb;
-        out << nl << "os.write(";
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q) {
-            if(q != members.begin())
+        out << sp;
+        out << nl << "public init(from ins: Ice.InputStream) throws" << sb;
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        {
+            DataMemberPtr member = *q;
+            StringList metadata = member->getMetaData();
+            TypePtr type = member->type();
+            out << nl << "self." << member->name() << " = ";
+            if(isProxyType(type))
             {
-                out << ", ";
+                out << "try ins.read(proxy: " << getUnqualified(getAbsolute(type), swiftModule) << ".self)";
             }
-            out << "self." << (*q)->name();
+            else
+            {
+                out << "try " << typeToString(type, p, metadata, member->optional()) << "(from: ins)";
+            }
         }
-        out << ")";
         out << eb;
 
-        out << eb << nl;
+        out << sp;
+        out << nl << "public func ice_write(to os: Ice.OutputStream)" << sb;
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        {
+            out << nl << fixIdent((*q)->name()) << ".ice_write(to: os)";
+        }
+        out << eb;
+
+        out << eb;
     }
 
     return false;
 }
 
-void Gen::TypesVisitor::visitSequence(const SequencePtr& p)
+void
+Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
     const string name = fixIdent(p->name());
     const TypePtr type = p->type();
 
-    out << nl << "public typealias " << name << " = [" << typeToString(type) << "]";
+    out << sp;
+    out << nl << "public typealias " << name << " = [" << typeToString(type, p) << "]";
 }
 
-void Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
+void
+Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
     const string name = fixIdent(p->name());
 
     const TypePtr keyType = p->keyType();
     const TypePtr valueType = p->valueType();
 
-    out << nl << "public typealias " << name << " = [" << typeToString(keyType) << ":" << typeToString(valueType) << "]";
+    out << sp;
+    out << nl << "public typealias " << name << " = [" << typeToString(keyType, p) << ":" << typeToString(valueType, p)
+        << "]";
 }
 
-void Gen::TypesVisitor::visitEnum(const EnumPtr& p)
+void
+Gen::TypesVisitor::visitEnum(const EnumPtr& p)
 {
-    const string name = fixIdent(p->name());
-    const string scoped = p->scoped();
-    const string abs = getAbsolute(p);
-
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const EnumeratorList enumerators = p->enumerators();
     const string enumType = p->maxValue() <= 0xFF ? "UInt8" : "Int32";
 
-    out << nl << "public enum " << name << ": " << enumType << sb;
-
-    const EnumeratorList enumerators = p->enumerators();
+    out << sp;
+    out << nl << "public enum " << name << ": " << enumType;
+    out << sb;
 
     for(EnumeratorList::const_iterator en = enumerators.begin(); en != enumerators.end(); ++en)
     {
         out << nl << "case " << fixIdent((*en)->name()) << " = " << (*en)->value();
     }
-
-    out << eb << nl;
-
-    out << nl << "extension " << name << ": Ice.Streamable" << sb;
-
-    out << nl << nl << "public init()" << sb;
-
-    out << nl << "self = ." << fixIdent((*enumerators.begin())->name());
-
     out << eb;
 
-    out << nl << nl << "public init(from ins: Ice.InputStream) throws" << sb;
+    out << sp;
+    out << nl << "extension " << name << ": Ice.Streamable";
+    out << sb;
+
+    out << nl << "public init()";
+    out << sb;
+    out << nl << "self = ." << fixIdent((*enumerators.begin())->name());
+    out << eb;
+
+    out << sp;
+    out << nl << "public init(from ins: Ice.InputStream) throws";
+    out << sb;
     out << nl << "var rawValue = " << enumType << "()";
     out << nl << "try ins.read(enum: &rawValue, maxValue: " << p->maxValue() << ")";
     out << nl << "guard let val = " << name << "(rawValue: rawValue) else" << sb;
@@ -634,28 +461,490 @@ void Gen::TypesVisitor::visitEnum(const EnumPtr& p)
     out << nl << "self = val";
     out << eb;
 
-    //TODO: remove if we no longer need this.
-    // out << nl << nl << "public mutating func ice_read(from ins: Ice.InputStream) throws" << sb;
-    // out << nl << "var rawValue = " << enumType << "()";
-    // out << nl << "try ins.read(enum: &rawValue, maxValue: " << p->maxValue() << ")";
-    // out << nl << "guard let val = " << name << "(rawValue: rawValue) else" << sb;
-    // out << nl << "throw MarshalException(reason: \"invalid enum value\")";
-    // out << eb;
-    // out << nl << "self = val";
-    // out << eb;
-
-    out << nl << nl << "public func ice_write(to os: Ice.OutputStream)" << sb;
+    out << sp;
+    out << nl << "public func ice_write(to os: Ice.OutputStream)";
+    out << sb;
     out << nl << "os.write(enum: self.rawValue, maxValue: " << p->maxValue() << ")";
     out << eb;
 
-    out << eb << nl;
+    out << eb;
 }
 
-void Gen::TypesVisitor::visitConst(const ConstPtr& p)
+void
+Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const string name = fixIdent(p->name());
     const TypePtr type = p->type();
 
-    out << nl << "public let " << name << ": " << typeToString(type) << " = " << p->value();
+    out << nl << "public let " << name << ": " << typeToString(type, p) << " = " << p->value();
     out << nl;
+}
+
+Gen::ProxyVisitor::ProxyVisitor(::IceUtilInternal::Output& o) : out(o)
+{
+}
+
+bool
+Gen::ProxyVisitor::visitModuleStart(const ModulePtr& p)
+{
+    return p->hasNonLocalClassDefs();
+}
+
+void
+Gen::ProxyVisitor::visitModuleEnd(const ModulePtr&)
+{
+}
+
+bool
+Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(p->isLocal() || (!p->isInterface() && p->allOperations().empty()))
+    {
+        return false;
+    }
+
+    ClassList bases = p->bases();
+    ClassDefPtr baseClass;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        baseClass = bases.front();
+    }
+
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+
+    const string prx = p->name() + "Prx";
+    const string prxI = "_" + p->name() + "PrxI";
+
+    out << nl << "public protocol " << prx << ": "
+        << (baseClass ? fixIdent(baseClass->name()) : getUnqualified("Ice.ObjectPrx", swiftModule));
+    out << sb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public class " << prxI << ": " << getUnqualified("Ice._ObjectPrxI", swiftModule) << ", " << prx;
+    out << sb;
+
+    out << nl << "override public class func ice_staticId() -> String";
+    out << sb;
+    out << nl << "return \"" << p->scoped() << "\"";
+    out << eb;
+
+    out << eb;
+
+    //
+    // checkedCast
+    //
+    out << sp;
+    out << nl << "public func checkedCast" << spar
+        << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
+        << ("type: " + prx + ".Protocol")
+        << ("facet: String? = nil")
+        << ("context: Context? = nil") << epar << " throws -> " << prx << "?";
+    out << sb;
+    out << nl << "return try " << prxI << ".checkedCast(prx: prx, facet: facet, context: context) as " << prxI << "?";
+    out << eb;
+
+    //
+    // uncheckedCast
+    //
+    out << sp;
+    out << nl << "public func uncheckedCast" << spar
+        << ("prx: " + getUnqualified("Ice.ObjectPrx", swiftModule))
+        << ("type: " + prx + ".Protocol")
+        << ("facet: String? = nil")
+        << ("context: Context? = nil") << epar << " -> " << prx << "?";
+    out << sb;
+    out << nl << "return " << prxI << ".uncheckedCast(prx: prx, facet: facet, context: context) as " << prxI << "?";
+    out << eb;
+
+    //
+    // ImputStream extension
+    //
+    out << sp;
+    out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
+    out << sb;
+
+    out << nl << "func read(proxy: " << prx << ".Protocol) throws -> " << prx << "?";
+    out << sb;
+    out << nl << "return try " << prxI << ".ice_read(from: self)";
+    out << eb;
+
+    out << sp;
+    out << nl << "func read(proxyArray: " << prx << ".Protocol) throws -> [" << prx << "?]";
+    out << sb;
+    out << nl << "return try read(proxyArray:" << prxI << ".self)";
+    out << eb;
+
+    out << eb;
+
+    out << sp;
+    out << nl << "public extension " << prx;
+    out << sb;
+
+    return true;
+}
+
+void
+Gen::ProxyVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+    out << eb;
+}
+
+void
+Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
+{
+    const string opName = fixIdent(op->name());
+
+    ParamDeclList paramList = op->parameters();
+    ParamDeclList inParams = op->inParameters();
+    ParamDeclList outParams = op->outParameters();
+
+    ExceptionList throws = op->throws();
+    throws.sort();
+    throws.unique();
+
+    out << sp;
+    out << nl << "func " << opName;
+    out << spar;
+    out << epar;
+    out << sb;
+    out << eb;
+}
+
+Gen::ValueVisitor::ValueVisitor(::IceUtilInternal::Output& o) : out(o)
+{
+}
+
+bool
+Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(p->isLocal() || p->isInterface())
+    {
+        return false;
+    }
+
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
+
+    ClassList bases = p->bases();
+    ClassDefPtr base;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        base = bases.front();
+    }
+
+    out << sp;
+    out << nl << "public class " << name << ": ";
+    if(base)
+    {
+        out << getUnqualified(getAbsolute(base), swiftModule);
+    }
+    else
+    {
+        out << getUnqualified("Ice.Value", swiftModule);
+    }
+    out << sb;
+
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
+    const DataMemberList allMembers = p->allDataMembers();
+    const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
+
+      const bool basePreserved = p->inheritsMetaData("preserve-slice");
+    const bool preserved = p->hasMetaData("preserve-slice");
+
+    writeMembers(out, members, p);
+    writeDefaultInitializer(out, members, p, true);
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, base == 0);
+
+    out << sp;
+    out << nl << "public class func ice_staticId() -> Swift.String";
+    out << sb;
+    out << nl << "return \"" << p->scoped() << "\"";
+    out << eb;
+
+    out << sp;
+    out << nl << "public func iceReadImpl(from: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+    out << sb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public func iceWriteImpl(to: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    out << sb;
+    out << nl << "to.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
+    for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    {
+        DataMemberPtr member = *i;
+        if(!member->optional())
+        {
+            out << nl << fixIdent(member->name()) << ".ice_write(to: to)";
+        }
+    }
+    for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    {
+        writeMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
+    }
+    _out << nl << "to.endSlice();";
+    if(base)
+    {
+        _out << nl << "super.iceWriteImpl(to: to);";
+    }
+    out << eb;
+
+    return true;
+}
+
+void
+Gen::ValueVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+    out << eb;
+}
+
+void
+Gen::ValueVisitor::visitOperation(const OperationPtr&)
+{
+}
+
+
+Gen::ObjectVisitor::ObjectVisitor(::IceUtilInternal::Output& o) : out(o)
+{
+}
+
+bool
+Gen::ObjectVisitor::visitModuleStart(const ModulePtr&)
+{
+    return true;
+}
+
+void
+Gen::ObjectVisitor::visitModuleEnd(const ModulePtr&)
+{
+}
+
+bool
+Gen::ObjectVisitor::visitClassDefStart(const ClassDefPtr&)
+{
+    out << sb;
+    out << eb;
+    return true;
+}
+
+void
+Gen::ObjectVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+}
+
+void
+Gen::ObjectVisitor::visitOperation(const OperationPtr&)
+{
+}
+
+Gen::LocalObjectVisitor::LocalObjectVisitor(::IceUtilInternal::Output& o) : out(o)
+{
+}
+
+bool
+Gen::LocalObjectVisitor::visitModuleStart(const ModulePtr&)
+{
+    return true;
+}
+
+void
+Gen::LocalObjectVisitor::visitModuleEnd(const ModulePtr&)
+{
+}
+
+bool
+Gen::LocalObjectVisitor::visitClassDefStart(const ClassDefPtr& p)
+{
+    if(!p->isLocal())
+    {
+        return false;
+    }
+
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
+
+    if(p->isDelegate())
+    {
+        OperationPtr op = p->allOperations().front();
+        const ParamDeclList params = op->parameters();
+
+        out << sp;
+        out << nl << "public typealias " << name << " = ";
+        out << spar;
+        for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+        {
+            ParamDeclPtr param = *i;
+            if(!param->isOutParam())
+            {
+                TypePtr type = param->type();
+                ostringstream s;
+                s << typeToString(type, p, param->getMetaData(), param->optional());
+                out << s.str();
+            }
+        }
+        out << epar;
+        if(!op->hasMetaData("swift:noexcept"))
+        {
+            out << " throws";
+        }
+        out << " -> ";
+
+        TypePtr ret = op->returnType();
+        ParamDeclList outParams = op->outParameters();
+
+        if(ret || !outParams.empty())
+        {
+            if(outParams.empty())
+            {
+                out << typeToString(ret, op, op->getMetaData(), op->returnIsOptional());
+            }
+            else if(!ret && outParams.size() == 1)
+            {
+                ParamDeclPtr param = outParams.front();
+                out << typeToString(param->type(), op, param->getMetaData(), param->optional());
+            }
+            else
+            {
+                string returnValueS = "returnValue";
+                for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+                {
+                    ParamDeclPtr param = *i;
+                    if(param->name() == "returnValue")
+                    {
+                        returnValueS = "_returnValue";
+                        break;
+                    }
+                }
+
+                out << spar;
+                out << (returnValueS + ": " + typeToString(ret, op, op->getMetaData(), op->returnIsOptional()));
+                for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+                {
+                    ParamDeclPtr param = *i;
+                    out << (fixIdent(param->name()) + ": " +
+                            typeToString(param->type(), op, op->getMetaData(), param->optional()));
+                }
+                out << epar;
+            }
+        }
+        else
+        {
+            out << "Void";
+        }
+        return false;
+    }
+
+    ClassList bases = p->bases();
+    ClassDefPtr base;
+    if(!bases.empty() && !bases.front()->isInterface())
+    {
+        base = bases.front();
+    }
+
+    const DataMemberList members = p->dataMembers();
+    const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
+    const DataMemberList allMembers = p->allDataMembers();
+
+    //
+    // Interfaces and local class with operations map to a protocol
+    //
+    bool protocol = p->isInterface() || !p->allOperations().empty();
+    if(protocol)
+    {
+        out << sp;
+        out << nl << "public protocol " << name << ": "
+            << (base ? getUnqualified(getAbsolute(base), swiftModule) : "Swift.AnyObject");
+        out << sb;
+        writeMembers(out, members, p, TypeContextProtocol);
+    }
+    else
+    {
+        out << sp;
+        out << nl << "public class " << name;
+        if(base)
+        {
+            out << ": " << getUnqualified(getAbsolute(base), swiftModule);
+        }
+        out << sb;
+        writeMembers(out, members, p);
+        writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, base == 0);
+    }
+    return true;
+}
+
+void
+Gen::LocalObjectVisitor::visitClassDefEnd(const ClassDefPtr&)
+{
+    out << eb;
+}
+
+void
+Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
+{
+    const string name = fixIdent(p->name());
+    ParamDeclList params = p->parameters();
+
+    out << sp;
+    out << nl << "func " << name;
+    out << spar;
+    for(ParamDeclList::const_iterator i = params.begin(); i != params.end(); ++i)
+    {
+        ParamDeclPtr param = *i;
+        if(!param->isOutParam())
+        {
+            TypePtr type = param->type();
+            ostringstream s;
+            s << fixIdent(param->name()) << ": "
+              << typeToString(type, p, param->getMetaData(), param->optional(), TypeContextInParam);
+            out << s.str();
+        }
+    }
+    out << epar;
+
+    if(!p->hasMetaData("swift:noexcept"))
+    {
+        out << " throws";
+    }
+
+    TypePtr ret = p->returnType();
+    ParamDeclList outParams = p->outParameters();
+
+    if(ret || !outParams.empty())
+    {
+        out << " -> ";
+        if(outParams.empty())
+        {
+            out << typeToString(ret, p, p->getMetaData(), p->returnIsOptional());
+        }
+        else if(!ret && outParams.size() == 1)
+        {
+            ParamDeclPtr param = outParams.front();
+            out << typeToString(param->type(), p, param->getMetaData(), param->optional());
+        }
+        else
+        {
+            string returnValueS = "returnValue";
+            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+            {
+                ParamDeclPtr param = *i;
+                if(param->name() == "returnValue")
+                {
+                    returnValueS = "_returnValue";
+                    break;
+                }
+            }
+
+            out << spar;
+            out << (returnValueS + ": " + typeToString(ret, p, p->getMetaData(), p->returnIsOptional()));
+            for(ParamDeclList::const_iterator i = outParams.begin(); i != outParams.end(); ++i)
+            {
+                ParamDeclPtr param = *i;
+                out << (fixIdent(param->name()) + ": " +
+                        typeToString(param->type(), p, p->getMetaData(), param->optional()));
+            }
+            out << epar;
+        }
+    }
 }

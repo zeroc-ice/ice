@@ -114,7 +114,7 @@ local interface CloseCallback
      *
      * @param con The connection that closed.
      **/
-    void closed(Connection con);
+    ["swift:noexcept"] void closed(Connection con);
 }
 
 /**
@@ -135,7 +135,7 @@ local interface HeartbeatCallback
      *
      * @param con The connection on which a heartbeat was received.
      **/
-    void heartbeat(Connection con);
+    ["swift:noexcept"] void heartbeat(Connection con);
 }
 
 /**
@@ -280,7 +280,7 @@ local interface Connection
      * @see #setAdapter
      *
      **/
-    ["cpp:const", "cpp:noexcept"] ObjectAdapter getAdapter();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] ObjectAdapter getAdapter();
 
     /**
      *
@@ -289,7 +289,7 @@ local interface Connection
      * @return The endpoint from which the connection was created.
      *
      **/
-    ["cpp:const", "cpp:noexcept", "swift:non-optional"] Endpoint getEndpoint();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept", "swift:nonnull"] Endpoint getEndpoint();
 
     /**
      *
@@ -355,7 +355,7 @@ local interface Connection
      * @return The ACM parameters.
      *
      **/
-    ["cpp:noexcept"] ACM getACM();
+    ["cpp:noexcept", "swift:noexcept"] ACM getACM();
 
     /**
      *
@@ -365,7 +365,7 @@ local interface Connection
      * @return The type of the connection.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] string type();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] string type();
 
     /**
      *
@@ -374,7 +374,7 @@ local interface Connection
      * @return The connection's timeout.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] int timeout();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] int timeout();
 
     /**
      *
@@ -385,7 +385,7 @@ local interface Connection
      * text.
      *
      **/
-    ["cpp:const", "cpp:noexcept"] string toString();
+    ["cpp:const", "cpp:noexcept", "swift:noexcept"] string toString();
 
     /**
      *
@@ -394,7 +394,7 @@ local interface Connection
      * @return The connection information.
      *
      **/
-    ["cpp:const", "swift:non-optional"] ConnectionInfo getInfo();
+    ["cpp:const", "swift:nonnull"] ConnectionInfo getInfo();
 
     /**
      *
