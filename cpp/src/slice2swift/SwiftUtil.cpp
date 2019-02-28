@@ -269,6 +269,9 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    ContainedPtr cont = ContainedPtr::dynamicCast(type);
+
     if(cl)
     {
         //
@@ -281,15 +284,11 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
         }
         t += getUnqualified(getAbsoluteImpl(cl), currentModule);
     }
-
-    ProxyPtr prx = ProxyPtr::dynamicCast(type);
-    if(prx)
+    else if(prx)
     {
         t = getUnqualified(getAbsoluteImpl(prx->_class(), "", "Prx"), currentModule);
     }
-
-    ContainedPtr cont = ContainedPtr::dynamicCast(type);
-    if(cont)
+    else if(cont)
     {
         t = getUnqualified(getAbsoluteImpl(cont), currentModule);
     }
