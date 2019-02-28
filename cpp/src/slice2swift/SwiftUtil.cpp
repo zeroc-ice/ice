@@ -292,11 +292,6 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
     {
         t = getUnqualified(getAbsoluteImpl(cont), currentModule);
     }
-    else
-    {
-        assert(false);
-        t = "???";
-    }
 
     if(!nonnull && (optional || isNullableType(type)))
     {
