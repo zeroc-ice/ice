@@ -254,7 +254,7 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
         return "";
     }
 
-    string t = "???";
+    string t = "";
     //
     // The current module were the type is being used
     //
@@ -291,6 +291,11 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
     else if(cont)
     {
         t = getUnqualified(getAbsoluteImpl(cont), currentModule);
+    }
+    else
+    {
+        assert(false);
+        t = "???";
     }
 
     if(!nonnull && (optional || isNullableType(type)))
