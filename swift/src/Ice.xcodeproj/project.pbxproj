@@ -603,7 +603,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "if which swiftformat >/dev/null; then\n    swiftformat ./\nelse \n    echo \"warning: SwiftFormat not installed, download from https://github.com/nicklockwood/SwiftFormat\"\nfi\n\nif which swiftlint >/dev/null; then\n    src_dir=$(pwd)\n    cd ../\n    config=$(pwd)/.swiftlint.yml\n    swiftlint --path $src_dir --config $config\nelse\n    echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+			shellScript = "$SRCROOT/../config/xcode-swiftlint.sh $SRCROOT/../src $SRCROOT/../.swiftlint.yml\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

@@ -3,7 +3,7 @@
 //
 
 import Foundation
-import IceStream
+import IceAcm
 import TestCommon
 
 var client: TestHelper?
@@ -15,7 +15,7 @@ if CommandLine.arguments.count < 2 {
 
 var name = CommandLine.arguments[1]
 
-if name == "Ice.stream.Client" {
+if name == "Ice.acm.Client" {
     client = IceStream.Client()
 }
 

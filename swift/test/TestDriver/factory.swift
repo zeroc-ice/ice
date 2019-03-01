@@ -12,6 +12,7 @@ class TestFactory {
     create(name: String) -> TestCommon.TestHelper {
     helper = nil
     switch(name) {
+
     case "Ice.acm.Client":
         helper = IceAcm.Client()
     

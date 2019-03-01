@@ -59,6 +59,7 @@ task :xcodeproj do
         target.frameworks_build_phases.add_file_reference(ice_framework, true)
 
         add_slice_compiler(test_project, target)
+        add_lint_build_phase(target, "test/#{test}")
 
         #
         # Add .ice and .swift files to the target
@@ -75,6 +76,10 @@ task :xcodeproj do
     end
 
     target = test_project.new_target(:application, "TestDriver", :osx)
+
+    add_slice_compiler(test_project, target)
+    add_lint_build_phase(target, "test/TestDriver")
+
     group = project_group(test_project, "TestDriver")
     target_add_matching_files(target, group, "test/TestDriver", ["*.ice", "*.swift"])
     tests.each do |test|
@@ -118,6 +123,11 @@ def add_slice_compiler(project, target)
     rule.script = "$SRCROOT/config/xcode-slice2swift.sh"
     rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
     target.build_rules << rule
+end
+
+def add_lint_build_phase(target, basedir)
+    phase = target.new_shell_script_build_phase("Swiftformat & Swiftlint")
+    phase.shell_script = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/#{basedir} $SRCROOT/.swiftlint.yml"
 end
 
 def group_add_matching_files(group, basedir, patterns)
