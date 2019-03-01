@@ -511,9 +511,9 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
 
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
-
-    const string prx = p->name() + "Prx";
-    const string prxI = "_" + p->name() + "PrxI";
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
+    const string prx = name + "Prx";
+    const string prxI = "_" + name + "PrxI";
 
     out << nl << "public protocol " << prx << ": "
         << (baseClass ? fixIdent(baseClass->name()) : getUnqualified("Ice.ObjectPrx", swiftModule));
