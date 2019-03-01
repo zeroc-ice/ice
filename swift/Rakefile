@@ -1,0 +1,145 @@
+#!/usr/bin/env ruby
+
+require 'xcodeproj'
+
+tests = [
+    "TestCommon",
+    "Ice/acm",
+    "Ice/adapterDeactivation",
+    "Ice/admin",
+    "Ice/ami",
+    "Ice/binding",
+    "Ice/defaultServant",
+    "Ice/defaultValue",
+    "Ice/dispatcher",
+    "Ice/enums",
+    "Ice/exceptions",
+    "Ice/facets",
+    "Ice/hold",
+    "Ice/info",
+    "Ice/inheritance",
+    "Ice/invoke",
+    "Ice/location",
+    "Ice/objects",
+    "Ice/operations",
+    "Ice/optional",
+    "Ice/properties",
+    "Ice/proxy",
+    "Ice/retry",
+    "Ice/scope",
+    "Ice/servantLocator",
+    "Ice/slicing/exceptions",
+    "Ice/slicing/objects",
+    "Ice/stream",
+    "Ice/timeout",
+    "Ice/udp"
+]
+
+task :xcodeproj do
+    test_project = Xcodeproj::Project.new("test.xcodeproj")
+    ice_project = Xcodeproj::Project.open("src/Ice.xcodeproj")
+    workspace = Xcodeproj::Workspace.new("test.xcodeproj", "src/Ice.xcodeproj")
+    workspace.save_as("ice.xcworkspace")
+
+    #
+    # Create a reference to Ice.framework in test project Frameworks group
+    #
+    frameworks = test_project.frameworks_group["OS X"] || test_project.frameworks_group.new_group('OS X')
+    ice_target = ice_project.targets.find { |t| t.name == "Ice" }
+    ice_framework = frameworks.new_file(ice_target.product_reference.path, "BUILT_PRODUCTS_DIR")
+
+    tests.each do |test|
+
+        target = test_project.new_target(:framework, target_name(test), :osx)
+
+        unless test == "TestCommon" then
+            common = test_project.targets.find { |t| t.name == "TestCommon" }
+            target.frameworks_build_phases.add_file_reference(common.product_reference)
+        end
+        target.frameworks_build_phases.add_file_reference(ice_framework, true)
+
+        add_slice_compiler(test_project, target)
+
+        #
+        # Add .ice and .swift files to the target
+        #
+        group = project_group(test_project, test)
+        group_add_matching_files(group, "test/#{test}", ["*.plist"])
+        target_add_public_headers(target, group, "test/#{test}", ["*.h"])
+        target_add_matching_files(target, group, "test/#{test}", ["*.ice", "*.swift"])
+
+        target.build_configurations.each { |config|
+            config.build_settings["INFOPLIST_FILE"] = "test/#{test}/Info.plist"
+            config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = target_name(test)
+        }
+    end
+
+    target = test_project.new_target(:application, "TestDriver", :osx)
+    group = project_group(test_project, "TestDriver")
+    target_add_matching_files(target, group, "test/TestDriver", ["*.ice", "*.swift"])
+    tests.each do |test|
+        name = target_name(test)
+        framework = test_project.targets.find { |t| t.name == name }
+        target.frameworks_build_phases.add_file_reference(framework.product_reference)
+    end
+
+    test_project.save()
+end
+
+task :srcs => :xcodeproj do
+    system("xcodebuild -workspace ice.xcworkspace -scheme Ice")
+end
+
+def project_group(project, name)
+    group = project.main_group
+    name.split("/").each { |item|
+        new_group = group[item]
+        unless new_group
+            new_group = group.new_group(item)
+        end
+        group = new_group
+    }
+    group
+end
+
+def target_name(basename)
+    basename.split("/").map{ |item| item[0].upcase + item[1..-1]}.join()
+end
+
+def add_slice_compiler(project, target)
+    #
+    # Add Slice Compiler build rule to the target
+    #
+    rule = project.new(Xcodeproj::Project::PBXBuildRule)
+    rule.compiler_spec = "com.apple.compilers.proxy.script"
+    rule.name = "Slice Compiler"
+    rule.file_patterns = "*.ice"
+    rule.file_type = "pattern.proxy"
+    rule.script = "$SRCROOT/config/xcode-slice2swift.sh"
+    rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
+    target.build_rules << rule
+end
+
+def group_add_matching_files(group, basedir, patterns)
+    files = []
+    Dir.chdir(basedir) do
+        patterns.each do |p|
+            Dir.glob(p) do |file|
+                files << file
+            end
+        end
+    end
+    files.map{ |file| group.new_file("#{basedir}/#{file}")}
+end
+
+def target_add_matching_files(target, group, basedir, patterns)
+    target.add_file_references(group_add_matching_files(group, basedir, patterns))
+end
+
+def target_add_public_headers(target, group, basedir, patterns)
+    files = group_add_matching_files(group, basedir, patterns)
+    files.each do |file|
+        header = target.headers_build_phase.add_file_reference(file)
+        header.settings = { "ATTRIBUTES" => ["Public"] }
+    end
+end

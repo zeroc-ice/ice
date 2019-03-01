@@ -11,6 +11,19 @@
  * Unknown sliced value holds an instance of an unknown Slice class type.
  **/
 public final class UnknownSlicedValue: Value {
+    public func iceReadImpl(from _: InputStream) throws {
+        // TODO:
+    }
+
+    public func iceWriteImpl(to _: OutputStream) {
+        // TODO:
+    }
+
+    public static func ice_staticId() -> String {
+        // TODO:
+        return ""
+    }
+
     private let unknownTypeId: String
     private var slicedData: SlicedData?
 

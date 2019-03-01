@@ -650,8 +650,8 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList allMembers = p->allDataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
-      const bool basePreserved = p->inheritsMetaData("preserve-slice");
-    const bool preserved = p->hasMetaData("preserve-slice");
+    //const bool basePreserved = p->inheritsMetaData("preserve-slice");
+    //const bool preserved = p->hasMetaData("preserve-slice");
 
     writeMembers(out, members, p);
     writeDefaultInitializer(out, members, p, true);
@@ -682,12 +682,11 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        writeMarshalDataMember(*d, fixId(*d, DotNet::ICloneable, true), ns);
     }
-    _out << nl << "to.endSlice();";
+    out << nl << "to.endSlice();";
     if(base)
     {
-        _out << nl << "super.iceWriteImpl(to: to);";
+        out << nl << "super.iceWriteImpl(to: to);";
     }
     out << eb;
 
