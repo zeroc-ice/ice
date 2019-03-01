@@ -3783,6 +3783,27 @@ class TypeScriptMapping(JavaScriptMixin,Mapping):
     def _getDefaultSource(self, processType):
         return { "client" : "Client.ts", "serveramd" : "ServerAMD.ts", "server" : "Server.ts" }[processType]
 
+class SwiftMapping(Mapping):
+
+    def getCommandLine(self, current, process, exe, args):
+        testdir = self.component.getTestDir(self)
+        assert(current.testcase.getPath(current).startswith(testdir))
+        package = current.testcase.getPath(current)[len(testdir) + 1:].replace(os.sep, ".")
+        return "{0}/swift/build/Products/{1}/TestDriver.app/Contents/MacOS/TestDriver {2}.{3} {4}".format(
+            toplevel,
+            current.config.buildConfig,
+            package,
+            exe,
+            args)
+
+    def _getDefaultSource(self, processType):
+        return {
+            "client" : "Client.swift",
+            "server" : "Server.swift",
+            "serveramd" : "AMDServer.swift",
+            "collocated" : "Collocated.swift",
+        }[processType]
+
 #
 # Instantiate platform global variable
 #

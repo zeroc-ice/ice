@@ -420,6 +420,7 @@ const ["cpp:type:wstring"]string wsu2 = "\U00000128\U00000178\U000000FF\U0000010
 
 }
 
+["swift:module:Test:Test2"]
 module Test2
 {
 

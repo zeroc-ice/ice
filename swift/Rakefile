@@ -4,35 +4,35 @@ require 'xcodeproj'
 
 tests = [
     "TestCommon",
-    "Ice/acm",
-    "Ice/adapterDeactivation",
-    "Ice/admin",
-    "Ice/ami",
-    "Ice/binding",
-    "Ice/defaultServant",
-    "Ice/defaultValue",
-    "Ice/dispatcher",
-    "Ice/enums",
-    "Ice/exceptions",
-    "Ice/facets",
-    "Ice/hold",
-    "Ice/info",
-    "Ice/inheritance",
-    "Ice/invoke",
-    "Ice/location",
-    "Ice/objects",
-    "Ice/operations",
-    "Ice/optional",
+#     "Ice/acm",
+#     "Ice/adapterDeactivation",
+#     "Ice/admin",
+#     "Ice/ami",
+#     "Ice/binding",
+#     "Ice/defaultServant",
+#     "Ice/defaultValue",
+#     "Ice/dispatcher",
+#     "Ice/enums",
+#     "Ice/exceptions",
+#     "Ice/facets",
+#     "Ice/hold",
+#     "Ice/info",
+#     "Ice/inheritance",
+#     "Ice/invoke",
+#     "Ice/location",
+#     "Ice/objects",
+#     "Ice/operations",
+#     "Ice/optional",
     "Ice/properties",
-    "Ice/proxy",
-    "Ice/retry",
-    "Ice/scope",
-    "Ice/servantLocator",
-    "Ice/slicing/exceptions",
-    "Ice/slicing/objects",
-    "Ice/stream",
-    "Ice/timeout",
-    "Ice/udp"
+#     "Ice/proxy",
+#     "Ice/retry",
+#     "Ice/scope",
+#     "Ice/servantLocator",
+#     "Ice/slicing/exceptions",
+#     "Ice/slicing/objects",
+#     "Ice/stream",
+#     "Ice/timeout",
+#     "Ice/udp"
 ]
 
 task :xcodeproj do
@@ -82,10 +82,14 @@ task :xcodeproj do
 
     group = project_group(test_project, "TestDriver")
     target_add_matching_files(target, group, "test/TestDriver", ["*.ice", "*.swift"])
+    phase = target.new_copy_files_build_phase("Copy Frameworks")
+    phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
+    phase.add_file_reference(ice_framework)
     tests.each do |test|
         name = target_name(test)
         framework = test_project.targets.find { |t| t.name == name }
         target.frameworks_build_phases.add_file_reference(framework.product_reference)
+        phase.add_file_reference(framework.product_reference)
     end
 
     test_project.save()

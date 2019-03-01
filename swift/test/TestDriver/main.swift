@@ -3,10 +3,7 @@
 //
 
 import Foundation
-import IceAcm
 import TestCommon
-
-var client: TestHelper?
 
 if CommandLine.arguments.count < 2 {
     print("Usage: \(CommandLine.arguments[0]) <test> <args>")
@@ -15,12 +12,9 @@ if CommandLine.arguments.count < 2 {
 
 var name = CommandLine.arguments[1]
 
-if name == "Ice.acm.Client" {
-    client = IceStream.Client()
-}
-
 do {
-    if try client?.run(args: CommandLine.arguments) == nil {
+    let client = try TestFactory.create(name: name)
+    if try client.run(args: CommandLine.arguments) == nil {
         print("Unknown client \(name)")
         exit(1)
     }

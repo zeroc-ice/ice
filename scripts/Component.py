@@ -234,8 +234,10 @@ for m in filter(lambda x: os.path.isdir(os.path.join(toplevel, x)), os.listdir(t
         Mapping.add("typescript", TypeScriptMapping(), component, "js")
     elif m == "objective-c" or re.match("objective-c-*", m):
         Mapping.add(m, ObjCMapping(), component)
-    elif m == "csharp" or re.match("charp-.*", m):
+    elif m == "csharp" or re.match("csharp-.*", m):
         Mapping.add("csharp", CSharpMapping(), component)
+    elif m == "swift" or re.match("swift-.*", m):
+        Mapping.add("swift", SwiftMapping(), component)
 
 if isinstance(platform, Windows):
     # Windows doesn't support all the mappings, we take them out here.
