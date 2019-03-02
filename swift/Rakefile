@@ -35,10 +35,86 @@ tests = [
 #     "Ice/udp"
 ]
 
-task :xcodeproj do
+task :iceproj do
+  project = Xcodeproj::Project.new("ice.xcodeproj")
+
+  ice_objc_target = project.new_target(:framework, "IceObjc", :osx)
+  ice_target = project.new_target(:framework, "Ice", :osx)
+  frameworks = project.frameworks_group["OS X"]
+  frameworks.clear()
+
+  #
+  # IceObjc
+  #
+  target = ice_objc_target
+  group = project_group(project, "IceObjc")
+  target_add_public_headers(target, group, "src/IceObjc", ["*.h"])
+  target_add_matching_files(target, group, "src/IceObjc", ["*.mm"])
+
+  target.build_configurations.each { |config|
+    config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
+    config.build_settings["CODE_SIGN_IDENTITY"] = "Mac Developer"
+    config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F"
+    config.build_settings["INFOPLIST_FILE"] = "src/IceObjc/Info.plist"
+    config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = "IceObjc"
+    config.build_settings["HEADER_SEARCH_PATHS"] = [
+      "$(SRCROOT)/../cpp/include/",
+      "$(SRCROOT)/../cpp/include/generated"
+    ]
+    config.build_settings["LIBRARY_SEARCH_PATHS"] = "$(SRCROOT)/../cpp/lib"
+  }
+
+  copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
+  copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
+  libraries = ["Ice", "IceSSL"].map{ |item| "lib#{item}++11.37.dylib"}
+  target.frameworks_build_phases.clear()
+  group_add_matching_files(frameworks, "../cpp/lib", libraries).each do |ref|
+    target.frameworks_build_phases.add_file_reference(ref, true)
+    file = copy_phase.add_file_reference(ref)
+    file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+  end
+  ice_objc_target = target
+
+  excludes = {
+    "Ice" => ["Metrics.ice"],
+    "IceSSL" => []
+  }
+  #
+  # Ice target
+  #
+  target = ice_target
+  group = project_group(project, "Ice")
+  group_add_matching_files(group, "src/Ice", ["*.plist"])
+  target_add_public_headers(target, group, "src/Ice", ["*.h"])
+  target_add_matching_files(target, group, "src/Ice", ["*.swift"])
+  ["Ice", "IceSSL"].each do |item|
+    group = project_group(project, "Ice/slice/#{item}")
+    target_add_matching_files(target, group, "../slice/#{item}", ["*.ice"], excludes[item])
+  end
+
+  target.build_configurations.each { |config|
+    config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
+    config.build_settings["CODE_SIGN_IDENTITY"] = "Mac Developer"
+    config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F"
+    config.build_settings["INFOPLIST_FILE"] = "src/Ice/Info.plist"
+    config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = "Ice"
+  }
+  add_slice_compiler(project, target)
+  target.frameworks_build_phases.clear()
+  target.frameworks_build_phases.add_file_reference(ice_objc_target.product_reference, true)
+
+  copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
+  copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
+  file = copy_phase.add_file_reference(ice_objc_target.product_reference)
+  file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+
+  project.save()
+end
+
+task :xcodeproj => :iceproj do
     test_project = Xcodeproj::Project.new("test.xcodeproj")
-    ice_project = Xcodeproj::Project.open("src/Ice.xcodeproj")
-    workspace = Xcodeproj::Workspace.new("test.xcodeproj", "src/Ice.xcodeproj")
+    ice_project = Xcodeproj::Project.open("ice.xcodeproj")
+    workspace = Xcodeproj::Workspace.new("test.xcodeproj", "ice.xcodeproj")
     workspace.save_as("ice.xcworkspace")
 
     #
@@ -70,26 +146,37 @@ task :xcodeproj do
         target_add_matching_files(target, group, "test/#{test}", ["*.ice", "*.swift"])
 
         target.build_configurations.each { |config|
+            config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
+            config.build_settings["CODE_SIGN_IDENTITY"] = "Mac Developer"
+            config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F"
             config.build_settings["INFOPLIST_FILE"] = "test/#{test}/Info.plist"
             config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = target_name(test)
         }
     end
 
     target = test_project.new_target(:application, "TestDriver", :osx)
-
+    target.build_configurations.each { |config|
+      config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
+      config.build_settings["CODE_SIGN_IDENTITY"] = "Mac Developer"
+      config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F"
+      config.build_settings["INFOPLIST_FILE"] = "test/TestDriver/Info.plist"
+      config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = "TestDriver"
+    }
     add_slice_compiler(test_project, target)
     add_lint_build_phase(target, "test/TestDriver")
 
     group = project_group(test_project, "TestDriver")
     target_add_matching_files(target, group, "test/TestDriver", ["*.ice", "*.swift"])
-    phase = target.new_copy_files_build_phase("Copy Frameworks")
-    phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
-    phase.add_file_reference(ice_framework)
+    copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
+    copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
+    file = copy_phase.add_file_reference(ice_framework)
+    file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     tests.each do |test|
         name = target_name(test)
         framework = test_project.targets.find { |t| t.name == name }
         target.frameworks_build_phases.add_file_reference(framework.product_reference)
-        phase.add_file_reference(framework.product_reference)
+        file = copy_phase.add_file_reference(framework.product_reference)
+        file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     end
 
     test_project.save()
@@ -134,20 +221,21 @@ def add_lint_build_phase(target, basedir)
     phase.shell_script = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/#{basedir} $SRCROOT/.swiftlint.yml"
 end
 
-def group_add_matching_files(group, basedir, patterns)
+def group_add_matching_files(group, basedir, patterns, exclude = [])
     files = []
     Dir.chdir(basedir) do
         patterns.each do |p|
-            Dir.glob(p) do |file|
+          Dir.glob(p) do |file|
                 files << file
             end
         end
     end
+    files = files.reject { |item| exclude.any? { |pattern| item.match(pattern) } }
     files.map{ |file| group.new_file("#{basedir}/#{file}")}
 end
 
-def target_add_matching_files(target, group, basedir, patterns)
-    target.add_file_references(group_add_matching_files(group, basedir, patterns))
+def target_add_matching_files(target, group, basedir, patterns, excludes = [])
+    target.add_file_references(group_add_matching_files(group, basedir, patterns, excludes))
 end
 
 def target_add_public_headers(target, group, basedir, patterns)
