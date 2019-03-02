@@ -197,6 +197,11 @@ StringLiteralGenerator::escapeASCIIChar(char c)
             os << "\\" << oct << setfill('0') << setw(3) << static_cast<unsigned int>(c & 0xFF);
             _format = OctalFormat;
         }
+        else if(_escapeMode == EC6UCN)
+        {
+            os << "\\u{" << hex << setfill('0') << setw(4) << static_cast<unsigned int>(c & 0xFF) << "}";
+            _format = HexFormat;
+        }
         else
         {
             os << _shortUCNPrefix << hex << setfill('0') << setw(4) << static_cast<unsigned int>(c & 0xFF);
@@ -231,7 +236,11 @@ StringLiteralGenerator::escapeCodePoint(unsigned int codePoint)
     else
     {
         ostringstream os;
-        if(codePoint < _cutOff)
+        if(_escapeMode == EC6UCN)
+        {
+            os << "\\u{" << hex << codePoint << "}";
+        }
+        else if(codePoint < _cutOff)
         {
             //
             // Output octal escape
@@ -254,10 +263,6 @@ StringLiteralGenerator::escapeCodePoint(unsigned int codePoint)
             os << _shortUCNPrefix << setfill('0') << setw(4) << hex << highSurrogate;
             os << _shortUCNPrefix << setfill('0') << setw(4) << hex << lowSurrogate;
             _format = HexFormat;
-        }
-        else if(_escapeMode == EC6UCN)
-        {
-            os << "\\u{" << hex << codePoint << "}";
         }
         else
         {
@@ -360,7 +365,7 @@ Slice::toStringLiteral(const string& value,
                                 // keep this escape as is
                                 os << "\\" << c << codePointStr;
                             }
-                            else if(c == 'u')
+                            else if(c == 'u' && escapeMode != EC6UCN)
                             {
                                 os << (escapeMode == Matlab ? "\\x" : "\\u") << codePointStr;
                                 generator.format(StringLiteralGenerator::HexFormat);
