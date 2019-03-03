@@ -567,11 +567,16 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            const ContainedPtr& p,
                                            bool rootClass)
 {
-    if(rootClass || allMembers.size() > baseMembers.size())
+    if(allMembers.size() > 0)
     {
         out << sp;
-        out << nl << "public init";
-        out << spar;
+        out << nl;
+        out << "public ";
+        if(members.size() == 0)
+        {
+            out << "override ";
+        }
+        out << "init" << spar;
         for(DataMemberList::const_iterator i = allMembers.begin(); i != allMembers.end(); ++i)
         {
             DataMemberPtr m = *i;
@@ -580,7 +585,6 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
         }
         out << epar;
         out << sb;
-
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
             DataMemberPtr m = *i;
