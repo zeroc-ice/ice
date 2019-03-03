@@ -521,6 +521,10 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
     {
         out << "required ";
     }
+    else if(!rootClass)
+    {
+        out << "override ";
+    }
     out << "init()";
     out << sb;
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)

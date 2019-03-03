@@ -186,6 +186,10 @@ task :srcs => :xcodeproj do
     system("xcodebuild -workspace ice.xcworkspace -scheme Ice")
 end
 
+task :build => :xcodeproj do
+    system("xcodebuild -workspace ice.xcworkspace -scheme TestDriver")
+end
+
 def project_group(project, name)
     group = project.main_group
     name.split("/").each { |item|

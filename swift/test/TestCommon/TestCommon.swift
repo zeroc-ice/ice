@@ -6,16 +6,16 @@ import Foundation
 import Ice
 
 public protocol TextWriter {
-    func write(data: String)
-    func writeLine(data: String)
+    func write(_ data: String)
+    func writeLine(_ data: String)
 }
 
 public class StdoutWriter: TextWriter {
-    public func write(data: String) {
+    public func write(_ data: String) {
         fputs(data, stdout)
     }
 
-    public func writeLine(data: String) {
+    public func writeLine(_ data: String) {
         print(data)
     }
 }
@@ -39,7 +39,7 @@ public protocol TestHelper {
     func initialize(properties: Ice.Properties) throws -> Ice.Communicator
     func initialize(initData: Ice.InitializationData) throws -> Ice.Communicator
 
-    func test(value: Bool, file: String, line: Int) throws
+    func test(_ value: Bool, file: String, line: Int) throws
 
     func getWriter() -> TextWriter
     func setWriter(writer: TextWriter)
@@ -134,10 +134,10 @@ open class TestHelperI: TestHelper {
         _writer = writer
     }
 
-    public func test(value: Bool, file: String = #file, line: Int = #line) throws {
+    public func test(_ value: Bool, file: String = #file, line: Int = #line) throws {
         if !value {
             let writer = getWriter()
-            writer.writeLine(data: "Test failed File: \(file): Line: \(line)")
+            writer.writeLine("Test failed File: \(file): Line: \(line)")
             throw TestFailed.testFailed
         }
     }

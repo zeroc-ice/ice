@@ -299,19 +299,21 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     }
     out << sb;
 
-    const DataMemberList dataMembers = p->dataMembers();
+    const DataMemberList members = p->dataMembers();
     const DataMemberList allMembers = p->allDataMembers();
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
 
-    writeMembers(out, dataMembers, p);
-    writeMemberwiseInitializer(out, dataMembers, baseMembers, allMembers, p, !base && !p->isLocal());
+    bool rootClass = !base && !p->isLocal();
+    writeMembers(out, members, p);
+    writeDefaultInitializer(out, members, p, rootClass);
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass);
 
     if(!p->isLocal())
     {
         out << sp;
         out << nl << "required public init(from ins: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
         out << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             DataMemberPtr member = *q;
             StringList metadata = member->getMetaData();
@@ -333,7 +335,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         out << "public func ice_write(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
         out << sb;
-        for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
+        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             out << nl << fixIdent((*q)->name()) << ".ice_write(to: os)";
         }

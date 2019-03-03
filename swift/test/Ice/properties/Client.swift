@@ -9,28 +9,28 @@ public class Client: TestHelperI {
     public override func run(args _: [String]) throws {
         let writer = getWriter()
         do {
-            writer.write(data: "testing load properties from UTF-8 path... ")
+            writer.write("testing load properties from UTF-8 path... ")
             let (properties, _) = try Ice.createProperties()
             try properties.load(file: "./config/中国_client.config")
-            try test(value: properties.getProperty(key: "Ice.Trace.Network") == "1")
-            try test(value: properties.getProperty(key: "Ice.Trace.Protocol") == "1")
-            try test(value: properties.getProperty(key: "Config.Path") == "./config/中国_client.config")
-            try test(value: properties.getProperty(key: "Ice.ProgramName") == "PropertiesClient")
-            writer.writeLine(data: "ok")
+            try test(properties.getProperty(key: "Ice.Trace.Network") == "1")
+            try test(properties.getProperty(key: "Ice.Trace.Protocol") == "1")
+            try test(properties.getProperty(key: "Config.Path") == "./config/中国_client.config")
+            try test(properties.getProperty(key: "Ice.ProgramName") == "PropertiesClient")
+            writer.writeLine("ok")
         }
 
         do {
-            writer.write(data: "testing using Ice.Config with multiple config files... ")
+            writer.write("testing using Ice.Config with multiple config files... ")
             let args1 = ["--Ice.Config=config/config.1, config/config.2, config/config.3"]
             let (properties, _) = try Ice.createProperties(args: args1)
-            try test(value: properties.getProperty(key: "Config1") == "Config1")
-            try test(value: properties.getProperty(key: "Config2") == "Config2")
-            try test(value: properties.getProperty(key: "Config3") == "Config3")
-            writer.writeLine(data: "ok")
+            try test(properties.getProperty(key: "Config1") == "Config1")
+            try test(properties.getProperty(key: "Config2") == "Config2")
+            try test(properties.getProperty(key: "Config3") == "Config3")
+            writer.writeLine("ok")
         }
 
         do {
-            writer.write(data: "testing configuration file escapes... ")
+            writer.write("testing configuration file escapes... ")
             let args1 = ["--Ice.Config=config/escapes.cfg"]
             let (properties, _) = try Ice.createProperties(args: args1)
 
@@ -57,9 +57,9 @@ public class Client: TestHelperI {
                          ("BServer", "\\server\\dir")]
 
             for prop in props {
-                try test(value: properties.getProperty(key: prop.0) == prop.1)
+                try test(properties.getProperty(key: prop.0) == prop.1)
             }
-            writer.writeLine(data: "ok")
+            writer.writeLine("ok")
         }
     }
 }
