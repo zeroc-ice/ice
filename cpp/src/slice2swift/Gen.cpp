@@ -318,10 +318,20 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
             out << nl << "self." << member->name() << " = try "
                 << getUnqualified(getAbsolute(member->type()), swiftModule) << "(from: ins)";
         }
+        if(base)
+        {
+            out << nl << "try super.init(from: ins)";
+        }
         out << eb;
 
         out << sp;
-        out << nl << "public func ice_write(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+        out << nl;
+        out << nl;
+        if(base)
+        {
+            out << "override ";
+        }
+        out << "public func ice_write(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
         out << sb;
         for(DataMemberList::const_iterator q = dataMembers.begin(); q != dataMembers.end(); ++q)
         {
@@ -330,7 +340,12 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << eb;
 
         out << sp;
-        out << nl << "public class func ice_staticId() -> Swift.String";
+        out << nl;
+        if(base)
+        {
+            out << "override ";
+        }
+        out << "public class func ice_staticId() -> Swift.String";
         out << sb;
         out << nl << "return \"" << p->scoped() << "\"";
         out << eb;
@@ -475,8 +490,10 @@ Gen::TypesVisitor::visitConst(const ConstPtr& p)
 {
     const string name = fixIdent(p->name());
     const TypePtr type = p->type();
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
 
-    out << nl << "public let " << name << ": " << typeToString(type, p) << " = " << p->value();
+    out << nl << "public let " << name << ": " << typeToString(type, p) << " = ";
+    writeConstantValue(out, type, p->valueType(), p->value(), p->getMetaData(), swiftModule);
     out << nl;
 }
 
@@ -654,24 +671,40 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     //const bool preserved = p->hasMetaData("preserve-slice");
 
     writeMembers(out, members, p);
-    writeDefaultInitializer(out, members, p, true);
+    writeDefaultInitializer(out, members, p, !base, true);
     writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, base == 0);
 
     out << sp;
-    out << nl << "public class func ice_staticId() -> Swift.String";
+    out << nl;
+    if(base)
+    {
+        out << "override ";
+    }
+    out << "public class func ice_staticId() -> Swift.String";
     out << sb;
     out << nl << "return \"" << p->scoped() << "\"";
     out << eb;
 
     out << sp;
-    out << nl << "public func iceReadImpl(from: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+    out << nl;
+    out << nl;
+    if(base)
+    {
+        out << "override ";
+    }
+    out << "public func iceReadImpl(from: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
     out << sb;
     out << eb;
 
     out << sp;
-    out << nl << "public func iceWriteImpl(to: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    out << nl;
+    if(base)
+    {
+        out << "override ";
+    }
+    out << "public func iceWriteImpl(to: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "to.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
+    out << nl << "// to.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
         DataMemberPtr member = *i;
@@ -683,7 +716,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
     }
-    out << nl << "to.endSlice();";
+    out << nl << "// to.endSlice();";
     if(base)
     {
         out << nl << "super.iceWriteImpl(to: to);";

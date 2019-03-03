@@ -23,9 +23,9 @@ public class Client: TestHelperI {
             writer.write(data: "testing using Ice.Config with multiple config files... ")
             let args1 = ["--Ice.Config=config/config.1, config/config.2, config/config.3"]
             let (properties, _) = try Ice.createProperties(args: args1)
-            try test(value: properties.getProperty(key: "Config1") == "Config1");
-            try test(value: properties.getProperty(key: "Config2") == "Config2");
-            try test(value: properties.getProperty(key: "Config3") == "Config3");
+            try test(value: properties.getProperty(key: "Config1") == "Config1")
+            try test(value: properties.getProperty(key: "Config2") == "Config2")
+            try test(value: properties.getProperty(key: "Config3") == "Config3")
             writer.writeLine(data: "ok")
         }
 

@@ -10,7 +10,7 @@ tests = [
 #     "Ice/ami",
 #     "Ice/binding",
 #     "Ice/defaultServant",
-#     "Ice/defaultValue",
+    "Ice/defaultValue",
 #     "Ice/dispatcher",
 #     "Ice/enums",
 #     "Ice/exceptions",

@@ -39,7 +39,7 @@ public protocol TestHelper {
     func initialize(properties: Ice.Properties) throws -> Ice.Communicator
     func initialize(initData: Ice.InitializationData) throws -> Ice.Communicator
 
-    func test(value: Bool) throws
+    func test(value: Bool, file: String, line: Int) throws
 
     func getWriter() -> TextWriter
     func setWriter(writer: TextWriter)
@@ -134,13 +134,10 @@ open class TestHelperI: TestHelper {
         _writer = writer
     }
 
-    public func test(value: Bool) throws {
+    public func test(value: Bool, file: String = #file, line: Int = #line) throws {
         if !value {
             let writer = getWriter()
-            writer.writeLine(data: "")
-            for line in Thread.callStackSymbols {
-                writer.writeLine(data: line)
-            }
+            writer.writeLine(data: "Test failed File: \(file): Line: \(line)")
             throw TestFailed.testFailed
         }
     }

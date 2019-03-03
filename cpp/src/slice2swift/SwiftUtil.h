@@ -47,6 +47,7 @@ protected:
     std::string getAbsolute(const StructPtr&);
     std::string getAbsolute(const ExceptionPtr&);
     std::string getAbsolute(const EnumPtr&);
+    std::string getAbsolute(const ConstPtr&);
 
     std::string getUnqualified(const std::string&, const std::string&);
     std::string modeToString(Operation::Mode);
@@ -56,8 +57,10 @@ protected:
     bool isObjcRepresentable(const DataMemberList&);
     bool isProxyType(const TypePtr&);
 
-    void writeConstantValue(IceUtilInternal::Output&, const TypePtr&, const SyntaxTreeBasePtr&, const std::string&);
-    void writeDefaultInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, bool = false);
+    void writeConstantValue(IceUtilInternal::Output& out, const TypePtr&, const SyntaxTreeBasePtr&,
+                            const std::string&, const StringList&, const std::string&);
+    void writeDefaultInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, bool = true,
+                                 bool = false);
     void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&);
     void writeMemberwiseInitializer(IceUtilInternal::Output&, const DataMemberList&, const DataMemberList&,
                                     const DataMemberList&, const ContainedPtr&, bool rootClass = false);

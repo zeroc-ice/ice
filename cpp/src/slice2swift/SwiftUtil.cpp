@@ -11,6 +11,8 @@
 #include <IceUtil/OutputUtil.h>
 #include <IceUtil/StringUtil.h>
 
+#include <Slice/Util.h>
+
 #include <SwiftUtil.h>
 
 using namespace std;
@@ -228,6 +230,41 @@ getAbsoluteImpl(const ContainedPtr& cont, const string& prefix = "", const strin
 
 }
 
+
+void
+SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type,
+                                   const SyntaxTreeBasePtr& valueType, const string& value,
+                                   const StringList&, const string& swiftModule)
+{
+    ConstPtr constant = ConstPtr::dynamicCast(valueType);
+    if(constant)
+    {
+        out << getUnqualified(getAbsolute(constant), swiftModule);
+    }
+    else
+    {
+        BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+        EnumPtr ep = EnumPtr::dynamicCast(type);
+        if(bp && bp->kind() == Builtin::KindString)
+        {
+            out << "\"";
+            out << toStringLiteral(value, "\n\r\t", "", EC6UCN, 0);
+            out << "\"";
+        }
+        else if(ep)
+        {
+            assert(valueType);
+            EnumeratorPtr enumerator = EnumeratorPtr::dynamicCast(valueType);
+            assert(enumerator);
+            out << getUnqualified(getAbsolute(ep), swiftModule) << "." << enumerator->name();
+        }
+        else
+        {
+            out << value;
+        }
+    }
+}
+
 string
 SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
                              const StringList& metadata, bool optional,
@@ -378,6 +415,12 @@ SwiftGenerator::getAbsolute(const EnumPtr& en)
 }
 
 string
+SwiftGenerator::getAbsolute(const ConstPtr& en)
+{
+    return getAbsoluteImpl(en);
+}
+
+string
 SwiftGenerator::getUnqualified(const string& type, const string& localModule)
 {
     const string prefix = localModule + ".";
@@ -466,18 +509,10 @@ SwiftGenerator::isProxyType(const TypePtr& p)
 }
 
 void
-SwiftGenerator::writeConstantValue(IceUtilInternal::Output&,
-                                   const TypePtr&,
-                                   const SyntaxTreeBasePtr&,
-                                   const string&)
-{
-    // TODO
-}
-
-void
 SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
                                         const DataMemberList& members,
                                         const ContainedPtr& p,
+                                        bool rootClass,
                                         bool required)
 {
     out << sp;
@@ -492,21 +527,22 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
     {
         DataMemberPtr member = *q;
         TypePtr type = member->type();
-        out << nl << "self." << fixIdent(member->name()) << " = ";
-        if(member->defaultValueType())
+        if(!member->defaultValueType())
         {
-            out << typeToString(type, p) << "(";
-            writeConstantValue(out, type, member->defaultValueType(), member->defaultValue());
-            out << ")";
+            out << nl << "self." << fixIdent(member->name()) << " = ";
+            if(isNullableType(type))
+            {
+                out << "nil";
+            }
+            else
+            {
+                out << typeToString(type, p) << "()";
+            }
         }
-        else if(isNullableType(type))
-        {
-            out << "nil";
-        }
-        else
-        {
-            out << typeToString(type, p) << "()";
-        }
+    }
+    if(!rootClass)
+    {
+        out << nl << "super.init()";
     }
     out << eb;
 }
@@ -568,17 +604,24 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
                              const ContainedPtr& p,
                              int typeCtx)
 {
-    string access = (typeCtx & TypeContextProtocol) ? "" : "public ";
-    bool getter = (typeCtx & TypeContextProtocol);
+    string swiftModule = getSwiftModule(getTopLevelModule(p));
+    bool protocol = (typeCtx & TypeContextProtocol);
+    string access = protocol ? "" : "public ";
     for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
     {
         DataMemberPtr member = *q;
         TypePtr type = member->type();
+        string defaultValue = member->defaultValue();
         out << nl << access << "var " << fixIdent(member->name()) << ": "
             << typeToString(type, p, member->getMetaData(), member->optional());
-        if(getter)
+        if(protocol)
         {
             out << " { get }";
+        }
+        else if(!defaultValue.empty())
+        {
+            out << " = ";
+            writeConstantValue(out, type, member->defaultValueType(), defaultValue, p->getMetaData(), swiftModule);
         }
     }
 }
