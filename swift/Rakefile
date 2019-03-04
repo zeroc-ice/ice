@@ -12,7 +12,7 @@ tests = [
 #     "Ice/defaultServant",
     "Ice/defaultValue",
 #     "Ice/dispatcher",
-#     "Ice/enums",
+    "Ice/enums",
 #     "Ice/exceptions",
 #     "Ice/facets",
 #     "Ice/hold",
