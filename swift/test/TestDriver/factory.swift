@@ -12,7 +12,7 @@ let tests: [String: () -> TestHelper] = [
     "Ice.properties.Client": { IceProperties.Client() },
     "Ice.defaultValue.Client": { IceDefaultValue.Client() },
     "Ice.enums.Client": { IceEnums.Client() },
-    "Ice.enums.Client": { IceEnums.Server() }
+    "Ice.enums.Server": { IceEnums.Server() }
 ]
 
 class TestFactory {
