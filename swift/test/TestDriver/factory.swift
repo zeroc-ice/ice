@@ -6,14 +6,21 @@ import Foundation
 import TestCommon
 import IceProperties
 import IceDefaultValue
+import IceEnums
+
+let tests: [String: () -> TestHelper] = [
+    "Ice.properties.Client": { IceProperties.Client() },
+    "Ice.defaultValue.Client": { IceDefaultValue.Client() },
+    "Ice.enums.Client": { IceEnums.Client() },
+    "Ice.enums.Client": { IceEnums.Server() }
+]
 
 class TestFactory {
     public static func create(name: String) throws -> TestCommon.TestHelper {
-        if name == "Ice.properties.Client" {
-            return IceProperties.Client()
-        } else if name == "Ice.defaultValue.Client" {
-            return IceDefaultValue.Client()
+        if let test = tests[name] {
+            return test()
+        } else {
+            throw NSError(domain: "Test not found \(name)", code: 1024)
         }
-        throw NSError(domain: "Test not found \(name)", code: 1024)
     }
 }
