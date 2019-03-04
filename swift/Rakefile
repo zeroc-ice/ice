@@ -104,6 +104,8 @@ def create_iceproj(platform)
     target_add_matching_files(target, group, "../src/IceObjc", ["*.mm", "Util.h"])
 
     target_set_common_build_settings(target, "../src/IceObjc/Info.plist", "IceObjc")
+    cpp_libraries = ["Ice", "IceSSL", "IceDiscovery", "IceLocatorDiscovery"]
+
     if platform == :osx then
         target.build_configurations.each { |config|
             config.build_settings["HEADER_SEARCH_PATHS"] = [
@@ -114,7 +116,7 @@ def create_iceproj(platform)
         }
         copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
         copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
-        libraries = ["Ice", "IceSSL"].map{ |item| "lib#{item}++11.37.dylib"}
+        libraries = cpp_libraries.map{ |item| "lib#{item}++11.37.dylib"}
         target.frameworks_build_phases.clear()
         group_add_matching_files(project.frameworks_group, "../../cpp/lib", libraries).each do |ref|
             target.frameworks_build_phases.add_file_reference(ref, true)
