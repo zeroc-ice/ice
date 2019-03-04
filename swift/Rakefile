@@ -190,6 +190,7 @@ def create_iceproj(platform)
     file = copy_phase.add_file_reference(ice_objc_target.product_reference)
     file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     project.sort()
+    project.predictabilize_uuids()
     project.save()
 end
 
@@ -262,6 +263,7 @@ def create_testproj(platform, tests)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     end
     test_project.sort()
+    test_project.predictabilize_uuids()
     test_project.save()
 end
 
