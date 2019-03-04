@@ -7,15 +7,16 @@
 //
 // **********************************************************************
 
-#import <Cocoa/Cocoa.h>
+#import <Foundation/Foundation.h>
 
-//! Project version number for IceObjc.
+#if TARGET_OS_IPHONE
+#   import <UIKit/UIKit.h>
+#else
+#   import <Cocoa/Cocoa.h>
+#endif
+
 FOUNDATION_EXPORT double IceObjcVersionNumber;
-
-//! Project version string for IceObjc.
 FOUNDATION_EXPORT const unsigned char IceObjcVersionString[];
-
-// In this header, you should import all the public headers of your framework using statements like #import <IceObjc/PublicHeader.h>
 
 #import <IceObjc/Communicator.h>
 #import <IceObjc/ImplicitContext.h>
