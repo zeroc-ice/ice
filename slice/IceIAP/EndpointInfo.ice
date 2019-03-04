@@ -21,7 +21,7 @@
  * IceIAP provides a secure transport for Ice.
  *
  **/
-["objc:prefix:ICEIAP"]
+["objc:prefix:ICEIAP", "swift:module:Ice:IAP"]
 module IceIAP
 {
 

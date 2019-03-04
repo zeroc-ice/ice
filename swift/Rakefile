@@ -83,7 +83,6 @@ task :macossrcs, [:config] do |t, args|
     system("xcodebuild -workspace xcode/ice.macOS.xcworkspace -scheme Ice -config #{config}")
 end
 
-
 desc "Build Ice for Swift macOS framework and tests, config: Debug|Release"
 task macosbuild: [:testproj]
 task :macosbuild, [:config] do |t, args|
@@ -139,6 +138,9 @@ def create_iceproj(platform)
             config.build_settings["OTHER_LDFLAGS"] = [
                 "-lIce++11",
                 "-lIceSSL++11",
+                "-lIceDiscovery++11",
+                "-lIceLocatorDiscovery++11",
+                "-lIceIAP++11",
                 "-lbz2",
                 "-liconv"
             ]
@@ -165,16 +167,21 @@ def create_iceproj(platform)
     target_add_public_headers(target, group, "../src/Ice", ["*.h"])
     target_add_matching_files(target, group, "../src/Ice", ["*.swift"])
     excludes = {
-        "Ice" => ["Metrics.ice"],
-        "IceSSL" => []
+        "Ice" => ["Metrics.ice"]
     }
-    ["Ice", "IceSSL"].each do |item|
+
+    slices = ["Ice", "IceSSL"]
+    if platform == :ios then
+        slices << "IceIAP"
+    end
+
+    slices.each do |item|
         group = project_group(project, "Ice/slice/#{item}")
-        target_add_matching_files(target, group, "../../slice/#{item}", ["*.ice"], excludes[item])
+        target_add_matching_files(target, group, "../../slice/#{item}", ["*.ice"], excludes[item] || [])
+        add_slice_compiler(project, target, item)
     end
 
     target_set_common_build_settings(target, "../src/Ice/Info.plist", "Ice")
-    add_slice_compiler(project, target)
     add_lint_build_phase(target, "../src/Ice")
     target.frameworks_build_phases.clear()
     target.frameworks_build_phases.add_file_reference(ice_objc_target.product_reference, true)
@@ -273,17 +280,24 @@ def target_name(basename)
     basename.split("/").map{ |item| item[0].upcase + item[1..-1]}.join()
 end
 
-def add_slice_compiler(project, target)
+def add_slice_compiler(project, target, prefix = nil)
     #
     # Add Slice Compiler build rule to the target
     #
     rule = project.new(Xcodeproj::Project::PBXBuildRule)
     rule.compiler_spec = "com.apple.compilers.proxy.script"
-    rule.name = "Slice Compiler"
-    rule.file_patterns = "*.ice"
     rule.file_type = "pattern.proxy"
-    rule.script = "$SRCROOT/../config/xcode-slice2swift.sh"
-    rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
+    if prefix then
+        rule.name = "Slice Compiler for #{prefix}/*.ice"
+        rule.file_patterns = "*/#{prefix}/*.ice"
+        rule.script = "$SRCROOT/../config/xcode-slice2swift.sh #{prefix}"
+        rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_BASE).swift"]
+    else
+        rule.name = "Slice Compiler"
+        rule.file_patterns = "*.ice"
+        rule.script = "$SRCROOT/../config/xcode-slice2swift.sh"
+        rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
+    end
     target.build_rules << rule
 end
 
