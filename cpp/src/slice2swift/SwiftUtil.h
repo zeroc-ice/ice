@@ -48,6 +48,8 @@ protected:
     std::string getAbsolute(const ExceptionPtr&);
     std::string getAbsolute(const EnumPtr&);
     std::string getAbsolute(const ConstPtr&);
+    std::string getAbsolute(const SequencePtr&);
+    std::string getAbsolute(const DictionaryPtr&);
 
     std::string getUnqualified(const std::string&, const std::string&);
     std::string modeToString(Operation::Mode);

@@ -420,23 +420,23 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
 void
 Gen::TypesVisitor::visitSequence(const SequencePtr& p)
 {
-    const string name = fixIdent(p->name());
-    const TypePtr type = p->type();
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
 
     out << sp;
-    out << nl << "public typealias " << name << " = [" << typeToString(type, p) << "]";
+    out << nl << "public typealias " << name << " = [" << typeToString(p->type(), p) << "]";
 }
 
 void
 Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 {
-    const string name = fixIdent(p->name());
-
-    const TypePtr keyType = p->keyType();
-    const TypePtr valueType = p->valueType();
+    const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
+    const string name = getUnqualified(getAbsolute(p), swiftModule);
 
     out << sp;
-    out << nl << "public typealias " << name << " = [" << typeToString(keyType, p) << ":" << typeToString(valueType, p)
+    out << nl << "public typealias " << name << " = ["
+        << typeToString(p->keyType(), p) << ":"
+        << typeToString(p->valueType(), p)
         << "]";
 }
 

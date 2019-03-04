@@ -421,6 +421,18 @@ SwiftGenerator::getAbsolute(const ConstPtr& en)
 }
 
 string
+SwiftGenerator::getAbsolute(const SequencePtr& en)
+{
+    return getAbsoluteImpl(en);
+}
+
+string
+SwiftGenerator::getAbsolute(const DictionaryPtr& en)
+{
+    return getAbsoluteImpl(en);
+}
+
+string
 SwiftGenerator::getUnqualified(const string& type, const string& localModule)
 {
     const string prefix = localModule + ".";
