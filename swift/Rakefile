@@ -147,7 +147,6 @@ def create_iceproj(platform)
             config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
                 "ICE_STATIC_LIBS"
             ]
-            config.build_settings["GCC_SYMBOLS_PRIVATE_EXTERN"] = "YES"
         }
 
         target.add_system_framework("Security")
@@ -190,6 +189,7 @@ def create_iceproj(platform)
     copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
     file = copy_phase.add_file_reference(ice_objc_target.product_reference)
     file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+    project.sort()
     project.save()
 end
 
@@ -261,6 +261,7 @@ def create_testproj(platform, tests)
         file = copy_phase.add_file_reference(framework.product_reference)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     end
+    test_project.sort()
     test_project.save()
 end
 
