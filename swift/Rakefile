@@ -60,6 +60,7 @@ task :testproj => :iceproj do
     end
 end
 
+desc "Build Ice for Swift iOS framework, sdk: iphonesimulator|iphoneos config: Debug|Release"
 task iossrcs: [:iceproj]
 task :iossrcs, [:sdk, :config] do |t, args|
     sdk = args.sdk || "iphonesimulator"
@@ -67,6 +68,7 @@ task :iossrcs, [:sdk, :config] do |t, args|
     system("xcodebuild -workspace xcode/ice.iOS.xcworkspace -scheme Ice -sdk #{sdk} -config #{config}")
 end
 
+desc "Build Ice for Swift iOS framework and tests, sdk: iphonesimulator|iphoneos config: Debug|Release"
 task iosbuild: [:testproj]
 task :iosbuild, [:sdk, :config] do |t, args|
     sdk = args.sdk || "iphonesimulator"
@@ -74,17 +76,22 @@ task :iosbuild, [:sdk, :config] do |t, args|
     system("xcodebuild -workspace xcode/ice.iOS.xcworkspace -scheme TestDriver -sdk #{sdk} -config #{config}")
 end
 
+desc "Build Ice for Swift macOS framework, config: Debug|Release"
 task macossrcs: [:iceproj]
 task :macossrcs, [:config] do |t, args|
     config = args.config || "Debug"
     system("xcodebuild -workspace xcode/ice.macOS.xcworkspace -scheme Ice -config #{config}")
 end
 
+
+desc "Build Ice for Swift macOS framework and tests, config: Debug|Release"
 task macosbuild: [:testproj]
 task :macosbuild, [:config] do |t, args|
     config = args.config || "Debug"
     system("xcodebuild -workspace xcode/ice.macOS.xcworkspace -scheme TestDriver -config #{config}")
 end
+
+task :default => [:macosbuild]
 
 def create_iceproj(platform)
     platform_name = platform == :osx ? "macOS" : "iOS"
