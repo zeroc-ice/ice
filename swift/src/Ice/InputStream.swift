@@ -213,7 +213,7 @@ public class InputStream {
         case .FSize:
             try skip(read() as Int32)
         case .Class:
-            try readValue(cb: nil, cls: UnknownSlicedValue.self)
+            try read(value: UnknownSlicedValue.self, cb: nil)
         }
     }
 
@@ -708,8 +708,7 @@ public extension InputStream {
         return try read(tag: tag) as _ObjectPrxI?
     }
 
-    func readValue<ValueType>(cb: ((ValueType?) -> Void)?,
-                              cls: ValueType.Type = ValueType.self) throws where ValueType: Value {
+    func read<ValueType>(value cls: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {
         initEncaps()
         if let cb = cb {
             var throwValue: Value?

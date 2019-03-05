@@ -34,16 +34,16 @@ public extension UserException {
         return ex is Self
     }
 
-    func _iceRead(from ins: InputStream) throws {
-        ins.startException()
-        try _iceReadImpl(from: ins)
-        _ = try ins.endException(preserve: false)
+    func _iceRead(from istr: InputStream) throws {
+        istr.startException()
+        try _iceReadImpl(from: istr)
+        _ = try istr.endException(preserve: false)
     }
 
-    func _iceWrite(to os: OutputStream) {
-        os.startException(data: nil)
-        _iceWriteImpl(to: os)
-        os.endException()
+    func _iceWrite(to ostr: OutputStream) {
+        ostr.startException(data: nil)
+        _iceWriteImpl(to: ostr)
+        ostr.endException()
     }
 
 }

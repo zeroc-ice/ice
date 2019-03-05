@@ -67,7 +67,7 @@ protected:
                                     const DataMemberList&, const ContainedPtr&, bool rootClass = false);
     void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool);
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&, bool, bool, bool);
     void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool);
 
 private:

@@ -649,17 +649,91 @@ void
 SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                                           const TypePtr& type,
                                           const string& param,
+                                          const string& swiftModule,
+                                          bool insideStream,
+                                          bool declareParam,
                                           bool marshal)
 {
+    string unqualifiedType = getUnqualified(getAbsolute(type), swiftModule);
 
+    string streamName = marshal ? "ostr" : "istr";
+    string assign = declareParam ? ("let " + param + ": " + unqualifiedType) : param;
+    string marshalParam = insideStream ? ("v." + param) : param;
+    string stream = insideStream ? "" : (streamName + ".");
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
+    if(builtin)
+    {
+        switch(builtin->kind())
+        {
+            case Builtin::KindByte:
+            case Builtin::KindBool:
+            case Builtin::KindShort:
+            case Builtin::KindInt:
+            case Builtin::KindLong:
+            case Builtin::KindFloat:
+            case Builtin::KindDouble:
+            case Builtin::KindString:
+            case Builtin::KindObjectProxy:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << "write(" << marshalParam << ")";
+                }
+                else
+                {
+                    out << nl << assign << " = try " << stream << "read()";
+                }
+                break;
+            }
+            case Builtin::KindObject:
+            case Builtin::KindValue:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << "write(" << marshalParam << ")";
+                }
+                else
+                {
+                    out << nl << assign << "= try " << stream << "read(value: " << unqualifiedType << ") { ";
+                    out << param << " = $0 }";
+
+                }
+                break;
+            }
+            case Builtin::KindLocalObject:
+            {
+                assert(false);
+                break;
+            }
+            default:
+            {
+
+            }
+        }
+    }
+
+    EnumPtr en = EnumPtr::dynamicCast(type);
+    if(en)
+    {
+        if(marshal)
+        {
+            out << nl << stream << "write(" << marshalParam << ")";
+        }
+        else
+        {
+            out << nl << assign << " = try " << stream << "read()";
+        }
+        return;
+    }
 }
 
 void
-SwiftGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
-                                                  const TypePtr& type,
-                                                  const string& param,
-                                                  int tag,
-                                                  bool marshal)
+SwiftGenerator::writeOptionalMarshalUnmarshalCode(Output&,
+                                                  const TypePtr&,
+                                                  const string&,
+                                                  int,
+                                                  bool)
 {
 
 }

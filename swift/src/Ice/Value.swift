@@ -20,30 +20,6 @@ public protocol Value: AnyObject {
     static func ice_staticId() -> String
 }
 
-public class Foo: Value {
-    public func _iceReadImpl(from: InputStream) throws {
-
-    }
-
-    public func _iceWriteImpl(to: OutputStream) {
-
-    }
-
-    public static func ice_staticId() -> String {
-        return "::FOO:::"
-    }
-
-    public required init() {
-
-    }
-}
-
-public extension InputStream {
-    public func read() throws -> Foo? {
-        return nil
-    }
-}
-
 public extension Value {
     func ice_id() -> String {
         return Self.ice_staticId()
@@ -57,12 +33,10 @@ public extension Value {
         return nil
     }
 
-    func _iceRead(from ins: InputStream) throws {
-        ins.startValue()
-        try _iceReadImpl(from: ins)
-        _ = try ins.endValue(preserve: false)
-
-//        let m: Foo? = try ins.read() { m = }
+    func _iceRead(from istr: InputStream) throws {
+        istr.startValue()
+        try _iceReadImpl(from: istr)
+        _ = try istr.endValue(preserve: false)
     }
 
     func _iceWrite(to os: OutputStream) {
@@ -71,9 +45,3 @@ public extension Value {
         os.endValue()
     }
 }
-
-//public extension Optional where Wrapped: Value {
-//    init(_ callback: ((ValueType?) -> Void)?) {
-//        self = Optional.none
-//    }
-//}

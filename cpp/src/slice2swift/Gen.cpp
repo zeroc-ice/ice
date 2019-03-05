@@ -334,19 +334,17 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             out << "override ";
         }
-        out << "public func _iceReadImpl(from ins: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+        out << "public func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
         out << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             DataMemberPtr member = *q;
-            StringList metadata = member->getMetaData();
             TypePtr type = member->type();
-            out << nl;
-            out << member->name() << " = try ins.read()";
+            writeMarshalUnmarshalCode(out, type, member->name(), swiftModule, false, false, false);
         }
         if(base)
         {
-            out << nl << "try super._iceReadImpl(from: ins)";
+            out << nl << "try super._iceReadImpl(from: istr)";
         }
         out << eb;
 
@@ -398,10 +396,8 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
             DataMemberPtr member = *q;
-            StringList metadata = member->getMetaData();
             TypePtr type = member->type();
-            out << nl;
-            out << "let " << member->name() << ": " << getUnqualified(getAbsolute(type), swiftModule) << " = try read()";
+            writeMarshalUnmarshalCode(out, type, member->name(), swiftModule, true, true, false);
         }
 
         out << nl << "return " << name;
@@ -422,7 +418,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << "func write(_ v: " << name << ")" << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            out << nl << "write(v." << fixIdent((*q)->name()) << ")";
+            writeMarshalUnmarshalCode(out, (*q)->type(), fixIdent((*q)->name()) , swiftModule, true, false, true);
         }
         out << eb;
 
@@ -723,24 +719,26 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << "override ";
     }
-    out << "public func _iceWriteImpl(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+    out << "public func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
     out << nl << "// to.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
         DataMemberPtr member = *i;
+        TypePtr type = member->type();
         if(!member->optional())
         {
-            out << nl << "os.write(" << fixIdent(member->name()) << ")";
+            writeMarshalUnmarshalCode(out, type, fixIdent(member->name()), swiftModule, false, false, true);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
+        // TODO :
     }
     out << nl << "// to.endSlice();";
     if(base)
     {
-        out << nl << "super._iceWriteImpl(to: os);";
+        out << nl << "super._iceWriteImpl(to: ostr);";
     }
     out << eb;
 
