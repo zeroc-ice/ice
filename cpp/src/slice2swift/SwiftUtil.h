@@ -19,7 +19,6 @@ namespace Slice
 const int TypeContextInParam = 1;
 const int TypeContextProtocol = 2;
 
-
 std::string getSwiftModule(const ModulePtr&, std::string&);
 std::string getSwiftModule(const ModulePtr&);
 ModulePtr getTopLevelModule(const ContainedPtr&);
@@ -68,11 +67,10 @@ protected:
                                     const DataMemberList&, const ContainedPtr&, bool rootClass = false);
     void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 
-
-    void writeMarshalUnmarshalCode(IceUtilInternal::Output&, const ClassDefPtr&, const OperationPtr&);
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, bool);
+    void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool);
 
 private:
-
 
     class MetaDataVisitor : public ParserVisitor
     {

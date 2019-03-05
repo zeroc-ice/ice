@@ -21,6 +21,10 @@ internal final class Buffer {
 
     var count = 0
 
+    var position: Int32 {
+        return Int32(count)
+    }
+
     init(start: UnsafeMutableRawPointer, count: Int) {
         storage = UnsafeMutableRawBufferPointer(start: start, count: count)
         owner = false

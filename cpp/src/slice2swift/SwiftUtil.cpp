@@ -230,7 +230,6 @@ getAbsoluteImpl(const ContainedPtr& cont, const string& prefix = "", const strin
 
 }
 
-
 void
 SwiftGenerator::writeConstantValue(IceUtilInternal::Output& out, const TypePtr& type,
                                    const SyntaxTreeBasePtr& valueType, const string& value,
@@ -647,8 +646,22 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
 }
 
 void
-SwiftGenerator::writeMarshalUnmarshalCode(IceUtilInternal::Output&, const ClassDefPtr&, const OperationPtr&)
+SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
+                                          const TypePtr& type,
+                                          const string& param,
+                                          bool marshal)
 {
+
+}
+
+void
+SwiftGenerator::writeOptionalMarshalUnmarshalCode(Output &out,
+                                                  const TypePtr& type,
+                                                  const string& param,
+                                                  int tag,
+                                                  bool marshal)
+{
+
 }
 
 bool

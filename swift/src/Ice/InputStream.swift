@@ -330,7 +330,7 @@ public extension InputStream {
         return try readNumeric(UInt8.self)
     }
 
-    func read(_ tag: Int32) throws -> UInt8? {
+    func read(tag: Int32) throws -> UInt8? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F1) else {
             return nil
         }
@@ -341,7 +341,7 @@ public extension InputStream {
         return try readNumeric(minSize: 1)
     }
 
-    func read(_ tag: Int32) throws -> [UInt8]? {
+    func read(tag: Int32) throws -> [UInt8]? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
@@ -355,7 +355,7 @@ public extension InputStream {
         return try readNumeric(UInt8.self) == 1
     }
 
-    func read(_ tag: Int32) throws -> Bool? {
+    func read(tag: Int32) throws -> Bool? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F1) else {
             return nil
         }
@@ -372,7 +372,7 @@ public extension InputStream {
         return a
     }
 
-    func read(_ tag: Int32) throws -> [Bool]? {
+    func read(tag: Int32) throws -> [Bool]? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
@@ -386,7 +386,7 @@ public extension InputStream {
         return try readNumeric(Int16.self)
     }
 
-    func read(_ tag: Int32) throws -> Int16? {
+    func read(tag: Int32) throws -> Int16? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F2) else {
             return nil
         }
@@ -397,7 +397,7 @@ public extension InputStream {
         return try readNumeric(minSize: 2)
     }
 
-    func read(_ tag: Int32) throws -> [Int16]? {
+    func read(tag: Int32) throws -> [Int16]? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
@@ -411,7 +411,7 @@ public extension InputStream {
         return try readNumeric(Int32.self)
     }
 
-    func read(_ tag: Int32) throws -> Int32? {
+    func read(tag: Int32) throws -> Int32? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F4) else {
             return nil
         }
@@ -422,7 +422,7 @@ public extension InputStream {
         return try readNumeric(minSize: 4)
     }
 
-    func read(_ tag: Int32) throws -> [Int32]? {
+    func read(tag: Int32) throws -> [Int32]? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
@@ -436,7 +436,7 @@ public extension InputStream {
         return try readNumeric(Int64.self)
     }
 
-    func read(_ tag: Int32) throws -> Int64? {
+    func read(tag: Int32) throws -> Int64? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
             return nil
         }
@@ -447,7 +447,7 @@ public extension InputStream {
         return try readNumeric(minSize: 8)
     }
 
-    func read(_ tag: Int32) throws -> [Int64]? {
+    func read(tag: Int32) throws -> [Int64]? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
@@ -461,7 +461,7 @@ public extension InputStream {
         return try readNumeric(Float.self)
     }
 
-    func read(_ tag: Int32) throws -> Float? {
+    func read(tag: Int32) throws -> Float? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
             return nil
         }
@@ -472,7 +472,7 @@ public extension InputStream {
         return try readNumeric(minSize: 4)
     }
 
-    func read(_ tag: Int32) throws -> [Float]? {
+    func read(tag: Int32) throws -> [Float]? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
@@ -486,7 +486,7 @@ public extension InputStream {
         return try readNumeric(Double.self)
     }
 
-    func read(_ tag: Int32) throws -> Double? {
+    func read(tag: Int32) throws -> Double? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.F8) else {
             return nil
         }
@@ -497,7 +497,7 @@ public extension InputStream {
         return try readNumeric(minSize: 8)
     }
 
-    func read(_ tag: Int32) throws -> [Double]? {
+    func read(tag: Int32) throws -> [Double]? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
@@ -648,18 +648,6 @@ public extension InputStream {
         }
     }
 
-//    func read<Element>(array: inout [Element]) throws where Element: StreamReadable {
-//        var count = Int32()
-//        try read(numeric: &count)
-//
-//        array.reserveCapacity(Int(count))
-//
-//        for i in 0 ..< count {
-//            let e: Element = try Element(from: self)
-//            array.insert(e, at: Int(i))
-//        }
-//    }
-
     func read() throws -> String {
         let size = try readSize()
         if size == 0 {
@@ -677,7 +665,7 @@ public extension InputStream {
         string = try read()
     }
 
-    func read(_ tag: Int32) throws -> String? {
+    func read(tag: Int32) throws -> String? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.VSize) else {
             return nil
         }
@@ -693,28 +681,31 @@ public extension InputStream {
         return r
     }
 
-    func read(_ tag: Int32) throws -> [String]? {
+    func read(tag: Int32) throws -> [String]? {
         guard try readOptional(tag: tag, expectedFormat: OptionalFormat.FSize) else {
             return nil
         }
         return try read() as [String]
     }
 
-    func read(proxy _: ObjectPrx.Protocol) throws -> ObjectPrx? {
-        return try _ObjectPrxI.ice_read(from: self)
+    func read<ProxyImpl>() throws -> ProxyImpl? where ProxyImpl: _ObjectPrxI {
+        return try ProxyImpl.ice_read(from: self)
     }
 
-    func read(proxyArray _: ObjectPrx.Protocol) throws -> [ObjectPrx?] {
-        return try read(proxyArray: _ObjectPrxI.self)
-    }
-
-    func read<ProxyType>(proxyArray _: ProxyType.Type) throws -> [ProxyType?] where ProxyType: _ObjectPrxI {
-        let count = try readAndCheckSeqSize(minSize: 2)
-        var v = [ProxyType?](repeating: nil, count: count)
-        for i in 0 ..< count {
-            v[i] = try ProxyType.ice_read(from: self)
+    func read<ProxyImpl>(tag: Int32) throws -> ProxyImpl? where ProxyImpl: _ObjectPrxI {
+        guard try readOptional(tag: tag, expectedFormat: OptionalFormat.FSize) else {
+            return nil
         }
-        return v
+        try skip(4)
+        return try read() as ProxyImpl?
+    }
+
+    func read() throws -> ObjectPrx? {
+        return try read() as _ObjectPrxI?
+    }
+
+    func read(tag: Int32) throws -> ObjectPrx? {
+        return try read(tag: tag) as _ObjectPrxI?
     }
 
     func readValue<ValueType>(cb: ((ValueType?) -> Void)?,

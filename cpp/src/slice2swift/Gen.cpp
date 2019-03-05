@@ -602,15 +602,15 @@ Gen::ProxyVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "public extension " << getUnqualified("Ice.InputStream", swiftModule);
     out << sb;
 
-    out << nl << "func read(proxy: " << prx << ".Protocol) throws -> " << prx << "?";
+    out << nl << "func read() throws -> " << prx << "?";
     out << sb;
-    out << nl << "return try " << prxI << ".ice_read(from: self)";
+    out << nl << "return try read() as " << prxI << "?";
     out << eb;
 
     out << sp;
-    out << nl << "func read(proxyArray: " << prx << ".Protocol) throws -> [" << prx << "?]";
+    out << nl << "func read(tag: Int32) throws -> " << prx << "?";
     out << sb;
-    out << nl << "return try read(proxyArray:" << prxI << ".self)";
+    out << nl << "return try read(tag: tag) as " << prxI << "?";
     out << eb;
 
     out << eb;
