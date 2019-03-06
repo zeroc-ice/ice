@@ -39,13 +39,19 @@ desc "Generate Xcode projects required to build Ice for Swift"
 task :iceproj do
     project = Xcodeproj::Project.new("ice.xcodeproj")
     [:osx, :ios].each { |platform| create_iceproj(project, tests, platform) }
+
+    #
+    # All targets link with PromiseKit except C++11 targets
+    #
     project.targets.each do |target|
-        group = project.frameworks_group[(target.name.include? "macOS") ? "OS X" : "iOS"]
-        carthage_prefix = (target.name.include? "macOS") ? "Mac" : "iOS"
-        group_add_matching_files(group, "Carthage/Build/#{carthage_prefix}", ["PromiseKit.framework"]).each do |ref|
-            target.frameworks_build_phases.add_file_reference(ref, true)
-            if target.name.start_with? "TestDriver" then
-                target.copy_files_build_phases[0].add_file_reference(ref)
+        unless target.name.start_with? "Ice C++11" then
+            group = project.frameworks_group[(target.name.include? "macOS") ? "OS X" : "iOS"]
+            carthage_prefix = (target.name.include? "macOS") ? "Mac" : "iOS"
+            group_add_matching_files(group, "Carthage/Build/#{carthage_prefix}", ["PromiseKit.framework"]).each do |ref|
+                target.frameworks_build_phases.add_file_reference(ref, true)
+                if target.name.start_with? "TestDriver" then
+                    target.copy_files_build_phases[0].add_file_reference(ref)
+                end
             end
         end
     end
@@ -94,6 +100,9 @@ def create_iceproj(project, tests, platform)
     platform_name = platform == :osx ? "macOS" : "iOS"
     frameworks_group = platform == :osx ? "OS X" : "iOS"
 
+    #
+    # Ice for Swift framework
+    #
     ice_target = project.new_target(:framework, "Ice", platform)
     ice_target.name = "Ice #{platform_name}"
 
@@ -116,7 +125,6 @@ def create_iceproj(project, tests, platform)
             config.build_settings["LIBRARY_SEARCH_PATHS"] = "$(SRCROOT)/../cpp/lib"
             config.build_settings["SWIFT_INCLUDE_PATHS"] = "$(SRCROOT)/src/IceObjc"
             config.build_settings["DEFINES_MODULE"] = "YES"
-            config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/Carthage/Build/Mac"
         }
         copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
         copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
@@ -145,7 +153,6 @@ def create_iceproj(project, tests, platform)
             config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
                 "ICE_STATIC_LIBS"
             ]
-            config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/Carthage/Build/iOS"
         }
 
         target.add_system_framework("Security")
@@ -309,6 +316,7 @@ def target_add_headers(target, group, basedir, patterns, excludes: [], attribute
 end
 
 def target_set_common_build_settings(target, plist, bundle)
+    carthage_prefix = (target.name.include? "macOS") ? "Mac" : "iOS"
     target.build_configurations.each { |config|
         config.build_settings["CODE_SIGN_STYLE"] = "Automatic"
         config.build_settings["CODE_SIGN_IDENTITY"] = ""
@@ -316,5 +324,6 @@ def target_set_common_build_settings(target, plist, bundle)
         config.build_settings["INFOPLIST_FILE"] = plist
         config.build_settings["PRODUCT_NAME"] = bundle
         config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = "com.zeroc.#{bundle}"
+        config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/Carthage/Build/#{carthage_prefix}"
     }
 end
