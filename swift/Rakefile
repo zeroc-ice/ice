@@ -39,6 +39,22 @@ desc "Generate Xcode projects required to build Ice for Swift"
 task :iceproj do
     project = Xcodeproj::Project.new("ice.xcodeproj")
     [:osx, :ios].each { |platform| create_iceproj(project, tests, platform) }
+    project.targets.each do |target|
+        group = project.frameworks_group[(target.name.include? "macOS") ? "OS X" : "iOS"]
+        carthage_prefix = (target.name.include? "macOS") ? "Mac" : "iOS"
+        group_add_matching_files(group, "Carthage/Build/#{carthage_prefix}", ["PromiseKit.framework"]).each do |ref|
+            target.frameworks_build_phases.add_file_reference(ref, true)
+            if target.name.start_with? "TestDriver" then
+                target.copy_files_build_phases[0].add_file_reference(ref)
+            end
+        end
+    end
+
+    #
+    # Sort the project and save it
+    #
+    project.sort({:groups_position => :above})
+    project.save()
 end
 
 desc "Build Ice for Swift iOS framework, sdk: iphonesimulator|iphoneos config: Debug|Release"
@@ -76,7 +92,6 @@ task :default => [:macosbuild]
 def create_iceproj(project, tests, platform)
 
     platform_name = platform == :osx ? "macOS" : "iOS"
-    carthage_prefix = platform == :osx ? "Mac" : "iOS"
     frameworks_group = platform == :osx ? "OS X" : "iOS"
 
     ice_target = project.new_target(:framework, "Ice", platform)
@@ -101,6 +116,7 @@ def create_iceproj(project, tests, platform)
             config.build_settings["LIBRARY_SEARCH_PATHS"] = "$(SRCROOT)/../cpp/lib"
             config.build_settings["SWIFT_INCLUDE_PATHS"] = "$(SRCROOT)/src/IceObjc"
             config.build_settings["DEFINES_MODULE"] = "YES"
+            config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/Carthage/Build/Mac"
         }
         copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
         copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
@@ -129,6 +145,7 @@ def create_iceproj(project, tests, platform)
             config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
                 "ICE_STATIC_LIBS"
             ]
+            config.build_settings["FRAMEWORK_SEARCH_PATHS"] = "$(SRCROOT)/Carthage/Build/iOS"
         }
 
         target.add_system_framework("Security")
@@ -213,22 +230,6 @@ def create_iceproj(project, tests, platform)
         file = copy_phase.add_file_reference(framework.product_reference)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     end
-
-    project.targets.each do |target|
-        group = project.frameworks_group[frameworks_group]
-        group_add_matching_files(group, "Carthage/Build/#{carthage_prefix}", ["PromiseKit.framework"]).each do |ref|
-            target.frameworks_build_phases.add_file_reference(ref, true)
-            if target.name == "TestDriver #{platform_name}" then
-                copy_phase.add_file_reference(ref)
-            end
-        end
-    end
-
-    #
-    # Sort the project and save it
-    #
-    project.sort({:groups_position => :above})
-    project.save()
 
     #
     # Ensure Ice.framework has a shared scheme to build it, this is required for Carthage builds
