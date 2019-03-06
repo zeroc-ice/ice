@@ -37,16 +37,8 @@ tests = [
 
 desc "Generate Xcode projects required to build Ice for Swift"
 task :iceproj do
-    basedir = File.join(__dir__, "xcode")
-
-    unless File.directory?(basedir)
-        FileUtils.mkdir_p(basedir)
-    end
-
-    Dir.chdir(basedir) do
-        [:osx, :ios].each { |platform| create_iceproj(tests, platform) }
-    end
-
+    project = Xcodeproj::Project.new("ice.xcodeproj")
+    [:osx, :ios].each { |platform| create_iceproj(project, tests, platform) }
 end
 
 desc "Build Ice for Swift iOS framework, sdk: iphonesimulator|iphoneos config: Debug|Release"
@@ -54,7 +46,7 @@ task iossrcs: [:iceproj]
 task :iossrcs, [:sdk, :config] do |t, args|
     sdk = args.sdk || "iphonesimulator"
     config = args.config || "Debug"
-    system("xcodebuild -project xcode/ice.iOS.xcodeproj -scheme Ice -sdk #{sdk} -config #{config}")
+    system("xcodebuild -project ice.xcodeproj -scheme \"Ice iOS\" -sdk #{sdk} -config #{config}")
 end
 
 desc "Build Ice for Swift iOS framework and tests, sdk: iphonesimulator|iphoneos config: Debug|Release"
@@ -62,59 +54,59 @@ task iosbuild: [:iceproj]
 task :iosbuild, [:sdk, :config] do |t, args|
     sdk = args.sdk || "iphonesimulator"
     config = args.config || "Debug"
-    system("xcodebuild -project xcode/ice.iOS.xcodeproj -scheme TestDriver -sdk #{sdk} -config #{config}")
+    system("xcodebuild -project ice.xcodeproj -scheme \"TestDriver iOS\" -sdk #{sdk} -config #{config}")
 end
 
 desc "Build Ice for Swift macOS framework, config: Debug|Release"
 task macossrcs: [:iceproj]
 task :macossrcs, [:config] do |t, args|
     config = args.config || "Debug"
-    system("xcodebuild -project xcode/ice.macOS.xcodeproj -scheme Ice -config #{config}")
+    system("xcodebuild -project ice.xcodeproj -scheme \"Ice macOS\" -config #{config}")
 end
 
 desc "Build Ice for Swift macOS framework and tests, config: Debug|Release"
 task macosbuild: [:iceproj]
 task :macosbuild, [:config] do |t, args|
     config = args.config || "Debug"
-    system("xcodebuild -project xcode/ice.macOS.xcodeproj -scheme TestDriver -config #{config}")
+    system("xcodebuild -project ice.xcodeproj -scheme \"TestDriver macOS\" -config #{config}")
 end
 
 task :default => [:macosbuild]
 
-def create_iceproj(tests, platform)
+def create_iceproj(project, tests, platform)
+
     platform_name = platform == :osx ? "macOS" : "iOS"
+    carthage_prefix = platform == :osx ? "Mac" : "iOS"
     frameworks_group = platform == :osx ? "OS X" : "iOS"
 
-    #
-    # Ice project
-    #
-    project = Xcodeproj::Project.new("ice.#{platform_name}.xcodeproj")
-
     ice_target = project.new_target(:framework, "Ice", platform)
+    ice_target.name = "Ice #{platform_name}"
 
     target = ice_target
     target.frameworks_build_phases.clear()
-    group = project_group(project, "src/IceObjc")
-    target_add_matching_files(target, group, "../src/IceObjc", ["*.mm", "module.map"])
-    target_add_headers(target, group, "../src/IceObjc", ["*.h"], attributes: ["Private"])
 
-    target_set_common_build_settings(target, "../src/Ice/Info.plist", "Ice")
+    group = project_group(project, "src/IceObjc")
+    target_add_matching_files(target, group, "src/IceObjc", ["*.mm"])
+    target_add_headers(target, group, "src/IceObjc", ["*.h"], attributes: ["Private"])
+
+    target_set_common_build_settings(target, "src/Ice/Info.plist", "Ice")
     cpp_libraries = ["Ice", "IceSSL", "IceDiscovery", "IceLocatorDiscovery"]
 
     if platform == :osx then
         target.build_configurations.each { |config|
             config.build_settings["HEADER_SEARCH_PATHS"] = [
-                "$(SRCROOT)/../../cpp/include/",
-                "$(SRCROOT)/../../cpp/include/generated"
+                "$(SRCROOT)/../cpp/include/",
+                "$(SRCROOT)/../cpp/include/generated"
             ]
-            config.build_settings["LIBRARY_SEARCH_PATHS"] = "$(SRCROOT)/../../cpp/lib"
-            config.build_settings["SWIFT_INCLUDE_PATHS"] = "$(SRCROOT)/../src/IceObjc"
+            config.build_settings["LIBRARY_SEARCH_PATHS"] = "$(SRCROOT)/../cpp/lib"
+            config.build_settings["SWIFT_INCLUDE_PATHS"] = "$(SRCROOT)/src/IceObjc"
+            config.build_settings["DEFINES_MODULE"] = "YES"
         }
         copy_phase = target.new_copy_files_build_phase("Copy Frameworks")
         copy_phase.dst_subfolder_spec = Xcodeproj::Constants::COPY_FILES_BUILD_PHASE_DESTINATIONS[:frameworks]
         libraries = cpp_libraries.map{ |item| "lib#{item}++11.37.dylib"}
         target.frameworks_build_phases.clear()
-        group_add_matching_files(project.frameworks_group, "../../cpp/lib", libraries).each do |ref|
+        group_add_matching_files(project.frameworks_group, "../cpp/lib", libraries).each do |ref|
             target.frameworks_build_phases.add_file_reference(ref, true)
             file = copy_phase.add_file_reference(ref)
             file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
@@ -122,9 +114,9 @@ def create_iceproj(tests, platform)
     else
         target.build_configurations.each { |config|
             config.build_settings["HEADER_SEARCH_PATHS"] = [
-                "$(SRCROOT)/../../sdk/$(PLATFORM_NAME).sdk/usr/include"
+                "$(SRCROOT)/../sdk/$(PLATFORM_NAME).sdk/usr/include"
             ]
-            config.build_settings["LIBRARY_SEARCH_PATHS"] = "$(SRCROOT)/../../sdk/$(PLATFORM_NAME).sdk/usr/lib"
+            config.build_settings["LIBRARY_SEARCH_PATHS"] = "$(SRCROOT)/../sdk/$(PLATFORM_NAME).sdk/usr/lib"
             config.build_settings["OTHER_LDFLAGS"] = [
                 "-lIce++11",
                 "-lIceSSL++11",
@@ -146,9 +138,9 @@ def create_iceproj(tests, platform)
     end
 
     group = project_group(project, "src/Ice")
-    group_add_matching_files(group, "../src/Ice", ["*.plist"])
-    target_add_headers(target, group, "../src/Ice", ["*.h"])
-    target_add_matching_files(target, group, "../src/Ice", ["*.swift"])
+    group_add_matching_files(group, "src/Ice", ["*.plist"])
+    target_add_headers(target, group, "src/Ice", ["*.h"])
+    target_add_matching_files(target, group, "src/Ice", ["*.swift"])
     excludes = {
         "Ice" => ["Metrics.ice"]
     }
@@ -160,49 +152,51 @@ def create_iceproj(tests, platform)
 
     slices.each do |item|
         group = project_group(project, "src/Ice/slice/#{item}")
-        target_add_matching_files(target, group, "../../slice/#{item}", ["*.ice"], excludes[item] || [])
+        target_add_matching_files(target, group, "../slice/#{item}", ["*.ice"], excludes[item] || [])
         add_slice_compiler(project, target, item)
     end
 
-    add_lint_build_phase(target, "../src/Ice")
+    add_lint_build_phase(target, "src/Ice")
 
     #
     # Test projects
     #
     tests.each do |test|
         target = project.new_target(:framework, target_name(test), platform)
+        target.name = "#{target.name} #{platform_name}"
         unless test == "TestCommon" then
-            common = project.targets.find { |t| t.name == "TestCommon" }
+            common = project.targets.find { |t| t.name == "TestCommon #{platform_name}" }
             target.frameworks_build_phases.add_file_reference(common.product_reference)
         end
         target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
 
         add_slice_compiler(project, target)
-        add_lint_build_phase(target, "../test/#{test}")
+        add_lint_build_phase(target, "test/#{test}")
 
         #
         # Add .ice and .swift files to the target
         #
         group = project_group(project, "test/#{test}")
-        group_add_matching_files(group, "../test/#{test}", ["*.plist"])
-        target_add_matching_files(target, group, "../test/#{test}", ["*.ice", "*.swift"])
+        group_add_matching_files(group, "test/#{test}", ["*.plist"])
+        target_add_matching_files(target, group, "test/#{test}", ["*.ice", "*.swift"])
 
-        target_set_common_build_settings(target, "../test/#{test}/Info.plist", target_name(test))
+        target_set_common_build_settings(target, "test/#{test}/Info.plist", target_name(test))
     end
 
     target = project.new_target(:application, "TestDriver", platform)
-    target_set_common_build_settings(target, "../test/TestDriver/#{platform_name}/Info.plist", "TestDriver")
+    target.name = "#{target.name} #{platform_name}"
+    target_set_common_build_settings(target, "test/TestDriver/#{platform_name}/Info.plist", "TestDriver")
     add_slice_compiler(project, target)
-    add_lint_build_phase(target, "../test/TestDriver")
+    add_lint_build_phase(target, "test/TestDriver")
 
     group = project_group(project, "test/TestDriver")
-    target_add_matching_files(target, group, "../test/TestDriver", ["*.ice", "*.swift"])
-    target_add_matching_files(target, group, "../test/TestDriver/#{platform_name}", ["*.ice", "*.swift"])
+    target_add_matching_files(target, group, "test/TestDriver", ["*.ice", "*.swift"])
+    target_add_matching_files(target, group, "test/TestDriver/#{platform_name}", ["*.ice", "*.swift"])
 
     if platform == :ios then
-        target_add_matching_files(target, group, "../../scripts", ["*.ice"])
-        target_add_matching_files(target, group, "../test/TestDriver/#{platform_name}", ["*.xcassets"])
-        target_add_matching_files(target, group, "../test/TestDriver/#{platform_name}/Base.lproj", ["*.storyboard"])
+        target_add_matching_files(target, group, "../scripts", ["*.ice"])
+        target_add_matching_files(target, group, "test/TestDriver/#{platform_name}", ["*.xcassets"])
+        target_add_matching_files(target, group, "test/TestDriver/#{platform_name}/Base.lproj", ["*.storyboard"])
     end
 
     #
@@ -214,17 +208,26 @@ def create_iceproj(tests, platform)
     file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     tests.each do |test|
         name = target_name(test)
-        framework = project.targets.find { |t| t.name == name }
+        framework = project.targets.find { |t| t.name == "#{name} #{platform_name}" }
         target.frameworks_build_phases.add_file_reference(framework.product_reference)
         file = copy_phase.add_file_reference(framework.product_reference)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
+    end
+
+    project.targets.each do |target|
+        group = project.frameworks_group[frameworks_group]
+        group_add_matching_files(group, "Carthage/Build/#{carthage_prefix}", ["PromiseKit.framework"]).each do |ref|
+            target.frameworks_build_phases.add_file_reference(ref, true)
+            if target.name == "TestDriver #{platform_name}" then
+                copy_phase.add_file_reference(ref)
+            end
+        end
     end
 
     #
     # Sort the project and save it
     #
     project.sort({:groups_position => :above})
-    project.predictabilize_uuids()
     project.save()
 
     #
@@ -232,7 +235,7 @@ def create_iceproj(tests, platform)
     #
     scheme = Xcodeproj::XCScheme.new
     scheme.add_build_target(ice_target)
-    scheme.save_as("ice.#{platform_name}.xcodeproj", "Ice", true)
+    scheme.save_as("ice.xcodeproj", "Ice #{platform_name}", true)
 end
 
 def project_group(project, name)
@@ -247,8 +250,9 @@ def project_group(project, name)
     group
 end
 
-def target_name(basename)
-    basename.split("/").map{ |item| item[0].upcase + item[1..-1]}.join()
+def target_name(basename, suffix = nil)
+    name = basename.split("/").map{ |item| item[0].upcase + item[1..-1]}.join()
+    suffix ? "#{name} #{suffix}" : name
 end
 
 def add_slice_compiler(project, target, prefix = nil)
@@ -261,12 +265,12 @@ def add_slice_compiler(project, target, prefix = nil)
     if prefix then
         rule.name = "Slice Compiler for #{prefix}/*.ice"
         rule.file_patterns = "*/#{prefix}/*.ice"
-        rule.script = "$SRCROOT/../config/xcode-slice2swift.sh #{prefix}"
+        rule.script = "$SRCROOT/config/xcode-slice2swift.sh #{prefix}"
         rule.output_files = ["$(DERIVED_FILE_DIR)/#{prefix}_$(INPUT_FILE_BASE).swift"]
     else
         rule.name = "Slice Compiler"
         rule.file_patterns = "*.ice"
-        rule.script = "$SRCROOT/../config/xcode-slice2swift.sh"
+        rule.script = "$SRCROOT/config/xcode-slice2swift.sh"
         rule.output_files = ["$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift"]
     end
     target.build_rules << rule
@@ -274,7 +278,7 @@ end
 
 def add_lint_build_phase(target, basedir)
     phase = target.new_shell_script_build_phase("Swiftformat & Swiftlint")
-    phase.shell_script = "$SRCROOT/../config/xcode-swiftlint.sh $SRCROOT/#{basedir} $SRCROOT/../.swiftlint.yml"
+    phase.shell_script = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/#{basedir} $SRCROOT/.swiftlint.yml"
 end
 
 def group_add_matching_files(group, basedir, patterns, exclude = [])
@@ -287,7 +291,8 @@ def group_add_matching_files(group, basedir, patterns, exclude = [])
         end
     end
     files = files.reject { |item| exclude.any? { |pattern| item.match(pattern) } }
-    files.map{ |file| group.new_file("#{basedir}/#{file}")}
+    references = []
+    files.map { |file|  group.find_subpath(file) ||  group.new_file("#{basedir}/#{file}") }
 end
 
 def target_add_matching_files(target, group, basedir, patterns, excludes = [])
@@ -308,6 +313,7 @@ def target_set_common_build_settings(target, plist, bundle)
         config.build_settings["CODE_SIGN_IDENTITY"] = ""
         config.build_settings["DEVELOPMENT_TEAM"] = "U4TBVKNQ7F"
         config.build_settings["INFOPLIST_FILE"] = plist
-        config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = bundle
+        config.build_settings["PRODUCT_NAME"] = bundle
+        config.build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = "com.zeroc.#{bundle}"
     }
 end

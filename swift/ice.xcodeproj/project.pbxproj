@@ -1,0 +1,2977 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		013A667DCD2D55E8DD22ABE3 /* ImplicitContextI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD3A9ECAAFC04F5F8552E55 /* ImplicitContextI.swift */; };
+		01ACC81D1D8C15B2CADF4A3A /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13DA446B6C86B0E87257330E /* Ice.framework */; };
+		0204ADBB1F505963D68B29D7 /* ServantLocator.ice in Sources */ = {isa = PBXBuildFile; fileRef = 9F98CC532C19A72E9342241E /* ServantLocator.ice */; };
+		025F71195FC25A2E3971C723 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE815A5B7E9968A5A4E19560 /* TestCommon.framework */; };
+		03590E0B013EDAAA22F38725 /* Util.mm in Sources */ = {isa = PBXBuildFile; fileRef = F572FBE32A2FCFEAC3DF3C36 /* Util.mm */; };
+		04D2E9816B0F07E1C8784B59 /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = 10CCBC9E49D7BC525BEEFEE2 /* Test.ice */; };
+		04F26EDBB3F2C3E4CA1D72C3 /* IceEnums.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 1C6663A4AC8B629BD99B0D79 /* IceEnums.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		04F7B52E5858B059D698F003 /* Proxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E6F5612B319EA25DC852FF8 /* Proxy.swift */; };
+		06AEA82CB9353ED76EC71DC4 /* OutputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3661343C770BC748F8A754 /* OutputStream.swift */; };
+		06EA1A1DDFE575BCF3216B98 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD380DFD43A94F98286D9ECB /* Ice.framework */; };
+		07B1E8A0B492DA5DE918D381 /* IceUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 9146D35A1DF96D1DE556B091 /* IceUtil.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		07E5AD020881992897303249 /* ConnectionInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6351A9E5D9B68F421CD6DE08 /* ConnectionInfoFactory.swift */; };
+		09798E8709C459EE41912CE4 /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7FF521481BE5B6618BC8506 /* Value.swift */; };
+		09F22F2CA5882D19E779715A /* ImplicitContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF4AF14597DEA9A190E5E655 /* ImplicitContext.mm */; };
+		0A396D50C0ABB8C062B952DF /* ObjectAdapterF.ice in Sources */ = {isa = PBXBuildFile; fileRef = C79B684678EFBFBE780D65B8 /* ObjectAdapterF.ice */; };
+		0A85AD3D56D1EC668C5A21FB /* FormatType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A61640CB8DD77F2402669AB /* FormatType.swift */; };
+		0BC7F5B967A2F989B7440D67 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A6C47C84CA337F470AAC1C /* Cocoa.framework */; };
+		0BD8056AAD00377247C6F3E2 /* libIceLocatorDiscovery++11.37.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = DCB91CB4DE6FF1CA0F02D290 /* libIceLocatorDiscovery++11.37.dylib */; };
+		0C095505F9290E487B7EE1EF /* Process.ice in Sources */ = {isa = PBXBuildFile; fileRef = 0E5685519D36C17DEA485B67 /* Process.ice */; };
+		0D522C2D7AA5FE148A46371A /* Version.ice in Sources */ = {isa = PBXBuildFile; fileRef = 59E9C5AEA797060C4A1B4938 /* Version.ice */; };
+		0EBCF96B455DB3EED0BF3788 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20F40E605F4C7EC6B6B691C4 /* Exception.swift */; };
+		11B2E3EEE70F354E661E0E97 /* libIceLocatorDiscovery++11.37.dylib in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = DCB91CB4DE6FF1CA0F02D290 /* libIceLocatorDiscovery++11.37.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		12833CD46AEE5D3BA0C103F5 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE815A5B7E9968A5A4E19560 /* TestCommon.framework */; };
+		12B82F74E689BCA78C8F710E /* ObjectPrx.mm in Sources */ = {isa = PBXBuildFile; fileRef = BCA76118080C7E8EBC6A26D0 /* ObjectPrx.mm */; };
+		145DFC1701B8A82A02EC35CE /* ConnectionF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 150C8533E1AF1B501B303693 /* ConnectionF.ice */; };
+		149DAA85E7EF8DF5BD28093D /* InstrumentationF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 01FDCC15D4B6A84EBB689019 /* InstrumentationF.ice */; };
+		14BA8E431889A58D1C81C3A7 /* Connection.h in Headers */ = {isa = PBXBuildFile; fileRef = AD81ED064767433AEFE0B226 /* Connection.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		161FA7DA5ABFC01EA8DA8192 /* Communicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = DF6815DB96C7A763109068A0 /* Communicator.mm */; };
+		16625C2CD5AED8C083C98408 /* IceProperties.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 066FED8AFAC2A221983C5C51 /* IceProperties.framework */; };
+		172EAEA0A03FFF881D7596A4 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		176634BDF724192EE7BA6A3A /* Instrumentation.ice in Sources */ = {isa = PBXBuildFile; fileRef = 912FB835A30529BE92C735E7 /* Instrumentation.ice */; };
+		1D2B44D3D28CD51125ABFEF9 /* PropertiesAdmin.ice in Sources */ = {isa = PBXBuildFile; fileRef = 04CC431BAC6AAF7C5F72C3E7 /* PropertiesAdmin.ice */; };
+		1EA781CF445CE0D7A94B1C7C /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */; };
+		214F63EB36DF1BD5BE1C218A /* LaunchScreen.storyboard in Sources */ = {isa = PBXBuildFile; fileRef = DA9B7C097C02F30EA8C10F31 /* LaunchScreen.storyboard */; };
+		21AB0F68077335E83F5C2CA0 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A6C47C84CA337F470AAC1C /* Cocoa.framework */; };
+		233AF913AD8FF14BE79E4867 /* IceUtil.mm in Sources */ = {isa = PBXBuildFile; fileRef = 729C154A33D439F9FD27150D /* IceUtil.mm */; };
+		23B546AE70B04E0EF117425B /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = F6AAC17FC935C37E78890426 /* Test.ice */; };
+		2415E8DDEDDA18FBD9760348 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A6C47C84CA337F470AAC1C /* Cocoa.framework */; };
+		241DC775AF6DA935AC94A2C1 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1449AFE42B6058EF53A8DA93 /* Client.swift */; };
+		259BD9FFB393C9134CE0C894 /* LocalExceptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAC58C00021D10DD4767F975 /* LocalExceptionFactory.swift */; };
+		25B690BAD675035542108D7A /* EndpointInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = 3DE0F9B8ACAFADDFBB03605A /* EndpointInfo.ice */; };
+		269A258D51FFD56534914F69 /* Endpoint.mm in Sources */ = {isa = PBXBuildFile; fileRef = 052AC6A56BBB3743814483B2 /* Endpoint.mm */; };
+		28EB147308F9A56CBACD1844 /* IceProperties.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C844A9A29F82CCB3DADC2FC3 /* IceProperties.framework */; };
+		290785B8C21D979796C8711F /* ImplicitContextF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 2140E935008A067D50422F0A /* ImplicitContextF.ice */; };
+		29834DFFC6D3B4BB2CCF524F /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFAFA2EC21CD4C82CE895CF /* Util.swift */; };
+		2A0FC49CCF3C08B0BF68B4FC /* CommunicatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = F61C897A9D6DF610A30BA07F /* CommunicatorF.ice */; };
+		2A24790D386F5E2D68652FF7 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE815A5B7E9968A5A4E19560 /* TestCommon.framework */; };
+		2A47667589F0CE228B7712E0 /* LocalException.ice in Sources */ = {isa = PBXBuildFile; fileRef = A80DECB73C230390AAD324AD /* LocalException.ice */; };
+		2B6FF0AE9F33FF1D11A0AC09 /* CommunicatorI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E57FEAAD7A729D79678297 /* CommunicatorI.swift */; };
+		2B7644E4A89CD8D1D51CD0AF /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AF15E1281CF31917DA426C /* Globals.swift */; };
+		2C8312F480579BDB653CD019 /* ServantLocatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8502702EFD0D7E826A7ACF12 /* ServantLocatorF.ice */; };
+		2CD88D0AD80E9C9D96B7709F /* Endpoint.ice in Sources */ = {isa = PBXBuildFile; fileRef = 7D144F029C4844807F666B24 /* Endpoint.ice */; };
+		2DA2CC3AE4419ED0621E3BC8 /* Value.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7FF521481BE5B6618BC8506 /* Value.swift */; };
+		2EABB10B1365B8B0DC46A99A /* ObjectAdapter.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1D4B0EE6E8427ED583030517 /* ObjectAdapter.ice */; };
+		2F6BF64676BD097A291B1722 /* Ice.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = CD380DFD43A94F98286D9ECB /* Ice.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		2F85E6B8FF946426C439A18B /* ObjectFactory.ice in Sources */ = {isa = PBXBuildFile; fileRef = 9BC47581242BEE9BCB33992C /* ObjectFactory.ice */; };
+		307B77784F68940D677AFE7F /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E3AC1BCE415A53915871C1A /* Foundation.framework */; };
+		3098622CA8A89D727B65E994 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A6C47C84CA337F470AAC1C /* Cocoa.framework */; };
+		3193FF831EDA04A9EC0B069D /* EndpointF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 177CD7F94276B007CC1CFA35 /* EndpointF.ice */; };
+		31BF6F03FC0672D4177F5B34 /* ObjectPrx.h in Headers */ = {isa = PBXBuildFile; fileRef = 6CF70D34416400E683B0D285 /* ObjectPrx.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		323F810F8E45723AF2D76EBE /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		32C3CDBB67F33DB90CC24827 /* libIceSSL++11.37.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 127B4A37BEC116BE28D8BF27 /* libIceSSL++11.37.dylib */; };
+		3353F2620B9C3697ED6ABA4B /* ObjectAdapterI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98153637B542AB32BA1DE127 /* ObjectAdapterI.swift */; };
+		33BF87658AD40DCBC2EB14E1 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD380DFD43A94F98286D9ECB /* Ice.framework */; };
+		3499414725A94BD434BCA0E4 /* LoggerF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 0CC9E8903D30A15B6A98CCAD /* LoggerF.ice */; };
+		36061A2D51CC1857907D82FB /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3B8FB083E8B606B09313E /* Client.swift */; };
+		3699566723297ABE647EFA21 /* Buffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ED50388A40C0E00E5354353 /* Buffer.swift */; };
+		39C62B8D8950AF92846D2694 /* PropertiesF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 3666BA03B90A51200FB49431 /* PropertiesF.ice */; };
+		3A639EFE17D8A7F39F3B7FC3 /* Buffer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ED50388A40C0E00E5354353 /* Buffer.swift */; };
+		3C5A1B9527362B18D99E887F /* Logger.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C117C61C8C62DCF14AB3C4C /* Logger.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		3C78F7C13B523003CDB46D1E /* LoggerI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BB1C2EDA4656549736730E /* LoggerI.swift */; };
+		3C95A1DA93DFF569460D6DF1 /* LocalObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94005DC86F850BE2D036F439 /* LocalObject.mm */; };
+		3DFC0CF62A538522514F9338 /* ClassResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA6100439802406DB74F71D /* ClassResolver.swift */; };
+		3F58C913FBEDC4850FA532A2 /* EndpointInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F0D512DE24B4493CE70DC /* EndpointInfoFactory.swift */; };
+		4045FC02ACE30C507C1C4D31 /* SliceChecksumDict.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8E27A573BF6154193A0BB191 /* SliceChecksumDict.ice */; };
+		40A969FDADD08FD173F4A132 /* PropertiesF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 3666BA03B90A51200FB49431 /* PropertiesF.ice */; };
+		42EE2A47B198FA40AC6305A6 /* Main.storyboard in Sources */ = {isa = PBXBuildFile; fileRef = C6F5E7F4ED2D6F7E0001D296 /* Main.storyboard */; };
+		43BC19B0C820546D1A60FCBB /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA23237DB25F217811F384BA /* Mutex.swift */; };
+		471A496CC8B9CFFE9C71E894 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD380DFD43A94F98286D9ECB /* Ice.framework */; };
+		489EFC225ED1F5A41A513F21 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		48C24D99AB1C4A1F0D07C885 /* ValueFactory.ice in Sources */ = {isa = PBXBuildFile; fileRef = D845F87CEB60874EDFFB1E68 /* ValueFactory.ice */; };
+		4941CACC891C36587F3A9F9A /* ConnectionInfoF.ice in Sources */ = {isa = PBXBuildFile; fileRef = A6AAB6BE1DF728414E08A17E /* ConnectionInfoF.ice */; };
+		4B7D72B430280CC6206FD6C0 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844F6193C39B0FF8D7308970 /* TestCommon.framework */; };
+		4B83ED7B8A03E84BD8B3422B /* ConnectionI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54AFB76B38633B5CC8C48D8 /* ConnectionI.swift */; };
+		4C25622CE372F056D4661F41 /* OutputStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 83644CE0EF6ABAAE78CC6495 /* OutputStream.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		4C58C9ED9E205BC561F73D8D /* LocalObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3223C55E11F32A07C6093455 /* LocalObject.swift */; };
+		4C9B20CDB81B79A885190CF0 /* Ice.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 13DA446B6C86B0E87257330E /* Ice.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		4D4856A581C8DE4AF23A08D4 /* Endpoint.mm in Sources */ = {isa = PBXBuildFile; fileRef = 052AC6A56BBB3743814483B2 /* Endpoint.mm */; };
+		4DC68142DD44F7F956276BA8 /* Mutex.swift in Sources */ = {isa = PBXBuildFile; fileRef = EA23237DB25F217811F384BA /* Mutex.swift */; };
+		4F4274418E8E12CBDBB778C8 /* CommunicatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = F61C897A9D6DF610A30BA07F /* CommunicatorF.ice */; };
+		4F854D0EA758F41FF1C9B4C7 /* ObjectAdapter.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1D4B0EE6E8427ED583030517 /* ObjectAdapter.ice */; };
+		506D4F7445CA9A6172AE74FB /* EndpointI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054F86E66F58FE5E09C0C636 /* EndpointI.swift */; };
+		525385B8A599382833E3B222 /* factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ED578D869D757E310E602A /* factory.swift */; };
+		52A4E4F54F13EA68FA51B102 /* ConnectionInfoF.ice in Sources */ = {isa = PBXBuildFile; fileRef = A6AAB6BE1DF728414E08A17E /* ConnectionInfoF.ice */; };
+		52B64CEDAB4FA78B8878F493 /* ValueFactory.ice in Sources */ = {isa = PBXBuildFile; fileRef = D845F87CEB60874EDFFB1E68 /* ValueFactory.ice */; };
+		5337B595EB18DE31DA177DAD /* Properties.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16162759446AC7489D70DD90 /* Properties.mm */; };
+		53C452F4C710F09A424011DC /* ImplicitContext.h in Headers */ = {isa = PBXBuildFile; fileRef = D7C4C3E16448B02427FABD0D /* ImplicitContext.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		5581FB41301B90B8EBFECD2E /* ObjectFactory.ice in Sources */ = {isa = PBXBuildFile; fileRef = 9BC47581242BEE9BCB33992C /* ObjectFactory.ice */; };
+		55DD0B18F940223085238E8B /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		5742FB00F714B83DAE8EEA74 /* IceEnums.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C6663A4AC8B629BD99B0D79 /* IceEnums.framework */; };
+		579F31B811C0D40D255D7761 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		58B55FE3178AC7623AD7901A /* Proxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E6F5612B319EA25DC852FF8 /* Proxy.swift */; };
+		59E72FC2983153FD49363737 /* Assets.xcassets in Sources */ = {isa = PBXBuildFile; fileRef = A0F82D614BB520F2D882E107 /* Assets.xcassets */; };
+		5A41188080E1D6BE811085D9 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92EE27CB0391F8D31809B60E /* Server.swift */; };
+		5A624C17CD02A2E83D85BCA1 /* TestCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FC01084E18B720515CC736 /* TestCommon.swift */; };
+		5ACA162C6511B002017A2C81 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ABBE72D8358EF437D7611B8 /* AppDelegate.swift */; };
+		5B29CA793C6D63EA19635B8A /* ConnectionInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = B5147E32D170D33E65335A49 /* ConnectionInfo.ice */; };
+		5B927E6213C9989D0B43673D /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844F6193C39B0FF8D7308970 /* TestCommon.framework */; };
+		5CA1C48F0E6463961955E4FE /* Properties.ice in Sources */ = {isa = PBXBuildFile; fileRef = B084A044DB6F5516955499C9 /* Properties.ice */; };
+		5CAC8E6DDA88AC1B70BB9998 /* RouterF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 72CD5F1AABCA3EC03CCAF269 /* RouterF.ice */; };
+		5D694B3D8CD445F4EA558349 /* FormatType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A61640CB8DD77F2402669AB /* FormatType.swift */; };
+		5D6BB375DEEF7A630C862696 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9347809A81CC71D7A57F962 /* Client.swift */; };
+		5EECE7E574FDD142B5641189 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CD380DFD43A94F98286D9ECB /* Ice.framework */; };
+		5F77AAB633AE41163A57DABD /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		5FA2710B901A1C37A8896E8C /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A065244458DAD90D061BA59 /* UIKit.framework */; };
+		606D23273E07E26DF09578E1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E3AC1BCE415A53915871C1A /* Foundation.framework */; };
+		614E6EA4D15C845C206633F3 /* SlicedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD2FE6364ADDB00210C8A7E /* SlicedData.swift */; };
+		61AA18485F3B5F257B2B03BE /* Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B572793897C94ADFCBE7A45 /* Protocol.swift */; };
+		61AF40ED9C681A244770C1A4 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		62155CF9F3E64AD5ABA775F2 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		630C5ED5A450C46B2B4665DA /* ProcessF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 6D92B3C77B52ABB1B6D47BE3 /* ProcessF.ice */; };
+		63438FDB2DF7F0FE658CE067 /* Connection.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8F7DCD05B1C0678F99B524A0 /* Connection.ice */; };
+		640C50A73CE231776C12199C /* InputStream.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0804897DBB60737CCF082EB8 /* InputStream.mm */; };
+		65C1D8C3C3F405B67AA5C934 /* IceUtil.mm in Sources */ = {isa = PBXBuildFile; fileRef = 729C154A33D439F9FD27150D /* IceUtil.mm */; };
+		67C0924ED451C80526B844D9 /* Util.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAFAFA2EC21CD4C82CE895CF /* Util.swift */; };
+		686DB5870B9A96F9F41E3381 /* Version.ice in Sources */ = {isa = PBXBuildFile; fileRef = 59E9C5AEA797060C4A1B4938 /* Version.ice */; };
+		686DFE24CE5F0CFFC3302797 /* InputStream.mm in Sources */ = {isa = PBXBuildFile; fileRef = 0804897DBB60737CCF082EB8 /* InputStream.mm */; };
+		68A77011E5289A63DED773BD /* InputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D2DC4D99BEB2B1A3DB43A2 /* InputStream.swift */; };
+		68D6AECEA4CDA87ACB45CBA4 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */; };
+		6923C7A5B012D7D0043748BF /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844F6193C39B0FF8D7308970 /* TestCommon.framework */; };
+		69F471E6DE393F20516AF28F /* ImplicitContextF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 2140E935008A067D50422F0A /* ImplicitContextF.ice */; };
+		6AD8E3603819F0BF2CFEA650 /* ObjectAdapterF.ice in Sources */ = {isa = PBXBuildFile; fileRef = C79B684678EFBFBE780D65B8 /* ObjectAdapterF.ice */; };
+		6B869F35FBC73F3F66C8B5E2 /* Properties.ice in Sources */ = {isa = PBXBuildFile; fileRef = B084A044DB6F5516955499C9 /* Properties.ice */; };
+		6BA000469E5008CDA057D53A /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */; };
+		6DE2BCF1E18D284C8909E43D /* ConnectionInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6351A9E5D9B68F421CD6DE08 /* ConnectionInfoFactory.swift */; };
+		6F1506082B75B184E193B7D7 /* EndpointInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC8F0D512DE24B4493CE70DC /* EndpointInfoFactory.swift */; };
+		6F2C6C7134BF39C75C468406 /* LocalExceptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAC58C00021D10DD4767F975 /* LocalExceptionFactory.swift */; };
+		6FA6CBA21E3AC6B81C290609 /* OutputStream.h in Headers */ = {isa = PBXBuildFile; fileRef = 83644CE0EF6ABAAE78CC6495 /* OutputStream.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		7053CAAA93BD409702BCB5AA /* Process.ice in Sources */ = {isa = PBXBuildFile; fileRef = 0E5685519D36C17DEA485B67 /* Process.ice */; };
+		7231FA103B232EBD3F00B2D9 /* Communicator.h in Headers */ = {isa = PBXBuildFile; fileRef = 54D9E4C8A57EB55F3D480CDA /* Communicator.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		728880655069D8FB3D282B91 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 82A6C47C84CA337F470AAC1C /* Cocoa.framework */; };
+		744A4516A311331729717E07 /* SliceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88C9D60B2423246C4E91A126 /* SliceInfo.swift */; };
+		7552C8F3105A519EA9B06522 /* EndpointInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = C5EB1A4CAE997D2CCBFF3780 /* EndpointInfo.ice */; };
+		75E602A477E3BF916DF74174 /* ConnectionI.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54AFB76B38633B5CC8C48D8 /* ConnectionI.swift */; };
+		765F28438B1501075816551D /* Endpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = E862EC8C450E16E8E8209112 /* Endpoint.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		7672D51167B19715D8E24A35 /* EndpointF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 177CD7F94276B007CC1CFA35 /* EndpointF.ice */; };
+		771094ECF32AD0966D42E716 /* IceProperties.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = C844A9A29F82CCB3DADC2FC3 /* IceProperties.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		78E907C403D3B0C9325B7E77 /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 381FAF6302CA15CC3BF2A70C /* main.swift */; };
+		7BAECB20D7C4C0FC332D4EC1 /* InitializationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCAA56987484602C2D3EFFE /* InitializationData.swift */; };
+		7D990A0DD8FCAA43F6333BD2 /* ImplicitContextI.swift in Sources */ = {isa = PBXBuildFile; fileRef = CAD3A9ECAAFC04F5F8552E55 /* ImplicitContextI.swift */; };
+		7E167E53805CDEA599E271EC /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = F6AAC17FC935C37E78890426 /* Test.ice */; };
+		7EE2E4F196EDAA48DC59C112 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13DA446B6C86B0E87257330E /* Ice.framework */; };
+		7F8B9C91148D79B4FE9B2C4E /* Util.h in Headers */ = {isa = PBXBuildFile; fileRef = 9EB64109CAAC54B3D75BD3FB /* Util.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		802F0D668AAAF31F21844D1E /* Communicator.ice in Sources */ = {isa = PBXBuildFile; fileRef = E77E4D3CF53644EE90A329A5 /* Communicator.ice */; };
+		8083EE8573D18F83F47351A1 /* IceDefaultValue.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 50D11A05AAC75F2ADB09A76D /* IceDefaultValue.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		815845B1DC819C472250CAF6 /* InputStream.h in Headers */ = {isa = PBXBuildFile; fileRef = FCC28479B247D67D2D6CC4BF /* InputStream.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		821F6E3A5E3E90236DFBD8D8 /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9347809A81CC71D7A57F962 /* Client.swift */; };
+		82B25BF4A6ED061A5D96CF88 /* LocalObject.mm in Sources */ = {isa = PBXBuildFile; fileRef = 94005DC86F850BE2D036F439 /* LocalObject.mm */; };
+		83397C0AE06E8D438D62D3D0 /* Globals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93AF15E1281CF31917DA426C /* Globals.swift */; };
+		8346748AE9A7C1855FDC3A02 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E3AC1BCE415A53915871C1A /* Foundation.framework */; };
+		83FC3BF9BFD17C2FBC806393 /* RemoteLogger.ice in Sources */ = {isa = PBXBuildFile; fileRef = B59675C3A44CB284C7CAC164 /* RemoteLogger.ice */; };
+		868CE0F634F42E667F69DDC8 /* FacetMap.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B262144B3687C3DC6BA7 /* FacetMap.ice */; };
+		86A023A7BFCD7768A7C547C4 /* InputStream.h in Headers */ = {isa = PBXBuildFile; fileRef = FCC28479B247D67D2D6CC4BF /* InputStream.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		86BA6C234A58C9700671EFDA /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */; };
+		87DF0DC7DF3E1149363DB572 /* Util.h in Headers */ = {isa = PBXBuildFile; fileRef = 9EB64109CAAC54B3D75BD3FB /* Util.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		8836AA0A5758206647513A7E /* SliceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 88C9D60B2423246C4E91A126 /* SliceInfo.swift */; };
+		88B41990B01D2B52C0304AD5 /* Plugin.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1AEB67A394553B06259AB317 /* Plugin.ice */; };
+		8BCBCAC92BDCF5F76839A221 /* Config.h in Headers */ = {isa = PBXBuildFile; fileRef = B4BB96CAFFB22C5200A7CEE2 /* Config.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		8CAB976ABF333DB74E1669E0 /* Logger.h in Headers */ = {isa = PBXBuildFile; fileRef = 7C117C61C8C62DCF14AB3C4C /* Logger.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		8D8744BF6DCD03E567EF694E /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */; };
+		8DE0BF70A015FC5DED33FCC9 /* UnknownSlicedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E4244DF7DC08709B747E7B /* UnknownSlicedValue.swift */; };
+		8E746FD8BC0B41ED5D25511A /* Logger.ice in Sources */ = {isa = PBXBuildFile; fileRef = 52FB51F5850971BB52868D70 /* Logger.ice */; };
+		8EF1E7A1448ECD1B76287689 /* ConnectionF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 150C8533E1AF1B501B303693 /* ConnectionF.ice */; };
+		90BFBE2541A2317825030F55 /* Endpoint.h in Headers */ = {isa = PBXBuildFile; fileRef = E862EC8C450E16E8E8209112 /* Endpoint.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		90FE54C5720943F40269E44B /* SlicedData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CD2FE6364ADDB00210C8A7E /* SlicedData.swift */; };
+		921FA4460AABF0400C7059B4 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		927882395D9FE865ED33BF24 /* libIceDiscovery++11.37.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = E681F8B4BC286EE308B541B1 /* libIceDiscovery++11.37.dylib */; };
+		92F4DE9E6F7165B700853563 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		9459D53A146FF2B803F08AA0 /* Connection.mm in Sources */ = {isa = PBXBuildFile; fileRef = E5EBC2E783807D26FAFF9D5A /* Connection.mm */; };
+		94A07C8FC176045AD2D90E77 /* RouterF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 72CD5F1AABCA3EC03CCAF269 /* RouterF.ice */; };
+		9559EA421434FD8F3023CCCB /* LoggerF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 0CC9E8903D30A15B6A98CCAD /* LoggerF.ice */; };
+		9681639275D5FA078394F27B /* IceDefaultValue.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 50D11A05AAC75F2ADB09A76D /* IceDefaultValue.framework */; };
+		979D944E9986AB0781889639 /* Logger.ice in Sources */ = {isa = PBXBuildFile; fileRef = 52FB51F5850971BB52868D70 /* Logger.ice */; };
+		999DBF76A9D6F7F8657FDEC6 /* Connection.h in Headers */ = {isa = PBXBuildFile; fileRef = AD81ED064767433AEFE0B226 /* Connection.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		99B5CC75D60F73B0DEE22955 /* Properties.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CE19E9E5D591B1466D9B521 /* Properties.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		99EB2C3E0AE7BD85FDF395E2 /* ObjectPrx.mm in Sources */ = {isa = PBXBuildFile; fileRef = BCA76118080C7E8EBC6A26D0 /* ObjectPrx.mm */; };
+		9B054E3A3ADFED05DB9A9250 /* ImplicitContext.ice in Sources */ = {isa = PBXBuildFile; fileRef = 32B63CBBC5D0AA4EC2EBA22D /* ImplicitContext.ice */; };
+		9B4B03D2B691E2DF49E709B6 /* IceUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 9146D35A1DF96D1DE556B091 /* IceUtil.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		9C222885E620022424541ADB /* Communicator.mm in Sources */ = {isa = PBXBuildFile; fileRef = DF6815DB96C7A763109068A0 /* Communicator.mm */; };
+		9C4222B0E9EBE3E6042F5627 /* BuiltinSequences.ice in Sources */ = {isa = PBXBuildFile; fileRef = 63CF00CC298528AD2C33708E /* BuiltinSequences.ice */; };
+		9C937B0A5F23573F0A2F941D /* libIce++11.37.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 08A49DBA2E54C5A1E91CA243 /* libIce++11.37.dylib */; };
+		9CFF83BF1AB03233D02519ED /* LocatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 431F4661D13A0D254AC3A5B6 /* LocatorF.ice */; };
+		9E8A808E65BBB38E88DABB89 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B4B19658F4E4389DAC40A3C /* Security.framework */; };
+		9FACB1AC3308DC5386BD1522 /* Router.ice in Sources */ = {isa = PBXBuildFile; fileRef = 2971942A510752CCE256ED60 /* Router.ice */; };
+		9FB1B179AD53CD35C2647DF5 /* libIceSSL++11.37.dylib in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 127B4A37BEC116BE28D8BF27 /* libIceSSL++11.37.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		A0279B4186EF4CDB271B9407 /* Instrumentation.ice in Sources */ = {isa = PBXBuildFile; fileRef = 912FB835A30529BE92C735E7 /* Instrumentation.ice */; };
+		A0D00A7B0E407C0AE8773763 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = EB741CBBBCD41FA644F4FB69 /* Logger.mm */; };
+		A0D9EF3C40ABBD922FBD14F6 /* OptionalFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9FA82D939ADC92F5D45DF6 /* OptionalFormat.swift */; };
+		A17266E3AC3FBC702E861D85 /* Current.ice in Sources */ = {isa = PBXBuildFile; fileRef = 384C1056097C3140D2884158 /* Current.ice */; };
+		A1D5ABEB59A40EC8054F4044 /* Identity.ice in Sources */ = {isa = PBXBuildFile; fileRef = 884494C950914E9224BC8F03 /* Identity.ice */; };
+		A24710D7EEE2A3DBFCAA98D6 /* TestCommon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72FC01084E18B720515CC736 /* TestCommon.swift */; };
+		A2C480EF31BAC0CE25E1C0B6 /* Connection.mm in Sources */ = {isa = PBXBuildFile; fileRef = E5EBC2E783807D26FAFF9D5A /* Connection.mm */; };
+		A2F88D4D47219E4E0B220785 /* Router.ice in Sources */ = {isa = PBXBuildFile; fileRef = 2971942A510752CCE256ED60 /* Router.ice */; };
+		A3B3687C0C42C36C51D4E559 /* ObjectAdapterI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98153637B542AB32BA1DE127 /* ObjectAdapterI.swift */; };
+		A3E665E4B00668F6E13F31D9 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */; };
+		A5D890DB709EE612F16A4016 /* IceSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D3DA7497311A7800C72EC41 /* IceSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		A5F31ED5B8BB6E14CC807737 /* LocatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 431F4661D13A0D254AC3A5B6 /* LocatorF.ice */; };
+		AC969CAA7397FEFC0E97CFEA /* Locator.ice in Sources */ = {isa = PBXBuildFile; fileRef = 998C1E7569A2A1053D800C36 /* Locator.ice */; };
+		AD6DBC59D32B7D4F4C4919EC /* Identity.ice in Sources */ = {isa = PBXBuildFile; fileRef = 884494C950914E9224BC8F03 /* Identity.ice */; };
+		AECAE362CECE5E60646657B3 /* ValueFactoryManagerI.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFEDEF8BAF5CF25486D66EB8 /* ValueFactoryManagerI.swift */; };
+		AF667D9FC885B125E31D4B42 /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C738E3406EB3C22C62912F3 /* Object.swift */; };
+		AFD2EB153C7B946CAB6EBBF1 /* SliceChecksumDict.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8E27A573BF6154193A0BB191 /* SliceChecksumDict.ice */; };
+		B043874CDBF2365685B5D683 /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13DA446B6C86B0E87257330E /* Ice.framework */; };
+		B0D0BDBB7482652381393AB1 /* ClassResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBA6100439802406DB74F71D /* ClassResolver.swift */; };
+		B0FB72D5E54E15942DF7B980 /* Controller.ice in Sources */ = {isa = PBXBuildFile; fileRef = 47C8807D7A2CFAB6E821F6DF /* Controller.ice */; };
+		B25702FFBAAA2DD2E0A7B4B1 /* ServantLocator.ice in Sources */ = {isa = PBXBuildFile; fileRef = 9F98CC532C19A72E9342241E /* ServantLocator.ice */; };
+		B379A82872C405E60437BC81 /* LocalObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 862D51F549E393BB39C1EB41 /* LocalObject.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		B3B0EA06B357CF189D1F0B32 /* ImplicitContext.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF4AF14597DEA9A190E5E655 /* ImplicitContext.mm */; };
+		B3B60DEDAECC42DE89178AD0 /* Exception.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20F40E605F4C7EC6B6B691C4 /* Exception.swift */; };
+		B4A0A985AA8E1348EC339160 /* InstrumentationF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 01FDCC15D4B6A84EBB689019 /* InstrumentationF.ice */; };
+		B56C6D747A1263A697D3712F /* PluginF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D4643D29DA61DBF2217DD951 /* PluginF.ice */; };
+		B761EA3CC95D00A86708C6D0 /* ConnectionInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = 7E9BACAD0EADAFE50D68923B /* ConnectionInfo.ice */; };
+		B82BF8CF6E38EA6FBCF32CD3 /* IceSwift.h in Headers */ = {isa = PBXBuildFile; fileRef = 2D3DA7497311A7800C72EC41 /* IceSwift.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		B8576418CB1F64CF05FCCF97 /* Config.h in Headers */ = {isa = PBXBuildFile; fileRef = B4BB96CAFFB22C5200A7CEE2 /* Config.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		B985DEF13F88FF39E9DACCB8 /* Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B572793897C94ADFCBE7A45 /* Protocol.swift */; };
+		BA7A8E955E07365A717D6C8E /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 844F6193C39B0FF8D7308970 /* TestCommon.framework */; };
+		BDF6373AED3BBD7505499890 /* RemoteLogger.ice in Sources */ = {isa = PBXBuildFile; fileRef = B59675C3A44CB284C7CAC164 /* RemoteLogger.ice */; };
+		C075C445317748BA919C586D /* Ice.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 13DA446B6C86B0E87257330E /* Ice.framework */; };
+		C0CC78FD6409F207F17EEF72 /* Communicator.h in Headers */ = {isa = PBXBuildFile; fileRef = 54D9E4C8A57EB55F3D480CDA /* Communicator.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		C403BD9D9060C4DC3D9715D2 /* IceDefaultValue.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 810534D02EFABB53338AAF96 /* IceDefaultValue.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		C4501D8BD21D3C71D2861C74 /* PropertiesAdmin.ice in Sources */ = {isa = PBXBuildFile; fileRef = 04CC431BAC6AAF7C5F72C3E7 /* PropertiesAdmin.ice */; };
+		C45E94C378AD676C51B558E8 /* LoggerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E0D6F7F13645A05799CB932 /* LoggerWrapper.swift */; };
+		C853C23D76D3EBD4232ABD49 /* LocalObject.h in Headers */ = {isa = PBXBuildFile; fileRef = 862D51F549E393BB39C1EB41 /* LocalObject.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		C85AC886CEEF724D7C60DC5F /* LocalException.h in Headers */ = {isa = PBXBuildFile; fileRef = 61363148FEABF84C54446AC0 /* LocalException.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		C866AD6F1E9427CDFFA13DAC /* PromiseKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */; };
+		C8AECF8D9F3FEAFC7FC2B89C /* LoggerWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E0D6F7F13645A05799CB932 /* LoggerWrapper.swift */; };
+		CA04785E1A44E85F158DF673 /* IceEnums.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 26D1263527D86BCB183E5A1B /* IceEnums.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		CB1ABEF370B7CB34525D19E2 /* UnknownSlicedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0E4244DF7DC08709B747E7B /* UnknownSlicedValue.swift */; };
+		CB5FF29C1E785986411DC061 /* Object.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3C738E3406EB3C22C62912F3 /* Object.swift */; };
+		CD22036EECCD4F68D2F44D95 /* LocalException.h in Headers */ = {isa = PBXBuildFile; fileRef = 61363148FEABF84C54446AC0 /* LocalException.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		CEE74A03AC85EAB4925E7092 /* Locator.ice in Sources */ = {isa = PBXBuildFile; fileRef = 998C1E7569A2A1053D800C36 /* Locator.ice */; };
+		D22076852F242AA93418FFBF /* OptionalFormat.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9FA82D939ADC92F5D45DF6 /* OptionalFormat.swift */; };
+		D3790D4918958951CA565C80 /* libIceDiscovery++11.37.dylib in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = E681F8B4BC286EE308B541B1 /* libIceDiscovery++11.37.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		D38F76341F371620AB6BD93D /* PluginF.ice in Sources */ = {isa = PBXBuildFile; fileRef = D4643D29DA61DBF2217DD951 /* PluginF.ice */; };
+		D3997412BA237EED6ADBBAE3 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E3AC1BCE415A53915871C1A /* Foundation.framework */; };
+		D505E46F0EA92CE134720B54 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA578D09474B5652B7448B82 /* CFNetwork.framework */; };
+		D5FC71FC8EF6DAABB72F0712 /* InitializationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DCAA56987484602C2D3EFFE /* InitializationData.swift */; };
+		D698E591FB64D473FA3A417B /* IceDefaultValue.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 810534D02EFABB53338AAF96 /* IceDefaultValue.framework */; };
+		D76D32D0B573B8B59520FEF7 /* Communicator.ice in Sources */ = {isa = PBXBuildFile; fileRef = E77E4D3CF53644EE90A329A5 /* Communicator.ice */; };
+		D87640F58B5DC0E7B0BEBC68 /* PropertiesI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35CCFCBB044C11B6B099D23 /* PropertiesI.swift */; };
+		D9615B7791C73AFAC086EDAA /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FC3B8FB083E8B606B09313E /* Client.swift */; };
+		DA76435B0CCCB08868E3AE0B /* ValueFactoryManagerI.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFEDEF8BAF5CF25486D66EB8 /* ValueFactoryManagerI.swift */; };
+		DBF9B9B9226735B3B34A756E /* Client.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1449AFE42B6058EF53A8DA93 /* Client.swift */; };
+		DCA44DD38F365EF2D159F46F /* LoggerI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37BB1C2EDA4656549736730E /* LoggerI.swift */; };
+		DCE0A8EB06700741CCB6C034 /* IceEnums.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 26D1263527D86BCB183E5A1B /* IceEnums.framework */; };
+		DD27D87CD9AF0301CD638AD2 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		DF1925DCAC788C52F2234561 /* ImplicitContext.h in Headers */ = {isa = PBXBuildFile; fileRef = D7C4C3E16448B02427FABD0D /* ImplicitContext.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		DF93FE26A4EA71132CBA88BE /* EndpointTypes.ice in Sources */ = {isa = PBXBuildFile; fileRef = B069A18E0A340D8F3335EE43 /* EndpointTypes.ice */; };
+		E0C7D78D34F7DC6283E37BCB /* libIce++11.37.dylib in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 08A49DBA2E54C5A1E91CA243 /* libIce++11.37.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		E142AB968C61174E103BE5B3 /* Server.swift in Sources */ = {isa = PBXBuildFile; fileRef = 92EE27CB0391F8D31809B60E /* Server.swift */; };
+		E1747BFCE6826D94058F140A /* Properties.h in Headers */ = {isa = PBXBuildFile; fileRef = 7CE19E9E5D591B1466D9B521 /* Properties.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		E17BC89150B557A069535432 /* EndpointTypes.ice in Sources */ = {isa = PBXBuildFile; fileRef = B069A18E0A340D8F3335EE43 /* EndpointTypes.ice */; };
+		E2073BD49BBD3E33A34FFC5B /* Util.mm in Sources */ = {isa = PBXBuildFile; fileRef = F572FBE32A2FCFEAC3DF3C36 /* Util.mm */; };
+		E2657C51D4811C0DB4B9F599 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E3AC1BCE415A53915871C1A /* Foundation.framework */; };
+		E26A3A613FE6865F5DA99F6C /* ServantLocatorF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8502702EFD0D7E826A7ACF12 /* ServantLocatorF.ice */; };
+		E458EF16E7942529923EA844 /* Endpoint.ice in Sources */ = {isa = PBXBuildFile; fileRef = 7D144F029C4844807F666B24 /* Endpoint.ice */; };
+		E4B660B0E7CED458BF16D858 /* IceProperties.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 066FED8AFAC2A221983C5C51 /* IceProperties.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		E652A0B9B77543D0FDAEF36D /* TestCommon.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = FE815A5B7E9968A5A4E19560 /* TestCommon.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		E6A912DA1C30E23A47C2BEDC /* ObjectPrx.h in Headers */ = {isa = PBXBuildFile; fileRef = 6CF70D34416400E683B0D285 /* ObjectPrx.h */; settings = {ATTRIBUTES = (Private, ); }; };
+		E6D6104A0940F25BAC7197AE /* PromiseKit.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		E79E18E0002F0BFDA51CF03F /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3EF99A321BB56AF89A65D93A /* PromiseKit.framework */; };
+		E831452E4763F1CA45D8E827 /* EndpointI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 054F86E66F58FE5E09C0C636 /* EndpointI.swift */; };
+		E8896A11764027A22E560F94 /* EndpointInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = 3DE0F9B8ACAFADDFBB03605A /* EndpointInfo.ice */; };
+		E8CCF76099862317F9479301 /* OutputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC3661343C770BC748F8A754 /* OutputStream.swift */; };
+		E94265E5811ED68538C149DC /* Current.ice in Sources */ = {isa = PBXBuildFile; fileRef = 384C1056097C3140D2884158 /* Current.ice */; };
+		E9BA6596CC93DBEE5E5BA88C /* InputStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 89D2DC4D99BEB2B1A3DB43A2 /* InputStream.swift */; };
+		EAE0E9572B0202891FD2ECF6 /* TestCommon.framework in Copy Frameworks */ = {isa = PBXBuildFile; fileRef = 844F6193C39B0FF8D7308970 /* TestCommon.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		EC2444174FC92C87A7ECDBE8 /* Connection.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8F7DCD05B1C0678F99B524A0 /* Connection.ice */; };
+		EDAA84F45DC0CE5199BFBA74 /* ImplicitContext.ice in Sources */ = {isa = PBXBuildFile; fileRef = 32B63CBBC5D0AA4EC2EBA22D /* ImplicitContext.ice */; };
+		EEA750FDCA91DA89FBB045C2 /* FacetMap.ice in Sources */ = {isa = PBXBuildFile; fileRef = 8A21B262144B3687C3DC6BA7 /* FacetMap.ice */; };
+		EEFA4437CA793F4DD7C5A167 /* Logger.mm in Sources */ = {isa = PBXBuildFile; fileRef = EB741CBBBCD41FA644F4FB69 /* Logger.mm */; };
+		EFF13A6FC238B7EB341A00A5 /* PropertiesI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B35CCFCBB044C11B6B099D23 /* PropertiesI.swift */; };
+		F0EF83A69229F6B9415940A4 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5E3AC1BCE415A53915871C1A /* Foundation.framework */; };
+		F21F0B39FAB96A15829E623E /* LocalObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3223C55E11F32A07C6093455 /* LocalObject.swift */; };
+		F37B4BFC7AD97AA438CBF1AE /* ConnectionInfo.ice in Sources */ = {isa = PBXBuildFile; fileRef = 7E9BACAD0EADAFE50D68923B /* ConnectionInfo.ice */; };
+		F4A1A9206288D1DB7BEF41EB /* Test.ice in Sources */ = {isa = PBXBuildFile; fileRef = 10CCBC9E49D7BC525BEEFEE2 /* Test.ice */; };
+		F58AF25CB8F1E928E552569D /* BuiltinSequences.ice in Sources */ = {isa = PBXBuildFile; fileRef = 63CF00CC298528AD2C33708E /* BuiltinSequences.ice */; };
+		F615F05D94752E62815A35BF /* Plugin.ice in Sources */ = {isa = PBXBuildFile; fileRef = 1AEB67A394553B06259AB317 /* Plugin.ice */; };
+		F75C491F125E11AB0B85F672 /* LocalException.ice in Sources */ = {isa = PBXBuildFile; fileRef = A80DECB73C230390AAD324AD /* LocalException.ice */; };
+		FA3839165F15687ACFC0C981 /* ProcessF.ice in Sources */ = {isa = PBXBuildFile; fileRef = 6D92B3C77B52ABB1B6D47BE3 /* ProcessF.ice */; };
+		FAAF9CFA99F03B0FF86D597A /* CommunicatorI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0E57FEAAD7A729D79678297 /* CommunicatorI.swift */; };
+		FB89A71CEAD4296E115A71CB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C8E147426EAE38F2108EE4C /* ViewController.swift */; };
+		FD09B3D97DEFFBA61A3DF586 /* Properties.mm in Sources */ = {isa = PBXBuildFile; fileRef = 16162759446AC7489D70DD90 /* Properties.mm */; };
+		FD8E44953CF806DED412DB32 /* TestCommon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE815A5B7E9968A5A4E19560 /* TestCommon.framework */; };
+		FE45E481155604844CA1CC60 /* factory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86ED578D869D757E310E602A /* factory.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXBuildRule section */
+		16D2FD1D3746202DFBAB71E7 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		289C0020A575DC8FDA09465D /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		32C88F2CAAC15FFFACE269C1 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		4C160F16706DE8169A9DDC3A /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*/IceSSL/*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler for IceSSL/*.ice";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/IceSSL_$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh IceSSL";
+		};
+		4F221E54B94E5FB7D061742C /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		565C273B633151CA123E32CE /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		595A062ABE041303396C9635 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*/IceSSL/*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler for IceSSL/*.ice";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/IceSSL_$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh IceSSL";
+		};
+		971D04E1E5E2FDD02E135AAC /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*/Ice/*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler for Ice/*.ice";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/Ice_$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh Ice";
+		};
+		9FCCAAE4594321AA6E836F36 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*/Ice/*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler for Ice/*.ice";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/Ice_$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh Ice";
+		};
+		AD2E923A49B9C4AEA1AB2D7F /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*/IceIAP/*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler for IceIAP/*.ice";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/IceIAP_$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh IceIAP";
+		};
+		AE1A851E23C70316DD649EBC /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		AF6455BA6385C933BBCC044E /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		B6AA9FB99DD3E19EF4F93013 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		FB8685D408F8065F4096B6F2 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+		FBDF52B4FFE36CD5C1645B01 /* PBXBuildRule */ = {
+			isa = PBXBuildRule;
+			compilerSpec = com.apple.compilers.proxy.script;
+			filePatterns = "*.ice";
+			fileType = pattern.proxy;
+			isEditable = 1;
+			name = "Slice Compiler";
+			outputFiles = (
+				"$(DERIVED_FILE_DIR)/$(INPUT_FILE_BASE).swift",
+			);
+			script = "$SRCROOT/config/xcode-slice2swift.sh";
+		};
+/* End PBXBuildRule section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2D07E66298BF45A5C7B008F1 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 16;
+			files = (
+				2F6BF64676BD097A291B1722 /* Ice.framework in Copy Frameworks */,
+				8083EE8573D18F83F47351A1 /* IceDefaultValue.framework in Copy Frameworks */,
+				04F26EDBB3F2C3E4CA1D72C3 /* IceEnums.framework in Copy Frameworks */,
+				E4B660B0E7CED458BF16D858 /* IceProperties.framework in Copy Frameworks */,
+				E6D6104A0940F25BAC7197AE /* PromiseKit.framework in Copy Frameworks */,
+				E652A0B9B77543D0FDAEF36D /* TestCommon.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5FE747BB97728F01B8AB2F54 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				E0C7D78D34F7DC6283E37BCB /* libIce++11.37.dylib in Copy Frameworks */,
+				D3790D4918958951CA565C80 /* libIceDiscovery++11.37.dylib in Copy Frameworks */,
+				11B2E3EEE70F354E661E0E97 /* libIceLocatorDiscovery++11.37.dylib in Copy Frameworks */,
+				9FB1B179AD53CD35C2647DF5 /* libIceSSL++11.37.dylib in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B8B59E0521DF73D43CD85009 /* Copy Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				4C9B20CDB81B79A885190CF0 /* Ice.framework in Copy Frameworks */,
+				C403BD9D9060C4DC3D9715D2 /* IceDefaultValue.framework in Copy Frameworks */,
+				CA04785E1A44E85F158DF673 /* IceEnums.framework in Copy Frameworks */,
+				771094ECF32AD0966D42E716 /* IceProperties.framework in Copy Frameworks */,
+				C866AD6F1E9427CDFFA13DAC /* PromiseKit.framework in Copy Frameworks */,
+				EAE0E9572B0202891FD2ECF6 /* TestCommon.framework in Copy Frameworks */,
+			);
+			name = "Copy Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		01FDCC15D4B6A84EBB689019 /* InstrumentationF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = InstrumentationF.ice; path = ../slice/Ice/InstrumentationF.ice; sourceTree = "<group>"; };
+		04CC431BAC6AAF7C5F72C3E7 /* PropertiesAdmin.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PropertiesAdmin.ice; path = ../slice/Ice/PropertiesAdmin.ice; sourceTree = "<group>"; };
+		052AC6A56BBB3743814483B2 /* Endpoint.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Endpoint.mm; path = src/IceObjc/Endpoint.mm; sourceTree = "<group>"; };
+		054F86E66F58FE5E09C0C636 /* EndpointI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EndpointI.swift; path = src/Ice/EndpointI.swift; sourceTree = "<group>"; };
+		066FED8AFAC2A221983C5C51 /* IceProperties.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IceProperties.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0804897DBB60737CCF082EB8 /* InputStream.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = InputStream.mm; path = src/IceObjc/InputStream.mm; sourceTree = "<group>"; };
+		08A49DBA2E54C5A1E91CA243 /* libIce++11.37.dylib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "compiled.mach-o.dylib"; name = "libIce++11.37.dylib"; path = "../cpp/lib/libIce++11.37.dylib"; sourceTree = "<group>"; };
+		0CC9E8903D30A15B6A98CCAD /* LoggerF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LoggerF.ice; path = ../slice/Ice/LoggerF.ice; sourceTree = "<group>"; };
+		0DCAA56987484602C2D3EFFE /* InitializationData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InitializationData.swift; path = src/Ice/InitializationData.swift; sourceTree = "<group>"; };
+		0E0D6F7F13645A05799CB932 /* LoggerWrapper.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoggerWrapper.swift; path = src/Ice/LoggerWrapper.swift; sourceTree = "<group>"; };
+		0E5685519D36C17DEA485B67 /* Process.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Process.ice; path = ../slice/Ice/Process.ice; sourceTree = "<group>"; };
+		10CCBC9E49D7BC525BEEFEE2 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/defaultValue/Test.ice; sourceTree = "<group>"; };
+		127B4A37BEC116BE28D8BF27 /* libIceSSL++11.37.dylib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "compiled.mach-o.dylib"; name = "libIceSSL++11.37.dylib"; path = "../cpp/lib/libIceSSL++11.37.dylib"; sourceTree = "<group>"; };
+		13DA446B6C86B0E87257330E /* Ice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1449AFE42B6058EF53A8DA93 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/enums/Client.swift; sourceTree = "<group>"; };
+		150C8533E1AF1B501B303693 /* ConnectionF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ConnectionF.ice; path = ../slice/Ice/ConnectionF.ice; sourceTree = "<group>"; };
+		16162759446AC7489D70DD90 /* Properties.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Properties.mm; path = src/IceObjc/Properties.mm; sourceTree = "<group>"; };
+		177CD7F94276B007CC1CFA35 /* EndpointF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EndpointF.ice; path = ../slice/Ice/EndpointF.ice; sourceTree = "<group>"; };
+		1AEB67A394553B06259AB317 /* Plugin.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Plugin.ice; path = ../slice/Ice/Plugin.ice; sourceTree = "<group>"; };
+		1C6663A4AC8B629BD99B0D79 /* IceEnums.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IceEnums.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1D4B0EE6E8427ED583030517 /* ObjectAdapter.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ObjectAdapter.ice; path = ../slice/Ice/ObjectAdapter.ice; sourceTree = "<group>"; };
+		20F40E605F4C7EC6B6B691C4 /* Exception.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Exception.swift; path = src/Ice/Exception.swift; sourceTree = "<group>"; };
+		2140E935008A067D50422F0A /* ImplicitContextF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ImplicitContextF.ice; path = ../slice/Ice/ImplicitContextF.ice; sourceTree = "<group>"; };
+		26D1263527D86BCB183E5A1B /* IceEnums.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IceEnums.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2971942A510752CCE256ED60 /* Router.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Router.ice; path = ../slice/Ice/Router.ice; sourceTree = "<group>"; };
+		2ABBE72D8358EF437D7611B8 /* AppDelegate.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = test/TestDriver/iOS/AppDelegate.swift; sourceTree = "<group>"; };
+		2D3DA7497311A7800C72EC41 /* IceSwift.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceSwift.h; path = src/Ice/IceSwift.h; sourceTree = "<group>"; };
+		2FC3B8FB083E8B606B09313E /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/properties/Client.swift; sourceTree = "<group>"; };
+		3223C55E11F32A07C6093455 /* LocalObject.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalObject.swift; path = src/Ice/LocalObject.swift; sourceTree = "<group>"; };
+		322ACDF5A1F46DC91CCECC9D /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/properties/Info.plist; sourceTree = "<group>"; };
+		32B63CBBC5D0AA4EC2EBA22D /* ImplicitContext.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ImplicitContext.ice; path = ../slice/Ice/ImplicitContext.ice; sourceTree = "<group>"; };
+		3666BA03B90A51200FB49431 /* PropertiesF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PropertiesF.ice; path = ../slice/Ice/PropertiesF.ice; sourceTree = "<group>"; };
+		37BB1C2EDA4656549736730E /* LoggerI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LoggerI.swift; path = src/Ice/LoggerI.swift; sourceTree = "<group>"; };
+		381FAF6302CA15CC3BF2A70C /* main.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = main.swift; path = test/TestDriver/macOS/main.swift; sourceTree = "<group>"; };
+		384C1056097C3140D2884158 /* Current.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Current.ice; path = ../slice/Ice/Current.ice; sourceTree = "<group>"; };
+		3B4B19658F4E4389DAC40A3C /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/Security.framework; sourceTree = DEVELOPER_DIR; };
+		3B572793897C94ADFCBE7A45 /* Protocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Protocol.swift; path = src/Ice/Protocol.swift; sourceTree = "<group>"; };
+		3C738E3406EB3C22C62912F3 /* Object.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Object.swift; path = src/Ice/Object.swift; sourceTree = "<group>"; };
+		3DE0F9B8ACAFADDFBB03605A /* EndpointInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EndpointInfo.ice; path = ../slice/IceSSL/EndpointInfo.ice; sourceTree = "<group>"; };
+		3EF99A321BB56AF89A65D93A /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = Carthage/Build/iOS/PromiseKit.framework; sourceTree = "<group>"; };
+		431F4661D13A0D254AC3A5B6 /* LocatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LocatorF.ice; path = ../slice/Ice/LocatorF.ice; sourceTree = "<group>"; };
+		47C8807D7A2CFAB6E821F6DF /* Controller.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Controller.ice; path = ../scripts/Controller.ice; sourceTree = "<group>"; };
+		4E6F5612B319EA25DC852FF8 /* Proxy.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Proxy.swift; path = src/Ice/Proxy.swift; sourceTree = "<group>"; };
+		50D11A05AAC75F2ADB09A76D /* IceDefaultValue.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IceDefaultValue.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		52FB51F5850971BB52868D70 /* Logger.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Logger.ice; path = ../slice/Ice/Logger.ice; sourceTree = "<group>"; };
+		54D9E4C8A57EB55F3D480CDA /* Communicator.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Communicator.h; path = src/IceObjc/Communicator.h; sourceTree = "<group>"; };
+		59E9C5AEA797060C4A1B4938 /* Version.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Version.ice; path = ../slice/Ice/Version.ice; sourceTree = "<group>"; };
+		5A065244458DAD90D061BA59 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
+		5A61640CB8DD77F2402669AB /* FormatType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = FormatType.swift; path = src/Ice/FormatType.swift; sourceTree = "<group>"; };
+		5E3AC1BCE415A53915871C1A /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		61363148FEABF84C54446AC0 /* LocalException.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = LocalException.h; path = src/IceObjc/LocalException.h; sourceTree = "<group>"; };
+		6351A9E5D9B68F421CD6DE08 /* ConnectionInfoFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConnectionInfoFactory.swift; path = src/Ice/ConnectionInfoFactory.swift; sourceTree = "<group>"; };
+		63CF00CC298528AD2C33708E /* BuiltinSequences.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = BuiltinSequences.ice; path = ../slice/Ice/BuiltinSequences.ice; sourceTree = "<group>"; };
+		6CD2FE6364ADDB00210C8A7E /* SlicedData.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SlicedData.swift; path = src/Ice/SlicedData.swift; sourceTree = "<group>"; };
+		6CF70D34416400E683B0D285 /* ObjectPrx.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ObjectPrx.h; path = src/IceObjc/ObjectPrx.h; sourceTree = "<group>"; };
+		6D92B3C77B52ABB1B6D47BE3 /* ProcessF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ProcessF.ice; path = ../slice/Ice/ProcessF.ice; sourceTree = "<group>"; };
+		729C154A33D439F9FD27150D /* IceUtil.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = IceUtil.mm; path = src/IceObjc/IceUtil.mm; sourceTree = "<group>"; };
+		72CD5F1AABCA3EC03CCAF269 /* RouterF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RouterF.ice; path = ../slice/Ice/RouterF.ice; sourceTree = "<group>"; };
+		72FC01084E18B720515CC736 /* TestCommon.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = TestCommon.swift; path = test/TestCommon/TestCommon.swift; sourceTree = "<group>"; };
+		7C117C61C8C62DCF14AB3C4C /* Logger.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Logger.h; path = src/IceObjc/Logger.h; sourceTree = "<group>"; };
+		7CE19E9E5D591B1466D9B521 /* Properties.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Properties.h; path = src/IceObjc/Properties.h; sourceTree = "<group>"; };
+		7D144F029C4844807F666B24 /* Endpoint.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Endpoint.ice; path = ../slice/Ice/Endpoint.ice; sourceTree = "<group>"; };
+		7E9BACAD0EADAFE50D68923B /* ConnectionInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ConnectionInfo.ice; path = ../slice/IceSSL/ConnectionInfo.ice; sourceTree = "<group>"; };
+		804C4A60650E71B89BEE7345 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = src/Ice/Info.plist; sourceTree = "<group>"; };
+		810534D02EFABB53338AAF96 /* IceDefaultValue.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IceDefaultValue.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		82A6C47C84CA337F470AAC1C /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.14.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
+		83644CE0EF6ABAAE78CC6495 /* OutputStream.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = OutputStream.h; path = src/IceObjc/OutputStream.h; sourceTree = "<group>"; };
+		844F6193C39B0FF8D7308970 /* TestCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8502702EFD0D7E826A7ACF12 /* ServantLocatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ServantLocatorF.ice; path = ../slice/Ice/ServantLocatorF.ice; sourceTree = "<group>"; };
+		862D51F549E393BB39C1EB41 /* LocalObject.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = LocalObject.h; path = src/IceObjc/LocalObject.h; sourceTree = "<group>"; };
+		86ED578D869D757E310E602A /* factory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = factory.swift; path = test/TestDriver/factory.swift; sourceTree = "<group>"; };
+		884494C950914E9224BC8F03 /* Identity.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Identity.ice; path = ../slice/Ice/Identity.ice; sourceTree = "<group>"; };
+		88C9D60B2423246C4E91A126 /* SliceInfo.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = SliceInfo.swift; path = src/Ice/SliceInfo.swift; sourceTree = "<group>"; };
+		89D2DC4D99BEB2B1A3DB43A2 /* InputStream.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = InputStream.swift; path = src/Ice/InputStream.swift; sourceTree = "<group>"; };
+		8A21B262144B3687C3DC6BA7 /* FacetMap.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = FacetMap.ice; path = ../slice/Ice/FacetMap.ice; sourceTree = "<group>"; };
+		8A3FCF372561E3659B31D75A /* TestDriver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDriver.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8E27A573BF6154193A0BB191 /* SliceChecksumDict.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SliceChecksumDict.ice; path = ../slice/Ice/SliceChecksumDict.ice; sourceTree = "<group>"; };
+		8ED50388A40C0E00E5354353 /* Buffer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Buffer.swift; path = src/Ice/Buffer.swift; sourceTree = "<group>"; };
+		8F7DCD05B1C0678F99B524A0 /* Connection.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Connection.ice; path = ../slice/Ice/Connection.ice; sourceTree = "<group>"; };
+		912FB835A30529BE92C735E7 /* Instrumentation.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Instrumentation.ice; path = ../slice/Ice/Instrumentation.ice; sourceTree = "<group>"; };
+		9146D35A1DF96D1DE556B091 /* IceUtil.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = IceUtil.h; path = src/IceObjc/IceUtil.h; sourceTree = "<group>"; };
+		92EE27CB0391F8D31809B60E /* Server.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Server.swift; path = test/Ice/enums/Server.swift; sourceTree = "<group>"; };
+		93AF15E1281CF31917DA426C /* Globals.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Globals.swift; path = src/Ice/Globals.swift; sourceTree = "<group>"; };
+		94005DC86F850BE2D036F439 /* LocalObject.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = LocalObject.mm; path = src/IceObjc/LocalObject.mm; sourceTree = "<group>"; };
+		98153637B542AB32BA1DE127 /* ObjectAdapterI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ObjectAdapterI.swift; path = src/Ice/ObjectAdapterI.swift; sourceTree = "<group>"; };
+		998C1E7569A2A1053D800C36 /* Locator.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Locator.ice; path = ../slice/Ice/Locator.ice; sourceTree = "<group>"; };
+		9A9FA82D939ADC92F5D45DF6 /* OptionalFormat.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OptionalFormat.swift; path = src/Ice/OptionalFormat.swift; sourceTree = "<group>"; };
+		9AFEF726F82123B2B520B30E /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/defaultValue/Info.plist; sourceTree = "<group>"; };
+		9BC47581242BEE9BCB33992C /* ObjectFactory.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ObjectFactory.ice; path = ../slice/Ice/ObjectFactory.ice; sourceTree = "<group>"; };
+		9C8E147426EAE38F2108EE4C /* ViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ViewController.swift; path = test/TestDriver/iOS/ViewController.swift; sourceTree = "<group>"; };
+		9DA4B3A1ECD2B157F740FAF9 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/Ice/enums/Info.plist; sourceTree = "<group>"; };
+		9EB64109CAAC54B3D75BD3FB /* Util.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Util.h; path = src/IceObjc/Util.h; sourceTree = "<group>"; };
+		9F98CC532C19A72E9342241E /* ServantLocator.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ServantLocator.ice; path = ../slice/Ice/ServantLocator.ice; sourceTree = "<group>"; };
+		A0F82D614BB520F2D882E107 /* Assets.xcassets */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = test/TestDriver/iOS/Assets.xcassets; sourceTree = "<group>"; };
+		A6AAB6BE1DF728414E08A17E /* ConnectionInfoF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ConnectionInfoF.ice; path = ../slice/IceSSL/ConnectionInfoF.ice; sourceTree = "<group>"; };
+		A80DECB73C230390AAD324AD /* LocalException.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LocalException.ice; path = ../slice/Ice/LocalException.ice; sourceTree = "<group>"; };
+		A9347809A81CC71D7A57F962 /* Client.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Client.swift; path = test/Ice/defaultValue/Client.swift; sourceTree = "<group>"; };
+		A9D7A8F1E02EBFB7C14B0DF2 /* TestDriver.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TestDriver.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		AD81ED064767433AEFE0B226 /* Connection.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Connection.h; path = src/IceObjc/Connection.h; sourceTree = "<group>"; };
+		B069A18E0A340D8F3335EE43 /* EndpointTypes.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EndpointTypes.ice; path = ../slice/Ice/EndpointTypes.ice; sourceTree = "<group>"; };
+		B084A044DB6F5516955499C9 /* Properties.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Properties.ice; path = ../slice/Ice/Properties.ice; sourceTree = "<group>"; };
+		B35CCFCBB044C11B6B099D23 /* PropertiesI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PropertiesI.swift; path = src/Ice/PropertiesI.swift; sourceTree = "<group>"; };
+		B4BB96CAFFB22C5200A7CEE2 /* Config.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Config.h; path = src/IceObjc/Config.h; sourceTree = "<group>"; };
+		B5147E32D170D33E65335A49 /* ConnectionInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ConnectionInfo.ice; path = ../slice/IceIAP/ConnectionInfo.ice; sourceTree = "<group>"; };
+		B59675C3A44CB284C7CAC164 /* RemoteLogger.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RemoteLogger.ice; path = ../slice/Ice/RemoteLogger.ice; sourceTree = "<group>"; };
+		B7FF521481BE5B6618BC8506 /* Value.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Value.swift; path = src/Ice/Value.swift; sourceTree = "<group>"; };
+		BA578D09474B5652B7448B82 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS12.0.sdk/System/Library/Frameworks/CFNetwork.framework; sourceTree = DEVELOPER_DIR; };
+		BAC58C00021D10DD4767F975 /* LocalExceptionFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = LocalExceptionFactory.swift; path = src/Ice/LocalExceptionFactory.swift; sourceTree = "<group>"; };
+		BAFAFA2EC21CD4C82CE895CF /* Util.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Util.swift; path = src/Ice/Util.swift; sourceTree = "<group>"; };
+		BBA6100439802406DB74F71D /* ClassResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ClassResolver.swift; path = src/Ice/ClassResolver.swift; sourceTree = "<group>"; };
+		BCA76118080C7E8EBC6A26D0 /* ObjectPrx.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = ObjectPrx.mm; path = src/IceObjc/ObjectPrx.mm; sourceTree = "<group>"; };
+		BE54B72CDAFB1BC23445DC96 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; name = Info.plist; path = test/TestCommon/Info.plist; sourceTree = "<group>"; };
+		C0E4244DF7DC08709B747E7B /* UnknownSlicedValue.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = UnknownSlicedValue.swift; path = src/Ice/UnknownSlicedValue.swift; sourceTree = "<group>"; };
+		C5EB1A4CAE997D2CCBFF3780 /* EndpointInfo.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = EndpointInfo.ice; path = ../slice/IceIAP/EndpointInfo.ice; sourceTree = "<group>"; };
+		C6F5E7F4ED2D6F7E0001D296 /* Main.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = Main.storyboard; path = test/TestDriver/iOS/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		C79B684678EFBFBE780D65B8 /* ObjectAdapterF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ObjectAdapterF.ice; path = ../slice/Ice/ObjectAdapterF.ice; sourceTree = "<group>"; };
+		C844A9A29F82CCB3DADC2FC3 /* IceProperties.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = IceProperties.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CAD3A9ECAAFC04F5F8552E55 /* ImplicitContextI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ImplicitContextI.swift; path = src/Ice/ImplicitContextI.swift; sourceTree = "<group>"; };
+		CD380DFD43A94F98286D9ECB /* Ice.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Ice.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CF4AF14597DEA9A190E5E655 /* ImplicitContext.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = ImplicitContext.mm; path = src/IceObjc/ImplicitContext.mm; sourceTree = "<group>"; };
+		D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = Carthage/Build/Mac/PromiseKit.framework; sourceTree = "<group>"; };
+		D4643D29DA61DBF2217DD951 /* PluginF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = PluginF.ice; path = ../slice/Ice/PluginF.ice; sourceTree = "<group>"; };
+		D54AFB76B38633B5CC8C48D8 /* ConnectionI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ConnectionI.swift; path = src/Ice/ConnectionI.swift; sourceTree = "<group>"; };
+		D7C4C3E16448B02427FABD0D /* ImplicitContext.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = ImplicitContext.h; path = src/IceObjc/ImplicitContext.h; sourceTree = "<group>"; };
+		D845F87CEB60874EDFFB1E68 /* ValueFactory.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = ValueFactory.ice; path = ../slice/Ice/ValueFactory.ice; sourceTree = "<group>"; };
+		DA9B7C097C02F30EA8C10F31 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = test/TestDriver/iOS/Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		DC8F0D512DE24B4493CE70DC /* EndpointInfoFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = EndpointInfoFactory.swift; path = src/Ice/EndpointInfoFactory.swift; sourceTree = "<group>"; };
+		DCB91CB4DE6FF1CA0F02D290 /* libIceLocatorDiscovery++11.37.dylib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "compiled.mach-o.dylib"; name = "libIceLocatorDiscovery++11.37.dylib"; path = "../cpp/lib/libIceLocatorDiscovery++11.37.dylib"; sourceTree = "<group>"; };
+		DF6815DB96C7A763109068A0 /* Communicator.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Communicator.mm; path = src/IceObjc/Communicator.mm; sourceTree = "<group>"; };
+		DFEDEF8BAF5CF25486D66EB8 /* ValueFactoryManagerI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ValueFactoryManagerI.swift; path = src/Ice/ValueFactoryManagerI.swift; sourceTree = "<group>"; };
+		E5EBC2E783807D26FAFF9D5A /* Connection.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Connection.mm; path = src/IceObjc/Connection.mm; sourceTree = "<group>"; };
+		E681F8B4BC286EE308B541B1 /* libIceDiscovery++11.37.dylib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = "compiled.mach-o.dylib"; name = "libIceDiscovery++11.37.dylib"; path = "../cpp/lib/libIceDiscovery++11.37.dylib"; sourceTree = "<group>"; };
+		E77E4D3CF53644EE90A329A5 /* Communicator.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Communicator.ice; path = ../slice/Ice/Communicator.ice; sourceTree = "<group>"; };
+		E862EC8C450E16E8E8209112 /* Endpoint.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = Endpoint.h; path = src/IceObjc/Endpoint.h; sourceTree = "<group>"; };
+		EA23237DB25F217811F384BA /* Mutex.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Mutex.swift; path = src/Ice/Mutex.swift; sourceTree = "<group>"; };
+		EB741CBBBCD41FA644F4FB69 /* Logger.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Logger.mm; path = src/IceObjc/Logger.mm; sourceTree = "<group>"; };
+		F0E57FEAAD7A729D79678297 /* CommunicatorI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = CommunicatorI.swift; path = src/Ice/CommunicatorI.swift; sourceTree = "<group>"; };
+		F572FBE32A2FCFEAC3DF3C36 /* Util.mm */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.cpp.objcpp; name = Util.mm; path = src/IceObjc/Util.mm; sourceTree = "<group>"; };
+		F61C897A9D6DF610A30BA07F /* CommunicatorF.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = CommunicatorF.ice; path = ../slice/Ice/CommunicatorF.ice; sourceTree = "<group>"; };
+		F6AAC17FC935C37E78890426 /* Test.ice */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = Test.ice; path = test/Ice/enums/Test.ice; sourceTree = "<group>"; };
+		FC3661343C770BC748F8A754 /* OutputStream.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = OutputStream.swift; path = src/Ice/OutputStream.swift; sourceTree = "<group>"; };
+		FCC28479B247D67D2D6CC4BF /* InputStream.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; name = InputStream.h; path = src/IceObjc/InputStream.h; sourceTree = "<group>"; };
+		FE815A5B7E9968A5A4E19560 /* TestCommon.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TestCommon.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		01115D1D28FFEC4D950E0526 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3098622CA8A89D727B65E994 /* Cocoa.framework in Frameworks */,
+				D698E591FB64D473FA3A417B /* IceDefaultValue.framework in Frameworks */,
+				DCE0A8EB06700741CCB6C034 /* IceEnums.framework in Frameworks */,
+				28EB147308F9A56CBACD1844 /* IceProperties.framework in Frameworks */,
+				1EA781CF445CE0D7A94B1C7C /* PromiseKit.framework in Frameworks */,
+				5F77AAB633AE41163A57DABD /* PromiseKit.framework in Frameworks */,
+				4B7D72B430280CC6206FD6C0 /* TestCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		12243E4A4B1E3BFB9A78AD29 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D3997412BA237EED6ADBBAE3 /* Foundation.framework in Frameworks */,
+				5EECE7E574FDD142B5641189 /* Ice.framework in Frameworks */,
+				921FA4460AABF0400C7059B4 /* PromiseKit.framework in Frameworks */,
+				FD8E44953CF806DED412DB32 /* TestCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2C8C767110161C1C4B2026C0 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				728880655069D8FB3D282B91 /* Cocoa.framework in Frameworks */,
+				7EE2E4F196EDAA48DC59C112 /* Ice.framework in Frameworks */,
+				8D8744BF6DCD03E567EF694E /* PromiseKit.framework in Frameworks */,
+				323F810F8E45723AF2D76EBE /* PromiseKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		62C5223F63BE6ED2EA80DC60 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				21AB0F68077335E83F5C2CA0 /* Cocoa.framework in Frameworks */,
+				B043874CDBF2365685B5D683 /* Ice.framework in Frameworks */,
+				86BA6C234A58C9700671EFDA /* PromiseKit.framework in Frameworks */,
+				E79E18E0002F0BFDA51CF03F /* PromiseKit.framework in Frameworks */,
+				BA7A8E955E07365A717D6C8E /* TestCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6CADDD03A7440F5CBB78DC30 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0BC7F5B967A2F989B7440D67 /* Cocoa.framework in Frameworks */,
+				C075C445317748BA919C586D /* Ice.framework in Frameworks */,
+				A3E665E4B00668F6E13F31D9 /* PromiseKit.framework in Frameworks */,
+				92F4DE9E6F7165B700853563 /* PromiseKit.framework in Frameworks */,
+				6923C7A5B012D7D0043748BF /* TestCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6F41042678A1C031DC546539 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				2415E8DDEDDA18FBD9760348 /* Cocoa.framework in Frameworks */,
+				01ACC81D1D8C15B2CADF4A3A /* Ice.framework in Frameworks */,
+				6BA000469E5008CDA057D53A /* PromiseKit.framework in Frameworks */,
+				172EAEA0A03FFF881D7596A4 /* PromiseKit.framework in Frameworks */,
+				5B927E6213C9989D0B43673D /* TestCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		75471DFD1E35691587064BC5 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				307B77784F68940D677AFE7F /* Foundation.framework in Frameworks */,
+				06EA1A1DDFE575BCF3216B98 /* Ice.framework in Frameworks */,
+				579F31B811C0D40D255D7761 /* PromiseKit.framework in Frameworks */,
+				025F71195FC25A2E3971C723 /* TestCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		7A99C5A25E602ECCD31178E8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				606D23273E07E26DF09578E1 /* Foundation.framework in Frameworks */,
+				471A496CC8B9CFFE9C71E894 /* Ice.framework in Frameworks */,
+				61AF40ED9C681A244770C1A4 /* PromiseKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A8821183C2F91D8F6DE54D94 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D505E46F0EA92CE134720B54 /* CFNetwork.framework in Frameworks */,
+				F0EF83A69229F6B9415940A4 /* Foundation.framework in Frameworks */,
+				489EFC225ED1F5A41A513F21 /* PromiseKit.framework in Frameworks */,
+				9E8A808E65BBB38E88DABB89 /* Security.framework in Frameworks */,
+				5FA2710B901A1C37A8896E8C /* UIKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EEAEB1BCB72D2AE96FD3B941 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9C937B0A5F23573F0A2F941D /* libIce++11.37.dylib in Frameworks */,
+				927882395D9FE865ED33BF24 /* libIceDiscovery++11.37.dylib in Frameworks */,
+				0BD8056AAD00377247C6F3E2 /* libIceLocatorDiscovery++11.37.dylib in Frameworks */,
+				32C3CDBB67F33DB90CC24827 /* libIceSSL++11.37.dylib in Frameworks */,
+				68D6AECEA4CDA87ACB45CBA4 /* PromiseKit.framework in Frameworks */,
+				62155CF9F3E64AD5ABA775F2 /* PromiseKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F252822EBD5627AB5854EDA3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E2657C51D4811C0DB4B9F599 /* Foundation.framework in Frameworks */,
+				9681639275D5FA078394F27B /* IceDefaultValue.framework in Frameworks */,
+				5742FB00F714B83DAE8EEA74 /* IceEnums.framework in Frameworks */,
+				16625C2CD5AED8C083C98408 /* IceProperties.framework in Frameworks */,
+				DD27D87CD9AF0301CD638AD2 /* PromiseKit.framework in Frameworks */,
+				12833CD46AEE5D3BA0C103F5 /* TestCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F7A9C76F885D01E5C5B3F94F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8346748AE9A7C1855FDC3A02 /* Foundation.framework in Frameworks */,
+				33BF87658AD40DCBC2EB14E1 /* Ice.framework in Frameworks */,
+				55DD0B18F940223085238E8B /* PromiseKit.framework in Frameworks */,
+				2A24790D386F5E2D68652FF7 /* TestCommon.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		100F9EB833483285CAEF6047 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				46D35FA1A38DF7E409C61058 /* Ice */,
+				4E69260C540E14E6A5996857 /* IceObjc */,
+			);
+			name = src;
+			sourceTree = "<group>";
+		};
+		2281870446B9D8F04967DA1F /* Ice */ = {
+			isa = PBXGroup;
+			children = (
+				552D51AE6752F58D2CB67399 /* defaultValue */,
+				9F34183149668BCDE6AC861B /* enums */,
+				EE26CF5C4CE9EBEC4D5F9955 /* properties */,
+			);
+			name = Ice;
+			sourceTree = "<group>";
+		};
+		23569DCB49C98DA9E703AAC9 /* test */ = {
+			isa = PBXGroup;
+			children = (
+				2281870446B9D8F04967DA1F /* Ice */,
+				6BB480AA262645A766A6CD6F /* TestCommon */,
+				336F86C11B8E7AE5D804E45C /* TestDriver */,
+			);
+			name = test;
+			sourceTree = "<group>";
+		};
+		336F86C11B8E7AE5D804E45C /* TestDriver */ = {
+			isa = PBXGroup;
+			children = (
+				2ABBE72D8358EF437D7611B8 /* AppDelegate.swift */,
+				A0F82D614BB520F2D882E107 /* Assets.xcassets */,
+				47C8807D7A2CFAB6E821F6DF /* Controller.ice */,
+				86ED578D869D757E310E602A /* factory.swift */,
+				DA9B7C097C02F30EA8C10F31 /* LaunchScreen.storyboard */,
+				C6F5E7F4ED2D6F7E0001D296 /* Main.storyboard */,
+				381FAF6302CA15CC3BF2A70C /* main.swift */,
+				9C8E147426EAE38F2108EE4C /* ViewController.swift */,
+			);
+			name = TestDriver;
+			sourceTree = "<group>";
+		};
+		46D35FA1A38DF7E409C61058 /* Ice */ = {
+			isa = PBXGroup;
+			children = (
+				F2C8F1FFF31126FFD1DBEA6B /* slice */,
+				8ED50388A40C0E00E5354353 /* Buffer.swift */,
+				BBA6100439802406DB74F71D /* ClassResolver.swift */,
+				F0E57FEAAD7A729D79678297 /* CommunicatorI.swift */,
+				D54AFB76B38633B5CC8C48D8 /* ConnectionI.swift */,
+				6351A9E5D9B68F421CD6DE08 /* ConnectionInfoFactory.swift */,
+				054F86E66F58FE5E09C0C636 /* EndpointI.swift */,
+				DC8F0D512DE24B4493CE70DC /* EndpointInfoFactory.swift */,
+				20F40E605F4C7EC6B6B691C4 /* Exception.swift */,
+				5A61640CB8DD77F2402669AB /* FormatType.swift */,
+				93AF15E1281CF31917DA426C /* Globals.swift */,
+				2D3DA7497311A7800C72EC41 /* IceSwift.h */,
+				CAD3A9ECAAFC04F5F8552E55 /* ImplicitContextI.swift */,
+				804C4A60650E71B89BEE7345 /* Info.plist */,
+				0DCAA56987484602C2D3EFFE /* InitializationData.swift */,
+				89D2DC4D99BEB2B1A3DB43A2 /* InputStream.swift */,
+				BAC58C00021D10DD4767F975 /* LocalExceptionFactory.swift */,
+				3223C55E11F32A07C6093455 /* LocalObject.swift */,
+				37BB1C2EDA4656549736730E /* LoggerI.swift */,
+				0E0D6F7F13645A05799CB932 /* LoggerWrapper.swift */,
+				EA23237DB25F217811F384BA /* Mutex.swift */,
+				3C738E3406EB3C22C62912F3 /* Object.swift */,
+				98153637B542AB32BA1DE127 /* ObjectAdapterI.swift */,
+				9A9FA82D939ADC92F5D45DF6 /* OptionalFormat.swift */,
+				FC3661343C770BC748F8A754 /* OutputStream.swift */,
+				B35CCFCBB044C11B6B099D23 /* PropertiesI.swift */,
+				3B572793897C94ADFCBE7A45 /* Protocol.swift */,
+				4E6F5612B319EA25DC852FF8 /* Proxy.swift */,
+				6CD2FE6364ADDB00210C8A7E /* SlicedData.swift */,
+				88C9D60B2423246C4E91A126 /* SliceInfo.swift */,
+				C0E4244DF7DC08709B747E7B /* UnknownSlicedValue.swift */,
+				BAFAFA2EC21CD4C82CE895CF /* Util.swift */,
+				B7FF521481BE5B6618BC8506 /* Value.swift */,
+				DFEDEF8BAF5CF25486D66EB8 /* ValueFactoryManagerI.swift */,
+			);
+			name = Ice;
+			sourceTree = "<group>";
+		};
+		479861DD79CB8871A19301B8 /* IceIAP */ = {
+			isa = PBXGroup;
+			children = (
+				B5147E32D170D33E65335A49 /* ConnectionInfo.ice */,
+				C5EB1A4CAE997D2CCBFF3780 /* EndpointInfo.ice */,
+			);
+			name = IceIAP;
+			sourceTree = "<group>";
+		};
+		4E69260C540E14E6A5996857 /* IceObjc */ = {
+			isa = PBXGroup;
+			children = (
+				54D9E4C8A57EB55F3D480CDA /* Communicator.h */,
+				DF6815DB96C7A763109068A0 /* Communicator.mm */,
+				B4BB96CAFFB22C5200A7CEE2 /* Config.h */,
+				AD81ED064767433AEFE0B226 /* Connection.h */,
+				E5EBC2E783807D26FAFF9D5A /* Connection.mm */,
+				E862EC8C450E16E8E8209112 /* Endpoint.h */,
+				052AC6A56BBB3743814483B2 /* Endpoint.mm */,
+				9146D35A1DF96D1DE556B091 /* IceUtil.h */,
+				729C154A33D439F9FD27150D /* IceUtil.mm */,
+				D7C4C3E16448B02427FABD0D /* ImplicitContext.h */,
+				CF4AF14597DEA9A190E5E655 /* ImplicitContext.mm */,
+				FCC28479B247D67D2D6CC4BF /* InputStream.h */,
+				0804897DBB60737CCF082EB8 /* InputStream.mm */,
+				61363148FEABF84C54446AC0 /* LocalException.h */,
+				862D51F549E393BB39C1EB41 /* LocalObject.h */,
+				94005DC86F850BE2D036F439 /* LocalObject.mm */,
+				7C117C61C8C62DCF14AB3C4C /* Logger.h */,
+				EB741CBBBCD41FA644F4FB69 /* Logger.mm */,
+				6CF70D34416400E683B0D285 /* ObjectPrx.h */,
+				BCA76118080C7E8EBC6A26D0 /* ObjectPrx.mm */,
+				83644CE0EF6ABAAE78CC6495 /* OutputStream.h */,
+				7CE19E9E5D591B1466D9B521 /* Properties.h */,
+				16162759446AC7489D70DD90 /* Properties.mm */,
+				9EB64109CAAC54B3D75BD3FB /* Util.h */,
+				F572FBE32A2FCFEAC3DF3C36 /* Util.mm */,
+			);
+			name = IceObjc;
+			sourceTree = "<group>";
+		};
+		552D51AE6752F58D2CB67399 /* defaultValue */ = {
+			isa = PBXGroup;
+			children = (
+				A9347809A81CC71D7A57F962 /* Client.swift */,
+				9AFEF726F82123B2B520B30E /* Info.plist */,
+				10CCBC9E49D7BC525BEEFEE2 /* Test.ice */,
+			);
+			name = defaultValue;
+			sourceTree = "<group>";
+		};
+		6756E1D55A40CEDEDD1D8B6D /* OS X */ = {
+			isa = PBXGroup;
+			children = (
+				82A6C47C84CA337F470AAC1C /* Cocoa.framework */,
+				D2E6F1A006E2DAC93F62A66F /* PromiseKit.framework */,
+			);
+			name = "OS X";
+			sourceTree = "<group>";
+		};
+		6BB480AA262645A766A6CD6F /* TestCommon */ = {
+			isa = PBXGroup;
+			children = (
+				BE54B72CDAFB1BC23445DC96 /* Info.plist */,
+				72FC01084E18B720515CC736 /* TestCommon.swift */,
+			);
+			name = TestCommon;
+			sourceTree = "<group>";
+		};
+		80BDED1199BB9104947FF8A8 /* Ice */ = {
+			isa = PBXGroup;
+			children = (
+				63CF00CC298528AD2C33708E /* BuiltinSequences.ice */,
+				E77E4D3CF53644EE90A329A5 /* Communicator.ice */,
+				F61C897A9D6DF610A30BA07F /* CommunicatorF.ice */,
+				8F7DCD05B1C0678F99B524A0 /* Connection.ice */,
+				150C8533E1AF1B501B303693 /* ConnectionF.ice */,
+				384C1056097C3140D2884158 /* Current.ice */,
+				7D144F029C4844807F666B24 /* Endpoint.ice */,
+				177CD7F94276B007CC1CFA35 /* EndpointF.ice */,
+				B069A18E0A340D8F3335EE43 /* EndpointTypes.ice */,
+				8A21B262144B3687C3DC6BA7 /* FacetMap.ice */,
+				884494C950914E9224BC8F03 /* Identity.ice */,
+				32B63CBBC5D0AA4EC2EBA22D /* ImplicitContext.ice */,
+				2140E935008A067D50422F0A /* ImplicitContextF.ice */,
+				912FB835A30529BE92C735E7 /* Instrumentation.ice */,
+				01FDCC15D4B6A84EBB689019 /* InstrumentationF.ice */,
+				A80DECB73C230390AAD324AD /* LocalException.ice */,
+				998C1E7569A2A1053D800C36 /* Locator.ice */,
+				431F4661D13A0D254AC3A5B6 /* LocatorF.ice */,
+				52FB51F5850971BB52868D70 /* Logger.ice */,
+				0CC9E8903D30A15B6A98CCAD /* LoggerF.ice */,
+				1D4B0EE6E8427ED583030517 /* ObjectAdapter.ice */,
+				C79B684678EFBFBE780D65B8 /* ObjectAdapterF.ice */,
+				9BC47581242BEE9BCB33992C /* ObjectFactory.ice */,
+				1AEB67A394553B06259AB317 /* Plugin.ice */,
+				D4643D29DA61DBF2217DD951 /* PluginF.ice */,
+				0E5685519D36C17DEA485B67 /* Process.ice */,
+				6D92B3C77B52ABB1B6D47BE3 /* ProcessF.ice */,
+				B084A044DB6F5516955499C9 /* Properties.ice */,
+				04CC431BAC6AAF7C5F72C3E7 /* PropertiesAdmin.ice */,
+				3666BA03B90A51200FB49431 /* PropertiesF.ice */,
+				B59675C3A44CB284C7CAC164 /* RemoteLogger.ice */,
+				2971942A510752CCE256ED60 /* Router.ice */,
+				72CD5F1AABCA3EC03CCAF269 /* RouterF.ice */,
+				9F98CC532C19A72E9342241E /* ServantLocator.ice */,
+				8502702EFD0D7E826A7ACF12 /* ServantLocatorF.ice */,
+				8E27A573BF6154193A0BB191 /* SliceChecksumDict.ice */,
+				D845F87CEB60874EDFFB1E68 /* ValueFactory.ice */,
+				59E9C5AEA797060C4A1B4938 /* Version.ice */,
+			);
+			name = Ice;
+			sourceTree = "<group>";
+		};
+		9456737A918C01EFBDF8E38F = {
+			isa = PBXGroup;
+			children = (
+				992B7A3D828DFEDE494AA771 /* Frameworks */,
+				C5F2BEB7E7B9B56909B28025 /* Products */,
+				100F9EB833483285CAEF6047 /* src */,
+				23569DCB49C98DA9E703AAC9 /* test */,
+			);
+			sourceTree = "<group>";
+		};
+		94CBA36615D7657ABA38A0E9 /* IceSSL */ = {
+			isa = PBXGroup;
+			children = (
+				7E9BACAD0EADAFE50D68923B /* ConnectionInfo.ice */,
+				A6AAB6BE1DF728414E08A17E /* ConnectionInfoF.ice */,
+				3DE0F9B8ACAFADDFBB03605A /* EndpointInfo.ice */,
+			);
+			name = IceSSL;
+			sourceTree = "<group>";
+		};
+		992B7A3D828DFEDE494AA771 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				B492E1F0983470722770B02C /* iOS */,
+				6756E1D55A40CEDEDD1D8B6D /* OS X */,
+				08A49DBA2E54C5A1E91CA243 /* libIce++11.37.dylib */,
+				E681F8B4BC286EE308B541B1 /* libIceDiscovery++11.37.dylib */,
+				DCB91CB4DE6FF1CA0F02D290 /* libIceLocatorDiscovery++11.37.dylib */,
+				127B4A37BEC116BE28D8BF27 /* libIceSSL++11.37.dylib */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		9F34183149668BCDE6AC861B /* enums */ = {
+			isa = PBXGroup;
+			children = (
+				1449AFE42B6058EF53A8DA93 /* Client.swift */,
+				9DA4B3A1ECD2B157F740FAF9 /* Info.plist */,
+				92EE27CB0391F8D31809B60E /* Server.swift */,
+				F6AAC17FC935C37E78890426 /* Test.ice */,
+			);
+			name = enums;
+			sourceTree = "<group>";
+		};
+		B492E1F0983470722770B02C /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				BA578D09474B5652B7448B82 /* CFNetwork.framework */,
+				5E3AC1BCE415A53915871C1A /* Foundation.framework */,
+				3EF99A321BB56AF89A65D93A /* PromiseKit.framework */,
+				3B4B19658F4E4389DAC40A3C /* Security.framework */,
+				5A065244458DAD90D061BA59 /* UIKit.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		C5F2BEB7E7B9B56909B28025 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				13DA446B6C86B0E87257330E /* Ice.framework */,
+				CD380DFD43A94F98286D9ECB /* Ice.framework */,
+				50D11A05AAC75F2ADB09A76D /* IceDefaultValue.framework */,
+				810534D02EFABB53338AAF96 /* IceDefaultValue.framework */,
+				26D1263527D86BCB183E5A1B /* IceEnums.framework */,
+				1C6663A4AC8B629BD99B0D79 /* IceEnums.framework */,
+				C844A9A29F82CCB3DADC2FC3 /* IceProperties.framework */,
+				066FED8AFAC2A221983C5C51 /* IceProperties.framework */,
+				FE815A5B7E9968A5A4E19560 /* TestCommon.framework */,
+				844F6193C39B0FF8D7308970 /* TestCommon.framework */,
+				8A3FCF372561E3659B31D75A /* TestDriver.app */,
+				A9D7A8F1E02EBFB7C14B0DF2 /* TestDriver.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		EE26CF5C4CE9EBEC4D5F9955 /* properties */ = {
+			isa = PBXGroup;
+			children = (
+				2FC3B8FB083E8B606B09313E /* Client.swift */,
+				322ACDF5A1F46DC91CCECC9D /* Info.plist */,
+			);
+			name = properties;
+			sourceTree = "<group>";
+		};
+		F2C8F1FFF31126FFD1DBEA6B /* slice */ = {
+			isa = PBXGroup;
+			children = (
+				80BDED1199BB9104947FF8A8 /* Ice */,
+				479861DD79CB8871A19301B8 /* IceIAP */,
+				94CBA36615D7657ABA38A0E9 /* IceSSL */,
+			);
+			name = slice;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		058C2E7919211343D92AD710 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		19DFE9E157755052C85C882C /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2435E95ACBD6FE4BFC65C783 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		312161B1C020FEEF8A90D8F0 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4397944195C5CE8E71B1D1E4 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C0CC78FD6409F207F17EEF72 /* Communicator.h in Headers */,
+				B8576418CB1F64CF05FCCF97 /* Config.h in Headers */,
+				999DBF76A9D6F7F8657FDEC6 /* Connection.h in Headers */,
+				765F28438B1501075816551D /* Endpoint.h in Headers */,
+				A5D890DB709EE612F16A4016 /* IceSwift.h in Headers */,
+				07B1E8A0B492DA5DE918D381 /* IceUtil.h in Headers */,
+				DF1925DCAC788C52F2234561 /* ImplicitContext.h in Headers */,
+				815845B1DC819C472250CAF6 /* InputStream.h in Headers */,
+				C85AC886CEEF724D7C60DC5F /* LocalException.h in Headers */,
+				B379A82872C405E60437BC81 /* LocalObject.h in Headers */,
+				8CAB976ABF333DB74E1669E0 /* Logger.h in Headers */,
+				31BF6F03FC0672D4177F5B34 /* ObjectPrx.h in Headers */,
+				6FA6CBA21E3AC6B81C290609 /* OutputStream.h in Headers */,
+				99B5CC75D60F73B0DEE22955 /* Properties.h in Headers */,
+				7F8B9C91148D79B4FE9B2C4E /* Util.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66FF281DB806D1480EEA190B /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B4DAAE4411683DDDFAE930D8 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				7231FA103B232EBD3F00B2D9 /* Communicator.h in Headers */,
+				8BCBCAC92BDCF5F76839A221 /* Config.h in Headers */,
+				14BA8E431889A58D1C81C3A7 /* Connection.h in Headers */,
+				90BFBE2541A2317825030F55 /* Endpoint.h in Headers */,
+				B82BF8CF6E38EA6FBCF32CD3 /* IceSwift.h in Headers */,
+				9B4B03D2B691E2DF49E709B6 /* IceUtil.h in Headers */,
+				53C452F4C710F09A424011DC /* ImplicitContext.h in Headers */,
+				86A023A7BFCD7768A7C547C4 /* InputStream.h in Headers */,
+				CD22036EECCD4F68D2F44D95 /* LocalException.h in Headers */,
+				C853C23D76D3EBD4232ABD49 /* LocalObject.h in Headers */,
+				3C5A1B9527362B18D99E887F /* Logger.h in Headers */,
+				E6A912DA1C30E23A47C2BEDC /* ObjectPrx.h in Headers */,
+				4C25622CE372F056D4661F41 /* OutputStream.h in Headers */,
+				E1747BFCE6826D94058F140A /* Properties.h in Headers */,
+				87DF0DC7DF3E1149363DB572 /* Util.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC44BC68EE59A78E02A91808 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E1BF215AB851D7E9C845132E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E6C9FB0C366DF4BBF27297D4 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		0C7CA5C7FE2BEB370ADD8980 /* TestDriver macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA799B94ACDCEE317324DD8F /* Build configuration list for PBXNativeTarget "TestDriver macOS" */;
+			buildPhases = (
+				2E932ACB31538559641F47EA /* Sources */,
+				01115D1D28FFEC4D950E0526 /* Frameworks */,
+				C771686DFC832BD0BC7AF78B /* Resources */,
+				D904F405470F10DAD7C5AF15 /* Swiftformat & Swiftlint */,
+				B8B59E0521DF73D43CD85009 /* Copy Frameworks */,
+			);
+			buildRules = (
+				AF6455BA6385C933BBCC044E /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "TestDriver macOS";
+			productName = TestDriver;
+			productReference = A9D7A8F1E02EBFB7C14B0DF2 /* TestDriver.app */;
+			productType = "com.apple.product-type.application";
+		};
+		3D80DA1D971A1881B4403D12 /* TestDriver iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A85660AAD47B6987B3A27DF6 /* Build configuration list for PBXNativeTarget "TestDriver iOS" */;
+			buildPhases = (
+				672F5A85AAFC06E292FC244E /* Sources */,
+				F252822EBD5627AB5854EDA3 /* Frameworks */,
+				CD5739E05E0B1C26ACA37E24 /* Resources */,
+				2145E94B67F20F21DA8DDF02 /* Swiftformat & Swiftlint */,
+				2D07E66298BF45A5C7B008F1 /* Copy Frameworks */,
+			);
+			buildRules = (
+				289C0020A575DC8FDA09465D /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "TestDriver iOS";
+			productName = TestDriver;
+			productReference = 8A3FCF372561E3659B31D75A /* TestDriver.app */;
+			productType = "com.apple.product-type.application";
+		};
+		4465CDABC7730F678B5E9C7A /* IceDefaultValue iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3BF6A193F0C2887137E5608D /* Build configuration list for PBXNativeTarget "IceDefaultValue iOS" */;
+			buildPhases = (
+				DC44BC68EE59A78E02A91808 /* Headers */,
+				66FAFF5308D0FC627F7DBD97 /* Sources */,
+				75471DFD1E35691587064BC5 /* Frameworks */,
+				815A42667D79FDAE6E7D89F4 /* Resources */,
+				BF87C8820AC07F1239758403 /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				32C88F2CAAC15FFFACE269C1 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "IceDefaultValue iOS";
+			productName = IceDefaultValue;
+			productReference = 50D11A05AAC75F2ADB09A76D /* IceDefaultValue.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		49099EE5B93F6AC051B6DF62 /* TestCommon macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5F319A4734E0D8FA6FCF4503 /* Build configuration list for PBXNativeTarget "TestCommon macOS" */;
+			buildPhases = (
+				19DFE9E157755052C85C882C /* Headers */,
+				804A6FFD33C8CDFC185D34FA /* Sources */,
+				2C8C767110161C1C4B2026C0 /* Frameworks */,
+				488E96B4B603EB63D11FE6F6 /* Resources */,
+				B941F2DEFAA453F632A50444 /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				B6AA9FB99DD3E19EF4F93013 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "TestCommon macOS";
+			productName = TestCommon;
+			productReference = 844F6193C39B0FF8D7308970 /* TestCommon.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		500003C9AF7BF466E0DB33F6 /* Ice iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54E2CC42B17385BD10276C82 /* Build configuration list for PBXNativeTarget "Ice iOS" */;
+			buildPhases = (
+				4397944195C5CE8E71B1D1E4 /* Headers */,
+				70AB985FC7032F4057FBFA9E /* Sources */,
+				A8821183C2F91D8F6DE54D94 /* Frameworks */,
+				564E8CB54ABD377D46B15BF7 /* Resources */,
+				FB012D84F0367AB414591FB5 /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				971D04E1E5E2FDD02E135AAC /* PBXBuildRule */,
+				AD2E923A49B9C4AEA1AB2D7F /* PBXBuildRule */,
+				4C160F16706DE8169A9DDC3A /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "Ice iOS";
+			productName = Ice;
+			productReference = CD380DFD43A94F98286D9ECB /* Ice.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		86C5EE570A7E97B36B499439 /* IceEnums macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A83AA0D78DEA730DB483240C /* Build configuration list for PBXNativeTarget "IceEnums macOS" */;
+			buildPhases = (
+				312161B1C020FEEF8A90D8F0 /* Headers */,
+				FA1B804BAB9FB82E81970997 /* Sources */,
+				6F41042678A1C031DC546539 /* Frameworks */,
+				BA484C1E4662CDB943D2BAD4 /* Resources */,
+				966D993F9AD85CAC4A1712CE /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				FB8685D408F8065F4096B6F2 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "IceEnums macOS";
+			productName = IceEnums;
+			productReference = 26D1263527D86BCB183E5A1B /* IceEnums.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		8FCFA9AF2E53278B187ED34B /* IceEnums iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4E20324E3B8EB5543755FE87 /* Build configuration list for PBXNativeTarget "IceEnums iOS" */;
+			buildPhases = (
+				66FF281DB806D1480EEA190B /* Headers */,
+				B2F26A7764A077C5196AE644 /* Sources */,
+				F7A9C76F885D01E5C5B3F94F /* Frameworks */,
+				123DEDDE943CAE8C13B84132 /* Resources */,
+				9B01D5A38F231D463F056A16 /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				16D2FD1D3746202DFBAB71E7 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "IceEnums iOS";
+			productName = IceEnums;
+			productReference = 1C6663A4AC8B629BD99B0D79 /* IceEnums.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		9A4DE430022969522635CB34 /* IceProperties macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4DE60D7B1B4097129200AE37 /* Build configuration list for PBXNativeTarget "IceProperties macOS" */;
+			buildPhases = (
+				E6C9FB0C366DF4BBF27297D4 /* Headers */,
+				AF717734E15C0940885BB18A /* Sources */,
+				62C5223F63BE6ED2EA80DC60 /* Frameworks */,
+				A586F2506B784AE63FD211D8 /* Resources */,
+				F1E3B0C5A0DBF88030BE9DB2 /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				4F221E54B94E5FB7D061742C /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "IceProperties macOS";
+			productName = IceProperties;
+			productReference = C844A9A29F82CCB3DADC2FC3 /* IceProperties.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		CCF5E1C403B583BA05D3EEDC /* TestCommon iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A6E9864CE63F237095418849 /* Build configuration list for PBXNativeTarget "TestCommon iOS" */;
+			buildPhases = (
+				2435E95ACBD6FE4BFC65C783 /* Headers */,
+				3264D17D49BF5E546141976B /* Sources */,
+				7A99C5A25E602ECCD31178E8 /* Frameworks */,
+				F4081F3053E395AAFDA05E89 /* Resources */,
+				C5C959F4EF917EC1B83ACB98 /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				565C273B633151CA123E32CE /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "TestCommon iOS";
+			productName = TestCommon;
+			productReference = FE815A5B7E9968A5A4E19560 /* TestCommon.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		EABBE0ADD2A9D89D22439AA5 /* Ice macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2F49D73BC74D948000212D17 /* Build configuration list for PBXNativeTarget "Ice macOS" */;
+			buildPhases = (
+				B4DAAE4411683DDDFAE930D8 /* Headers */,
+				6883C07E432DD73E6029D822 /* Sources */,
+				EEAEB1BCB72D2AE96FD3B941 /* Frameworks */,
+				6C73D5A1736316B1B5DC516F /* Resources */,
+				5FE747BB97728F01B8AB2F54 /* Copy Frameworks */,
+				5620256D3CFADCD3AF0EF508 /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				9FCCAAE4594321AA6E836F36 /* PBXBuildRule */,
+				595A062ABE041303396C9635 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "Ice macOS";
+			productName = Ice;
+			productReference = 13DA446B6C86B0E87257330E /* Ice.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		F1975ACD3EC3A4A4DA12EEE3 /* IceDefaultValue macOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D58EF88CB47C892AAE7AB932 /* Build configuration list for PBXNativeTarget "IceDefaultValue macOS" */;
+			buildPhases = (
+				058C2E7919211343D92AD710 /* Headers */,
+				2B13E2B59CDD4F943450E67B /* Sources */,
+				6CADDD03A7440F5CBB78DC30 /* Frameworks */,
+				708DC1F3171BFF13EC974A1B /* Resources */,
+				1692033A90314F121A95B7C1 /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				FBDF52B4FFE36CD5C1645B01 /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "IceDefaultValue macOS";
+			productName = IceDefaultValue;
+			productReference = 810534D02EFABB53338AAF96 /* IceDefaultValue.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		F4CCA2C67C6C348C359F708C /* IceProperties iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 17EC01A9C58F5CCE773D48FB /* Build configuration list for PBXNativeTarget "IceProperties iOS" */;
+			buildPhases = (
+				E1BF215AB851D7E9C845132E /* Headers */,
+				766183556A3E5EC3D4C67363 /* Sources */,
+				12243E4A4B1E3BFB9A78AD29 /* Frameworks */,
+				638C7A5F52DC7D172B71CC1D /* Resources */,
+				06165F07BE827C7F06CBE7DB /* Swiftformat & Swiftlint */,
+			);
+			buildRules = (
+				AE1A851E23C70316DD649EBC /* PBXBuildRule */,
+			);
+			dependencies = (
+			);
+			name = "IceProperties iOS";
+			productName = IceProperties;
+			productReference = 066FED8AFAC2A221983C5C51 /* IceProperties.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C5CA595AF92C72C7B9363F3A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 0930;
+				LastUpgradeCheck = 0930;
+				TargetAttributes = {
+					0C7CA5C7FE2BEB370ADD8980 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					3D80DA1D971A1881B4403D12 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					4465CDABC7730F678B5E9C7A = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					49099EE5B93F6AC051B6DF62 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					500003C9AF7BF466E0DB33F6 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					86C5EE570A7E97B36B499439 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					8FCFA9AF2E53278B187ED34B = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					9A4DE430022969522635CB34 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					CCF5E1C403B583BA05D3EEDC = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					EABBE0ADD2A9D89D22439AA5 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					F1975ACD3EC3A4A4DA12EEE3 = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+					F4CCA2C67C6C348C359F708C = {
+						DevelopmentTeam = U4TBVKNQ7F;
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 6B7266F83946CA99CDA53186 /* Build configuration list for PBXProject "ice" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 9456737A918C01EFBDF8E38F;
+			productRefGroup = C5F2BEB7E7B9B56909B28025 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				500003C9AF7BF466E0DB33F6 /* Ice iOS */,
+				EABBE0ADD2A9D89D22439AA5 /* Ice macOS */,
+				4465CDABC7730F678B5E9C7A /* IceDefaultValue iOS */,
+				F1975ACD3EC3A4A4DA12EEE3 /* IceDefaultValue macOS */,
+				8FCFA9AF2E53278B187ED34B /* IceEnums iOS */,
+				86C5EE570A7E97B36B499439 /* IceEnums macOS */,
+				F4CCA2C67C6C348C359F708C /* IceProperties iOS */,
+				9A4DE430022969522635CB34 /* IceProperties macOS */,
+				CCF5E1C403B583BA05D3EEDC /* TestCommon iOS */,
+				49099EE5B93F6AC051B6DF62 /* TestCommon macOS */,
+				3D80DA1D971A1881B4403D12 /* TestDriver iOS */,
+				0C7CA5C7FE2BEB370ADD8980 /* TestDriver macOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		123DEDDE943CAE8C13B84132 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		488E96B4B603EB63D11FE6F6 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		564E8CB54ABD377D46B15BF7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		638C7A5F52DC7D172B71CC1D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6C73D5A1736316B1B5DC516F /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		708DC1F3171BFF13EC974A1B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		815A42667D79FDAE6E7D89F4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A586F2506B784AE63FD211D8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		BA484C1E4662CDB943D2BAD4 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C771686DFC832BD0BC7AF78B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CD5739E05E0B1C26ACA37E24 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4081F3053E395AAFDA05E89 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		06165F07BE827C7F06CBE7DB /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/Ice/properties $SRCROOT/.swiftlint.yml";
+		};
+		1692033A90314F121A95B7C1 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/Ice/defaultValue $SRCROOT/.swiftlint.yml";
+		};
+		2145E94B67F20F21DA8DDF02 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/TestDriver $SRCROOT/.swiftlint.yml";
+		};
+		5620256D3CFADCD3AF0EF508 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/src/Ice $SRCROOT/.swiftlint.yml";
+		};
+		966D993F9AD85CAC4A1712CE /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/Ice/enums $SRCROOT/.swiftlint.yml";
+		};
+		9B01D5A38F231D463F056A16 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/Ice/enums $SRCROOT/.swiftlint.yml";
+		};
+		B941F2DEFAA453F632A50444 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/TestCommon $SRCROOT/.swiftlint.yml";
+		};
+		BF87C8820AC07F1239758403 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/Ice/defaultValue $SRCROOT/.swiftlint.yml";
+		};
+		C5C959F4EF917EC1B83ACB98 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/TestCommon $SRCROOT/.swiftlint.yml";
+		};
+		D904F405470F10DAD7C5AF15 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/TestDriver $SRCROOT/.swiftlint.yml";
+		};
+		F1E3B0C5A0DBF88030BE9DB2 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/test/Ice/properties $SRCROOT/.swiftlint.yml";
+		};
+		FB012D84F0367AB414591FB5 /* Swiftformat & Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Swiftformat & Swiftlint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$SRCROOT/config/xcode-swiftlint.sh $SRCROOT/src/Ice $SRCROOT/.swiftlint.yml";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		2B13E2B59CDD4F943450E67B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				821F6E3A5E3E90236DFBD8D8 /* Client.swift in Sources */,
+				F4A1A9206288D1DB7BEF41EB /* Test.ice in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		2E932ACB31538559641F47EA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				525385B8A599382833E3B222 /* factory.swift in Sources */,
+				78E907C403D3B0C9325B7E77 /* main.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3264D17D49BF5E546141976B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A24710D7EEE2A3DBFCAA98D6 /* TestCommon.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		66FAFF5308D0FC627F7DBD97 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5D6BB375DEEF7A630C862696 /* Client.swift in Sources */,
+				04D2E9816B0F07E1C8784B59 /* Test.ice in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		672F5A85AAFC06E292FC244E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5ACA162C6511B002017A2C81 /* AppDelegate.swift in Sources */,
+				59E72FC2983153FD49363737 /* Assets.xcassets in Sources */,
+				B0FB72D5E54E15942DF7B980 /* Controller.ice in Sources */,
+				FE45E481155604844CA1CC60 /* factory.swift in Sources */,
+				214F63EB36DF1BD5BE1C218A /* LaunchScreen.storyboard in Sources */,
+				42EE2A47B198FA40AC6305A6 /* Main.storyboard in Sources */,
+				FB89A71CEAD4296E115A71CB /* ViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		6883C07E432DD73E6029D822 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3A639EFE17D8A7F39F3B7FC3 /* Buffer.swift in Sources */,
+				9C4222B0E9EBE3E6042F5627 /* BuiltinSequences.ice in Sources */,
+				B0D0BDBB7482652381393AB1 /* ClassResolver.swift in Sources */,
+				D76D32D0B573B8B59520FEF7 /* Communicator.ice in Sources */,
+				9C222885E620022424541ADB /* Communicator.mm in Sources */,
+				4F4274418E8E12CBDBB778C8 /* CommunicatorF.ice in Sources */,
+				FAAF9CFA99F03B0FF86D597A /* CommunicatorI.swift in Sources */,
+				63438FDB2DF7F0FE658CE067 /* Connection.ice in Sources */,
+				A2C480EF31BAC0CE25E1C0B6 /* Connection.mm in Sources */,
+				145DFC1701B8A82A02EC35CE /* ConnectionF.ice in Sources */,
+				75E602A477E3BF916DF74174 /* ConnectionI.swift in Sources */,
+				B761EA3CC95D00A86708C6D0 /* ConnectionInfo.ice in Sources */,
+				52A4E4F54F13EA68FA51B102 /* ConnectionInfoF.ice in Sources */,
+				07E5AD020881992897303249 /* ConnectionInfoFactory.swift in Sources */,
+				A17266E3AC3FBC702E861D85 /* Current.ice in Sources */,
+				2CD88D0AD80E9C9D96B7709F /* Endpoint.ice in Sources */,
+				4D4856A581C8DE4AF23A08D4 /* Endpoint.mm in Sources */,
+				3193FF831EDA04A9EC0B069D /* EndpointF.ice in Sources */,
+				506D4F7445CA9A6172AE74FB /* EndpointI.swift in Sources */,
+				E8896A11764027A22E560F94 /* EndpointInfo.ice in Sources */,
+				3F58C913FBEDC4850FA532A2 /* EndpointInfoFactory.swift in Sources */,
+				DF93FE26A4EA71132CBA88BE /* EndpointTypes.ice in Sources */,
+				B3B60DEDAECC42DE89178AD0 /* Exception.swift in Sources */,
+				868CE0F634F42E667F69DDC8 /* FacetMap.ice in Sources */,
+				5D694B3D8CD445F4EA558349 /* FormatType.swift in Sources */,
+				83397C0AE06E8D438D62D3D0 /* Globals.swift in Sources */,
+				233AF913AD8FF14BE79E4867 /* IceUtil.mm in Sources */,
+				AD6DBC59D32B7D4F4C4919EC /* Identity.ice in Sources */,
+				9B054E3A3ADFED05DB9A9250 /* ImplicitContext.ice in Sources */,
+				09F22F2CA5882D19E779715A /* ImplicitContext.mm in Sources */,
+				69F471E6DE393F20516AF28F /* ImplicitContextF.ice in Sources */,
+				013A667DCD2D55E8DD22ABE3 /* ImplicitContextI.swift in Sources */,
+				D5FC71FC8EF6DAABB72F0712 /* InitializationData.swift in Sources */,
+				686DFE24CE5F0CFFC3302797 /* InputStream.mm in Sources */,
+				E9BA6596CC93DBEE5E5BA88C /* InputStream.swift in Sources */,
+				176634BDF724192EE7BA6A3A /* Instrumentation.ice in Sources */,
+				B4A0A985AA8E1348EC339160 /* InstrumentationF.ice in Sources */,
+				2A47667589F0CE228B7712E0 /* LocalException.ice in Sources */,
+				259BD9FFB393C9134CE0C894 /* LocalExceptionFactory.swift in Sources */,
+				3C95A1DA93DFF569460D6DF1 /* LocalObject.mm in Sources */,
+				F21F0B39FAB96A15829E623E /* LocalObject.swift in Sources */,
+				AC969CAA7397FEFC0E97CFEA /* Locator.ice in Sources */,
+				A5F31ED5B8BB6E14CC807737 /* LocatorF.ice in Sources */,
+				979D944E9986AB0781889639 /* Logger.ice in Sources */,
+				A0D00A7B0E407C0AE8773763 /* Logger.mm in Sources */,
+				3499414725A94BD434BCA0E4 /* LoggerF.ice in Sources */,
+				DCA44DD38F365EF2D159F46F /* LoggerI.swift in Sources */,
+				C45E94C378AD676C51B558E8 /* LoggerWrapper.swift in Sources */,
+				4DC68142DD44F7F956276BA8 /* Mutex.swift in Sources */,
+				AF667D9FC885B125E31D4B42 /* Object.swift in Sources */,
+				4F854D0EA758F41FF1C9B4C7 /* ObjectAdapter.ice in Sources */,
+				6AD8E3603819F0BF2CFEA650 /* ObjectAdapterF.ice in Sources */,
+				A3B3687C0C42C36C51D4E559 /* ObjectAdapterI.swift in Sources */,
+				5581FB41301B90B8EBFECD2E /* ObjectFactory.ice in Sources */,
+				99EB2C3E0AE7BD85FDF395E2 /* ObjectPrx.mm in Sources */,
+				D22076852F242AA93418FFBF /* OptionalFormat.swift in Sources */,
+				06AEA82CB9353ED76EC71DC4 /* OutputStream.swift in Sources */,
+				88B41990B01D2B52C0304AD5 /* Plugin.ice in Sources */,
+				B56C6D747A1263A697D3712F /* PluginF.ice in Sources */,
+				7053CAAA93BD409702BCB5AA /* Process.ice in Sources */,
+				FA3839165F15687ACFC0C981 /* ProcessF.ice in Sources */,
+				6B869F35FBC73F3F66C8B5E2 /* Properties.ice in Sources */,
+				FD09B3D97DEFFBA61A3DF586 /* Properties.mm in Sources */,
+				1D2B44D3D28CD51125ABFEF9 /* PropertiesAdmin.ice in Sources */,
+				39C62B8D8950AF92846D2694 /* PropertiesF.ice in Sources */,
+				D87640F58B5DC0E7B0BEBC68 /* PropertiesI.swift in Sources */,
+				61AA18485F3B5F257B2B03BE /* Protocol.swift in Sources */,
+				04F7B52E5858B059D698F003 /* Proxy.swift in Sources */,
+				BDF6373AED3BBD7505499890 /* RemoteLogger.ice in Sources */,
+				9FACB1AC3308DC5386BD1522 /* Router.ice in Sources */,
+				5CAC8E6DDA88AC1B70BB9998 /* RouterF.ice in Sources */,
+				B25702FFBAAA2DD2E0A7B4B1 /* ServantLocator.ice in Sources */,
+				2C8312F480579BDB653CD019 /* ServantLocatorF.ice in Sources */,
+				AFD2EB153C7B946CAB6EBBF1 /* SliceChecksumDict.ice in Sources */,
+				90FE54C5720943F40269E44B /* SlicedData.swift in Sources */,
+				744A4516A311331729717E07 /* SliceInfo.swift in Sources */,
+				8DE0BF70A015FC5DED33FCC9 /* UnknownSlicedValue.swift in Sources */,
+				E2073BD49BBD3E33A34FFC5B /* Util.mm in Sources */,
+				29834DFFC6D3B4BB2CCF524F /* Util.swift in Sources */,
+				2DA2CC3AE4419ED0621E3BC8 /* Value.swift in Sources */,
+				52B64CEDAB4FA78B8878F493 /* ValueFactory.ice in Sources */,
+				DA76435B0CCCB08868E3AE0B /* ValueFactoryManagerI.swift in Sources */,
+				686DB5870B9A96F9F41E3381 /* Version.ice in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		70AB985FC7032F4057FBFA9E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3699566723297ABE647EFA21 /* Buffer.swift in Sources */,
+				F58AF25CB8F1E928E552569D /* BuiltinSequences.ice in Sources */,
+				3DFC0CF62A538522514F9338 /* ClassResolver.swift in Sources */,
+				802F0D668AAAF31F21844D1E /* Communicator.ice in Sources */,
+				161FA7DA5ABFC01EA8DA8192 /* Communicator.mm in Sources */,
+				2A0FC49CCF3C08B0BF68B4FC /* CommunicatorF.ice in Sources */,
+				2B6FF0AE9F33FF1D11A0AC09 /* CommunicatorI.swift in Sources */,
+				EC2444174FC92C87A7ECDBE8 /* Connection.ice in Sources */,
+				9459D53A146FF2B803F08AA0 /* Connection.mm in Sources */,
+				8EF1E7A1448ECD1B76287689 /* ConnectionF.ice in Sources */,
+				4B83ED7B8A03E84BD8B3422B /* ConnectionI.swift in Sources */,
+				F37B4BFC7AD97AA438CBF1AE /* ConnectionInfo.ice in Sources */,
+				5B29CA793C6D63EA19635B8A /* ConnectionInfo.ice in Sources */,
+				4941CACC891C36587F3A9F9A /* ConnectionInfoF.ice in Sources */,
+				6DE2BCF1E18D284C8909E43D /* ConnectionInfoFactory.swift in Sources */,
+				E94265E5811ED68538C149DC /* Current.ice in Sources */,
+				E458EF16E7942529923EA844 /* Endpoint.ice in Sources */,
+				269A258D51FFD56534914F69 /* Endpoint.mm in Sources */,
+				7672D51167B19715D8E24A35 /* EndpointF.ice in Sources */,
+				E831452E4763F1CA45D8E827 /* EndpointI.swift in Sources */,
+				7552C8F3105A519EA9B06522 /* EndpointInfo.ice in Sources */,
+				25B690BAD675035542108D7A /* EndpointInfo.ice in Sources */,
+				6F1506082B75B184E193B7D7 /* EndpointInfoFactory.swift in Sources */,
+				E17BC89150B557A069535432 /* EndpointTypes.ice in Sources */,
+				0EBCF96B455DB3EED0BF3788 /* Exception.swift in Sources */,
+				EEA750FDCA91DA89FBB045C2 /* FacetMap.ice in Sources */,
+				0A85AD3D56D1EC668C5A21FB /* FormatType.swift in Sources */,
+				2B7644E4A89CD8D1D51CD0AF /* Globals.swift in Sources */,
+				65C1D8C3C3F405B67AA5C934 /* IceUtil.mm in Sources */,
+				A1D5ABEB59A40EC8054F4044 /* Identity.ice in Sources */,
+				EDAA84F45DC0CE5199BFBA74 /* ImplicitContext.ice in Sources */,
+				B3B0EA06B357CF189D1F0B32 /* ImplicitContext.mm in Sources */,
+				290785B8C21D979796C8711F /* ImplicitContextF.ice in Sources */,
+				7D990A0DD8FCAA43F6333BD2 /* ImplicitContextI.swift in Sources */,
+				7BAECB20D7C4C0FC332D4EC1 /* InitializationData.swift in Sources */,
+				640C50A73CE231776C12199C /* InputStream.mm in Sources */,
+				68A77011E5289A63DED773BD /* InputStream.swift in Sources */,
+				A0279B4186EF4CDB271B9407 /* Instrumentation.ice in Sources */,
+				149DAA85E7EF8DF5BD28093D /* InstrumentationF.ice in Sources */,
+				F75C491F125E11AB0B85F672 /* LocalException.ice in Sources */,
+				6F2C6C7134BF39C75C468406 /* LocalExceptionFactory.swift in Sources */,
+				82B25BF4A6ED061A5D96CF88 /* LocalObject.mm in Sources */,
+				4C58C9ED9E205BC561F73D8D /* LocalObject.swift in Sources */,
+				CEE74A03AC85EAB4925E7092 /* Locator.ice in Sources */,
+				9CFF83BF1AB03233D02519ED /* LocatorF.ice in Sources */,
+				8E746FD8BC0B41ED5D25511A /* Logger.ice in Sources */,
+				EEFA4437CA793F4DD7C5A167 /* Logger.mm in Sources */,
+				9559EA421434FD8F3023CCCB /* LoggerF.ice in Sources */,
+				3C78F7C13B523003CDB46D1E /* LoggerI.swift in Sources */,
+				C8AECF8D9F3FEAFC7FC2B89C /* LoggerWrapper.swift in Sources */,
+				43BC19B0C820546D1A60FCBB /* Mutex.swift in Sources */,
+				CB5FF29C1E785986411DC061 /* Object.swift in Sources */,
+				2EABB10B1365B8B0DC46A99A /* ObjectAdapter.ice in Sources */,
+				0A396D50C0ABB8C062B952DF /* ObjectAdapterF.ice in Sources */,
+				3353F2620B9C3697ED6ABA4B /* ObjectAdapterI.swift in Sources */,
+				2F85E6B8FF946426C439A18B /* ObjectFactory.ice in Sources */,
+				12B82F74E689BCA78C8F710E /* ObjectPrx.mm in Sources */,
+				A0D9EF3C40ABBD922FBD14F6 /* OptionalFormat.swift in Sources */,
+				E8CCF76099862317F9479301 /* OutputStream.swift in Sources */,
+				F615F05D94752E62815A35BF /* Plugin.ice in Sources */,
+				D38F76341F371620AB6BD93D /* PluginF.ice in Sources */,
+				0C095505F9290E487B7EE1EF /* Process.ice in Sources */,
+				630C5ED5A450C46B2B4665DA /* ProcessF.ice in Sources */,
+				5CA1C48F0E6463961955E4FE /* Properties.ice in Sources */,
+				5337B595EB18DE31DA177DAD /* Properties.mm in Sources */,
+				C4501D8BD21D3C71D2861C74 /* PropertiesAdmin.ice in Sources */,
+				40A969FDADD08FD173F4A132 /* PropertiesF.ice in Sources */,
+				EFF13A6FC238B7EB341A00A5 /* PropertiesI.swift in Sources */,
+				B985DEF13F88FF39E9DACCB8 /* Protocol.swift in Sources */,
+				58B55FE3178AC7623AD7901A /* Proxy.swift in Sources */,
+				83FC3BF9BFD17C2FBC806393 /* RemoteLogger.ice in Sources */,
+				A2F88D4D47219E4E0B220785 /* Router.ice in Sources */,
+				94A07C8FC176045AD2D90E77 /* RouterF.ice in Sources */,
+				0204ADBB1F505963D68B29D7 /* ServantLocator.ice in Sources */,
+				E26A3A613FE6865F5DA99F6C /* ServantLocatorF.ice in Sources */,
+				4045FC02ACE30C507C1C4D31 /* SliceChecksumDict.ice in Sources */,
+				614E6EA4D15C845C206633F3 /* SlicedData.swift in Sources */,
+				8836AA0A5758206647513A7E /* SliceInfo.swift in Sources */,
+				CB1ABEF370B7CB34525D19E2 /* UnknownSlicedValue.swift in Sources */,
+				03590E0B013EDAAA22F38725 /* Util.mm in Sources */,
+				67C0924ED451C80526B844D9 /* Util.swift in Sources */,
+				09798E8709C459EE41912CE4 /* Value.swift in Sources */,
+				48C24D99AB1C4A1F0D07C885 /* ValueFactory.ice in Sources */,
+				AECAE362CECE5E60646657B3 /* ValueFactoryManagerI.swift in Sources */,
+				0D522C2D7AA5FE148A46371A /* Version.ice in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		766183556A3E5EC3D4C67363 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36061A2D51CC1857907D82FB /* Client.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		804A6FFD33C8CDFC185D34FA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A624C17CD02A2E83D85BCA1 /* TestCommon.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AF717734E15C0940885BB18A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D9615B7791C73AFAC086EDAA /* Client.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B2F26A7764A077C5196AE644 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DBF9B9B9226735B3B34A756E /* Client.swift in Sources */,
+				E142AB968C61174E103BE5B3 /* Server.swift in Sources */,
+				7E167E53805CDEA599E271EC /* Test.ice in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FA1B804BAB9FB82E81970997 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				241DC775AF6DA935AC94A2C1 /* Client.swift in Sources */,
+				5A41188080E1D6BE811085D9 /* Server.swift in Sources */,
+				23B546AE70B04E0EF117425B /* Test.ice in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		024AA5A147235068A3CCF55C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = test/Ice/properties/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceProperties;
+				PRODUCT_NAME = IceProperties;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		12C2319DBFF785A5A41BBE44 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = test/TestCommon/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestCommon;
+				PRODUCT_NAME = TestCommon;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		1FA77304FF31454B07A77D7F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = test/Ice/enums/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceEnums;
+				PRODUCT_NAME = IceEnums;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		31ADF30A8F25A9CA6305C505 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREPROCESSOR_DEFINITIONS = ICE_STATIC_LIBS;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../sdk/$(PLATFORM_NAME).sdk/usr/include";
+				INFOPLIST_FILE = src/Ice/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../sdk/$(PLATFORM_NAME).sdk/usr/lib";
+				OTHER_LDFLAGS = (
+					"-lIce++11",
+					"-lIceSSL++11",
+					"-lIceDiscovery++11",
+					"-lIceLocatorDiscovery++11",
+					"-lIceIAP++11",
+					"-lbz2",
+					"-liconv",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Ice;
+				PRODUCT_NAME = Ice;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		3D5846CE4DD55D47DA23421D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = test/Ice/defaultValue/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceDefaultValue;
+				PRODUCT_NAME = IceDefaultValue;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		5C1C2B212F1185AE9A7898F9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = test/Ice/enums/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceEnums;
+				PRODUCT_NAME = IceEnums;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		653A80DAFF39C5E790253513 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = test/Ice/defaultValue/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceDefaultValue;
+				PRODUCT_NAME = IceDefaultValue;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		6902F6114978C111E00A70B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../cpp/include/",
+					"$(SRCROOT)/../cpp/include/generated",
+				);
+				INFOPLIST_FILE = src/Ice/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../cpp/lib";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Ice;
+				PRODUCT_NAME = Ice;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/src/IceObjc";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		7235785D7D5B9B2C473082D2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = test/Ice/enums/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceEnums;
+				PRODUCT_NAME = IceEnums;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		7796E3CD3D79AD425CFB2D6B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = test/TestCommon/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestCommon;
+				PRODUCT_NAME = TestCommon;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		814A6FC432D20316C11A4F4A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = test/Ice/defaultValue/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceDefaultValue;
+				PRODUCT_NAME = IceDefaultValue;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		81B5BC9917639012E4B338E2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = test/Ice/enums/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceEnums;
+				PRODUCT_NAME = IceEnums;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		8660E1CE01DD2414C3E5D53C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = test/Ice/defaultValue/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceDefaultValue;
+				PRODUCT_NAME = IceDefaultValue;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		8B1B55C933407E7C796B14E6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				INFOPLIST_FILE = test/TestDriver/macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestDriver;
+				PRODUCT_NAME = TestDriver;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		93F9030CE0D8EC0EC5BCC727 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = test/Ice/properties/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceProperties;
+				PRODUCT_NAME = IceProperties;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		9FB0680DF45911A35BE81442 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				HEADER_SEARCH_PATHS = (
+					"$(SRCROOT)/../cpp/include/",
+					"$(SRCROOT)/../cpp/include/generated",
+				);
+				INFOPLIST_FILE = src/Ice/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../cpp/lib";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Ice;
+				PRODUCT_NAME = Ice;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				SWIFT_INCLUDE_PATHS = "$(SRCROOT)/src/IceObjc";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		A4D34DA190A66E32DC21AB24 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GCC_PREPROCESSOR_DEFINITIONS = ICE_STATIC_LIBS;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/../sdk/$(PLATFORM_NAME).sdk/usr/include";
+				INFOPLIST_FILE = src/Ice/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../sdk/$(PLATFORM_NAME).sdk/usr/lib";
+				OTHER_LDFLAGS = (
+					"-lIce++11",
+					"-lIceSSL++11",
+					"-lIceDiscovery++11",
+					"-lIceLocatorDiscovery++11",
+					"-lIceIAP++11",
+					"-lbz2",
+					"-liconv",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.Ice;
+				PRODUCT_NAME = Ice;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		BA0B5737A0F1DE2E04F305D3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = test/Ice/properties/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceProperties;
+				PRODUCT_NAME = IceProperties;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		BA456986DD67845E3F21AF26 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				INFOPLIST_FILE = test/TestDriver/iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestDriver;
+				PRODUCT_NAME = TestDriver;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BB7BB3A602961BF8B97879CE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Release;
+		};
+		D41AA9154BDC8AE52DD97916 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = test/Ice/properties/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.IceProperties;
+				PRODUCT_NAME = IceProperties;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		DB49BA81ECDB44AEB4031653 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.2;
+			};
+			name = Debug;
+		};
+		E51889EEE61791D5BA014EAF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				INFOPLIST_FILE = test/TestDriver/iOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestDriver;
+				PRODUCT_NAME = TestDriver;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EB1247DC576C1BF1D91E5DFA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				FRAMEWORK_VERSION = A;
+				INFOPLIST_FILE = test/TestCommon/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestCommon;
+				PRODUCT_NAME = TestCommon;
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		FBE694F119D33F271DED92DF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				INFOPLIST_FILE = test/TestDriver/macOS/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestDriver;
+				PRODUCT_NAME = TestDriver;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		FE4F087DF52DCC08D5211CBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = U4TBVKNQ7F;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				INFOPLIST_FILE = test/TestCommon/Info.plist;
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_BUNDLE_IDENTIFIER = com.zeroc.TestCommon;
+				PRODUCT_NAME = TestCommon;
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		17EC01A9C58F5CCE773D48FB /* Build configuration list for PBXNativeTarget "IceProperties iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				024AA5A147235068A3CCF55C /* Debug */,
+				93F9030CE0D8EC0EC5BCC727 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		2F49D73BC74D948000212D17 /* Build configuration list for PBXNativeTarget "Ice macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				6902F6114978C111E00A70B1 /* Debug */,
+				9FB0680DF45911A35BE81442 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3BF6A193F0C2887137E5608D /* Build configuration list for PBXNativeTarget "IceDefaultValue iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				653A80DAFF39C5E790253513 /* Debug */,
+				8660E1CE01DD2414C3E5D53C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4DE60D7B1B4097129200AE37 /* Build configuration list for PBXNativeTarget "IceProperties macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D41AA9154BDC8AE52DD97916 /* Debug */,
+				BA0B5737A0F1DE2E04F305D3 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4E20324E3B8EB5543755FE87 /* Build configuration list for PBXNativeTarget "IceEnums iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1FA77304FF31454B07A77D7F /* Debug */,
+				81B5BC9917639012E4B338E2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		54E2CC42B17385BD10276C82 /* Build configuration list for PBXNativeTarget "Ice iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				31ADF30A8F25A9CA6305C505 /* Debug */,
+				A4D34DA190A66E32DC21AB24 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5F319A4734E0D8FA6FCF4503 /* Build configuration list for PBXNativeTarget "TestCommon macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB1247DC576C1BF1D91E5DFA /* Debug */,
+				7796E3CD3D79AD425CFB2D6B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		6B7266F83946CA99CDA53186 /* Build configuration list for PBXProject "ice" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DB49BA81ECDB44AEB4031653 /* Debug */,
+				BB7BB3A602961BF8B97879CE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A6E9864CE63F237095418849 /* Build configuration list for PBXNativeTarget "TestCommon iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FE4F087DF52DCC08D5211CBA /* Debug */,
+				12C2319DBFF785A5A41BBE44 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A83AA0D78DEA730DB483240C /* Build configuration list for PBXNativeTarget "IceEnums macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5C1C2B212F1185AE9A7898F9 /* Debug */,
+				7235785D7D5B9B2C473082D2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A85660AAD47B6987B3A27DF6 /* Build configuration list for PBXNativeTarget "TestDriver iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA456986DD67845E3F21AF26 /* Debug */,
+				E51889EEE61791D5BA014EAF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA799B94ACDCEE317324DD8F /* Build configuration list for PBXNativeTarget "TestDriver macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				8B1B55C933407E7C796B14E6 /* Debug */,
+				FBE694F119D33F271DED92DF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D58EF88CB47C892AAE7AB932 /* Build configuration list for PBXNativeTarget "IceDefaultValue macOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3D5846CE4DD55D47DA23421D /* Debug */,
+				814A6FC432D20316C11A4F4A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C5CA595AF92C72C7B9363F3A /* Project object */;
+}
