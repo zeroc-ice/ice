@@ -1,0 +1,16 @@
+module IceObjc {
+  header "Communicator.h"
+  header "Config.h"
+  header "Connection.h"
+  header "Endpoint.h"
+  header "IceUtil.h"
+  header "ImplicitContext.h"
+  header "InputStream.h"
+  header "LocalException.h"
+  header "LocalObject.h"
+  header "Logger.h"
+  header "ObjectPrx.h"
+  header "OutputStream.h"
+  header "Properties.h"
+  export *
+}
