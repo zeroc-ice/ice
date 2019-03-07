@@ -180,6 +180,7 @@ def create_platform_targets(project, platform, tests)
             "-liconv"
         ]
     }
+    target_set_framework_build_settings(target)
     target_add_carthage_framework(target, platform, "PromiseKit.framework")
 
     if platform == :ios then
@@ -221,6 +222,7 @@ def create_platform_targets(project, platform, tests)
             target.frameworks_build_phases.add_file_reference(common.product_reference)
         end
         target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
+        target_set_framework_build_settings(target)
         target_add_carthage_framework(target, platform, "PromiseKit.framework")
         target_add_slice2swift_build_rule(project, target)
         target_add_swiftlint_build_phase(target, "test/#{test}")
@@ -265,6 +267,7 @@ def create_platform_targets(project, platform, tests)
         file = copy_phase.add_file_reference(framework.product_reference)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     end
+    target_set_framework_build_settings(target)
     target_add_carthage_framework(target, platform, "PromiseKit.framework", true)
 
     #
