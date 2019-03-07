@@ -39,49 +39,9 @@ desc "Generate Xcode projects required to build Ice for Swift"
 task :iceproj do
     project = Xcodeproj::Project.new("ice.xcodeproj")
 
-    #
-    # Create a target to build Slice library required by Slice compilers
-    #
-    slice = project.new_target(:static_library, "Slice", :osx)
-    slice.build_configurations.each do |config|
-        config.build_settings["HEADER_SEARCH_PATHS"] = [
-            "$(SRCROOT)/../cpp/include/",
-            "$(SRCROOT)/../cpp/src/"]
-        config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = ["ICE_STATIC_LIBS"]
-    end
-    target_set_common_build_settings(slice, "Slice")
-    ["IceUtil", "Slice"].each do |component|
-        group = project_group(project, "cpp/src/#{component}")
-        target_add_files(slice, group, "../cpp/src/#{component}", ["*.cpp"], ["Python*", "Php*", "Ruby*", "Java*"])
-    end
-
-    slice2swift = new_slice_compiler_target(project, slice, "slice2swift")
-    slice2cpp = new_slice_compiler_target(project, slice, "slice2cpp")
-
-    #
-    # Workaround to force slice2cpp to be created before Ice C++ targets run
-    #
-    slice2swift.add_dependency(slice2cpp)
-
     [:osx, :ios].each do |platform|
-        create_platform_targets(project, platform, slice2cpp, slice2swift, tests)
+        create_platform_targets(project, platform, tests)
     end
-
-    #
-    # All targets link with PromiseKit except C++11 targets
-    #
-    # project.targets.each do |target|
-    #     unless target.name.start_with? "Ice C++11" then
-    #         group = project.frameworks_group[(target.name.include? "macOS") ? "OS X" : "iOS"]
-    #         carthage_prefix = (target.name.include? "macOS") ? "Mac" : "iOS"
-    #         group_add_files(group, "Carthage/Build/#{carthage_prefix}", ["PromiseKit.framework"]).each do |ref|
-    #             target.frameworks_build_phases.add_file_reference(ref, true)
-    #             if target.name.start_with? "TestDriver" then
-    #                 target.copy_files_build_phases[0].add_file_reference(ref)
-    #             end
-    #         end
-    #     end
-    # end
 
     #
     # Sort the project and save it
@@ -122,7 +82,7 @@ end
 
 task :default => [:macosbuild]
 
-def create_platform_targets(project, platform, slice2cpp, slice2swift, tests)
+def create_platform_targets(project, platform, tests)
 
     platform_name = platform == :osx ? "macOS" : "iOS"
 
@@ -154,8 +114,6 @@ def create_platform_targets(project, platform, slice2cpp, slice2swift, tests)
 
     cpp_components.each do | component |
         target = project.new_target(:static_library, "#{component} C++11 #{platform_name}", platform)
-        target.add_dependency(slice2cpp)
-        target.add_dependency(slice2swift) # Workaround
         cpp_targets << target
 
         group = project_group(project, "slice/#{component}")
@@ -197,7 +155,6 @@ def create_platform_targets(project, platform, slice2cpp, slice2swift, tests)
     ice_target.name = "Ice #{platform_name}"
 
     target = ice_target
-    target.add_dependency(slice2swift)
     target.frameworks_build_phases.clear()
 
     group = project_group(project, "src/IceObjc")
@@ -223,7 +180,7 @@ def create_platform_targets(project, platform, slice2cpp, slice2swift, tests)
             "-liconv"
         ]
     }
-    target_add_carthage_framework(target, platform, "PromiseKit")
+    target_add_carthage_framework(target, platform, "PromiseKit.framework")
 
     if platform == :ios then
         target.add_system_framework("Security")
@@ -264,7 +221,7 @@ def create_platform_targets(project, platform, slice2cpp, slice2swift, tests)
             target.frameworks_build_phases.add_file_reference(common.product_reference)
         end
         target.frameworks_build_phases.add_file_reference(ice_target.product_reference, true)
-        target_add_carthage_framework(target, platform, "PromiseKit")
+        target_add_carthage_framework(target, platform, "PromiseKit.framework")
         target_add_slice2swift_build_rule(project, target)
         target_add_swiftlint_build_phase(target, "test/#{test}")
 
@@ -308,7 +265,7 @@ def create_platform_targets(project, platform, slice2cpp, slice2swift, tests)
         file = copy_phase.add_file_reference(framework.product_reference)
         file.settings = { 'ATTRIBUTES' => ['CodeSignOnCopy'] }
     end
-    target_add_carthage_framework(target, platform, "PromiseKit", true)
+    target_add_carthage_framework(target, platform, "PromiseKit.framework", true)
 
     #
     # Ensure Ice.framework has a shared scheme to build it, this is required for Carthage builds
@@ -399,34 +356,6 @@ def target_add_headers(target, group, basedir, patterns, excludes: [], attribute
         header = target.headers_build_phase.add_file_reference(file)
         header.settings = { "ATTRIBUTES" => attributes }
     end
-end
-
-#
-# Create a target to build a Slice compiler
-#
-def new_slice_compiler_target(project, slice, compiler)
-    target = project.new_target(:command_line_tool, compiler, :osx)
-    target.build_configurations.each { |config|
-        config.build_settings["HEADER_SEARCH_PATHS"] = [
-            "$(SRCROOT)/../cpp/include/",
-            "$(SRCROOT)/../cpp/src/",
-            "$(SRCROOT)/../cpp/src/#{compiler}"
-        ]
-        config.build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = [
-            "ICE_STATIC_LIBS"
-        ]
-        config.build_settings["OTHER_LDFLAGS"] = [
-            "-lmcpp"
-        ]
-        config.build_settings["LIBRARY_SEARCH_PATHS"] = "/usr/local/lib"
-    }
-    target_set_common_build_settings(target, compiler)
-
-    group = project_group(project, "cpp/src/#{compiler}")
-    target_add_files(target, group, "../cpp/src/#{compiler}", ["*.cpp"])
-    target.frameworks_build_phases.clear()
-    target.frameworks_build_phases.add_file_reference(slice.product_reference, true)
-    target
 end
 
 def target_set_common_build_settings(target, product, plist = nil)
