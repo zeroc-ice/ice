@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import "LocalObject.h"
+#import "IceObjcLocalObject.h"
 
 #include <exception>
 #include <vector>

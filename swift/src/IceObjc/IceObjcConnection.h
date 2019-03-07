@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import "LocalObject.h"
+#import "IceObjcLocalObject.h"
 
 @class ICEEndpoint;
 

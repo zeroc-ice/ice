@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#import "Endpoint.h"
-#import "IceUtil.h"
-#import "Util.h"
+#import "IceObjcEndpoint.h"
+#import "IceObjcIceUtil.h"
+#import "IceObjcUtil.h"
 
 @implementation ICEEndpointInfo
 

@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#import "LocalException.h"
-#import "IceUtil.h"
-#import "Util.h"
+#import "IceObjcLocalException.h"
+#import "IceObjcIceUtil.h"
+#import "IceObjcUtil.h"
 
 NSError*
 convertException(const std::exception& exc)

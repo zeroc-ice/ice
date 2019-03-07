@@ -7,12 +7,12 @@
 //
 // **********************************************************************
 
-#import "Communicator.h"
-#import "ObjectPrx.h"
-#import "Logger.h"
-#import "ImplicitContext.h"
+#import "IceObjcCommunicator.h"
+#import "IceObjcObjectPrx.h"
+#import "IceObjcLogger.h"
+#import "IceObjcImplicitContext.h"
 
-#include "Util.h"
+#include "IceObjcUtil.h"
 
 @implementation ICECommunicator
 

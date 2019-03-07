@@ -7,21 +7,21 @@
 //
 // **********************************************************************
 
-#import "Config.h"
+#import "IceObjcConfig.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface ICEInputStream : NSObject
--(instancetype) init ICE_SWIFT_UNAVAILABLE("ICEInputStream cannot be initialized from Swift");
--(void*) data;
--(size_t) size;
+@interface ICELocalObject : NSObject
+@property (weak, nonatomic, nullable) id swiftRef;
+-(instancetype) init ICE_SWIFT_UNAVAILABLE("");
 @end
 
 #ifdef __cplusplus
 
-@interface ICEInputStream()
-@property (nonatomic, readonly) std::vector<Ice::Byte> bytes;
--(instancetype) initWithBytes:(std::vector<Ice::Byte>)bytes;
+@interface ICELocalObject ()
+@property (nonatomic, readonly) void* _Nullable object;
+-(instancetype) initWithLocalObject:(void*)object;
++(nullable instancetype) fromLocalObject:(void*)object NS_RETURNS_RETAINED;
 @end
 
 #endif

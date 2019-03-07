@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#import "ImplicitContext.h"
+#import "IceObjcImplicitContext.h"
 
-#include "Util.h"
+#include "IceObjcUtil.h"
 
 @implementation ICEImplicitContext
 

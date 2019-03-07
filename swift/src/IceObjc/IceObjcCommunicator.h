@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import "LocalObject.h"
+#import "IceObjcLocalObject.h"
 
 @class ICEObjectPrx;
 @class ICEImplicitContext;

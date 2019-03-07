@@ -7,9 +7,9 @@
 //
 // **********************************************************************
 
-#import "Logger.h"
+#import "IceObjcLogger.h"
 
-#include "Util.h"
+#include "IceObjcUtil.h"
 
 @implementation ICELogger
 -(instancetype) initWithCppLogger:(std::shared_ptr<Ice::Logger>)logger

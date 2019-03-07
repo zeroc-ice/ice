@@ -7,12 +7,12 @@
 //
 // **********************************************************************
 
-#import "Communicator.h"
-#import "Connection.h"
-#import "Endpoint.h"
-#import "LocalException.h"
-#import "Logger.h"
-#import "Properties.h"
+#import "IceObjcCommunicator.h"
+#import "IceObjcConnection.h"
+#import "IceObjcEndpoint.h"
+#import "IceObjcLocalException.h"
+#import "IceObjcLogger.h"
+#import "IceObjcProperties.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

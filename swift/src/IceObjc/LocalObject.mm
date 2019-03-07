@@ -9,7 +9,7 @@
 
 #include <unordered_map>
 
-#import "LocalObject.h"
+#import "IceObjcLocalObject.h"
 
 namespace
 {

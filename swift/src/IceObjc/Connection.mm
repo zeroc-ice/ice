@@ -7,11 +7,11 @@
 //
 // **********************************************************************
 
-#import "Connection.h"
-#import "Endpoint.h"
-#import "ObjectPrx.h"
-#import "IceUtil.h"
-#import "Util.h"
+#import "IceObjcConnection.h"
+#import "IceObjcEndpoint.h"
+#import "IceObjcObjectPrx.h"
+#import "IceObjcIceUtil.h"
+#import "IceObjcUtil.h"
 
 @implementation ICEConnection
 

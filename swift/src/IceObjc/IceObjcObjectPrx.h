@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import "Config.h"
+#import "IceObjcConfig.h"
 
 @class ICEObjectPrx;
 @class ICEImplicitContext;

@@ -7,13 +7,13 @@
 //
 // **********************************************************************
 
-#import "ObjectPrx.h"
+#import "IceObjcObjectPrx.h"
 
-#import "Communicator.h"
-#import "Connection.h"
-#import "InputStream.h"
-#import "OutputStream.h"
-#import "Util.h"
+#import "IceObjcCommunicator.h"
+#import "IceObjcConnection.h"
+#import "IceObjcInputStream.h"
+#import "IceObjcOutputStream.h"
+#import "IceObjcUtil.h"
 
 @implementation ICEObjectPrx
 

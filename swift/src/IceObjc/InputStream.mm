@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import "InputStream.h"
+#import "IceObjcInputStream.h"
 
 @implementation ICEInputStream
 

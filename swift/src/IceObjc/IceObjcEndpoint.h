@@ -7,7 +7,7 @@
 //
 // **********************************************************************
 
-#import "LocalObject.h"
+#import "IceObjcLocalObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

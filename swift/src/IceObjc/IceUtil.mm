@@ -7,10 +7,10 @@
 //
 // **********************************************************************
 
-#import "Logger.h"
-#import "Properties.h"
-#import "IceUtil.h"
-#import "Util.h"
+#import "IceObjcLogger.h"
+#import "IceObjcProperties.h"
+#import "IceObjcIceUtil.h"
+#import "IceObjcUtil.h"
 
 namespace
 {

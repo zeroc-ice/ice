@@ -8,9 +8,9 @@
 //
 // **********************************************************************
 
-#import "Properties.h"
+#import "IceObjcProperties.h"
 
-#import "Util.h"
+#import "IceObjcUtil.h"
 
 @implementation ICEProperties
 
