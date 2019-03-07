@@ -45,7 +45,6 @@ public extension UserException {
         _iceWriteImpl(to: ostr)
         ostr.endException()
     }
-
 }
 
 #warning("TODO: Add proper LocalException  CustomStringConvertible impl")

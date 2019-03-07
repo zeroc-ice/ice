@@ -21,7 +21,7 @@ tests = [
 #     "Ice/invoke",
 #     "Ice/location",
 #     "Ice/objects",
-#     "Ice/operations",
+    "Ice/operations",
 #     "Ice/optional",
     "Ice/properties",
 #     "Ice/proxy",

@@ -18,6 +18,7 @@ namespace Slice
 
 const int TypeContextInParam = 1;
 const int TypeContextProtocol = 2;
+const int TypeContextLocal = 32;
 
 std::string getSwiftModule(const ModulePtr&, std::string&);
 std::string getSwiftModule(const ModulePtr&);
@@ -52,6 +53,7 @@ protected:
 
     std::string getUnqualified(const std::string&, const std::string&);
     std::string modeToString(Operation::Mode);
+    std::string getOptionalFormat(const TypePtr&);
 
     bool isNullableType(const TypePtr&);
     bool isObjcRepresentable(const TypePtr&);
@@ -67,8 +69,21 @@ protected:
                                     const DataMemberList&, const ContainedPtr&, bool rootClass = false);
     void writeMembers(IceUtilInternal::Output&, const DataMemberList&, const ContainedPtr&, int = 0);
 
-    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, const std::string&, bool, bool, bool);
-    void writeOptionalMarshalUnmarshalCode(::IceUtilInternal::Output&, const TypePtr&, const std::string&, int, bool);
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
+                                   const TypePtr&,
+                                   const std::string&,
+                                   const std::string&,
+                                   bool,
+                                   bool,
+                                   bool,
+                                   int = -1);
+    void writeMarshalUnmarshalCode(::IceUtilInternal::Output&,
+                                   const DataMemberPtr&,
+                                   const ContainedPtr&,
+                                   bool,
+                                   bool,
+                                   bool,
+                                   int = -1);
 
 private:
 

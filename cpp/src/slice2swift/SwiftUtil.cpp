@@ -301,7 +301,14 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
 
     if(builtin)
     {
-        t = getUnqualified(builtinTable[builtin->kind()], currentModule);
+        if(builtin->kind() == Builtin::KindObject && !(typeCtx & TypeContextLocal))
+        {
+            t = getUnqualified(builtinTable[Builtin::KindValue], currentModule);
+        }
+        else
+        {
+            t = getUnqualified(builtinTable[builtin->kind()], currentModule);
+        }
     }
 
     ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
@@ -466,6 +473,91 @@ SwiftGenerator::modeToString(Operation::Mode opMode)
         }
     }
     return mode;
+}
+
+string
+SwiftGenerator::getOptionalFormat(const TypePtr& type)
+{
+    BuiltinPtr bp = BuiltinPtr::dynamicCast(type);
+    if(bp)
+    {
+        switch(bp->kind())
+        {
+        case Builtin::KindByte:
+        case Builtin::KindBool:
+        {
+            return "Ice.OptionalFormat.F1";
+        }
+        case Builtin::KindShort:
+        {
+            return "Ice.OptionalFormat.F2";
+        }
+        case Builtin::KindInt:
+        case Builtin::KindFloat:
+        {
+            return "Ice.OptionalFormat.F4";
+        }
+        case Builtin::KindLong:
+        case Builtin::KindDouble:
+        {
+            return "Ice.OptionalFormat.F8";
+        }
+        case Builtin::KindString:
+        {
+            return "Ice.OptionalFormat.VSize";
+        }
+        case Builtin::KindObject:
+        {
+            return "Ice.OptionalFormat.Class";
+        }
+        case Builtin::KindObjectProxy:
+        {
+            return "Ice.OptionalFormat.FSize";
+        }
+        case Builtin::KindLocalObject:
+        {
+            assert(false);
+            break;
+        }
+        case Builtin::KindValue:
+        {
+            return "Ice.OptionalFormat.Class";
+        }
+        }
+    }
+
+    if(EnumPtr::dynamicCast(type))
+    {
+        return "Ice.OptionalFormat.Size";
+    }
+
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        return seq->type()->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
+    }
+
+    DictionaryPtr d = DictionaryPtr::dynamicCast(type);
+    if(d)
+    {
+        return (d->keyType()->isVariableLength() || d->valueType()->isVariableLength()) ?
+            "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
+    }
+
+    StructPtr st = StructPtr::dynamicCast(type);
+    if(st)
+    {
+        return st->isVariableLength() ? "Ice.OptionalFormat.FSize" : "Ice.OptionalFormat.VSize";
+    }
+
+    if(ProxyPtr::dynamicCast(type))
+    {
+        return "Ice.OptionalFormat.FSize";
+    }
+
+    ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+    assert(cl);
+    return "Ice.OptionalFormat.Class";
 }
 
 bool
@@ -647,19 +739,41 @@ SwiftGenerator::writeMembers(IceUtilInternal::Output& out,
 
 void
 SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
-                                          const TypePtr& type,
-                                          const string& param,
-                                          const string& swiftModule,
+                                          const DataMemberPtr& member,
+                                          const ContainedPtr& topLevel,
                                           bool insideStream,
                                           bool declareParam,
-                                          bool marshal)
+                                          bool marshal,
+                                          int tag)
 {
-    string unqualifiedType = getUnqualified(getAbsolute(type), swiftModule);
+    TypePtr type = member->type();
+    string typeStr = typeToString(type, topLevel, member->getMetaData(), member->optional());
+    string param = member->name();
 
+    writeMarshalUnmarshalCode(out, type, typeStr, param, insideStream, declareParam, marshal, tag);
+}
+
+void
+SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
+                                          const TypePtr& type,
+                                          const string& typeStr,
+                                          const string& param,
+                                          bool insideStream,
+                                          bool declareParam,
+                                          bool marshal,
+                                          int tag)
+{
     string streamName = marshal ? "ostr" : "istr";
-    string assign = declareParam ? ("let " + param + ": " + unqualifiedType) : param;
+    string assign = declareParam ? ("let " + param + ": " + typeStr) : param;
     string marshalParam = insideStream ? ("v." + param) : param;
+    string unmarshalParam;
     string stream = insideStream ? "" : (streamName + ".");
+
+    if(tag >= 0)
+    {
+        marshalParam = "tag: " + int64ToString(tag) + ", value: " + marshalParam;
+        unmarshalParam = "tag: " + int64ToString(tag);
+    }
 
     BuiltinPtr builtin = BuiltinPtr::dynamicCast(type);
     if(builtin)
@@ -674,6 +788,17 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
             case Builtin::KindFloat:
             case Builtin::KindDouble:
             case Builtin::KindString:
+            {
+                if(marshal)
+                {
+                    out << nl << stream << "write(" << marshalParam << ")";
+                }
+                else
+                {
+                    out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
+                }
+                break;
+            }
             case Builtin::KindObjectProxy:
             {
                 if(marshal)
@@ -682,7 +807,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 else
                 {
-                    out << nl << assign << " = try " << stream << "read()";
+                    out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ") as _ObjectPrxI?";
                 }
                 break;
             }
@@ -695,8 +820,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 else
                 {
-                    out << nl << assign << "= try " << stream << "read(value: " << unqualifiedType << ") { ";
-                    out << param << " = $0 }";
+                    out << nl << "try " << stream << "read(" << unmarshalParam << ") { " << param << " = $0 }";
 
                 }
                 break;
@@ -722,20 +846,102 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            out << nl << assign << " = try " << stream << "read()";
+            out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
         }
         return;
     }
-}
+    ProxyPtr prx = ProxyPtr::dynamicCast(type);
+    if(prx)
+    {
+        if(marshal)
+        {
+            out << nl << stream << "write(" << marshalParam << ")";
+        }
+        else
+        {
+            out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
+        }
+        return;
+    }
 
-void
-SwiftGenerator::writeOptionalMarshalUnmarshalCode(Output&,
-                                                  const TypePtr&,
-                                                  const string&,
-                                                  int,
-                                                  bool)
-{
+    if(StructPtr::dynamicCast(type))
+    {
+        if(marshal)
+        {
+            out << nl << stream << "write(" << marshalParam << ")";
+        }
+        else
+        {
+            out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
+        }
+        return;
+    }
 
+    SequencePtr seq = SequencePtr::dynamicCast(type);
+    if(seq)
+    {
+        BuiltinPtr seqBuiltin = BuiltinPtr::dynamicCast(seq->type());
+        if(seqBuiltin && seqBuiltin->kind() <= Builtin::KindString)
+        {
+            if(marshal)
+            {
+                out << nl << stream << "write(" << marshalParam << ")";
+            }
+            else
+            {
+                out << nl << assign << " = try " << stream << "read(" << unmarshalParam << ")";
+            }
+        }
+        else
+        {
+            string helper = "_" + typeStr + "Helper";
+            if(marshal)
+            {
+                out << nl << helper <<".write";
+                out << spar;
+                out << ("to: " + streamName);
+                out << ("value: " + marshalParam);
+                out << epar;
+            }
+            else
+            {
+                out << nl << assign << " = try " << helper << ".read";
+                out << spar;
+                out << ("from: " + streamName);
+                if(!unmarshalParam.empty())
+                {
+                    out << unmarshalParam;
+                }
+                out << epar;
+            }
+        }
+        return;
+    }
+
+    if(DictionaryPtr::dynamicCast(type))
+    {
+        string helper = "_" + typeStr + "Helper";
+        if(marshal)
+        {
+            out << nl << helper << ".write";
+            out << spar;
+            out << ("to: " + streamName);
+            out << ("value: " + marshalParam);
+            out << epar;
+        }
+        else
+        {
+            out << nl << assign << " = try " << helper << ".read";
+            out << spar;
+            out << ("from: " + streamName);
+            if(!unmarshalParam.empty())
+            {
+                out << unmarshalParam;
+            }
+            out << epar;
+        }
+        return;
+    }
 }
 
 bool

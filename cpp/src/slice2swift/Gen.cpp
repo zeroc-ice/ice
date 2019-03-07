@@ -340,7 +340,7 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             DataMemberPtr member = *q;
             TypePtr type = member->type();
-            writeMarshalUnmarshalCode(out, type, member->name(), swiftModule, false, false, false);
+            writeMarshalUnmarshalCode(out, member, p, false, false, false);
         }
         if(base)
         {
@@ -395,9 +395,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            DataMemberPtr member = *q;
-            TypePtr type = member->type();
-            writeMarshalUnmarshalCode(out, type, member->name(), swiftModule, true, true, false);
+            writeMarshalUnmarshalCode(out, *q, p, true, true, false);
         }
 
         out << nl << "return " << name;
@@ -418,7 +416,7 @@ Gen::TypesVisitor::visitStructStart(const StructPtr& p)
         out << nl << "func write(_ v: " << name << ")" << sb;
         for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
         {
-            writeMarshalUnmarshalCode(out, (*q)->type(), fixIdent((*q)->name()) , swiftModule, true, false, true);
+            writeMarshalUnmarshalCode(out, *q, p, true, false, true);
         }
         out << eb;
 
@@ -434,8 +432,97 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(p)));
     const string name = getUnqualified(getAbsolute(p), swiftModule);
 
+    const TypePtr type = p->type();
+
     out << sp;
     out << nl << "public typealias " << name << " = [" << typeToString(p->type(), p) << "]";
+
+    if(p->isLocal())
+    {
+        return;
+    }
+
+    BuiltinPtr builtin = BuiltinPtr::dynamicCast(p->type());
+    if(builtin && builtin->kind() <= Builtin::KindString)
+    {
+        return; // No helpers for sequence of primitive types
+    }
+
+    const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
+    const string istr = getUnqualified("Ice.InputStream", swiftModule);
+
+    const string optionalFormat = getUnqualified(getOptionalFormat(p->type()), swiftModule);
+
+    out << sp;
+    out << nl << "public struct _" << name << "Helper";
+    out << sb;
+
+    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
+    out << sb;
+    out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
+    out << nl << "var v = " << name << "()";
+    out << nl << "v.reserveCapacity(sz)";
+    out << nl << "for i in 0 ..< sz";
+    out << sb;
+    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "v[i]", false, false, false);
+    out << eb;
+    out << nl << "return v";
+    out << eb;
+
+    out << nl << "public static func read(from istr: " << istr << ", tag: Int32) throws -> " << name << "?";
+    out << sb;
+    out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+    out << sb;
+    out << nl << "return nil";
+    out << eb;
+    if(p->type()->isVariableLength())
+    {
+        out << nl << "try istr.skip(4)";
+    }
+    else if(p->type()->minWireSize() > 1)
+    {
+        out << nl << "try istr.skipSize()";
+    }
+    out << nl << "return try read(from: istr)";
+    out << eb;
+
+    out << sp;
+    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
+    out << sb;
+    out << nl << "ostr.write(size: v.count)";
+    out << nl << "v.forEach";
+    out << sb;
+    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "$0", false, false, true);
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public static func write(to ostr: " << ostr << ", tag: Int32, value v: "<< name << "?)";
+    out << sb;
+    out << nl << "guard let val = v else";
+    out << sb;
+    out << nl << "return";
+    out << eb;
+    if(p->type()->isVariableLength())
+    {
+        out << nl << "if ostr.writeOptional(tag: tag, format: " << optionalFormat << ")";
+        out << sb;
+        out << nl << "let pos = ostr.startSize()";
+        out << nl << "write(to: ostr, value: val)";
+        out << nl << "ostr.endSize(position: pos)";
+        out << eb;
+    }
+    else
+    {
+        out << nl << "if ostr.writeOptionalVSize(tag: tag, len: val.count, elemSize: " << p->type()->minWireSize() << ")";
+        out << sb;
+        out << nl << "ostr.write(size: val.count)";
+        out << nl << "write(to: ostr, value: val)";
+        out << eb;
+    }
+    out << eb;
+
+    out << eb;
 }
 
 void
@@ -446,9 +533,95 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
 
     out << sp;
     out << nl << "public typealias " << name << " = ["
-        << typeToString(p->keyType(), p) << ":"
+        << typeToString(p->keyType(), p) << ": "
         << typeToString(p->valueType(), p)
         << "]";
+
+    if(p->isLocal())
+    {
+        return;
+    }
+
+    const string ostr = getUnqualified("Ice.OutputStream", swiftModule);
+    const string istr = getUnqualified("Ice.InputStream", swiftModule);
+
+    const string optionalFormat = getUnqualified(getOptionalFormat(p), swiftModule);
+    const bool isVariableLength = p->keyType()->isVariableLength() || p->valueType()->isVariableLength();
+    const int minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
+
+    out << sp;
+    out << nl << "public struct _" << name << "Helper";
+    out << sb;
+
+    out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
+    out << sb;
+    out << nl << "let sz = try Int(istr.readSize())";
+    out << nl << "var v = " << name << "()";
+    out << nl << "for _ in 0 ..< sz";
+    out << sb;
+    writeMarshalUnmarshalCode(out, p->keyType(), typeToString(p->keyType(), p), "key", false, true, false);
+    writeMarshalUnmarshalCode(out, p->valueType(), typeToString(p->valueType(), p), "value", false, true, false);
+    out << nl << "v[key] = value";
+    out << eb;
+    out << nl << "return v";
+    out << eb;
+
+    out << nl << "public static func read(from istr: " << istr << ", tag: Int32) throws -> " << name << "?";
+    out << sb;
+    out << nl << "guard try istr.readOptional(tag: tag, expectedFormat: " << optionalFormat << ") else";
+    out << sb;
+    out << nl << "return nil";
+    out << eb;
+    if(p->keyType()->isVariableLength() || p->valueType()->isVariableLength())
+    {
+        out << nl << "try istr.skip(4)";
+    }
+    else
+    {
+        out << nl << "try istr.skipSize()";
+    }
+    out << nl << "return try read(from: istr)";
+    out << eb;
+
+    out << sp;
+    out << nl << "public static func write(to ostr: " << ostr << ", value v: " << name << ")";
+    out << sb;
+    out << nl << "ostr.write(size: v.count)";
+    out << nl << "v.forEach";
+    out << sb;
+    out << "key, value in";
+    writeMarshalUnmarshalCode(out, p->keyType(), typeToString(p->keyType(), p), "key", false, false, true);
+    writeMarshalUnmarshalCode(out, p->valueType(), typeToString(p->valueType(), p), "value", false, false, true);
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public static func write(to ostr: " << ostr << ", tag: Int32, value v: "<< name << "?)";
+    out << sb;
+    out << nl << "guard let val = v else";
+    out << sb;
+    out << nl << "return";
+    out << eb;
+    if(isVariableLength)
+    {
+        out << nl << "if ostr.writeOptional(tag: tag, format: " << optionalFormat << ")";
+        out << sb;
+        out << nl << "let pos = ostr.startSize()";
+        out << nl << "write(to: ostr, value: val)";
+        out << nl << "ostr.endSize(position: pos)";
+        out << eb;
+    }
+    else
+    {
+        out << nl << "if ostr.writeOptionalVSize(tag: tag, len: val.count, elemSize: " << minWireSize << ")";
+        out << sb;
+        out << nl << "ostr.write(size: val.count)";
+        out << nl << "write(to: ostr, value: val)";
+        out << eb;
+    }
+    out << eb;
+
+    out << eb;
 }
 
 void
@@ -684,6 +857,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     const DataMemberList allMembers = p->allDataMembers();
     const DataMemberList optionalMembers = p->orderedOptionalDataMembers();
 
+    // TODO:
     //const bool basePreserved = p->inheritsMetaData("preserve-slice");
     //const bool preserved = p->hasMetaData("preserve-slice");
 
@@ -728,12 +902,12 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         TypePtr type = member->type();
         if(!member->optional())
         {
-            writeMarshalUnmarshalCode(out, type, fixIdent(member->name()), swiftModule, false, false, true);
+            writeMarshalUnmarshalCode(out, member, p, false, false, true);
         }
     }
     for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
     {
-        // TODO :
+        writeMarshalUnmarshalCode(out, *d, p, false, false, true, (*d)->tag());
     }
     out << nl << "// to.endSlice();";
     if(base)
@@ -936,6 +1110,8 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
     const string name = fixIdent(p->name());
     ParamDeclList params = p->parameters();
 
+    int typeCtx = TypeContextInParam | TypeContextLocal;
+
     out << sp;
     out << nl << "func " << name;
     out << spar;
@@ -947,7 +1123,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
             TypePtr type = param->type();
             ostringstream s;
             s << fixIdent(param->name()) << ": "
-              << typeToString(type, p, param->getMetaData(), param->optional(), TypeContextInParam);
+              << typeToString(type, p, param->getMetaData(), param->optional(), typeCtx);
             out << s.str();
         }
     }
@@ -966,12 +1142,12 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
         out << " -> ";
         if(outParams.empty())
         {
-            out << typeToString(ret, p, p->getMetaData(), p->returnIsOptional());
+            out << typeToString(ret, p, p->getMetaData(), p->returnIsOptional(), typeCtx);
         }
         else if(!ret && outParams.size() == 1)
         {
             ParamDeclPtr param = outParams.front();
-            out << typeToString(param->type(), p, param->getMetaData(), param->optional());
+            out << typeToString(param->type(), p, param->getMetaData(), param->optional(), typeCtx);
         }
         else
         {
@@ -992,7 +1168,7 @@ Gen::LocalObjectVisitor::visitOperation(const OperationPtr& p)
             {
                 ParamDeclPtr param = *i;
                 out << (fixIdent(param->name()) + ": " +
-                        typeToString(param->type(), p, p->getMetaData(), param->optional()));
+                        typeToString(param->type(), p, p->getMetaData(), param->optional(), typeCtx));
             }
             out << epar;
         }

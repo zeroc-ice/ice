@@ -8,6 +8,7 @@
 // **********************************************************************
 
 class ValueFactoryManagerI: ValueFactoryManager {
+
     var factories = [String: ValueFactory]()
     var mutex = Mutex()
 

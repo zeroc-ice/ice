@@ -244,11 +244,11 @@ public class InputStream {
         }
     }
 
-    func skip(_ count: Int32) throws {
+    public func skip(_ count: Int32) throws {
         try buf.skip(count: Int(count))
     }
 
-    func skipSize() throws {
+    public func skipSize() throws {
         let b: UInt8 = try read()
         if b == 255 {
             try buf.skip(count: 4)
@@ -700,12 +700,19 @@ public extension InputStream {
         return try read() as ProxyImpl?
     }
 
-    func read() throws -> ObjectPrx? {
-        return try read() as _ObjectPrxI?
-    }
-
     func read(tag: Int32) throws -> ObjectPrx? {
         return try read(tag: tag) as _ObjectPrxI?
+    }
+
+    func read(cb: ((Value?) -> Void)?) throws {
+        initEncaps()
+        if let cb = cb {
+            try encaps.decoder.readValue { value in
+                cb(value)
+            }
+        } else {
+            try encaps.decoder.readValue(cb: nil)
+        }
     }
 
     func read<ValueType>(value cls: ValueType.Type, cb: ((ValueType?) -> Void)?) throws where ValueType: Value {

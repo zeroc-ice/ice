@@ -166,15 +166,10 @@ public extension OutputStream {
     private func writeNumeric<Element>(_ v: [Element]) where Element: Numeric {
         write(size: v.count)
         if v.count > 0 {
-            write(size: v.count)
             v.forEach { e in
                 writeNumeric(e)
             }
         }
-    }
-
-    private func writeNumeric<Element>(_ tag: Int32, _ v: [Element]) where Element: Numeric {
-
     }
 
     //
@@ -193,8 +188,12 @@ public extension OutputStream {
     }
 
     func write(tag: Int32, value v: [UInt8]?) {
-        if let val = v {
-            writeNumeric(tag, val)
+        guard let val = v else {
+            return
+        }
+
+        if writeOptional(tag: tag, format: OptionalFormat.VSize) {
+            write(val)
         }
     }
 
@@ -212,7 +211,6 @@ public extension OutputStream {
     func write(_ v: [Bool]) {
         write(size: v.count)
         if v.count > 0 {
-            write(size: v.count)
             v.forEach { e in
                 write(e)
             }
@@ -220,7 +218,10 @@ public extension OutputStream {
     }
 
     func write(tag: Int32, value v: [Bool]?) {
-        if let val = v {
+        guard let val = v else {
+            return
+        }
+        if writeOptional(tag: tag, format: OptionalFormat.VSize) {
             write(val)
         }
     }
@@ -242,8 +243,8 @@ public extension OutputStream {
 
     func write(tag: Int32, value v: [Int16]?) {
         if let val = v {
-            if writeOptionalVSize(tag: tag, len: Int32(val.count), elemSize: 2) {
-                writeNumeric(tag, val)
+            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 2) {
+                write(val)
             }
         }
     }
@@ -265,8 +266,8 @@ public extension OutputStream {
 
     func write(tag: Int32, value v: [Int32]?) {
         if let val = v {
-            if writeOptionalVSize(tag: tag, len: Int32(val.count), elemSize: 4) {
-                writeNumeric(tag, val)
+            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 4) {
+                write(val)
             }
         }
     }
@@ -288,8 +289,8 @@ public extension OutputStream {
 
     func write(tag: Int32, value v: [Int64]?) {
         if let val = v {
-            if writeOptionalVSize(tag: tag, len: Int32(val.count), elemSize: 8) {
-                writeNumeric(tag, val)
+            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 8) {
+                write(val)
             }
         }
     }
@@ -311,8 +312,8 @@ public extension OutputStream {
 
     func write(tag: Int32, value v: [Float]?) {
         if let val = v {
-            if writeOptionalVSize(tag: tag, len: Int32(val.count), elemSize: 4) {
-                writeNumeric(tag, val)
+            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 4) {
+                write(val)
             }
         }
     }
@@ -334,8 +335,8 @@ public extension OutputStream {
 
     func write(tag: Int32, value v: [Double]?) {
         if let val = v {
-            if writeOptionalVSize(tag: tag, len: Int32(val.count), elemSize: 8) {
-                writeNumeric(tag, val)
+            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 8) {
+                write(val)
             }
         }
     }
@@ -493,7 +494,7 @@ public extension OutputStream {
         return true
     }
 
-    func writeOptionalVSize(tag: Int32, len: Int32, elemSize: Int32) -> Bool {
+    func writeOptionalVSize(tag: Int32, len: Int, elemSize: Int) -> Bool {
         if writeOptional(tag: tag, format: OptionalFormat.VSize) {
             if len == 0 {
                 write(size: 1)
