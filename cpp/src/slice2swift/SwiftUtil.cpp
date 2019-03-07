@@ -820,8 +820,11 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                 }
                 else
                 {
+                    if(declareParam)
+                    {
+                        out << nl << "var " << param << ": " << typeStr;
+                    }
                     out << nl << "try " << stream << "read(" << unmarshalParam << ") { " << param << " = $0 }";
-
                 }
                 break;
             }
@@ -835,6 +838,40 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
 
             }
         }
+    }
+
+    if(ClassDeclPtr::dynamicCast(type))
+    {
+        if (marshal)
+        {
+            out << nl << stream << "write(" << marshalParam << ")";
+        }
+        else
+        {
+            if(declareParam)
+            {
+                out << nl << "var " << param << ": " << typeStr;
+            }
+            out << nl << "try " << stream << "read";
+            out << spar;
+            if(!unmarshalParam.empty())
+            {
+                out << unmarshalParam;
+            }
+            const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(type)));
+            const string className = getUnqualified(getAbsolute(type), swiftModule);
+            out << ("value: " + className + ".self");
+            out << epar;
+            out << sb;
+            out << nl;
+            if(!declareParam)
+            {
+                out << "self.";
+            }
+            out << param << " = $0";
+            out << eb;
+        }
+        return;
     }
 
     EnumPtr en = EnumPtr::dynamicCast(type);

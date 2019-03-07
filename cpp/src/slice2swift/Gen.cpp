@@ -464,7 +464,8 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "v.reserveCapacity(sz)";
     out << nl << "for i in 0 ..< sz";
     out << sb;
-    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "v[i]", false, false, false);
+    writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "j", false, true, false);
+    out << nl << "v[i] = j";
     out << eb;
     out << nl << "return v";
     out << eb;
@@ -497,7 +498,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << eb;
 
     out << sp;
-    out << nl << "public static func write(to ostr: " << ostr << ", tag: Int32, value v: "<< name << "?)";
+    out << nl << "public static func write(to ostr: " << ostr << ",  tag: Int32, value v: "<< name << "?)";
     out << sb;
     out << nl << "guard let val = v else";
     out << sb;
