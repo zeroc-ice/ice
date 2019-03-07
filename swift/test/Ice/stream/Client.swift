@@ -9,7 +9,7 @@ import TestCommon
 public class Client: TestHelperI {
     public override func run(args _: [String]) throws {
         var writer = getWriter()
-        writer.write(data: "testing primitive types... ")
+        writer.write("testing primitive types... ")
         var communicator = try Ice.initialize()
         defer {
             communicator.destroy()
@@ -32,18 +32,20 @@ public class Client: TestHelperI {
 
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             try inS.startEncapsulation()
-            try test(value: try Bool(from: inS))
+            var value: Bool = try inS.read()
+            try test(value)
 
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             try inS.startEncapsulation()
-            try test(value: try Bool(from: inS))
+            value = try inS.read()
+            try test(value)
         }
 
         do {
             inS = Ice.InputStream(communicator: communicator, bytes: [UInt8]())
             do {
-                _ = try Bool(from: inS)
-                try test(value: false)
+                _ = try inS.read() as Bool
+                try test(false)
             } catch {}
         }
 
@@ -52,7 +54,8 @@ public class Client: TestHelperI {
             outS.write(true)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Bool(from: inS))
+            let value: Bool = try inS.read()
+            try test(value)
         }
 
         do {
@@ -60,7 +63,8 @@ public class Client: TestHelperI {
             outS.write(UInt8(1))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try UInt8(from: inS) == 1)
+            let value: UInt8 = try inS.read()
+            try test(value == 1)
         }
 
         do {
@@ -68,7 +72,8 @@ public class Client: TestHelperI {
             outS.write(Int16(2))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Int16(from: inS) == 2)
+            let value: Int16 = try inS.read()
+            try test(value == 2)
         }
 
         do {
@@ -76,7 +81,8 @@ public class Client: TestHelperI {
             outS.write(Int32(3))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Int32(from: inS) == 3)
+            let value: Int32 = try inS.read()
+            try test(value == 3)
         }
 
         do {
@@ -84,7 +90,8 @@ public class Client: TestHelperI {
             outS.write(Int64(4))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Int64(from: inS) == 4)
+            let value: Int64 = try inS.read()
+            try test(value == 4)
         }
 
         do {
@@ -92,7 +99,8 @@ public class Client: TestHelperI {
             outS.write(Float(5.0))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Float(from: inS) == 5.0)
+            let value: Float = try inS.read()
+            try test(value == 5.0)
         }
 
         do {
@@ -100,21 +108,51 @@ public class Client: TestHelperI {
             outS.write(Double(6.0))
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: try Double(from: inS) == 6.0)
+            let value: Double = try inS.read()
+            try test(value == 6.0)
         }
 
         do {
             outS = Ice.OutputStream(communicator: communicator)
-            outS.write(utf8view: "hello world".utf8)
+            outS.write("hello world")
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            try test(value: inS.readString() == "hello world")
+            let value: String = try inS.read()
+            try test(value == "hello world")
         }
 
-        writer.writeLine(data: "ok")
+        writer.writeLine("ok")
 
-        writer.write(data: "testing constructed types... ")
-        outS = Ice.OutputStream(communicator: communicator)
-        writer.writeLine(data: "ok")
+        writer.write("testing constructed types... ")
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(MyEnum.enum3)
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let e: MyEnum = try inS.read()
+            try test(e == MyEnum.enum3)
+        }
+
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            var s = SmallStruct();
+            s.bo = true
+            s.by = 1
+            s.sh = 2
+            s.i = 3
+            s.l = 4
+            s.f = 5.0
+            s.d = 6.0
+            s.str = "7"
+            s.e = MyEnum.enum2;
+            s.p = nil
+            //s.p = MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test:default"))
+            outS.write(s)
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let s2: SmallStruct = try inS.read()
+            //test(s2 == s)
+        }
+        writer.writeLine("ok")
     }
 }

@@ -7,10 +7,12 @@ import TestCommon
 import IceProperties
 import IceDefaultValue
 import IceEnums
+import IceStream
 
 let tests: [String: () -> TestHelper] = [
     "Ice.properties.Client": { IceProperties.Client() },
     "Ice.defaultValue.Client": { IceDefaultValue.Client() },
+    "Ice.stream.Client": { IceStream.Client() },
     "Ice.enums.Client": { IceEnums.Client() },
     "Ice.enums.Server": { IceEnums.Server() }
 ]

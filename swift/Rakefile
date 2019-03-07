@@ -30,7 +30,7 @@ tests = [
 #     "Ice/servantLocator",
 #     "Ice/slicing/exceptions",
 #     "Ice/slicing/objects",
-#     "Ice/stream",
+    "Ice/stream",
 #     "Ice/timeout",
 #     "Ice/udp"
 ]
