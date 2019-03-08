@@ -56,7 +56,7 @@ public class OutputStream {
 
         encapsStack.format = format
         encapsStack.setEncoding(encoding)
-        encapsStack.start = buf.count
+        encapsStack.start = buf.size
 
         write(Int32(0)) // Placeholder for the encapsulation length.
         write(encapsStack.encoding)
@@ -65,7 +65,7 @@ public class OutputStream {
     public func endEncapsulation() {
         // Size includes size and version.
         let start = encapsStack.start
-        let sz = Int32(buf.count - start)
+        let sz = Int32(buf.size - start)
         rewriteNumeric(value: sz, position: Int32(start))
 
         let curr = encapsStack!
@@ -80,11 +80,11 @@ public class OutputStream {
     }
 
     func getCount() -> Int {
-        return buf.count
+        return buf.size
     }
 
-    func write<T>(bytes value: inout T, at: Int) {
-        withUnsafePointer(to: &value) {
+    func write<T>(bytes value: T, at: Int) {
+        withUnsafePointer(to: value) {
             self.buf.write(bytes: UnsafeRawBufferPointer(start: $0, count: MemoryLayout<T>.size), at: at)
         }
     }
@@ -137,22 +137,22 @@ public class OutputStream {
 
     public func finished() -> [UInt8] {
         // Create a copy
-        return Array(UnsafeRawBufferPointer(start: buf.baseAddress!, count: buf.count))
+        return Array(UnsafeRawBufferPointer(start: buf.baseAddress!, count: buf.size))
     }
 }
 
 public extension OutputStream {
 
     private func writeNumeric<Element>(_ v: Element) where Element: Numeric {
-        var value = v
-        return Swift.withUnsafeBytes(of: &value) {
+        withUnsafeBytes(of: v) {
             self.buf.append(bytes: $0)
         }
     }
 
     private func rewriteNumeric<Element>(value: Element, position: Int32) where Element: Numeric {
-        var v = value
-        write(bytes: &v, at: Int(position))
+        withUnsafeBytes(of: value) {
+            write(bytes: $0, at: Int(position))
+        }
     }
 
     private func writeNumeric<Element>(_ tag: Int32, _ v: Element?, _ format: OptionalFormat) where Element: Numeric {
@@ -360,7 +360,7 @@ public extension OutputStream {
     }
 
     func startSize() -> Int32 {
-        let pos = buf.count
+        let pos = buf.size
         write(Int32(0)) // Placeholder for 32-bit size
         return Int32(pos)
     }
@@ -690,8 +690,8 @@ private final class EncapsEncoder10: EncapsEncoder {
         //
         // Write the slice length.
         //
-        var sz = Int32(os.getCount()) - writeSlice + 4
-        os.write(bytes: &sz, at: Int(writeSlice - 4))
+        let sz = Int32(os.getCount()) - writeSlice + 4
+        os.write(bytes: sz, at: Int(writeSlice - 4))
     }
 
     func writePendingValues() {
@@ -896,8 +896,8 @@ private final class EncapsEncoder11: EncapsEncoder {
         // Write the slice length if necessary.
         //
         if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
-            var sz: Int32 = Int32(os.getCount()) - current.writeSlice + 4
-            os.write(bytes: &sz, at: Int(current.writeSlice - 4))
+            let sz: Int32 = Int32(os.getCount()) - current.writeSlice + 4
+            os.write(bytes: sz, at: Int(current.writeSlice - 4))
         }
 
         //
@@ -922,7 +922,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         //
         // Finally, update the slice flags.
         //
-        os.write(bytes: &current.sliceFlags, at: Int(current.sliceFlagsPos))
+        os.write(bytes: current.sliceFlags, at: Int(current.sliceFlagsPos))
     }
 
     func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {

@@ -53,8 +53,8 @@ public class InputStream {
         return buf.baseAddress
     }
 
-    func getCount() -> Int {
-        return buf.count
+    func getSize() -> Int {
+        return buf.size
     }
 
     func getEncoding() -> EncodingVersion {
@@ -66,7 +66,7 @@ public class InputStream {
     }
 
     public func startEncapsulation() throws {
-        encaps.start = buf.count
+        encaps.start = buf.size
         //
         // I don't use readSize() and writeSize() for encapsulations,
         // because when creating an encapsulation, I must know in advance
@@ -80,7 +80,7 @@ public class InputStream {
             // TODO: file/line
             throw UnmarshalOutOfBoundsException(reason: "")
         }
-        if sz - 4 > buf.capacity - buf.count {
+        if sz - 4 > buf.capacity - buf.size {
             // TODO: file/line
             throw UnmarshalOutOfBoundsException(reason: "")
         }
@@ -96,11 +96,11 @@ public class InputStream {
     public func endEncapsulation() throws {
         if encaps.encoding_1_0 {
             try skipOptionals()
-            if buf.count != encaps.start + encaps.sz {
+            if buf.size != encaps.start + encaps.sz {
                 throw EncapsulationException(reason: "buffer size does not match decoded encapsulation size")
             }
-        } else if buf.count != encaps.start + encaps.sz {
-            if buf.count + 1 != encaps.start + encaps.sz {
+        } else if buf.size != encaps.start + encaps.sz {
+            if buf.size + 1 != encaps.start + encaps.sz {
                 throw EncapsulationException(reason: "buffer size does not match decoded encapsulation size")
             }
 
@@ -121,7 +121,7 @@ public class InputStream {
             throw EncapsulationException(reason: "invalid size")
         }
 
-        if sz - 4 > buf.capacity - buf.count {
+        if sz - 4 > buf.capacity - buf.size {
             throw UnmarshalOutOfBoundsException(reason: "")
         }
 
@@ -137,7 +137,7 @@ public class InputStream {
             // Skip the optional content of the encapsulation if we are expecting an
             // empty encapsulation.
             //
-            buf.count += Int(sz) + 6
+            buf.size += Int(sz) + 6
         }
     }
 
@@ -150,7 +150,7 @@ public class InputStream {
 
         _ = try read() as EncodingVersion
 
-        try buf.position(buf.count + Int(sz) - 6)
+        try buf.position(buf.size + Int(sz) - 6)
     }
 
     func startSlice() throws {
@@ -222,7 +222,7 @@ public class InputStream {
         // Skip remaining un-read optional members.
         //
         while true {
-            if buf.count >= encaps.start + encaps.sz {
+            if buf.size >= encaps.start + encaps.sz {
                 return // End of encapsulation also indicates end of optionals.
             }
 
@@ -537,8 +537,8 @@ public extension InputStream {
         // the estimated remaining buffer size. This estimatation is based on
         // the minimum size of the enclosing sequences, it's minSeqSize.
         //
-        if startSeq == -1 || buf.count > (startSeq + minSeqSize) {
-            startSeq = Int32(buf.count)
+        if startSeq == -1 || buf.size > (startSeq + minSeqSize) {
+            startSeq = Int32(buf.size)
             minSeqSize = Int32(sz * minSize)
         } else {
             minSeqSize += Int32(sz * minSize)
@@ -570,13 +570,13 @@ public extension InputStream {
         }
 
         while true {
-            if buf.count >= encaps.start + encaps.sz {
+            if buf.size >= encaps.start + encaps.sz {
                 return false // End of encapsulation also indicates end of optionals.
             }
 
             let v: UInt8 = try read()
             if v == Protocol.OPTIONAL_END_MARKER.rawValue {
-                try buf.position(buf.count - 1) // Rewind
+                try buf.position(buf.size - 1) // Rewind
                 return false
             }
 
@@ -591,7 +591,7 @@ public extension InputStream {
 
             if tag > readTag {
                 let offset = tag < 30 ? 1 : (tag < 255 ? 2 : 6) // Rewind
-                try buf.position(buf.count - offset)
+                try buf.position(buf.size - offset)
                 return false // No optional data members with the requested tag
             } else if tag < readTag {
                 try skipOptional(format: format) // Skip optional data members
@@ -1423,7 +1423,7 @@ private class EncapsDecoder11: EncapsDecoder {
         #warning("Add skipSlice stream tracing")
         // _stream.traceSkipSlice(_current.typeId, _current.sliceType);
 
-        let start = stream.getCount()
+        let start = stream.getSize()
 
         if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
             precondition(current.sliceSize >= 4)
@@ -1448,7 +1448,7 @@ private class EncapsDecoder11: EncapsDecoder {
         let hasOptionalMembers = (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0
         let isLastSlice = (current.sliceFlags & Protocol.FLAG_IS_LAST_SLICE.rawValue) != 0
         let buffer = stream.getBuffer()
-        let end = buffer.count
+        let end = buffer.size
         var dataEnd = end
 
         if hasOptionalMembers {
@@ -1459,9 +1459,9 @@ private class EncapsDecoder11: EncapsDecoder {
             dataEnd -= 1
         }
 
-        buffer.count = start
+        buffer.size = start
         let bytes: [UInt8] = try Array(buffer.read(count: dataEnd - start))
-        buffer.count = end
+        buffer.size = end
 
         let info = SliceInfo(typeId: current.typeId,
                              compactId: current.compactId,

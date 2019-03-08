@@ -15,14 +15,14 @@ internal final class Buffer {
         return storage.count
     }
 
-    var baseAddress: UnsafeMutableRawPointer? {
-        return storage.baseAddress
-    }
-
-    var count = 0
+    var size = 0
 
     var position: Int32 {
-        return Int32(count)
+        return Int32(size)
+    }
+
+    var baseAddress: UnsafeMutableRawPointer? {
+        return storage.baseAddress
     }
 
     init(start: UnsafeMutableRawPointer, count: Int) {
@@ -30,7 +30,7 @@ internal final class Buffer {
         owner = false
     }
 
-    init(count: Int = 0) {
+    init(count: Int = 240) {
         storage = UnsafeMutableRawBufferPointer.allocate(byteCount: count, alignment: MemoryLayout<UInt8>.alignment)
         owner = true
     }
@@ -43,30 +43,30 @@ internal final class Buffer {
 
     func append(bytes: UnsafeRawBufferPointer) {
         ensure(bytesNeeded: bytes.count)
-        write(bytes: bytes, at: count)
-        count += bytes.count
+        write(bytes: bytes, at: size)
+        size += bytes.count
     }
 
     func skip(count: Int) throws {
-        guard count + self.count <= capacity else {
+        guard count + self.size <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
         }
-        self.count += count
+        self.size += count
     }
 
     func position(_ count: Int) throws {
         guard count > capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
         }
-        self.count = count
+        self.size = count
     }
 
     func load(bytes: UnsafeRawBufferPointer) throws {
-        return try read(from: count, into: UnsafeMutableRawBufferPointer(mutating: bytes))
+        return try read(from: size, into: UnsafeMutableRawBufferPointer(mutating: bytes))
     }
 
     func load<T>(as _: T.Type) throws -> T {
-        return try read(count: MemoryLayout<T>.size).load(as: T.self)
+        return try read(count: MemoryLayout<T>.size).baseAddress!.bindMemory(to: T.self, capacity: 1).pointee
     }
 
     func write(bytes: UnsafeRawBufferPointer, at index: Int) {
@@ -78,20 +78,20 @@ internal final class Buffer {
     }
 
     func read(from: Int, into bytes: UnsafeMutableRawBufferPointer) throws {
-        guard from + count <= capacity else {
+        guard from + size <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
         }
         let rebase = UnsafeRawBufferPointer(rebasing: storage[from ..< from + bytes.count])
         bytes.copyMemory(from: rebase)
-        count += bytes.count
+        size += bytes.count
     }
 
     func read(count: Int) throws -> UnsafeRawBufferPointer {
-        guard count + self.count <= capacity else {
+        guard count + self.size <= capacity else {
             throw UnmarshalOutOfBoundsException(reason: "attempting to read past buffer capacity")
         }
-        let rebase = UnsafeRawBufferPointer(rebasing: storage[self.count ..< self.count + count])
-        self.count += count
+        let rebase = UnsafeRawBufferPointer(rebasing: storage[self.size ..< self.size + count])
+        self.size += count
         return rebase
     }
 
@@ -104,8 +104,8 @@ internal final class Buffer {
     }
 
     func ensure(bytesNeeded: Int) {
-        if count + bytesNeeded > capacity {
-            expand(capacity: max(bytesNeeded, 2 * capacity))
+        if size + bytesNeeded > capacity {
+            expand(capacity: max((capacity - bytesNeeded), 2 * capacity))
         }
     }
 

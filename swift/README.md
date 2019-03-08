@@ -9,14 +9,12 @@ resulting build.
   * [Swift Version](#swift-version)
 * [Building Ice for Swift](#building-ice-for-swift)
 
-
 ## Swift Build Requirements
 
 ### Operating Systems
 
 Ice for Swift builds and runs properly on macOS  and is fully supported on
 the platforms listed on the [supported platforms][2] page.
-
 
 ### Slice to Swift Compiler
 
@@ -41,7 +39,7 @@ Open `ice.xcproject` with Xcode and build the `Ice macOS` or `Ice iOS` target
 to build Ice for Swift macOS framework or Ice for Swift iOS framework respectively.
 
 The tests programs for macOS and iOS can be build using the `TestDriver macOS` and
-`TestDriver iOS` respectivelly
+`TestDriver iOS` respectively
 
 ## Running the Swift Tests on
 
@@ -56,11 +54,9 @@ python allTests.py --config Debug
 If everything worked out, you should see lots of `ok` messages. In case of a
 failure, the tests abort with `failed`.
 
-
 ### iOS
 
 Start the `TestDriver iOS` app on your iOS device, from Xcode.
-
 
 ```
 python allTests.py --config Debug --platform iphoneos
