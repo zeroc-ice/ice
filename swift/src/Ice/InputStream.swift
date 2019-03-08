@@ -24,6 +24,7 @@ public class InputStream {
 //    private size: Int32
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
+    public var sliceValues: Bool = true
 
     public init(communicator: Communicator,
                 encoding: EncodingVersion = currentEncoding(),
@@ -174,7 +175,7 @@ public class InputStream {
      * calls to consumers provided with {@link #readValue} to inform the application that unmarshaling of an instance
      * is complete.
      **/
-    func readPendingValues() throws {
+    public func readPendingValues() throws {
         if encaps.decoder != nil {
             try encaps.decoder.readPendingValues()
         } else {
@@ -191,7 +192,7 @@ public class InputStream {
         }
     }
 
-    func throwException() throws {
+    public func throwException() throws {
         precondition(encaps.decoder != nil)
         try encaps.decoder.throwException()
     }
@@ -276,7 +277,14 @@ public class InputStream {
     }
 
     func initEncaps() {
-        // TODO: can we remove this now?
+        if encaps.decoder == nil { // Lazy initialization
+            let valueFactoryManager = communicator.getValueFactoryManager()
+            if encaps.encoding_1_0 {
+                encaps.decoder = EncapsDecoder10(stream: self, sliceValues: sliceValues, valueFactoryManager: valueFactoryManager)
+            } else {
+                encaps.decoder = EncapsDecoder11(stream: self, sliceValues: sliceValues, valueFactoryManager: valueFactoryManager)
+            }
+        }
     }
 
     static func throwUOE(expectedType: Value.Type, v: Value) throws {
@@ -1103,13 +1111,13 @@ private class EncapsDecoder10: EncapsDecoder {
     }
 
     func readPendingValues() throws {
-        var num = Int32(0)
-        while num > 0 {
+        var num: Int32
+        repeat {
             num = try stream.readSize()
-            for _ in 0 ..< num {
+            for _ in 0..<num {
                 try readInstance()
             }
-        }
+        } while num > 0
 
         if !patchMap.isEmpty {
             //
@@ -1504,7 +1512,7 @@ private class EncapsDecoder11: EncapsDecoder {
     func readInstance(index: Int32, cb: Callback?) throws -> Int32 {
         precondition(index > 0)
 
-        if index > 0 {
+        if index > 1 {
             if let cb = cb {
                 addPatchEntry(index: index, cb: cb)
             }

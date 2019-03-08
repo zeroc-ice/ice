@@ -16,6 +16,9 @@ do {
     args.removeFirst(2)
     try client.run(args: args)
 } catch {
+    Thread.callStackSymbols.forEach {
+        print($0)
+    }
     print("Error \(error)")
     exit(1)
 }

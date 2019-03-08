@@ -565,4 +565,9 @@ encodingMinor:(uint8_t)minor
         return nil;
     }
 }
+
+-(bool) isEqual:(ICEObjectPrx*)other
+{
+    return Ice::targetEqualTo(_prx, other.prx);
+}
 @end

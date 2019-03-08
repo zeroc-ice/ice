@@ -120,6 +120,18 @@ public extension ObjectPrx {
     }
 }
 
+public func proxyEquals(lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
+    if lhs == nil && rhs == nil {
+        return true
+    } else if lhs == nil || rhs == nil {
+        return false
+    } else {
+        let lhsI = lhs as! _ObjectPrxI
+        let rhsI = rhs as! _ObjectPrxI
+        return lhsI.handle.isEqual(rhsI.handle)
+    }
+}
+
 open class _ObjectPrxI: ObjectPrx {
     let handle: ICEObjectPrx
     private let communicator: Communicator

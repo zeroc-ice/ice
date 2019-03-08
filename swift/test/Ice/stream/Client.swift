@@ -135,7 +135,7 @@ public class Client: TestHelperI {
 
         do {
             outS = Ice.OutputStream(communicator: communicator)
-            var s = SmallStruct();
+            var s = SmallStruct()
             s.bo = true
             s.by = 1
             s.sh = 2
@@ -144,14 +144,51 @@ public class Client: TestHelperI {
             s.f = 5.0
             s.d = 6.0
             s.str = "7"
-            s.e = MyEnum.enum2;
-            s.p = nil
-            //s.p = MyInterfacePrx.uncheckedCast(communicator.stringToProxy("test:default"))
+            s.e = MyEnum.enum2
+            s.p = uncheckedCast(prx: try communicator.stringToProxy(str: "test:default")!,
+                                type: MyInterfacePrx.self)
             outS.write(s)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             let s2: SmallStruct = try inS.read()
-            //test(s2 == s)
+            try test(s2.bo == true)
+            try test(s2.by == 1)
+            try test(s2.sh == 2)
+            try test(s2.i == 3)
+            try test(s2.l == 4)
+            try test(s2.f == 5.0)
+            try test(s2.d == 6.0)
+            try test(s2.str == "7")
+            try test(s2.e == MyEnum.enum2)
+            try test(Ice.proxyEquals(lhs: s2.p, rhs: s.p))
+        }
+
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            let o = OptionalClass()
+            o.bo = true
+            o.by = 5
+            o.sh = 4
+            o.i = 3
+            outS.write(o)
+            outS.writePendingValues()
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            var o2: OptionalClass?
+            try inS.read(value: OptionalClass.self) {
+                o2 = $0
+            }
+            try inS.readPendingValues()
+
+            try test(o2!.bo == o.bo)
+            try test(o2!.by == o.by)
+            if communicator.getProperties().getProperty(key: "Ice.Default.EncodingVersion") == "1.0" {
+                try test(o2!.sh != nil)
+                try test(o2!.i != nil)
+            } else {
+                try test(o2!.sh == o.sh)
+                try test(o2!.i == o.i)
+            }
         }
         writer.writeLine("ok")
     }
