@@ -66,7 +66,7 @@ public class OutputStream {
         // Size includes size and version.
         let start = encapsStack.start
         let sz = Int32(buf.size - start)
-        rewriteNumeric(value: sz, position: Int32(start))
+        write(bytesOf: sz, at: start)
 
         let curr = encapsStack!
         encapsStack = curr.next
@@ -83,7 +83,7 @@ public class OutputStream {
         return buf.size
     }
 
-    func write<T>(bytes value: T, at: Int) {
+    func write<T>(bytesOf value: T, at: Int) where T: Numeric {
         withUnsafePointer(to: value) {
             self.buf.write(bytes: UnsafeRawBufferPointer(start: $0, count: MemoryLayout<T>.size), at: at)
         }
@@ -146,12 +146,6 @@ public extension OutputStream {
     private func writeNumeric<Element>(_ v: Element) where Element: Numeric {
         withUnsafeBytes(of: v) {
             self.buf.append(bytes: $0)
-        }
-    }
-
-    private func rewriteNumeric<Element>(value: Element, position: Int32) where Element: Numeric {
-        withUnsafeBytes(of: value) {
-            write(bytes: $0, at: Int(position))
         }
     }
 
@@ -377,7 +371,7 @@ public extension OutputStream {
 
     func endSize(position: Int32) {
         precondition(position > 0)
-        rewriteNumeric(value: Int32(buf.position - position - 4), position: position)
+        write(bytesOf: Int32(buf.position - position - 4), at: Int(position))
     }
 
     func write(enum val: UInt8, maxValue: Int32) {
@@ -701,7 +695,7 @@ private final class EncapsEncoder10: EncapsEncoder {
         // Write the slice length.
         //
         let sz = Int32(os.getCount()) - writeSlice + 4
-        os.write(bytes: sz, at: Int(writeSlice - 4))
+        os.write(bytesOf: sz, at: Int(writeSlice - 4))
     }
 
     func writePendingValues() {
@@ -907,7 +901,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         //
         if (current.sliceFlags & Protocol.FLAG_HAS_SLICE_SIZE.rawValue) != 0 {
             let sz: Int32 = Int32(os.getCount()) - current.writeSlice + 4
-            os.write(bytes: sz, at: Int(current.writeSlice - 4))
+            os.write(bytesOf: sz, at: Int(current.writeSlice - 4))
         }
 
         //
@@ -932,7 +926,7 @@ private final class EncapsEncoder11: EncapsEncoder {
         //
         // Finally, update the slice flags.
         //
-        os.write(bytes: current.sliceFlags, at: Int(current.sliceFlagsPos))
+        os.write(bytesOf: current.sliceFlags, at: Int(current.sliceFlagsPos))
     }
 
     func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {
