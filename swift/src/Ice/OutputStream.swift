@@ -242,10 +242,12 @@ public extension OutputStream {
     }
 
     func write(tag: Int32, value v: [Int16]?) {
-        if let val = v {
-            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 2) {
-                write(val)
-            }
+        guard let val = v else {
+            return
+        }
+
+        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 2) {
+            write(val)
         }
     }
 
@@ -265,10 +267,12 @@ public extension OutputStream {
     }
 
     func write(tag: Int32, value v: [Int32]?) {
-        if let val = v {
-            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 4) {
-                write(val)
-            }
+        guard let val = v else {
+            return
+        }
+
+        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 4) {
+            write(val)
         }
     }
 
@@ -288,10 +292,12 @@ public extension OutputStream {
     }
 
     func write(tag: Int32, value v: [Int64]?) {
-        if let val = v {
-            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 8) {
-                write(val)
-            }
+        guard let val = v else {
+            return
+        }
+
+        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 8) {
+            write(val)
         }
     }
 
@@ -311,10 +317,12 @@ public extension OutputStream {
     }
 
     func write(tag: Int32, value v: [Float]?) {
-        if let val = v {
-            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 4) {
-                write(val)
-            }
+        guard let val = v else {
+            return
+        }
+
+        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 4) {
+            write(val)
         }
     }
 
@@ -334,10 +342,12 @@ public extension OutputStream {
     }
 
     func write(tag: Int32, value v: [Double]?) {
-        if let val = v {
-            if writeOptionalVSize(tag: tag, len: val.count, elemSize: 8) {
-                write(val)
-            }
+        guard let val = v else {
+            return
+        }
+
+        if writeOptionalVSize(tag: tag, len: val.count, elemSize: 8) {
+            write(val)
         }
     }
 
