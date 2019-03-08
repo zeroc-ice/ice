@@ -156,6 +156,16 @@ public class OutputStream {
         // Create a copy
         return Array(UnsafeRawBufferPointer(start: buf.baseAddress!, count: buf.size))
     }
+
+    public func startSlice(typeId: String, compactId: Int32, last: Bool) {
+        precondition(encapsStack != nil && encapsStack.encoder != nil)
+        encapsStack.encoder.startSlice(typeId: typeId, compactId: compactId, last: last)
+    }
+
+    public func endSlice() {
+        precondition(encapsStack != nil && encapsStack.encoder != nil)
+        encapsStack.encoder.endSlice()
+    }
 }
 
 public extension OutputStream {
@@ -568,12 +578,13 @@ private enum SliceType {
 
 private struct ValueHolder: Hashable {
     let value: Value
-    var hashValue: Int {
-        return ObjectIdentifier(value).hashValue
-    }
 
     init(_ value: Value) {
         self.value = value
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(ObjectIdentifier(value).hashValue)
     }
 
     static func == (lhs: ValueHolder, rhs: ValueHolder) -> Bool {

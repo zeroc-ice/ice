@@ -896,7 +896,8 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     }
     out << "public func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
     out << sb;
-    out << nl << "// to.startSlice(ice_staticId(), " << p->compactId() << (!base ? ", true" : ", false") << ");";
+    out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId:" << p->compactId() << ", last: "
+        << (!base ? "true" : "false") << ")";
     for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
     {
         DataMemberPtr member = *i;
@@ -910,7 +911,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         writeMarshalUnmarshalCode(out, *d, p, false, false, true, (*d)->tag());
     }
-    out << nl << "// to.endSlice();";
+    out << nl << "ostr.endSlice()";
     if(base)
     {
         out << nl << "super._iceWriteImpl(to: ostr);";
