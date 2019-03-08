@@ -95,8 +95,14 @@ internal final class Buffer {
         return rebase
     }
 
-    func expand(capacity c: Int) {
-        let bytes = UnsafeMutableRawBufferPointer.allocate(byteCount: max(c, capacity),
+    func expand(bytesNeeded: Int) {
+        precondition(owner, "can only expand owned buffer")
+
+        guard size + bytesNeeded > capacity else {
+            return
+        }
+
+        let bytes = UnsafeMutableRawBufferPointer.allocate(byteCount: max(size + bytesNeeded, capacity * 2),
                                                            alignment: MemoryLayout<UInt8>.alignment)
         bytes.copyBytes(from: storage)
         storage.deallocate()
@@ -105,7 +111,7 @@ internal final class Buffer {
 
     func ensure(bytesNeeded: Int) {
         if size + bytesNeeded > capacity {
-            expand(capacity: bytesNeeded)
+            expand(bytesNeeded: bytesNeeded)
         }
     }
 
