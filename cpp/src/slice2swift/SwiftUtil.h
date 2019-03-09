@@ -26,6 +26,7 @@ ModulePtr getTopLevelModule(const ContainedPtr&);
 ModulePtr getTopLevelModule(const TypePtr&);
 
 std::string fixIdent(const std::string&);
+StringList splitScopedName(const std::string&);
 
 class SwiftGenerator : private IceUtil::noncopyable
 {

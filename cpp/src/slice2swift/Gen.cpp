@@ -841,6 +841,38 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
         base = bases.front();
     }
 
+    //
+    // For each Value class we generate a extension in ClassResolver
+    //
+    ostringstream factory;
+    StringList parts = splitScopedName(p->scoped());
+    for(StringList::const_iterator it = parts.begin(); it != parts.end();)
+    {
+        factory << (*it);
+        if(++it != parts.end())
+        {
+            factory << "_";
+        }
+    }
+
+    out << sp;
+    out << nl << "public class " << name << "_TypeResolver: Ice.ValueTypeResolver";
+    out << sb;
+    out << nl << "public override func type() -> Ice.Value.Type";
+    out << sb;
+    out << nl << "return " << name << ".self";
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public extension Ice.ClassResolver";
+    out << sb;
+    out << nl << "@objc public static func " << factory.str() << "() -> Ice.ValueTypeResolver";
+    out << sb;
+    out << nl << "return " << name << "_TypeResolver()";
+    out << eb;
+    out << eb;
+
     out << sp;
     out << nl << "public class " << name << ": ";
     if(base)

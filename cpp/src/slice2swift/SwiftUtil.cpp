@@ -62,11 +62,13 @@ replace(string s, string patt, string val)
     return r;
 }
 
+}
+
 //
 // Split a scoped name into its components and return the components as a list of (unscoped) identifiers.
 //
-static StringList
-splitScopedName(const string& scoped)
+StringList
+Slice::splitScopedName(const string& scoped)
 {
     assert(scoped[0] == ':');
     StringList ids;
@@ -95,8 +97,6 @@ splitScopedName(const string& scoped)
     }
 
     return ids;
-}
-
 }
 
 //
