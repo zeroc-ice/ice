@@ -824,7 +824,12 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                     {
                         out << nl << "var " << param << ": " << typeStr;
                     }
-                    out << nl << "try " << stream << "read(" << unmarshalParam << ") { " << param << " = $0 }";
+                    out << nl << "try " << stream << "read(" << unmarshalParam << ") { ";
+                    if(!declareParam)
+                    {
+                        out << "self.";
+                    }
+                    out << param << " = $0 }";
                 }
                 break;
             }

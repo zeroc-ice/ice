@@ -916,8 +916,27 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     {
         out << "override ";
     }
-    out << "public func _iceReadImpl(from: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
+    out << "public func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
     out << sb;
+    out << nl << "try istr.startSlice()";
+    for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
+    {
+        DataMemberPtr member = *i;
+        TypePtr type = member->type();
+        if(!member->optional())
+        {
+            writeMarshalUnmarshalCode(out, member, p, false, false, false);
+        }
+    }
+    for(DataMemberList::const_iterator d = optionalMembers.begin(); d != optionalMembers.end(); ++d)
+    {
+        writeMarshalUnmarshalCode(out, *d, p, false, false, false, (*d)->tag());
+    }
+    out << nl << "try istr.endSlice()";
+    if(base)
+    {
+        out << nl << "super._iceReadImpl(from: istr);";
+    }
     out << eb;
 
     out << sp;

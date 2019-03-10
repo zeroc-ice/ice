@@ -154,17 +154,17 @@ public class InputStream {
         try buf.position(buf.size + Int(sz) - 6)
     }
 
-    func startSlice() throws {
+    public func startSlice() throws {
         precondition(encaps.decoder != nil)
         try encaps.decoder.startSlice()
     }
 
-    func endSlice() throws {
+    public func endSlice() throws {
         precondition(encaps.decoder != nil)
         try encaps.decoder.endSlice()
     }
 
-    func skipSlice() throws {
+    public func skipSlice() throws {
         precondition(encaps.decoder != nil)
         try encaps.decoder.skipSlice()
     }
@@ -277,6 +277,8 @@ public class InputStream {
     }
 
     func initEncaps() {
+        encaps.setEncoding(self.encoding)
+        encaps.sz = buf.capacity
         if encaps.decoder == nil { // Lazy initialization
             let valueFactoryManager = communicator.getValueFactoryManager()
             if encaps.encoding_1_0 {
@@ -566,7 +568,7 @@ public extension InputStream {
 
     func readOptional(tag: Int32, expectedFormat: OptionalFormat) throws -> Bool {
         if encaps.decoder != nil {
-            return encaps.decoder.readOptional(tag: tag, format: expectedFormat)
+            return try encaps.decoder.readOptional(tag: tag, format: expectedFormat)
         }
 
         return try readOptionalImpl(readTag: tag, expectedFormat: expectedFormat)
@@ -801,11 +803,11 @@ private protocol EncapsDecoder: AnyObject {
     func endSlice() throws
     func skipSlice() throws
 
-    func readOptional(tag: Int32, format: OptionalFormat) -> Bool
+    func readOptional(tag: Int32, format: OptionalFormat) throws -> Bool
 }
 
 extension EncapsDecoder {
-    func readOptional(tag _: Int32, format _: OptionalFormat) -> Bool {
+    func readOptional(tag _: Int32, format _: OptionalFormat) throws -> Bool {
         return false
     }
 
@@ -1501,7 +1503,7 @@ private class EncapsDecoder11: EncapsDecoder {
     }
 
     func readOptional(tag: Int32, format: OptionalFormat) throws -> Bool {
-        if current != nil {
+        if current == nil {
             return try stream.readOptionalImpl(readTag: tag, expectedFormat: format)
         } else if (current.sliceFlags & Protocol.FLAG_HAS_OPTIONAL_MEMBERS.rawValue) != 0 {
             return try stream.readOptionalImpl(readTag: tag, expectedFormat: format)

@@ -502,9 +502,8 @@ public extension OutputStream {
         precondition(encapsStack != nil)
         if let encoder = encapsStack.encoder {
             return encoder.writeOptional(tag: tag, format: format)
-        } else {
-            return writeOptionalImpl(tag: tag, format: format)
         }
+        return writeOptionalImpl(tag: tag, format: format)
     }
 
     internal func writeOptionalImpl(tag: Int32, format: OptionalFormat) -> Bool {
@@ -615,6 +614,7 @@ private protocol EncapsEncoder: AnyObject {
 
     // Implemented for the 1.0 encoding, not necessary for subsequent encodings.
     func writePendingValues()
+    func writeOptional(tag: Int32, format: OptionalFormat) -> Bool;
 }
 
 extension EncapsEncoder {
