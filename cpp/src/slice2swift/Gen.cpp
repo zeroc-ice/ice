@@ -947,7 +947,7 @@ Gen::ValueVisitor::visitClassDefStart(const ClassDefPtr& p)
     out << nl << "try istr.endSlice()";
     if(base)
     {
-        out << nl << "super._iceReadImpl(from: istr);";
+        out << nl << "try super._iceReadImpl(from: istr);";
     }
     out << eb;
 
