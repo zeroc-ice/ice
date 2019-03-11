@@ -449,17 +449,20 @@ open class _ObjectPrxI: ObjectPrx {
         //
         // Returns Any which is either NSNull or ICEObjectPrx
         //
-        guard let handle = try ICEObjectPrx.iceRead(buf.baseAddress!.advanced(by: buf.size),
+        let handleOpt = try ICEObjectPrx.iceRead(buf.baseAddress!.advanced(by: buf.size),
                                                     size: buf.capacity - buf.size,
                                                     communicator: (communicator as! CommunicatorI)._handle,
                                                     encodingMajor: encoding.major,
                                                     encodingMinor: encoding.minor,
-                                                    bytesRead: &bytesRead) as? ICEObjectPrx else {
+                                                    bytesRead: &bytesRead) as? ICEObjectPrx
+
+        // Since the proxy was read in C++ we need to skip over the bytes which were read
+        // We avoid using a defer statment for this since you can not throw from one
+        try buf.skip(count: bytesRead)
+
+        guard let handle = handleOpt else {
             return nil
         }
-
-        // Since the proxy was read in C++ we need to skip over it
-        try buf.skip(count: bytesRead)
 
         return self.init(handle: handle, communicator: communicator)
     }
