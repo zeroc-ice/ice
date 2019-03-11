@@ -19,14 +19,6 @@ public class Client: TestHelperI {
         var outS: Ice.OutputStream
 
         do {
-            let ooff = try communicator.stringToProxy(str: "127.0.0.1 -p 6100")
-        } catch let ee as BadMagicException {
-            print(ee)
-            print(ee.ice_file())
-            print(ee.ice_line())
-        }
-
-        do {
             let data = [UInt8]()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
         }
@@ -434,6 +426,17 @@ public class Client: TestHelperI {
                 try test(arr2[i] != nil)
                 try test(arr2[i]!.c === arr2[i])
                 try test(arr2[i]!.o === arr2[i])
+                try test(arr2[i]!.s.e == MyEnum.enum2)
+                try test(arr2[i]!.seq1 == myClassArray[i].seq1)
+                try test(arr2[i]!.seq2 == myClassArray[i].seq2)
+                try test(arr2[i]!.seq3 == myClassArray[i].seq3)
+                try test(arr2[i]!.seq4 == myClassArray[i].seq4)
+                try test(arr2[i]!.seq5 == myClassArray[i].seq5)
+                try test(arr2[i]!.seq6 == myClassArray[i].seq6)
+                try test(arr2[i]!.seq7 == myClassArray[i].seq7)
+                try test(arr2[i]!.seq8 == myClassArray[i].seq8)
+                try test(arr2[i]!.seq9 == myClassArray[i].seq9)
+                try test(arr2[i]!.d["hi"]! === arr2[i])
             }
         }
         writer.writeLine("ok")
