@@ -647,6 +647,7 @@ SwiftGenerator::writeDefaultInitializer(IceUtilInternal::Output& out,
             }
         }
     }
+
     if(!rootClass)
     {
         out << nl << "super.init()";
@@ -668,7 +669,8 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
                                            const DataMemberList& baseMembers,
                                            const DataMemberList& allMembers,
                                            const ContainedPtr& p,
-                                           bool rootClass)
+                                           bool rootClass,
+                                           const StringPairList& extraParams)
 {
     if(allMembers.size() > 0)
     {
@@ -686,6 +688,10 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
             out << (fixIdent(m->name()) + ": " +
                     typeToString(m->type(), p, m->getMetaData(), m->optional(), TypeContextInParam));
         }
+        for(StringPairList::const_iterator q = extraParams.begin(); q != extraParams.end(); ++q)
+        {
+            out << (q->first + ": " + q->second);
+        }
         out << epar;
         out << sb;
         for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
@@ -702,6 +708,10 @@ SwiftGenerator::writeMemberwiseInitializer(IceUtilInternal::Output& out,
             {
                 const string name = fixIdent((*i)->name());
                 out << (name + ": " + name);
+            }
+            for(StringPairList::const_iterator q = extraParams.begin(); q != extraParams.end(); ++q)
+            {
+                out << (q->first + ": " + q->first);
             }
             out << epar;
         }

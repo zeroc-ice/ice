@@ -302,11 +302,23 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
     const DataMemberList allMembers = p->allDataMembers();
     const DataMemberList baseMembers = base ? base->allDataMembers() : DataMemberList();
 
+    StringPairList extraParams;
+    if(p->isLocal())
+    {
+        extraParams.push_back(make_pair("file", "String = #file"));
+        extraParams.push_back(make_pair("line", "Int = #line"));
+    }
+
     bool rootClass = !base && !p->isLocal();
     // bool required =
     writeMembers(out, members, p);
-    writeDefaultInitializer(out, members, p, rootClass, true);
-    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass);
+
+    // Local exceptions do not need default initializers
+    if(!p->isLocal())
+    {
+        writeDefaultInitializer(out, members, p, rootClass, true);
+    }
+    writeMemberwiseInitializer(out, members, baseMembers, allMembers, p, rootClass, extraParams);
 
     if(!p->isLocal())
     {

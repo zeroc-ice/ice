@@ -10,6 +10,9 @@
 import IceObjc
 
 public class InputStream {
+    // An input stream can be represented by either:
+    // - A handle to the bytes from an ObjC (C++) InputStream (unowned)
+    // - A byte array passed and copied during initialization (owned)
     private var handle: ICEInputStream!
     private var bytes: [UInt8]!
 

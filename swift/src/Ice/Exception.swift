@@ -8,16 +8,30 @@
 // **********************************************************************
 
 public protocol Exception: Error {
-    init()
 }
 
 public class LocalException: Exception {
-    public required init() {
+    let _file: String
+    let _line: Int
+
+    public init(file: String = #file, line: Int = #line) {
+        self._file = file
+        self._line = line
+    }
+
+    public func ice_file() -> String {
+        return _file
+    }
+
+    public func ice_line() -> Int {
+        return _line
     }
 }
 
 public protocol UserException: Exception, CustomStringConvertible {
     var description: String { get }
+
+    init()
 
     func _iceReadImpl(from: InputStream) throws
     func _iceWriteImpl(to: OutputStream)
@@ -47,6 +61,6 @@ public extension UserException {
     }
 }
 
-#warning("TODO: Add proper LocalException  CustomStringConvertible impl")
+#warning("TODO: CustomStringConvertible impl")
 // TODO: All LocalExceptions should be CustomStringConvertible and print detailed messages
 // like C++ (by calling IceUtilInternal::errorToString from ObjC)

@@ -19,6 +19,14 @@ public class Client: TestHelperI {
         var outS: Ice.OutputStream
 
         do {
+            let ooff = try communicator.stringToProxy(str: "127.0.0.1 -p 6100")
+        } catch let ee as BadMagicException {
+            print(ee)
+            print(ee.ice_file())
+            print(ee.ice_line())
+        }
+
+        do {
             let data = [UInt8]()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
         }
