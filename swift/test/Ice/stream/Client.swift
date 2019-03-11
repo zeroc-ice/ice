@@ -424,6 +424,7 @@ public class Client: TestHelperI {
         do {
             outS = Ice.OutputStream(communicator: communicator)
             _MyClassSHelper.write(to: outS, value: myClassArray)
+            outS.writePendingValues()
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             let arr2: [MyClass?] = try _MyClassSHelper.read(from: inS)

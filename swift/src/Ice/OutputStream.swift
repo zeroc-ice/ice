@@ -794,7 +794,7 @@ private final class EncapsEncoder11: EncapsEncoder {
     var typeIdIndex: Int32
 
     var current: InstanceData!
-    var valueIdIndex: Int32 = 0 // The ID of the next instance to marhsal
+    var valueIdIndex: Int32 = 1 // The ID of the next instance to marhsal
 
     init(os: OutputStream, encaps: Encaps) {
         self.os = os
