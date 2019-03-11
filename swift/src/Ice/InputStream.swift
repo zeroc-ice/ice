@@ -327,8 +327,8 @@ public extension InputStream {
         let sz = try readAndCheckSeqSize(minSize: 1)
         var a = [Element]()
         a.reserveCapacity(sz)
-        for i in 0 ..< sz {
-            a[i] = try readNumeric(Element.self)
+        for _ in 0 ..< sz {
+            a.append(try readNumeric(Element.self))
         }
         return a
     }
@@ -376,8 +376,8 @@ public extension InputStream {
         let sz = try readAndCheckSeqSize(minSize: 1)
         var a = [Bool]()
         a.reserveCapacity(sz)
-        for i in 0 ..< sz {
-            a[i] = (try readNumeric(UInt8.self) == 1)
+        for _ in 0..<sz {
+            a.append(try readNumeric(UInt8.self) == 1)
         }
         return a
     }
@@ -684,9 +684,10 @@ public extension InputStream {
 
     func read() throws -> [String] {
         let sz = try readAndCheckSeqSize(minSize: 1)
-        var r = [String].init(repeating: "", count: sz)
-        for i in 1 ..< sz {
-            r[i] = try read()
+        var r: [String] = [String]()
+        r.reserveCapacity(sz)
+        for _ in 0 ..< sz {
+            r.append(try read())
         }
         return r
     }

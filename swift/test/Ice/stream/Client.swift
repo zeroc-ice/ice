@@ -179,7 +179,6 @@ public class Client: TestHelperI {
                 o2 = $0
             }
             try inS.readPendingValues()
-
             try test(o2!.bo == o.bo)
             try test(o2!.by == o.by)
             if communicator.getProperties().getProperty(key: "Ice.Default.EncodingVersion") == "1.0" {
@@ -188,6 +187,244 @@ public class Client: TestHelperI {
             } else {
                 try test(o2!.sh == o.sh)
                 try test(o2!.i == o.i)
+            }
+        }
+
+        do {
+            outS = Ice.OutputStream(communicator: communicator, encoding: Ice.Encoding_1_0)
+            let o = OptionalClass()
+            o.bo = true
+            o.by = 5
+            o.sh = 4
+            o.i = 3
+            outS.write(o)
+            outS.writePendingValues()
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, encoding: Ice.Encoding_1_0, bytes: data)
+            var o2: OptionalClass?
+            try inS.read(value: OptionalClass.self) {
+                o2 = $0
+            }
+            try inS.readPendingValues()
+            try test(o2!.bo == o.bo)
+            try test(o2!.by == o.by)
+            try test(o2!.sh == nil)
+            try test(o2!.i == nil)
+        }
+
+        do {
+            let arr = [true, false, true, false]
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [Bool] = try inS.read()
+            try test(arr2 == arr)
+
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _BoolSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S: [[Bool]] = try _BoolSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        do {
+            let arr: [UInt8] = [0x01, 0x11, 0x12, 0x22]
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [UInt8] = try inS.read()
+            try test(arr2 == arr)
+
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _ByteSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _ByteSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        do {
+            let arr: [Int16] = [0x01, 0x11, 0x12, 0x22]
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [Int16] = try inS.read()
+            try test(arr2 == arr)
+
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _ShortSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _ShortSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        do {
+            let arr: [Int32] = [0x01, 0x11, 0x12, 0x22]
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [Int32] = try inS.read()
+            try test(arr2 == arr)
+
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _IntSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _IntSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        do {
+            let arr: [Int64] = [0x01, 0x11, 0x12, 0x22]
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [Int64] = try inS.read()
+            try test(arr2 == arr)
+
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _LongSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _LongSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        do {
+            let arr: [Float] = [1, 2, 3, 4]
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [Float] = try inS.read()
+            try test(arr2 == arr)
+
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _FloatSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _FloatSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        do {
+            let arr: [Double] = [1, 2, 3, 4]
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [Double] = try inS.read()
+            try test(arr2 == arr)
+
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _DoubleSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _DoubleSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        do {
+            let arr: [String] = ["string1", "string2", "string3", "string4"]
+            outS = Ice.OutputStream(communicator: communicator)
+            outS.write(arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [String] = try inS.read()
+            try test(arr2 == arr)
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _StringSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _StringSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        do {
+            let arr: [MyEnum] = [MyEnum.enum3, MyEnum.enum2, MyEnum.enum1, MyEnum.enum2]
+            outS = Ice.OutputStream(communicator: communicator)
+            _MyEnumSHelper.write(to: outS, value: arr)
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [MyEnum] = try _MyEnumSHelper.read(from: inS)
+            try test(arr2 == arr)
+            let arrS = [arr, [], arr]
+            outS = Ice.OutputStream(communicator: communicator)
+            _MyEnumSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _MyEnumSSHelper.read(from: inS)
+            try test(arr2S == arrS)
+        }
+
+        var smallStructArray = [SmallStruct]()
+        for i in 0..<3 {
+            smallStructArray.append(SmallStruct())
+            smallStructArray[i].bo = true
+            smallStructArray[i].by = 1
+            smallStructArray[i].sh = 2
+            smallStructArray[i].i = 3
+            smallStructArray[i].l = 4
+            smallStructArray[i].f = 5.0
+            smallStructArray[i].d = 6.0
+            smallStructArray[i].str = "7"
+            smallStructArray[i].e = MyEnum.enum2
+            smallStructArray[i].p = uncheckedCast(prx: try communicator.stringToProxy(str: "test:default")!,
+                                                  type: MyInterfacePrx.self)
+        }
+
+        var myClassArray = [MyClass]()
+        for i in 0..<4 {
+            myClassArray.append(MyClass())
+            myClassArray[i].c = myClassArray[i]
+            myClassArray[i].o = myClassArray[i]
+            myClassArray[i].s = SmallStruct()
+            myClassArray[i].s.e = MyEnum.enum2
+            myClassArray[i].seq1 = [true, false, true, false]
+            myClassArray[i].seq2 = [1, 2, 3, 4]
+            myClassArray[i].seq3 = [1, 2, 3, 4]
+            myClassArray[i].seq4 = [1, 2, 3, 4]
+            myClassArray[i].seq5 = [1, 2, 3, 4]
+            myClassArray[i].seq6 = [1, 2, 3, 4]
+            myClassArray[i].seq7 = [1, 2, 3, 4]
+            myClassArray[i].seq8 = ["string1", "string2", "string3", "string4"]
+            myClassArray[i].seq9 = [MyEnum.enum3, MyEnum.enum2, MyEnum.enum1]
+            myClassArray[i].seq10 = [nil, nil, nil, nil]
+            myClassArray[i].d = ["hi": myClassArray[i]]
+        }
+
+        var myInterface = [Ice.Value]()
+        for _ in 0..<4 {
+            myInterface.append(Ice.InterfaceByValue(id: "::Test::MyInterface"))
+        }
+
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            _MyClassSHelper.write(to: outS, value: myClassArray)
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2: [MyClass?] = try _MyClassSHelper.read(from: inS)
+            try inS.readPendingValues()
+            try test(myClassArray.count == arr2.count)
+            for i in 0..<myClassArray.count {
+                try test(arr2[i] != nil)
+                try test(arr2[i]!.c === arr2[i])
+                try test(arr2[i]!.o === arr2[i])
             }
         }
         writer.writeLine("ok")

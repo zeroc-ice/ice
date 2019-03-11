@@ -93,3 +93,6 @@ public func stringToIdentity(string: String) throws -> Identity {
 public func identityToString(identity: Identity) throws -> String {
     return try ICEUtil.identityToString(name: identity.name, category: identity.category) as String
 }
+
+public let Encoding_1_0 = Protocol.Encoding_1_0
+public let Encoding_1_1 = Protocol.Encoding_1_1

@@ -113,15 +113,15 @@ public class OutputStream {
 
     private func initEncaps() {
         // Lazy initialization.
-
-        if let e = encapsCache {
-            encapsStack = e
-            encapsCache = encapsCache!.next
-        } else {
-            encapsStack = Encaps()
+        if encapsStack == nil {
+            encapsStack = encapsCache
+            if encapsStack != nil {
+                encapsCache = encapsCache!.next
+            } else {
+                encapsStack = Encaps()
+            }
+            encapsStack.setEncoding(encoding)
         }
-
-        encapsStack.setEncoding(encoding)
 
         if encapsStack.format == FormatType.DefaultFormat {
             encapsStack.format = format
@@ -576,8 +576,6 @@ private enum SliceType {
 }
 
 private struct ValueHolder: Hashable {
-    let value: Value
-
     init(_ value: Value) {
         self.value = value
     }
@@ -587,8 +585,10 @@ private struct ValueHolder: Hashable {
     }
 
     static func == (lhs: ValueHolder, rhs: ValueHolder) -> Bool {
-        return ObjectIdentifier(lhs.value) == ObjectIdentifier(rhs.value)
+        return lhs.value === rhs.value
     }
+
+    fileprivate let value: Value
 }
 
 private protocol EncapsEncoder: AnyObject {

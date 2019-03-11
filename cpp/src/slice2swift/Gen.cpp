@@ -462,10 +462,10 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     out << nl << "let sz = try istr.readAndCheckSeqSize(minSize: " << p->type()->minWireSize() << ")";
     out << nl << "var v = " << name << "()";
     out << nl << "v.reserveCapacity(sz)";
-    out << nl << "for i in 0 ..< sz";
+    out << nl << "for _ in 0 ..< sz";
     out << sb;
     writeMarshalUnmarshalCode(out, type, typeToString(p->type(), p), "j", false, true, false);
-    out << nl << "v[i] = j";
+    out << nl << "v.append(j)";
     out << eb;
     out << nl << "return v";
     out << eb;
