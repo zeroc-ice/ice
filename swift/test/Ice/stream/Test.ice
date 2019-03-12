@@ -49,6 +49,7 @@ class OptionalClass
 sequence<MyEnum> MyEnumS;
 sequence<SmallStruct> SmallStructS;
 sequence<MyClass> MyClassS;
+sequence<MyInterface> MyInterfaceS;
 
 sequence<Ice::BoolSeq> BoolSS;
 sequence<Ice::ByteSeq> ByteSS;
@@ -61,6 +62,7 @@ sequence<Ice::StringSeq> StringSS;
 sequence<MyEnumS> MyEnumSS;
 sequence<SmallStructS> SmallStructSS;
 sequence<MyClassS> MyClassSS;
+sequence<MyInterfaceS> MyInterfaceSS;
 
 dictionary<byte, bool> ByteBoolD;
 dictionary<short, int> ShortIntD;

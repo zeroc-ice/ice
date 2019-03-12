@@ -464,6 +464,9 @@ public extension OutputStream {
         }
     }
 
+    //
+    // Proxy
+    //
     func write(_ v: ObjectPrx?) {
         if let prxImpl = v as? _ObjectPrxI {
             prxImpl.ice_write(to: self)
@@ -485,9 +488,12 @@ public extension OutputStream {
         }
     }
 
+    //
+    // Value
+    //
     func write(_ v: Value?) {
         initEncaps()
-        encapsStack.encoder?.writeValue(v: v)
+        encapsStack.encoder!.writeValue(v: v)
     }
 
     func write(tag: Int32, value v: Value?) {
@@ -496,6 +502,14 @@ public extension OutputStream {
                 write(val)
             }
         }
+    }
+
+    //
+    // UserException
+    //
+    func write(_ v: UserException) {
+        initEncaps()
+        encapsStack.encoder!.writeException(v: v)
     }
 
     func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {
@@ -603,8 +617,7 @@ private protocol EncapsEncoder: AnyObject {
     init(os: OutputStream, encaps: Encaps)
 
     func writeValue(v: Value?)
-    #warning("TODO: this is missing from MATLAB but is in JAVA and others")
-//    func writeException(v: UserException)
+    func writeException(v: UserException)
 
     func startInstance(type: SliceType, data: SlicedData?)
     func endInstance()
@@ -614,7 +627,7 @@ private protocol EncapsEncoder: AnyObject {
 
     // Implemented for the 1.0 encoding, not necessary for subsequent encodings.
     func writePendingValues()
-    func writeOptional(tag: Int32, format: OptionalFormat) -> Bool;
+    func writeOptional(tag: Int32, format: OptionalFormat) -> Bool
 }
 
 extension EncapsEncoder {
@@ -667,17 +680,22 @@ private final class EncapsEncoder10: EncapsEncoder {
         }
     }
 
-//    func writeException(v: UserException) {
-//        //
-//        // User exception with the 1.0 encoding start with a boolean
-//        // flag that indicates whether or not the exception uses
-//        // classes.
-//        //
-//        // This allows reading the pending instances even if some part of
-//        // the exception was sliced.
-//        //
-//        let usesClasses = v._usesClasses();
-//    }
+    func writeException(v: UserException) {
+        //
+        // User exception with the 1.0 encoding start with a boolean
+        // flag that indicates whether or not the exception uses
+        // classes.
+        //
+        // This allows reading the pending instances even if some part of
+        // the exception was sliced.
+        //
+        let usesClasses = v._usesClasses()
+        os.write(usesClasses)
+        v._iceWrite(to: os)
+        if usesClasses {
+            writePendingValues()
+        }
+    }
 
     func startInstance(type: SliceType, data _: SlicedData?) {
         sliceType = type
@@ -831,10 +849,9 @@ private final class EncapsEncoder11: EncapsEncoder {
         }
     }
 
-    // TODO: ??
-//    func writeException(v: UserException) {
-//        <#code#>
-//    }
+    func writeException(v: UserException) {
+        v._iceWrite(to: os)
+    }
 
     func startInstance(type: SliceType, data: SlicedData?) {
         if let curr = current {

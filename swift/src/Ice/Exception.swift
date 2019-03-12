@@ -37,6 +37,8 @@ public protocol UserException: Exception, CustomStringConvertible {
     func _iceWriteImpl(to: OutputStream)
 
     static func ice_staticId() -> String
+
+    func _usesClasses() -> Bool
 }
 
 public extension UserException {
@@ -58,6 +60,10 @@ public extension UserException {
         ostr.startException(data: nil)
         _iceWriteImpl(to: ostr)
         ostr.endException()
+    }
+
+    func _usesClasses() -> Bool {
+        return false
     }
 }
 

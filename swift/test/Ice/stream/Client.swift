@@ -11,6 +11,9 @@ public class Client: TestHelperI {
         var writer = getWriter()
         writer.write("testing primitive types... ")
         var communicator = try Ice.initialize()
+
+        try communicator.getValueFactoryManager().add(factory: { Ice.InterfaceByValue(id: $0) }, id: "::Test::MyInterface")
+
         defer {
             communicator.destroy()
         }
@@ -408,16 +411,16 @@ public class Client: TestHelperI {
             myClassArray[i].d = ["hi": myClassArray[i]]
         }
 
-        var myInterface = [Ice.Value]()
+        var myInterfaceArray = [Ice.Value]()
         for _ in 0..<4 {
-            myInterface.append(Ice.InterfaceByValue(id: "::Test::MyInterface"))
+            myInterfaceArray.append(Ice.InterfaceByValue(id: "::Test::MyInterface"))
         }
 
         do {
             outS = Ice.OutputStream(communicator: communicator)
             _MyClassSHelper.write(to: outS, value: myClassArray)
             outS.writePendingValues()
-            let data = outS.finished()
+            var data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
             let arr2: [MyClass?] = try _MyClassSHelper.read(from: inS)
             try inS.readPendingValues()
@@ -437,6 +440,82 @@ public class Client: TestHelperI {
                 try test(arr2[i]!.seq8 == myClassArray[i].seq8)
                 try test(arr2[i]!.seq9 == myClassArray[i].seq9)
                 try test(arr2[i]!.d["hi"]! === arr2[i])
+            }
+
+            let arrS = [myClassArray, [], myClassArray]
+            outS = Ice.OutputStream(communicator: communicator)
+            _MyClassSSHelper.write(to: outS, value: arrS)
+            outS.writePendingValues()
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _MyClassSSHelper.read(from: inS)
+            try test(arr2S.count == arrS.count)
+            try test(arr2S[0].count == arrS[0].count)
+            try test(arr2S[1].count == arrS[1].count)
+            try test(arr2S[2].count == arrS[2].count)
+        }
+
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            _MyInterfaceSHelper.write(to: outS, value: myInterfaceArray)
+            outS.writePendingValues()
+            var data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2 = try _MyInterfaceSHelper.read(from: inS)
+            try inS.readPendingValues()
+            try test(arr2.count == myInterfaceArray.count)
+
+            let arrS = [myInterfaceArray, [], myInterfaceArray]
+            outS = Ice.OutputStream(communicator: communicator)
+            _MyInterfaceSSHelper.write(to: outS, value: arrS)
+            data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let arr2S = try _MyInterfaceSSHelper.read(from: inS)
+            try test(arr2S.count == arrS.count)
+            try test(arr2S[0].count == arrS[0].count)
+            try test(arr2S[1].count == arrS[1].count)
+            try test(arr2S[2].count == arrS[2].count)
+        }
+
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            let ex = MyException()
+            let c = MyClass()
+            c.c = c
+            c.o = c
+            c.s.e = MyEnum.enum2
+            c.seq1 = [true, false, true, false]
+            c.seq2 = [1, 2, 3, 4]
+            c.seq3 = [1, 2, 3, 4]
+            c.seq4 = [1, 2, 3, 4]
+            c.seq5 = [1, 2, 3, 4]
+            c.seq6 = [1, 2, 3, 4]
+            c.seq7 = [1, 2, 3, 4]
+            c.seq8 = ["string1", "string2", "string3", "string4"]
+            c.seq9 = [MyEnum.enum3, MyEnum.enum2, MyEnum.enum1]
+            c.seq10 = [nil, nil, nil, nil]
+            c.d = ["hi": c]
+
+            ex.c = c
+
+            outS.write(ex)
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            do {
+                try inS.throwException()
+            } catch let ex1 as MyException {
+                try test(ex1.c!.s.e == c.s.e)
+                try test(ex1.c!.seq1 == c.seq1)
+                try test(ex1.c!.seq2 == c.seq2)
+                try test(ex1.c!.seq3 == c.seq3)
+                try test(ex1.c!.seq4 == c.seq4)
+                try test(ex1.c!.seq5 == c.seq5)
+                try test(ex1.c!.seq6 == c.seq6)
+                try test(ex1.c!.seq7 == c.seq7)
+                try test(ex1.c!.seq8 == c.seq8)
+                try test(ex1.c!.seq9 == c.seq9)
+            } catch is Ice.UserException {
+                try test(false)
             }
         }
         writer.writeLine("ok")

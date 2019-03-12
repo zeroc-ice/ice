@@ -317,15 +317,22 @@ SwiftGenerator::typeToString(const TypePtr& type, const ContainedPtr& toplevel,
 
     if(cl)
     {
-        //
-        // Annotate nonnull closure as @escaping, Swift optional closure parameters are always
-        // @escaping see https://www.jessesquires.com/blog/why-optional-swift-closures-are-escaping/
-        //
-        if(cl->isLocal() && cl->definition() && cl->definition()->isDelegate() && inparam && nonnull)
+        if(cl->isInterface() && !cl->isLocal())
         {
-            t = "@escaping ";
+            t = getUnqualified(builtinTable[Builtin::KindValue], currentModule);
         }
-        t += getUnqualified(getAbsoluteImpl(cl), currentModule);
+        else
+        {
+            //
+            // Annotate nonnull closure as @escaping, Swift optional closure parameters are always
+            // @escaping see https://www.jessesquires.com/blog/why-optional-swift-closures-are-escaping/
+            //
+            if(cl->isLocal() && cl->definition() && cl->definition()->isDelegate() && inparam && nonnull)
+            {
+                t = "@escaping ";
+            }
+            t += getUnqualified(getAbsoluteImpl(cl), currentModule);
+        }
     }
     else if(prx)
     {
@@ -857,7 +864,8 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
 
     if(ClassDeclPtr::dynamicCast(type))
     {
-        if (marshal)
+        ClassDeclPtr cl = ClassDeclPtr::dynamicCast(type);
+        if(marshal)
         {
             out << nl << stream << "write(" << marshalParam << ")";
         }
@@ -867,24 +875,36 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
             {
                 out << nl << "var " << param << ": " << typeStr;
             }
-            out << nl << "try " << stream << "read";
-            out << spar;
-            if(!unmarshalParam.empty())
+            if(cl->isInterface())
             {
-                out << unmarshalParam;
+                out << nl << "try " << stream << "read(" << unmarshalParam << ") { ";
+                if(!declareParam)
+                {
+                    out << "self.";
+                }
+                out << param << " = $0 }";
             }
-            const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(type)));
-            const string className = getUnqualified(getAbsolute(type), swiftModule);
-            out << ("value: " + className + ".self");
-            out << epar;
-            out << sb;
-            out << nl;
-            if(!declareParam)
+            else
             {
-                out << "self.";
+                out << nl << "try " << stream << "read";
+                out << spar;
+                if(!unmarshalParam.empty())
+                {
+                    out << unmarshalParam;
+                }
+                const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(type)));
+                const string className = getUnqualified(getAbsolute(type), swiftModule);
+                out << ("value: " + className + ".self");
+                out << epar;
+                out << sb;
+                out << nl;
+                if(!declareParam)
+                {
+                    out << "self.";
+                }
+                out << param << " = $0";
+                out << eb;
             }
-            out << param << " = $0";
-            out << eb;
         }
         return;
     }

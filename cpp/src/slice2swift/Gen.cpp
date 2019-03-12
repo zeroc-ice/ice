@@ -282,6 +282,38 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     ExceptionPtr base = p->base();
 
+        //
+    // For each Value class we generate a extension in ClassResolver
+    //
+    ostringstream factory;
+    StringList parts = splitScopedName(p->scoped());
+    for(StringList::const_iterator it = parts.begin(); it != parts.end();)
+    {
+        factory << (*it);
+        if(++it != parts.end())
+        {
+            factory << "_";
+        }
+    }
+
+    out << sp;
+    out << nl << "public class " << name << "_TypeResolver: Ice.UserExceptionTypeResolver";
+    out << sb;
+    out << nl << "public override func type() -> Ice.UserException.Type";
+    out << sb;
+    out << nl << "return " << name << ".self";
+    out << eb;
+    out << eb;
+
+    out << sp;
+    out << nl << "public extension Ice.ClassResolver";
+    out << sb;
+    out << nl << "@objc public static func " << factory.str() << "() -> Ice.UserExceptionTypeResolver";
+    out << sb;
+    out << nl << "return " << name << "_TypeResolver()";
+    out << eb;
+    out << eb;
+
     out << sp;
     out << nl << "public class " << name << ": ";
     if(base)
@@ -328,15 +360,18 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         {
             out << "override ";
         }
-        out << "public func _iceWriteImpl(to os: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
+        out << "public func _iceWriteImpl(to ostr: " << getUnqualified("Ice.OutputStream", swiftModule) << ")";
         out << sb;
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        out << nl << "ostr.startSlice(typeId: " << name << ".ice_staticId(), compactId: -1, last: "
+            << (!base ? "true" : "false") << ")";
+        for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
-            out << nl << "os.write" << spar << fixIdent((*q)->name()) << epar;
+            writeMarshalUnmarshalCode(out, *i, p, false, false, true);
         }
+        out << nl << "ostr.endSlice()";
         if(base)
         {
-            out << nl << "super._iceWriteImpl(to: os)";
+            out << nl << "super._iceWriteImpl(to: ostr);";
         }
         out << eb;
 
@@ -348,15 +383,15 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         out << "public func _iceReadImpl(from istr: " << getUnqualified("Ice.InputStream", swiftModule) << ") throws";
         out << sb;
-        for(DataMemberList::const_iterator q = members.begin(); q != members.end(); ++q)
+        out << nl << "try istr.startSlice()";
+        for(DataMemberList::const_iterator i = members.begin(); i != members.end(); ++i)
         {
-            DataMemberPtr member = *q;
-            TypePtr type = member->type();
-            writeMarshalUnmarshalCode(out, member, p, false, false, false);
+            writeMarshalUnmarshalCode(out, *i, p, false, false, false);
         }
+        out << nl << "try istr.endSlice()";
         if(base)
         {
-            out << nl << "try super._iceReadImpl(from: istr)";
+            out << nl << "try super._iceReadImpl(from: istr);";
         }
         out << eb;
 
@@ -370,6 +405,15 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << sb;
         out << nl << "return \"" << p->scoped() << "\"";
         out << eb;
+
+        if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
+        {
+            out << sp;
+            out << nl << "public func _usesClasses() -> Bool";
+            out << sb;
+            out << nl << "return true";
+            out << eb;
+        }
     }
 
     out << eb;

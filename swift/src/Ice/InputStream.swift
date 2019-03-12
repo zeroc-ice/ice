@@ -196,7 +196,7 @@ public class InputStream {
     }
 
     public func throwException() throws {
-        precondition(encaps.decoder != nil)
+        initEncaps()
         try encaps.decoder.throwException()
     }
 
