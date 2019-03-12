@@ -493,7 +493,7 @@ public extension OutputStream {
     //
     func write(_ v: Value?) {
         initEncaps()
-        encapsStack.encoder!.writeValue(v: v)
+        encapsStack.encoder.writeValue(v: v)
     }
 
     func write(tag: Int32, value v: Value?) {
@@ -509,7 +509,7 @@ public extension OutputStream {
     //
     func write(_ v: UserException) {
         initEncaps()
-        encapsStack.encoder!.writeException(v: v)
+        encapsStack.encoder.writeException(v: v)
     }
 
     func writeOptional(tag: Int32, format: OptionalFormat) -> Bool {
@@ -876,7 +876,8 @@ private final class EncapsEncoder11: EncapsEncoder {
         guard let current = current else {
             preconditionFailure("current is nil")
         }
-        #warning("TODO: add precondition failures. See Java/MATLAB/etc.")
+
+        precondition(current.indirectionTable.isEmpty && current.indirectionMap.isEmpty)
 
         current.sliceFlagsPos = Int32(os.getCount())
         current.sliceFlags = 0

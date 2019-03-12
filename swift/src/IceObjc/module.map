@@ -12,5 +12,6 @@ module IceObjc {
   header "IceObjcObjectPrx.h"
   header "IceObjcOutputStream.h"
   header "IceObjcProperties.h"
+  header "IceObjcTraceUtil.h"
   export *
 }

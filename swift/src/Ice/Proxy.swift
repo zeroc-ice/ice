@@ -479,7 +479,7 @@ open class _ObjectPrxI: ObjectPrx {
                         exceptions: [UserException] = [],
                         context: Context? = nil) throws -> InputStream {
         return try autoreleasepool {
-            if twowayOnly, !self.isTwoway {
+            guard twowayOnly, self.isTwoway else {
                 throw TwowayOnlyException(operation: op)
             }
 
@@ -502,9 +502,7 @@ open class _ObjectPrxI: ObjectPrx {
                                 throw error
                             }
                         }
-
-                        // TODO: error.ice_id
-                        throw UnknownUserException(unknown: "")
+                        throw UnknownUserException(unknown: error.ice_id())
                     }
                     // We let any all other error types propagate
                 }

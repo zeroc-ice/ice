@@ -51,10 +51,8 @@ public final class UnknownSlicedValue: Value {
     }
 
     public func _iceReadImpl(from _: InputStream) throws {
-        // TODO:
     }
 
     public func _iceWriteImpl(to _: OutputStream) {
-        // TODO:
     }
 }

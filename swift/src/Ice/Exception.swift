@@ -35,10 +35,10 @@ public protocol UserException: Exception, CustomStringConvertible {
 
     func _iceReadImpl(from: InputStream) throws
     func _iceWriteImpl(to: OutputStream)
-
-    static func ice_staticId() -> String
-
     func _usesClasses() -> Bool
+
+    func ice_id() -> String
+    static func ice_staticId() -> String
 }
 
 public extension UserException {

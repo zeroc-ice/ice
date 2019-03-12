@@ -81,7 +81,6 @@ class EndpointInfoFactory: ICEEndpointInfoFactory {
                                          encodingMajor: UInt8,
                                          encodingMinor _: UInt8,
                                          rawBytes: [NSNumber]) -> Any {
-        #warning("TODO check this, specificallly the cast from bytes to array")
         return OpaqueEndpointInfoI(handle: handle,
                                    underlying: getUnderlying(underlying),
                                    timeout: timeout,

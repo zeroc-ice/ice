@@ -282,37 +282,40 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
 
     ExceptionPtr base = p->base();
 
-        //
-    // For each Value class we generate a extension in ClassResolver
-    //
-    ostringstream factory;
-    StringList parts = splitScopedName(p->scoped());
-    for(StringList::const_iterator it = parts.begin(); it != parts.end();)
+    if(!p->isLocal())
     {
-        factory << (*it);
-        if(++it != parts.end())
+        //
+        // For each UserException class we generate a extension in ClassResolver
+        //
+        ostringstream factory;
+        StringList parts = splitScopedName(p->scoped());
+        for(StringList::const_iterator it = parts.begin(); it != parts.end();)
         {
-            factory << "_";
+            factory << (*it);
+            if(++it != parts.end())
+            {
+                factory << "_";
+            }
         }
+
+        out << sp;
+        out << nl << "public class " << name << "_TypeResolver: Ice.UserExceptionTypeResolver";
+        out << sb;
+        out << nl << "public override func type() -> Ice.UserException.Type";
+        out << sb;
+        out << nl << "return " << name << ".self";
+        out << eb;
+        out << eb;
+
+        out << sp;
+        out << nl << "public extension Ice.ClassResolver";
+        out << sb;
+        out << nl << "@objc public static func " << factory.str() << "() -> Ice.UserExceptionTypeResolver";
+        out << sb;
+        out << nl << "return " << name << "_TypeResolver()";
+        out << eb;
+        out << eb;
     }
-
-    out << sp;
-    out << nl << "public class " << name << "_TypeResolver: Ice.UserExceptionTypeResolver";
-    out << sb;
-    out << nl << "public override func type() -> Ice.UserException.Type";
-    out << sb;
-    out << nl << "return " << name << ".self";
-    out << eb;
-    out << eb;
-
-    out << sp;
-    out << nl << "public extension Ice.ClassResolver";
-    out << sb;
-    out << nl << "@objc public static func " << factory.str() << "() -> Ice.UserExceptionTypeResolver";
-    out << sb;
-    out << nl << "return " << name << "_TypeResolver()";
-    out << eb;
-    out << eb;
 
     out << sp;
     out << nl << "public class " << name << ": ";
@@ -395,6 +398,27 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         }
         out << eb;
 
+        if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
+        {
+            out << sp;
+            out << nl;
+            out << "public func _usesClasses() -> Bool";
+            out << sb;
+            out << nl << "return true";
+            out << eb;
+        }
+
+        out << sp;
+        out << nl;
+        if(base)
+        {
+            out << "override ";
+        }
+        out << "public func ice_id() -> Swift.String";
+        out << sb;
+        out << nl << "return \"" << p->scoped() << "\"";
+        out << eb;
+
         out << sp;
         out << nl;
         if(base)
@@ -405,15 +429,6 @@ Gen::TypesVisitor::visitExceptionStart(const ExceptionPtr& p)
         out << sb;
         out << nl << "return \"" << p->scoped() << "\"";
         out << eb;
-
-        if(p->usesClasses(false) && (!base || (base && !base->usesClasses(false))))
-        {
-            out << sp;
-            out << nl << "public func _usesClasses() -> Bool";
-            out << sb;
-            out << nl << "return true";
-            out << eb;
-        }
     }
 
     out << eb;

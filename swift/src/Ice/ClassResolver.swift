@@ -55,7 +55,6 @@ public class TypeIdResolver: NSObject {
             return nil
         }
 
-        #warning("TODO: check this is correct wrt memory management")
         let val = TypeIdResolver.perform(selector).takeRetainedValue()
 
         guard let typeId = val as? String else {

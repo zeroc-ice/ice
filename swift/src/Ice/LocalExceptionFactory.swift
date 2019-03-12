@@ -130,12 +130,16 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
         return UnknownException(unknown: unknown, file: file, line: line)
     }
 
-    static func objectNotExistException(_ name: String, category: String, facet: String, operation: String, file: String, line: Int) -> Error {
-        return ObjectNotExistException(id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
+    static func objectNotExistException(_ name: String, category: String, facet: String, operation: String,
+                                        file: String, line: Int) -> Error {
+        return ObjectNotExistException(id: Identity(name: name, category: category), facet: facet, operation: operation,
+                                       file: file, line: line)
     }
 
-    static func facetNotExistException(_ name: String, category: String, facet: String, operation: String, file: String, line: Int) -> Error {
-        return FacetNotExistException(id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
+    static func facetNotExistException(_ name: String, category: String, facet: String, operation: String,
+                                       file: String, line: Int) -> Error {
+        return FacetNotExistException(id: Identity(name: name, category: category), facet: facet, operation: operation,
+                                      file: file, line: line)
     }
 
     static func operationNotExistException(_ name: String,
@@ -148,8 +152,10 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
                                           operation: operation, file: file, line: line)
     }
 
-    static func requestFailedException(_ name: String, category: String, facet: String, operation: String, file: String, line: Int) -> Error {
-        return RequestFailedException(id: Identity(name: name, category: category), facet: facet, operation: operation, file: file, line: line)
+    static func requestFailedException(_ name: String, category: String, facet: String, operation: String,
+                                       file: String, line: Int) -> Error {
+        return RequestFailedException(id: Identity(name: name, category: category), facet: facet, operation: operation,
+                                      file: file, line: line)
     }
 
     static func connectionRefusedException(_ error: Int32, file: String, line: Int) -> Error {
@@ -208,7 +214,8 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
                                              supportedMinor: UInt8, file: String, line: Int) -> Error {
         return UnsupportedProtocolException(reason: reason,
                                             bad: ProtocolVersion(major: badMajor, minor: badMinor),
-                                            supported: ProtocolVersion(major: supportedMajor, minor: supportedMinor), file: file, line: line)
+                                            supported: ProtocolVersion(major: supportedMajor, minor: supportedMinor),
+                                            file: file, line: line)
     }
 
     static func unsupportedEncodingException(_ reason: String,
@@ -218,7 +225,8 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
                                              supportedMinor: UInt8, file: String, line: Int) -> Error {
         return UnsupportedEncodingException(reason: reason,
                                             bad: EncodingVersion(major: badMajor, minor: badMinor),
-                                            supported: EncodingVersion(major: supportedMajor, minor: supportedMinor), file: file, line: line)
+                                            supported: EncodingVersion(major: supportedMajor, minor: supportedMinor),
+                                            file: file, line: line)
     }
 
     static func unknownMessageException(_ reason: String, file: String, line: Int) -> Error {
@@ -269,8 +277,10 @@ class LocalExceptionFactory: ICELocalExceptionFactory {
         return NoValueFactoryException(reason: reason, type: type, file: file, line: line)
     }
 
-    static func unexpectedObjectException(_ reason: String, type: String, expectedType: String, file: String, line: Int) -> Error {
-        return UnexpectedObjectException(reason: reason, type: type, expectedType: expectedType, file: file, line: line)
+    static func unexpectedObjectException(_ reason: String, type: String, expectedType: String,
+                                          file: String, line: Int) -> Error {
+        return UnexpectedObjectException(reason: reason, type: type, expectedType: expectedType,
+                                         file: file, line: line)
     }
 
     static func memoryLimitException(_ reason: String, file: String, line: Int) -> Error {

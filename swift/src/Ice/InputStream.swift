@@ -20,7 +20,6 @@ public class InputStream {
     private var communicator: Communicator
     private var encoding: EncodingVersion
 
-    // TODO: move encaps into InputStream?
     private lazy var encaps: Encaps = Encaps()
 
 //    private pos: Int32 = 1
@@ -81,12 +80,10 @@ public class InputStream {
         let sz: Int32 = try read()
 
         if sz < 6 {
-            // TODO: file/line
-            throw UnmarshalOutOfBoundsException(reason: "")
+            throw UnmarshalOutOfBoundsException(reason: "invalid size")
         }
         if sz - 4 > buf.capacity - buf.size {
-            // TODO: file/line
-            throw UnmarshalOutOfBoundsException(reason: "")
+            throw UnmarshalOutOfBoundsException(reason: "invalid size")
         }
 
         encaps.sz = Int(sz)
@@ -285,11 +282,23 @@ public class InputStream {
         if encaps.decoder == nil { // Lazy initialization
             let valueFactoryManager = communicator.getValueFactoryManager()
             if encaps.encoding_1_0 {
-                encaps.decoder = EncapsDecoder10(stream: self, sliceValues: sliceValues, valueFactoryManager: valueFactoryManager)
+                encaps.decoder = EncapsDecoder10(stream: self, sliceValues: sliceValues,
+                                                 valueFactoryManager: valueFactoryManager)
             } else {
-                encaps.decoder = EncapsDecoder11(stream: self, sliceValues: sliceValues, valueFactoryManager: valueFactoryManager)
+                encaps.decoder = EncapsDecoder11(stream: self, sliceValues: sliceValues,
+                                                 valueFactoryManager: valueFactoryManager)
             }
         }
+    }
+
+    fileprivate func traceSkipSlice(typeId: String, sliceType: SliceType) {
+        // TODO: add _traceSlicing bool
+        let logger = communicator.getLogger()
+        let l: ICELoggerProtocol = logger as? LoggerI ?? LoggerWrapper(impl: logger)
+        ICETraceUtil.traceSlicing(kind: sliceType == SliceType.ExceptionSlice ? "exception" : "object",
+                                  typeId: typeId,
+                                  slicingCat: "Slicing",
+                                  logger: l)
     }
 
     static func throwUOE(expectedType: Value.Type, v: Value) throws {
@@ -1111,8 +1120,7 @@ private class EncapsDecoder10: EncapsDecoder {
     func endSlice() throws {}
 
     func skipSlice() throws {
-        #warning("TODO add this stream tracing")
-//        stream.traceSkipSlice
+        stream.traceSkipSlice(typeId: typeId, sliceType: sliceType)
         try stream.skip(sliceSize - 4)
     }
 
@@ -1434,8 +1442,7 @@ private class EncapsDecoder11: EncapsDecoder {
     }
 
     func skipSlice() throws {
-        #warning("Add skipSlice stream tracing")
-        // _stream.traceSkipSlice(_current.typeId, _current.sliceType);
+        stream.traceSkipSlice(typeId: current.typeId, sliceType: current.sliceType)
 
         let start = stream.getSize()
 
@@ -1625,7 +1632,6 @@ private class EncapsDecoder11: EncapsDecoder {
         //
         try unmarshal(index: index, v: &v!)
 
-        #warning("check if this is really even possible. Can current ever be nil here?")
         if current == nil, !patchMap.isEmpty {
             //
             // If any entries remain in the patch map, the sender has sent an index for an instance, but failed
