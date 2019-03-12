@@ -479,7 +479,7 @@ open class _ObjectPrxI: ObjectPrx {
                         exceptions: [UserException] = [],
                         context: Context? = nil) throws -> InputStream {
         return try autoreleasepool {
-            guard twowayOnly, self.isTwoway else {
+            if twowayOnly, !self.isTwoway {
                 throw TwowayOnlyException(operation: op)
             }
 
