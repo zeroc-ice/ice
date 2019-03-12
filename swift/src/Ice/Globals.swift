@@ -9,24 +9,7 @@
 
 import IceObjc
 
-// var valueMap = [String:Value.Type]()
-// var exceptionMap = [String: UserException.Type]()
-// autoreleasepool {
-//    var classCount = UInt32(0)
-//    let classList = objc_copyClassList(&classCount)!
-//
-//    for i in 0..<Int(classCount) {
-//        let c: AnyClass = classList[i]
-//
-//        if let valueClass = c as? Value.Type {
-//            valueMap[valueClass.ice_staticId()] = valueClass
-//        } else if let userExceptionClass = c as? UserException.Type {
-//            exceptionMap[userExceptionClass.ice_staticId()] = userExceptionClass
-//        }
-//    }
-//    free(UnsafeMutableRawPointer(classList))
-// }
-
+// Factories are registed once, when this file is loaded
 let factoriesInitialized: Bool = {
     ICEUtil.registerFactories(localException: LocalExceptionFactory.self,
                               connectionInfo: ConnectionInfoFactory.self,

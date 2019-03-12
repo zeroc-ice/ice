@@ -19,11 +19,10 @@ public class InputStream {
     private var buf: Buffer // buf overlays the C++ unmarshal buffer stored in ICEInputStream or user buffer
     private var communicator: Communicator
     private var encoding: EncodingVersion
+    private var traceSlicing: Bool
 
     private lazy var encaps: Encaps = Encaps()
 
-//    private pos: Int32 = 1
-//    private size: Int32
     private var startSeq: Int32 = -1
     private var minSeqSize: Int32 = 0
     public var sliceValues: Bool = true
@@ -37,6 +36,7 @@ public class InputStream {
         var baseAddress: UnsafeMutableRawPointer?
         self.bytes.withUnsafeMutableBytes { baseAddress = $0.baseAddress }
         buf = Buffer(start: baseAddress!, count: bytes.count)
+        traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
     }
 
     init(communicator: Communicator,
@@ -46,6 +46,7 @@ public class InputStream {
         self.encoding = encoding
         self.handle = handle
         buf = Buffer(start: handle.data(), count: handle.size())
+        traceSlicing = communicator.getProperties().getPropertyAsIntWithDefault(key: "Ice.Trace.Slicing", value: 0) > 0
     }
 
     internal func getBuffer() -> Buffer {
@@ -292,7 +293,10 @@ public class InputStream {
     }
 
     fileprivate func traceSkipSlice(typeId: String, sliceType: SliceType) {
-        // TODO: add _traceSlicing bool
+        guard traceSlicing else {
+            return
+        }
+
         let logger = communicator.getLogger()
         let l: ICELoggerProtocol = logger as? LoggerI ?? LoggerWrapper(impl: logger)
         ICETraceUtil.traceSlicing(kind: sliceType == SliceType.ExceptionSlice ? "exception" : "object",
