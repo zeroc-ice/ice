@@ -151,6 +151,23 @@
                                      compress:infoPtr->compress];
     }
 
+#if TARGET_OS_IPHONE
+
+    auto iapInfo = std::dynamic_pointer_cast<IceIAP::EndpointInfo>(infoPtr);
+    if(iapInfo)
+    {
+        return [factory createIAPEndpointInfo:handle
+                                   underlying:underlying
+                                      timeout:iapInfo->timeout
+                                     compress:iapInfo->compress
+                                 manufacturer:toNSString(iapInfo->manufacturer)
+                                  modelNumber:toNSString(iapInfo->modelNumber)
+                                         name:toNSString(iapInfo->name)
+                                     protocol:toNSString(iapInfo->protocol)];
+    }
+
+#endif
+
     return [NSNull null];
 }
 @end

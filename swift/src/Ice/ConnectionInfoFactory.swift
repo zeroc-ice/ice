@@ -99,9 +99,33 @@ class ConnectionInfoFactory: ICEConnectionInfoFactory {
                                  verified: verified)
     }
 
+    #if os(iOS) || os(watchOS) || os(tvOS)
+
+    static func createIAPConnectionInfo(_ underlying: Any,
+                                        incoming: Bool,
+                                        adapterName: String,
+                                        connectionId: String,
+                                        name: String,
+                                        manufacturer: String,
+                                        modelNumber: String,
+                                        firmwareRevision: String,
+                                        hardwareRevision: String,
+                                        protocol: String) -> Any {
+        return IAPConnectionInfo(underlying: getUnderlying(underlying),
+                                 incoming: incoming,
+                                 adapterName: adapterName,
+                                 connectionId: connectionId,
+                                 name: name,
+                                 manufacturer: manufacturer,
+                                 modelNumber: modelNumber,
+                                 firmwareRevision: firmwareRevision,
+                                 hardwareRevision: hardwareRevision,
+                                 _protocol: `protocol`)
+    }
+
+    #endif
+
     static func getUnderlying(_ info: Any) -> ConnectionInfo? {
         return info as? ConnectionInfo
     }
 }
-
-// TODO: add iAP

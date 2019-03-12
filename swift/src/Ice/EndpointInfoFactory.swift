@@ -86,7 +86,6 @@ class EndpointInfoFactory: ICEEndpointInfoFactory {
                                    timeout: timeout,
                                    compress: compress,
                                    rawEncoding: EncodingVersion(major: encodingMajor, minor: encodingMajor),
-                                   // swiftlint:disable force_cast
                                    rawBytes: rawBytes as! [UInt8])
     }
 
@@ -100,16 +99,29 @@ class EndpointInfoFactory: ICEEndpointInfoFactory {
                                 compress: compress)
     }
 
-//    static func createIAPEndpointInfo(_: ICEEndpointInfo,
-//                                      underlying _: Any,
-//                                      timeout _: Int32,
-//                                      compress _: Bool) -> Any {
-//        return IAPEndpoin
-//    }
+    #if os(iOS) || os(watchOS) || os(tvOS)
+
+    static func createIAPEndpointInfo(_ handle: ICEEndpointInfo,
+                                      underlying: Any,
+                                      timeout: Int32,
+                                      compress: Bool,
+                                      manufacturer: String,
+                                      modelNumber: String,
+                                      name: String,
+                                      protocol: String) -> Any {
+        return IAPEndpointInfoI(handle: handle,
+                                underlying: getUnderlying(underlying),
+                                timeout: timeout,
+                                compress: compress,
+                                manufacturer: manufacturer,
+                                modelNumber: modelNumber,
+                                name: name,
+                                protocol: `protocol`)
+    }
+
+    #endif
 
     static func getUnderlying(_ info: Any) -> EndpointInfo? {
         return info as? EndpointInfo
     }
 }
-
-// TODO: add iAP on iOS

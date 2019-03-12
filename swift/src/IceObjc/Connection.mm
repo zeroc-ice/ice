@@ -319,6 +319,25 @@
                                     verified:sslInfo->verified];
     }
 
+#if TARGET_OS_IPHONE
+
+    auto iapInfo = std::dynamic_pointer_cast<IceIAP::ConnectionInfo>(infoPtr);
+    if(iapInfo)
+    {
+        return [factory createIAPConnectionInfo:underlying
+                                       incoming:iapInfo->incoming
+                                    adapterName:toNSString(iapInfo->adapterName)
+                                   connectionId:toNSString(iapInfo->connectionId)
+                                           name:toNSString(iapInfo->name)
+                                   manufacturer:toNSString(iapInfo->manufacturer)
+                                    modelNumber:toNSString(iapInfo->modelNumber)
+                               firmwareRevision:toNSString(iapInfo->firmwareRevision)
+                               hardwareRevision:toNSString(iapInfo->hardwareRevision)
+                                       protocol:toNSString(iapInfo->protocol)];
+    }
+
+#endif
+
     return [NSNull null];
 }
 @end

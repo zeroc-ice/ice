@@ -67,6 +67,20 @@ NS_ASSUME_NONNULL_BEGIN
                  underlying:(id)underlying
                     timeout:(int32_t)timeout
                    compress:(BOOL)compress;
+
+#if TARGET_OS_IPHONE
+
++(id) createIAPEndpointInfo:(ICEEndpointInfo*)handle
+                 underlying:(id)underlying
+                    timeout:(int32_t)timeout
+                   compress:(BOOL)compress
+               manufacturer:(NSString*)manufacturer
+                modelNumber:(NSString*)modelNumber
+                       name:(NSString*)name
+                   protocol:(NSString*)protocol;
+
+#endif
+
 @end
 
 #ifdef __cplusplus

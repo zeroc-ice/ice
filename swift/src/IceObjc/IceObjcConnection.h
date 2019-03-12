@@ -83,6 +83,22 @@ NS_ASSUME_NONNULL_BEGIN
                        cipher:(NSString*)cipher
                         certs:(NSArray<NSString*>*)certs
                      verified:(BOOL)verified;
+
+#if TARGET_OS_IPHONE
+
++(id) createIAPConnectionInfo:(id)underlying
+                     incoming:(BOOL)incoming
+                  adapterName:(NSString*)adapterName
+                 connectionId:(NSString*)connectionId
+                         name:(NSString*)name
+                 manufacturer:(NSString*)manufacturer
+                  modelNumber:(NSString*)modelNumber
+             firmwareRevision:(NSString*)firmwareRevision
+             hardwareRevision:(NSString*)hardwareRevision
+                     protocol:(NSString*)protocol;
+
+#endif
+
 @end
 
 #ifdef __cplusplus
