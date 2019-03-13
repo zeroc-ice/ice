@@ -994,7 +994,7 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     // Unmarshal parameters
     // 1. required
     // 2. return
-    // 3. optional
+    // 3. optional (including optional return)
     //
     if(useInputStream)
     {
@@ -1007,18 +1007,24 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
             returnVals.push_back((*q)->name());
         }
 
-        if(returnType)
+        if(returnType && !op->returnIsOptional())
         {
-            int tag = op->returnIsOptional() ? op->returnTag() : -1;
-            writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false, tag);
+            writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false);
             returnVals.push_front("ret");
         }
 
         for(ParamDeclList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
         {
             ParamDeclPtr param = *q;
-            ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
             assert(param->optional());
+
+            if(returnType && op->returnIsOptional() && op->returnTag() < param->tag())
+            {
+                writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false, op->returnTag());
+                returnVals.push_front("ret");
+            }
+
+            ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
             writeMarshalUnmarshalCode(out, param, topLevel, false, true, false, param->tag());
             returnVals.push_back((*q)->name());
         }

@@ -51,18 +51,18 @@ public extension Value {
 }
 
 public class InterfaceByValue: Value {
+    var id: String
 
     required public init() {
-        precondition(false, "Abstract method")
-        self._id = ""
+        preconditionFailure("Abstract method")
     }
 
     public init(id: String) {
-        self._id = id
+        self.id = id
     }
 
     public func ice_id() -> String {
-        return _id
+        return id
     }
 
     public func _iceReadImpl(from ostr: InputStream) throws {
@@ -74,6 +74,4 @@ public class InterfaceByValue: Value {
         istr.startSlice(typeId: ice_id(), compactId: -1, last: true)
         istr.endSlice()
     }
-
-    private var _id: String
 }
