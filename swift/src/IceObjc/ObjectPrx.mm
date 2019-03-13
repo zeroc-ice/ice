@@ -478,6 +478,26 @@
     }
 }
 
+-(bool) ice_isCollocationOptimized
+{
+    return _prx->ice_isCollocationOptimized();
+}
+
+-(instancetype) ice_collocationOptimized:(bool)collocated
+                                            error:(NSError* _Nullable * _Nullable)error
+{
+    try
+    {
+        auto prx = _prx->ice_collocationOptimized(collocated);
+        return _prx == prx ? self : [[ICEObjectPrx alloc] initWithCppObjectPrx:prx];
+    }
+    catch(const std::exception& ex)
+    {
+        *error = convertException(ex);
+        return nil;
+    }
+}
+
 +(id) iceRead:(void*)start
          size:(NSInteger)size
  communicator:(ICECommunicator*)communicator

@@ -79,6 +79,10 @@ NS_ASSUME_NONNULL_BEGIN
 -(nullable ICEConnection*) ice_getCachedConnection;
 -(BOOL) ice_flushBatchRequests:(NSError* _Nullable * _Nullable)error;
 
+-(bool) ice_isCollocationOptimized;
+-(nullable instancetype) ice_collocationOptimized:(bool)collocated
+                                            error:(NSError* _Nullable * _Nullable)error;
+
 // Either ICEObjectPrx or NSNull
 +(nullable id) iceRead:(void*)start size:(NSInteger)size
           communicator:(ICECommunicator*)communicator

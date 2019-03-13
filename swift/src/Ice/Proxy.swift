@@ -61,6 +61,8 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getCachedConnection() -> Connection?
     func ice_flushBatchRequests() throws
     func ice_toString() -> String
+    func ice_isCollocationOptimized() -> Bool
+    func ice_collocationOptimized(collocated: Bool) throws -> ObjectPrx?
 }
 
 public extension ObjectPrx {
@@ -438,6 +440,14 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_toString() -> String {
         return handle.ice_toString()
+    }
+
+    public func ice_isCollocationOptimized() -> Bool {
+        return handle.ice_isCollocationOptimized()
+    }
+
+    public func ice_collocationOptimized(collocated: Bool) throws -> ObjectPrx? {
+        return try fromICEObjectPrx(handle.ice_collocationOptimized(collocated))
     }
 
     public static func ice_read(from ins: InputStream) throws -> Self? {
