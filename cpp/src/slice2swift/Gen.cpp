@@ -873,19 +873,23 @@ void
 Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
 {
     const string opName = fixIdent(op->name());
+    TypePtr returnType = op->returnType();
 
     ParamDeclList paramList = op->parameters();
     ParamDeclList inParams = op->inParameters();
     ParamDeclList outParams = op->outParameters();
 
-    TypePtr returnType = op->returnType();
+    ParamDeclList requiredInParams, optionalInParams;
+    ParamDeclList requiredOutParams, optionalOutParams;
+    op->inParameters(requiredInParams, optionalInParams);
+    op->outParameters(requiredOutParams, optionalOutParams);
 
     ExceptionList throws = op->throws();
     throws.sort();
     throws.unique();
 
     const bool twowayOnly = op->returnsData();
-    const bool returnsInputStream = !op->outParameters().empty() || returnType;
+    const bool useInputStream = !op->outParameters().empty() || returnType;
 
     out << sp;
     out << nl << "func " << opName;
@@ -898,81 +902,127 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     out << epar;
 
     out << " throws";
-    if( returnType || outParams.size() > 0)
+    if(useInputStream)
     {
         out << " -> ";
-        out << spar;
-        if(returnType)
+
+        StringList returnTypes;
+        if(returnType) // return parameter first
         {
-            out << typeToString(returnType, op);
+            returnTypes.push_back(typeToString(returnType, op));
         }
         for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
         {
             ParamDeclPtr param = *q;
-            out << typeToString(param->type(), param, param->getMetaData(), param->optional());
+            returnTypes.push_back(typeToString(param->type(), param, param->getMetaData(), param->optional()));
         }
-        out << epar;
+
+        if(returnTypes.size() == 1)
+        {
+            out << returnTypes.front();
+        }
+        else
+        {
+            out << spar;
+            if(returnType)
+            {
+                out << typeToString(returnType, op);
+            }
+            for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+            {
+                ParamDeclPtr param = *q;
+                out << typeToString(param->type(), param, param->getMetaData(), param->optional());
+            }
+            out << epar;
+        }
     }
 
     out << sb;
 
-    // Marshal
+    //
+    // Marshal parameters
+    // 1. required
+    // 2. optional
+    //
     out << nl << "let ostr = impl._createOutputStream()";
     out << nl << "ostr.startEncapsulation()";
-    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    for(ParamDeclList::const_iterator q = requiredInParams.begin(); q != requiredInParams.end(); ++q)
     {
         ParamDeclPtr param = *q;
         ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
-        int tag = param->optional() ? param->tag() : -1;
-        writeMarshalUnmarshalCode(out, param, topLevel, false, false, true, tag);
+        writeMarshalUnmarshalCode(out, param, topLevel, false, false, true);
+    }
+    for(ParamDeclList::const_iterator q = optionalInParams.begin(); q != optionalInParams.end(); ++q)
+    {
+        ParamDeclPtr param = *q;
+        assert(param->optional());
+        ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+        writeMarshalUnmarshalCode(out, param, topLevel, false, false, true, param->tag());
     }
     out << nl << "ostr.endEncapsulation()";
 
+    //
     // Invoke
+    //
     out << sp;
-    out << nl << "let " << (returnsInputStream ? "istr " : "_ ");
+    out << nl << "let " << (useInputStream ? "istr " : "_ ");
     out << "= try impl._invoke(";
     out.useCurrentPosAsIndent();
-    out << "operation: \"" << op->name() << "\",";
+    out << "operation: \"" << fixIdent(op->name()) << "\",";
     out << nl << "mode: " << modeToString(op->mode()) << ",";
     out << nl << "twowayOnly: " << (twowayOnly ? "true" : "false") << ",";
     out << nl << "inParams: ostr,";
-    out << nl << "hasOutParams: " << (op->outParameters().empty() ? "false" : "true") << ",";
+    out << nl << "hasOutParams: " << (outParams.empty() ? "false" : "true") << ",";
     out << nl << "exceptions: ";
     out << "[";
     for(ExceptionList::const_iterator q = throws.begin(); q != throws.end(); ++q)
     {
-        if(q != throws.begin())
+        ExceptionPtr ex = *q;
+        const string swiftModule = getSwiftModule(getTopLevelModule(ContainedPtr::dynamicCast(ex)));
+        out << getUnqualified(getAbsolute(ex), swiftModule) << ".self";
+        if(q != throws.end())
         {
             out << ',';
         }
-        out << (*q)->name() << ".self";
     }
     out << "]";
     out <<  ")";
     out.restoreIndent();
     out << nl;
 
-    // Unmarshal
-    StringList returnVals;
-    for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    //
+    // Unmarshal parameters
+    // 1. required
+    // 2. return
+    // 3. optional
+    //
+    if(useInputStream)
     {
-        ParamDeclPtr param = *q;
-        ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
-        int tag = param->optional() ? param->tag() : -1;
-        writeMarshalUnmarshalCode(out, param, topLevel, false, true, false, tag);
-        returnVals.push_back((*q)->name());
-    }
+        StringList returnVals;
+        for(ParamDeclList::const_iterator q = requiredOutParams.begin(); q != requiredOutParams.end(); ++q)
+        {
+            ParamDeclPtr param = *q;
+            ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+            writeMarshalUnmarshalCode(out, param, topLevel, false, true, false);
+            returnVals.push_back((*q)->name());
+        }
 
-    if(returnType)
-    {
-        int tag = op->returnIsOptional() ? op->returnTag() : -1;
-        writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false, tag);
-        returnVals.push_front("ret");
-    }
+        if(returnType)
+        {
+            int tag = op->returnIsOptional() ? op->returnTag() : -1;
+            writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false, tag);
+            returnVals.push_front("ret");
+        }
 
-    if(returnsInputStream)
-    {
+        for(ParamDeclList::const_iterator q = optionalOutParams.begin(); q != optionalOutParams.end(); ++q)
+        {
+            ParamDeclPtr param = *q;
+            ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+            assert(param->optional());
+            writeMarshalUnmarshalCode(out, param, topLevel, false, true, false, param->tag());
+            returnVals.push_back((*q)->name());
+        }
+
         out << sp;
         out << nl << "return ";
         if(returnVals.size() == 1)

@@ -8,6 +8,7 @@
 // **********************************************************************
 
 import IceObjc
+import PromiseKit
 
 public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getCommunicator() -> Communicator
@@ -481,7 +482,7 @@ open class _ObjectPrxI: ObjectPrx {
                         twowayOnly: Bool,
                         inParams: OutputStream?,
                         hasOutParams: Bool,
-                        exceptions: [UserException] = [],
+                        exceptions: [UserException.Type] = [],
                         context: Context? = nil) throws -> InputStream {
         return try autoreleasepool {
             if twowayOnly, !self.isTwoway {
@@ -503,13 +504,15 @@ open class _ObjectPrxI: ObjectPrx {
                     } catch let error as UserException {
                         try ins.endEncapsulation()
                         for exceptionType in exceptions {
-                            if exceptionType.isBase(of: error) {
+                            if exceptionType.isBase(of: type(of: error)) {
                                 throw error
                             }
                         }
                         throw UnknownUserException(unknown: error.ice_id())
                     }
+                    //
                     // We let any all other error types propagate
+                    //
                 }
                 if !hasOutParams {
                     try ins.skipEmptyEncapsulation()
@@ -518,6 +521,7 @@ open class _ObjectPrxI: ObjectPrx {
 
             return ins
         }
+
     }
 
     public static func checkedCast<ProxyImpl>(prx: ObjectPrx,
