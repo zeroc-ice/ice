@@ -225,10 +225,10 @@ public class Client: TestHelperI {
 
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _BoolSSHelper.write(to: outS, value: arrS)
+            BoolSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S: [[Bool]] = try _BoolSSHelper.read(from: inS)
+            let arr2S: [[Bool]] = try BoolSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
@@ -243,10 +243,10 @@ public class Client: TestHelperI {
 
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _ByteSSHelper.write(to: outS, value: arrS)
+            ByteSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _ByteSSHelper.read(from: inS)
+            let arr2S = try ByteSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
@@ -261,10 +261,10 @@ public class Client: TestHelperI {
 
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _ShortSSHelper.write(to: outS, value: arrS)
+            ShortSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _ShortSSHelper.read(from: inS)
+            let arr2S = try ShortSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
@@ -279,10 +279,10 @@ public class Client: TestHelperI {
 
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _IntSSHelper.write(to: outS, value: arrS)
+            IntSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _IntSSHelper.read(from: inS)
+            let arr2S = try IntSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
@@ -297,10 +297,10 @@ public class Client: TestHelperI {
 
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _LongSSHelper.write(to: outS, value: arrS)
+            LongSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _LongSSHelper.read(from: inS)
+            let arr2S = try LongSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
@@ -315,10 +315,10 @@ public class Client: TestHelperI {
 
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _FloatSSHelper.write(to: outS, value: arrS)
+            FloatSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _FloatSSHelper.read(from: inS)
+            let arr2S = try FloatSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
@@ -333,10 +333,10 @@ public class Client: TestHelperI {
 
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _DoubleSSHelper.write(to: outS, value: arrS)
+            DoubleSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _DoubleSSHelper.read(from: inS)
+            let arr2S = try DoubleSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
@@ -350,27 +350,27 @@ public class Client: TestHelperI {
             try test(arr2 == arr)
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _StringSSHelper.write(to: outS, value: arrS)
+            StringSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _StringSSHelper.read(from: inS)
+            let arr2S = try StringSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
         do {
             let arr: [MyEnum] = [MyEnum.enum3, MyEnum.enum2, MyEnum.enum1, MyEnum.enum2]
             outS = Ice.OutputStream(communicator: communicator)
-            _MyEnumSHelper.write(to: outS, value: arr)
+            MyEnumSHelper.write(to: outS, value: arr)
             var data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2: [MyEnum] = try _MyEnumSHelper.read(from: inS)
+            let arr2: [MyEnum] = try MyEnumSHelper.read(from: inS)
             try test(arr2 == arr)
             let arrS = [arr, [], arr]
             outS = Ice.OutputStream(communicator: communicator)
-            _MyEnumSSHelper.write(to: outS, value: arrS)
+            MyEnumSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _MyEnumSSHelper.read(from: inS)
+            let arr2S = try MyEnumSSHelper.read(from: inS)
             try test(arr2S == arrS)
         }
 
@@ -417,11 +417,11 @@ public class Client: TestHelperI {
 
         do {
             outS = Ice.OutputStream(communicator: communicator)
-            _MyClassSHelper.write(to: outS, value: myClassArray)
+            MyClassSHelper.write(to: outS, value: myClassArray)
             outS.writePendingValues()
             var data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2: [MyClass?] = try _MyClassSHelper.read(from: inS)
+            let arr2: [MyClass?] = try MyClassSHelper.read(from: inS)
             try inS.readPendingValues()
             try test(myClassArray.count == arr2.count)
             for i in 0..<myClassArray.count {
@@ -443,11 +443,11 @@ public class Client: TestHelperI {
 
             let arrS = [myClassArray, [], myClassArray]
             outS = Ice.OutputStream(communicator: communicator)
-            _MyClassSSHelper.write(to: outS, value: arrS)
+            MyClassSSHelper.write(to: outS, value: arrS)
             outS.writePendingValues()
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _MyClassSSHelper.read(from: inS)
+            let arr2S = try MyClassSSHelper.read(from: inS)
             try test(arr2S.count == arrS.count)
             try test(arr2S[0].count == arrS[0].count)
             try test(arr2S[1].count == arrS[1].count)
@@ -456,20 +456,20 @@ public class Client: TestHelperI {
 
         do {
             outS = Ice.OutputStream(communicator: communicator)
-            _MyInterfaceSHelper.write(to: outS, value: myInterfaceArray)
+            MyInterfaceSHelper.write(to: outS, value: myInterfaceArray)
             outS.writePendingValues()
             var data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2 = try _MyInterfaceSHelper.read(from: inS)
+            let arr2 = try MyInterfaceSHelper.read(from: inS)
             try inS.readPendingValues()
             try test(arr2.count == myInterfaceArray.count)
 
             let arrS = [myInterfaceArray, [], myInterfaceArray]
             outS = Ice.OutputStream(communicator: communicator)
-            _MyInterfaceSSHelper.write(to: outS, value: arrS)
+            MyInterfaceSSHelper.write(to: outS, value: arrS)
             data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let arr2S = try _MyInterfaceSSHelper.read(from: inS)
+            let arr2S = try MyInterfaceSSHelper.read(from: inS)
             try test(arr2S.count == arrS.count)
             try test(arr2S[0].count == arrS[0].count)
             try test(arr2S[1].count == arrS[1].count)
@@ -521,40 +521,40 @@ public class Client: TestHelperI {
         do {
             outS = Ice.OutputStream(communicator: communicator)
             let dict: ByteBoolD = [4: true, 1: false]
-            _ByteBoolDHelper.write(to: outS, value: dict)
+            ByteBoolDHelper.write(to: outS, value: dict)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let dict2 = try _ByteBoolDHelper.read(from: inS)
+            let dict2 = try ByteBoolDHelper.read(from: inS)
             try test(dict == dict2)
         }
 
         do {
             outS = Ice.OutputStream(communicator: communicator)
             let dict: ShortIntD = [1: 9, 4: 8]
-            _ShortIntDHelper.write(to: outS, value: dict)
+            ShortIntDHelper.write(to: outS, value: dict)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let dict2 = try _ShortIntDHelper.read(from: inS)
+            let dict2 = try ShortIntDHelper.read(from: inS)
             try test(dict == dict2)
         }
 
         do {
             let dict: LongFloatD = [123809828: 0.5, 123809829: 0.6]
             outS = Ice.OutputStream(communicator: communicator)
-            _LongFloatDHelper.write(to: outS, value: dict)
+            LongFloatDHelper.write(to: outS, value: dict)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let dict2 = try _LongFloatDHelper.read(from: inS)
+            let dict2 = try LongFloatDHelper.read(from: inS)
             try test(dict == dict2)
         }
 
         do {
             let dict: StringStringD = ["key1": "value1", "key2": "value2"]
             outS = Ice.OutputStream(communicator: communicator)
-            _StringStringDHelper.write(to: outS, value: dict)
+            StringStringDHelper.write(to: outS, value: dict)
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let dict2 = try _StringStringDHelper.read(from: inS)
+            let dict2 = try StringStringDHelper.read(from: inS)
             try test(dict2 == dict)
         }
 
@@ -569,11 +569,11 @@ public class Client: TestHelperI {
             c.s.e = MyEnum.enum3
             dict["key2"] = c
             outS = Ice.OutputStream(communicator: communicator)
-            _StringMyClassDHelper.write(to: outS, value: dict)
+            StringMyClassDHelper.write(to: outS, value: dict)
             outS.writePendingValues()
             let data = outS.finished()
             inS = Ice.InputStream(communicator: communicator, bytes: data)
-            let dict2: StringMyClassD = try _StringMyClassDHelper.read(from: inS)
+            let dict2: StringMyClassD = try StringMyClassDHelper.read(from: inS)
             try inS.readPendingValues()
             try test(dict2.count == dict.count)
             try test(dict2["key1"]!!.s.e == MyEnum.enum2)

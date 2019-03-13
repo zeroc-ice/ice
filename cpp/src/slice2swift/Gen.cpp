@@ -525,7 +525,7 @@ Gen::TypesVisitor::visitSequence(const SequencePtr& p)
     const string optionalFormat = getUnqualified(getOptionalFormat(p->type()), swiftModule);
 
     out << sp;
-    out << nl << "public struct _" << name << "Helper";
+    out << nl << "public struct " << name << "Helper";
     out << sb;
 
     out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;
@@ -622,7 +622,7 @@ Gen::TypesVisitor::visitDictionary(const DictionaryPtr& p)
     const int minWireSize = p->keyType()->minWireSize() + p->valueType()->minWireSize();
 
     out << sp;
-    out << nl << "public struct _" << name << "Helper";
+    out << nl << "public struct " << name << "Helper";
     out << sb;
 
     out << nl << "public static func read(from istr: " << istr << ") throws -> " << name;

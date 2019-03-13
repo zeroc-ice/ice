@@ -982,7 +982,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
         }
         else
         {
-            string helper = "_" + typeStr + "Helper";
+            string helper = typeStr + "Helper";
             if(marshal)
             {
                 out << nl << helper <<".write";
@@ -1008,7 +1008,7 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
 
     if(DictionaryPtr::dynamicCast(type))
     {
-        string helper = "_" + typeStr + "Helper";
+        string helper = typeStr + "Helper";
         if(marshal)
         {
             out << nl << helper << ".write";
