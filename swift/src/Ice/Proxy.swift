@@ -171,7 +171,8 @@ open class _ObjectPrxI: ObjectPrx {
     }
 
     internal static func fromICEObjectPrx(handle: ICEObjectPrx,
-                                          communicator: Communicator) -> Self {
+                                          communicator c: Communicator? = nil) -> Self {
+        let communicator = c ?? handle.ice_getCommunicator().to(type: CommunicatorI.self)
         return self.init(handle: handle, communicator: communicator)
     }
 

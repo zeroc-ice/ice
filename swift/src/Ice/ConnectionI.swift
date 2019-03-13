@@ -20,7 +20,13 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
 
     public func createProxy(id: Identity) throws -> ObjectPrx? {
         return try autoreleasepool {
-            try _handle.createProxy(id.name, category: id.category) as? ObjectPrx ?? nil
+            //
+            // Returns Any which is either NSNull or ICEObjectPrx
+            //
+            guard let handle = try _handle.createProxy(id.name, category: id.category) as? ICEObjectPrx else {
+                return nil
+            }
+            return _ObjectPrxI.fromICEObjectPrx(handle: handle)
         }
     }
 
@@ -52,9 +58,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
             }
 
             try _handle.setCloseCallback {
-                guard let connection = $0.to(type: ConnectionI.self) else {
-                    preconditionFailure("Expected ConnectionI")
-                }
+                let connection = $0.to(type: ConnectionI.self)
                 cb(connection)
             }
         }
@@ -67,9 +71,7 @@ class ConnectionI: LocalObject<ICEConnection>, Connection {
                 return
             }
             try _handle.setHeartbeatCallback {
-                guard let connection = $0.to(type: ConnectionI.self) else {
-                    preconditionFailure("Expected ConnectionI")
-                }
+                let connection = $0.to(type: ConnectionI.self)
                 cb(connection)
             }
         }

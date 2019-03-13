@@ -20,6 +20,9 @@ class LocalObject<LocalObjectType: ICELocalObject> {
 }
 
 extension ICELocalObject {
+    //
+    // assign recovers the Swift object holding a handle to this ICELocalObject or initializes a new one
+    //
     func assign<ICELocalObjectType, LocalObjectType>(to _: LocalObjectType.Type,
                                                      initializer: () -> LocalObjectType) -> LocalObjectType
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
@@ -31,10 +34,13 @@ extension ICELocalObject {
         return initializer()
     }
 
-    func to<ICELocalObjectType, LocalObjectType>(type _: LocalObjectType.Type) -> LocalObjectType?
+    //
+    // to recovers the Swift object holding a handle to this ICELocalObject
+    //
+    func to<ICELocalObjectType, LocalObjectType>(type _: LocalObjectType.Type) -> LocalObjectType
         where ICELocalObjectType: ICELocalObject, LocalObjectType: LocalObject<ICELocalObjectType> {
         guard let swiftClass = swiftRef else {
-            return nil
+            preconditionFailure("swiftRef is nil")
         }
         guard let c = swiftClass as? LocalObjectType else {
             preconditionFailure("Invalid swift type for ICELocalObject")

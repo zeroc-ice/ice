@@ -12,6 +12,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ICELocalObject : NSObject
+//
+// We hold a weak referece the (possile) Swift class which has a handle to
+// this local object. That way we can keep it in the cache and later recover
+// the Swift object.
+//
 @property (weak, nonatomic, nullable) id swiftRef;
 -(instancetype) init ICE_SWIFT_UNAVAILABLE("");
 @end
