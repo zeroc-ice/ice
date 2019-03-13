@@ -66,7 +66,12 @@ class CommunicatorI: LocalObject<ICECommunicator>, Communicator {
     }
 
     func propertyToProxy(property: String) throws -> ObjectPrx? {
-        return try _handle.property(toProxy: property) as? ObjectPrx ?? nil
+        return try autoreleasepool {
+            guard let handle = try _handle.propertyToProxy(property: property) as? ICEObjectPrx else {
+                return nil
+            }
+            return _ObjectPrxI(handle: handle, communicator: self)
+        }
     }
 
     func proxyToProperty(proxy: ObjectPrx, property: String) throws -> PropertyDict {

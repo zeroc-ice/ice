@@ -43,7 +43,11 @@ public func initialize(args: StringSeq = [],
         // logger or a logger property (eg. syslog)
         let logger: ICELoggerProtocol = initData.logger as? LoggerI ?? LoggerWrapper(impl: initData.logger!)
         let handle = try ICEUtil.initialize(args, properties: propsHandle, logger: logger)
-
+        //
+        // Update initData.properties reference to point to the properties object
+        // created by Ice::initialize.
+        //
+        initData.properties = PropertiesI(handle: handle.getProperties())
         return CommunicatorI(handle: handle, initData: initData)
     }
 }

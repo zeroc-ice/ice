@@ -11,6 +11,7 @@
 #import "IceObjcObjectPrx.h"
 #import "IceObjcLogger.h"
 #import "IceObjcImplicitContext.h"
+#import "IceObjcProperties.h"
 
 #include "IceObjcUtil.h"
 
@@ -198,6 +199,12 @@
         *error = convertException(ex);
         return NO;
     }
+}
+
+-(ICEProperties*) getProperties
+{
+    auto props = _communicator->getProperties();
+    return [[ICEProperties alloc] initWithCppProperties:props];
 }
 
 @end

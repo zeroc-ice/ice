@@ -55,9 +55,7 @@ toNSString(const std::string& s)
 inline std::string
 fromNSString(NSString* s)
 {
-    @autoreleasepool {
-        return s == nil ? std::string() : [s UTF8String];
-    }
+    return s == nil ? std::string() : [s UTF8String];
 }
 
 inline NSObject<NSCopying>*
