@@ -884,6 +884,9 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     throws.sort();
     throws.unique();
 
+    const bool twowayOnly = op->returnsData();
+    const bool returnsInputStream = !op->outParameters().empty() || returnType;
+
     out << sp;
     out << nl << "func " << opName;
     out << spar;
@@ -926,17 +929,26 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     out << nl << "ostr.endEncapsulation()";
 
     // Invoke
-    const bool returnsInputStream = !op->outParameters().empty() || returnType;
     out << sp;
     out << nl << "let " << (returnsInputStream ? "istr " : "_ ");
     out << "= try impl._invoke(";
-
     out.useCurrentPosAsIndent();
     out << "operation: \"" << op->name() << "\",";
     out << nl << "mode: " << modeToString(op->mode()) << ",";
-    out << nl << "twowayOnly: " << (op->returnsData() ? "true" : "false") << ",";
+    out << nl << "twowayOnly: " << (twowayOnly ? "true" : "false") << ",";
     out << nl << "inParams: ostr,";
-    out << nl << "hasOutParams: " << (op->outParameters().empty() ? "false" : "true");
+    out << nl << "hasOutParams: " << (op->outParameters().empty() ? "false" : "true") << ",";
+    out << nl << "exceptions: ";
+    out << "[";
+    for(ExceptionList::const_iterator q = throws.begin(); q != throws.end(); ++q)
+    {
+        if(q != throws.begin())
+        {
+            out << ',';
+        }
+        out << (*q)->name() << ".self";
+    }
+    out << "]";
     out <<  ")";
     out.restoreIndent();
     out << nl;
@@ -963,12 +975,19 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     {
         out << sp;
         out << nl << "return ";
-        out << spar;
-        for(StringList::const_iterator q = returnVals.begin(); q != returnVals.end(); ++q)
+        if(returnVals.size() == 1)
         {
-            out << *q;
+            out << returnVals.front();
         }
-        out << epar;
+        else
+        {
+            out << spar;
+            for(StringList::const_iterator q = returnVals.begin(); q != returnVals.end(); ++q)
+            {
+                out << *q;
+            }
+            out << epar;
+        }
     }
 
     out << eb;

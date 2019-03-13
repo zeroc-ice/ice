@@ -46,7 +46,7 @@ public extension UserException {
         return Self.ice_staticId()
     }
 
-    internal func isBase(of ex: UserException) -> Bool {
+    internal static func isBase(of ex: UserException.Type) -> Bool {
         return ex is Self
     }
 
