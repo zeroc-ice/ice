@@ -878,6 +878,8 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     ParamDeclList inParams = op->inParameters();
     ParamDeclList outParams = op->outParameters();
 
+    TypePtr returnType = op->returnType();
+
     ExceptionList throws = op->throws();
     throws.sort();
     throws.unique();
@@ -885,8 +887,90 @@ Gen::ProxyVisitor::visitOperation(const OperationPtr& op)
     out << sp;
     out << nl << "func " << opName;
     out << spar;
+    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    {
+        ParamDeclPtr param = *q;
+        out << (param->name() + ": " + typeToString(param->type(), param));
+    }
     out << epar;
+
+    out << " throws";
+    if( returnType || outParams.size() > 0)
+    {
+        out << " -> ";
+        out << spar;
+        if(returnType)
+        {
+            out << typeToString(returnType, op);
+        }
+        for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+        {
+            ParamDeclPtr param = *q;
+            out << typeToString(param->type(), param, param->getMetaData(), param->optional());
+        }
+        out << epar;
+    }
+
     out << sb;
+
+    // Marshal
+    out << nl << "let ostr = impl._createOutputStream()";
+    out << nl << "ostr.startEncapsulation()";
+    for(ParamDeclList::const_iterator q = inParams.begin(); q != inParams.end(); ++q)
+    {
+        ParamDeclPtr param = *q;
+        ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+        int tag = param->optional() ? param->tag() : -1;
+        writeMarshalUnmarshalCode(out, param, topLevel, false, false, true, tag);
+    }
+    out << nl << "ostr.endEncapsulation()";
+
+    // Invoke
+    const bool returnsInputStream = !op->outParameters().empty() || returnType;
+    out << sp;
+    out << nl << "let " << (returnsInputStream ? "istr " : "_ ");
+    out << "= try impl._invoke(";
+
+    out.useCurrentPosAsIndent();
+    out << "operation: \"" << op->name() << "\",";
+    out << nl << "mode: " << modeToString(op->mode()) << ",";
+    out << nl << "twowayOnly: " << (op->returnsData() ? "true" : "false") << ",";
+    out << nl << "inParams: ostr,";
+    out << nl << "hasOutParams: " << (op->outParameters().empty() ? "false" : "true");
+    out <<  ")";
+    out.restoreIndent();
+    out << nl;
+
+    // Unmarshal
+    StringList returnVals;
+    for(ParamDeclList::const_iterator q = outParams.begin(); q != outParams.end(); ++q)
+    {
+        ParamDeclPtr param = *q;
+        ContainedPtr topLevel = getTopLevelModule(ContainedPtr::dynamicCast(param));
+        int tag = param->optional() ? param->tag() : -1;
+        writeMarshalUnmarshalCode(out, param, topLevel, false, true, false, tag);
+        returnVals.push_back((*q)->name());
+    }
+
+    if(returnType)
+    {
+        int tag = op->returnIsOptional() ? op->returnTag() : -1;
+        writeMarshalUnmarshalCode(out, returnType, typeToString(returnType, op), "ret", false, true, false, tag);
+        returnVals.push_front("ret");
+    }
+
+    if(returnsInputStream)
+    {
+        out << sp;
+        out << nl << "return ";
+        out << spar;
+        for(StringList::const_iterator q = returnVals.begin(); q != returnVals.end(); ++q)
+        {
+            out << *q;
+        }
+        out << epar;
+    }
+
     out << eb;
 }
 

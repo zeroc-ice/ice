@@ -772,6 +772,22 @@ SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
 
 void
 SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
+                                          const ParamDeclPtr& param,
+                                          const ContainedPtr& topLevel,
+                                          bool insideStream,
+                                          bool declareParam,
+                                          bool marshal,
+                                          int tag)
+{
+    TypePtr type = param->type();
+    string typeStr = typeToString(type, topLevel, param->getMetaData(), param->optional());
+    string name = param->name();
+
+    writeMarshalUnmarshalCode(out, type, typeStr, name, insideStream, declareParam, marshal, tag);
+}
+
+void
+SwiftGenerator::writeMarshalUnmarshalCode(Output &out,
                                           const TypePtr& type,
                                           const string& typeStr,
                                           const string& param,
