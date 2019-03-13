@@ -59,6 +59,7 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_getConnection() throws -> Connection?
     func ice_getCachedConnection() -> Connection?
     func ice_flushBatchRequests() throws
+    func ice_toString() -> String
 }
 
 public extension ObjectPrx {
@@ -431,6 +432,10 @@ open class _ObjectPrxI: ObjectPrx {
 
     public func ice_write(to os: OutputStream) {
         handle.iceWrite(os)
+    }
+
+    public func ice_toString() -> String {
+        return handle.ice_toString()
     }
 
     public static func ice_read(from ins: InputStream) throws -> Self? {

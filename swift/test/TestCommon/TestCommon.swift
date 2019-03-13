@@ -43,6 +43,8 @@ public protocol TestHelper {
 
     func getWriter() -> TextWriter
     func setWriter(writer: TextWriter)
+
+    func communicator() -> Ice.Communicator
 }
 
 open class TestHelperI: TestHelper {
@@ -140,5 +142,9 @@ open class TestHelperI: TestHelper {
             writer.writeLine("Test failed File: \(file): Line: \(line)")
             throw TestFailed.testFailed
         }
+    }
+
+    public func communicator() -> Communicator {
+        return _communicator
     }
 }

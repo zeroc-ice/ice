@@ -7,16 +7,15 @@ import Ice
 import TestCommon
 
 public class Client: TestHelperI {
-    public override func run(args _: [String]) throws {
+    public override func run(args: [String]) throws {
         var writer = getWriter()
         writer.write("testing primitive types... ")
-        var communicator = try Ice.initialize()
-
-        try communicator.getValueFactoryManager().add(factory: { Ice.InterfaceByValue(id: $0) }, id: "::Test::MyInterface")
-
+        let (communicator, _) = try self.initialize(args: args)
         defer {
             communicator.destroy()
         }
+        try communicator.getValueFactoryManager().add(
+            factory: { Ice.InterfaceByValue(id: $0) }, id: "::Test::MyInterface")
 
         var inS: Ice.InputStream
         var outS: Ice.OutputStream
@@ -517,6 +516,68 @@ public class Client: TestHelperI {
             } catch is Ice.UserException {
                 try test(false)
             }
+        }
+
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            let dict: ByteBoolD = [4: true, 1: false]
+            _ByteBoolDHelper.write(to: outS, value: dict)
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let dict2 = try _ByteBoolDHelper.read(from: inS)
+            try test(dict == dict2)
+        }
+
+        do {
+            outS = Ice.OutputStream(communicator: communicator)
+            let dict: ShortIntD = [1: 9, 4: 8]
+            _ShortIntDHelper.write(to: outS, value: dict)
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let dict2 = try _ShortIntDHelper.read(from: inS)
+            try test(dict == dict2)
+        }
+
+        do {
+            let dict: LongFloatD = [123809828: 0.5, 123809829: 0.6]
+            outS = Ice.OutputStream(communicator: communicator)
+            _LongFloatDHelper.write(to: outS, value: dict)
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let dict2 = try _LongFloatDHelper.read(from: inS)
+            try test(dict == dict2)
+        }
+
+        do {
+            let dict: StringStringD = ["key1": "value1", "key2": "value2"]
+            outS = Ice.OutputStream(communicator: communicator)
+            _StringStringDHelper.write(to: outS, value: dict)
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let dict2 = try _StringStringDHelper.read(from: inS)
+            try test(dict2 == dict)
+        }
+
+        do {
+            var dict = StringMyClassD()
+            var c = MyClass()
+            c.s = SmallStruct()
+            c.s.e = MyEnum.enum2
+            dict["key1"] = c
+            c = MyClass()
+            c.s = SmallStruct()
+            c.s.e = MyEnum.enum3
+            dict["key2"] = c
+            outS = Ice.OutputStream(communicator: communicator)
+            _StringMyClassDHelper.write(to: outS, value: dict)
+            outS.writePendingValues()
+            let data = outS.finished()
+            inS = Ice.InputStream(communicator: communicator, bytes: data)
+            let dict2: StringMyClassD = try _StringMyClassDHelper.read(from: inS)
+            try inS.readPendingValues()
+            try test(dict2.count == dict.count)
+            try test(dict2["key1"]!!.s.e == MyEnum.enum2)
+            try test(dict2["key2"]!!.s.e == MyEnum.enum3)
         }
         writer.writeLine("ok")
     }

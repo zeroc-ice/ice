@@ -145,11 +145,14 @@ static Class<ICEEndpointInfoFactory> _endpointInfoFactory;
 
 +(nullable NSString*) identityToString:(NSString*)name
                               category:(NSString*)category
+                                  mode:(uint8_t)mode
                                  error:(NSError* _Nullable * _Nullable)error
 {
     try
     {
-        return toNSString(Ice::identityToString(Ice::Identity{fromNSString(name), fromNSString(category)}));
+        Ice::Identity identity{fromNSString(name), fromNSString(category)};
+        auto s = Ice::identityToString(std::move(identity), static_cast<Ice::ToStringMode>(mode));
+        return toNSString(s);
     }
     catch(const std::exception& ex)
     {

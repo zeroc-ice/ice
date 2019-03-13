@@ -46,7 +46,8 @@ NS_SWIFT_NAME(registerFactories(localException:connectionInfo:endpointInfo:));
 
 +(nullable NSString*) identityToString:(NSString*)name
                               category:(NSString*)category
-                                 error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(identityToString(name:category:));
+                                  mode:(uint8_t)mode
+                                 error:(NSError* _Nullable * _Nullable)error NS_SWIFT_NAME(identityToString(name:category:mode:));
 
 +(void) currentEncoding:(UInt8*)major minor:(UInt8*)minor NS_SWIFT_NAME(currentEncoding(major:minor:));
 

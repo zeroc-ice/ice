@@ -27,7 +27,7 @@ struct Protocol: OptionSet {
     static let Encoding_1_1 = Ice.EncodingVersion(major: 1, minor: 1)
 
     static func checkSupportedEncoding(_ v: EncodingVersion) throws {
-        let c = currentEncoding()
+        let c = currentEncoding
         if v.major != c.major || v.minor > c.minor {
             throw Ice.UnsupportedEncodingException(reason: "", bad: v, supported: c)
         }

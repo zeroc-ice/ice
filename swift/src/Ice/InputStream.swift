@@ -28,7 +28,7 @@ public class InputStream {
     public var sliceValues: Bool = true
 
     public init(communicator: Communicator,
-                encoding: EncodingVersion = currentEncoding(),
+                encoding: EncodingVersion = currentEncoding,
                 bytes: [UInt8]) {
         self.communicator = communicator
         self.encoding = encoding
@@ -40,7 +40,7 @@ public class InputStream {
     }
 
     init(communicator: Communicator,
-         encoding: EncodingVersion = currentEncoding(),
+         encoding: EncodingVersion = currentEncoding,
          inputStream handle: ICEInputStream) {
         self.communicator = communicator
         self.encoding = encoding
@@ -771,7 +771,7 @@ public extension InputStream {
 private class Encaps {
     var start: Int = 0
     var sz: Int = 0
-    var encoding: EncodingVersion = Ice.currentEncoding()
+    var encoding: EncodingVersion = Ice.currentEncoding
     var encoding_1_0: Bool = false
 
     var decoder: EncapsDecoder!

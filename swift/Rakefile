@@ -24,7 +24,7 @@ tests = [
     "Ice/operations",
 #     "Ice/optional",
     "Ice/properties",
-#     "Ice/proxy",
+    "Ice/proxy",
 #     "Ice/retry",
 #     "Ice/scope",
 #     "Ice/servantLocator",

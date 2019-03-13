@@ -19,7 +19,7 @@ public class OutputStream {
     private var encapsStack: Encaps!
     private var encapsCache: Encaps?
 
-    public init(communicator: Communicator, encoding: EncodingVersion = currentEncoding()) {
+    public init(communicator: Communicator, encoding: EncodingVersion = currentEncoding) {
         self.communicator = communicator
         self.encoding = encoding
         self.encoding_1_0 = (encoding.major == 1 && encoding.minor == 0)
@@ -567,7 +567,7 @@ extension OutputStream: ICEOutputStreamHelper {
 private class Encaps {
     var start: Int = 0
     var format: FormatType = FormatType.DefaultFormat
-    var encoding: EncodingVersion = Ice.currentEncoding()
+    var encoding: EncodingVersion = Ice.currentEncoding
     var encoding_1_0: Bool = false
 
     var encoder: EncapsEncoder!

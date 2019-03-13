@@ -97,7 +97,7 @@ NS_ASSUME_NONNULL_BEGIN
                           returnValue:(bool*)returnValue
                                 error:(NSError* _Nullable * _Nullable)error;
 
--(bool) isEqual:(ICEObjectPrx*)prx;
+-(bool) isEqual:(ICEObjectPrx* _Nullable)prx ;
 @end
 
 #ifdef __cplusplus

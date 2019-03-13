@@ -60,7 +60,7 @@ public func createProperties(args: StringSeq? = nil, defaults: Properties? = nil
     }
 }
 
-public func currentEncoding() -> EncodingVersion {
+public var currentEncoding: EncodingVersion {
     var encoding = EncodingVersion()
     ICEUtil.currentEncoding(major: &encoding.major, minor: &encoding.minor)
     return encoding
@@ -73,8 +73,10 @@ public func stringToIdentity(string: String) throws -> Identity {
     return Identity(name: name as String, category: category as String)
 }
 
-public func identityToString(identity: Identity) throws -> String {
-    return try ICEUtil.identityToString(name: identity.name, category: identity.category) as String
+public func identityToString(identity: Identity, mode: ToStringMode = ToStringMode.Unicode) throws -> String {
+    return try ICEUtil.identityToString(name: identity.name,
+                                        category: identity.category,
+                                        mode: mode.rawValue) as String
 }
 
 public let Encoding_1_0 = Protocol.Encoding_1_0
