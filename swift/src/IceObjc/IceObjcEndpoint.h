@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface ICEEndpoint: ICELocalObject
 -(NSString*) toString;
 -(id) getInfo;
+-(bool) isEqual:(ICEEndpoint* _Nullable)endpoint;
 @end
 
 @interface ICEEndpointInfo: ICELocalObject

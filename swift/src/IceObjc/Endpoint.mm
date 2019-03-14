@@ -66,6 +66,11 @@
     return [ICEEndpoint createEndpointInfo:info];
 }
 
+-(bool) isEqual:(ICEEndpoint*)other
+{
+    return Ice::targetEqualTo(_endpoint, other.endpoint);
+}
+
 +(id) createEndpointInfo:(std::shared_ptr<Ice::EndpointInfo>)infoPtr
 {
     ICEEndpointInfo* handle = [[ICEEndpointInfo alloc] initWithCppEndpointInfo:infoPtr];

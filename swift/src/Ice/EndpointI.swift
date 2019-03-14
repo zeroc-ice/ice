@@ -19,6 +19,24 @@ class EndpointI: LocalObject<ICEEndpoint>, Endpoint, CustomStringConvertible {
     }
 }
 
+public func != (lhs: Endpoint?, rhs: Endpoint?) -> Bool {
+    return !(lhs == rhs)
+}
+
+public func == (lhs: Endpoint?, rhs: Endpoint?) -> Bool {
+    if lhs === rhs {
+        return true
+    } else if lhs === nil && rhs === nil {
+        return true
+    } else if lhs === nil || rhs === nil {
+        return false
+    } else {
+        let lhsI = lhs as! EndpointI
+        let rhsI = rhs as! EndpointI
+        return lhsI._handle.isEqual(rhsI._handle)
+    }
+}
+
 extension Endpoint where Self: CustomStringConvertible {
     var description: String {
         return toString()

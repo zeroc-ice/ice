@@ -162,7 +162,7 @@ public class Client: TestHelperI {
             try test(s2.d == 6.0)
             try test(s2.str == "7")
             try test(s2.e == MyEnum.enum2)
-            try test(Ice.proxyEquals(lhs: s2.p, rhs: s.p))
+            try test(s2.p == s.p)
         }
 
         do {

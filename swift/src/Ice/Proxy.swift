@@ -65,6 +65,24 @@ public protocol ObjectPrx: CustomStringConvertible, AnyObject {
     func ice_collocationOptimized(collocated: Bool) throws -> ObjectPrx?
 }
 
+public func != (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
+    return !(lhs == rhs)
+}
+
+public func == (lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
+    if lhs === rhs {
+        return true
+    } else if lhs === nil && rhs === nil {
+        return true
+    } else if lhs === nil || rhs === nil {
+        return false
+    } else {
+        let lhsI = lhs as! _ObjectPrxI
+        let rhsI = rhs as! _ObjectPrxI
+        return lhsI.handle.isEqual(rhsI.handle)
+    }
+}
+
 public extension ObjectPrx {
     var impl: _ObjectPrxI {
         // swiftlint:disable force_cast
@@ -121,18 +139,6 @@ public extension ObjectPrx {
         let id: StringSeq = try ins.read()
         try ins.endEncapsulation()
         return id
-    }
-}
-
-public func proxyEquals(lhs: ObjectPrx?, rhs: ObjectPrx?) -> Bool {
-    if lhs == nil && rhs == nil {
-        return true
-    } else if lhs == nil || rhs == nil {
-        return false
-    } else {
-        let lhsI = lhs as! _ObjectPrxI
-        let rhsI = rhs as! _ObjectPrxI
-        return lhsI.handle.isEqual(rhsI.handle)
     }
 }
 
